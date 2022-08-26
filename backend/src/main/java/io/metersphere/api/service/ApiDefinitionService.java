@@ -178,7 +178,7 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
+        final List<ApiDefinitionResult> resList = this.extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(resList, request.getProjectId());
@@ -189,9 +189,9 @@ public class ApiDefinitionService {
         return resList;
     }
 
-    private void buildProjectInfoWithoutProject(List<ApiDefinitionResult> resList) {
+    private void buildProjectInfoWithoutProject(final List<ApiDefinitionResult> resList) {
         resList.forEach(i -> {
-            Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
+            final Project project = this.projectMapper.selectByPrimaryKey(i.getProjectId());
             if (project == null) {
                 i.setProjectName("");
                 i.setVersionEnable(false);
@@ -202,18 +202,18 @@ public class ApiDefinitionService {
         });
     }
 
-    public void buildUserInfo(List<ApiDefinitionResult> apis) {
+    public void buildUserInfo(final List<ApiDefinitionResult> apis) {
         if (CollectionUtils.isEmpty(apis)) {
             return;
         }
-        Set<String> userIds = new HashSet<>();
+        final Set<String> userIds = new HashSet<>();
         apis.forEach(i -> {
             userIds.add(i.getUserId());
             userIds.add(i.getDeleteUserId());
             userIds.add(i.getCreateUser());
         });
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
-            Map<String, String> userMap = ServiceUtils.getUserNameMap(new ArrayList<>(userIds));
+            final Map<String, String> userMap = ServiceUtils.getUserNameMap(new ArrayList<>(userIds));
             apis.forEach(caseResult -> {
                 caseResult.setCreateUser(userMap.get(caseResult.getCreateUser()));
                 caseResult.setDeleteUser(userMap.get(caseResult.getDeleteUserId()));
@@ -222,8 +222,8 @@ public class ApiDefinitionService {
         }
     }
 
-    public void buildProjectInfo(List<ApiDefinitionResult> apis, String projectId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
+    public void buildProjectInfo(final List<ApiDefinitionResult> apis, final String projectId) {
+        final Project project = this.projectMapper.selectByPrimaryKey(projectId);
         apis.forEach(i -> {
             i.setProjectName(project.getName());
             i.setVersionEnable(project.getVersionEnable());
@@ -232,18 +232,18 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> weekList(ApiDefinitionRequest request) {
         //获取7天之前的日期
-        Date startDay = DateUtils.dateSum(new Date(), -6);
+        final Date startDay = DateUtils.dateSum(new Date(), -6);
         //将日期转化为 00:00:00 的时间戳
         Date startTime = null;
         try {
             startTime = DateUtils.getDayStartTime(startDay);
-        } catch (Exception e) {
+        } catch (final Exception e) {
         }
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
             request = this.initRequest(request, true, true);
-            List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
+            final List<ApiDefinitionResult> resList = this.extApiDefinitionMapper.weekList(request, startTime.getTime());
             calculateResult(resList, request.getProjectId());
             calculateResultSce(resList);
             resList.stream().forEach(item -> item.setApiType("api"));
@@ -252,63 +252,63 @@ public class ApiDefinitionService {
     }
 
     public void initDefaultModuleId() {
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andModuleIdIsNull();
-        List<ApiDefinition> updateApiList = apiDefinitionMapper.selectByExample(example);
-        Map<String, Map<String, List<ApiDefinition>>> projectIdMap = new HashMap<>();
-        for (ApiDefinition api : updateApiList) {
-            String projectId = api.getProjectId();
-            String protocol = api.getProtocol();
+        final List<ApiDefinition> updateApiList = this.apiDefinitionMapper.selectByExample(example);
+        final Map<String, Map<String, List<ApiDefinition>>> projectIdMap = new HashMap<>();
+        for (final ApiDefinition api : updateApiList) {
+            final String projectId = api.getProjectId();
+            final String protocol = api.getProtocol();
             if (projectIdMap.containsKey(projectId)) {
                 if (projectIdMap.get(projectId).containsKey(protocol)) {
                     projectIdMap.get(projectId).get(protocol).add(api);
                 } else {
-                    List<ApiDefinition> list = new ArrayList<>();
+                    final List<ApiDefinition> list = new ArrayList<>();
                     list.add(api);
                     projectIdMap.get(projectId).put(protocol, list);
                 }
             } else {
-                List<ApiDefinition> list = new ArrayList<>();
+                final List<ApiDefinition> list = new ArrayList<>();
                 list.add(api);
-                Map<String, List<ApiDefinition>> map = new HashMap<>();
+                final Map<String, List<ApiDefinition>> map = new HashMap<>();
                 map.put(protocol, list);
                 projectIdMap.put(projectId, map);
             }
         }
-        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        for (Map.Entry<String, Map<String, List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
-            String projectId = entry.getKey();
-            Map<String, List<ApiDefinition>> map = entry.getValue();
+        final ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        for (final Map.Entry<String, Map<String, List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
+            final String projectId = entry.getKey();
+            final Map<String, List<ApiDefinition>> map = entry.getValue();
 
-            for (Map.Entry<String, List<ApiDefinition>> itemEntry : map.entrySet()) {
-                String protocol = itemEntry.getKey();
-                ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocol);
+            for (final Map.Entry<String, List<ApiDefinition>> itemEntry : map.entrySet()) {
+                final String protocol = itemEntry.getKey();
+                final ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocol);
                 if (node != null) {
-                    List<ApiDefinition> testCaseList = itemEntry.getValue();
-                    for (ApiDefinition apiDefinition : testCaseList) {
-                        ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
+                    final List<ApiDefinition> testCaseList = itemEntry.getValue();
+                    for (final ApiDefinition apiDefinition : testCaseList) {
+                        final ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                         updateCase.setId(apiDefinition.getId());
                         updateCase.setModuleId(node.getId());
                         updateCase.setModulePath("/" + node.getName());
 
-                        apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
+                        this.apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                     }
                 }
             }
         }
     }
 
-    public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
+    public List<ApiDefinitionResult> listBatch(final ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
         if (CollectionUtils.isEmpty(request.getIds())) {
             return new ArrayList<>();
         }
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
+        final List<ApiDefinitionResult> resList = this.extApiDefinitionMapper.listByIds(request.getIds());
         // 排序
-        FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
+        final FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
         fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
-        BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+        final BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
         Collections.sort(resList, beanComparator);
 
         calculateResult(resList, request.getProjectId());
@@ -323,14 +323,14 @@ public class ApiDefinitionService {
      * @param checkThisWeekData
      * @return ApiDefinitionRequest
      */
-    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean defaultSorting, boolean checkThisWeekData) {
+    private ApiDefinitionRequest initRequest(final ApiDefinitionRequest request, final boolean defaultSorting, final boolean checkThisWeekData) {
         if (defaultSorting) {
             request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
-                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                final Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                final Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
                 if (weekFirstTime != null) {
                     request.setCreateTime(weekFirstTime.getTime());
                 }
@@ -345,7 +345,7 @@ public class ApiDefinitionService {
      * @param request
      * @return
      */
-    public ApiDefinitionRequest checkFilterHasCoverage(ApiDefinitionRequest request) {
+    public ApiDefinitionRequest checkFilterHasCoverage(final ApiDefinitionRequest request) {
         if (StringUtils.isNotEmpty(request.getProjectId())) {
             List<ApiDefinition> definitionList = null;
             if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), "uncoverage", "coverage")) {
@@ -357,8 +357,8 @@ public class ApiDefinitionService {
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
             }
             //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
-            Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
-            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
+            final Map<String, Map<String, String>> scenarioUrlList = this.apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
+            final List<String> apiIdInScenario = this.apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
             if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                 request.setCoverageIds(apiIdInScenario);
             }
@@ -366,26 +366,26 @@ public class ApiDefinitionService {
         return request;
     }
 
-    public ApiDefinition get(String id) {
-        return apiDefinitionMapper.selectByPrimaryKey(id);
+    public ApiDefinition get(final String id) {
+        return this.apiDefinitionMapper.selectByPrimaryKey(id);
     }
 
-    public ApiDefinitionWithBLOBs getBLOBs(String id) {
-        return apiDefinitionMapper.selectByPrimaryKey(id);
+    public ApiDefinitionWithBLOBs getBLOBs(final String id) {
+        return this.apiDefinitionMapper.selectByPrimaryKey(id);
     }
 
-    public List<ApiDefinitionWithBLOBs> getBLOBs(List<String> idList) {
+    public List<ApiDefinitionWithBLOBs> getBLOBs(final List<String> idList) {
         if (idList == null || idList.isEmpty()) {
             return new ArrayList<>(0);
         } else {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(idList);
             example.setOrderByClause("create_time DESC ");
-            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+            return this.apiDefinitionMapper.selectByExampleWithBLOBs(example);
         }
     }
 
-    public ApiDefinitionResult create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult create(final SaveApiDefinitionRequest request, final List<MultipartFile> bodyFiles) {
         checkQuota(request.getProjectId());
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
@@ -400,7 +400,7 @@ public class ApiDefinitionService {
         return createTest(request);
     }
 
-    public ApiDefinitionResult update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult update(final SaveApiDefinitionRequest request, final List<MultipartFile> bodyFiles) {
         if (request.getRequest() != null && StringUtils.isNotEmpty(request.getRequest().getId())) {
             deleteFileByTestId(request.getRequest().getId());
         }
@@ -410,27 +410,27 @@ public class ApiDefinitionService {
         }
 
         // 设置是否需要进入待更新列表
-        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+        final ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
         if (apiDefinitionSyncService != null) {
             apiDefinitionSyncService.syncApi(request);
         }
 
-        ApiDefinitionWithBLOBs returnModel = updateTest(request);
+        final ApiDefinitionWithBLOBs returnModel = updateTest(request);
 
-        MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        final MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
 
-        String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(returnModel.getName());
-        Map<String, Object> paramMap = new HashMap<>();
+        final String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(returnModel.getName());
+        final Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, returnModel.getProjectId(), SessionUtils.getUserId(), returnModel.getId(), returnModel.getName(), returnModel.getCreateUser());
         paramMap.put("userId", returnModel.getUserId());
         // 发送通知
-        ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
+        final ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
         if (apiCaseSyncService != null) {
             apiCaseSyncService.sendApiNotice(returnModel, paramMap);
         }
-        NoticeModel noticeModel = NoticeModel.builder()
+        final NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .testId(returnModel.getId())
@@ -439,118 +439,118 @@ public class ApiDefinitionService {
                 .excludeSelf(true)
                 .event(NoticeConstants.Event.UPDATE)
                 .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        this.noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
         return getById(returnModel.getId());
     }
 
 
-    public void checkQuota(String projectId) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+    public void checkQuota(final String projectId) {
+        final QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
             quotaService.checkAPIDefinitionQuota(projectId);
         }
     }
 
-    public void delete(String apiId) {
-        ApiDefinition apiDefinition = get(apiId);
+    public void delete(final String apiId) {
+        final ApiDefinition apiDefinition = get(apiId);
         if (apiDefinition == null) {
             return;
         }
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(apiDefinition.getRefId());
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
         apiDefinitions.forEach(api -> {
-            apiTestCaseService.deleteTestCase(api.getId());
+            this.apiTestCaseService.deleteTestCase(api.getId());
             deleteFileByTestId(api.getId());
-            extApiDefinitionExecResultMapper.deleteByResourceId(api.getId());
-            apiDefinitionMapper.deleteByPrimaryKey(api.getId());
-            apiExecutionInfoService.deleteByApiId(api.getId());
-            esbApiParamService.deleteByResourceId(api.getId());
-            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+            this.extApiDefinitionExecResultMapper.deleteByResourceId(api.getId());
+            this.apiDefinitionMapper.deleteByPrimaryKey(api.getId());
+            this.apiExecutionInfoService.deleteByApiId(api.getId());
+            this.esbApiParamService.deleteByResourceId(api.getId());
+            final MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.deleteMockConfigByApiId(api.getId());
-            relationshipEdgeService.delete(api.getId()); // 删除关系图
+            this.relationshipEdgeService.delete(api.getId()); // 删除关系图
             FileUtils.deleteBodyFiles(api.getId());
             deleteFollows(api.getId());
         });
         // 删除用例和接口的关联关系
-        testCaseService.deleteTestCaseTestByTestIds(List.of(apiId));
+        this.testCaseService.deleteTestCaseTestByTestIds(List.of(apiId));
         // 删除附件关系
-        fileAssociationService.deleteByResourceId(apiId);
+        this.fileAssociationService.deleteByResourceId(apiId);
     }
 
-    private void deleteFollows(String apiId) {
-        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+    private void deleteFollows(final String apiId) {
+        final ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
         example.createCriteria().andDefinitionIdEqualTo(apiId);
-        apiDefinitionFollowMapper.deleteByExample(example);
+        this.apiDefinitionFollowMapper.deleteByExample(example);
     }
 
-    public void deleteBatch(List<String> apiIds) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
+    public void deleteBatch(final List<String> apiIds) {
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
-        esbApiParamService.deleteByResourceIdIn(apiIds);
-        apiExecutionInfoService.deleteByApiIdList(apiIds);
-        apiDefinitionMapper.deleteByExample(example);
-        apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+        this.esbApiParamService.deleteByResourceIdIn(apiIds);
+        this.apiExecutionInfoService.deleteByApiIdList(apiIds);
+        this.apiDefinitionMapper.deleteByExample(example);
+        this.apiTestCaseService.deleteBatchByDefinitionId(apiIds);
         // 删除附件关系
-        fileAssociationService.deleteByResourceIds(apiIds);
-        MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-        relationshipEdgeService.delete(apiIds); // 删除关系图
-        for (String apiId : apiIds) {
+        this.fileAssociationService.deleteByResourceIds(apiIds);
+        final MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        this.relationshipEdgeService.delete(apiIds); // 删除关系图
+        for (final String apiId : apiIds) {
             mockConfigService.deleteMockConfigByApiId(apiId);
             deleteFollows(apiId);
         }
-        testCaseService.deleteTestCaseTestByTestIds(apiIds);
+        this.testCaseService.deleteTestCaseTestByTestIds(apiIds);
     }
 
-    public void removeToGc(List<String> apiIds) {
+    public void removeToGc(final List<String> apiIds) {
         if (CollectionUtils.isEmpty(apiIds)) {
             return;
         }
         apiIds.forEach(apiId -> {
             // 把所有版本的api移到回收站
-            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
+            final ApiDefinitionWithBLOBs api = this.apiDefinitionMapper.selectByPrimaryKey(apiId);
             if (api == null) {
                 return;
             }
-            ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
+            final ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
             example.createCriteria().andRefIdEqualTo(api.getRefId());
             example.setOperator(SessionUtils.getUserId());
             example.setOperationTime(System.currentTimeMillis());
-            extApiDefinitionMapper.removeToGcByExample(example);
+            this.extApiDefinitionMapper.removeToGcByExample(example);
 
-            ApiDefinitionRequest request = new ApiDefinitionRequest();
+            final ApiDefinitionRequest request = new ApiDefinitionRequest();
             request.setRefId(api.getRefId());
-            List<String> ids = extApiDefinitionMapper.selectIds(request);
+            final List<String> ids = this.extApiDefinitionMapper.selectIds(request);
 
             // 把所有版本的api case移到回收站
-            List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(ids);
+            final List<String> apiCaseIds = this.apiTestCaseService.selectCaseIdsByApiIds(ids);
             if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+                final ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
                 apiTestBatchRequest.setIds(apiCaseIds);
                 apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
-                apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
+                this.apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
             }
         });
     }
 
-    public void reduction(ApiBatchRequest request) {
+    public void reduction(final ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
         if (request.getIds() != null || !request.getIds().isEmpty()) {
             request.getIds().forEach(apiId -> {
-                ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
+                final ApiDefinitionWithBLOBs api = this.apiDefinitionMapper.selectByPrimaryKey(apiId);
                 if (api == null) {
                     return;
                 }
                 //检查原来模块是否还在
-                ApiDefinitionExample example = new ApiDefinitionExample();
+                final ApiDefinitionExample example = new ApiDefinitionExample();
                 example.createCriteria().andRefIdEqualTo(api.getRefId());
-                List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
-                Map<String, List<ApiDefinition>> nodeMap = new HashMap<>();
-                List<String> reductionIds = new ArrayList<>();
-                for (ApiDefinition apiDefinition : reductionCaseList) {
+                final List<ApiDefinition> reductionCaseList = this.apiDefinitionMapper.selectByExample(example);
+                final Map<String, List<ApiDefinition>> nodeMap = new HashMap<>();
+                final List<String> reductionIds = new ArrayList<>();
+                for (final ApiDefinition apiDefinition : reductionCaseList) {
                     //检查是否同名
-                    SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
+                    final SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
                     apiDefinitionRequest.setProjectId(apiDefinition.getProjectId());
                     apiDefinitionRequest.setMethod(apiDefinition.getMethod());
                     apiDefinitionRequest.setProtocol(apiDefinition.getProtocol());
@@ -560,7 +560,7 @@ public class ApiDefinitionService {
                     apiDefinitionRequest.setModuleId(apiDefinition.getModuleId());
                     apiDefinitionRequest.setModulePath(apiDefinition.getModulePath());
                     String moduleId = apiDefinition.getModuleId();
-                    long nodeCount = apiModuleService.countById(moduleId);
+                    final long nodeCount = this.apiModuleService.countById(moduleId);
                     if (nodeCount <= 0) {
                         checkNameExist(apiDefinitionRequest, true);
                     } else {
@@ -573,57 +573,57 @@ public class ApiDefinitionService {
                     if (nodeMap.containsKey(moduleId)) {
                         nodeMap.get(moduleId).add(apiDefinition);
                     } else {
-                        List<ApiDefinition> list = new ArrayList<>();
+                        final List<ApiDefinition> list = new ArrayList<>();
                         list.add(apiDefinition);
                         nodeMap.put(moduleId, list);
                     }
                     reductionIds.add(apiDefinition.getId());
                 }
-                ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-                for (Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
-                    String nodeId = entry.getKey();
-                    long nodeCount = apiModuleService.countById(nodeId);
+                final ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+                for (final Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
+                    final String nodeId = entry.getKey();
+                    final long nodeCount = apiModuleService.countById(nodeId);
                     if (nodeCount <= 0) {
-                        String projectId = request.getProjectId();
-                        ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
-                        for (ApiDefinition apiDefinition : entry.getValue()) {
-                            ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
+                        final String projectId = request.getProjectId();
+                        final ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
+                        for (final ApiDefinition apiDefinition : entry.getValue()) {
+                            final ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                             updateCase.setId(apiDefinition.getId());
                             updateCase.setModuleId(node.getId());
                             updateCase.setModulePath("/" + node.getName());
 
-                            apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
+                            this.apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                         }
                     }
                 }
-                extApiDefinitionMapper.checkOriginalStatusByIds(reductionIds);
-                extApiDefinitionMapper.reduction(reductionIds);
+                this.extApiDefinitionMapper.checkOriginalStatusByIds(reductionIds);
+                this.extApiDefinitionMapper.reduction(reductionIds);
 
-                List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(reductionIds);
+                final List<String> apiCaseIds = this.apiTestCaseService.selectCaseIdsByApiIds(reductionIds);
                 if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                    ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+                    final ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
                     apiTestBatchRequest.setIds(apiCaseIds);
                     apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
-                    apiTestCaseService.reduction(apiTestBatchRequest);
+                    this.apiTestCaseService.reduction(apiTestBatchRequest);
                 }
             });
 
         }
     }
 
-    private void checkNameExist(SaveApiDefinitionRequest request, Boolean moduleIdNotExist) {
+    private void checkNameExist(final SaveApiDefinitionRequest request, final Boolean moduleIdNotExist) {
         if (StringUtils.isEmpty(request.getVersionId())) {
-            request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            request.setVersionId(this.extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
-        ApiDefinitionExample.Criteria criteria = example.createCriteria();
+        final ApiDefinitionExample.Criteria criteria = example.createCriteria();
         if (StringUtils.isNotEmpty(request.getProtocol()) && request.getProtocol().equals(RequestType.HTTP)) {
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
-            boolean urlRepeat = config.getUrlRepeatable();
+            final Project project = this.projectMapper.selectByPrimaryKey(request.getProjectId());
+            final ProjectConfig config = this.projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+            final boolean urlRepeat = config.getUrlRepeatable();
             if (urlRepeat) {
                 if (moduleIdNotExist) {
                     criteria.andModulePathEqualTo(request.getModulePath());
@@ -631,19 +631,19 @@ public class ApiDefinitionService {
                     criteria.andModuleIdEqualTo(request.getModuleId());
                 }
                 criteria.andNameEqualTo(request.getName());
-                if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
+                if (this.apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                     MSException.throwException(Translator.get("api_versions_create"));
                 }
                 criteria.andVersionIdEqualTo(request.getVersionId());
-                if (apiDefinitionMapper.countByExample(example) > 0) {
+                if (this.apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName() + "-" + request.getPath());
                 }
             } else {
-                if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
+                if (this.apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                     MSException.throwException(Translator.get("api_versions_create"));
                 }
                 criteria.andVersionIdEqualTo(request.getVersionId());
-                if (apiDefinitionMapper.countByExample(example) > 0) {
+                if (this.apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_url_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
                 }
             }
@@ -656,20 +656,20 @@ public class ApiDefinitionService {
             } else {
                 criteria.andModuleIdEqualTo(request.getModuleId());
             }
-            if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
+            if (this.apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                 MSException.throwException(Translator.get("api_versions_create"));
             }
             criteria.andVersionIdEqualTo(request.getVersionId());
-            if (apiDefinitionMapper.countByExample(example) > 0) {
+            if (this.apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_name_already_exists") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
             }
         }
         if (StringUtils.isNotBlank(request.getId())) {
-            ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+            final ApiDefinitionWithBLOBs result = this.apiDefinitionMapper.selectByPrimaryKey(request.getId());
             if (result != null) {
                 example = new ApiDefinitionExample();
                 example.createCriteria().andRefIdEqualTo(result.getRefId()).andStatusNotEqualTo("Trash");
-                List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+                final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
                 if (apiDefinitions != null && apiDefinitions.size() > 1) {
                     if (request.getProtocol().equals(RequestType.HTTP) && (!StringUtils.equals(result.getMethod(), request.getMethod()) || !StringUtils.equals(result.getPath(), request.getPath()))) {
                         MSException.throwException(Translator.get("api_versions_update_http"));
@@ -688,9 +688,9 @@ public class ApiDefinitionService {
         checkNameExist(request, false);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
-            request = esbApiParamService.handleEsbRequest(request);
+            request = this.esbApiParamService.handleEsbRequest(request);
         } else if (StringUtils.equals(request.getMethod(), "TCP")) {
-            request = tcpApiParamService.handleTcpRequest(request);
+            request = this.tcpApiParamService.handleTcpRequest(request);
         }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
@@ -724,11 +724,11 @@ public class ApiDefinitionService {
         this.setModule(test);
 
         // 更新数据
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdEqualTo(test.getId()).andVersionIdEqualTo(request.getVersionId());
-        if (apiDefinitionMapper.updateByExampleSelective(test, example) == 0) {
+        if (this.apiDefinitionMapper.updateByExampleSelective(test, example) == 0) {
             // 插入新版本的数据
-            ApiDefinitionWithBLOBs oldApi = apiDefinitionMapper.selectByPrimaryKey(test.getId());
+            final ApiDefinitionWithBLOBs oldApi = this.apiDefinitionMapper.selectByPrimaryKey(test.getId());
             test.setId(UUID.randomUUID().toString());
             test.setNum(oldApi.getNum());
             test.setVersionId(request.getVersionId());
@@ -740,92 +740,92 @@ public class ApiDefinitionService {
             // 保存扩展信息
             saveExtendInfo(request, test, oldApi);
 
-            apiDefinitionMapper.insertSelective(test);
+            this.apiDefinitionMapper.insertSelective(test);
         }
         // 同步修改用例路径
         if (StringUtils.equals(test.getProtocol(), "HTTP")) {
-            List<String> ids = new ArrayList<>();
+            final List<String> ids = new ArrayList<>();
             ids.add(request.getId());
-            apiTestCaseService.updateByApiDefinitionId(ids, test, request.getTriggerUpdate());
+            this.apiTestCaseService.updateByApiDefinitionId(ids, test, request.getTriggerUpdate());
         }
-        ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
+        final ApiDefinitionWithBLOBs result = this.apiDefinitionMapper.selectByPrimaryKey(test.getId());
         checkAndSetLatestVersion(result.getRefId());
 
         // 存储附件关系
-        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
+        this.fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
         return result;
     }
 
-    private void saveExtendInfo(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs test, ApiDefinitionWithBLOBs oldApi) {
+    private void saveExtendInfo(final SaveApiDefinitionRequest request, final ApiDefinitionWithBLOBs test, final ApiDefinitionWithBLOBs oldApi) {
         // 创建新版是否关联备注
         if (!request.isNewVersionRemark()) {
             test.setRemark(null);
         }
         if (request.isNewVersionCase()) {
             test.setCaseTotal(oldApi.getCaseTotal());
-            extApiTestCaseMapper.insertNewVersionCases(test, oldApi);
+            this.extApiTestCaseMapper.insertNewVersionCases(test, oldApi);
         }
         if (request.isNewVersionMock()) {
-            MockConfigExample mockConfigExample = new MockConfigExample();
+            final MockConfigExample mockConfigExample = new MockConfigExample();
             mockConfigExample.createCriteria().andApiIdEqualTo(oldApi.getId());
-            List<MockConfig> mockConfigs = mockConfigMapper.selectByExample(mockConfigExample);
+            final List<MockConfig> mockConfigs = this.mockConfigMapper.selectByExample(mockConfigExample);
             mockConfigs.forEach(config -> {
-                String newMockConfigId = UUID.randomUUID().toString();
+                final String newMockConfigId = UUID.randomUUID().toString();
                 // 1
-                MockExpectConfigExample expectConfigExample = new MockExpectConfigExample();
+                final MockExpectConfigExample expectConfigExample = new MockExpectConfigExample();
                 expectConfigExample.createCriteria().andMockConfigIdEqualTo(config.getId());
-                List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBs = mockExpectConfigMapper.selectByExampleWithBLOBs(expectConfigExample);
+                final List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBs = this.mockExpectConfigMapper.selectByExampleWithBLOBs(expectConfigExample);
                 mockExpectConfigWithBLOBs.forEach(expectConfig -> {
                     expectConfig.setId(UUID.randomUUID().toString());
                     expectConfig.setMockConfigId(newMockConfigId);
-                    mockExpectConfigMapper.insert(expectConfig);
+                    this.mockExpectConfigMapper.insert(expectConfig);
                 });
 
                 // 2
                 config.setId(newMockConfigId);
                 config.setApiId(test.getId());
-                mockConfigMapper.insert(config);
+                this.mockConfigMapper.insert(config);
             });
         }
 
         // 创建新版是否关联依赖关系
         if (request.isNewVersionDeps()) {
-            List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
-            List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
-            RelationshipEdgeRequest req = new RelationshipEdgeRequest();
+            final List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
+            final List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
+            final RelationshipEdgeRequest req = new RelationshipEdgeRequest();
             req.setTargetIds(targetIds);
             req.setType("API");
             req.setId(test.getId());
-            relationshipEdgeService.saveBatch(req);
+            this.relationshipEdgeService.saveBatch(req);
 
-            List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
-            List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
-            RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
+            final List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
+            final List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
+            final RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
             req2.setSourceIds(sourceIds);
             req2.setType("API");
             req2.setId(test.getId());
-            relationshipEdgeService.saveBatch(req2);
+            this.relationshipEdgeService.saveBatch(req2);
         }
     }
 
     /**
      * 检查设置最新版本
      */
-    private void checkAndSetLatestVersion(String refId) {
-        extApiDefinitionMapper.clearLatestVersion(refId);
-        extApiDefinitionMapper.addLatestVersion(refId);
+    private void checkAndSetLatestVersion(final String refId) {
+        this.extApiDefinitionMapper.clearLatestVersion(refId);
+        this.extApiDefinitionMapper.addLatestVersion(refId);
     }
 
-    public void saveFollows(String definitionId, List<String> follows) {
-        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+    public void saveFollows(final String definitionId, final List<String> follows) {
+        final ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
         example.createCriteria().andDefinitionIdEqualTo(definitionId);
-        apiDefinitionFollowMapper.deleteByExample(example);
+        this.apiDefinitionFollowMapper.deleteByExample(example);
         if (!org.springframework.util.CollectionUtils.isEmpty(follows)) {
-            for (String follow : follows) {
-                ApiDefinitionFollow item = new ApiDefinitionFollow();
+            for (final String follow : follows) {
+                final ApiDefinitionFollow item = new ApiDefinitionFollow();
                 item.setDefinitionId(definitionId);
                 item.setFollowId(follow);
-                apiDefinitionFollowMapper.insert(item);
+                this.apiDefinitionFollowMapper.insert(item);
             }
         }
     }
@@ -834,7 +834,7 @@ public class ApiDefinitionService {
         checkNameExist(request, false);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
-            request = esbApiParamService.handleEsbRequest(request);
+            request = this.esbApiParamService.handleEsbRequest(request);
         }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
@@ -852,7 +852,7 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
         test.setRemark(request.getRemark());
-        test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
+        test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), this.extApiDefinitionMapper::getLastOrder));
         test.setRefId(request.getId());
         test.setVersionId(request.getVersionId());
         test.setLatest(true); // 新建一定是最新的
@@ -873,18 +873,18 @@ public class ApiDefinitionService {
         } else {
             test.setTags("");
         }
-        if (apiDefinitionMapper.selectByPrimaryKey(test.getId()) == null) {
-            apiDefinitionMapper.insert(test);
+        if (this.apiDefinitionMapper.selectByPrimaryKey(test.getId()) == null) {
+            this.apiDefinitionMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
         // 存储附件关系
-        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
+        this.fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
 
         return getById(test.getId());
     }
 
-    public int getNextNum(String projectId) {
-        ApiDefinition apiDefinition = extApiDefinitionMapper.getNextNum(projectId);
+    public int getNextNum(final String projectId) {
+        final ApiDefinition apiDefinition = this.extApiDefinitionMapper.getNextNum(projectId);
         if (apiDefinition == null || apiDefinition.getNum() == null) {
             return 100001;
         } else {
@@ -892,10 +892,10 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiImportSendNoticeDTO importCreate(ApiDefinitionMapper batchMapper, ExtApiDefinitionMapper extApiDefinitionMapper, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
-        ApiImportSendNoticeDTO apiImportSendNoticeDTO = new ApiImportSendNoticeDTO();
-        SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
-        ApiDefinitionWithBLOBs apiDefinition = apiDefinitionImportParamDTO.getApiDefinition();
+    private ApiImportSendNoticeDTO importCreate(final ApiDefinitionMapper batchMapper, final ExtApiDefinitionMapper extApiDefinitionMapper, final ApiTestCaseMapper apiTestCaseMapper, final ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
+        final ApiImportSendNoticeDTO apiImportSendNoticeDTO = new ApiImportSendNoticeDTO();
+        final SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
+        final ApiDefinitionWithBLOBs apiDefinition = apiDefinitionImportParamDTO.getApiDefinition();
         BeanUtils.copyBean(saveReq, apiDefinition);
 
         if (StringUtils.isEmpty(apiDefinition.getStatus())) {
@@ -906,16 +906,16 @@ public class ApiDefinitionService {
         }
 
         apiDefinition.setDescription(apiDefinition.getDescription());
-        List<ApiDefinitionWithBLOBs> collect = apiDefinitionImportParamDTO.getUpdateList().stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
+        final List<ApiDefinitionWithBLOBs> collect = apiDefinitionImportParamDTO.getUpdateList().stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
         apiDefinitionImportParamDTO.setUpdateList(collect);
-        ApiTestImportRequest apiTestImportRequest = apiDefinitionImportParamDTO.getApiTestImportRequest();
-        List<MockConfigImportDTO> mocks = apiDefinitionImportParamDTO.getMocks();
+        final ApiTestImportRequest apiTestImportRequest = apiDefinitionImportParamDTO.getApiTestImportRequest();
+        final List<MockConfigImportDTO> mocks = apiDefinitionImportParamDTO.getMocks();
         List<ApiTestCaseWithBLOBs> caseList = apiDefinitionImportParamDTO.getCaseList();
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             return _importCreate(batchMapper, extApiDefinitionMapper, apiTestCaseMapper, apiDefinitionImportParamDTO);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(collect)) {
-                String originId = apiDefinition.getId();
+                final String originId = apiDefinition.getId();
                 apiDefinition.setId(UUID.randomUUID().toString());
                 apiDefinition.setCreateTime(System.currentTimeMillis());
                 apiDefinition.setUpdateTime(System.currentTimeMillis());
@@ -932,15 +932,22 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                String requestStr = setImportHashTree(apiDefinition);
+                final Map<String, String> stringObjectMap = setImportHashTree(apiDefinition);
+                final String requestStr = stringObjectMap.get("request");
+                final String createCase = stringObjectMap.get("createCase");
+                if (StringUtils.equalsIgnoreCase(createCase, "true") && CollectionUtils.isEmpty(caseList)) {
+                    final ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = addNewCase(apiDefinition);
+                    caseList = new ArrayList<>();
+                    caseList.add(apiTestCaseWithBLOBs);
+                }
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
                 batchMapper.insert(apiDefinition);
-                List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
+                final List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
                 apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
                 extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
                 extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
+                final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
                 apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
                 return apiImportSendNoticeDTO;
             } else {
@@ -953,21 +960,21 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinitionResult getApiDefinitionResult(ApiDefinitionWithBLOBs apiDefinition, boolean isUpdate) {
-        ApiDefinitionResult apiDefinitionResult = new ApiDefinitionResult();
+    private ApiDefinitionResult getApiDefinitionResult(final ApiDefinitionWithBLOBs apiDefinition, final boolean isUpdate) {
+        final ApiDefinitionResult apiDefinitionResult = new ApiDefinitionResult();
         BeanUtils.copyBean(apiDefinitionResult, apiDefinition);
         apiDefinitionResult.setUpdated(isUpdate);
         return apiDefinitionResult;
     }
 
-    private List<ApiTestCaseDTO> importCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
+    private List<ApiTestCaseDTO> importCase(final ApiDefinitionWithBLOBs apiDefinition, final ApiTestCaseMapper apiTestCaseMapper, final List<ApiTestCaseWithBLOBs> caseList) {
         if (CollectionUtils.isEmpty(caseList)) {
             return new ArrayList<>();
         }
-        List<ApiTestCaseDTO> apiTestCaseDTOS = new ArrayList<>();
+        final List<ApiTestCaseDTO> apiTestCaseDTOS = new ArrayList<>();
         for (int i = 0; i < caseList.size(); i++) {
-            ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
-            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
+            final ApiTestCaseDTO apiTestCaseDTO = new ApiTestCaseDTO();
+            final ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             apiTestCaseWithBLOBs.setToBeUpdated(apiDefinition.getToBeUpdated() != null && apiDefinition.getToBeUpdated() && StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "old_case"));
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
@@ -986,7 +993,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
             }
             if (apiTestCaseWithBLOBs.getNum() == null) {
-                apiTestCaseWithBLOBs.setNum(apiTestCaseService.getNextNum(apiDefinition.getId(), apiDefinition.getNum() + i, apiDefinition.getProjectId()));
+                apiTestCaseWithBLOBs.setNum(this.apiTestCaseService.getNextNum(apiDefinition.getId(), apiDefinition.getNum() + i, apiDefinition.getProjectId()));
             }
 
             if (apiDefinition.getToBeUpdateTime() != null) {
@@ -1014,36 +1021,36 @@ public class ApiDefinitionService {
         return apiTestCaseDTOS;
     }
 
-    public Long getImportNextOrder(String projectId) {
-        Long order = currentApiOrder.get();
+    public Long getImportNextOrder(final String projectId) {
+        Long order = this.currentApiOrder.get();
         if (order == null) {
-            order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
+            order = ServiceUtils.getNextOrder(projectId, this.extApiDefinitionMapper::getLastOrder);
         }
         order = (order == null ? 0 : order) + ServiceUtils.ORDER_STEP;
-        currentApiOrder.set(order);
+        this.currentApiOrder.set(order);
         return order;
     }
 
-    public Long getImportNextCaseOrder(String projectId) {
-        Long order = currentApiCaseOrder.get();
+    public Long getImportNextCaseOrder(final String projectId) {
+        Long order = this.currentApiCaseOrder.get();
         if (order == null) {
-            order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
+            order = ServiceUtils.getNextOrder(projectId, this.extApiTestCaseMapper::getLastOrder);
         }
         order = order + ServiceUtils.ORDER_STEP;
-        currentApiCaseOrder.set(order);
+        this.currentApiCaseOrder.set(order);
         return order;
     }
 
-    private ApiImportSendNoticeDTO _importCreate(ApiDefinitionMapper batchMapper,
-                                                 ExtApiDefinitionMapper extApiDefinitionMapper,
-                                                 ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
-        ApiDefinitionWithBLOBs apiDefinition = apiDefinitionImportParamDTO.getApiDefinition();
-        ApiTestImportRequest apiTestImportRequest = apiDefinitionImportParamDTO.getApiTestImportRequest();
-        List<ApiDefinitionWithBLOBs> sameRequest = apiDefinitionImportParamDTO.getUpdateList();
-        List<MockConfigImportDTO> mocks = apiDefinitionImportParamDTO.getMocks();
+    private ApiImportSendNoticeDTO _importCreate(final ApiDefinitionMapper batchMapper,
+                                                 final ExtApiDefinitionMapper extApiDefinitionMapper,
+                                                 final ApiTestCaseMapper apiTestCaseMapper, final ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
+        final ApiDefinitionWithBLOBs apiDefinition = apiDefinitionImportParamDTO.getApiDefinition();
+        final ApiTestImportRequest apiTestImportRequest = apiDefinitionImportParamDTO.getApiTestImportRequest();
+        final List<ApiDefinitionWithBLOBs> sameRequest = apiDefinitionImportParamDTO.getUpdateList();
+        final List<MockConfigImportDTO> mocks = apiDefinitionImportParamDTO.getMocks();
         List<ApiTestCaseWithBLOBs> caseList = apiDefinitionImportParamDTO.getCaseList();
-        String originId = apiDefinition.getId();
-        ApiImportSendNoticeDTO apiImportSendNoticeDTO = new ApiImportSendNoticeDTO();
+        final String originId = apiDefinition.getId();
+        final ApiImportSendNoticeDTO apiImportSendNoticeDTO = new ApiImportSendNoticeDTO();
         if (CollectionUtils.isEmpty(sameRequest)) { // 没有这个接口 新增
             apiDefinition.setId(UUID.randomUUID().toString());
 
@@ -1069,26 +1076,34 @@ public class ApiDefinitionService {
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                String request = setImportHashTree(apiDefinition);
-                apiDefinition.setRequest(request);
+                final Map<String, String> stringStringMap = setImportHashTree(apiDefinition);
+                final String requestStr = stringStringMap.get("request");
+                final String createCase = stringStringMap.get("createCase");
+                if (StringUtils.equalsIgnoreCase(createCase, "true") && CollectionUtils.isEmpty(caseList)) {
+                    final ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = addNewCase(apiDefinition);
+                    caseList = new ArrayList<>();
+                    caseList.add(apiTestCaseWithBLOBs);
+                }
+                apiDefinition.setRequest(requestStr);
                 batchMapper.insert(apiDefinition);
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
+
+                final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
                 apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
                 }
                 batchMapper.insert(apiDefinition);
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
+                final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
                 apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
             }
-            List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
+            final List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
             apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
         } else { //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
             }
-            Optional<ApiDefinitionWithBLOBs> apiOp = sameRequest.stream()
+            final Optional<ApiDefinitionWithBLOBs> apiOp = sameRequest.stream()
                     .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
                     .findFirst();
 
@@ -1112,12 +1127,12 @@ public class ApiDefinitionService {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
                 batchMapper.insert(apiDefinition);
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
+                final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
                 apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
-                List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
+                final List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
                 apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
             } else {
-                ApiDefinitionWithBLOBs existApi = apiOp.get();
+                final ApiDefinitionWithBLOBs existApi = apiOp.get();
                 apiDefinition.setStatus(existApi.getStatus());
                 apiDefinition.setOriginalState(existApi.getOriginalState());
                 apiDefinition.setCaseStatus(existApi.getCaseStatus());
@@ -1133,7 +1148,7 @@ public class ApiDefinitionService {
                 }
                 //Check whether the content has changed, if not, do not change the creation time
                 if (apiDefinition.getProtocol().equals("HTTP")) {
-                    Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
+                    final Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
                     if (toChangeTime) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
@@ -1142,7 +1157,7 @@ public class ApiDefinitionService {
                     if (CollectionUtils.isEmpty(caseList)) {
                         apiDefinition.setToBeUpdated(false);
                     } else {
-                        List<ApiTestCaseWithBLOBs> oldCaseList = caseList.stream().filter(t -> StringUtils.equalsIgnoreCase("old_case", t.getVersionId())
+                        final List<ApiTestCaseWithBLOBs> oldCaseList = caseList.stream().filter(t -> StringUtils.equalsIgnoreCase("old_case", t.getVersionId())
                                 && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
                         if (CollectionUtils.isEmpty(oldCaseList)) {
                             apiDefinition.setToBeUpdated(false);
@@ -1158,12 +1173,13 @@ public class ApiDefinitionService {
                 if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                     //如果存在则修改
                     apiDefinition.setId(existApi.getId());
-                    String request = setImportHashTree(apiDefinition);
+                    final Map<String, String> stringStringMap = setImportHashTree(apiDefinition);
+                    final String requestStr = stringStringMap.get("request");
                     apiDefinition.setOrder(existApi.getOrder());
-                    apiDefinition.setRequest(request);
+                    apiDefinition.setRequest(requestStr);
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-                    ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
+                    final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
                     apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
                 } else {
                     apiDefinition.setId(existApi.getId());
@@ -1173,10 +1189,10 @@ public class ApiDefinitionService {
                     apiDefinition.setOrder(existApi.getOrder());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-                    ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
+                    final ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
                     apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
                 }
-                List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
+                final List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
                 apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
             }
         }
@@ -1185,12 +1201,21 @@ public class ApiDefinitionService {
         return apiImportSendNoticeDTO;
     }
 
-    public void sendImportApiUpdateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
-        String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
-        Map<String, Object> paramMap = new HashMap<>();
+    private ApiTestCaseWithBLOBs addNewCase(final ApiDefinitionWithBLOBs apiDefinition) {
+        final ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+        apiTestCase.setApiDefinitionId(apiDefinition.getId());
+        apiTestCase.setProjectId(apiDefinition.getProjectId());
+        apiTestCase.setName(apiDefinition.getName());
+        apiTestCase.setRequest(apiDefinition.getRequest());
+        return apiTestCase;
+    }
+
+    public void sendImportApiUpdateNotice(final ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        final String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        final Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
         paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
-        NoticeModel noticeModel = NoticeModel.builder()
+        final NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .testId(apiDefinitionWithBLOBs.getId())
@@ -1199,15 +1224,15 @@ public class ApiDefinitionService {
                 .excludeSelf(true)
                 .event(NoticeConstants.Event.UPDATE)
                 .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        this.noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
     }
 
-    public void sendImportApiCreateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
-        String context = SessionUtils.getUserId().concat(Translator.get("create_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
-        Map<String, Object> paramMap = new HashMap<>();
+    public void sendImportApiCreateNotice(final ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        final String context = SessionUtils.getUserId().concat(Translator.get("create_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        final Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
         paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
-        NoticeModel noticeModel = NoticeModel.builder()
+        final NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .testId(apiDefinitionWithBLOBs.getId())
@@ -1216,14 +1241,14 @@ public class ApiDefinitionService {
                 .excludeSelf(true)
                 .event(NoticeConstants.Event.CREATE)
                 .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        this.noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
     }
 
-    public void sendImportCaseUpdateNotice(ApiTestCase apiTestCase) {
-        String context = SessionUtils.getUserId().concat(Translator.get("update_api_case")).concat(":").concat(apiTestCase.getName());
-        Map<String, Object> paramMap = new HashMap<>();
+    public void sendImportCaseUpdateNotice(final ApiTestCase apiTestCase) {
+        final String context = SessionUtils.getUserId().concat(Translator.get("update_api_case")).concat(":").concat(apiTestCase.getName());
+        final Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
-        NoticeModel noticeModel = NoticeModel.builder()
+        final NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .testId(apiTestCase.getId())
@@ -1232,14 +1257,14 @@ public class ApiDefinitionService {
                 .excludeSelf(true)
                 .event(NoticeConstants.Event.CASE_UPDATE)
                 .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        this.noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
     }
 
-    public void sendImportCaseCreateNotice(ApiTestCase apiTestCase) {
-        String context = SessionUtils.getUserId().concat(Translator.get("create_api_case")).concat(":").concat(apiTestCase.getName());
-        Map<String, Object> paramMap = new HashMap<>();
+    public void sendImportCaseCreateNotice(final ApiTestCase apiTestCase) {
+        final String context = SessionUtils.getUserId().concat(Translator.get("create_api_case")).concat(":").concat(apiTestCase.getName());
+        final Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
-        NoticeModel noticeModel = NoticeModel.builder()
+        final NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .testId(apiTestCase.getId())
@@ -1248,10 +1273,10 @@ public class ApiDefinitionService {
                 .excludeSelf(true)
                 .event(NoticeConstants.Event.CASE_CREATE)
                 .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        this.noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
     }
 
-    private void getParamMap(Map<String, Object> paramMap, String projectId, String userId, String id, String name, String createUser) {
+    private void getParamMap(final Map<String, Object> paramMap, final String projectId, final String userId, final String id, final String name, final String createUser) {
         paramMap.put("projectId", projectId);
         paramMap.put("operator", userId);
         paramMap.put("id", id);
@@ -1259,25 +1284,25 @@ public class ApiDefinitionService {
         paramMap.put("createUser", createUser);
     }
 
-    public Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
+    public Boolean checkIsSynchronize(final ApiDefinitionWithBLOBs existApi, final ApiDefinitionWithBLOBs apiDefinition) {
 
-        ApiDefinition exApi;
-        ApiDefinition api;
+        final ApiDefinition exApi;
+        final ApiDefinition api;
         exApi = existApi;
         api = apiDefinition;
-        ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         String exApiString = null;
         String apiString = null;
         try {
             exApiString = objectMapper.writeValueAsString(exApi);
             apiString = objectMapper.writeValueAsString(api);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             e.printStackTrace();
         }
         ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
         Boolean toUpdate = false;
-        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+        final ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
         if (apiDefinitionSyncService != null) {
             toUpdate = apiDefinitionSyncService.getProjectApplications(existApi.getProjectId());
             apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(existApi.getProjectId());
@@ -1314,7 +1339,7 @@ public class ApiDefinitionService {
         try {
             exApiRequest = objectMapper.readTree(existApi.getRequest());
             apiRequest = objectMapper.readTree(apiDefinition.getRequest());
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             e.printStackTrace();
         }
 
@@ -1394,7 +1419,7 @@ public class ApiDefinitionService {
         try {
             exApiResponse = objectMapper.readTree(existApi.getResponse());
             apiResponse = objectMapper.readTree(apiDefinition.getResponse());
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             e.printStackTrace();
         }
 
@@ -1438,10 +1463,10 @@ public class ApiDefinitionService {
         return false;
     }
 
-    private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId, int apiNum) {
+    private void reSetImportMocksApiId(final List<MockConfigImportDTO> mocks, final String originId, final String newId, final int apiNum) {
         if (CollectionUtils.isNotEmpty(mocks)) {
             int index = 1;
-            for (MockConfigImportDTO item : mocks) {
+            for (final MockConfigImportDTO item : mocks) {
                 if (StringUtils.equals(item.getApiId(), originId)) {
                     item.setApiId(newId);
                 }
@@ -1451,33 +1476,52 @@ public class ApiDefinitionService {
         }
     }
 
-    private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
-        String request = apiDefinition.getRequest();
-        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
+    private Map<String, String> setImportHashTree(final ApiDefinitionWithBLOBs apiDefinition) {
+        final Map<String, String> map = new HashMap<>();
+        final String request = apiDefinition.getRequest();
+        final MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
+        boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments())) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
+        if (msHTTPSamplerProxy.getBody() != null) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getRest())) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
         msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
-        return request;
+        map.put("request", request);
+        map.put("createCase", String.valueOf(createCase));
+        return map;
     }
 
-    private String setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
-        String request = apiDefinition.getRequest();
-        MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
+    private String setImportTCPHashTree(final ApiDefinitionWithBLOBs apiDefinition) {
+        final String request = apiDefinition.getRequest();
+        final MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
         tcpSampler.setId(apiDefinition.getId());
         tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
         return request;
     }
 
-    private void deleteFileByTestId(String apiId) {
-        ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
+    private void deleteFileByTestId(final String apiId) {
+        final ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
         apiTestFileExample.createCriteria().andTestIdEqualTo(apiId);
-        final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(apiTestFileExample);
-        apiTestFileMapper.deleteByExample(apiTestFileExample);
+        final List<ApiTestFile> ApiTestFiles = this.apiTestFileMapper.selectByExample(apiTestFileExample);
+        this.apiTestFileMapper.deleteByExample(apiTestFileExample);
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
             final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
-            fileService.deleteFileByIds(fileIds);
+            this.fileService.deleteFileByIds(fileIds);
         }
     }
 
@@ -1488,44 +1532,44 @@ public class ApiDefinitionService {
      * @param bodyFiles
      * @return
      */
-    public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public MsExecResponseDTO run(final RunDefinitionRequest request, final List<MultipartFile> bodyFiles) {
         if (!request.isDebug()) {
-            String testId = request.getTestElement() != null &&
+            final String testId = request.getTestElement() != null &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                     request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
-            String reportName = this.getReportNameByTestId(testId);
-            ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
+            final String reportName = this.getReportNameByTestId(testId);
+            final ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
             result.setName(reportName);
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             if (StringUtils.isNotEmpty(request.getEnvironmentId())) {
-                RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+                final RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
                 runModeConfigDTO.setEnvMap(new HashMap<>() {{
                     this.put(request.getProjectId(), request.getEnvironmentId());
                 }});
                 result.setEnvConfig(JSONObject.toJSONString(runModeConfigDTO));
             }
-            apiDefinitionExecResultMapper.insert(result);
+            this.apiDefinitionExecResultMapper.insert(result);
         }
         if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {
-            ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
+            final ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
             record.setRequest(JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0)));
             record.setId(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
-            apiTestCaseMapper.updateByPrimaryKeySelective(record);
+            this.apiTestCaseMapper.updateByPrimaryKeySelective(record);
         }
-        return apiExecuteService.debug(request, bodyFiles);
+        return this.apiExecuteService.debug(request, bodyFiles);
     }
 
-    private String getReportNameByTestId(String testId) {
-        String testName = extApiDefinitionMapper.selectNameById(testId);
+    private String getReportNameByTestId(final String testId) {
+        String testName = this.extApiDefinitionMapper.selectNameById(testId);
         if (StringUtils.isEmpty(testName)) {
-            testName = extApiTestCaseMapper.selectNameById(testId);
+            testName = this.extApiTestCaseMapper.selectNameById(testId);
             if (StringUtils.isEmpty(testName)) {
-                String resourceID = extTestPlanApiCaseMapper.getApiTestCaseIdById(testId);
+                final String resourceID = this.extTestPlanApiCaseMapper.getApiTestCaseIdById(testId);
                 if (StringUtils.isNotEmpty(resourceID)) {
-                    testName = extApiTestCaseMapper.selectNameById(resourceID);
+                    testName = this.extApiTestCaseMapper.selectNameById(resourceID);
                 }
             }
         }
@@ -1538,53 +1582,53 @@ public class ApiDefinitionService {
      * @param testId
      * @return
      */
-    public APIReportResult getDbResult(String testId) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
+    public APIReportResult getDbResult(final String testId) {
+        final ApiDefinitionExecResultWithBLOBs result = this.extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
         return buildAPIReportResult(result);
     }
 
-    public APIReportResult getByResultId(String reportId) {
-        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+    public APIReportResult getByResultId(final String reportId) {
+        final ApiDefinitionExecResultWithBLOBs result = this.apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
         return buildAPIReportResult(result);
     }
 
-    public APIReportResult getReportById(String testId) {
-        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
+    public APIReportResult getReportById(final String testId) {
+        final ApiDefinitionExecResultWithBLOBs result = this.apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
     }
 
-    public APIReportResult buildAPIReportResult(ApiDefinitionExecResultWithBLOBs result) {
+    public APIReportResult buildAPIReportResult(final ApiDefinitionExecResultWithBLOBs result) {
         if (result == null) {
             return null;
         }
-        APIReportResult reportResult = new APIReportResult();
+        final APIReportResult reportResult = new APIReportResult();
         reportResult.setStatus(result.getStatus());
         String contentStr = result.getContent();
         try {
-            JSONObject content = JSONObject.parseObject(result.getContent());
+            final JSONObject content = JSONObject.parseObject(result.getContent());
             if (StringUtils.isNotEmpty(result.getEnvConfig())) {
                 content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
             }
             contentStr = content.toString();
             reportResult.setContent(contentStr);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LogUtil.error("解析content失败!", e);
         }
         return reportResult;
     }
 
-    public Map<String, List<String>> getProjectEnvNameByEnvConfig(String projectId, String envConfig) {
-        Map<String, List<String>> returnMap = new HashMap<>();
+    public Map<String, List<String>> getProjectEnvNameByEnvConfig(final String projectId, final String envConfig) {
+        final Map<String, List<String>> returnMap = new HashMap<>();
         RunModeConfigDTO runModeConfigDTO = null;
         try {
             runModeConfigDTO = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
         }
         if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
-            String envId = runModeConfigDTO.getEnvMap().get(projectId);
-            String envName = apiTestEnvironmentService.selectNameById(envId);
-            String projectName = projectService.selectNameById(projectId);
+            final String envId = runModeConfigDTO.getEnvMap().get(projectId);
+            final String envName = this.apiTestEnvironmentService.selectNameById(envId);
+            final String projectName = this.projectService.selectNameById(projectId);
             if (StringUtils.isNoneEmpty(envName, projectName)) {
                 returnMap.put(projectName, new ArrayList<>() {{
                     this.add(envName);
@@ -1594,31 +1638,31 @@ public class ApiDefinitionService {
         return returnMap;
     }
 
-    public String getEnvNameByEnvConfig(String projectId, String envConfig) {
+    public String getEnvNameByEnvConfig(final String projectId, final String envConfig) {
         String envName = null;
         RunModeConfigDTO runModeConfigDTO = null;
         try {
             runModeConfigDTO = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
         }
         if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
-            String envId = runModeConfigDTO.getEnvMap().get(projectId);
-            envName = apiTestEnvironmentService.selectNameById(envId);
+            final String envId = runModeConfigDTO.getEnvMap().get(projectId);
+            envName = this.apiTestEnvironmentService.selectNameById(envId);
         }
         return envName;
     }
 
-    public APIReportResult getDbResult(String testId, String type) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
+    public APIReportResult getDbResult(final String testId, final String type) {
+        final ApiDefinitionExecResultWithBLOBs result = this.extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
         return buildAPIReportResult(result);
     }
 
-    private void setModule(ApiDefinitionWithBLOBs item) {
+    private void setModule(final ApiDefinitionWithBLOBs item) {
         if (item != null && StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
-            ApiModuleExample example = new ApiModuleExample();
+            final ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("未规划接口");
-            List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+            final List<ApiModule> modules = this.apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 item.setModuleId(modules.get(0).getId());
                 item.setModulePath(modules.get(0).getName());
@@ -1626,18 +1670,18 @@ public class ApiDefinitionService {
         }
     }
 
-    public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
+    public ApiDefinitionImport apiTestImport(final MultipartFile file, final ApiTestImportRequest request) {
         //通过platform，获取对应的导入解析类型。
         if (file != null) {
-            String originalFilename = file.getOriginalFilename();
+            final String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
-                String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
+                final String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
                 checkFileSuffixName(request, suffixName);
             }
         }
-        ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
+        final ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        final Project project = this.projectMapper.selectByPrimaryKey(request.getProjectId());
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             if (!request.getPlatform().equalsIgnoreCase("Swagger2")) {
                 this.sendFailMessage(request, project);
@@ -1645,7 +1689,7 @@ public class ApiDefinitionService {
             }
             try {
                 UrlTestUtils.testUrl(request.getSwaggerUrl(), 30000);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 this.sendFailMessage(request, project);
                 MSException.throwException(e.getMessage());
             }
@@ -1658,11 +1702,11 @@ public class ApiDefinitionService {
             if (apiImport.getMocks() == null) {
                 apiImport.setMocks(new ArrayList<>());
             }
-        } catch (MSException e) {
+        } catch (final MSException e) {
             // 发送通知
             this.sendFailMessage(request, project);
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // 发送通知
             this.sendFailMessage(request, project);
             LogUtil.error(e.getMessage(), e);
@@ -1670,20 +1714,20 @@ public class ApiDefinitionService {
         }
 
         try {
-            List<ApiImportSendNoticeDTO> apiImportSendNoticeDTOS = importApi(request, apiImport);
+            final List<ApiImportSendNoticeDTO> apiImportSendNoticeDTOS = importApi(request, apiImport);
             if (CollectionUtils.isNotEmpty(apiImport.getData())) {
-                List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+                final List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
                 request.setName(String.join(",", names));
-                List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+                final List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
                 request.setId(JSON.toJSONString(ids));
             }
             // 发送通知
             if (StringUtils.equals(request.getType(), "schedule")) {
-                String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
-                String context = request.getSwaggerUrl() + "导入成功";
-                Map<String, Object> paramMap = new HashMap<>();
+                final String scheduleId = this.scheduleService.getScheduleInfo(request.getResourceId());
+                final String context = request.getSwaggerUrl() + "导入成功";
+                final Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
-                NoticeModel noticeModel = NoticeModel.builder()
+                final NoticeModel noticeModel = NoticeModel.builder()
                         .operator(project.getCreateUser())
                         .context(context)
                         .testId(scheduleId)
@@ -1691,10 +1735,10 @@ public class ApiDefinitionService {
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
                         .build();
-                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+                this.noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
             if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
-                for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
+                for (final ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
                     if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
                         sendImportApiCreateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
                     }
@@ -1702,7 +1746,7 @@ public class ApiDefinitionService {
                         sendImportApiUpdateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
                     }
                     if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTO.getCaseDTOList())) {
-                        for (ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
+                        for (final ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
                             if (apiTestCaseDTO.isUpdated()) {
                                 sendImportCaseUpdateNotice(apiTestCaseDTO);
                             }
@@ -1713,7 +1757,7 @@ public class ApiDefinitionService {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             this.sendFailMessage(request, project);
             LogUtil.error(e);
             MSException.throwException(Translator.get("user_import_format_wrong"));
@@ -1721,14 +1765,14 @@ public class ApiDefinitionService {
         return apiImport;
     }
 
-    private void sendFailMessage(ApiTestImportRequest request, Project project) {
+    private void sendFailMessage(final ApiTestImportRequest request, final Project project) {
         if (StringUtils.equals(request.getType(), "schedule")) {
-            String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
-            String context = request.getSwaggerUrl() + "导入失败";
-            Map<String, Object> paramMap = new HashMap<>();
+            final String scheduleId = this.scheduleService.getScheduleInfo(request.getResourceId());
+            final String context = request.getSwaggerUrl() + "导入失败";
+            final Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("url", request.getSwaggerUrl());
             paramMap.put("projectId", request.getProjectId());
-            NoticeModel noticeModel = NoticeModel.builder()
+            final NoticeModel noticeModel = NoticeModel.builder()
                     .operator(project.getCreateUser())
                     .context(context)
                     .testId(scheduleId)
@@ -1736,11 +1780,11 @@ public class ApiDefinitionService {
                     .paramMap(paramMap)
                     .event(NoticeConstants.Event.EXECUTE_FAILED)
                     .build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+            this.noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
         }
     }
 
-    private void checkFileSuffixName(ApiTestImportRequest request, String suffixName) {
+    private void checkFileSuffixName(final ApiTestImportRequest request, final String suffixName) {
         if (suffixName.equalsIgnoreCase("jmx")) {
             if (!request.getPlatform().equalsIgnoreCase("JMeter")) {
                 MSException.throwException("文件格式不符合要求");
@@ -1758,36 +1802,36 @@ public class ApiDefinitionService {
         }
     }
 
-    private List<ApiImportSendNoticeDTO> importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        currentApiCaseOrder.remove();
-        currentApiOrder.remove();
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+    private List<ApiImportSendNoticeDTO> importApi(final ApiTestImportRequest request, final ApiDefinitionImport apiImport) {
+        final SqlSession sqlSession = this.sqlSessionFactory.openSession(ExecutorType.BATCH);
+        this.currentApiCaseOrder.remove();
+        this.currentApiOrder.remove();
+        final String defaultVersion = this.extProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
         if (request.getVersionId() == null) {
             request.setVersionId(defaultVersion);
         }
-        List<ApiDefinitionWithBLOBs> initData = apiImport.getData();
+        final List<ApiDefinitionWithBLOBs> initData = apiImport.getData();
 
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
-        boolean urlRepeat = config.getUrlRepeatable();
+        final Project project = this.projectMapper.selectByPrimaryKey(request.getProjectId());
+        final ProjectConfig config = this.projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+        final boolean urlRepeat = config.getUrlRepeatable();
         //过滤(一次只导入一个协议)
-        List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
+        final List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
         if (filterData.isEmpty()) {
             return new ArrayList<>();
         }
-        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
-        List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
-        List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
-        List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
-        List<ApiTestCaseWithBLOBs> caseWithBLOBs = updateApiModuleDTO.getCaseWithBLOBs();
-        Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+        final UpdateApiModuleDTO updateApiModuleDTO = this.apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
+        final List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
+        final List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
+        final List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
+        final List<ApiTestCaseWithBLOBs> caseWithBLOBs = updateApiModuleDTO.getCaseWithBLOBs();
+        final Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
 
-        ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-        ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
-        ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
+        final ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        final ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        final ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
+        final ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
 
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
@@ -1795,7 +1839,7 @@ public class ApiDefinitionService {
         }
 
         if (moduleList != null) {
-            for (ApiModule apiModule : moduleList) {
+            for (final ApiModule apiModule : moduleList) {
                 apiModuleMapper.insert(apiModule);
             }
         }
@@ -1803,10 +1847,10 @@ public class ApiDefinitionService {
         if (data.isEmpty()) {
             apiImport.getMocks().clear();
         }
-        List<ApiImportSendNoticeDTO> apiImportSendNoticeDTOS = new ArrayList<>();
+        final List<ApiImportSendNoticeDTO> apiImportSendNoticeDTOS = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
-            ApiDefinitionWithBLOBs item = data.get(i);
-            List<ApiTestCaseWithBLOBs> caseList = apiIdCaseMap.get(item.getId());
+            final ApiDefinitionWithBLOBs item = data.get(i);
+            final List<ApiTestCaseWithBLOBs> caseList = apiIdCaseMap.get(item.getId());
             this.setModule(item);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
@@ -1816,13 +1860,13 @@ public class ApiDefinitionService {
                 item.setNum(num++);
             }
             //如果EsbData需要存储,则需要进行接口是否更新的判断
-            ApiDefinitionImportParamDTO apiDefinitionImportParamDTO = new ApiDefinitionImportParamDTO(item, request, apiImport.getMocks(), updateList, caseList);
+            final ApiDefinitionImportParamDTO apiDefinitionImportParamDTO = new ApiDefinitionImportParamDTO(item, request, apiImport.getMocks(), updateList, caseList);
             if (apiImport.getEsbApiParamsMap() != null) {
-                String apiId = item.getId();
-                EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
+                final String apiId = item.getId();
+                final EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
 
-                ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, extApiDefinitionMapper, apiTestCaseMapper, apiDefinitionImportParamDTO);
+                final ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, extApiDefinitionMapper, apiTestCaseMapper, apiDefinitionImportParamDTO);
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
@@ -1832,7 +1876,7 @@ public class ApiDefinitionService {
                     apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
                 }
             } else {
-                ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, extApiDefinitionMapper, apiTestCaseMapper, apiDefinitionImportParamDTO);
+                final ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, extApiDefinitionMapper, apiTestCaseMapper, apiDefinitionImportParamDTO);
                 if (apiImportSendNoticeDTO != null) {
                     apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
                 }
@@ -1844,11 +1888,11 @@ public class ApiDefinitionService {
 
         //判断EsbData是否需要存储
         if (apiImport.getEsbApiParamsMap() != null && apiImport.getEsbApiParamsMap().size() > 0) {
-            EsbApiParamsMapper esbApiParamsMapper = sqlSession.getMapper(EsbApiParamsMapper.class);
-            for (EsbApiParamsWithBLOBs model : apiImport.getEsbApiParamsMap().values()) {
-                EsbApiParamsExample example = new EsbApiParamsExample();
+            final EsbApiParamsMapper esbApiParamsMapper = sqlSession.getMapper(EsbApiParamsMapper.class);
+            for (final EsbApiParamsWithBLOBs model : apiImport.getEsbApiParamsMap().values()) {
+                final EsbApiParamsExample example = new EsbApiParamsExample();
                 example.createCriteria().andResourceIdEqualTo(model.getResourceId());
-                List<EsbApiParamsWithBLOBs> exiteModelList = esbApiParamsMapper.selectByExampleWithBLOBs(example);
+                final List<EsbApiParamsWithBLOBs> exiteModelList = esbApiParamsMapper.selectByExampleWithBLOBs(example);
                 if (exiteModelList.isEmpty()) {
                     esbApiParamsMapper.insert(model);
                 } else {
@@ -1859,38 +1903,38 @@ public class ApiDefinitionService {
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getMocks())) {
-            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+            final MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.importMock(apiImport, sqlSession, request);
         }
         sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        if (sqlSession != null && this.sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, this.sqlSessionFactory);
         }
 
         return apiImportSendNoticeDTOS;
     }
 
-    public ReferenceDTO getReference(ApiScenarioRequest request) {
-        ReferenceDTO dto = new ReferenceDTO();
-        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
-        QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+    public ReferenceDTO getReference(final ApiScenarioRequest request) {
+        final ReferenceDTO dto = new ReferenceDTO();
+        dto.setScenarioList(this.extApiScenarioMapper.selectReference(request));
+        final QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
         planRequest.setApiId(request.getId());
         planRequest.setProjectId(request.getProjectId());
-        dto.setTestPlanList(extTestPlanMapper.selectTestPlanByRelevancy(planRequest));
+        dto.setTestPlanList(this.extTestPlanMapper.selectTestPlanByRelevancy(planRequest));
         return dto;
     }
 
-    public void editApiBath(ApiBatchRequest request) {
-        ApiDefinitionExample definitionExample = new ApiDefinitionExample();
+    public void editApiBath(final ApiBatchRequest request) {
+        final ApiDefinitionExample definitionExample = new ApiDefinitionExample();
         definitionExample.createCriteria().andIdIn(request.getIds());
 
-        ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
+        final ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
+        this.apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
     }
 
-    public void editApiByParam(ApiBatchRequest request) {
+    public void editApiByParam(final ApiBatchRequest request) {
         if (request == null) {
             return;
         }
@@ -1900,19 +1944,19 @@ public class ApiDefinitionService {
         }
         //name在这里只是查询参数
         request.setName(null);
-        ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
+        final ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
         if (CollectionUtils.isNotEmpty(request.getIds())) {
             request.getIds().forEach(apiId -> {
-                ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
+                final ApiDefinitionWithBLOBs api = this.apiDefinitionMapper.selectByPrimaryKey(apiId);
                 if (api == null) {
                     return;
                 }
                 //检查是否同名
-                SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
+                final SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
                 apiDefinitionRequest.setProjectId(api.getProjectId());
                 if (StringUtils.isEmpty(request.getMethod())) {
                     apiDefinitionRequest.setMethod(api.getMethod());
@@ -1943,34 +1987,34 @@ public class ApiDefinitionService {
             }
         }
         if (StringUtils.isEmpty(request.getFollow())) {
-            apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
+            this.apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
         }
     }
 
-    private void batchEditDefinitionTags(ApiBatchRequest request) {
+    private void batchEditDefinitionTags(final ApiBatchRequest request) {
         if (request.getTagList().isEmpty()) {
             return;
         }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
         if (CollectionUtils.isEmpty(request.getIds())) {
             return;
         }
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final SqlSession sqlSession = this.sqlSessionFactory.openSession(ExecutorType.BATCH);
+        final ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(request.getIds());
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-        for (ApiDefinition apiDefinition : apiDefinitions) {
-            String tags = apiDefinition.getTags();
+        final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
+        for (final ApiDefinition apiDefinition : apiDefinitions) {
+            final String tags = apiDefinition.getTags();
             if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
                 apiDefinition.setTags(JSON.toJSONString(request.getTagList()));
             } else {
                 try {
-                    List<String> list = JSON.parseArray(tags, String.class);
+                    final List<String> list = JSON.parseArray(tags, String.class);
                     list.addAll(request.getTagList());
                     apiDefinition.setTags(JSON.toJSONString(list));
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     LogUtil.error("batch edit tags error.");
                     LogUtil.error(e, e.getMessage());
                     apiDefinition.setTags(JSON.toJSONString(request.getTagList()));
@@ -1979,17 +2023,17 @@ public class ApiDefinitionService {
             mapper.updateByPrimaryKey(apiDefinition);
         }
         sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        if (sqlSession != null && this.sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, this.sqlSessionFactory);
         }
     }
 
-    public void testPlanRelevance(ApiCaseRelevanceRequest request) {
-        apiTestCaseService.relevanceByApi(request);
+    public void testPlanRelevance(final ApiCaseRelevanceRequest request) {
+        this.apiTestCaseService.relevanceByApi(request);
     }
 
-    public void testCaseReviewRelevance(ApiCaseRelevanceRequest request) {
-        apiTestCaseService.relevanceByApiByReview(request);
+    public void testCaseReviewRelevance(final ApiCaseRelevanceRequest request) {
+        this.apiTestCaseService.relevanceByApiByReview(request);
     }
 
     /**
@@ -1998,8 +2042,8 @@ public class ApiDefinitionService {
      * @param projectId 项目ID
      * @return List
      */
-    public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return extApiDefinitionMapper.countProtocolByProjectID(projectId);
+    public List<ApiDataCountResult> countProtocolByProjectID(final String projectId) {
+        return this.extApiDefinitionMapper.countProtocolByProjectID(projectId);
     }
 
     /**
@@ -2008,127 +2052,127 @@ public class ApiDefinitionService {
      * @param projectId
      * @return
      */
-    public long countByProjectIDAndCreateInThisWeek(String projectId) {
-        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+    public long countByProjectIDAndCreateInThisWeek(final String projectId) {
+        final Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
-        Date firstTime = startAndEndDateInWeek.get("firstTime");
-        Date lastTime = startAndEndDateInWeek.get("lastTime");
+        final Date firstTime = startAndEndDateInWeek.get("firstTime");
+        final Date lastTime = startAndEndDateInWeek.get("lastTime");
 
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return this.extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public List<ApiDataCountResult> countStateByProjectID(String projectId) {
-        return extApiDefinitionMapper.countStateByProjectID(projectId);
+    public List<ApiDataCountResult> countStateByProjectID(final String projectId) {
+        return this.extApiDefinitionMapper.countStateByProjectID(projectId);
     }
 
-    public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId) {
-        return extApiDefinitionMapper.countApiCoverageByProjectID(projectId);
+    public List<ApiDataCountResult> countApiCoverageByProjectID(final String projectId) {
+        return this.extApiDefinitionMapper.countApiCoverageByProjectID(projectId);
     }
 
-    public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
+    public List<ApiDefinition> selectApiDefinitionBydIds(final List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
-        return apiDefinitionMapper.selectByExample(example);
+        return this.apiDefinitionMapper.selectByExample(example);
     }
 
-    public void deleteByParams(ApiBatchRequest request) {
+    public void deleteByParams(final ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
-        List<String> ids = request.getIds();
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
+        final List<String> ids = request.getIds();
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
 
         ids.forEach(id -> {
             // 把所有版本的api移到回收站
-            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(id);
+            final ApiDefinitionWithBLOBs api = this.apiDefinitionMapper.selectByPrimaryKey(id);
             if (api == null) {
                 return;
             }
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andRefIdEqualTo(api.getRefId());
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+            final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
+            final List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
             //删除Api、ApiCase中resourceID被删除了的执行记录
-            apiExecutionInfoService.deleteByApiIdList(apiIds);
-            apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
-            apiTestCaseService.deleteBatchByDefinitionId(apiIds);
-            apiDefinitionMapper.deleteByExample(example);
+            this.apiExecutionInfoService.deleteByApiIdList(apiIds);
+            this.apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
+            this.apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+            this.apiDefinitionMapper.deleteByExample(example);
         });
     }
 
-    public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
+    public ApiDefinitionExample getBatchExample(final ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
-        ApiDefinitionExample example = new ApiDefinitionExample();
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(request.getIds());
         return example;
     }
 
-    public void removeToGcByParams(ApiBatchRequest request) {
+    public void removeToGcByParams(final ApiBatchRequest request) {
         // 去除Name排序
         if (request.getCondition() != null && CollectionUtils.isNotEmpty(request.getCondition().getOrders())) {
             request.getCondition().getOrders().clear();
         }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
 
         this.removeToGc(request.getIds());
     }
 
-    public Pager<List<ApiDefinitionResult>> listRelevance(ApiDefinitionRequest request, int goPage, int pageSize) {
+    public Pager<List<ApiDefinitionResult>> listRelevance(final ApiDefinitionRequest request, final int goPage, final int pageSize) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        if (StringUtils.isNotBlank(request.getPlanId()) && testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+        if (StringUtils.isNotBlank(request.getPlanId()) && this.testPlanService.isAllowedRepeatCase(request.getPlanId())) {
             request.setRepeatCase(true);
         }
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
+        final Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        final List<ApiDefinitionResult> resList = this.extApiDefinitionMapper.listRelevance(request);
         buildUserInfo(resList);
         calculateResult(resList, request.getProjectId());
         return PageUtils.setPageInfo(page, resList);
     }
 
-    public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
+    public List<ApiDefinitionResult> listRelevanceReview(final ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
+        List<ApiDefinitionResult> resList = this.extApiDefinitionMapper.listRelevanceReview(request);
         calculateResult(resList, request.getProjectId());
-        resList = extApiDefinitionMapper.list(request);
+        resList = this.extApiDefinitionMapper.list(request);
         return resList;
     }
 
-    public void calculateResultSce(List<ApiDefinitionResult> resList) {
+    public void calculateResultSce(final List<ApiDefinitionResult> resList) {
         if (!resList.isEmpty()) {
             resList.stream().forEach(res -> {
-                List<Scenario> scenarioList = extApiDefinitionMapper.scenarioList(res.getId());
-                String count = String.valueOf(scenarioList.size());
+                final List<Scenario> scenarioList = this.extApiDefinitionMapper.scenarioList(res.getId());
+                final String count = String.valueOf(scenarioList.size());
                 res.setScenarioTotal(count);
-                String[] strings = new String[scenarioList.size()];
-                String[] ids2 = scenarioList.stream().map(Scenario::getId).collect(Collectors.toList()).toArray(strings);
+                final String[] strings = new String[scenarioList.size()];
+                final String[] ids2 = scenarioList.stream().map(Scenario::getId).collect(Collectors.toList()).toArray(strings);
                 res.setIds(ids2);
                 res.setScenarioType("scenario");
             });
         }
     }
 
-    public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
+    public void calculateResult(final List<ApiDefinitionResult> resList, final String projectId) {
         if (!resList.isEmpty()) {
-            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
+            final List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            final List<ApiComputeResult> results = this.extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             calculateResultList(resList, results);
         }
     }
 
-    private void calculateResultList(List<ApiDefinitionResult> resList, List<ApiComputeResult> results) {
-        Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
-        for (ApiDefinitionResult res : resList) {
-            ApiComputeResult compRes = resultMap.get(res.getId());
+    private void calculateResultList(final List<ApiDefinitionResult> resList, final List<ApiComputeResult> results) {
+        final Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
+        for (final ApiDefinitionResult res : resList) {
+            final ApiComputeResult compRes = resultMap.get(res.getId());
             if (compRes != null) {
                 res.setCaseType("apiCase");
                 res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
@@ -2148,19 +2192,19 @@ public class ApiDefinitionService {
                 res.setCaseStatus("-");
             }
             if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
-                esbApiParamService.handleApiEsbParams(res);
+                this.esbApiParamService.handleApiEsbParams(res);
             }
         }
     }
 
-    public void calculateResult(List<ApiDefinitionResult> resList, String projectId, ApiDefinitionRequest request) {
+    public void calculateResult(final List<ApiDefinitionResult> resList, final String projectId, final ApiDefinitionRequest request) {
         if (!resList.isEmpty()) {
-            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            final List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
             List<ApiComputeResult> results = new ArrayList<>();
             if (request != null && MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("status") && request.getFilters().get("status").get(0).equals("Trash")) {
-                results = extApiDefinitionMapper.selectByIdsAndStatusIsTrash(ids, projectId);
+                results = this.extApiDefinitionMapper.selectByIdsAndStatusIsTrash(ids, projectId);
             } else {
-                results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
+                results = this.extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             }
             calculateResultList(resList, results);
         }
@@ -2169,58 +2213,58 @@ public class ApiDefinitionService {
     /**
      * swagger定时导入
      */
-    public void createSchedule(ScheduleRequest request) {
+    public void createSchedule(final ScheduleRequest request) {
         /*保存swaggerUrl*/
-        SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
+        final SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         swaggerUrlProject.setId(UUID.randomUUID().toString());
         // 设置鉴权信息
         if (request.getHeaders() != null || request.getArguments() != null || request.getAuthManager() != null) {
-            String config = setAuthParams(request);
+            final String config = setAuthParams(request);
             swaggerUrlProject.setConfig(config);
         }
-        scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
+        this.scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
 
         request.setResourceId(swaggerUrlProject.getId());
-        Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        final Schedule schedule = this.scheduleService.buildApiTestSchedule(request);
         schedule.setProjectId(swaggerUrlProject.getProjectId());
         try {
             schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException("URL 格式不正确！");
         }
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
         schedule.setType(ScheduleType.CRON.name());
-        scheduleService.addSchedule(schedule);
+        this.scheduleService.addSchedule(schedule);
         this.addOrUpdateSwaggerImportCronJob(request);
 
     }
 
-    public void updateSchedule(ScheduleRequest request) {
-        SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
+    public void updateSchedule(final ScheduleRequest request) {
+        final SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         BeanUtils.copyBean(swaggerUrlProject, request);
         // 设置鉴权信息
         if (request.getHeaders() != null || request.getArguments() != null || request.getAuthManager() != null) {
-            String config = setAuthParams(request);
+            final String config = setAuthParams(request);
             swaggerUrlProject.setConfig(config);
         } else {
             swaggerUrlProject.setConfig(null);
         }
-        scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
+        this.scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
         // 只修改表达式和名称
-        Schedule schedule = new Schedule();
+        final Schedule schedule = new Schedule();
         schedule.setId(request.getTaskId());
         schedule.setValue(request.getValue().trim());
         schedule.setEnable(request.getEnable());
         try {
             schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException("URL 格式不正确！");
         }
-        scheduleService.editSchedule(schedule);
+        this.scheduleService.editSchedule(schedule);
         request.setResourceId(swaggerUrlProject.getId());
         this.addOrUpdateSwaggerImportCronJob(request);
     }
@@ -2228,9 +2272,9 @@ public class ApiDefinitionService {
     /**
      * 设置 SwaggerUrl 同步鉴权参数
      */
-    public String setAuthParams(ScheduleRequest request) {
+    public String setAuthParams(final ScheduleRequest request) {
         // list 数组转化成 json 字符串
-        JSONObject configObj = new JSONObject();
+        final JSONObject configObj = new JSONObject();
         configObj.put("headers", request.getHeaders());
         configObj.put("arguments", request.getArguments());
         // 设置 BaseAuth 参数
@@ -2247,30 +2291,30 @@ public class ApiDefinitionService {
      *
      * @param request
      */
-    public void switchSchedule(Schedule request) {
-        scheduleService.editSchedule(request);
+    public void switchSchedule(final Schedule request) {
+        this.scheduleService.editSchedule(request);
         this.addOrUpdateSwaggerImportCronJob(request);
     }
 
     //删除
-    public void deleteSchedule(ScheduleRequest request) {
-        swaggerUrlProjectMapper.deleteByPrimaryKey(request.getId());
-        scheduleService.deleteByResourceId(request.getId(), ScheduleGroup.SWAGGER_IMPORT.name());
+    public void deleteSchedule(final ScheduleRequest request) {
+        this.swaggerUrlProjectMapper.deleteByPrimaryKey(request.getId());
+        this.scheduleService.deleteByResourceId(request.getId(), ScheduleGroup.SWAGGER_IMPORT.name());
     }
 
     //查询swaggerUrl详情
-    public SwaggerUrlProject getSwaggerInfo(String resourceId) {
-        return swaggerUrlProjectMapper.selectByPrimaryKey(resourceId);
+    public SwaggerUrlProject getSwaggerInfo(final String resourceId) {
+        return this.swaggerUrlProjectMapper.selectByPrimaryKey(resourceId);
     }
 
-    public String getResourceId(SwaggerUrlRequest swaggerUrlRequest) {
-        SwaggerUrlProjectExample swaggerUrlProjectExample = new SwaggerUrlProjectExample();
-        SwaggerUrlProjectExample.Criteria criteria = swaggerUrlProjectExample.createCriteria();
+    public String getResourceId(final SwaggerUrlRequest swaggerUrlRequest) {
+        final SwaggerUrlProjectExample swaggerUrlProjectExample = new SwaggerUrlProjectExample();
+        final SwaggerUrlProjectExample.Criteria criteria = swaggerUrlProjectExample.createCriteria();
         criteria.andProjectIdEqualTo(swaggerUrlRequest.getProjectId()).andSwaggerUrlEqualTo(swaggerUrlRequest.getSwaggerUrl());
         if (StringUtils.isNotBlank(swaggerUrlRequest.getModuleId())) {
             criteria.andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
         }
-        List<SwaggerUrlProject> list = swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
+        final List<SwaggerUrlProject> list = this.swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
         String resourceId = "";
         if (list.size() == 1) {
             resourceId = list.get(0).getId();
@@ -2278,13 +2322,13 @@ public class ApiDefinitionService {
         return resourceId;
     }
 
-    public List<SwaggerTaskResult> getSwaggerScheduleList(String projectId) {
-        List<SwaggerTaskResult> resultList = extSwaggerUrlScheduleMapper.getSwaggerTaskList(projectId);
+    public List<SwaggerTaskResult> getSwaggerScheduleList(final String projectId) {
+        final List<SwaggerTaskResult> resultList = this.extSwaggerUrlScheduleMapper.getSwaggerTaskList(projectId);
         int dataIndex = 1;
-        for (SwaggerTaskResult swaggerTaskResult :
+        for (final SwaggerTaskResult swaggerTaskResult :
                 resultList) {
             swaggerTaskResult.setIndex(dataIndex++);
-            Date nextExecutionTime = CronUtils.getNextTriggerTime(swaggerTaskResult.getRule());
+            final Date nextExecutionTime = CronUtils.getNextTriggerTime(swaggerTaskResult.getRule());
             if (nextExecutionTime != null) {
                 swaggerTaskResult.setNextExecutionTime(nextExecutionTime.getTime());
             }
@@ -2292,66 +2336,66 @@ public class ApiDefinitionService {
         return resultList;
     }
 
-    private void addOrUpdateSwaggerImportCronJob(Schedule request) {
-        scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
+    private void addOrUpdateSwaggerImportCronJob(final Schedule request) {
+        this.scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
     }
 
-    public ApiExportResult export(ApiBatchRequest request, String type) {
+    public ApiExportResult export(final ApiBatchRequest request, final String type) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
 
-        List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
+        final List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
 
         if (StringUtils.equals(type, "MS")) { //  导出为 Metersphere 格式
-            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-            MsApiExportResult msApiExportResult = new MsApiExportResult();
+            final MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+            final MsApiExportResult msApiExportResult = new MsApiExportResult();
             msApiExportResult.setData(apiDefinitions);
-            msApiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
+            msApiExportResult.setCases(this.apiTestCaseService.selectCasesBydApiIds(request.getIds()));
             msApiExportResult.setMocks(mockConfigService.selectMockExpectConfigByApiIdIn(request.getIds()));
             msApiExportResult.setProjectName(request.getProjectId());
             msApiExportResult.setProtocol(request.getProtocol());
             msApiExportResult.setProjectId(request.getProjectId());
             msApiExportResult.setVersion(System.getenv("MS_VERSION"));
             if (CollectionUtils.isNotEmpty((msApiExportResult).getData())) {
-                List<String> names = (msApiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+                final List<String> names = (msApiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
                 request.setName(String.join(",", names));
-                List<String> ids = msApiExportResult.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+                final List<String> ids = msApiExportResult.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
                 request.setId(JSON.toJSONString(ids));
             }
             return msApiExportResult;
         } else { //  导出为 Swagger 格式
-            Swagger3Parser swagger3Parser = new Swagger3Parser();
+            final Swagger3Parser swagger3Parser = new Swagger3Parser();
             return swagger3Parser.swagger3Export(apiDefinitions);
         }
     }
 
-    public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
-        return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
+    public List<ApiDefinition> selectEffectiveIdByProjectId(final String projectId) {
+        return this.extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
     }
 
-    public List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId) {
-        return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
+    public List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(final String projectId) {
+        return this.extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
     }
 
-    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix) {
+    public List<ApiDefinitionWithBLOBs> preparedUrl(final String projectId, final String method, final String baseUrlSuffix) {
         if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
-            List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
-            List<String> apiIdList = new ArrayList<>();
+            final List<ApiDefinition> apiList = this.apiDefinitionMapper.selectByExample(example);
+            final List<String> apiIdList = new ArrayList<>();
             boolean urlSuffixEndEmpty = false;
             String urlSuffix = baseUrlSuffix;
             if (urlSuffix.endsWith("/")) {
                 urlSuffixEndEmpty = true;
                 urlSuffix = urlSuffix + "testMock";
             }
-            String[] urlParams = urlSuffix.split("/");
+            final String[] urlParams = urlSuffix.split("/");
             if (urlSuffixEndEmpty) {
                 urlParams[urlParams.length - 1] = "";
             }
-            for (ApiDefinition api : apiList) {
+            for (final ApiDefinition api : apiList) {
                 if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {
                     apiIdList.add(api.getId());
                 } else {
@@ -2363,11 +2407,11 @@ public class ApiDefinitionService {
                         path = path.substring(1);
                     }
                     if (StringUtils.isNotEmpty(path)) {
-                        String[] pathArr = path.split("/");
+                        final String[] pathArr = path.split("/");
                         if (pathArr.length == urlParams.length) {
                             boolean isFetch = true;
                             for (int i = 0; i < urlParams.length; i++) {
-                                String pathItem = pathArr[i];
+                                final String pathItem = pathArr[i];
                                 if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
                                     if (!StringUtils.equals(pathArr[i], urlParams[i])) {
                                         isFetch = false;
@@ -2388,21 +2432,21 @@ public class ApiDefinitionService {
             } else {
                 example.clear();
                 example.createCriteria().andIdIn(apiIdList);
-                return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+                return this.apiDefinitionMapper.selectByExampleWithBLOBs(example);
             }
         }
     }
 
-    public String getLogDetails(String id) {
-        ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
+    public String getLogDetails(final String id) {
+        final ApiDefinitionWithBLOBs bloBs = this.apiDefinitionMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             if (StringUtils.equals(bloBs.getMethod(), "ESB")) {
-                EsbApiParamsExample example = new EsbApiParamsExample();
+                final EsbApiParamsExample example = new EsbApiParamsExample();
                 example.createCriteria().andResourceIdEqualTo(id);
-                List<EsbApiParamsWithBLOBs> list = esbApiParamsMapper.selectByExampleWithBLOBs(example);
-                JSONObject request = JSONObject.parseObject(bloBs.getRequest());
-                Object backEsbDataStruct = request.get("backEsbDataStruct");
-                Map<String, Object> map = new HashMap<>();
+                final List<EsbApiParamsWithBLOBs> list = this.esbApiParamsMapper.selectByExampleWithBLOBs(example);
+                final JSONObject request = JSONObject.parseObject(bloBs.getRequest());
+                final Object backEsbDataStruct = request.get("backEsbDataStruct");
+                final Map<String, Object> map = new HashMap<>();
                 if (backEsbDataStruct != null) {
                     map.put("backEsbDataStruct", backEsbDataStruct);
                     if (CollectionUtils.isNotEmpty(list)) {
@@ -2412,93 +2456,93 @@ public class ApiDefinitionService {
                 }
                 request.remove("backEsbDataStruct");
                 bloBs.setRequest(JSONObject.toJSONString(request));
-                String response = JSONObject.toJSONString(map);
+                final String response = JSONObject.toJSONString(map);
                 bloBs.setResponse(response);
             }
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            final List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
+            final OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
     }
 
-    public String getLogDetails(List<String> ids) {
+    public String getLogDetails(final List<String> ids) {
         if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(ids);
-            List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
-            List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
+            final List<ApiDefinition> definitions = this.apiDefinitionMapper.selectByExample(example);
+            final List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
+            final OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
     }
 
-    public String getLogDetails(ApiBatchRequest request) {
+    public String getLogDetails(final ApiBatchRequest request) {
         request.getCondition();
         if (CollectionUtils.isNotEmpty(request.getIds())) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
-            List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
+            final List<ApiDefinition> definitions = this.apiDefinitionMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(definitions)) {
-                List<DetailColumn> columns = new LinkedList<>();
+                final List<DetailColumn> columns = new LinkedList<>();
                 if (StringUtils.isNotEmpty(request.getMethod())) {
                     definitions.forEach(item -> {
-                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
+                        final DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
                         columns.add(column);
                     });
                 } else if (StringUtils.isNotEmpty(request.getStatus())) {
                     definitions.forEach(item -> {
-                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", StatusReference.statusMap.get(item.getStatus()), null);
+                        final DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", StatusReference.statusMap.get(item.getStatus()), null);
                         columns.add(column);
                     });
                 } else if (StringUtils.isNotEmpty(request.getUserId())) {
                     definitions.forEach(item -> {
-                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
+                        final DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
                         columns.add(column);
                     });
                 }
-                List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
-                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
+                final List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
+                final OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
                 return JSON.toJSONString(details);
             }
         }
         return null;
     }
 
-    public String getLogDetails(ApiCaseRelevanceRequest request) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
+    public String getLogDetails(final ApiCaseRelevanceRequest request) {
+        final ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
-        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        final List<ApiTestCase> apiTestCases = this.apiTestCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
-            List<String> names = apiTestCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
-            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
+            final List<String> names = apiTestCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
+            final TestPlan testPlan = this.testPlanMapper.selectByPrimaryKey(request.getPlanId());
+            final OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
     }
 
-    public ApiDefinition selectUrlAndMethodById(String id) {
-        return extApiDefinitionMapper.selectUrlAndMethodById(id);
+    public ApiDefinition selectUrlAndMethodById(final String id) {
+        return this.extApiDefinitionMapper.selectUrlAndMethodById(id);
     }
 
-    public void removeToGcByExample(ApiDefinitionExampleWithOperation apiDefinitionExample) {
-        List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        List<String> apiIdList = new ArrayList<>();
+    public void removeToGcByExample(final ApiDefinitionExampleWithOperation apiDefinitionExample) {
+        final List<ApiDefinition> apiList = this.apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        final List<String> apiIdList = new ArrayList<>();
         apiList.forEach(item -> apiIdList.add(item.getId()));
         this.removeToGc(apiIdList);
     }
 
-    public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
+    public APIReportResult getTestPlanApiCaseReport(final String testId, final String type) {
+        final ApiDefinitionExecResultWithBLOBs result = this.extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
         return buildAPIReportResult(result);
     }
 
     public void initOrderField() {
         ServiceUtils.initOrderField(ApiDefinitionWithBLOBs.class, ApiDefinitionMapper.class,
-                extApiDefinitionMapper::selectProjectIds,
-                extApiDefinitionMapper::getIdsOrderByUpdateTime);
+                this.extApiDefinitionMapper::selectProjectIds,
+                this.extApiDefinitionMapper::getIdsOrderByUpdateTime);
     }
 
     /**
@@ -2506,18 +2550,18 @@ public class ApiDefinitionService {
      *
      * @param request
      */
-    public void updateOrder(ResetOrderRequest request) {
+    public void updateOrder(final ResetOrderRequest request) {
         ServiceUtils.updateOrderField(request, ApiDefinitionWithBLOBs.class,
-                apiDefinitionMapper::selectByPrimaryKey,
-                extApiDefinitionMapper::getPreOrder,
-                extApiDefinitionMapper::getLastOrder,
-                apiDefinitionMapper::updateByPrimaryKeySelective);
+                this.apiDefinitionMapper::selectByPrimaryKey,
+                this.extApiDefinitionMapper::getPreOrder,
+                this.extApiDefinitionMapper::getLastOrder,
+                this.apiDefinitionMapper::updateByPrimaryKeySelective);
     }
 
-    public ApiDefinitionResult getById(String id) {
-        ApiDefinitionRequest request = new ApiDefinitionRequest();
+    public ApiDefinitionResult getById(final String id) {
+        final ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setId(id);
-        List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
+        final List<ApiDefinitionResult> list = this.extApiDefinitionMapper.list(request);
         ApiDefinitionResult result = null;
         if (CollectionUtils.isNotEmpty(list)) {
             result = list.get(0);
@@ -2526,46 +2570,46 @@ public class ApiDefinitionService {
         return result;
     }
 
-    private void checkApiAttachInfo(ApiDefinitionResult result) {
+    private void checkApiAttachInfo(final ApiDefinitionResult result) {
         if (StringUtils.equalsIgnoreCase("esb", result.getMethod())) {
-            esbApiParamService.handleApiEsbParams(result);
+            this.esbApiParamService.handleApiEsbParams(result);
         }
     }
 
 
-    public long countEffectiveByProjectId(String projectId) {
+    public long countEffectiveByProjectId(final String projectId) {
         if (StringUtils.isEmpty(projectId)) {
             return 0;
         } else {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
-            return apiDefinitionMapper.countByExample(example);
+            return this.apiDefinitionMapper.countByExample(example);
         }
     }
 
-    public long countApiByProjectIdAndHasCase(String projectId) {
-        return extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId);
+    public long countApiByProjectIdAndHasCase(final String projectId) {
+        return this.extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId);
     }
 
-    public int getRelationshipCount(String id) {
-        return relationshipEdgeService.getRelationshipCount(id, extApiDefinitionMapper::countByIds);
+    public int getRelationshipCount(final String id) {
+        return this.relationshipEdgeService.getRelationshipCount(id, this.extApiDefinitionMapper::countByIds);
     }
 
-    public List<RelationshipEdgeDTO> getRelationshipApi(String id, String relationshipType) {
-        List<RelationshipEdge> relationshipEdges = relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
-        List<String> ids = relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
+    public List<RelationshipEdgeDTO> getRelationshipApi(final String id, final String relationshipType) {
+        final List<RelationshipEdge> relationshipEdges = this.relationshipEdgeService.getRelationshipEdgeByType(id, relationshipType);
+        final List<String> ids = this.relationshipEdgeService.getRelationIdsByType(relationshipType, relationshipEdges);
 
         if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
+            final ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(ids).andStatusNotEqualTo("Trash");
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
-            List<RelationshipEdgeDTO> results = new ArrayList<>();
-            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(apiDefinitions.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
-            for (RelationshipEdge relationshipEdge : relationshipEdges) {
-                RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
+            final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
+            final Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
+            final List<RelationshipEdgeDTO> results = new ArrayList<>();
+            final Map<String, String> userNameMap = ServiceUtils.getUserNameMap(apiDefinitions.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
+            for (final RelationshipEdge relationshipEdge : relationshipEdges) {
+                final RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
                 BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
-                ApiDefinition apiDefinition;
+                final ApiDefinition apiDefinition;
                 if (StringUtils.equals(relationshipType, "PRE")) {
                     apiDefinition = apiMap.get(relationshipEdge.getTargetId());
                 } else {
@@ -2586,45 +2630,45 @@ public class ApiDefinitionService {
         return new ArrayList<>();
     }
 
-    public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(ApiDefinitionRequest request, int goPage, @PathVariable int pageSize) {
+    public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(ApiDefinitionRequest request, final int goPage, @PathVariable final int pageSize) {
         request = this.initRequest(request, true, true);
         // 排除同一个api的不同版本
-        ApiDefinitionWithBLOBs currentApi = apiDefinitionMapper.selectByPrimaryKey(request.getId());
-        ApiDefinitionExample example = new ApiDefinitionExample();
+        final ApiDefinitionWithBLOBs currentApi = this.apiDefinitionMapper.selectByPrimaryKey(request.getId());
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(currentApi.getRefId());
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-        List<String> sameApiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
-        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
+        final List<String> sameApiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+        final List<String> relationshipIds = this.relationshipEdgeService.getRelationshipIds(request.getId());
         sameApiIds.addAll(relationshipIds);
         request.setNotInIds(sameApiIds);
         request.setId(null); // 去掉id的查询条件
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, extApiDefinitionMapper.list(request));
+        final Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, this.extApiDefinitionMapper.list(request));
     }
 
-    public List<String> getFollows(String definitionId) {
-        List<String> result = new ArrayList<>();
+    public List<String> getFollows(final String definitionId) {
+        final List<String> result = new ArrayList<>();
         if (StringUtils.isBlank(definitionId)) {
             return result;
         }
-        ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+        final ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
         example.createCriteria().andDefinitionIdEqualTo(definitionId);
-        List<ApiDefinitionFollow> follows = apiDefinitionFollowMapper.selectByExample(example);
+        final List<ApiDefinitionFollow> follows = this.apiDefinitionFollowMapper.selectByExample(example);
         return follows.stream().map(ApiDefinitionFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 
-    public List<DocumentElement> getDocument(String id, String type) {
-        ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
+    public List<DocumentElement> getDocument(final String id, final String type) {
+        final ApiDefinitionWithBLOBs bloBs = this.apiDefinitionMapper.selectByPrimaryKey(id);
         List<DocumentElement> elements = new LinkedList<>();
         if (bloBs != null && StringUtils.isNotEmpty(bloBs.getResponse())) {
-            JSONObject object = JSON.parseObject(bloBs.getResponse(), Feature.DisableSpecialKeyDetect);
-            JSONObject body = (JSONObject) object.get("body");
+            final JSONObject object = JSON.parseObject(bloBs.getResponse(), Feature.DisableSpecialKeyDetect);
+            final JSONObject body = (JSONObject) object.get("body");
             if (body != null) {
-                String raw = body.getString("raw");
-                String dataType = body.getString("type");
+                final String raw = body.getString("raw");
+                final String dataType = body.getString("type");
                 if ((StringUtils.isNotEmpty(raw) || StringUtils.isNotEmpty(body.getString("jsonSchema"))) && StringUtils.isNotEmpty(dataType)) {
                     if (StringUtils.equals(type, "JSON")) {
-                        String format = body.getString("format");
+                        final String format = body.getString("format");
                         if (StringUtils.equals(format, "JSON-SCHEMA") && StringUtils.isNotEmpty(body.getString("jsonSchema"))) {
                             elements = JSONSchemaToDocumentUtils.getDocument(body.getString("jsonSchema"));
                         } else {
@@ -2642,71 +2686,71 @@ public class ApiDefinitionService {
         return elements;
     }
 
-    public List<ApiDefinitionResult> getApiDefinitionVersions(String definitionId) {
-        ApiDefinitionWithBLOBs definition = apiDefinitionMapper.selectByPrimaryKey(definitionId);
+    public List<ApiDefinitionResult> getApiDefinitionVersions(final String definitionId) {
+        final ApiDefinitionWithBLOBs definition = this.apiDefinitionMapper.selectByPrimaryKey(definitionId);
         if (definition == null) {
             return new ArrayList<>();
         }
-        ApiDefinitionRequest request = new ApiDefinitionRequest();
+        final ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setRefId(definition.getRefId());
         return this.list(request);
     }
 
-    public ApiDefinitionResult getApiDefinitionByVersion(String refId, String versionId) {
-        ApiDefinitionRequest request = new ApiDefinitionRequest();
+    public ApiDefinitionResult getApiDefinitionByVersion(final String refId, final String versionId) {
+        final ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setRefId(refId);
         request.setVersionId(versionId);
-        List<ApiDefinitionResult> list = this.list(request);
+        final List<ApiDefinitionResult> list = this.list(request);
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         return list.get(0);
     }
 
-    public void deleteApiDefinitionByVersion(String refId, String version) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
+    public void deleteApiDefinitionByVersion(final String refId, final String version) {
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-        List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+        final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(example);
+        final List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         //删除Api、ApiCase中resourceID被删除了的执行记录
-        apiExecutionInfoService.deleteByApiIdList(ids);
-        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(ids);
+        this.apiExecutionInfoService.deleteByApiIdList(ids);
+        this.apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(ids);
 
-        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+        final ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
         apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
-        apiTestCaseMapper.deleteByExample(apiTestCaseExample);
+        this.apiTestCaseMapper.deleteByExample(apiTestCaseExample);
         //
-        apiDefinitionMapper.deleteByExample(example);
+        this.apiDefinitionMapper.deleteByExample(example);
         checkAndSetLatestVersion(refId);
     }
 
-    public List<ApiDefinitionWithBLOBs> getByIds(List<String> ids) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
+    public List<ApiDefinitionWithBLOBs> getByIds(final List<String> ids) {
+        final ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
-        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+        return this.apiDefinitionMapper.selectByExampleWithBLOBs(example);
     }
 
-    public void batchCopy(ApiBatchRequest request) {
+    public void batchCopy(final ApiBatchRequest request) {
         //检查测试项目是否开启了url可重复
-        ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
+        final ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
         if (projectService != null) {
             projectService.checkProjectIsRepeatable(request.getProjectId());
         }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
-        List<String> ids = request.getIds();
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
+        final List<String> ids = request.getIds();
         if (CollectionUtils.isEmpty(ids)) return;
-        List<ApiDefinitionWithBLOBs> apis = getByIds(ids);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder);
+        final List<ApiDefinitionWithBLOBs> apis = getByIds(ids);
+        final SqlSession sqlSession = this.sqlSessionFactory.openSession(ExecutorType.BATCH);
+        final ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        long nextOrder = ServiceUtils.getNextOrder(request.getProjectId(), this.extApiDefinitionMapper::getLastOrder);
 
         int nextNum = getNextNum(request.getProjectId());
 
         try {
             for (int i = 0; i < apis.size(); i++) {
-                ApiDefinitionWithBLOBs api = apis.get(i);
-                String sourceId = api.getId();
+                final ApiDefinitionWithBLOBs api = apis.get(i);
+                final String sourceId = api.getId();
                 api.setId(UUID.randomUUID().toString());
                 api.setName(ServiceUtils.getCopyName(api.getName()));
                 api.setModuleId(request.getModuleId());
@@ -2725,35 +2769,35 @@ public class ApiDefinitionService {
             }
             sqlSession.flushStatements();
         } finally {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            SqlSessionUtils.closeSqlSession(sqlSession, this.sqlSessionFactory);
         }
     }
 
-    public ApiDefinition getApiDefinition(ApiDefinitionExample apiDefinitionExample) {
-        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+    public ApiDefinition getApiDefinition(final ApiDefinitionExample apiDefinitionExample) {
+        final List<ApiDefinition> apiDefinitions = this.apiDefinitionMapper.selectByExample(apiDefinitionExample);
         if (apiDefinitions == null || apiDefinitions.size() == 0) {
             return null;
         }
         return apiDefinitions.get(0);
     }
 
-    public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
-        ApiModuleExample example = new ApiModuleExample();
+    public void initModulePathAndId(final String projectId, final ApiDefinitionWithBLOBs test) {
+        final ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口").andLevelEqualTo(1);
-        List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+        final List<ApiModule> modules = this.apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(modules)) {
             test.setModuleId(modules.get(0).getId());
             test.setModulePath("/未规划接口");
         }
     }
 
-    public void saveRelationshipBatch(ApiDefinitionRelationshipEdgeRequest request) {
-        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+    public void saveRelationshipBatch(final ApiDefinitionRelationshipEdgeRequest request) {
+        final List<String> relationshipIds = this.relationshipEdgeService.getRelationshipIds(request.getId());
         request.getCondition().setNotInIds(relationshipIds);
         request.getCondition().setId(null);
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extApiDefinitionMapper.selectIds(query));
-        List<String> ids = request.getIds();
+                (query) -> this.extApiDefinitionMapper.selectIds(query));
+        final List<String> ids = request.getIds();
         ids.remove(request.getId());
         if (CollectionUtils.isNotEmpty(ids)) {
             if (CollectionUtils.isNotEmpty(request.getTargetIds())) {
@@ -2761,20 +2805,20 @@ public class ApiDefinitionService {
             } else if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
                 request.setSourceIds(ids);
             }
-            relationshipEdgeService.saveBatch(request);
+            this.relationshipEdgeService.saveBatch(request);
         }
     }
 
-    public void deleteFollows(List<String> definitionIds) {
+    public void deleteFollows(final List<String> definitionIds) {
         if (CollectionUtils.isNotEmpty(definitionIds)) {
-            ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+            final ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
             example.createCriteria().andDefinitionIdIn(definitionIds);
-            apiDefinitionFollowMapper.deleteByExample(example);
+            this.apiDefinitionFollowMapper.deleteByExample(example);
         }
     }
 
-    public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(String projectId, String protocol, String versionId, String status) {
-        List<ApiDefinition> apiList = extApiDefinitionMapper.selectApiBaseInfoByProjectIdAndProtocolAndStatus(projectId, protocol, versionId, status);
+    public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(final String projectId, final String protocol, final String versionId, final String status) {
+        final List<ApiDefinition> apiList = this.extApiDefinitionMapper.selectApiBaseInfoByProjectIdAndProtocolAndStatus(projectId, protocol, versionId, status);
         return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
     }
 
@@ -2787,20 +2831,20 @@ public class ApiDefinitionService {
      * @param versionId
      * @param id
      */
-    public void updateNoModuleApiToDefaultModule(String projectId, String protocol, String status, String versionId, String id) {
+    public void updateNoModuleApiToDefaultModule(final String projectId, final String protocol, final String status, final String versionId, final String id) {
         if (StringUtils.isNoneEmpty(projectId, protocol, id)) {
-            extApiDefinitionMapper.updateNoModuleApiToDefaultModule(projectId, protocol, status, versionId, id);
+            this.extApiDefinitionMapper.updateNoModuleApiToDefaultModule(projectId, protocol, status, versionId, id);
         }
     }
 
-    public Integer getCitedScenarioCount(String testId) {
-        ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
+    public Integer getCitedScenarioCount(final String testId) {
+        final ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
         apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.API.name()).andReferenceTypeEqualTo(COPY).andReferenceIdEqualTo(testId);
-        List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
+        final List<ApiScenarioReferenceId> apiScenarioReferenceIds = this.apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
         return apiScenarioReferenceIds.size();
     }
 
-    public List<TcpTreeTableDataStruct> rawToXml(String rawData) {
+    public List<TcpTreeTableDataStruct> rawToXml(final String rawData) {
         return TcpTreeTableDataParser.xml2TreeTableData(rawData);
     }
 }
