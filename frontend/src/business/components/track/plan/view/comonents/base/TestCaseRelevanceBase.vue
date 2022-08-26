@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog">
+  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
       <div>
@@ -7,7 +7,7 @@
       </div>
     </template>
     <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
-      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save" btn-size="mini">
+      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save" btn-size="mini" @fullScreen="isFullScreen=!isFullScreen">
         <template #other>
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
 
@@ -68,6 +68,7 @@ export default {
       workspaceList: [],
       currentWorkSpaceId: '',
       selectCounts: null,
+      isFullScreen: false
     };
   },
   props: {
