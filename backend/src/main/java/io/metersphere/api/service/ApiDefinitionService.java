@@ -1235,20 +1235,14 @@ public class ApiDefinitionService {
         String request = apiDefinition.getRequest();
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
         boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
-        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments())) {
-            if (!createCase) {
-                createCase = true;
-            }
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
+            createCase = true;
         }
-        if (msHTTPSamplerProxy.getBody() != null) {
-            if (!createCase) {
-                createCase = true;
-            }
+        if (msHTTPSamplerProxy.getBody() != null && !createCase) {
+            createCase = true;
         }
-        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getRest())) {
-            if (!createCase) {
-                createCase = true;
-            }
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getRest()) && !createCase) {
+            createCase = true;
         }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
         msHTTPSamplerProxy.setHashTree(new LinkedList<>());
