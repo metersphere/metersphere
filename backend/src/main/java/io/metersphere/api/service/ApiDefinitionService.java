@@ -833,7 +833,14 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                String requestStr = setImportHashTree(apiDefinition);
+                Map<String, String> stringObjectMap = setImportHashTree(apiDefinition);
+                String requestStr = stringObjectMap.get("request");
+                String createCase = stringObjectMap.get("createCase");
+                if (StringUtils.equalsIgnoreCase(createCase,"true") && CollectionUtils.isEmpty(caseList)) {
+                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = addNewCase(apiDefinition);
+                    caseList = new ArrayList<>();
+                    caseList.add(apiTestCaseWithBLOBs);
+                }
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
                 batchMapper.insert(apiDefinition);
@@ -940,8 +947,15 @@ public class ApiDefinitionService {
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                String request = setImportHashTree(apiDefinition);
-                apiDefinition.setRequest(request);
+                Map<String, String> stringObjectMap = setImportHashTree(apiDefinition);
+                String requestStr = stringObjectMap.get("request");
+                String createCase = stringObjectMap.get("createCase");
+                if (StringUtils.equalsIgnoreCase(createCase,"true") && CollectionUtils.isEmpty(caseList)) {
+                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = addNewCase(apiDefinition);
+                    caseList = new ArrayList<>();
+                    caseList.add(apiTestCaseWithBLOBs);
+                }
+                apiDefinition.setRequest(requestStr);
                 batchMapper.insert(apiDefinition);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
@@ -1012,9 +1026,10 @@ public class ApiDefinitionService {
                 if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                     //如果存在则修改
                     apiDefinition.setId(existApi.getId());
-                    String request = setImportHashTree(apiDefinition);
+                    Map<String, String> stringStringMap = setImportHashTree(apiDefinition);
+                    String requestStr = stringStringMap.get("request");
                     apiDefinition.setOrder(existApi.getOrder());
-                    apiDefinition.setRequest(request);
+                    apiDefinition.setRequest(requestStr);
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 } else {
@@ -1031,6 +1046,15 @@ public class ApiDefinitionService {
             extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
             extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         }
+    }
+
+    private ApiTestCaseWithBLOBs addNewCase(ApiDefinitionWithBLOBs apiDefinition) {
+        ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+        apiTestCase.setApiDefinitionId(apiDefinition.getId());
+        apiTestCase.setProjectId(apiDefinition.getProjectId());
+        apiTestCase.setName(apiDefinition.getName());
+        apiTestCase.setRequest(apiDefinition.getRequest());
+        return apiTestCase;
     }
 
     public Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
@@ -1206,13 +1230,32 @@ public class ApiDefinitionService {
         }
     }
 
-    private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
+    private Map<String,String> setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
+        Map<String,String> map = new HashMap<>();
         String request = apiDefinition.getRequest();
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
+        boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments())) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
+        if (msHTTPSamplerProxy.getBody()!=null) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getRest())) {
+            if (!createCase) {
+                createCase = true;
+            }
+        }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
         msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
-        return request;
+        map.put("request",request);
+        map.put("createCase",String.valueOf(createCase));
+        return map;
     }
 
     private String setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
