@@ -465,7 +465,7 @@ export default {
       this.infoList = resources;
     },
     del(row) {
-      operationConfirm(this, this.$t('test_resource_pool.delete_prompt'), () => {
+      operationConfirm(this.$t('test_resource_pool.delete_prompt'), () => {
         this.result = this.$get(`/testresourcepool/delete/${row.id}`, () => {
           this.initTableData();
           this.$success(this.$t('commons.delete_success'));
@@ -549,7 +549,7 @@ export default {
       if (row.status === 'INVALID') {
         this.checkHaveTestUsePool(row).then(() => {
           if (this.updatePool && this.updatePool.haveTestUsePool) {
-            operationConfirm(this, this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), () => {
+            operationConfirm(this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), () => {
               this.updatePoolStatus(row);
             }, () => {
               row.status = 'VALID';

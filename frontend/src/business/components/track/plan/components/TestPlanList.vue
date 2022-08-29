@@ -705,7 +705,7 @@ export default {
         message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
       }
 
-      operationConfirm(this, message, () => {
+      operationConfirm(message, () => {
         this.result = this.$post('/test/plan/update/scheduleByEnable', param, response => {
           if (row.scheduleOpen) {
             row.scheduleStatus = 'OPEN'

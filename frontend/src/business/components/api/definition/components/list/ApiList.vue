@@ -232,7 +232,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, hasLicense, operationConfirm} from "@/common/js/utils";
 import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -930,13 +930,8 @@ export default {
           // 删除提供列表删除和全部版本删除
           this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
         } else {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this._handleDelete(api, false);
-              }
-            }
+          operationConfirm(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name, () => {
+            this._handleDelete(api, false);
           });
         }
       });

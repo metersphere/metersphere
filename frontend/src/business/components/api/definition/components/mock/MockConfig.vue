@@ -221,7 +221,7 @@ export default {
     },
 
     removeExpect(row) {
-      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
+      operationConfirm(this.$t('api_test.mock.delete_mock_expect'), () => {
         let mockInfoId = row.mockConfigId;
         let selectUrl = "/mockConfig/deleteMockExpectConfig/" + row.id;
         this.$get(selectUrl, response => {

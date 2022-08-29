@@ -345,7 +345,7 @@ export default {
       this.$refs.deleteConfirm.open(workspace);
     },
     _handleDelete(workspace) {
-      operationConfirm(this, this.$t('workspace.delete_confirm'), () => {
+      operationConfirm(this.$t('workspace.delete_confirm'), () => {
         this.$get('/workspace/special/delete/' + workspace.id, () => {
           Message.success(this.$t('commons.delete_success'));
           this.list();
@@ -353,7 +353,7 @@ export default {
       });
     },
     delMember(row) {
-      operationConfirm(this, this.$t('member.remove_member'), () => {
+      operationConfirm(this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.cellClick(this.currentWorkspaceRow);

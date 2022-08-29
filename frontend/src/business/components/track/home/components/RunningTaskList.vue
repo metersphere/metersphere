@@ -132,7 +132,7 @@ export default {
     closeTaskConfirm(row){
       let flag = row.taskStatus;
       row.taskStatus = !flag; //保持switch点击前的状态
-      operationConfirm(this, this.$t('api_test.home_page.running_task_list.confirm.close_title'), () => {
+      operationConfirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), () => {
         this.updateTask(row);
       });
     },
