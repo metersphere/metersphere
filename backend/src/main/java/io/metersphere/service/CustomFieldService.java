@@ -9,7 +9,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.CustomFieldIssuesMapper;
 import io.metersphere.base.mapper.CustomFieldMapper;
-import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
 import io.metersphere.commons.constants.CustomFieldType;
@@ -233,6 +232,10 @@ public class CustomFieldService {
             }
         }
         return new ArrayList<>();
+    }
+
+    public  List<CustomField> getWorkspaceIdSystemFields(String workspaceId, String scene) {
+        return extCustomFieldMapper.getWorkspaceIdSystemFields(workspaceId, scene);
     }
 
     public List<CustomFieldResource> getCustomFieldResource(String customFieldsStr) {

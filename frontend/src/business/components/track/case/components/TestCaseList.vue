@@ -50,14 +50,6 @@
 
       <span v-for="(item, index) in fields" :key="index">
 
-       <ms-table-column
-         prop="projectName"
-         :fields-width="fieldsWidth"
-         :label="$t('test_track.case.project')"
-         v-if="publicEnable && item.id === 'projectName'"
-         min-width="150px">
-       </ms-table-column>
-
         <ms-table-column
           v-if="!customNum"
           :field="item"
@@ -144,7 +136,7 @@
           :label="$t('project.version.name')"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="!publicEnable ? versionFilters : null"
+          :filters="versionFilters"
           min-width="100px"
           prop="versionId">
            <template v-slot:default="scope">
@@ -157,31 +149,14 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.module')"
-          v-if="!publicEnable"
           min-width="150px">
         </ms-table-column>
 
-        <ms-table-column
-          prop="updateTime"
-          sortable
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.update_time')"
-          min-width="150px">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </ms-table-column>
-        <ms-table-column prop="createTime"
-                         :field="item"
-                         :fields-width="fieldsWidth"
-                         :label="$t('commons.create_time')"
-                         sortable
-                         min-width="150px">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </ms-table-column>
+        <ms-update-time-column :field="item"
+                               :fields-width="fieldsWidth"/>
+
+        <ms-create-time-column :field="item"
+                               :fields-width="fieldsWidth"/>
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="getCustomFieldFilter(field)"
@@ -215,8 +190,7 @@
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
 
-    <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove" :public-enable="publicEnable"
-                @copyPublic="copyPublic"/>
+    <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
 
     <relate-demand ref="relateDemand" @batchRelate="_batchRelateDemand"/>
 
@@ -232,17 +206,10 @@
 
 <script>
 
-import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import TestCaseImport from './import/TestCaseImport';
 import MsTablePagination from '../../../../components/common/pagination/TablePagination';
-import NodeBreadcrumb from '../../common/NodeBreadcrumb';
-import MsTableHeader from '../../../../components/common/components/MsTableHeader';
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
-import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
-import MsTableOperator from "../../../common/components/MsTableOperator";
-import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
-import MsTableButton from "../../../common/components/MsTableButton";
 import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 import BatchEdit from "./BatchEdit";
 import {TEST_CASE_LIST} from "@/common/js/constants";
@@ -265,11 +232,9 @@ import {
   initCondition,
   parseCustomFilesForList,
 } from "@/common/js/tableUtils";
-import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
 import {
   getCurrentProjectID,
-  getCurrentUserId,
   getCurrentWorkspaceId,
   getUUID,
   hasLicense, operationConfirm,
@@ -284,7 +249,6 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
-import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {
   generateColumnKey,
@@ -294,6 +258,8 @@ import MsSearch from "@/business/components/common/components/search/MsSearch";
 import RelateDemand from "@/business/components/track/case/components/RelateDemand";
 import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
 import TestPlanCaseStatusTableItem from "@/business/components/track/common/tableItems/TestPlanCaseStatusTableItem";
+import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -301,29 +267,22 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "TestCaseList",
   components: {
+    MsCreateTimeColumn,
+    MsUpdateTimeColumn,
     TestPlanCaseStatusTableItem,
     TestCaseReviewStatusTableItem,
     RelateDemand,
     MsSearch,
     ListItemDeleteConfirm,
-    MsTableAdvSearchBar,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
     MsTable,
     PlanStatusTableItem,
-    HeaderLabelOperate,
-    MsTableHeaderSelectPopover,
-    MsTableButton,
-    MsTableOperatorButton,
-    MsTableOperator,
-    MethodTableItem,
     TypeTableItem,
     PriorityTableItem,
     TestCaseImport,
     MsTablePagination,
-    NodeBreadcrumb,
-    MsTableHeader,
     BatchEdit,
     StatusTableItem,
     ReviewStatus,
@@ -337,8 +296,6 @@ export default {
       type: TEST_CASE_LIST,
       tableHeaderKey: "TRACK_TEST_CASE",
       screenHeight: 'calc(100vh - 185px)',
-      tableLabel: [],
-      deletePath: "/test/case/delete",
       enableOrderDrag: true,
       isMoveBatch: true,
       condition: {
@@ -348,31 +305,6 @@ export default {
       },
       versionFilters: [],
       graphData: {},
-      priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
-      methodFilters: [
-        {text: this.$t('test_track.case.manual'), value: 'manual'},
-        {text: this.$t('test_track.case.auto'), value: 'auto'}
-      ],
-      typeFilters: [
-        {text: this.$t('commons.functional'), value: 'functional'},
-        {text: this.$t('commons.performance'), value: 'performance'},
-        {text: this.$t('commons.api'), value: 'api'}
-      ],
-      reviewStatusFilters: [
-        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.review.pass'), value: 'Pass'},
-        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
-      ],
-      statusFilters: [
-        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.case.status_running'), value: 'Underway'},
-        {text: this.$t('test_track.case.status_finished'), value: 'Completed'},
-      ],
       batchButtons: [],
       simpleButtons: [
         {
@@ -413,17 +345,6 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC'],
         }
       ],
-      publicButtons: [
-        {
-          name: this.$t('test_track.case.batch_copy'),
-          handleClick: this.handleBatchMove,
-          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
-        }, {
-          name: this.$t('test_track.case.batch_delete_case'),
-          handleClick: this.handleDeleteBatchToPublic,
-          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE'],
-        },
-      ],
       trashButtons: [
         {
           name: this.$t('commons.reduction'),
@@ -451,30 +372,6 @@ export default {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDeleteToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
-        }
-      ],
-      publicOperators: [
-        {
-          tip: this.$t('commons.view'), icon: "el-icon-view",
-          exec: this.handleEditShow,
-          permissions: ['PROJECT_TRACK_CASE:READ'],
-        },
-        {
-          tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEditPublic,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT'],
-          isDisable: this.isPublic
-        },
-        {
-          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopyPublic,
-          permissions: ['PROJECT_TRACK_CASE:READ+COPY']
-        },
-        {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDeleteToGc,
-          permissions: ['PROJECT_TRACK_CASE:READ+DELETE'],
-          isDisable: this.isPublic
         }
       ],
       trashOperators: [
@@ -512,10 +409,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    publicEnable: {
-      type: Boolean,
-      default: false,
-    },
     currentVersion: String,
     versionEnable: {
       type: Boolean,
@@ -546,10 +439,6 @@ export default {
     }
   },
   created: function () {
-    if (this.publicEnable) {
-      this.tableHeaderKey = 'TRACK_PUBLIC_TEST_CASE';
-      this.fields = getCustomTableHeader(this.tableHeaderKey);
-    }
     this.getTemplateField();
     this.$emit('setCondition', this.condition);
     this.initTableData();
@@ -564,9 +453,6 @@ export default {
     if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.batchButtons = this.trashButtons;
-    } else if (this.publicEnable) {
-      this.operators = this.publicOperators;
-      this.batchButtons = this.publicButtons;
     } else {
       this.operators = this.simpleOperators;
       this.batchButtons = this.simpleButtons;
@@ -613,21 +499,6 @@ export default {
         this.batchButtons = this.trashButtons;
         //更改查询条件
         this.condition.filters = {status: ["Trash"]};
-        this.condition.moduleIds = [];
-        initCondition(this.condition, false);
-        this.initTableData();
-      } else {
-        //更改各种按钮
-        this.operators = this.simpleOperators;
-        this.batchButtons = this.simpleButtons;
-        this.condition.filters.status = [];
-      }
-    },
-    publicEnable() {
-      if (this.publicEnable) {
-        //更改表格按钮
-        this.operators = this.publicOperators;
-        this.batchButtons = this.publicButtons;
         this.condition.moduleIds = [];
         initCondition(this.condition, false);
         this.initTableData();
@@ -761,10 +632,6 @@ export default {
         }
       });
     },
-    customHeader() {
-      const list = deepClone(this.tableLabel);
-      this.$refs.headerCustom.open(list);
-    },
     getSelectDataRange() {
       let routeParamObj = this.$route.params.paramObj;
       this.selectDataRange = 'all';
@@ -785,7 +652,7 @@ export default {
         this.condition.planId = this.planId;
       }
 
-      if (!this.trashEnable && !this.publicEnable) {
+      if (!this.trashEnable) {
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           if (!this.selectNode || this.selectNode.data.id !== 'root') {
             // 优化：如果当前选中节点是root节点，则不添加过滤条件
@@ -841,11 +708,6 @@ export default {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
         let url = '/test/case/list';
-        if (this.publicEnable) {
-          url = '/test/case/publicList';
-          this.condition.casePublic = true;
-          this.condition.workspaceId = getCurrentWorkspaceId();
-        }
         this.page.result = this.$post(this.buildPagePath(url), this.condition, response => {
           let data = response.data;
           this.page.total = data.itemCount;
@@ -879,38 +741,11 @@ export default {
       this.$emit('testCaseEdit');
     },
     handleEdit(testCase) {
-      if (this.publicEnable) {
-        return;
-      } else {
-        this.$get('test/case/get/' + testCase.id, response => {
-          let testCase = response.data;
-          testCase.trashEnable = this.trashEnable;
-          this.$emit('testCaseEdit', testCase);
-        });
-      }
-    },
-    handleEditPublic(testCase, column) {
-      if (column.label !== this.$t('test_track.case.case_desc')) {
-        this.$get('test/case/get/' + testCase.id, response => {
-          let testCase = response.data;
-          this.$emit('testCaseEdit', testCase);
-        });
-      }
-    },
-    handleEditShow(testCase, column) {
-      if (column.label !== this.$t('test_track.case.case_desc')) {
-        this.$get('test/case/get/' + testCase.id, response => {
-          let testCase = response.data;
-          this.$emit('testCaseEditShow', testCase);
-        });
-      }
-
-    },
-    isPublic(testCase) {
-      if ((testCase.maintainer && testCase.maintainer === getCurrentUserId()) || (testCase.createUser && testCase.createUser === getCurrentUserId())) {
-        return false;
-      }
-      return true;
+      this.$get('test/case/get/' + testCase.id, response => {
+        let testCase = response.data;
+        testCase.trashEnable = this.trashEnable;
+        this.$emit('testCaseEdit', testCase);
+      });
     },
     getCase(id) {
       this.$refs.testCasePreview.open();
@@ -931,10 +766,6 @@ export default {
         }
         this.$refs.testCasePreview.setData(this.rowCase);
       });
-    },
-    handleCopyPublic(testCase) {
-      this.$refs.table.selectIds.push(testCase.id);
-      this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
     },
     handleCopy(testCase) {
       this.$get('test/case/get/' + testCase.id, response => {
@@ -1173,16 +1004,6 @@ export default {
         this.refresh();
       });
     },
-    handleDeleteBatchToPublic() {
-      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
-        let param = buildBatchParam(this, this.$refs.table.selectIds);
-        this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
-          this.$refs.table.clear();
-          this.$emit("refreshPublic");
-          this.$success(this.$t('commons.delete_success'));
-        });
-      });
-    },
     handleBatchMove() {
       this.isMoveBatch = true;
       this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
@@ -1194,35 +1015,15 @@ export default {
     _handleDeleteVersion(testCase, deleteCurrentVersion) {
       // 删除指定版本
       if (deleteCurrentVersion) {
-        if (this.publicEnable) {
-          this.$get('/test/case/deletePublic/' + testCase.versionId + '/' + testCase.refId, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshPublic");
-          });
-        } else {
-          this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshAll");
-          });
-        }
-      }
-      // 删除全部版本
-      else {
-        if (this.publicEnable) {
-          let param = buildBatchParam(this, this.$refs.table.selectIds);
-          param.ids.push(testCase.id);
-          this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshPublic");
-          });
-        } else {
-          this._handleDeleteToGc(testCase);
+        this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
+          this.$success(this.$t('commons.delete_success'));
           this.$refs.apiDeleteConfirm.close();
-        }
-
+          this.$emit("refreshAll");
+        });
+      } else {
+        // 删除全部版本
+        this._handleDeleteToGc(testCase);
+        this.$refs.apiDeleteConfirm.close();
       }
     },
     checkSelected() {
@@ -1250,17 +1051,6 @@ export default {
         this.refresh();
       });
     },
-    copyPublic(param) {
-      param.condition = this.condition;
-      param.projectId = this.projectId;
-      param.condition.projectId = null;
-      param.condition.ids = null;
-      this.page.result = this.$post('/test/case/batch/copy/public', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.$refs.testBatchMove.close();
-        this.refresh();
-      });
-    },
     getVersionOptions() {
       if (hasLicense()) {
         this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
@@ -1276,31 +1066,6 @@ export default {
 </script>
 
 <style scoped>
-
-.table-page {
-  padding-top: 10px;
-  margin-right: -9px;
-  float: right;
-}
-
-.operate-button {
-  float: right;
-}
-
-.operate-button > div {
-  display: inline-block;
-  margin-left: 10px;
-}
-
-.search-input {
-  float: right;
-  width: 300px;
-}
-
-.search {
-  margin-left: 10px;
-  width: 240px;
-}
 
 .el-table {
   cursor: pointer;
