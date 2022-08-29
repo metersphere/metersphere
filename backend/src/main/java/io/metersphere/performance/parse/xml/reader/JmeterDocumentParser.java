@@ -31,6 +31,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private final static String STRING_PROP = "stringProp";
     private final static String ELEMENT_PROP = "elementProp";
     private final static String BOOL_PROP = "boolProp";
+    private final static String INT_PROP = "intProp";
     private final static String COLLECTION_PROP = "collectionProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
@@ -547,7 +548,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void appendIntProp(Element ele, String name, int value) {
-        Element intProp = ele.addElement(BOOL_PROP);
+        Element intProp = ele.addElement(INT_PROP);
         intProp.addAttribute("name", name);
         intProp.setText(String.valueOf(value));
     }
