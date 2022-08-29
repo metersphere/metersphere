@@ -505,10 +505,17 @@ public class ApiScenarioReportService {
         if (testPlanUiScenario != null) {
             report.setScenarioId(testPlanUiScenario.getUiScenarioId());
             report.setEndTime(System.currentTimeMillis());
-            testPlanUiScenario.setLastResult(status);
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
-            testPlanUiScenario.setPassRate(passRate);
+            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.UN_EXECUTE.toString())) {
+                testPlanUiScenario.setLastResult(ScenarioStatus.Fail.name());
+            } else {
+                testPlanUiScenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
+            }
+            if (CollectionUtils.isEmpty(requestResults)) {
+                testPlanUiScenario.setPassRate("0");
+            } else {
+                testPlanUiScenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            }
             testPlanUiScenario.setReportId(report.getId());
             report.setEndTime(System.currentTimeMillis());
             testPlanUiScenario.setUpdateTime(System.currentTimeMillis());
