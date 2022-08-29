@@ -11,6 +11,7 @@ export const TEST_PLAN_FUNCTION_TEST_CASE = 'test_plan_function_test_case'
 export const TEST_PLAN_API_CASE = 'test_plan_api_case'
 export const TEST_PLAN_LOAD_CASE = 'test_plan_load_case'
 export const TEST_PLAN_SCENARIO_CASE = 'test_plan_scenario_case'
+export const TEST_PLAN_UI_SCENARIO_CASE = 'test_plan_ui_scenario_case'
 
 export const TokenKey = 'Admin-Token';
 export const LicenseKey = 'License';
