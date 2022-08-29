@@ -233,6 +233,8 @@ export let CUSTOM_TABLE_HEADER = {
   TRACK_PUBLIC_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'status', key: 'c', label: 'test_track.case.case_status'},
+    {id: 'priority', key: 'd', label: 'test_track.case.priority'},
     {id: 'reviewStatus', key: '3', label: 'test_track.case.status'},
     {id: 'tags', key: '4', label: 'commons.tag'},
     {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},

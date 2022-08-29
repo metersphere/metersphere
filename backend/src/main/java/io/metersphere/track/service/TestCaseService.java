@@ -195,6 +195,8 @@ public class TestCaseService {
     @Resource
     @Lazy
     private TestCaseTemplateService testCaseTemplateService;
+    @Resource
+    private CustomFieldService customFieldService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
 
@@ -788,8 +790,49 @@ public class TestCaseService {
         ServiceUtils.buildVersionInfo(returnList);
         ServiceUtils.buildProjectInfo(returnList);
         buildUserInfo(returnList);
-        buildCustomField(returnList);
+        buildPublicCustomField(request, returnList);
         return returnList;
+    }
+
+    private void buildPublicCustomField(QueryTestCaseRequest request, List<TestCaseDTO> returnList) {
+        Map<String, List<CustomField>> projectFieldMap = customFieldService.getWorkspaceIdSystemFields(request.getWorkspaceId(), CustomFieldScene.TEST_CASE.name())
+                .stream().collect(Collectors.groupingBy(CustomField::getProjectId));
+
+        Map<String, Map<String, String>> projectStatusOptionMap = new HashMap<>();
+        Map<String, Map<String, String>> projectPriorityOptionMap = new HashMap<>();
+        projectFieldMap.forEach((projectId, fields) -> {
+            Map<String, String> statusOptionMap = Optional.ofNullable(projectStatusOptionMap.get(projectId)).orElse(new HashMap<>());
+            Map<String, String> priorityOptionMap = Optional.ofNullable(projectPriorityOptionMap.get(projectId)).orElse(new HashMap<>());
+            for (CustomField field : fields) {
+                if (field.getName().equals(TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
+                    if (StringUtils.isNotBlank(field.getOptions())) {
+                        statusOptionMap = JSONArray.parseArray(field.getOptions(), CustomFieldOption.class)
+                                .stream()
+                                .collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
+                    }
+                }
+                if (field.getName().equals(TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
+                    if (StringUtils.isNotBlank(field.getOptions())) {
+                        priorityOptionMap = JSONArray.parseArray(field.getOptions(), CustomFieldOption.class)
+                                .stream()
+                                .collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
+                    }
+                }
+            }
+            projectStatusOptionMap.put(projectId, statusOptionMap);
+            projectPriorityOptionMap.put(projectId, priorityOptionMap);
+        });
+
+        returnList.forEach(testCase -> {
+            String status = projectStatusOptionMap.get(testCase.getProjectId()).get(testCase.getStatus());
+            String priority = projectPriorityOptionMap.get(testCase.getProjectId()).get(testCase.getStatus());
+            if (StringUtils.isNotBlank(status)) {
+                testCase.setStatus(status);
+            }
+            if (StringUtils.isNotBlank(priority)) {
+                testCase.setPriority(priority);
+            }
+        });
     }
 
 
