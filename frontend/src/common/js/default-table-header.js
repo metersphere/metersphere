@@ -200,6 +200,21 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createTime', key: 'b', label: 'commons.create_time'},
     {id: 'lastResult', key: 'c', label: 'api_test.automation.last_result'},
   ],
+  //测试计划-UI用例
+  TEST_PLAN_UI_SCENARIO_CASE: [
+    {id: 'num', key: '1', label: 'commons.id'},
+    {id: 'name', key: '2', label: 'api_test.automation.scenario_name'},
+    {id: 'versionId', key: 'd', label: 'commons.version'},
+    {id: 'level', key: '3', label: 'api_test.automation.case_level'},
+    {id: 'tagNames', key: '4', label: 'api_test.automation.tag'},
+    {id: 'stepTotal', key: '7', label: 'api_test.automation.step'},
+    {id: 'passRate', key: '9', label: 'api_test.automation.passing_rate'},
+    {id: 'maintainer', key: 'a', label: 'api_test.definition.request.responsible'},
+    {id: 'createUser', key: '5', label: 'api_test.automation.creator'},
+    {id: 'updateTime', key: '6', label: 'api_test.automation.update_time'},
+    {id: 'createTime', key: 'b', label: 'commons.create_time'},
+    {id: 'lastResult', key: 'c', label: 'api_test.automation.last_result'},
+  ],
   //测试用例
   TRACK_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
