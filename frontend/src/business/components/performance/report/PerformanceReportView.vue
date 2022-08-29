@@ -337,7 +337,7 @@ export default {
       this.dialogFormVisible = false;
     },
     rerun(testId) {
-      operationConfirm(this, this.$t('report.test_rerun_confirm'), () => {
+      operationConfirm(this.$t('report.test_rerun_confirm'), () => {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});

@@ -320,3 +320,8 @@ textarea {
 .el-form-item__error {
   position: relative;
 }
+
+/* 消息提示框上移一点 */
+.el-message-box {
+  margin-bottom: 20%;
+}

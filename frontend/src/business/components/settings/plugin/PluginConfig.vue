@@ -129,7 +129,7 @@ export default {
       this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(id) {
-      operationConfirm(this, this.$t('api_test.jar_config.delete_tip'), () => {
+      operationConfirm(this.$t('api_test.jar_config.delete_tip'), () => {
         this.result = this.$get("/plugin/delete/" + id, () => {
           this.$success(this.$t('commons.delete_success'));
           this.initPlugins();

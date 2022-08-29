@@ -303,7 +303,7 @@ export default {
       listenGoBack(this.handleClose);
     },
     del(row) {
-      operationConfirm(this, this.$t('user.delete_confirm'), () => {
+      operationConfirm(this.$t('user.delete_confirm'), () => {
         this.result = this.$get(this.deletePath + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.delete_success'));
           this.search();

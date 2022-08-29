@@ -339,7 +339,7 @@ export default {
     },
     deleteEnv(environment) {
       if (environment.id) {
-        operationConfirm(this, this.$t('commons.confirm_delete') + environment.name, () => {
+        operationConfirm(this.$t('commons.confirm_delete') + environment.name, () => {
           this.result = this.$get('/api/environment/delete/' + environment.id, () => {
             this.$success(this.$t('commons.delete_success'));
             this.list();

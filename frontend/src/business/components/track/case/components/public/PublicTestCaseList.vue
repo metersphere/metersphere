@@ -421,7 +421,7 @@ export default {
           // 删除提供列表删除和全部版本删除
           this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
         } else {
-          operationConfirm(this, this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
+          operationConfirm(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
             this._handleDeleteVersion(testCase, false);
           });
         }
@@ -482,7 +482,7 @@ export default {
       this.$emit('refreshAll');
     },
     handleDeleteBatchToPublic() {
-      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
+      operationConfirm(this.$t('test_track.case.delete_confirm'), () => {
         let param = buildBatchParam(this, this.$refs.table.selectIds);
         this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
           this.$refs.table.clear();
