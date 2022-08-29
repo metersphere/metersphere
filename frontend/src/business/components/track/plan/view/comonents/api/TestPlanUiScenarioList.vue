@@ -182,18 +182,6 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
-<!--    <ui-run-mode-->
-<!--      :type="'apiScenario'"-->
-<!--      :plan-case-ids="planCaseIds"-->
-<!--      @close="search"-->
-<!--      @handleRunBatch="handleRunBatch"-->
-<!--      ref="runMode"/>-->
-<!--    <ms-plan-run-mode-->
-<!--      :type="'apiScenario'"-->
-<!--      :plan-case-ids="planCaseIds"-->
-<!--      @close="search"-->
-<!--      @handleRunBatch="handleRunBatch"-->
-<!--      ref="runMode"/>-->
 
     <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :custom-run-mode="true" :custom-serial-on-sample-error="true"/>
 
@@ -216,7 +204,7 @@ import {
   initCondition,
   buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "../../../../../../../common/js/tableUtils";
-import {ENV_TYPE, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
+import {ENV_TYPE, TEST_PLAN_UI_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
@@ -267,10 +255,10 @@ export default {
   },
   data() {
     return {
-      type: TEST_PLAN_SCENARIO_CASE,
+      type: TEST_PLAN_UI_SCENARIO_CASE,
       tableHeaderKey:"TEST_PLAN_SCENARIO_CASE",
-      fields: getCustomTableHeader('TEST_PLAN_SCENARIO_CASE'),
-      fieldsWidth: getCustomTableWidth('TEST_PLAN_SCENARIO_CASE'),
+      fields: getCustomTableHeader('TEST_PLAN_UI_SCENARIO_CASE'),
+      fieldsWidth: getCustomTableWidth('TEST_PLAN_UI_SCENARIO_CASE'),
       screenHeight: 'calc(100vh - 250px)',//屏幕高度
       tableLabel: [],
       loading: false,
