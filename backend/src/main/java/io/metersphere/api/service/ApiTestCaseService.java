@@ -460,7 +460,7 @@ public class ApiTestCaseService {
                 test.setTags(request.getTags());
             }
             ApiTestCaseSyncService apiTestCaseSyncService = CommonBeanFactory.getBean(ApiTestCaseSyncService.class);
-            if(apiTestCaseSyncService!=null){
+            if(apiTestCaseSyncService != null){
                 apiTestCaseSyncService.setCaseUpdateValue(test);
             }
 
@@ -1306,7 +1306,7 @@ public class ApiTestCaseService {
             request.setStatusList(new ArrayList<>());
         } else {
             ApiTestCaseSyncService apiTestCaseSyncService = CommonBeanFactory.getBean(ApiTestCaseSyncService.class);
-            if (apiTestCaseSyncService !=null) {
+            if (apiTestCaseSyncService != null) {
                 List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
                 if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
                     syncRuleCaseStatus = new ArrayList<>();

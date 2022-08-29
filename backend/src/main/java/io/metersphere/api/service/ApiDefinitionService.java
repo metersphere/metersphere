@@ -932,9 +932,8 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                String requestStr = setImportHashTree(apiDefinition);
+                caseList = setRequestAndAddNewCase(apiDefinition, caseList, true);
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                apiDefinition.setRequest(requestStr);
                 batchMapper.insert(apiDefinition);
                 List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
                 apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
@@ -1068,20 +1067,10 @@ public class ApiDefinitionService {
             }
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-            if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                String request = setImportHashTree(apiDefinition);
-                apiDefinition.setRequest(request);
-                batchMapper.insert(apiDefinition);
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
-                apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
-            } else {
-                if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    setImportTCPHashTree(apiDefinition);
-                }
-                batchMapper.insert(apiDefinition);
-                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
-                apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
-            }
+            caseList = setRequestAndAddNewCase(apiDefinition, caseList, true);
+            batchMapper.insert(apiDefinition);
+            ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
+            apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
             List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
             apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
         } else { //如果存在则修改
@@ -1132,7 +1121,7 @@ public class ApiDefinitionService {
                     apiDefinition.setUserId(existApi.getUserId());
                 }
                 //Check whether the content has changed, if not, do not change the creation time
-                if (apiDefinition.getProtocol().equals("HTTP")) {
+                if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                     Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
                     if (toChangeTime) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
@@ -1155,27 +1144,13 @@ public class ApiDefinitionService {
                 if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
                     apiDefinition.setTags(existApi.getTags()); // 其他格式 tag 不变，MS 格式替换
                 }
-                if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                    //如果存在则修改
-                    apiDefinition.setId(existApi.getId());
-                    String request = setImportHashTree(apiDefinition);
-                    apiDefinition.setOrder(existApi.getOrder());
-                    apiDefinition.setRequest(request);
-                    reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-                    ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
-                    apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
-                } else {
-                    apiDefinition.setId(existApi.getId());
-                    if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                        setImportTCPHashTree(apiDefinition);
-                    }
-                    apiDefinition.setOrder(existApi.getOrder());
-                    reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-                    ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
-                    apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
-                }
+                apiDefinition.setId(existApi.getId());
+                setRequestAndAddNewCase(apiDefinition, caseList, false);
+                apiDefinition.setOrder(existApi.getOrder());
+                reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
+                batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, true);
+                apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
                 List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
                 apiImportSendNoticeDTO.setCaseDTOList(apiTestCaseDTOS);
             }
@@ -1183,6 +1158,21 @@ public class ApiDefinitionService {
         extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
         extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         return apiImportSendNoticeDTO;
+    }
+
+    private List<ApiTestCaseWithBLOBs> setRequestAndAddNewCase(ApiDefinitionWithBLOBs apiDefinition, List<ApiTestCaseWithBLOBs> caseList, boolean newCreate) {
+        boolean createCase = false;
+        if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
+            createCase = setImportHashTree(apiDefinition);
+        } else if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
+            createCase = setImportTCPHashTree(apiDefinition);
+        }
+        if (newCreate && createCase && CollectionUtils.isEmpty(caseList)) {
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = addNewCase(apiDefinition);
+            caseList = new ArrayList<>();
+            caseList.add(apiTestCaseWithBLOBs);
+        }
+        return caseList;
     }
 
     public void sendImportApiUpdateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
@@ -1451,22 +1441,51 @@ public class ApiDefinitionService {
         }
     }
 
-    private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
+    private ApiTestCaseWithBLOBs addNewCase(ApiDefinitionWithBLOBs apiDefinition) {
+        ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+        apiTestCase.setApiDefinitionId(apiDefinition.getId());
+        apiTestCase.setProjectId(apiDefinition.getProjectId());
+        apiTestCase.setName(apiDefinition.getName());
+        apiTestCase.setRequest(apiDefinition.getRequest());
+        return apiTestCase;
+    }
+
+    private boolean setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
+        boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
+            createCase = true;
+        }
+        if (msHTTPSamplerProxy.getBody() != null && !createCase) {
+            createCase = true;
+        }
+        if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getRest()) && !createCase) {
+            createCase = true;
+        }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
         msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
-        return request;
+        return createCase;
     }
 
-    private String setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
+    private boolean setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
         MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
+        boolean createCase = CollectionUtils.isNotEmpty(tcpSampler.getParameters());
+        if (StringUtils.isNotBlank(tcpSampler.getJsonDataStruct()) && !createCase) {
+            createCase = true;
+        }
+        if (StringUtils.isNotBlank(tcpSampler.getRawDataStruct()) && !createCase) {
+            createCase = true;
+        }
+        if (CollectionUtils.isNotEmpty(tcpSampler.getXmlDataStruct()) && !createCase) {
+            createCase = true;
+        }
         tcpSampler.setId(apiDefinition.getId());
         tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
-        return request;
+        return createCase;
     }
 
     private void deleteFileByTestId(String apiId) {
