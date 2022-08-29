@@ -330,7 +330,7 @@ export default {
       this.currentRow = row;
     },
     handleDelete(row) {
-      operationConfirm(this, this.$t('project.file_delete_tip', [row.name]), () => {
+      operationConfirm(this.$t('project.file_delete_tip', [row.name]), () => {
         this.$get('/project/delete/file/' + row.id, response => {
           Message.success(this.$t('commons.delete_success'));
           this.getProjectFiles();

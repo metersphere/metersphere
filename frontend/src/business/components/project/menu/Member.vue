@@ -164,7 +164,7 @@ export default {
       this.$set(this.form, 'groupIds', groupIds);
     },
     del(row) {
-      operationConfirm(this, this.$t('member.remove_member'), () => {
+      operationConfirm(this.$t('member.remove_member'), () => {
         if (row.id === getCurrentUserId()) {
           this.$warning(this.$t('group.unable_to_remove_current_member'));
           return;
