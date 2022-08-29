@@ -55,8 +55,6 @@
               :version-enable="versionEnable"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
-              @getTrashList="getTrashList"
-              @getPublicList="getPublicList"
               @refresh="refreshTrashNode"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
@@ -67,26 +65,20 @@
         </el-tab-pane>
         <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
           <div style="height: 6px;"></div>
-          <test-case-list
-            :checkRedirectID="checkRedirectID"
-            :isRedirectEdit="isRedirectEdit"
+          <public-test-case-list
             :tree-nodes="treeNodes"
-            :trash-enable="false"
-            :public-enable="true"
             :version-enable="versionEnable"
             @refreshTable="refresh"
             @testCaseEdit="editTestCase"
             @testCaseEditShow="editTestCaseShow"
             @testCaseCopy="copyTestCase"
-            @getTrashList="getTrashList"
-            @getPublicList="getPublicList"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
             @setCondition="setCondition"
             @search="refreshTreeByCaseFilter"
             ref="testCasePublicList">
-          </test-case-list>
+          </public-test-case-list>
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
@@ -233,6 +225,7 @@ import TestCaseEditShow from "@/business/components/track/case/components/TestCa
 import {PROJECT_ID} from "@/common/js/constants";
 import TestCasePublicNodeTree from "@/business/components/track/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/components/track/module/TestCaseTrashNodeTree";
+import PublicTestCaseList from "@/business/components/track/case/components/public/PublicTestCaseList";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -240,6 +233,7 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "TestCase",
   components: {
+    PublicTestCaseList,
     TestCaseTrashNodeTree,
     TestCasePublicNodeTree,
     IsChangeConfirm,

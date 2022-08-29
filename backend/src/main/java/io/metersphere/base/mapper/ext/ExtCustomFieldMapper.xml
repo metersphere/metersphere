@@ -40,8 +40,15 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="getWorkspaceIdSystemFields" resultType="io.metersphere.base.domain.CustomField">
+        select cf.*
+        from custom_field cf
+        left join project p
+            on cf.project_id = p.id
+        where p.workspace_id = #{workspaceId} and cf.scene = #{scene}
+    </select>
 
-<!--  如果创建了工作空间的字段，就去除全局的该字段-->
+    <!--  如果创建了工作空间的字段，就去除全局的该字段-->
     <sql id="queryWhereCondition">
         <where>
             <if test="request.name != null">
