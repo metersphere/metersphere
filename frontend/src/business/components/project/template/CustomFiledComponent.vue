@@ -155,6 +155,9 @@ export default {
         }
       }
     }
+    if (this.data.type.indexOf("member") < 0) {
+      return;
+    }
     getProjectMemberOption((data) => {
       this.memberOptions = data;
       if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {

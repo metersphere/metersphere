@@ -66,7 +66,7 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
 
-    @PostMapping("/publicList/{goPage}/{pageSize}")
+    @PostMapping("/public/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> publicList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

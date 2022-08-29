@@ -64,6 +64,7 @@ export default {
     edit_case: "编辑用例",
     view_case: "查看用例",
     no_project: "该工作空间下无项目，请先创建项目",
+    case_status: "用例状态",
     priority: "用例等级",
     type: "类型",
     method: "测试方式",

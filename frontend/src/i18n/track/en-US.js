@@ -72,6 +72,7 @@ export default {
     edit_case: "Edit case",
     view_case: "Test case",
     no_project: "There is no project in this workspace, please create the project first",
+    case_status: "Status",
     priority: "Priority",
     type: "Type",
     method: "Method",
