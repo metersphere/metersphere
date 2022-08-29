@@ -628,4 +628,12 @@ p {
 /deep/ .el-drawer__body {
   overflow: unset;
 }
+
+/deep/ .el-form-item__content {
+  z-index: 1;
+}
+
+.head-bar {
+  z-index: 1;
+}
 </style>
