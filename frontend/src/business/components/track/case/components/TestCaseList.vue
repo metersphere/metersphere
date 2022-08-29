@@ -691,6 +691,9 @@ export default {
       return value;
     },
     getCustomFieldFilter(field) {
+      if (field.options) {
+        return field.options;
+      }
       if (field.name === '用例等级') {
         return this.priorityFilters;
       } else if (field.name === '用例状态') {
