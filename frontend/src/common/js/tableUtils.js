@@ -430,6 +430,17 @@ export function saveCustomTableWidth(key, fieldKey, colWith) {
   localStorage.setItem(key + '_WITH', JSON.stringify(fields));
 }
 
+function parseStatus(row, options) {
+  if (options) {
+    for (let option of options) {
+      if (option.value === row.status) {
+        return option.system ? i18n.t(option.text) : option.text;
+      }
+    }
+  }
+  return row.status;
+}
+
 /**
  * 获取列表的自定义字段的显示值
  * @param row
@@ -438,6 +449,9 @@ export function saveCustomTableWidth(key, fieldKey, colWith) {
  * @returns {VueI18n.TranslateResult|*}
  */
 export function getCustomFieldValue(row, field, members) {
+  if (field.name === '用例状态' && field.system) {
+    return parseStatus(row, field.options);
+  }
   if (row.customFields) {
     for (let i = 0; i < row.customFields.length; i++) {
       let item = row.customFields[i];
