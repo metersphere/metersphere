@@ -27,10 +27,10 @@
       <el-table-column v-if="customNum" prop="customNum" label="ID" sortable="custom"
                        show-overflow-tooltip>
       </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable="custom" min-width="100px"
+      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable="custom" min-width="120px"
                        show-overflow-tooltip/>
 
-      <el-table-column prop="level" :label="$t('api_test.automation.case_level')" sortable="custom" min-width="100px"
+      <el-table-column prop="level" :label="$t('api_test.automation.case_level')" sortable="custom" min-width="120px"
                        show-overflow-tooltip>
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.level" ref="level"/>
@@ -50,7 +50,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom">
+      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom" min-width="120px">
         <template v-slot:default="{row}">
           <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
             {{ $t('api_test.automation.success') }}
