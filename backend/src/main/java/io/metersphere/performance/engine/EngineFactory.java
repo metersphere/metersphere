@@ -301,53 +301,54 @@ public class EngineFactory {
         try {
             Element hashTree = null;
             Document rootDocument = null;
-            for (FileMetadata fileMetadata : jmxFiles) {
-                // 兼容处理
-                byte[] bytes = fileMetadataService.loadFileAsBytes(fileMetadata.getId());
-                InputStream inputSource = new ByteArrayInputStream(bytes);
-                if (hashTree == null) {
-                    rootDocument = EngineSourceParserFactory.getDocument(inputSource);
-                    Element jmeterTestPlan = rootDocument.getRootElement();
-                    List<Element> childNodes = jmeterTestPlan.elements();
+            if (CollectionUtils.isNotEmpty(jmxFiles)) {
+                for (FileMetadata fileMetadata : jmxFiles) {
+                    // 兼容处理
+                    byte[] bytes = fileMetadataService.loadFileAsBytes(fileMetadata.getId());
+                    InputStream inputSource = new ByteArrayInputStream(bytes);
+                    if (hashTree == null) {
+                        rootDocument = EngineSourceParserFactory.getDocument(inputSource);
+                        Element jmeterTestPlan = rootDocument.getRootElement();
+                        List<Element> childNodes = jmeterTestPlan.elements();
 
-                    outer:
-                    for (Element node : childNodes) {
-                        // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
-                        List<Element> childNodes1 = node.elements();
-                        for (Element item : childNodes1) {
-                            if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
-                                hashTree = getNextSibling(item);
-                                break outer;
+                        outer:
+                        for (Element node : childNodes) {
+                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                            List<Element> childNodes1 = node.elements();
+                            for (Element item : childNodes1) {
+                                if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
+                                    hashTree = getNextSibling(item);
+                                    break outer;
+                                }
                             }
+                        }
+                    } else {
+                        Document document = EngineSourceParserFactory.getDocument(inputSource);
+                        Element jmeterTestPlan = document.getRootElement();
+                        List<Element> childNodes = jmeterTestPlan.elements();
+                        for (Element node : childNodes) {
+                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                            Element secondHashTree = node;
+                            List<Element> secondChildNodes = secondHashTree.elements();
+                            for (Element item : secondChildNodes) {
+                                if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
+                                    secondHashTree = getNextSibling(item);
+                                    break;
+                                }
+                            }
+                            if (StringUtils.equalsIgnoreCase("hashTree", secondHashTree.getName())) {
+                                List<Element> itemChildNodes = secondHashTree.elements();
+                                for (Element item1 : itemChildNodes) {
+                                    hashTree.add((Element) item1.clone());
+                                }
+                            }
+
                         }
                     }
-                } else {
-                    Document document = EngineSourceParserFactory.getDocument(inputSource);
-                    Element jmeterTestPlan = document.getRootElement();
-                    List<Element> childNodes = jmeterTestPlan.elements();
-                    for (Element node : childNodes) {
-                        // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
-                        Element secondHashTree = node;
-                        List<Element> secondChildNodes = secondHashTree.elements();
-                        for (Element item : secondChildNodes) {
-                            if (StringUtils.equalsIgnoreCase("TestPlan", item.getName())) {
-                                secondHashTree = getNextSibling(item);
-                                break;
-                            }
-                        }
-                        if (StringUtils.equalsIgnoreCase("hashTree", secondHashTree.getName())) {
-                            List<Element> itemChildNodes = secondHashTree.elements();
-                            for (Element item1 : itemChildNodes) {
-                                hashTree.add((Element) item1.clone());
-                            }
-                        }
-
-                    }
+                    inputSource.close();
                 }
-                //
-                inputSource.close();
+                return EngineSourceParserFactory.getBytes(rootDocument);
             }
-            return EngineSourceParserFactory.getBytes(rootDocument);
         } catch (Exception e) {
             MSException.throwException(e);
         }
