@@ -20,7 +20,7 @@
         <!-- 第三方不包统一版本，如果不指定，Spring 会为我们选择匹配的版本 -->
         <dubbo.version>2.7.15</dubbo.version>
         <flyway.version>7.15.0</flyway.version>
-        <shiro.version>1.9.0</shiro.version>
+        <shiro.version>1.9.1</shiro.version>
         <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
         <postgresql.version>42.3.2</postgresql.version>
         <java-websocket.version>1.5.3</java-websocket.version>
