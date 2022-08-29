@@ -65,7 +65,7 @@
             </include>
         </if>
         <if test="${condition}.createTime != null">
-            and test_case.create_time
+            and test_plan_test_case.create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
@@ -78,7 +78,7 @@
             test_case_review_users
         </if>
         <if test="${condition}.updateTime != null">
-            and test_case.update_time
+            and test_plan_test_case.update_time
             <include refid="condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
