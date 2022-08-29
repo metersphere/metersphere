@@ -346,7 +346,7 @@ export default {
       this.$refs.deleteConfirm.open(project);
     },
     _handleDelete(project) {
-      operationConfirm(this, this.$t('project.delete_tip'), () => {
+      operationConfirm(this.$t('project.delete_tip'), () => {
         this.$get('/project/delete/' + project.id, () => {
           if (project.id === getCurrentProjectID()) {
             localStorage.removeItem(PROJECT_ID);
@@ -458,7 +458,7 @@ export default {
       this.$set(this.form, 'groupIds', groupIds);
     },
     delMember(row) {
-      operationConfirm(this, this.$t('member.remove_member'), () => {
+      operationConfirm(this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/project/member/delete/' + this.currentProjectId + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.dialogSearch();

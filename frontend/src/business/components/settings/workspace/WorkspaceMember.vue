@@ -236,7 +236,7 @@ export default {
       removeGoBackListener(this.handleClose);
     },
     del(row) {
-      operationConfirm(this, this.$t('member.remove_member'), () => {
+      operationConfirm(this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/ws/member/delete/' + getCurrentWorkspaceId() + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.initTableData();

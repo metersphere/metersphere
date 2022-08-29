@@ -13,6 +13,7 @@ import {jsPDF} from "jspdf";
 import JSEncrypt from 'jsencrypt';
 import i18n from "@/i18n/i18n";
 import calcTextareaHeight from "element-ui/packages/input/src/calcTextareaHeight";
+import {MessageBox} from "element-ui";
 
 export function hasRole(role) {
   let user = getCurrentUser();
@@ -600,14 +601,17 @@ export function getTypeByFileName(filename) {
   return type.toUpperCase();
 }
 
-export function operationConfirm(v, tip, success, cancel) {
+let confirm = MessageBox.confirm;
+
+export function operationConfirm(tip, success, cancel) {
   if (tip[tip.length - 1] !== '?' && tip[tip.length - 1] !== '？') {
     tip += '?';
   }
- return v.$confirm(tip, '', {
-    confirmButtonText: v.$t('commons.confirm'),
-    cancelButtonText: v.$t('commons.cancel'),
-    type: 'warning'
+ return confirm(tip, '', {
+   confirmButtonText: i18n.t('commons.confirm'),
+   cancelButtonText: i18n.t('commons.cancel'),
+   type: 'warning',
+   center: false
   }).then(() => {
     if (success) {
       success();
