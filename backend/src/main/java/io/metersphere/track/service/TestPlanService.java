@@ -1979,6 +1979,7 @@ public class TestPlanService {
         buildScenarioResponse(report.getScenarioFailureCases());
         buildLoadResponse(report.getLoadAllCases());
         buildUiScenarioResponse(report.getUiAllCases());
+        buildUiScenarioResponse(report.getUiFailureCases());
         report.setLang(lang);
         render(report, response);
     }
