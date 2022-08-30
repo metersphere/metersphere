@@ -2244,8 +2244,8 @@ public class TestCaseService {
     }
 
     public void reduction(TestCaseBatchRequest request) {
-        List<String> ids = new ArrayList<>();
-        if (request.getCondition().isSelectAll()) {
+        List<String> ids;
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<TestCaseDTO> allReductionTestCases = listTestCase(request.getCondition());
             ids = allReductionTestCases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
         } else {
