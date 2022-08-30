@@ -692,6 +692,9 @@ export default {
     },
     getCustomFieldFilter(field) {
       if (field.options) {
+        field.options.forEach(option => {
+          option.text = this.$t(option.text)
+        })
         return field.options;
       }
       if (field.name === '用例等级') {

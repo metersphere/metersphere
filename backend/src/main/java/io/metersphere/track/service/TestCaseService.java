@@ -1686,6 +1686,10 @@ public class TestCaseService {
                 if (StringUtils.equals(request.getCustomField().getName(), CaseCustomFields.MAINTAINER.getValue())) {
                     testCase.setMaintainer((String) request.getCustomField().getValue());
                 }
+
+                if (StringUtils.equals(request.getCustomField().getName(), CaseCustomFields.STATUS.getValue())) {
+                    testCase.setStatus((String) request.getCustomField().getValue());
+                }
                 testCase.setUpdateTime(System.currentTimeMillis());
                 TestCaseExample example = new TestCaseExample();
                 example.createCriteria().andIdEqualTo(testCase.getId());
