@@ -31,7 +31,8 @@
         <!-- 操作按钮 -->
         <el-form-item>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                       @command="handleCommand" size="small" v-if="!runLoading">
+                       @command="handleCommand" size="small" v-if="!runLoading"
+                       v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
             {{ $t('commons.test') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
