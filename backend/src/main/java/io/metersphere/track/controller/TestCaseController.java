@@ -244,7 +244,7 @@ public class TestCaseController {
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        return testCaseService.editTestCase(request, files);
+        return testCaseService.editTestCase(request, files, Boolean.TRUE);
     }
 
     @PostMapping("/delete/{testCaseId}")
