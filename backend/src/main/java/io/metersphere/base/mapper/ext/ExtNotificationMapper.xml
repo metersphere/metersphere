@@ -40,7 +40,7 @@
 
     <select id="countNotification" resultType="java.lang.Integer">
         select count(*) from notification
-        where receiver = #{notification.receiver}
+        where receiver = #{notification.receiver} AND create_time &gt; (UNIX_TIMESTAMP() - 3600) * 1000
         <if test="notification.type != null">
             and type = #{notification.type}
         </if>
