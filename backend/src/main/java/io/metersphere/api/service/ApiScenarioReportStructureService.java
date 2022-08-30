@@ -22,9 +22,11 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.constants.SystemConstants;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.service.ProjectService;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.xpack.ui.dto.UiCommandResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -295,7 +297,12 @@ public class ApiScenarioReportStructureService {
                     step.setStepId(reportResults.get(i).getId());
                     RequestResult result = new RequestResultExpandDTO(reportResult);
                     if (reportResult.getContent() != null) {
-                        result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class);
+                        if (reportType.startsWith(SystemConstants.TestTypeEnum.UI.name())) {
+                            result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), UiCommandResult.class);
+                            ((UiCommandResult)result).calTime();
+                        } else {
+                            result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class);
+                        }
                     }
                     step.setValue(result);
                     step.setTotalStatus(reportResult.getStatus());
