@@ -1928,7 +1928,7 @@ public class TestCaseService {
         return editTestCase(request);
     }
 
-    public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {
+    public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files, boolean isTestPlanEdit) {
         String testCaseId = testPlanTestCaseMapper.selectByPrimaryKey(request.getId()).getCaseId();
         request.setId(testCaseId);
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
@@ -1937,20 +1937,21 @@ public class TestCaseService {
         }
         testCaseWithBLOBs.setRemark(request.getRemark());
         // 新选择了一个文件，删除原来的文件
-        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-        List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(testCaseId);
-        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-        // 相减
-        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-        fileService.deleteFileRelatedByIds(deleteFileIds);
+        if (!isTestPlanEdit) {
+            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+            List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(testCaseId);
+            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+            List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+            // 相减
+            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+            fileService.deleteFileRelatedByIds(deleteFileIds);
 
-        if (!CollectionUtils.isEmpty(deleteFileIds)) {
-            TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
-            testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
-            testCaseFileMapper.deleteByExample(testCaseFileExample);
+            if (!CollectionUtils.isEmpty(deleteFileIds)) {
+                TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+                testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
+                testCaseFileMapper.deleteByExample(testCaseFileExample);
+            }
         }
-
 
         if (files != null) {
             files.forEach(file -> {
