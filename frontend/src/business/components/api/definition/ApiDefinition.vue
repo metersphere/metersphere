@@ -33,7 +33,7 @@
           class="ms-api-button"
           ref="environmentSelect"/>
         <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab" @tab-remove="removeTab">
+        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab" @tab-remove="removeTab" ref="mainTabs">
           <el-tab-pane
             name="trash" :closable="true"
             :label="$t('commons.trash')" v-if="trashEnable">
@@ -441,6 +441,7 @@ export default {
       if (!this.trashEnable) {
         this.apiDefaultTab = "default";
       }
+
     },
     redirectID() {
       this.renderComponent = false;
@@ -448,6 +449,7 @@ export default {
         // 在 DOM 中添加 my-component 组件
         this.renderComponent = true;
       });
+
     },
     '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
       if (to.path.indexOf('/api/definition') === -1) {
@@ -728,14 +730,15 @@ export default {
           if (tab.name === targetName) {
             let nextTab = tabs[index + 1] || tabs[index - 1];
             if (nextTab) {
+              tab.api = undefined;
               activeName = nextTab.name;
             }
           }
         });
       }
-      this.apiDefaultTab = activeName;
+      this.apiDefaultTab = activeName
       this.apiTabs = tabs.filter(tab => tab.name !== targetName);
-      this.refresh();
+      this.$refs.mainTabs.$children = [];
     },
     //创建左侧树的根目录模块
     createRootModel() {
