@@ -32,7 +32,8 @@
         </slot>
       </span>
 
-      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
+      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop
+           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
         <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
 
