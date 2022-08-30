@@ -691,7 +691,7 @@ export default {
       return value;
     },
     getCustomFieldFilter(field) {
-      if (field.options) {
+      if (field.options && field.options.length > 0) {
         field.options.forEach(option => {
           option.text = this.$t(option.text)
         })
