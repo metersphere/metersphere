@@ -8,6 +8,7 @@
                 :clearable="true"
                 v-model="tableSearch"/>
       <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
+                 v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
                  @click="addApiMock">{{ $t('commons.add') }}
       </el-button>
 
