@@ -564,7 +564,8 @@ public class ApiScenarioReportStructureService {
     private ApiScenarioReportDTO getReport(String reportId, boolean selectContent) {
         ApiScenarioReport mainReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         List<ApiScenarioReportResultWithBLOBs> reportResults = null;
-        if (selectContent) {
+        if (selectContent || mainReport.getReportType().startsWith(SystemConstants.TestTypeEnum.UI.name())) {
+            // UI 报告不执行懒加载
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(reportId);
             reportResults = reportResultMapper.selectByExampleWithBLOBs(example);

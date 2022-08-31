@@ -20,6 +20,7 @@
       <ui-command-result
         :step-id="node.stepId"
         :index-number="node.index"
+        :tree-node="treeNode"
         :command="node"
         :isActive="isActive"
         :result="node.value"/>
@@ -59,6 +60,7 @@ export default {
   props: {
     scenario: Object,
     node: Object,
+    treeNode: Object,
     console: String,
     isActive: Boolean,
     isShare:Boolean,
