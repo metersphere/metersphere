@@ -2,7 +2,7 @@
   <span v-if="config">
     <div v-for="(item, index) in config" :key="index">
       <el-checkbox v-model="item.enable" @change="click(item)">{{ item.name }}
-        <test-plan-report-config :config="item.children"/>
+        <test-plan-report-config :config="item.children" :father="config[index]"/>
       </el-checkbox>
     </div>
   </span>
@@ -11,7 +11,7 @@
 <script>
 export default {
   name: "TestPlanReportConfig",
-  props: ['config'],
+  props: ['config', 'father'],
   methods: {
     click(item) {
       if (item.children) {
@@ -23,7 +23,11 @@ export default {
           }
         }
       }
-    },
+
+      if (item.enable && this.father) {
+        this.father.enable = true;
+      }
+    }
   }
 }
 </script>
