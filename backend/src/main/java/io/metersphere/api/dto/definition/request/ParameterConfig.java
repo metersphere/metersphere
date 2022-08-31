@@ -137,6 +137,10 @@ public class ParameterConfig extends MsParameter {
                         }
                     } else {
                         apiDefinition = apiDefinitionService.get(samplerProxy.getId());
+                        // 兼容导入数据
+                        if(apiDefinition == null ){
+                            apiDefinition = apiDefinitionService.get(samplerProxy.getName());
+                        }
                         ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(samplerProxy.getId());
                         if (apiTestCaseWithBLOBs == null) {
                             apiTestCaseWithBLOBs = apiTestCaseService.get(samplerProxy.getName());
