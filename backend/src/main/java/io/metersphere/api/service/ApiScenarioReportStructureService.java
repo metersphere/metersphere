@@ -298,8 +298,7 @@ public class ApiScenarioReportStructureService {
                     RequestResult result = new RequestResultExpandDTO(reportResult);
                     if (reportResult.getContent() != null) {
                         if (reportType.startsWith(SystemConstants.TestTypeEnum.UI.name())) {
-                            result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), UiCommandResult.class);
-                            ((UiCommandResult)result).calTime();
+                            result = getUIRequestResult(reportResults, i, result);
                         } else {
                             result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class);
                         }
@@ -396,6 +395,25 @@ public class ApiScenarioReportStructureService {
         if (!reportType.startsWith("UI")) {
             this.orderLoops(dtoList);
         }
+    }
+
+    /**
+     * ui 的报告内容不进行懒加载，统一从 content 中取，由于 v2.1 中合并图片存在 baseInfo
+     * 这里做一个兼容处理
+     *
+     * @param reportResults
+     * @param i
+     * @param result
+     * @return
+     */
+    private RequestResult getUIRequestResult(List<ApiScenarioReportResultWithBLOBs> reportResults, int i, RequestResult result) {
+        String combinationImg = ((RequestResultExpandDTO) result).getCombinationImg();
+        result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), UiCommandResult.class);
+        ((UiCommandResult) result).calTime();
+        if (StringUtils.isNotBlank(combinationImg)) {
+            ((UiCommandResult) result).setCombinationImg(combinationImg);
+        }
+        return result;
     }
 
     /**
