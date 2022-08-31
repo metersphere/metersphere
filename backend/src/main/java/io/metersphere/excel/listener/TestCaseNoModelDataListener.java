@@ -7,7 +7,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.constants.TestCaseStatusConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldDao;
@@ -642,7 +644,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             } else if (StringUtils.equals(field, "stepModel")) {
                 data.setStepModel(value);
             } else if (StringUtils.equals(field, "status")) {
-                data.setStatus(value);
+                data.setStatus(parseStatus(value));
             } else if (StringUtils.equals(field, "maintainer")) {
                 data.setMaintainer(value);
             } else if (StringUtils.equals(field, "priority")) {
@@ -770,5 +772,22 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             return false;
         }
         return true;
+    }
+
+    public String parseStatus(String parseStatus){
+        String caseStatusValue = "";
+        if(StringUtils.equalsAnyIgnoreCase(parseStatus,
+                TestCaseStatusConstants.UNDERWAY_US, TestCaseStatusConstants.UNDERWAY_CN, TestCaseStatusConstants.UNDERWAY_TW)){
+            caseStatusValue = TestCaseStatusConstants.UNDERWAY_US;
+        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,
+                TestCaseStatusConstants.PREPARE_US, TestCaseStatusConstants.PREPARE_CN, TestCaseStatusConstants.PREPARE_TW)){
+            caseStatusValue = TestCaseStatusConstants.PREPARE_US;
+        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,
+                TestCaseStatusConstants.COMPLETED_US, TestCaseStatusConstants.COMPLETED_CN, TestCaseStatusConstants.COMPLETED_TW)){
+            caseStatusValue = TestCaseStatusConstants.COMPLETED_US;
+        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus, CommonConstants.TrashStatus)){
+            caseStatusValue = CommonConstants.TrashStatus;
+        }
+        return caseStatusValue;
     }
 }

@@ -1084,7 +1084,9 @@ public class TestCaseService {
                     }
                     num++;
                     testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                    testCase.setStatus(TestCaseReviewStatus.Prepare.name());
+                    if (StringUtils.isEmpty(testCase.getStatus())) {
+                        testCase.setStatus(TestCaseReviewStatus.Prepare.name());
+                    }
                     testCase.setOrder(Long.valueOf(testCases.size() - (num - beforeInsertId)) * ServiceUtils.ORDER_STEP);
                     testCase.setRefId(testCase.getId());
                     testCase.setVersionId(request.getVersionId());
