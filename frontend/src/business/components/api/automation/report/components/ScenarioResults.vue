@@ -15,7 +15,7 @@
              highlight-current
              class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
-            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"
+            <ms-scenario-result :node="data" :tree-node="node" :console="console" v-on:requestResult="requestResult"
                                 :isActive="isActive" :is-share="isShare" :share-id="shareId"/>
           </span>
     </el-tree>

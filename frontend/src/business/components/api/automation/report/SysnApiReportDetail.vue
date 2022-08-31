@@ -337,6 +337,9 @@ export default {
     },
     getReport() {
       let url = "/api/scenario/report/get/" + this.reportId;
+      if (this.report.reportType === "UI_INDEPENDENT") {
+        url += "?selectReportContent=true";
+      }
       this.$get(url, response => {
         this.report = response.data || {};
         if (response.data) {
