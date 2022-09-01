@@ -12,6 +12,7 @@ public class ProjectConfig {
     private String trackShareReportTime;
     private String performanceShareReportTime;
     private String apiShareReportTime;
+    private String uiShareReportTime;
     private Boolean caseCustomNum = false;
     private Boolean scenarioCustomNum = false;
     private String apiQuickMenu;
@@ -25,6 +26,8 @@ public class ProjectConfig {
     private String cleanApiReportExpr;
     private Boolean cleanLoadReport = false;
     private String cleanLoadReportExpr;
+    private Boolean cleanUiReport = false;
+    private String cleanUiReportExpr;
     private Boolean urlRepeatable = false;
     private String triggerUpdate;
     private Boolean openUpdateTime = false;

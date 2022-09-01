@@ -1027,14 +1027,16 @@ public class ProjectService {
     }
 
     // 删除 UI 报告产生的截图
-    public void cleanUpUiReportImg() {
+    public void cleanUpUiReportImg(long backupTime, String projectId) {
         try {
             // 属于定时任务删除调试报告情况
             // 获取昨天的当前时间
-            Date backupTime = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -1);
+//            Date backupTime = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -1);
             // 清理类型为 UI 报告类型，且时间为昨天之前的 UI 调试类型报告截图
             ApiScenarioReportExample example = new ApiScenarioReportExample();
-            example.createCriteria().andCreateTimeLessThan(backupTime.getTime()).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
+            example.createCriteria()
+                    .andProjectIdEqualTo(projectId)
+                    .andCreateTimeLessThan(backupTime).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
                     .andExecuteTypeEqualTo(ExecuteType.Debug.name());
             List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
             // 删除调试报告的截图
