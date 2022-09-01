@@ -831,6 +831,7 @@ export default {
     timing_clean_plan_report: "定時清理測試計劃報告",
     timing_clean_api_report: "定時清理接口測試報告",
     timing_clean_load_report: "定時清理性能測試報告",
+    timing_clean_ui_report: "定時清理UI測試報告",
     keep_recent: "保留最近",
     please_select_cleaning_time: "請選擇清理時間！"
   },

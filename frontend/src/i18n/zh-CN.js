@@ -830,7 +830,8 @@ export default {
     },
     timing_clean_plan_report: "定时清理测试计划报告",
     timing_clean_api_report: "定时清理接口测试报告",
-    timing_clean_load_report: "定时清理性能测试报告",
+    timing_clean_load_report: "定时清理性能测试报告",  
+    timing_clean_ui_report: "定时清理UI测试报告",
     keep_recent: "保留最近",
     please_select_cleaning_time: "请选择清理时间！"
   },

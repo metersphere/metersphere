@@ -49,6 +49,11 @@ module.exports = {
       template: "src/template/report/api/share/share-api-report.html",
       filename: "share-api-report.html",
     },
+    shareUiReport: {
+      entry: "src/template/report/ui/share/share-ui-report.js",
+      template: "src/template/report/ui/share/share-ui-report.html",
+      filename: "share-ui-report.html",
+    },
     enterpriseReport: {
       entry: "src/template/enterprise/share/share-enterprise-report.js",
       template: "src/template/enterprise/share/share-enterprise-report.html",

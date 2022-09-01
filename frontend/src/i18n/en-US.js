@@ -827,6 +827,7 @@ export default {
     timing_clean_plan_report: "Regularly clean up test report",
     timing_clean_api_report: "Regularly clean up api report",
     timing_clean_load_report: "Regularly clean up performance report",
+    timing_clean_ui_report: "Regularly clean up ui report",
     keep_recent: "Keep recent",
     please_select_cleaning_time: "please select cleaning time！"
   },
