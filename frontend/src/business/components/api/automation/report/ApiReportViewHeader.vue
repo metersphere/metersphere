@@ -31,7 +31,7 @@
           </el-button>
 
           <el-popover
-            v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi"
+            v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
             v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
             style="margin-right: 10px;float: right;"
             placement="bottom"
@@ -55,11 +55,11 @@
             {{ $t('api_test.automation.rerun') }}
           </el-button>
 
+          <ui-download-screenshot :report="report" v-if="isUi && showCancelButton"/>
+
           <el-button v-if="showCancelButton" class="export-button" plain size="mini" @click="returnView">
             {{ $t('commons.cancel') }}
           </el-button>
-
-          <ui-download-screenshot :report="report" v-if="isUi"/>
 
         </div>
       </el-col>
@@ -176,13 +176,22 @@ export default {
       let pram = {};
       pram.customData = report.id;
       pram.shareType = 'API_REPORT';
+      let thisHost = window.location.host;
+      let shareUrl = thisHost + "/shareApiReport";
+      if(this.isUi){
+        pram.shareType = 'UI_REPORT';
+        shareUrl = thisHost + "/shareUiReport";
+      }
       generateShareInfoWithExpired(pram, (data) => {
-        let thisHost = window.location.host;
-        this.shareUrl = thisHost + "/shareApiReport" + data.shareUrl;
+        this.shareUrl = shareUrl + data.shareUrl;
       });
     },
     getProjectApplication() {
-      this.$get('/project_application/get/' + getCurrentProjectID() + "/API_SHARE_REPORT_TIME", res => {
+      let path  = "/API_SHARE_REPORT_TIME";
+      if(this.isUi){
+        path = "/UI_SHARE_REPORT_TIME";
+      }
+      this.$get('/project_application/get/' + getCurrentProjectID() + path, res => {
         if (res.data) {
           let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
           let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
