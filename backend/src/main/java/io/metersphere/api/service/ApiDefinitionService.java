@@ -1984,7 +1984,8 @@ public class ApiDefinitionService {
             return msApiExportResult;
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
-            return swagger3Parser.swagger3Export(apiDefinitions);
+            Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+            return swagger3Parser.swagger3Export(apiDefinitions, project);
         }
     }
 
