@@ -53,8 +53,10 @@ public class CleanUpReportJob extends MsScheduleJob {
             if (BooleanUtils.isTrue(config.getCleanLoadReport())) {
                 this.doCleanUp(projectService::cleanUpLoadReport, config.getCleanLoadReportExpr());
             }
-            // 定时删除 UI 调试模式生成的截图
-            projectService.cleanUpUiReportImg();
+            if (BooleanUtils.isTrue(config.getCleanUiReport())) {
+                // 定时删除 UI 调试模式生成的截图
+                this.doCleanUp(projectService::cleanUpUiReportImg, config.getCleanUiReportExpr());
+            }
         } catch (Exception e) {
             LogUtil.error("clean up report error.");
             LogUtil.error(e.getMessage(), e);
