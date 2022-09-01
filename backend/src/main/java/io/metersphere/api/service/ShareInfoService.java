@@ -147,7 +147,7 @@ public class ShareInfoService {
                         JSONArray headArr = requestObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj != null && headObj.containsKey("name") && headObj.containsKey("value")) {
+                            if (headObj != null && headObj.containsKey("name")) {
                                 requestHeadDataArr.add(headObj);
                             }
                         }
@@ -161,7 +161,7 @@ public class ShareInfoService {
                             for (int index = 0; index < headArr.size(); index++) {
 
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                                if (headObj.containsKey("name")) {
                                     urlParamArr.add(headObj);
                                 }
                             }
@@ -300,7 +300,7 @@ public class ShareInfoService {
                         JSONArray headArr = responseJsonObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                            if (headObj.containsKey("name")) {
                                 responseHeadDataArr.add(headObj);
                             }
                         }
@@ -392,7 +392,7 @@ public class ShareInfoService {
                         JSONArray statusArr = responseJsonObj.getJSONArray("statusCode");
                         for (int index = 0; index < statusArr.size(); index++) {
                             JSONObject statusObj = statusArr.getJSONObject(index);
-                            if (statusObj.containsKey("name") && statusObj.containsKey("value")) {
+                            if (statusObj.containsKey("name")) {
                                 responseStatusDataArr.add(statusObj);
                             }
                         }
