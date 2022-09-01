@@ -54,6 +54,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
             for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
+                apiDefinition.setModulePath(tag);
                 apiDefinition.setProjectId(this.projectId);
                 apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
                 apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
