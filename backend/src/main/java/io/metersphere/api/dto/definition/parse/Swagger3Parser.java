@@ -17,6 +17,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
@@ -603,11 +604,16 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         },
         "components":{}
     }       */
-    public SwaggerApiExportResult swagger3Export(List<ApiDefinitionWithBLOBs> apiDefinitionList) {
+    public SwaggerApiExportResult swagger3Export(List<ApiDefinitionWithBLOBs> apiDefinitionList, Project project) {
         SwaggerApiExportResult result = new SwaggerApiExportResult();
 
         result.setOpenapi("3.0.1");
-        result.setInfo(new SwaggerInfo());
+        SwaggerInfo swaggerInfo = new SwaggerInfo();
+        swaggerInfo.setVersion("1.0.1");
+        swaggerInfo.setTitle("ms-" + project.getName());
+        swaggerInfo.setDescription("");
+        swaggerInfo.setTermsOfService("");
+        result.setInfo(swaggerInfo);
         result.setServers(new ArrayList<>());
         result.setTags(new ArrayList<>());
         result.setComponents(new JSONObject());
