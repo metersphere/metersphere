@@ -161,7 +161,7 @@ public class ShareInfoService {
                             for (int index = 0; index < headArr.size(); index++) {
 
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name")) {
+                                if (headObj != null && headObj.containsKey("name")) {
                                     urlParamArr.add(headObj);
                                 }
                             }
@@ -177,7 +177,7 @@ public class ShareInfoService {
                             JSONArray headArr = requestObj.getJSONArray("rest");
                             for (int index = 0; index < headArr.size(); index++) {
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name")) {
+                                if (headObj != null && headObj.containsKey("name")) {
                                     restParamArr.add(headObj);
                                 }
                             }
@@ -300,7 +300,7 @@ public class ShareInfoService {
                         JSONArray headArr = responseJsonObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj.containsKey("name")) {
+                            if (headObj != null && headObj.containsKey("name")) {
                                 responseHeadDataArr.add(headObj);
                             }
                         }
