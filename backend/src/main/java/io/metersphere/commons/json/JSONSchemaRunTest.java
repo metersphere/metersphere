@@ -2,7 +2,9 @@ package io.metersphere.commons.json;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.*;
+import io.metersphere.commons.utils.EnumPropertyUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.NumberUtils;
 
@@ -248,6 +250,12 @@ public class JSONSchemaRunTest {
             if (isMock(object)) {
                 String value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
                 return value;
+            } else if (object.has(BasicConstant.ENUM)) {
+                List<Object> list = EnumPropertyUtil.analyzeEnumProperty(object);
+                if (CollectionUtils.isNotEmpty(list)) {
+                    int index = (int) (Math.random() * list.size());
+                    return list.get(index);
+                }
             }
         } catch (Exception e) {
             return object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK);
