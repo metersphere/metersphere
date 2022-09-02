@@ -285,6 +285,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'ui.element_name'},
     {id: 'locationType', key: '3', label: 'ui.element_locator_type'},
     {id: 'location', key: '4', label: 'ui.element_locator'},
+    {id: 'description', key: '9', label: 'ui.description'},
     {id: 'createUser', key: '5', label: 'ui.create_user'},
     {id: 'createTime', key: '6', label: 'commons.create_time'},
     {id: 'updateUser', key: '7', label: 'ui.update_user'},
