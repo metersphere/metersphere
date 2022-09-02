@@ -2915,6 +2915,7 @@ export default {
     not_screentshot: "No screenshot",
     error_step_screenshot: "Screenshot of exception",
     downloadScreenshot: "Download screenshot file",
+    description: "remark",
   },
   project_application: {
     workstation: {
