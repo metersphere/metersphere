@@ -56,7 +56,9 @@ public abstract class ZentaoClient extends BaseClient {
             // 登录失败，获取的session无效，置空session
             MSException.throwException("zentao login fail, user null");
         }
-        if (!StringUtils.equals(user.getAccount(), USER_NAME)) {
+        //禅道如果开始ldap，会在本地帐号前加$
+        if (!StringUtils.equals(user.getAccount(), USER_NAME) 
+            && !StringUtils.equals("$"+user.getAccount(), USER_NAME) ) {
             LogUtil.error("login fail，inconsistent users");
             MSException.throwException("zentao login fail, inconsistent user");
         }
@@ -202,7 +204,19 @@ public abstract class ZentaoClient extends BaseClient {
 
     public boolean checkProjectExist(String relateId) {
         String sessionId = login();
+
         ResponseEntity<String> response = restTemplate.exchange(requestUrl.getProductGet(),
+                HttpMethod.GET, null, String.class, relateId, sessionId);
+        try {
+            Object data = JSONObject.parseObject(response.getBody()).get("data");
+            if (!StringUtils.equals((String) data, "false")) {
+                return true;
+            }
+        } catch (Exception e) {
+            LogUtil.error("checkProductExist error: " + response.getBody());
+        }
+        //兼容最新的禅道项目集版本,在开源版17.5测试通过
+        response = restTemplate.exchange(requestUrl.getProjectGet(),
                 HttpMethod.GET, null, String.class, relateId, sessionId);
         try {
             Object data = JSONObject.parseObject(response.getBody()).get("data");

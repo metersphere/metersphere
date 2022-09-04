@@ -25,4 +25,5 @@ public class RequestUrl {
     private String replaceImgUrl;
     private String productGet;
     private Pattern imgPattern;
+    private String projectGet;
 }
