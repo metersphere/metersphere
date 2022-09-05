@@ -111,7 +111,7 @@ public class ServiceUtils {
             }
             queryRequest.setIds(ids);
             try {
-                Method setIds = batchRequest.getClass().getDeclaredMethod("setIds", List.class);
+                Method setIds = batchRequest.getClass().getMethod("setIds", List.class);
                 setIds.invoke(batchRequest, ids);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
