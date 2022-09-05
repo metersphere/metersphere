@@ -9,6 +9,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
+import io.metersphere.api.service.utils.PassRateUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -505,17 +506,12 @@ public class ApiScenarioReportService {
         if (testPlanUiScenario != null) {
             report.setScenarioId(testPlanUiScenario.getUiScenarioId());
             report.setEndTime(System.currentTimeMillis());
-            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
             if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.UN_EXECUTE.toString())) {
                 testPlanUiScenario.setLastResult(ScenarioStatus.Fail.name());
             } else {
                 testPlanUiScenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
             }
-            if (CollectionUtils.isEmpty(requestResults)) {
-                testPlanUiScenario.setPassRate("0");
-            } else {
-                testPlanUiScenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
-            }
+            testPlanUiScenario.setPassRate(PassRateUtil.calculatePassRate(requestResults, report));
             testPlanUiScenario.setReportId(report.getId());
             report.setEndTime(System.currentTimeMillis());
             testPlanUiScenario.setUpdateTime(System.currentTimeMillis());
@@ -536,12 +532,7 @@ public class ApiScenarioReportService {
             scenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
         }
 
-        long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-        if (CollectionUtils.isEmpty(requestResults)) {
-            scenario.setPassRate("0");
-        } else {
-            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
-        }
+        scenario.setPassRate(PassRateUtil.calculatePassRate(requestResults, report));
         scenario.setReportId(dto.getReportId());
         int executeTimes = 0;
         if (scenario.getExecuteTimes() != null) {
