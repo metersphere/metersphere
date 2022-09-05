@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
+import io.metersphere.api.service.utils.PassRateUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -481,8 +482,7 @@ public class ApiScenarioReportService {
                 scenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
             }
 
-            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            scenario.setPassRate(PassRateUtil.calculatePassRate(requestResults, report));
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
             if (scenario.getExecuteTimes() != null) {
