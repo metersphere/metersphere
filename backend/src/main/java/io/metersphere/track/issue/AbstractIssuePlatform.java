@@ -31,7 +31,7 @@ import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -240,7 +240,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         document.select("br").append("\\n");
         document.select("p").prepend("\\n\\n");
         desc = document.html().replaceAll("\\\\n", "\n");
-        desc = Jsoup.clean(desc, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+        desc = Jsoup.clean(desc, "", Safelist.none(), new Document.OutputSettings().prettyPrint(false));
         return desc.replace("&nbsp;", "");
     }
 
