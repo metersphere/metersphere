@@ -4,7 +4,8 @@
       <ms-file-module @nodeSelectEvent="change" @myFile="myFile" @setNodeTree="setNodeTree" ref="module"/>
     </ms-aside-container>
     <ms-main-container>
-      <resource-manage ref="resourceManage" :moduleId="moduleId" :nodeTree="nodeTree" @refreshModule="refreshModule"/>
+      <resource-manage ref="resourceManage" :moduleId="moduleId" :module-type="moduleType" :nodeTree="nodeTree"
+                       @refreshModule="refreshModule"/>
     </ms-main-container>
   </ms-container>
 </template>
@@ -31,12 +32,14 @@ export default {
   data() {
     return {
       moduleId: "",
+      moduleType: "module",
       nodeTree: []
     }
   },
   methods: {
     change(node, nodeIds, pNodes) {
       this.moduleId = node.data.id;
+      this.moduleType = node.data.moduleType;
       this.$refs.resourceManage.moduleChange(nodeIds);
     },
     myFile() {
@@ -45,7 +48,7 @@ export default {
     setNodeTree(data) {
       this.nodeTree = data;
     },
-    refreshModule(){
+    refreshModule() {
       this.$refs.module.refresh();
     }
   }

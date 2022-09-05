@@ -870,6 +870,34 @@ export default {
       compare: 'Compare',
       change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
     },
+    project_file: {
+      file_module_type: {
+        module: 'Module',
+        repository: 'Repository'
+      },
+      file: {
+        branch: 'File branck',
+        path: 'File path',
+      },
+      repository: {
+        name: 'Repository name',
+        path: 'Path',
+        token: 'Token',
+        desc: 'Description',
+        version_history: 'History',
+        file_version: 'Version',
+        update_log: 'Commit log',
+      },
+      validation: {
+        input_repository_name: 'Input repository name',
+        input_repository_path: 'Input repository path',
+        input_repository_token: 'Input repository token',
+        input_file_branch: 'Input file branch',
+        input_file_path: 'Input file path',
+        input_gitee_user_please: 'Gitee uses need input user name',
+        can_not_move_repository_file: 'Repository file can not move',
+      },
+    },
     timing_clean_plan_report: "Regularly clean up test report",
     timing_clean_api_report: "Regularly clean up api report",
     timing_clean_load_report: "Regularly clean up performance report",

@@ -148,9 +148,13 @@ public class Body {
                             KeyValue keyValue, String requestId, boolean isBinary) {
         if (files != null) {
             files.forEach(file -> {
+                boolean isRef = false;
+                String fileId = null;
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
                 String path = null;
                 if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                    isRef = true;
+                    fileId = file.getFileId();
                     path = FileUtils.getFilePath(file);
                 } else if (StringUtils.isNotBlank(file.getId()) && !isBinary) {
                     // 旧数据
@@ -164,7 +168,10 @@ public class Body {
                 if (StringUtils.isBlank(mimetype)) {
                     mimetype = ContentType.APPLICATION_OCTET_STREAM.getMimeType();
                 }
-                list.add(new HTTPFileArg(path, isBinary ? "" : paramName, mimetype));
+                HTTPFileArg fileArg = new HTTPFileArg(path, isBinary ? "" : paramName, mimetype);
+                fileArg.setProperty("isRef", isRef);
+                fileArg.setProperty("fileId", fileId);
+                list.add(fileArg);
             });
         }
     }

@@ -875,6 +875,34 @@ export default {
       compare: '對比',
       change_latest_tip: '此操作會修改接口，場景，測試用例等列表頁面的默認展示，可能會消耗一些時間。請耐心等待！ '
     },
+    project_file: {
+      file_module_type: {
+        module: '模塊',
+        repository: '存儲庫'
+      },
+      repository: {
+        name: '存儲庫名稱',
+        path: '存儲庫地址',
+        token: 'Token',
+        desc: '描述',
+        version_history: '版本歷史',
+        file_version: '文件版本',
+        update_log: '更新記錄',
+      },
+      file: {
+        branch: '文件分支',
+        path: '文件路徑',
+      },
+      validation: {
+        input_repository_name: '請輸入存儲庫名稱',
+        input_repository_path: '請輸入存儲庫地址',
+        input_repository_token: '請輸入存儲庫Token',
+        input_file_branch: '请输入文件分支',
+        input_file_path: '请输入文件路徑',
+        input_gitee_user_please: 'Gitee用戶需要輸入用戶名',
+        can_not_move_repository_file: '文件庫文件無法移動',
+      },
+    },
     timing_clean_plan_report: "定時清理測試計劃報告",
     timing_clean_api_report: "定時清理接口測試報告",
     timing_clean_load_report: "定時清理性能測試報告",

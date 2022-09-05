@@ -303,7 +303,7 @@ export default {
           break;
         case "scenario":
           this.$router.push({
-            name: 'ApiAutomation',
+            name: 'ApiAutomationSingle',
             params: {paramObj: redirectObj}
           });
           break;

@@ -3,11 +3,17 @@ package io.metersphere.metadata.service;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.metadata.vo.repository.FileInfoDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class FileManagerService {
@@ -78,5 +84,21 @@ public class FileManagerService {
             LogUtil.error(e);
             return null;
         }
+    }
+
+    public List<FileInfoDTO> downloadFileBatch(List<FileRequest> requestList) {
+        List<FileInfoDTO> list = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(requestList)) {
+            Map<String, List<FileRequest>> requestByStorage = requestList.stream().collect(Collectors.groupingBy(FileRequest::getStorage));
+            for (Map.Entry<String, List<FileRequest>> requestByStorageEntry : requestByStorage.entrySet()) {
+                try {
+                    list.addAll(FileCenter.getRepository(requestByStorageEntry.getKey()).getFileBatch(requestByStorageEntry.getValue()));
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                    return null;
+                }
+            }
+        }
+        return list;
     }
 }

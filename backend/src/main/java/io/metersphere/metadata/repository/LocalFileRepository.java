@@ -5,11 +5,15 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.metadata.vo.repository.FileInfoDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.util.FileUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LocalFileRepository implements FileRepository {
     @Override
@@ -78,6 +82,18 @@ public class LocalFileRepository implements FileRepository {
             }
         }
         return buffer;
+    }
+
+    @Override
+    public List<FileInfoDTO> getFileBatch(List<FileRequest> requestList) throws Exception {
+        List<FileInfoDTO> list = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(requestList)) {
+            for (FileRequest fileRequest : requestList) {
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), this.getFile(fileRequest));
+                list.add(fileInfoDTO);
+            }
+        }
+        return list;
     }
 
     @Override

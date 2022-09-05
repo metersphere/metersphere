@@ -1,6 +1,9 @@
 package io.metersphere.metadata.vo;
 
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.constants.StorageConstants;
+import io.metersphere.metadata.vo.repository.FileAttachInfo;
+import io.metersphere.metadata.vo.repository.GitFileAttachInfo;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,6 +20,9 @@ public class FileRequest {
     private String resourceType;
     private String path;
 
+    //文件附属信息
+    private FileAttachInfo fileAttachInfo;
+
     public FileRequest() {
 
     }
@@ -28,6 +34,14 @@ public class FileRequest {
         this.fileName = name;
         if (StringUtils.isNotEmpty(this.type) && !name.endsWith(this.type)) {
             this.fileName = StringUtils.join(name, ".", this.type);
+        }
+    }
+
+    public void setFileAttachInfoByString(String attachInfoByString) {
+        if (StringUtils.isNotEmpty(attachInfoByString)) {
+            if (StringUtils.equals(this.storage, StorageConstants.GIT.name())) {
+                this.setFileAttachInfo(JSONObject.parseObject(attachInfoByString, GitFileAttachInfo.class));
+            }
         }
     }
 }

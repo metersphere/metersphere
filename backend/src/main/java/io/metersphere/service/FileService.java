@@ -2,15 +2,16 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.performance.request.QueryProjectFileRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -34,6 +35,8 @@ public class FileService {
     private TestCaseFileMapper testCaseFileMapper;
     @Resource
     private IssueFileMapper issueFileMapper;
+    @Resource
+    private ExtFileMetadataMapper extFileMetadataMapper;
 
     public byte[] loadFileAsBytes(String id) {
         FileContent fileContent = fileContentMapper.selectByPrimaryKey(id);
@@ -66,6 +69,14 @@ public class FileService {
         example.createCriteria().andIdIn(ids);
         fileMetadataMapper.deleteByExample(example);
 
+        List<String> refIdList = extFileMetadataMapper.selectRefIdsByIds(ids);
+        if (CollectionUtils.isNotEmpty(refIdList)) {
+            //删除其余版本的文件
+            example.clear();
+            example.createCriteria().andRefIdIn(refIdList);
+            fileMetadataMapper.deleteByExample(example);
+        }
+
         FileContentExample example2 = new FileContentExample();
         example2.createCriteria().andFileIdIn(ids);
         fileContentMapper.deleteByExample(example2);
@@ -93,7 +104,7 @@ public class FileService {
     }
 
     public FileMetadata saveFile(MultipartFile file, String projectId, String fileId) {
-        final FileMetadata fileMetadata = new FileMetadata();
+        final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         if (StringUtils.isEmpty(fileId)) {
             fileMetadata.setId(UUID.randomUUID().toString());
         } else {
@@ -106,6 +117,8 @@ public class FileService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setLatest(true);
+        fileMetadata.setRefId(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -142,7 +155,7 @@ public class FileService {
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
-        try (OutputStream os = new FileOutputStream(uploadPath + "/" + attachmentName)){
+        try (OutputStream os = new FileOutputStream(uploadPath + "/" + attachmentName)) {
             InputStream in = new ByteArrayInputStream(bytes);
             int len = 0;
             byte[] buf = new byte[1024];
@@ -189,7 +202,7 @@ public class FileService {
     }
 
     public FileMetadata saveFile(File file, byte[] fileByte) {
-        final FileMetadata fileMetadata = new FileMetadata();
+        final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(file.getName());
         fileMetadata.setSize(file.length());
@@ -197,6 +210,8 @@ public class FileService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setLatest(true);
+        fileMetadata.setRefId(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -213,9 +228,9 @@ public class FileService {
         } else {
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(file.getName());
-            List<FileMetadata> fileMetadatasInDataBase = fileMetadataMapper.selectByExample(example);
+            List<FileMetadataWithBLOBs> fileMetadatasInDataBase = fileMetadataMapper.selectByExampleWithBLOBs(example);
             if (CollectionUtils.isEmpty(fileMetadatasInDataBase)) {
-                final FileMetadata fileMetadata = new FileMetadata();
+                final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
                 fileMetadata.setId(UUID.randomUUID().toString());
                 fileMetadata.setName(file.getName());
                 fileMetadata.setSize(file.length());
@@ -224,6 +239,8 @@ public class FileService {
                 fileMetadata.setUpdateTime(System.currentTimeMillis());
                 FileType fileType = getFileType(fileMetadata.getName());
                 fileMetadata.setType(fileType.name());
+                fileMetadata.setLatest(true);
+                fileMetadata.setRefId(fileMetadata.getId());
                 fileMetadataMapper.insert(fileMetadata);
 
                 FileContent fileContent = new FileContent();
@@ -232,7 +249,7 @@ public class FileService {
                 fileContentMapper.insert(fileContent);
                 return fileMetadata;
             } else {
-                FileMetadata fileMetadata = fileMetadatasInDataBase.get(0);
+                FileMetadataWithBLOBs fileMetadata = fileMetadatasInDataBase.get(0);
                 fileMetadata.setName(file.getName());
                 fileMetadata.setSize(file.length());
                 fileMetadata.setProjectId(projectId);
@@ -253,7 +270,7 @@ public class FileService {
     }
 
     public FileMetadata saveFile(File file, byte[] fileByte, String projectId) {
-        final FileMetadata fileMetadata = new FileMetadata();
+        final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(file.getName());
         fileMetadata.setSize(file.length());
@@ -262,6 +279,8 @@ public class FileService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setLatest(true);
+        fileMetadata.setRefId(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -273,7 +292,7 @@ public class FileService {
     }
 
     public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
-        final FileMetadata fileMetadata = new FileMetadata();
+        final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(fileName);
         fileMetadata.setSize(fileSize);
@@ -281,6 +300,8 @@ public class FileService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setLatest(true);
+        fileMetadata.setRefId(fileMetadata.getId());
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -292,12 +313,14 @@ public class FileService {
     }
 
     public FileMetadata copyFile(String fileId) {
-        FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
+        FileMetadataWithBLOBs fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
         FileContent fileContent = getFileContent(fileId);
         if (fileMetadata != null && fileContent != null) {
             fileMetadata.setId(UUID.randomUUID().toString());
             fileMetadata.setCreateTime(System.currentTimeMillis());
             fileMetadata.setUpdateTime(System.currentTimeMillis());
+            fileMetadata.setLatest(true);
+            fileMetadata.setRefId(fileMetadata.getId());
             fileMetadataMapper.insert(fileMetadata);
 
             fileContent.setFileId(fileMetadata.getId());
@@ -305,7 +328,6 @@ public class FileService {
         }
         return fileMetadata;
     }
-
 
 
     public FileAttachmentMetadata copyAttachment(String fileId, String attachmentType, String belongId) {
@@ -398,7 +420,7 @@ public class FileService {
         return fileMetadataMapper.selectByPrimaryKey(fileId);
     }
 
-    public void updateFileMetadata(FileMetadata fileMetadata) {
+    public void updateFileMetadata(FileMetadataWithBLOBs fileMetadata) {
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
     }
 
@@ -439,13 +461,15 @@ public class FileService {
             try {
                 RsaKey rsaKey = RsaUtil.getRsaKey();
                 byte[] bytes = SerializationUtils.serialize(rsaKey);
-                final FileMetadata fileMetadata = new FileMetadata();
+                final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
                 fileMetadata.setId(key);
                 fileMetadata.setName(key);
                 fileMetadata.setSize((long) bytes.length);
                 fileMetadata.setCreateTime(System.currentTimeMillis());
                 fileMetadata.setUpdateTime(System.currentTimeMillis());
                 fileMetadata.setType("RSA_KEY");
+                fileMetadata.setLatest(true);
+                fileMetadata.setRefId(fileMetadata.getId());
                 fileMetadataMapper.insert(fileMetadata);
 
                 FileContent fileContent = new FileContent();

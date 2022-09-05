@@ -11,13 +11,16 @@
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
       :default-label="$t('commons.module_title')"
       :show-case-num="showCaseNum"
-      @add="add"
+      operation_type_add="external"
+      operation_type_edit="external"
       @edit="edit"
       @drag="drag"
       @remove="remove"
       @refresh="list"
       @filter="filter"
       @nodeSelectEvent="nodeChange"
+      @addOperation="fileTreeModuleAdd"
+      @editOperation="fileTreeModuleEdit"
       ref="nodeTree">
 
       <template v-slot:header>
@@ -26,8 +29,8 @@
           :condition="condition"/>
         <ms-my-file :condition="condition" :exe="myFile" :total='total' v-if="loading"/>
       </template>
-
     </ms-node-tree>
+    <file-module-dialog @refresh="list" ref="fileModuleDialog"/>
   </div>
 </template>
 
@@ -37,6 +40,7 @@ import {buildTree} from "@/business/components/api/definition/model/NodeTree";
 import MsMyFile from "./MyFile";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import FileModuleDialog from "@/business/components/project/menu/file/dialog/FileModuleDialog";
 
 export default {
   name: 'MsFileModule',
@@ -44,6 +48,7 @@ export default {
     MsSearchBar,
     MsMyFile,
     MsNodeTree,
+    FileModuleDialog,
   },
   props: {
     isReadOnly: {
@@ -95,6 +100,12 @@ export default {
     }
   },
   methods: {
+    fileTreeModuleAdd(param) {
+      this.$refs.fileModuleDialog.open('create', param);
+    },
+    fileTreeModuleEdit(data) {
+      this.$refs.fileModuleDialog.open('edit', data);
+    },
     reload() {
       this.loading = false
       this.$nextTick(() => {
@@ -134,16 +145,6 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.list();
         this.refresh();
-      }, (error) => {
-        this.list();
-      });
-    },
-    add(param) {
-      param.projectId = this.projectId;
-      param.protocol = this.condition.protocol;
-      this.$post("/file/module/add", param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.list();
       }, (error) => {
         this.list();
       });

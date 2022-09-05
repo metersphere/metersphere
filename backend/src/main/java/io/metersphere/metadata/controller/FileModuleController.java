@@ -1,13 +1,16 @@
 package io.metersphere.metadata.controller;
 
 import io.metersphere.base.domain.FileModule;
+import io.metersphere.commons.constants.FileModuleTypeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileModuleService;
+import io.metersphere.metadata.utils.GitRepositoryUtils;
 import io.metersphere.metadata.vo.DragFileModuleRequest;
 import io.metersphere.metadata.vo.FileModuleVo;
 import io.metersphere.service.CheckPermissionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -32,6 +35,15 @@ public class FileModuleController {
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = FileModuleService.class)
     public String addNode(@RequestBody FileModule node) {
         return fileModuleService.addNode(node);
+    }
+
+    @PostMapping("/connect")
+    public String connect(@RequestBody FileModule node) {
+        if (StringUtils.equalsIgnoreCase(node.getModuleType(),FileModuleTypeConstants.REPOSITORY.getValue())){
+            GitRepositoryUtils utils = new GitRepositoryUtils(node.getRepositoryPath(),node.getRepositoryUserName(),node.getRepositoryToken());
+            utils.getBranches();
+        }
+        return "suucess";
     }
 
     @PostMapping("/edit")

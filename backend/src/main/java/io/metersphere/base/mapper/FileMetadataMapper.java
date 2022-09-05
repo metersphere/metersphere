@@ -2,6 +2,7 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.FileMetadataExample;
+import io.metersphere.base.domain.FileMetadataWithBLOBs;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,25 +13,25 @@ public interface FileMetadataMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(FileMetadata record);
+    int insert(FileMetadataWithBLOBs record);
 
-    int insertSelective(FileMetadata record);
+    int insertSelective(FileMetadataWithBLOBs record);
 
-    List<FileMetadata> selectByExampleWithBLOBs(FileMetadataExample example);
+    List<FileMetadataWithBLOBs> selectByExampleWithBLOBs(FileMetadataExample example);
 
     List<FileMetadata> selectByExample(FileMetadataExample example);
 
-    FileMetadata selectByPrimaryKey(String id);
+    FileMetadataWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
+    int updateByExampleSelective(@Param("record") FileMetadataWithBLOBs record, @Param("example") FileMetadataExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
+    int updateByExampleWithBLOBs(@Param("record") FileMetadataWithBLOBs record, @Param("example") FileMetadataExample example);
 
     int updateByExample(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
 
-    int updateByPrimaryKeySelective(FileMetadata record);
+    int updateByPrimaryKeySelective(FileMetadataWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(FileMetadata record);
+    int updateByPrimaryKeyWithBLOBs(FileMetadataWithBLOBs record);
 
     int updateByPrimaryKey(FileMetadata record);
 }

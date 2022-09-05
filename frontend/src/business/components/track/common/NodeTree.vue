@@ -117,6 +117,16 @@ export default {
       type: String,
       default: "view"
     },
+    //添加操作的操作类型
+    operation_type_add: {
+      type: String,
+      default: "simple"
+    },
+    //修改操作的操作类型
+    operation_type_edit: {
+      type: String,
+      default: "simple"
+    },
     treeNodes: {
       type: Array
     },
@@ -254,20 +264,23 @@ export default {
       }
     },
     edit(node, data, isAppend) {
-      this.$set(data, 'isEdit', true);
-      this.$nextTick(() => {
-        this.$refs.nameInput.focus();
-
-        // 不知为何，执行this.$set(data, 'isEdit', true);进入编辑状态之后过滤会失效，重新执行下过滤
-        if (!isAppend) {
-          this.$nextTick(() => {
-            this.filter(this.filterText);
-          });
-          this.$nextTick(() => {
-            this.$emit('filter');
-          });
-        }
-      });
+      if (this.operation_type_edit === 'simple') {
+        this.$set(data, 'isEdit', true);
+        this.$nextTick(() => {
+          this.$refs.nameInput.focus();
+          // 不知为何，执行this.$set(data, 'isEdit', true);进入编辑状态之后过滤会失效，重新执行下过滤
+          if (!isAppend) {
+            this.$nextTick(() => {
+              this.filter(this.filterText);
+            });
+            this.$nextTick(() => {
+              this.$emit('filter');
+            });
+          }
+        });
+      } else if (this.operation_type_edit === 'external') {
+        this.$emit("editOperation", data);
+      }
     },
     increase(id) {
       this.traverse(id, node => {
@@ -317,21 +330,33 @@ export default {
       }
     },
     append(node, data) {
-      const newChild = {
-        id: undefined,
-        isEdit: false,
-        name: "",
-        children: []
-      };
-      if (!data.children) {
-        this.$set(data, 'children', [])
+      if (this.operation_type_add === 'simple') {
+        const newChild = {
+          id: undefined,
+          isEdit: false,
+          name: "",
+          children: []
+        };
+        if (!data.children) {
+          this.$set(data, 'children', [])
+        }
+        data.children.push(newChild);
+        this.edit(node, newChild, true);
+        node.expanded = true;
+        this.$nextTick(() => {
+          this.$refs.nameInput.focus();
+        });
+      } else if (this.operation_type_add === 'external') {
+        let param = {};
+        param.parentId = node.id;
+        param.level = 1;
+        if (data.id != 'root') {
+          // 非根节点
+          param.parentId = data.id;
+          param.level = data.level + 1;
+        }
+        this.$emit("addOperation", param);
       }
-      data.children.push(newChild);
-      this.edit(node, newChild, true);
-      node.expanded = true;
-      this.$nextTick(() => {
-        this.$refs.nameInput.focus();
-      });
     },
     save(node, data) {
       if (data.name.trim() === '') {

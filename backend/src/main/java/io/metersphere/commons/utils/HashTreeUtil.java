@@ -13,9 +13,14 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.ExtErrorReportLibraryService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.StorageConstants;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.metadata.vo.repository.FileInfoDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +31,7 @@ import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jorphan.collections.HashTree;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -33,6 +39,39 @@ import java.util.*;
  * 2021/7/28 3:37 下午
  */
 public class HashTreeUtil {
+
+    public static void initRepositoryFiles(JmeterRunRequestDTO runRequest) {
+        if (runRequest.getPool().isPool() || runRequest.getPool().isK8s()) {
+            return;
+        }
+        List<BodyFile> files = new LinkedList<>();
+        FileUtils.getExecuteFiles(runRequest.getHashTree(), runRequest.getReportId(), files);
+        if (CollectionUtils.isNotEmpty(files)) {
+            Map<String, String> repositoryFileMap = new HashMap<>();
+            for (BodyFile bodyFile : files) {
+                if (StringUtils.equals(bodyFile.getStorage(), StorageConstants.GIT.name())
+                        && StringUtils.isNotBlank(bodyFile.getFileId())) {
+                    repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
+                }
+            }
+            FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+            if (fileMetadataService != null) {
+                Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
+                List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
+                fileInfoDTOList.forEach(repositoryFile -> {
+                    if (repositoryFile.getFileByte() != null) {
+                        multipartFiles.put(FileUtils.BODY_FILE_DIR + File.separator + repositoryFileMap.get(repositoryFile.getId()), repositoryFile.getFileByte());
+                    }
+                });
+                for (Map.Entry<String, byte[]> fileEntry : multipartFiles.entrySet()) {
+                    String fileName = fileEntry.getKey();
+                    byte[] fileBytes = fileEntry.getValue();
+                    FileUtils.createFile(fileName, fileBytes);
+                }
+            }
+        }
+    }
+
 
     public Map<String, Map<String, String>> getEnvParamsDataByHashTree(HashTree hashTree, ApiTestEnvironmentService apiTestEnvironmentService) {
         Map<String, Map<String, String>> returnMap = new HashMap<>();
@@ -85,7 +124,7 @@ public class HashTreeUtil {
         return returnMap;
     }
 
-    public  void setEnvParamsMapToHashTree(HashTree hashTree, Map<String, Map<String, String>> envParamsMap) {
+    public void setEnvParamsMapToHashTree(HashTree hashTree, Map<String, Map<String, String>> envParamsMap) {
         if (hashTree != null) {
             Map<String, String> allParamMap = new HashMap<>();
             for (Map<String, String> paramMap : envParamsMap.values()) {
@@ -239,9 +278,9 @@ public class HashTreeUtil {
         return target;
     }
 
-    public static List<MsAssertions> getErrorReportByProjectId(String projectId,boolean higherThanSuccess,boolean higherThanError) {
+    public static List<MsAssertions> getErrorReportByProjectId(String projectId, boolean higherThanSuccess, boolean higherThanError) {
         ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
-        return service.getAssertionByProjectIdAndStatusIsOpen(projectId,higherThanSuccess,higherThanError);
+        return service.getAssertionByProjectIdAndStatusIsOpen(projectId, higherThanSuccess, higherThanError);
     }
 
     public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId) {
@@ -249,7 +288,7 @@ public class HashTreeUtil {
             return;
         }
         if (!config.isOperating() && envConfig.isUseErrorCode()) {
-            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId,envConfig.isHigherThanSuccess(),envConfig.isHigherThanError());
+            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId, envConfig.isHigherThanSuccess(), envConfig.isHigherThanError());
             for (MsAssertions assertion : errorReportAssertion) {
                 assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
             }
@@ -266,7 +305,8 @@ public class HashTreeUtil {
         JSONObject element = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
         ElementUtil.dataFormatting(element);
         try {
-            return mapper.readValue(element.getString("hashTree"), new TypeReference<>() {});
+            return mapper.readValue(element.getString("hashTree"), new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
