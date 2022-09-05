@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.FileModuleMapper;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
 import io.metersphere.base.mapper.ext.ExtFileModuleMapper;
 import io.metersphere.commons.constants.ApiTestConstants;
+import io.metersphere.commons.constants.FileModuleTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -198,6 +199,13 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
             if (fileModuleMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("test_case_module_already_exists") + ": " + node.getName());
             }
+            if (StringUtils.equalsIgnoreCase(node.getModuleType(), FileModuleTypeConstants.REPOSITORY.getValue())) {
+                example.clear();
+                criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId()).andModuleTypeEqualTo(FileModuleTypeConstants.REPOSITORY.getValue());
+                if (fileModuleMapper.selectByExample(example).size() > 0) {
+                    MSException.throwException(Translator.get("repository_module_already_exists") + ": " + node.getName());
+                }
+            }
         }
     }
 
@@ -226,10 +234,18 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
 
     public int deleteNode(List<String> nodeIds) {
         if (CollectionUtils.isNotEmpty(nodeIds)) {
+            List<String> refIdList = extFileMetadataMapper.selectRefIdsByIds(nodeIds);
             //删除文件
             FileMetadataExample example = new FileMetadataExample();
             example.createCriteria().andModuleIdIn(nodeIds);
             fileMetadataMapper.deleteByExample(example);
+
+            if (CollectionUtils.isNotEmpty(refIdList)) {
+                //删除其余版本的文件
+                example.clear();
+                example.createCriteria().andRefIdIn(refIdList);
+                fileMetadataMapper.deleteByExample(example);
+            }
 
             FileModuleExample apiDefinitionNodeExample = new FileModuleExample();
             apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);
@@ -387,5 +403,4 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
     public String getModuleNameById(String moduleId) {
         return extFileModuleMapper.getNameById(moduleId);
     }
-
 }

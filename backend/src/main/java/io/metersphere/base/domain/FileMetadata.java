@@ -35,7 +35,9 @@ public class FileMetadata implements Serializable {
 
     private String resourceType;
 
-    private String description;
+    private Boolean latest;
+
+    private String refId;
 
     private static final long serialVersionUID = 1L;
 }

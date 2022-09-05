@@ -26,6 +26,7 @@
         <java-websocket.version>1.5.3</java-websocket.version>
         <xmlbeans.version>5.1.0</xmlbeans.version>
         <poi.version>5.1.0</poi.version>
+        <jgit.version>6.2.0.202206071550-r</jgit.version>
     </properties>
 
     <dependencies>
@@ -402,6 +403,12 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>${poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
         </dependency>
     </dependencies>
 

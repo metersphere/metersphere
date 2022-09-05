@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtFileMetadataMapper">
-    <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
+    <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadataWithBLOBs">
         SELECT file_metadata.* FROM file_metadata
-        WHERE project_id = #{projectId,jdbcType=VARCHAR} AND type != 'RSA_KEY'
+        WHERE project_id = #{projectId,jdbcType=VARCHAR} AND type != 'RSA_KEY' AND latest IS TRUE
         <if test="request.name != null and request.name !=''">
             AND ( file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
             OR file_metadata.tags LIKE CONCAT('%', #{request.name}, '%')
@@ -69,7 +69,7 @@
 
     <update id="move">
         update file_metadata set module_id = #{request.moduleId}
-        where id in
+        where storage != 'GIT' AND id in
         <foreach collection="request.metadataIds" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
@@ -83,6 +83,15 @@
         </foreach>
         GROUP BY module_id
     </select>
+
+    <select id="selectRefIdsByIds" resultType="java.util.Map">
+        select ref_id from file_metadata
+        where ref_id IS NOT NULL AND id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
+
     <update id="updateModuleIdByProjectId">
         update file_metadata set module_id = #{moduleId}
         where project_id = #{projectId} and module_id is null

@@ -1,9 +1,13 @@
 package io.metersphere.metadata.repository;
 
 import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.metadata.vo.repository.FileInfoDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinIOFileRepository implements FileRepository {
 
@@ -25,6 +29,18 @@ public class MinIOFileRepository implements FileRepository {
     @Override
     public byte[] getFile(FileRequest request) throws Exception {
         return new byte[0];
+    }
+
+    @Override
+    public List<FileInfoDTO> getFileBatch(List<FileRequest> requestList) throws Exception {
+        List<FileInfoDTO> list = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(requestList)) {
+            for (FileRequest fileRequest : requestList) {
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), this.getFile(fileRequest));
+                list.add(fileInfoDTO);
+            }
+        }
+        return list;
     }
 
     @Override

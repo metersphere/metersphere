@@ -10,6 +10,7 @@
             #{emp.updateTime,jdbcType=BIGINT})
         </foreach>
     </insert>
+
     <select id="getNodeTreeByProjectId" resultType="io.metersphere.metadata.vo.FileModuleVo">
         select
         <include refid="io.metersphere.base.mapper.FileModuleMapper.Base_Column_List"/>

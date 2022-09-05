@@ -63,7 +63,7 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="api_sync_rule_relation"/>
+        <table tableName="file_metadata"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

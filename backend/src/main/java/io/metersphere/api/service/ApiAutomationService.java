@@ -890,8 +890,10 @@ public class ApiAutomationService {
     }
 
 
-    private String generateJmx(ApiScenarioWithBLOBs apiScenario) {
+    private HashTreeInfoDTO generateJmx(ApiScenarioWithBLOBs apiScenario) {
+        String jmx = null;
         HashTree jmeterHashTree = new ListedHashTree();
+        List<FileMetadata> repositoryMetadata = new ArrayList<>();
         MsTestPlan testPlan = new MsTestPlan();
         // 获取自定义JAR
         String projectId = apiScenario.getProjectId();
@@ -931,7 +933,8 @@ public class ApiAutomationService {
             if (isUseElement) {
                 scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
                 ElementUtil.accuracyHashTree(jmeterHashTree);
-                return scenario.getJmx(jmeterHashTree);
+                repositoryMetadata = FileUtils.getRepositoryFileMetadata(jmeterHashTree);
+                jmx = scenario.getJmx(jmeterHashTree);
             } else {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(apiScenario.getName());
@@ -942,13 +945,22 @@ public class ApiAutomationService {
                     this.add(scenario);
                 }});
                 testPlan.getHashTree().add(group);
+                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+                repositoryMetadata = FileUtils.getRepositoryFileMetadata(jmeterHashTree);
+                jmx = testPlan.getJmx(jmeterHashTree);
             }
-            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+
         } catch (Exception ex) {
             LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
         }
-        return testPlan.getJmx(jmeterHashTree);
+
+
+        HashTreeInfoDTO returnDTO = new HashTreeInfoDTO();
+        returnDTO.setJmx(jmx);
+        returnDTO.setHashTree(jmeterHashTree);
+        returnDTO.setRepositoryFiles(repositoryMetadata);
+        return returnDTO;
     }
 
 
@@ -1143,7 +1155,11 @@ public class ApiAutomationService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         ApiScenarioDTO scenario = apiScenarios.get(0);
-        JmxInfoDTO jmxInfo = apiTestService.updateJmxString(generateJmx(scenario), scenario.getProjectId(), true);
+
+        HashTreeInfoDTO hashTreeInfoDTO = generateJmx(scenario);
+        JmxInfoDTO jmxInfo = apiTestService.updateJmxString(hashTreeInfoDTO.getJmx(), scenario.getProjectId(), true);
+        jmxInfo.addFileMetadataLists(hashTreeInfoDTO.getRepositoryFiles());
+
         String name = request.getName() + ".jmx";
         jmxInfo.setName(name);
         jmxInfo.setId(id);
@@ -1677,10 +1693,11 @@ public class ApiAutomationService {
 
         apiScenarioWithBLOBs.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
-                String jmx = generateJmx(item);
-                if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId(), false).getXml());
-                    JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getProjectId(), true);
+                HashTreeInfoDTO hashTreeInfoDTO = generateJmx(item);
+                if (StringUtils.isNotEmpty(hashTreeInfoDTO.getJmx())) {
+                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(hashTreeInfoDTO.getJmx(), item.getProjectId(), false).getXml());
+                    JmxInfoDTO dto = apiTestService.updateJmxString(hashTreeInfoDTO.getJmx(), item.getProjectId(), true);
+                    dto.addFileMetadataLists(hashTreeInfoDTO.getRepositoryFiles());
                     scenariosExportJmx.setId(item.getId());
                     scenariosExportJmx.setVersion(item.getVersion());
                     //扫描需要哪些文件
@@ -1713,9 +1730,9 @@ public class ApiAutomationService {
         Map<String, byte[]> files = new LinkedHashMap<>();
         scenarios.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
-                String jmx = generateJmx(item);
-                if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(jmx, item.getProjectId(), false).getXml());
+                HashTreeInfoDTO hashTreeInfoDTO = generateJmx(item);
+                if (StringUtils.isNotEmpty(hashTreeInfoDTO.getJmx())) {
+                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), apiTestService.updateJmxString(hashTreeInfoDTO.getJmx(), item.getProjectId(), false).getXml());
                     String fileName = item.getName() + ".jmx";
                     String jmxStr = scenariosExportJmx.getJmx();
                     files.put(fileName, jmxStr.getBytes(StandardCharsets.UTF_8));
@@ -2032,7 +2049,9 @@ public class ApiAutomationService {
             apiScenarioList.forEach(item -> {
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
-                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item), item.getProjectId(), true);
+                HashTreeInfoDTO hashTreeInfoDTO = generateJmx(item);
+                JmxInfoDTO dto = apiTestService.updateJmxString(hashTreeInfoDTO.getJmx(), item.getProjectId(), true);
+                dto.setFileMetadataList(hashTreeInfoDTO.getRepositoryFiles());
                 String name = item.getName() + ".jmx";
                 dto.setId(item.getId());
                 dto.setName(name);

@@ -3,6 +3,7 @@ package io.metersphere.performance.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.FileMetadataWithBLOBs;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -203,7 +204,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/file/{projectId}/getMetadataByName")
-    public List<FileMetadata> getProjectMetadataByName(@PathVariable String projectId, @RequestBody QueryProjectFileRequest request) {
+    public List<FileMetadataWithBLOBs> getProjectMetadataByName(@PathVariable String projectId, @RequestBody QueryProjectFileRequest request) {
         return fileMetadataService.getProjectFiles(projectId, request);
     }
 
@@ -212,7 +213,7 @@ public class PerformanceTestController {
         byte[] bytes = fileMetadataService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getId()+".jmx" + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getId() + ".jmx" + "\"")
                 .body(bytes);
     }
 
@@ -280,7 +281,7 @@ public class PerformanceTestController {
 
     @GetMapping("get/{version}/{refId}")
     public LoadTestDTO getLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
-        return performanceTestService.getLoadTestByVersion(version,refId);
+        return performanceTestService.getLoadTestByVersion(version, refId);
     }
 
     @GetMapping("delete/{version}/{refId}")

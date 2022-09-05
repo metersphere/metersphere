@@ -3,8 +3,10 @@ package io.metersphere.commons.utils;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.JarConfig;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,6 +52,33 @@ public class FileUtils {
             return new byte[10];
         }
         return new byte[10];
+    }
+
+    public static void createFile(String filePath, byte[] fileBytes) {
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            File dir = file.getParentFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            file.createNewFile();
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+
+        try (InputStream in = new ByteArrayInputStream(fileBytes); OutputStream out = new FileOutputStream(file)) {
+            final int MAX = 4096;
+            byte[] buf = new byte[MAX];
+            for (int bytesRead = in.read(buf, 0, MAX); bytesRead != -1; bytesRead = in.read(buf, 0, MAX)) {
+                out.write(buf, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            LogUtil.error(e);
+            MSException.throwException(Translator.get("upload_fail"));
+        }
     }
 
     private static void create(List<String> bodyUploadIds, List<MultipartFile> bodyFiles, String path) {
@@ -123,7 +152,7 @@ public class FileUtils {
             });
         }
     }
-    
+
     public static void copyBodyFiles(String sourceId, String targetId) {
         try {
             String sourcePath = BODY_FILE_DIR + File.separator + sourceId;
@@ -309,6 +338,10 @@ public class FileUtils {
                         BodyFile file = new BodyFile();
                         file.setId(arg.getParamName());
                         file.setName(arg.getPath());
+                        if (arg.getPropertyAsBoolean("isRef")) {
+                            file.setStorage(StorageConstants.FILE_REF.name());
+                            file.setFileId(arg.getPropertyAsString("fileId"));
+                        }
                         files.add(file);
                     }
                 }
@@ -323,6 +356,58 @@ public class FileUtils {
             }
             if (node != null) {
                 getFiles(node, files);
+            }
+        }
+    }
+
+    /**
+     * 获取当前jmx 涉及到的文件  执行时
+     *
+     * @param tree
+     */
+    public static void getExecuteFiles(HashTree tree, String reportId, List<BodyFile> files) {
+        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+        for (Object key : tree.keySet()) {
+            HashTree node = tree.get(key);
+            if (key instanceof HTTPSamplerProxy) {
+                HTTPSamplerProxy source = (HTTPSamplerProxy) key;
+                if (source != null && source.getHTTPFiles().length > 0) {
+                    for (HTTPFileArg arg : source.getHTTPFiles()) {
+                        BodyFile file = new BodyFile();
+                        file.setId(arg.getParamName());
+                        file.setName(arg.getPath());
+                        if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
+                            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
+                            if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                                file.setStorage(StorageConstants.GIT.name());
+                                file.setFileId(arg.getPropertyAsString("fileId"));
+                                file.setName(reportId + File.separator + fileMetadata.getName());
+                                arg.setPath(BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
+                            }
+                        }
+                        files.add(file);
+                    }
+                }
+            } else if (key instanceof CSVDataSet) {
+                CSVDataSet source = (CSVDataSet) key;
+                if (source != null && StringUtils.isNotEmpty(source.getPropertyAsString("filename"))) {
+                    BodyFile file = new BodyFile();
+                    file.setId(source.getPropertyAsString("filename"));
+                    file.setName(source.getPropertyAsString("filename"));
+                    if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
+                        FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
+                        if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                            file.setStorage(StorageConstants.GIT.name());
+                            file.setFileId(source.getPropertyAsString("fileId"));
+                            file.setName(reportId + File.separator + fileMetadata.getName());
+                            source.setFilename(BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
+                        }
+                    }
+                    files.add(file);
+                }
+            }
+            if (node != null) {
+                getExecuteFiles(node, reportId, files);
             }
         }
     }
@@ -390,6 +475,44 @@ public class FileUtils {
         } catch (Exception e) {
         }
         return buffer;
+    }
+
+    public static List<FileMetadata> getRepositoryFileMetadata(HashTree tree) {
+        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+        List<FileMetadata> list = new ArrayList<>();
+        for (Object key : tree.keySet()) {
+            HashTree node = tree.get(key);
+            if (key instanceof HTTPSamplerProxy) {
+                HTTPSamplerProxy source = (HTTPSamplerProxy) key;
+                if (source != null && source.getHTTPFiles().length > 0) {
+                    for (HTTPFileArg arg : source.getHTTPFiles()) {
+                        if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
+                            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
+                            if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                                list.add(fileMetadata);
+                                arg.setPath(fileMetadata.getName());
+                                arg.setName(fileMetadata.getName());
+                            }
+                        }
+                    }
+                }
+            } else if (key instanceof CSVDataSet) {
+                CSVDataSet source = (CSVDataSet) key;
+                if (source != null && StringUtils.isNotEmpty(source.getPropertyAsString("filename"))) {
+                    if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
+                        FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
+                        if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                            list.add(fileMetadata);
+                            source.setFilename(fileMetadata.getName());
+                        }
+                    }
+                }
+            }
+            if (node != null) {
+                list.addAll(getRepositoryFileMetadata(node));
+            }
+        }
+        return list;
     }
 
     public List<Object> getZipJar() {

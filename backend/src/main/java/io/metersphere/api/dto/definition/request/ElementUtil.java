@@ -16,6 +16,7 @@ import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.LoopConstants;
@@ -28,6 +29,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.i18n.Translator;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -105,6 +107,7 @@ public class ElementUtil {
                 list = config.getTransferVariables().stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             }
             if (CollectionUtils.isNotEmpty(list)) {
+                FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 list.forEach(item -> {
                     CSVDataSet csvDataSet = new CSVDataSet();
                     csvDataSet.setEnabled(true);
@@ -115,15 +118,28 @@ public class ElementUtil {
                     if (CollectionUtils.isEmpty(item.getFiles())) {
                         MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                     } else {
+                        boolean isRef = false;
+                        String fileId = null;
+                        boolean isRepository = false;
                         BodyFile file = item.getFiles().get(0);
                         String path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
                         if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                            isRef = true;
+                            fileId = file.getFileId();
+                            if (fileMetadataService != null) {
+                                FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
+                                if (fileMetadata != null && StringUtils.equals(fileMetadata.getStorage(), StorageConstants.GIT.name())) {
+                                    isRepository = true;
+                                }
+                            }
                             path = FileUtils.getFilePath(file);
                         }
-                        if (!config.isOperating() && !new File(path).exists()) {
+                        if (!config.isOperating() && !isRepository && !new File(path).exists()) {
                             MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                         }
                         csvDataSet.setProperty("filename", path);
+                        csvDataSet.setProperty("isRef", isRef);
+                        csvDataSet.setProperty("fileId", fileId);
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("shareMode", shareMode);

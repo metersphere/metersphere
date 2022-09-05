@@ -8,6 +8,7 @@ import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.constants.BackendListenerConstants;
@@ -189,6 +190,8 @@ public class JMeterService {
         if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode()) && !request.getRunMode().startsWith("UI")) {
             this.runNode(request);
         } else {
+            //解析hashTree，是否含有文件库文件
+            HashTreeUtil.initRepositoryFiles(request);
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
         }
     }

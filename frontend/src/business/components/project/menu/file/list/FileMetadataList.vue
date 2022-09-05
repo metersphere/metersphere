@@ -7,6 +7,7 @@
                        @search="getProjectFiles" title="">
         <template v-slot:button>
           <el-upload
+            v-if="moduleType==='module'"
             action=""
             :limit="fileNumLimit"
             multiple
@@ -15,9 +16,13 @@
             :http-request="handleUpload"
             :on-exceed="handleExceed">
             <ms-table-button icon="el-icon-upload2"
-                             :content="$t('load_test.upload_file')"
+                             :content="$t('variables.add_file')"
                              v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
           </el-upload>
+          <ms-table-button icon="el-icon-upload2" v-else-if="moduleType==='repository'"
+                           :content="$t('variables.add_file')"
+                           @click="addRepositoryFile"
+                           v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
         </template>
       </ms-table-header>
     </template>
@@ -162,6 +167,7 @@
       @download="handleDownload"
       @setCurrentPage="setCurrentPage"
       @delete="handleDelete" ref="editFileMetadata"/>
+    <file-metadata-dialog :module-id="moduleId" @refresh="refreshModuleAndList" ref="repositoryFileDialog"/>
   </el-card>
 </template>
 
@@ -169,7 +175,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-import {getCurrentProjectID, operationConfirm, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, operationConfirm} from "@/common/js/utils";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTableHeader from "../header/FileHeader";
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
@@ -181,6 +187,7 @@ import MsFileBatchMove from "../module/FileBatchMove";
 import MsFileThumbnail from "./FileThumbnail";
 import MsEditFileMetadata from "../edit/EditFileMetadata";
 import MsTag from "@/business/components/common/components/MsTag";
+import FileMetadataDialog from "@/business/components/project/menu/file/dialog/FileMetadataDialog";
 
 export default {
   name: "MsFileMetadataList",
@@ -198,10 +205,15 @@ export default {
     MsFileBatchMove,
     MsFileThumbnail,
     MsEditFileMetadata,
-    MsTag
+    MsTag,
+    FileMetadataDialog,
   },
   props: {
     moduleId: String,
+    moduleType: {
+      type: String,
+      default: 'module',
+    },
     nodeTree: Array,
   },
   data() {
@@ -287,6 +299,10 @@ export default {
         });
       });
     },
+    refreshModuleAndList() {
+      this.getProjectFiles();
+      this.refreshModule();
+    },
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
@@ -306,7 +322,12 @@ export default {
       let file = uploadResources.file;
       let formData = new FormData();
       let url = '/file/metadata/create';
-      let request = {createUser: getCurrentUserId(), updateUser: getCurrentUserId(), projectId: this.projectId, moduleId: this.moduleId};
+      let request = {
+        createUser: getCurrentUserId(),
+        updateUser: getCurrentUserId(),
+        projectId: this.projectId,
+        moduleId: this.moduleId,
+      };
       formData.append("request", new Blob([JSON.stringify(request)], {type: "application/json"}));
       formData.append("file", file);
       let options = {
@@ -414,6 +435,9 @@ export default {
     },
     moveSave(param) {
       this.buildBatchParam(param);
+    },
+    addRepositoryFile() {
+      this.$refs.repositoryFileDialog.open("create");
     }
   }
 };

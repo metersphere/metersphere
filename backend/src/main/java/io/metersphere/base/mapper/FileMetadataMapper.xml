@@ -17,9 +17,12 @@
     <result column="load_jar" jdbcType="BIT" property="loadJar" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileMetadata">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileMetadataWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="attach_info" jdbcType="LONGVARCHAR" property="attachInfo" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,10 +84,10 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-    update_user, tags, module_id, load_jar, `path`, resource_type
+    update_user, tags, module_id, load_jar, `path`, resource_type, latest, ref_id
   </sql>
   <sql id="Blob_Column_List">
-    description
+    description, attach_info
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="ResultMapWithBLOBs">
     select
@@ -134,21 +137,23 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
+  <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadataWithBLOBs">
     insert into file_metadata (id, `name`, `type`, 
       `size`, create_time, update_time, 
       project_id, `storage`, create_user, 
       update_user, tags, module_id, 
       load_jar, `path`, resource_type, 
-      description)
+      latest, ref_id, description, 
+      attach_info)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
       #{loadJar,jdbcType=BIT}, #{path,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR})
+      #{latest,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{attachInfo,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadataWithBLOBs">
     insert into file_metadata
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -196,8 +201,17 @@
       <if test="resourceType != null">
         resource_type,
       </if>
+      <if test="latest != null">
+        latest,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
       <if test="description != null">
         description,
+      </if>
+      <if test="attachInfo != null">
+        attach_info,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -246,8 +260,17 @@
       <if test="resourceType != null">
         #{resourceType,jdbcType=VARCHAR},
       </if>
+      <if test="latest != null">
+        #{latest,jdbcType=BIT},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="attachInfo != null">
+        #{attachInfo,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -305,8 +328,17 @@
       <if test="record.resourceType != null">
         resource_type = #{record.resourceType,jdbcType=VARCHAR},
       </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.attachInfo != null">
+        attach_info = #{record.attachInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -330,7 +362,10 @@
       load_jar = #{record.loadJar,jdbcType=BIT},
       `path` = #{record.path,jdbcType=VARCHAR},
       resource_type = #{record.resourceType,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+      latest = #{record.latest,jdbcType=BIT},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR},
+      attach_info = #{record.attachInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -351,12 +386,14 @@
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       load_jar = #{record.loadJar,jdbcType=BIT},
       `path` = #{record.path,jdbcType=VARCHAR},
-      resource_type = #{record.resourceType,jdbcType=VARCHAR}
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      latest = #{record.latest,jdbcType=BIT},
+      ref_id = #{record.refId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.FileMetadata">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.FileMetadataWithBLOBs">
     update file_metadata
     <set>
       <if test="name != null">
@@ -401,13 +438,22 @@
       <if test="resourceType != null">
         resource_type = #{resourceType,jdbcType=VARCHAR},
       </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="attachInfo != null">
+        attach_info = #{attachInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileMetadata">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileMetadataWithBLOBs">
     update file_metadata
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
@@ -423,7 +469,10 @@
       load_jar = #{loadJar,jdbcType=BIT},
       `path` = #{path,jdbcType=VARCHAR},
       resource_type = #{resourceType,jdbcType=VARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR}
+      latest = #{latest,jdbcType=BIT},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR},
+      attach_info = #{attachInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileMetadata">
@@ -441,7 +490,9 @@
       module_id = #{moduleId,jdbcType=VARCHAR},
       load_jar = #{loadJar,jdbcType=BIT},
       `path` = #{path,jdbcType=VARCHAR},
-      resource_type = #{resourceType,jdbcType=VARCHAR}
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      latest = #{latest,jdbcType=BIT},
+      ref_id = #{refId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

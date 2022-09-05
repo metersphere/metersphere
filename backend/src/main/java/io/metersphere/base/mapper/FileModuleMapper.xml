@@ -11,6 +11,13 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="pos" jdbcType="DOUBLE" property="pos" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="module_type" jdbcType="VARCHAR" property="moduleType" />
+    <result column="repository_path" jdbcType="VARCHAR" property="repositoryPath" />
+    <result column="repository_token" jdbcType="VARCHAR" property="repositoryToken" />
+    <result column="repository_user_name" jdbcType="VARCHAR" property="repositoryUserName" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileModule">
+    <result column="repository_desc" jdbcType="LONGVARCHAR" property="repositoryDesc" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,8 +78,28 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user
+    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user, 
+    module_type, repository_path, repository_token, repository_user_name
   </sql>
+  <sql id="Blob_Column_List">
+    repository_desc
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.FileModuleExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from file_module
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileModuleExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -87,9 +114,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from file_module
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -106,12 +135,14 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.FileModule">
     insert into file_module (id, project_id, `name`, 
       parent_id, `level`, create_time, 
-      update_time, pos, create_user
-      )
+      update_time, pos, create_user, 
+      module_type, repository_path, repository_token, 
+      repository_user_name, repository_desc)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE}, #{createUser,jdbcType=VARCHAR}
-      )
+      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE}, #{createUser,jdbcType=VARCHAR}, 
+      #{moduleType,jdbcType=VARCHAR}, #{repositoryPath,jdbcType=VARCHAR}, #{repositoryToken,jdbcType=VARCHAR}, 
+      #{repositoryUserName,jdbcType=VARCHAR}, #{repositoryDesc,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileModule">
     insert into file_module
@@ -143,6 +174,21 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="moduleType != null">
+        module_type,
+      </if>
+      <if test="repositoryPath != null">
+        repository_path,
+      </if>
+      <if test="repositoryToken != null">
+        repository_token,
+      </if>
+      <if test="repositoryUserName != null">
+        repository_user_name,
+      </if>
+      <if test="repositoryDesc != null">
+        repository_desc,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -171,6 +217,21 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleType != null">
+        #{moduleType,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryPath != null">
+        #{repositoryPath,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryToken != null">
+        #{repositoryToken,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryUserName != null">
+        #{repositoryUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryDesc != null">
+        #{repositoryDesc,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -210,7 +271,42 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.moduleType != null">
+        module_type = #{record.moduleType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.repositoryPath != null">
+        repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.repositoryToken != null">
+        repository_token = #{record.repositoryToken,jdbcType=VARCHAR},
+      </if>
+      <if test="record.repositoryUserName != null">
+        repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.repositoryDesc != null">
+        repository_desc = #{record.repositoryDesc,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update file_module
+    set id = #{record.id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      `level` = #{record.level,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pos = #{record.pos,jdbcType=DOUBLE},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      module_type = #{record.moduleType,jdbcType=VARCHAR},
+      repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
+      repository_token = #{record.repositoryToken,jdbcType=VARCHAR},
+      repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
+      repository_desc = #{record.repositoryDesc,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -225,7 +321,11 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       pos = #{record.pos,jdbcType=DOUBLE},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      module_type = #{record.moduleType,jdbcType=VARCHAR},
+      repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
+      repository_token = #{record.repositoryToken,jdbcType=VARCHAR},
+      repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -257,7 +357,39 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="moduleType != null">
+        module_type = #{moduleType,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryPath != null">
+        repository_path = #{repositoryPath,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryToken != null">
+        repository_token = #{repositoryToken,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryUserName != null">
+        repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryDesc != null">
+        repository_desc = #{repositoryDesc,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileModule">
+    update file_module
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      `level` = #{level,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pos = #{pos,jdbcType=DOUBLE},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      module_type = #{moduleType,jdbcType=VARCHAR},
+      repository_path = #{repositoryPath,jdbcType=VARCHAR},
+      repository_token = #{repositoryToken,jdbcType=VARCHAR},
+      repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
+      repository_desc = #{repositoryDesc,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileModule">
@@ -269,7 +401,11 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       pos = #{pos,jdbcType=DOUBLE},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      module_type = #{moduleType,jdbcType=VARCHAR},
+      repository_path = #{repositoryPath,jdbcType=VARCHAR},
+      repository_token = #{repositoryToken,jdbcType=VARCHAR},
+      repository_user_name = #{repositoryUserName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

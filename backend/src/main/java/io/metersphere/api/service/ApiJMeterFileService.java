@@ -11,11 +11,13 @@ import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.metadata.vo.repository.FileInfoDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.PluginService;
 import io.metersphere.utils.LoggerUtil;
@@ -46,6 +48,8 @@ public class ApiJMeterFileService {
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private FileMetadataService fileMetadataService;
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
         this.add(ApiRunMode.DEFINITION.name());
@@ -211,21 +215,34 @@ public class ApiJMeterFileService {
         return jarFiles;
     }
 
-    private Map<String, byte[]> getMultipartFiles(HashTree hashTree) {
+    private Map<String, byte[]> getMultipartFiles(String reportId, HashTree hashTree) {
         Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
-        FileUtils.getFiles(hashTree, files);
+        FileUtils.getExecuteFiles(hashTree, reportId, files);
         if (CollectionUtils.isNotEmpty(files)) {
+            Map<String, String> repositoryFileMap = new HashMap<>();
             for (BodyFile bodyFile : files) {
-                File file = new File(bodyFile.getName());
-                if (file != null && file.exists()) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        multipartFiles.put(file.getAbsolutePath(), fileByte);
+                if (StringUtils.equals(bodyFile.getStorage(), StorageConstants.GIT.name())
+                        && StringUtils.isNotBlank(bodyFile.getFileId())) {
+                    repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
+                } else {
+                    File file = new File(bodyFile.getName());
+                    if (file != null && file.exists()) {
+                        byte[] fileByte = FileUtils.fileToByte(file);
+                        if (fileByte != null) {
+                            multipartFiles.put(file.getAbsolutePath(), fileByte);
+                        }
                     }
                 }
             }
+            List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
+            fileInfoDTOList.forEach(repositoryFile -> {
+                if (repositoryFile.getFileByte() != null) {
+                    multipartFiles.put(FileUtils.BODY_FILE_DIR + File.separator + repositoryFileMap.get(repositoryFile.getId()), repositoryFile.getFileByte());
+                }
+            });
+
         }
         return multipartFiles;
     }
@@ -242,6 +259,10 @@ public class ApiJMeterFileService {
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
         String bodyFilePath = FileUtils.BODY_FILE_DIR;
         String fileName = testId + ".jmx";
+
+        // 获取JMX使用到的附件
+        Map<String, byte[]> multipartFiles = this.getMultipartFiles(testId, hashTree);
+
         String jmx = new MsTestPlan().getJmx(hashTree);
         // 处理dubbo请求生成jmx文件
         if (StringUtils.isNotEmpty(jmx)) {
@@ -250,8 +271,7 @@ public class ApiJMeterFileService {
         Map<String, byte[]> files = new HashMap<>();
         //  每个测试生成一个文件夹
         files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
-        // 获取JMX使用到的附件
-        Map<String, byte[]> multipartFiles = this.getMultipartFiles(hashTree);
+
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
             for (String k : multipartFiles.keySet()) {
                 byte[] v = multipartFiles.get(k);

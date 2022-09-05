@@ -3,6 +3,7 @@ package io.metersphere.metadata.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.FileMetadataWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
@@ -11,7 +12,10 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.DownloadRequest;
 import io.metersphere.metadata.vo.DumpFileRequest;
+import io.metersphere.metadata.vo.FileMetadataCreateRequest;
 import io.metersphere.metadata.vo.MoveFIleMetadataRequest;
+import io.metersphere.metadata.vo.repository.FileRelevanceCaseDTO;
+import io.metersphere.metadata.vo.repository.FileVersionDTO;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,21 +38,27 @@ public class FileMetadataController {
     }
 
     @PostMapping("/project/{projectId}/{goPage}/{pageSize}")
-    public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId,
-                                                     @PathVariable int goPage, @PathVariable int pageSize,
-                                                     @RequestBody QueryProjectFileRequest request) {
+    public Pager<List<FileMetadataWithBLOBs>> getProjectFiles(@PathVariable String projectId,
+                                                              @PathVariable int goPage, @PathVariable int pageSize,
+                                                              @RequestBody QueryProjectFileRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, fileMetadataService.getProjectFiles(projectId, request));
     }
 
     @PostMapping(value = "/create")
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
-    public List<FileMetadata> create(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+    public List<FileMetadata> create(@RequestPart("request") FileMetadataCreateRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return fileMetadataService.create(request, files);
     }
 
+    @PostMapping(value = "/git/pull")
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
+    public FileMetadata pullFromRepository(@RequestPart("request") FileMetadata request) {
+        return fileMetadataService.pullFromRepository(request);
+    }
+
     @PostMapping(value = "/upload")
-    public FileMetadata upload(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+    public FileMetadata upload(@RequestPart("request") FileMetadataWithBLOBs request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return fileMetadataService.reLoad(request, files);
     }
 
@@ -94,7 +104,7 @@ public class FileMetadataController {
 
     @PostMapping(value = "/update")
     @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
-    public void update(@RequestBody FileMetadata request) {
+    public void update(@RequestBody FileMetadataWithBLOBs request) {
         fileMetadataService.update(request);
     }
 
@@ -117,4 +127,20 @@ public class FileMetadataController {
     public List<String> exist(@RequestBody List<String> fileIds) {
         return fileMetadataService.exists(fileIds);
     }
+
+    @GetMapping(value = "/fileVersion/{refId}")
+    public List<FileVersionDTO> selectFileVersion(@PathVariable String refId) {
+        return fileMetadataService.selectFileVersion(refId);
+    }
+
+    @PostMapping("/file/relevance/case/{refId}/{goPage}/{pageSize}")
+    public Pager<List<FileRelevanceCaseDTO>> getFileRelevanceCase(@PathVariable String refId, @PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryProjectFileRequest request) {
+        return fileMetadataService.getFileRelevanceCase(refId, goPage, pageSize);
+    }
+
+    @PostMapping("/case/version/update/{refId}")
+    public String updateCaseVersion(@PathVariable String refId, @RequestBody QueryProjectFileRequest request) {
+        return fileMetadataService.updateCaseVersion(refId, request);
+    }
+
 }

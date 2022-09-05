@@ -23,5 +23,15 @@ public class FileModule implements Serializable {
 
     private String createUser;
 
+    private String moduleType;
+
+    private String repositoryPath;
+
+    private String repositoryToken;
+
+    private String repositoryUserName;
+
+    private String repositoryDesc;
+
     private static final long serialVersionUID = 1L;
 }

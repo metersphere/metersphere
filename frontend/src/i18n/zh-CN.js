@@ -878,6 +878,34 @@ export default {
       compare: '对比',
       change_latest_tip: '此操作会修改接口，场景，测试用例等列表页面的默认展示，可能会消耗一些时间。请耐心等待！'
     },
+    project_file: {
+      file_module_type: {
+        module: '模块',
+        repository: '存储库'
+      },
+      file: {
+        branch: '文件分支',
+        path: '文件路径',
+      },
+      repository: {
+        name: '存储库名称',
+        path: '存储库地址',
+        token: 'Token',
+        desc: '描述',
+        version_history: '版本历史',
+        file_version: '文件版本',
+        update_log: '更新记录',
+      },
+      validation: {
+        input_repository_name: '请输入存储库名称',
+        input_repository_path: '请输入存储库地址',
+        input_repository_token: '请输入存储库Token',
+        input_file_branch: '请输入文件分支',
+        input_file_path: '请输入文件路径',
+        input_gitee_user_please: 'Gitee用户需要输入用户名',
+        can_not_move_repository_file: '文件库文件无法移动',
+      },
+    },
     timing_clean_plan_report: "定时清理测试计划报告",
     timing_clean_api_report: "定时清理接口测试报告",
     timing_clean_load_report: "定时清理性能测试报告",

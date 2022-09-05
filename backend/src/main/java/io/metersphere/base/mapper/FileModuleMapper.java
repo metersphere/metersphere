@@ -16,15 +16,21 @@ public interface FileModuleMapper {
 
     int insertSelective(FileModule record);
 
+    List<FileModule> selectByExampleWithBLOBs(FileModuleExample example);
+
     List<FileModule> selectByExample(FileModuleExample example);
 
     FileModule selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FileModule record, @Param("example") FileModuleExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") FileModule record, @Param("example") FileModuleExample example);
+
     int updateByExample(@Param("record") FileModule record, @Param("example") FileModuleExample example);
 
     int updateByPrimaryKeySelective(FileModule record);
+
+    int updateByPrimaryKeyWithBLOBs(FileModule record);
 
     int updateByPrimaryKey(FileModule record);
 }

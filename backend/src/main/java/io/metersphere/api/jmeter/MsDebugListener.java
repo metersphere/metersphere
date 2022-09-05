@@ -23,7 +23,9 @@ import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.exec.utils.ResultParseUtil;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ResponseUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.utils.JMeterVars;
@@ -108,6 +110,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         WebSocketUtils.sendMessageSingle(dto);
         WebSocketUtils.onClose(this.getName());
         PoolExecBlockingQueueUtil.offer(this.getName());
+        FileUtils.deleteBodyFiles(this.getName());
     }
 
     @Override

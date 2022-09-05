@@ -12,6 +12,15 @@ public class MetadataUtils {
         return "";
     }
 
+    public static String getFileNameByRemotePath(String filePath) {
+        if (StringUtils.isBlank(filePath)) {
+            return "";
+        } else {
+            String[] stringArr = StringUtils.split(filePath, "/");
+            return stringArr[stringArr.length - 1];
+        }
+    }
+
     public static String getFileName(String name, String type) {
         type = StringUtils.isNotEmpty(type) ? type.toLowerCase() : null;
         if (type != null && !name.endsWith(type)) {

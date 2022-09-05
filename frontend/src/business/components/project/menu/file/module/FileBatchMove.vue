@@ -5,6 +5,11 @@
              :destroy-on-close="true" width="600px"
              v-loading="loading" append-to-body class="batch-move">
     <div>
+      <div v-xpack style="margin-bottom: 5px">
+        <i class="el-icon-info"/>
+        <span>{{ $t('project.project_file.validation.can_not_move_repository_file') }}</span>
+      </div>
+
       <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"/>
       <el-tree
         class="filter-tree node-tree"
@@ -90,7 +95,7 @@ export default {
       });
     },
     save() {
-      if (!this.currentKey || this.currentKey ==='') {
+      if (!this.currentKey || this.currentKey === '') {
         this.$warning(this.$t('test_track.case.input_module'));
         return;
       }

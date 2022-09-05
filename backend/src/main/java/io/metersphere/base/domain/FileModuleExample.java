@@ -693,6 +693,286 @@ public class FileModuleExample {
             addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
+
+        public Criteria andModuleTypeIsNull() {
+            addCriterion("module_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeIsNotNull() {
+            addCriterion("module_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeEqualTo(String value) {
+            addCriterion("module_type =", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeNotEqualTo(String value) {
+            addCriterion("module_type <>", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeGreaterThan(String value) {
+            addCriterion("module_type >", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("module_type >=", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeLessThan(String value) {
+            addCriterion("module_type <", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeLessThanOrEqualTo(String value) {
+            addCriterion("module_type <=", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeLike(String value) {
+            addCriterion("module_type like", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeNotLike(String value) {
+            addCriterion("module_type not like", value, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeIn(List<String> values) {
+            addCriterion("module_type in", values, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeNotIn(List<String> values) {
+            addCriterion("module_type not in", values, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeBetween(String value1, String value2) {
+            addCriterion("module_type between", value1, value2, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andModuleTypeNotBetween(String value1, String value2) {
+            addCriterion("module_type not between", value1, value2, "moduleType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathIsNull() {
+            addCriterion("repository_path is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathIsNotNull() {
+            addCriterion("repository_path is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathEqualTo(String value) {
+            addCriterion("repository_path =", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathNotEqualTo(String value) {
+            addCriterion("repository_path <>", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathGreaterThan(String value) {
+            addCriterion("repository_path >", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathGreaterThanOrEqualTo(String value) {
+            addCriterion("repository_path >=", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathLessThan(String value) {
+            addCriterion("repository_path <", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathLessThanOrEqualTo(String value) {
+            addCriterion("repository_path <=", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathLike(String value) {
+            addCriterion("repository_path like", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathNotLike(String value) {
+            addCriterion("repository_path not like", value, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathIn(List<String> values) {
+            addCriterion("repository_path in", values, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathNotIn(List<String> values) {
+            addCriterion("repository_path not in", values, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathBetween(String value1, String value2) {
+            addCriterion("repository_path between", value1, value2, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryPathNotBetween(String value1, String value2) {
+            addCriterion("repository_path not between", value1, value2, "repositoryPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenIsNull() {
+            addCriterion("repository_token is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenIsNotNull() {
+            addCriterion("repository_token is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenEqualTo(String value) {
+            addCriterion("repository_token =", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenNotEqualTo(String value) {
+            addCriterion("repository_token <>", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenGreaterThan(String value) {
+            addCriterion("repository_token >", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenGreaterThanOrEqualTo(String value) {
+            addCriterion("repository_token >=", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenLessThan(String value) {
+            addCriterion("repository_token <", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenLessThanOrEqualTo(String value) {
+            addCriterion("repository_token <=", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenLike(String value) {
+            addCriterion("repository_token like", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenNotLike(String value) {
+            addCriterion("repository_token not like", value, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenIn(List<String> values) {
+            addCriterion("repository_token in", values, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenNotIn(List<String> values) {
+            addCriterion("repository_token not in", values, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenBetween(String value1, String value2) {
+            addCriterion("repository_token between", value1, value2, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTokenNotBetween(String value1, String value2) {
+            addCriterion("repository_token not between", value1, value2, "repositoryToken");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameIsNull() {
+            addCriterion("repository_user_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameIsNotNull() {
+            addCriterion("repository_user_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameEqualTo(String value) {
+            addCriterion("repository_user_name =", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameNotEqualTo(String value) {
+            addCriterion("repository_user_name <>", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameGreaterThan(String value) {
+            addCriterion("repository_user_name >", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameGreaterThanOrEqualTo(String value) {
+            addCriterion("repository_user_name >=", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameLessThan(String value) {
+            addCriterion("repository_user_name <", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameLessThanOrEqualTo(String value) {
+            addCriterion("repository_user_name <=", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameLike(String value) {
+            addCriterion("repository_user_name like", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameNotLike(String value) {
+            addCriterion("repository_user_name not like", value, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameIn(List<String> values) {
+            addCriterion("repository_user_name in", values, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameNotIn(List<String> values) {
+            addCriterion("repository_user_name not in", values, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameBetween(String value1, String value2) {
+            addCriterion("repository_user_name between", value1, value2, "repositoryUserName");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryUserNameNotBetween(String value1, String value2) {
+            addCriterion("repository_user_name not between", value1, value2, "repositoryUserName");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

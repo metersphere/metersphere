@@ -8,4 +8,10 @@ import lombok.Setter;
 @Setter
 public class FileModuleVo extends TreeNodeDTO<FileModuleVo> {
     private String path;
+    private String moduleType;
+    private String repositoryName;
+    private String repositoryPath;
+    private String repositoryUserName;
+    private String repositoryToken;
+    private String repositoryDesc;
 }

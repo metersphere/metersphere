@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 public class BodyFile {
     private String id;
     private String name;
-    // LOCAL 和 引用(FILE_REF)
+    // LOCAL 和 引用(FILE_REF) / GIT
     private String storage;
     private String fileId;
     private String projectId;

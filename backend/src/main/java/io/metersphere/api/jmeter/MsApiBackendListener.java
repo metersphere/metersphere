@@ -7,6 +7,7 @@ import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
@@ -82,6 +83,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         } catch (Exception e) {
             LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {
+            FileUtils.deleteBodyFiles(dto.getReportId());
             if (FileServer.getFileServer() != null) {
                 LoggerUtil.info("进入监听，开始关闭CSV", dto.getReportId());
                 FileServer.getFileServer().closeCsv(dto.getReportId());
