@@ -176,12 +176,14 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.$refs.upload.handleRemove(file);
+            this.$refs.uploadLocal.handleRemove(file);
             for (let i = 0; i < this.parameter.files.length; i++) {
               let paramFileName = this.parameter.files[i].name ?
                   this.parameter.files[i].name : this.parameter.files[i].file.name;
               if (fileName === paramFileName) {
                 this.parameter.files.splice(i, 1);
                 this.$refs.upload.handleRemove(file);
+                this.$refs.uploadLocal.handleRemove(file);
                 break;
               }
             }
