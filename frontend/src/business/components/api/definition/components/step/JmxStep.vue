@@ -340,6 +340,7 @@ export default {
       if (this.request.disabled) {
         jdbcPreProcessor.label = 'SCENARIO-REF-STEP';
       }
+      jdbcPreProcessor.projectId = this.request.projectId;
       jdbcPreProcessor.active = false;
       this.request.hashTree.push(jdbcPreProcessor);
       this.sort();
@@ -353,6 +354,7 @@ export default {
       if (this.request.disabled) {
         jdbcPostProcessor.label = 'SCENARIO-REF-STEP';
       }
+      jdbcPostProcessor.projectId = this.request.projectId;
       jdbcPostProcessor.active = false;
       this.request.hashTree.push(jdbcPostProcessor);
       this.sort();
