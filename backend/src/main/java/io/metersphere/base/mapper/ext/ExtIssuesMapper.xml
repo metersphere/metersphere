@@ -44,10 +44,7 @@
     </select>
 
     <sql id="Issue_List_Column">
-        issues
-        .
-        id
-        , issues.platform_id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
+        issues.id, issues.platform_id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
         ifnull(issues.description, '') as description, issues.status, issues.platform, issues.custom_fields, issues.reporter,
         issues.creator,issues.resource_id,issues.platform_status,
         issues.lastmodify
