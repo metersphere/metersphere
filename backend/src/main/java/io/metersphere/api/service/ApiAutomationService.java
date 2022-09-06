@@ -1032,20 +1032,27 @@ public class ApiAutomationService {
     }
 
     public void relevance(ApiCaseRelevanceRequest request) {
+        buildApiCaseRelevanceRequest(request);
+
         Map<String, List<String>> mapping = request.getMapping();
         Map<String, String> envMap = request.getEnvMap();
         Set<String> set = mapping.keySet();
-        List<String> relevanceIds = request.getSelectIds();
+        List<String> relevanceIds = request.getIds();
         Collections.reverse(relevanceIds);
         String envType = request.getEnvironmentType();
         String envGroupId = request.getEnvGroupId();
         if (set.isEmpty()) {
             return;
         }
+
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
         for (String id : relevanceIds) {
             Map<String, String> newEnvMap = new HashMap<>(16);
             List<String> list = mapping.get(id);
+            if (CollectionUtils.isEmpty(list)) {
+                ScenarioEnv scenarioEnv = getApiScenarioProjectId(id);
+                list = new ArrayList<>(scenarioEnv.getProjectIds());
+            }
             list.forEach(l -> newEnvMap.put(l, envMap == null ? "" : envMap.getOrDefault(l, "")));
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
@@ -1068,6 +1075,12 @@ public class ApiAutomationService {
             nextOrder += ServiceUtils.ORDER_STEP;
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
         }
+    }
+
+    public void buildApiCaseRelevanceRequest(ApiCaseRelevanceRequest request) {
+        this.initRequest(request.getCondition(), true, true);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectRelevanceIdsByQuery(query));
     }
 
     public void relevanceReview(ApiCaseRelevanceRequest request) {
@@ -2257,7 +2270,7 @@ public class ApiAutomationService {
             e.printStackTrace();
         }
 
-        //Compare the basic information of the APIScenario. 
+        //Compare the basic information of the APIScenario.
 
         if (!StringUtils.equals(exScenario.getName(), scenario.getName())) {
             return true;

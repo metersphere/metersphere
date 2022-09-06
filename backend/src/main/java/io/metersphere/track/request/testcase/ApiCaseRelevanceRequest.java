@@ -1,5 +1,6 @@
 package io.metersphere.track.request.testcase;
 
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,8 @@ public class ApiCaseRelevanceRequest {
      */
     private List<String> selectIds = new ArrayList<>();
 
+    private List<String> ids = new ArrayList<>();
+
     /**
      * 项目环境对应关系
      */
@@ -43,4 +46,6 @@ public class ApiCaseRelevanceRequest {
 
     private String environmentType;
     private String envGroupId;
+
+    private ApiScenarioRequest condition;
 }

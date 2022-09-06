@@ -32,7 +32,7 @@
               @order="search"
               @filter="filterSearch"
               :disable-header-config="true"
-              :show-select-all="false"
+              :show-select-all="true"
               @selectCountChange="selectCountChange">
 
       <el-table-column v-if="!customNum" prop="num" label="ID" sortable="custom"
