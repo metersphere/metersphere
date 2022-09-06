@@ -763,6 +763,11 @@
         and status != 'Trash'
         and project_id = #{projectId}
     </select>
-
+    <select id="selectRelevanceIdsByQuery" resultType="java.lang.String">
+        select api_scenario.id
+        from api_scenario
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
 </mapper>
 

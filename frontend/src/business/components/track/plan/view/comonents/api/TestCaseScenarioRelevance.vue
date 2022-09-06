@@ -75,9 +75,6 @@ export default {
   watch: {
     planId() {
       this.condition.planId = this.planId;
-    },
-    projectId() {
-      this.getVersionOptions();
     }
   },
   methods: {
@@ -164,7 +161,8 @@ export default {
       param.envMap = strMapToObj(envMap);
       param.environmentType = envType;
       param.envGroupId = envGroupId;
-      param.selectIds = selectIds;
+      param.ids = selectIds;
+      param.condition = this.$refs.apiScenarioList.condition;
 
       this.result = this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
