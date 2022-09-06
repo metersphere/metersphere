@@ -409,7 +409,7 @@ export default {
       if (this.isShare) {
         url = '/share/testresourcepool/list/quota/valid';
       }
-      if (!getCurrentProjectID()) {
+      if (!getCurrentProjectID() && !this.isShare) {
         return;
       }
       this.result = this.$get(url, response => {

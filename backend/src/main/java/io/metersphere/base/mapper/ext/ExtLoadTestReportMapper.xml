@@ -145,7 +145,7 @@
         from load_test_report ltr
                  left join load_test lt on ltr.test_id = lt.id
                  join project p on ltr.project_id = p.id
-                 JOIN user on ltr.user_id = user.id
+                 left JOIN user on ltr.user_id = user.id
         where ltr.id = #{id}
     </select>
 
