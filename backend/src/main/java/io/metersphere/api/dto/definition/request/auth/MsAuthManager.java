@@ -68,16 +68,7 @@ public class MsAuthManager extends MsTestElement {
             ParameterConfig config = (ParameterConfig) msParameter;
             AuthManager authManager = initBase();
             Authorization auth = new Authorization();
-            if (this.url != null) {
-                auth.setURL(this.url);
-            } else {
-                if (config != null && config.isEffective(this.getProjectId())) {
-                    if (config.isEffective(this.getProjectId())) {
-                        String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
-                        auth.setURL(url);
-                    }
-                }
-            }
+            auth.setURL("");
             auth.setUser(this.username);
             auth.setPass(this.password);
             auth.setMechanism(mechanismMap.get(this.getVerification()));
@@ -90,7 +81,7 @@ public class MsAuthManager extends MsTestElement {
         try {
             AuthManager authManager = initBase();
             Authorization auth = new Authorization();
-            auth.setURL(samplerProxy.getProtocol() + "://" + samplerProxy.getDomain());
+            auth.setURL("");
             auth.setUser(msAuthManager.getUsername());
             auth.setPass(msAuthManager.getPassword());
             auth.setMechanism(mechanismMap.get(msAuthManager.getVerification()));
