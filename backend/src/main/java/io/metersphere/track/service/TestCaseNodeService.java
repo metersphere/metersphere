@@ -36,6 +36,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -66,6 +67,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     ProjectMapper projectMapper;
     @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
+    @Resource
+    @Lazy
+    TestPlanService testPlanService;
 
     public TestCaseNodeService() {
         super(TestCaseNodeDTO.class);
@@ -353,6 +357,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getRelatePlanNodes(QueryTestCaseRequest request) {
         request.setNodeIds(null);
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setRepeatCase(true);
+        }
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestPlanRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
