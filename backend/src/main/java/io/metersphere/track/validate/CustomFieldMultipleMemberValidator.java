@@ -17,9 +17,9 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
         }
 
         for (String item : parse2Array(customField.getName(), value)) {
-            long count = userIdMap.entrySet().stream().filter(e -> StringUtils.equalsAnyIgnoreCase(item,e.getKey(),e.getValue())).count();
-            if(count > 0){
-                return;
+            item = item.toLowerCase();
+            if (!userIdMap.containsKey(item) && !userNameMap.containsKey(item)) {
+                CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
             }
         }
         CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
