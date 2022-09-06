@@ -835,7 +835,8 @@ public class ApiDefinitionService {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
                 boolean newCreate = !StringUtils.equals(ApiImportPlatform.Swagger2.name(), apiTestImportRequest.getPlatform())
-                        && !StringUtils.isNotBlank(apiTestImportRequest.getSwaggerUrl());
+                        && !StringUtils.isNotBlank(apiTestImportRequest.getSwaggerUrl())
+                        && !StringUtils.equals("idea", apiTestImportRequest.getOrigin());
                 caseList = setRequestAndAddNewCase(apiDefinition, caseList, newCreate);
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 batchMapper.insert(apiDefinition);
@@ -958,7 +959,8 @@ public class ApiDefinitionService {
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             boolean newCreate = !StringUtils.equals(ApiImportPlatform.Swagger2.name(), apiTestImportRequest.getPlatform())
-                    && !StringUtils.isNotBlank(apiTestImportRequest.getSwaggerUrl());
+                    && !StringUtils.isNotBlank(apiTestImportRequest.getSwaggerUrl())
+                    && !StringUtils.equals("idea", apiTestImportRequest.getOrigin());
             caseList = setRequestAndAddNewCase(apiDefinition, caseList, newCreate);
             batchMapper.insert(apiDefinition);
             importCase(apiDefinition, apiTestCaseMapper, caseList);

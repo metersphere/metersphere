@@ -39,5 +39,7 @@ public class ApiTestImportRequest {
     private Boolean coverModule;
     // 当前协议
     private String protocol;
+    //上传文件来源，目前用于辨别是否是idea插件
+    private String origin;
 
 }
