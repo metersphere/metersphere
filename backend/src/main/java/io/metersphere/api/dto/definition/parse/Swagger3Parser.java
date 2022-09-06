@@ -684,14 +684,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     swaggerParam.setName((String) param.get("name"));
                     swaggerParam.setRequired((boolean) param.get("required"));
                     swaggerParam.setExample((String) param.get("value"));
-                    //  请求头 value 没有导出
-//                    JSONObject schema = new JSONObject();
-//                    swaggerParam.setSchema(schema);
-//                    if(type.equals("headers")) {
-//                        schema.put("type", "string");
-//                        schema.put("example", param.getString("value"));
-//                        swaggerParam.setSchema(schema);
-//                    }
+                    JSONObject schema = new JSONObject();
+                    schema.put("type", "string");
+                    swaggerParam.setSchema(schema);
                     paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam), Feature.DisableSpecialKeyDetect));
                 }
             }
