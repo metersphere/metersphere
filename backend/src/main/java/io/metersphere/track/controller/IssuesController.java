@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.IssuesStatusCountDao;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
@@ -151,7 +152,7 @@ public class IssuesController {
     }
 
     @PostMapping("/status/count")
-    public List<IssuesDao> getCountByStatus(@RequestBody IssuesRequest request) {
+    public List<IssuesStatusCountDao> getCountByStatus(@RequestBody IssuesRequest request) {
         return issuesService.getCountByStatus(request);
     }
 
@@ -161,8 +162,8 @@ public class IssuesController {
     }
 
     @PostMapping("/up/follows/{issueId}")
-    public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
-        issuesService.saveFollows(issueId,follows);
+    public void saveFollows(@PathVariable String issueId, @RequestBody List<String> follows) {
+        issuesService.saveFollows(issueId, follows);
     }
 
     @GetMapping("/thirdpart/template/{projectId}")
