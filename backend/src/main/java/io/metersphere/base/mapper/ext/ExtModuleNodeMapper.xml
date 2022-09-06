@@ -17,6 +17,9 @@
             <if test="record.modulePath != null">
                 `module_path`,
             </if>
+            <if test="record.scenarioType != null">
+                `scenario_type`,
+            </if>
             <if test="record.parentId != null">
                 parent_id,
             </if>
@@ -48,6 +51,9 @@
             </if>
             <if test="record.modulePath != null">
                 #{record.modulePath,jdbcType=VARCHAR},
+            </if>
+            <if test="record.scenarioType != null">
+                #{record.scenarioType,jdbcType=VARCHAR},
             </if>
             <if test="record.parentId != null">
                 #{record.parentId,jdbcType=VARCHAR},
@@ -85,6 +91,17 @@
                                   update_time, pos, create_user)
         values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
                 #{record.modulePath,jdbcType=VARCHAR},
+                #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER},
+                #{record.createTime,jdbcType=BIGINT},
+                #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE},
+                #{record.createUser,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertWithModulePathAndType">
+        insert into ${tableName} (id, project_id, `name`, module_path, `scenario_type`,
+                                  parent_id, `level`, create_time,
+                                  update_time, pos, create_user)
+        values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+                #{record.modulePath,jdbcType=VARCHAR}, #{record.scenarioType,jdbcType=VARCHAR},
                 #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER},
                 #{record.createTime,jdbcType=BIGINT},
                 #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE},
@@ -178,6 +195,13 @@
         <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
         from ${tableName}
         where project_id = #{projectId}
+        order by pos asc
+    </select>
+    <select id="getNodeTreeByProjectIdWithType" resultType="io.metersphere.track.dto.ModuleNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from ${tableName}
+        where project_id = #{projectId} and `scenario_type` = #{scenarioType}
         order by pos asc
     </select>
     <select id="selectByIds" resultType="io.metersphere.track.dto.ModuleNodeDTO">

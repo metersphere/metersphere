@@ -629,9 +629,9 @@ export function clearShareDragParam() {
   shareDragParam.data = null;
 }
 
-export function handleRowDrop(data, callback) {
+export function handleRowDrop(data, callback, msTableKey) {
   setTimeout(() => {
-    const tbody = document.querySelector('.el-table__body-wrapper tbody');
+    const tbody = document.querySelector(`#${msTableKey} .el-table__body-wrapper tbody`);
     if (!tbody) {
       return;
     }

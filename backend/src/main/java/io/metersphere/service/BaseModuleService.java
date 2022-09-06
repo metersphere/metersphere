@@ -118,6 +118,11 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             if (StringUtils.isNotBlank(node.getId())) {
                 criteria.andIdNotEqualTo(node.getId());
             }
+
+            if(StringUtils.isNotBlank(node.getScenarioType())){
+                criteria.andScenarioTypeEqualTo(node.getScenarioType());
+            }
+
             if (extModuleNodeMapper.selectByExample(tableName, example).size() > 0) {
                 MSException.throwException(Translator.get("test_case_module_already_exists"));
             }
@@ -139,6 +144,29 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             record.setUpdateTime(System.currentTimeMillis());
             record.setProjectId(projectId);
             extModuleNodeMapper.insert(tableName, record);
+            record.setCaseNum(0);
+            return record;
+        } else {
+            return list.get(0);
+        }
+    }
+
+    public ModuleNode getDefaultNodeWithType(String projectId, String type,  String defaultName) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andScenarioTypeEqualTo(type).andNameEqualTo(Optional.ofNullable(defaultName).orElse("未规划用例")).andParentIdIsNull();
+        List<ModuleNode> list = extModuleNodeMapper.selectByExample(tableName, example);
+        if (CollectionUtils.isEmpty(list)) {
+            ModuleNode record = new ModuleNode();
+            record.setId(UUID.randomUUID().toString());
+            record.setCreateUser(SessionUtils.getUserId());
+            record.setName(Optional.ofNullable(defaultName).orElse("未规划用例"));
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            record.setScenarioType(type);
+            extModuleNodeMapper.insertWithModulePathAndType(tableName, record);
             record.setCaseNum(0);
             return record;
         } else {

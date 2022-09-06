@@ -10,6 +10,7 @@
     <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="scenario_type" jdbcType="VARCHAR" property="scenarioType" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
@@ -99,7 +100,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, tags, user_id, module_id, module_path, `name`, `level`, `status`,
+    id, project_id, tags, user_id, module_id, module_path, `name`, `level`, scenario_type,`status`,
     principal, step_total, schedule, create_time, update_time, pass_rate, last_result,
     report_id, num, original_state, custom_num, create_user, version, delete_time, delete_user_id,
     execute_times, `order`, environment_type, environment_group_id, version_id, ref_id,
@@ -159,7 +160,7 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.UiScenarioWithBLOBs">
     insert into ui_scenario (id, project_id, tags,
       user_id, module_id, module_path,
-      `name`, `level`, `status`,
+      `name`, `level`, scenario_type, `status`,
       principal, step_total,
       create_time, update_time, pass_rate,
       last_result, report_id, num,
@@ -170,7 +171,7 @@
       latest, scenario_definition, description)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
       #{userId,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{scenarioType,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
       #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{passRate,jdbcType=VARCHAR},
       #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER},
@@ -206,6 +207,9 @@
       </if>
       <if test="level != null">
         `level`,
+      </if>
+      <if test="scenarioType != null">
+        `scenario_type`,
       </if>
       <if test="status != null">
         `status`,
@@ -313,6 +317,9 @@
       </if>
       <if test="level != null">
         #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioType != null">
+        #{scenarioType,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -430,6 +437,9 @@
       <if test="record.level != null">
         `level` = #{record.level,jdbcType=VARCHAR},
       </if>
+      <if test="record.scenarioType != null">
+        `scenario_type` = #{record.scenarioType,jdbcType=VARCHAR},
+      </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
@@ -526,6 +536,7 @@
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `level` = #{record.level,jdbcType=VARCHAR},
+       scenario_type = #{record.scenarioType,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
@@ -567,6 +578,7 @@
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `level` = #{record.level,jdbcType=VARCHAR},
+       scenario_type = #{record.scenarioType,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
@@ -617,6 +629,9 @@
       </if>
       <if test="level != null">
         `level` = #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioType != null">
+        `scenario_type` = #{scenarioType,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -711,6 +726,7 @@
       module_path = #{modulePath,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       `level` = #{level,jdbcType=VARCHAR},
+       scenario_type = #{scenarioType,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
@@ -744,6 +760,7 @@
       module_path = #{modulePath,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       `level` = #{level,jdbcType=VARCHAR},
+       scenario_type = #{scenarioType,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},

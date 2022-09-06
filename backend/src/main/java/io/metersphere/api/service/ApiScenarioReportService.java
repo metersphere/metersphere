@@ -540,8 +540,11 @@ public class ApiScenarioReportService {
         }
         scenario.setExecuteTimes(executeTimes + 1);
         // 针对 UI 调试类型的不需要更新
+        String custom = "customCommand";
         if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
-                report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
+                report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name()) &&
+                    !StringUtils.equalsIgnoreCase(scenario.getScenarioType(), custom)
+        ) {
             return false;
         }
         uiScenarioMapper.updateByPrimaryKey(scenario);

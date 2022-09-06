@@ -19,6 +19,8 @@ public class UiScenario implements Serializable {
 
     private String name;
 
+    private String scenarioType;
+
     private String level;
 
     private String status;

@@ -17,6 +17,8 @@ public interface ExtModuleNodeMapper {
 
     List<ModuleNodeDTO> getNodeTreeByProjectId(@Param("tableName") String tableName, @Param("projectId") String projectId);
 
+    List<ModuleNodeDTO> getNodeTreeByProjectIdWithType(@Param("tableName") String tableName, @Param("scenarioType")  String scenarioType, @Param("projectId")  String projectId);
+
     List<ModuleNode> getAllNodeTree(@Param("tableName") String tableName);
 
     int updateByPrimaryKeySelective(@Param("tableName") String tableName, @Param("record") ModuleNode record);
@@ -26,6 +28,8 @@ public interface ExtModuleNodeMapper {
     void insert(@Param("tableName") String tableName, @Param("record") ModuleNode record);
 
     void insertWithModulePath(@Param("tableName") String tableName, @Param("record") ModuleNode record);
+
+    void insertWithModulePathAndType(@Param("tableName") String tableName, @Param("record") ModuleNode record);
 
     ModuleNodeDTO get(@Param("tableName") String tableName, @Param("id") String id);
 
