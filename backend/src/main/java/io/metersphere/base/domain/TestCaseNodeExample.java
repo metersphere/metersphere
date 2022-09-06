@@ -259,6 +259,11 @@ public class TestCaseNodeExample {
             return (Criteria) this;
         }
 
+        public Criteria andScenarioTypeEqualTo(String value) {
+            addCriterion("`scenario_type` =", value, "scenarioType");
+            return (Criteria) this;
+        }
+
         public Criteria andNameNotEqualTo(String value) {
             addCriterion("`name` <>", value, "name");
             return (Criteria) this;

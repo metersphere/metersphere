@@ -246,6 +246,8 @@ public class ProjectService {
         projectApplicationMapper.insert(projectApplication);
         projectApplication.setType(ProjectApplicationType.API_SHARE_REPORT_TIME.toString());
         projectApplicationMapper.insert(projectApplication);
+        projectApplication.setType(ProjectApplicationType.UI_SHARE_REPORT_TIME.toString());
+        projectApplicationMapper.insert(projectApplication);
         projectApplication.setType(ProjectApplicationType.CASE_CUSTOM_NUM.toString());
         projectApplication.setTypeValue(Boolean.FALSE.toString());
         projectApplicationMapper.insert(projectApplication);

@@ -90,6 +90,8 @@ public class BaseQueryRequest {
      */
     private boolean hasStep;
 
+    private String scenarioType;
+
     public Map<String, List<String>> getFilters() {
         if (MapUtils.isEmpty(filters) || filters.containsKey("isHandleCustomMultiple")) {
             return filters;

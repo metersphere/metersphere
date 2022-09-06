@@ -240,4 +240,72 @@
       data_type = #{dataType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+
+  <select id="refList" parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.RefResp">
+    SELECT us.id AS targetId, us.name AS scenarioName , us.num AS id,  p.name AS project,  usf.create_time AS dateStr , w.name AS workspace FROM `ui_scenario_reference` usf
+    LEFT JOIN ui_scenario us ON usf.ui_scenario_id = us.id
+    LEFT JOIN project p ON us.project_id = p.id
+    LEFT JOIN `workspace` w ON  p.workspace_id = w.id
+    WHERE usf.reference_id = #{request.scenarioId}
+      AND usf.reference_type = "REF"
+      AND us.scenario_type = #{request.scenarioType}
+    <if test="request.workspace != null">
+      AND w.id in
+      <foreach close=")" collection="request.workspace" item="listItem" open="(" separator=",">
+        #{listItem}
+      </foreach>
+    </if>
+    <if test="request.project != null">
+      AND p.id in
+      <foreach close=")" collection="request.project" item="listItem" open="(" separator=",">
+        #{listItem}
+      </foreach>
+    </if>
+    <if test="request.timeOrder != null and request.timeOrder == 1">
+      ORDER by usf.create_time DESC
+    </if>
+    <if test="request.timeOrder != null and request.timeOrder == 0">
+      ORDER by usf.create_time ASC
+    </if>
+  </select>
+
+  <select id="getTestPlanRef"  parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.RefResp">
+    SELECT tp.name AS scenarioName , us.id AS id,  p.name AS project,  us.create_time AS dateStr , w.name AS workspace, tp.id AS targetId
+    FROM
+    `test_plan_ui_scenario` us LEFT JOIN `test_plan` tp ON us.test_plan_id = tp.id
+    LEFT JOIN project p ON tp.project_id = p.id
+    LEFT JOIN `workspace` w ON  p.workspace_id = w.id
+
+    WHERE
+     us.ui_scenario_id = #{request.scenarioId}
+        <if test="request.workspace != null">
+          AND w.id in
+          <foreach close=")" collection="request.workspace" item="listItem" open="(" separator=",">
+            #{listItem}
+          </foreach>
+        </if>
+        <if test="request.project != null">
+          AND p.id in
+          <foreach close=")" collection="request.project" item="listItem" open="(" separator=",">
+            #{listItem}
+          </foreach>
+        </if>
+        <if test="request.timeOrder != null and request.timeOrder == 1">
+          ORDER by us.create_time DESC
+        </if>
+        <if test="request.timeOrder != null and request.timeOrder == 0">
+          ORDER by us.create_time ASC
+        </if>
+  </select>
+
+  <select id="checkRef" parameterType="io.metersphere.xpack.ui.dto.UiCheckRefReq" resultType="io.metersphere.xpack.ui.dto.UiCheckRefDTO">
+        SELECT us.scenario_type AS scenarioType, us.name AS scenarioName, usf.reference_id AS scenarioId
+        FROM `ui_scenario_reference` usf left join ui_scenario us on usf.ui_scenario_id = us.id
+
+        WHERE usf.reference_id  in
+        <foreach close=")" collection="request.scenarioIds" item="item" open="(" separator=",">
+          #{item}
+        </foreach>
+         AND usf.reference_type = "REF" ORDER BY usf.create_time DESC LIMIT 3;
+  </select>
 </mapper>

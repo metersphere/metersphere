@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      <el-select v-model="operateModel" size="small" class="ms-select-step">
+      <el-select v-model="operateModel" size="small" class="ms-select-step" :disabled="isReadonly">
         <el-option
           v-for="item in operates"
           :key="item.id"
@@ -10,7 +10,7 @@
         </el-option>
       </el-select>
 
-      <el-select v-model="operateSubModel" size="small" class="ms-select-step" v-if="subOperates">
+      <el-select v-model="operateSubModel" size="small" class="ms-select-step" v-if="subOperates" :disabled="isReadonly">
         <el-option
           v-for="item in subOperates"
           :key="item.value"
@@ -20,6 +20,7 @@
       </el-select>
 
       <el-button
+        :disabled="isReadonly"
         size="small"
         type="primary"
         @click="add">
@@ -41,6 +42,10 @@ export default {
   name: "addStepContainer",
   components: {},
   props: {
+    isReadonly:{
+      type: Boolean,
+      default: false,
+    },
     showButton: {
       type: Boolean,
       default: true,
