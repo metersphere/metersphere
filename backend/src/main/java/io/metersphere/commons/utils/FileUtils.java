@@ -1,10 +1,18 @@
 package io.metersphere.commons.utils;
 
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
+import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -124,6 +133,42 @@ public class FileUtils {
         }
     }
 
+    public static void deleteBodyFiles(MsTestElement request) {
+        if (StringUtils.isNotBlank(request.getId())) {
+            String path = BODY_FILE_DIR + File.separator + request.getId();
+            File testDir = new File(path);
+            if (!testDir.exists()) {
+                return;
+            }
+            List<String> files = new ArrayList<>();
+            if (request != null && StringUtils.equalsIgnoreCase(request.getType(), HTTPSamplerProxy.class.getSimpleName())) {
+                MsHTTPSamplerProxy samplerProxy = (MsHTTPSamplerProxy) request;
+                Body body = samplerProxy.getBody();
+                if (body != null && !CollectionUtils.isEmpty(body.getKvs())) {
+                    body.getKvs().stream().filter(KeyValue::isFile).forEach(keyValue -> {
+                        files.addAll(keyValue.getFiles().stream().map(BodyFile::getName).collect(Collectors.toList()));
+                    });
+                }
+                if (body != null && !CollectionUtils.isEmpty(body.getBinary())) {
+                    body.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+                        files.addAll(keyValue.getFiles().stream().map(BodyFile::getName).collect(Collectors.toList()));
+                    });
+                }
+            }
+
+            File[] optFilesName = testDir.listFiles();
+            if (CollectionUtils.isNotEmpty(files)) {
+                for (File f : optFilesName) {
+                    if (!files.contains(f.getName())) {
+                        f.delete();
+                    }
+                }
+            } else {
+                FileUtil.deleteContents(testDir);
+                testDir.delete();
+            }
+        }
+    }
 
     public static void copyBodyFiles(String sourceId, String targetId) {
         try {
