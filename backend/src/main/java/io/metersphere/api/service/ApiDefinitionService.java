@@ -930,7 +930,10 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                caseList = setRequestAndAddNewCase(apiDefinition, caseList, true);
+
+                boolean newCreate = !StringUtils.equals(ApiImportPlatform.Swagger2.name(), apiDefinitionImportParamDTO.getApiTestImportRequest().getPlatform())
+                        && !StringUtils.isNotBlank(apiDefinitionImportParamDTO.getApiTestImportRequest().getSwaggerUrl());
+                caseList = setRequestAndAddNewCase(apiDefinition, caseList, newCreate);
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 batchMapper.insert(apiDefinition);
                 List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, apiTestCaseMapper, caseList);
@@ -1065,7 +1068,9 @@ public class ApiDefinitionService {
             }
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-            caseList = setRequestAndAddNewCase(apiDefinition, caseList, true);
+            boolean newCreate = !StringUtils.equals(ApiImportPlatform.Swagger2.name(), apiDefinitionImportParamDTO.getApiTestImportRequest().getPlatform())
+                    && !StringUtils.isNotBlank(apiDefinitionImportParamDTO.getApiTestImportRequest().getSwaggerUrl());
+            caseList = setRequestAndAddNewCase(apiDefinition, caseList, newCreate);
             batchMapper.insert(apiDefinition);
             ApiDefinitionResult apiDefinitionResult = getApiDefinitionResult(apiDefinition, false);
             apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
