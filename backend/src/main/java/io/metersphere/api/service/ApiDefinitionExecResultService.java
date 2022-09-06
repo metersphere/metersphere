@@ -405,15 +405,21 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
+            TreeMap<Long, ExecutedCaseInfoResult> treeMap = new TreeMap<>();
+
+            List<ExecutedCaseInfoResult> apiCaseList = extApiDefinitionExecResultMapper.findFaliureApiCaseInfoByProjectID(projectId, startTime.getTime(), limitNumber);
+            List<ExecutedCaseInfoResult> scenarioCaseList = extApiDefinitionExecResultMapper.findFaliureScenarioInfoByProjectID(projectId, startTime.getTime(), limitNumber);
+            apiCaseList.forEach(item -> {
+                treeMap.put(item.getFailureTimes(), item);
+            });
+            scenarioCaseList.forEach(item -> {
+                treeMap.put(item.getFailureTimes(), item);
+            });
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
-
-            for (int i = 0; i < list.size(); i++) {
-                if (i < limitNumber) {
-                    //开始遍历查询TestPlan信息 --> 提供前台做超链接
-                    ExecutedCaseInfoResult item = list.get(i);
-
+            NavigableMap<Long, ExecutedCaseInfoResult> descendingMap = treeMap.descendingMap();
+            for (ExecutedCaseInfoResult item : descendingMap.values()) {
+                if (returnList.size() <= 10) {
                     QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
                     planRequest.setProjectId(projectId);
                     if ("scenario".equals(item.getCaseType())) {
