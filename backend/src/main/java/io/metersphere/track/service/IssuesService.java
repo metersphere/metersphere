@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.IssuesStatusCountDao;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssueFollowMapper;
 import io.metersphere.base.mapper.IssuesMapper;
@@ -425,7 +426,7 @@ public class IssuesService {
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
 
         List<String> caseIds = testCaseIssues.stream().map(x ->
-                x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
+                        x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
                 .collect(Collectors.toList());
 
         List<TestCaseDTO> notInTrashCase = testCaseService.getTestCaseByIds(caseIds);
@@ -714,7 +715,7 @@ public class IssuesService {
         issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
-    public List<IssuesDao> getCountByStatus(IssuesRequest request) {
+    public List<IssuesStatusCountDao> getCountByStatus(IssuesRequest request) {
         return extIssuesMapper.getCountByStatus(request);
 
     }
