@@ -28,7 +28,9 @@
                     <span slot="file"/>
                   </el-upload>
                 </div>
-                <el-button type="text" @click="associationFile">{{ $t('permission.project_file.associated_files') }}</el-button>
+                <el-button type="text" @click="associationFile">{{
+                    $t('permission.project_file.associated_files')
+                  }}</el-button>
                 <i class="el-icon-plus" slot="reference"/>
               </el-popover>
             </div>
@@ -103,7 +105,14 @@ export default {
       if (this.file && this.file.file) {
         files.push(this.file.file);
       }
-      let request = {id: getUUID(), csv: true, resourceId: this.file.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
+      let request = {
+        id: getUUID(),
+        csv: true,
+        resourceId: this.file.id,
+        moduleId: moduleId,
+        projectId: getCurrentProjectID(),
+        fileName: this.file.name
+      };
       this.$fileUpload("/file/metadata/dump/file", null, files, request, (response) => {
         this.$success(this.$t("organization.integration.successful_operation"));
       });
@@ -125,7 +134,14 @@ export default {
           this.$warning(this.$t('variables.cvs_info'));
           return;
         }
-        let file = {name: item.name, id: getUUID(), fileId: item.id, storage: "FILE_REF", projectId: item.projectId, fileType: item.type};
+        let file = {
+          name: item.name,
+          id: getUUID(),
+          fileId: item.id,
+          storage: "FILE_REF",
+          projectId: item.projectId,
+          fileType: item.type
+        };
         this.parameter.files.push(file);
       })
     },
@@ -177,12 +193,14 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.$refs.upload.handleRemove(file);
+            this.$refs.uploadLocal.handleRemove(file);
             for (let i = 0; i < this.parameter.files.length; i++) {
               let paramFileName = this.parameter.files[i].name ?
                 this.parameter.files[i].name : this.parameter.files[i].file.name;
               if (fileName === paramFileName) {
                 this.parameter.files.splice(i, 1);
                 this.$refs.upload.handleRemove(file);
+                this.$refs.uploadLocal.handleRemove(file);
                 break;
               }
             }
