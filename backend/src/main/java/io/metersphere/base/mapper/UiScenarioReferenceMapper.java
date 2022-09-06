@@ -3,6 +3,11 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.UiScenarioReference;
 import io.metersphere.base.domain.UiScenarioReferenceExample;
 import java.util.List;
+
+import io.metersphere.xpack.ui.dto.RefReq;
+import io.metersphere.xpack.ui.dto.RefResp;
+import io.metersphere.xpack.ui.dto.UiCheckRefDTO;
+import io.metersphere.xpack.ui.dto.UiCheckRefReq;
 import org.apache.ibatis.annotations.Param;
 
 public interface UiScenarioReferenceMapper {
@@ -27,4 +32,13 @@ public interface UiScenarioReferenceMapper {
     int updateByPrimaryKeySelective(UiScenarioReference record);
 
     int updateByPrimaryKey(UiScenarioReference record);
+
+    /**
+     * 获取引用信息
+     */
+    List<RefResp> refList(@Param("request") RefReq request);
+
+    List<RefResp> getTestPlanRef(@Param("request") RefReq request);
+
+    List<UiCheckRefDTO> checkRef(@Param("request")UiCheckRefReq request);
 }

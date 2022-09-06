@@ -19,5 +19,7 @@ public class UiScenarioReference implements Serializable {
 
     private String dataType;
 
+    private Integer customId;
+
     private static final long serialVersionUID = 1L;
 }

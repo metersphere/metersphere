@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-table
+        :id="msTableKey"
         v-if="tableActive"
         border
         class="test-content adjust-table ms-table"
@@ -139,6 +140,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
 import {lineToHump} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 
 /**
  * 参考 ApiList
@@ -166,7 +168,8 @@ export default {
       selectIds: [],
       hasBatchTipShow: false,
       defaultSort: {},
-      tableActive: true
+      tableActive: true,
+      msTableKey: "msTableKey_" + getUUID(),
     };
   },
   props: {
@@ -343,7 +346,7 @@ export default {
           if (this.rowOrderFunc) {
             this.rowOrderFunc(param);
           }
-        });
+        }, this.msTableKey);
       }
     },
     isScrollShow(column, tableTop) {  //判断元素是否因为超过表头

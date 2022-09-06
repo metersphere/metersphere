@@ -68,6 +68,10 @@ public enum ProjectApplicationType {
      * 接口分享链接有效期
      */
     API_SHARE_REPORT_TIME,
+    /**
+     * UI报告分享链接有效期
+     */
+    UI_SHARE_REPORT_TIME,
 
     /**
      * 我的工作台-是否开启待更新时间限制
