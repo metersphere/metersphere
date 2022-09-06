@@ -714,7 +714,7 @@ export default {
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
-        this.condition.filters = {status: ["Trash"]};
+        this.condition.filters = {...this.condition.filters, status: ["Trash"]}
         this.condition.moduleIds = [];
       }
 
