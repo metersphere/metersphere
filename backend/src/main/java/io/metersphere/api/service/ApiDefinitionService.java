@@ -419,6 +419,9 @@ public class ApiDefinitionService {
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
 
+        //删除不需要的文件
+        FileUtils.deleteBodyFiles(request.getRequest());
+
         String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(returnModel.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, returnModel.getProjectId(), SessionUtils.getUserId(), returnModel.getId(), returnModel.getName(), returnModel.getCreateUser());
