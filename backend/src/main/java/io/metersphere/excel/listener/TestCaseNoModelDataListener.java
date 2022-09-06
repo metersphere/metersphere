@@ -412,7 +412,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     customData.put(fieldName, customFieldValidator.parse2Key(value.toString(), customField));
                 }
                 if (StringUtils.equalsAny(customField.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue())) {
-                    data.getTextFieldSet().add(fieldName);
+                    data.getTextFieldSet().add(customField.getId());
                 }
             } catch (CustomFieldValidateException e) {
                 stringBuilder.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
