@@ -25,6 +25,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         this.projectId = request.getProjectId();
+        boolean addCase = !StringUtils.equals("idea", request.getOrigin());
         JSONObject jsonObject = JSON.parseObject(testStr);
         Object info = jsonObject.get("info");
         if (info == null) {
@@ -40,14 +41,14 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         }
         List<ApiTestCaseWithBLOBs> cases = new ArrayList<>();
         parseItem(postmanCollection.getItem(), modulePath, results,
-                cases);
+                cases, addCase);
         apiImport.setData(results);
         apiImport.setCases(cases);
         return apiImport;
     }
 
     protected void parseItem(List<PostmanItem> items, String modulePath, List<ApiDefinitionWithBLOBs> results,
-                             List<ApiTestCaseWithBLOBs> cases) {
+                             List<ApiTestCaseWithBLOBs> cases, boolean addCase) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
@@ -57,7 +58,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 } else {
                     itemModulePath = item.getName();
                 }
-                parseItem(childItems, itemModulePath, results, cases);
+                parseItem(childItems, itemModulePath, results, cases, addCase);
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
                 HttpResponse response = parsePostmanResponse(item);
@@ -71,11 +72,13 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                     request.setModulePath(modulePath);
                 }
                 results.add(request);
-                ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
-                BeanUtils.copyBean(apiTestCase, request);
-                apiTestCase.setApiDefinitionId(request.getId());
-                apiTestCase.setPriority("P0");
-                cases.add(apiTestCase);
+                if (addCase) {
+                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+                    BeanUtils.copyBean(apiTestCase, request);
+                    apiTestCase.setApiDefinitionId(request.getId());
+                    apiTestCase.setPriority("P0");
+                    cases.add(apiTestCase);
+                }
             }
         }
     }
