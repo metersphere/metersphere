@@ -216,16 +216,14 @@ public class TestPlanReportService {
                                     TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanLoadCaseStatus.success.name());
                                 }
                             }
+
+                            report.setExecuteRate(0.0);
+                            report.setPassRate(0.0);
+
                             // 设置成功率
-                            if (report.getCaseCount() != null && report.getCaseCount() != 0 && report.getExecuteCount() != 0) {
-                                report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
-                            } else {
-                                report.setExecuteRate(0.0);
-                            }
-                            if (report.getPassCount() != 0 && report.getCaseCount() != null && report.getExecuteCount() != 0) {
-                                report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getExecuteCount());
-                            } else {
-                                report.setPassRate(0.0);
+                            if (report.getCaseCount() != null && report.getCaseCount() != 0) {
+                                report.setExecuteRate(report.getExecuteCount() * 1.0 / report.getCaseCount());
+                                report.setPassRate(report.getPassCount() * 1.0 / report.getCaseCount());
                             }
                             testPlanReportDTO.setPassRate(report.getPassRate());
                         }
