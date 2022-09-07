@@ -105,7 +105,7 @@ public class PassRateUtil {
                 getUIFailStepCount(resultIdMap, Optional.ofNullable(step.getChildren()).orElse(new ArrayList<>()), count);
             } else {
                 if (resultIdMap.containsKey(step.getResourceId()) && CollectionUtils.isNotEmpty(resultIdMap.get(step.getResourceId()))) {
-                    calculateCount(resultIdMap, count, step, ScenarioStatus.Fail.name());
+                    calculateCount(resultIdMap, count, step, ScenarioStatus.Error.name());
                 }
             }
         });
