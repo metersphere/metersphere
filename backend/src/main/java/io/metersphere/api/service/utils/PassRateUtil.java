@@ -35,7 +35,9 @@ public class PassRateUtil {
         } else {
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
             if (report.getReportType().startsWith("UI")) {
-                Map<String, String> resultIdMap = requestResults.stream().collect(Collectors.toMap(r -> r.getResourceId(), r -> r.getStatus()));
+                //resourceId -> 结果列表 循环可能一个 resourceId 对应多个接口
+                Map<String, List<ApiScenarioReportResult>> resultResourceStatusMap = requestResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
+
                 ApiScenarioReportStructureExample e = new ApiScenarioReportStructureExample();
                 e.createCriteria().andReportIdEqualTo(report.getId());
 
@@ -44,7 +46,7 @@ public class PassRateUtil {
                     return "0";
                 }
                 List<StepTreeDTO> stepList = JSONArray.parseArray(new String(apiScenarioReportStructures.get(0).getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
-                successSize = getUISuccessSize(resultIdMap, stepList);
+                successSize = getUISuccessSize(resultResourceStatusMap, stepList);
 
                 if (CollectionUtils.isEmpty(stepList)) {
                     return "0";
@@ -63,20 +65,20 @@ public class PassRateUtil {
      * @param stepList
      * @return
      */
-    private static long getUISuccessSize(Map<String, String> resultIdMap, List<StepTreeDTO> stepList) {
+    private static long getUISuccessSize(Map<String, List<ApiScenarioReportResult>> resultIdMap, List<StepTreeDTO> stepList) {
         AtomicLong atomicLong = new AtomicLong();
         stepList.forEach(stepFather -> {
             stepFather.getChildren().forEach(step -> {
                 if (StringUtils.equalsIgnoreCase(step.getType(), UISCENARIO_TYPE_NAME)) {
-                    AtomicInteger failCount = new AtomicInteger();
+                    AtomicLong failCount = new AtomicLong();
                     getUIFailStepCount(resultIdMap, Optional.ofNullable(step.getChildren()).orElse(new ArrayList<>()), failCount);
                     //复制或者嵌套场景的成功只算 1 次
                     if (failCount.get() == 0) {
                         atomicLong.getAndAdd(1);
                     }
                 } else {
-                    if (resultIdMap.containsKey(step.getResourceId()) && StringUtils.equalsIgnoreCase(resultIdMap.get(step.getResourceId()), ScenarioStatus.Success.name())) {
-                        atomicLong.incrementAndGet();
+                    if (resultIdMap.containsKey(step.getResourceId()) && CollectionUtils.isNotEmpty(resultIdMap.get(step.getResourceId()))) {
+                        calculateCount(resultIdMap, atomicLong, step, ScenarioStatus.Success.name());
                     }
                 }
             });
@@ -93,16 +95,29 @@ public class PassRateUtil {
      * @param failCount
      * @return
      */
-    private static void getUIFailStepCount(Map<String, String> resultIdMap, List<StepTreeDTO> stepTrees, AtomicInteger failCount) {
+    private static void getUIFailStepCount(Map<String, List<ApiScenarioReportResult>> resultIdMap, List<StepTreeDTO> stepTrees, AtomicLong failCount) {
         stepTrees.forEach(step -> {
             if (StringUtils.equalsIgnoreCase(step.getType(), UISCENARIO_TYPE_NAME)) {
                 getUIFailStepCount(resultIdMap, Optional.ofNullable(step.getChildren()).orElse(new ArrayList<>()), failCount);
             } else {
-                if (resultIdMap.containsKey(step.getResourceId()) && StringUtils.equalsIgnoreCase(resultIdMap.get(step.getResourceId()), ScenarioStatus.Error.name())) {
-                    failCount.incrementAndGet();
+                if (resultIdMap.containsKey(step.getResourceId()) && CollectionUtils.isNotEmpty(resultIdMap.get(step.getResourceId()))) {
+                    calculateCount(resultIdMap, failCount, step, ScenarioStatus.Fail.name());
                 }
             }
         });
+    }
+
+    private static void calculateCount(Map<String, List<ApiScenarioReportResult>> resultIdMap, AtomicLong failCount, StepTreeDTO step, String status) {
+        List<ApiScenarioReportResult> sameResourceIdResults = resultIdMap.get(step.getResourceId());
+        if (StringUtils.equalsIgnoreCase(sameResourceIdResults.get(0).getStatus(), status)) {
+            failCount.incrementAndGet();
+
+            //计算完结果移除
+            sameResourceIdResults.remove(0);
+            if (CollectionUtils.isEmpty(sameResourceIdResults)) {
+                resultIdMap.remove(step.getResourceId());
+            }
+        }
     }
 
     /**
