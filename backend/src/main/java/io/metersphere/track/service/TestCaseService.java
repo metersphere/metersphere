@@ -754,8 +754,13 @@ public class TestCaseService {
     }
 
     private void buildCustomField(TestCaseDTO data) {
+        List<CustomFieldDao> fields = getCustomFiledById(data.getId());
+        data.setFields(fields);
+    }
+
+    public List<CustomFieldDao> getCustomFiledById(String id) {
         CustomFieldTestCaseExample example = new CustomFieldTestCaseExample();
-        example.createCriteria().andResourceIdEqualTo(data.getId());
+        example.createCriteria().andResourceIdEqualTo(id);
         List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExampleWithBLOBs(example);
         List<CustomFieldDao> fields = new ArrayList<>();
         customFieldTestCases.forEach(i -> {
@@ -765,7 +770,7 @@ public class TestCaseService {
             customFieldDao.setTextValue(i.getTextValue());
             fields.add(customFieldDao);
         });
-        data.setFields(fields);
+        return fields;
     }
 
     private void buildProjectInfoWidthoutProject(List<TestCaseDTO> resList) {
