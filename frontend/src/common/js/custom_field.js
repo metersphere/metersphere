@@ -114,7 +114,7 @@ export function buildCustomFields(data, param, template) {
       } else {
         customField['value'] = item.defaultValue ? JSON.stringify(item.defaultValue): "";
       }
-      if (item.isEdit) {
+      if (item.isEdit && data.id) {
         editFields.push(customField);
       } else {
         addFields.push(customField);
