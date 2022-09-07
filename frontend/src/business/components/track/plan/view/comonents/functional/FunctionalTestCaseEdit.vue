@@ -417,6 +417,13 @@ export default {
         this.testCase = item;
         this.originalStatus = this.testCase.status;
         parseCustomField(this.testCase, this.testCaseTemplate, null, buildTestCaseOldFields(this.testCase));
+        this.testCaseTemplate.customFields.forEach(item => {
+          try {
+            item.defaultValue = JSON.parse(item.defaultValue);
+          } catch (e) {
+            // nothing
+          }
+        });
         this.isCustomFiledActive = true;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
