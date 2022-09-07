@@ -129,7 +129,7 @@
             <span v-show="showUnExecuteReport && isUi" class="ms-point-unexecute"/>
             <div v-show="showUnExecuteReport && isUi" class="metric-box">
               <div class="value">{{
-                  content.unExecute ? content.unExecute : 0
+                  uiUnExecuteCount
                 }}
               </div>
               <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
@@ -220,7 +220,7 @@ export default {
       } else {
         this.time = this.totalTime + "ms"
       }
-    },
+    }
   },
   computed: {
     totalCount() {
@@ -310,6 +310,13 @@ export default {
       return (this.content.scenarioStepUnExecuteReport && this.content.scenarioStepUnExecuteReport > 0)
         || (this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0) || (this.content.unExecute && this.content.unExecute > 0);
     },
+    uiUnExecuteCount() {
+      if (this.content.scenarioStepTotal) {
+        return this.content.scenarioStepTotal - (this.content.scenarioStepSuccess || 0) - (this.content.scenarioStepError || 0);
+      } else {
+        return 0;
+      }
+    }
   },
 }
 </script>
