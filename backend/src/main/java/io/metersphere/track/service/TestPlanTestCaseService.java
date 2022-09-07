@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -275,6 +276,8 @@ public class TestPlanTestCaseService {
         testCaseTestDTOS.forEach(dto -> {
             setTestName(dto);
         });
+        List<CustomFieldDao> fields = testCaseService.getCustomFiledById(testPlanCaseDTO.getCaseId());
+        testPlanCaseDTO.setFields(fields);
         testPlanCaseDTO.setList(testCaseTestDTOS);
         return testPlanCaseDTO;
     }
