@@ -357,8 +357,7 @@ public class ApiDefinitionService {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
-        //删除不需要的文件
-        FileUtils.deleteBodyFiles(request.getRequest());
+        
         return getById(returnModel.getId());
     }
 
