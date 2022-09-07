@@ -376,12 +376,7 @@ public class ApiAutomationService {
         }
 
         deleteUpdateBodyFile(scenario, beforeScenario);
-        if (CollectionUtils.isNotEmpty(request.getScenarioDefinition().getHashTree())) {
-            request.getScenarioDefinition().getHashTree().stream().forEach(hashTree -> {
-                //删除不需要的文件
-                FileUtils.deleteBodyFiles(hashTree);
-            });
-        }
+
         scenario.setCreateUser(null); // 更新时不更新创建人
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(scenario.getId()).andVersionIdEqualTo(request.getVersionId());
