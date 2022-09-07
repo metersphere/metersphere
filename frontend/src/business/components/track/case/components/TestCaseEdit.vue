@@ -613,6 +613,7 @@ export default {
           this.$nextTick(() => {
             this.showInputTag = true;
           });
+          this.form.id = null;
         } else {
           this.getTestCase(testCase.id);
         }
