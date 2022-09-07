@@ -398,6 +398,7 @@ public class ApiAutomationService {
         }
 
         deleteUpdateBodyFile(scenario, beforeScenario);
+
         scenario.setCreateUser(null); // 更新时不更新创建人
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(scenario.getId()).andVersionIdEqualTo(request.getVersionId());
@@ -426,6 +427,12 @@ public class ApiAutomationService {
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
 
+        if (CollectionUtils.isNotEmpty(request.getScenarioDefinition().getHashTree())) {
+            request.getScenarioDefinition().getHashTree().stream().forEach(hashTree -> {
+                //删除不需要的文件
+                FileUtils.deleteBodyFiles(hashTree);
+            });
+        }
 
         // 存储依赖关系
         ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
