@@ -124,7 +124,7 @@ public class ApiScenarioReportService {
         } else if (dto.getRunMode().startsWith("UI")) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(dto.getReportId());
-            scenarioReport = updateUiScenario(apiScenarioReportResultMapper.selectByExample(example), dto);
+            scenarioReport = updateUiScenario(apiScenarioReportResultMapper.selectByExampleWithBLOBs(example), dto);
         } else {
             scenarioReport = updateScenario(dto);
         }
@@ -484,7 +484,7 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
+    public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResultWithBLOBs> requestResults, ResultDTO dto) {
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         // 更新报告状态
         String status = getStatus(dto);
@@ -525,7 +525,7 @@ public class ApiScenarioReportService {
     }
 
     @Nullable
-    private boolean updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
+    private boolean updateUiScenario(List<ApiScenarioReportResultWithBLOBs> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
         if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.UN_EXECUTE.toString())) {
             scenario.setLastResult(ScenarioStatus.Fail.name());
         } else {
