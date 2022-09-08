@@ -73,8 +73,8 @@
             :on-exceed="handleExceed"
             :on-success="handleSuccess"
             :on-error="handleError"
-            :disabled="(readOnly && isTestPlanEdit) || isCopy">
-            <el-button :disabled="(readOnly && isTestPlanEdit) || isCopy" type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+            :disabled="readOnly || isCopy">
+            <el-button :disabled="readOnly || isCopy" type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
             <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
           </el-upload>
         </el-col>
@@ -152,7 +152,7 @@ export default {
     ReviewCommentItem,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
   },
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'copyCaseId', 'isTestPlanEdit',
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'copyCaseId',
     'type', 'comments', 'isClickAttachmentTab',
     'defaultOpen'
   ],

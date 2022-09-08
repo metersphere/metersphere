@@ -111,7 +111,7 @@
                                          v-if="testCase.stepModel === 'STEP'" :form="testCase"/>
 
                     <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
-                      <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true"
+                      <test-case-edit-other-info @openTest="openTest" :read-only="true"
                                                  :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
                                                  ref="otherInfo"/>
                     </el-form-item>
