@@ -67,7 +67,6 @@
 
         <ms-table-column
           v-if="item.id === 'num' && customNum"
-          :field="item"
           :fields-width="fieldsWidth"
           prop="customNum"
           sortable
