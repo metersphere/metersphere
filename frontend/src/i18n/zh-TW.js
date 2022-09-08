@@ -2901,7 +2901,7 @@ export default {
     not_screentshot: "不截圖",
     error_step_screenshot: "出現異常截圖",
     downloadScreenshot: "下載截圖文件",
-    description: "備注",
+    description: "描述",
   },
   project_application: {
     workstation: {
