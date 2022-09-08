@@ -17,6 +17,7 @@ let travel = function (elements, threadGroups, relateFiles) {
         threadGroups.push(element);
         break;
       case "CSVDataSet":
+      case "com.baolu.jmeter.config.BaoluCSVDataSet":
         relateFiles.push(element);
         break;
       default:
