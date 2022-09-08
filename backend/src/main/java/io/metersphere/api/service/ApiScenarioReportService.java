@@ -121,7 +121,7 @@ public class ApiScenarioReportService {
         } else if (dto.getRunMode().startsWith("UI")) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(dto.getReportId());
-            scenarioReport = updateUiScenario(apiScenarioReportResultMapper.selectByExample(example), dto);
+            scenarioReport = updateUiScenario(apiScenarioReportResultMapper.selectByExampleWithBLOBs(example), dto);
         } else {
             scenarioReport = updateScenario(dto);
         }
@@ -464,7 +464,7 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
+    public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResultWithBLOBs> requestResults, ResultDTO dto) {
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         // 更新报告状态
         String status = getStatus(dto);
@@ -886,12 +886,7 @@ public class ApiScenarioReportService {
         //类型为ui时的统计
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith(ReportTypeConstants.UI.name())) {
             try {
-                errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
-                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
-                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                                ).count() > 0)
-                        .count();
+                errorSize = getUiErrorSize(dto);
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
                 errorSize = 1;
@@ -909,6 +904,32 @@ public class ApiScenarioReportService {
             status = ScenarioStatus.Timeout.name();
         }
         return status;
+    }
+
+    /**
+     * 主流程或者有断言失败的就算失败
+     *
+     * @param dto
+     * @return
+     */
+    private long getUiErrorSize(ResultDTO dto) {
+        int errorSize = 0;
+        for (RequestResult r : dto.getRequestResults()) {
+            if (StringUtils.isNotEmpty(r.getResponseResult().getHeaders())) {
+                JSONArray responseArr = JSONArray.parseArray(r.getResponseResult().getHeaders());
+                for (int i = 0; i < responseArr.size(); i++) {
+                    JSONObject stepResult = responseArr.getJSONObject(i);
+                    if (stepResult.containsKey("success") && !stepResult.getBoolean("success")) {
+                        if ((stepResult.containsKey("processType") && StringUtils.equalsIgnoreCase("MAIN", stepResult.getString("processType")))
+                                || (stepResult.containsKey("cmdName")
+                                && ((stepResult.getString("cmdName").startsWith("verify")) || stepResult.getString("cmdName").startsWith("assert")))) {
+                            errorSize++;
+                        }
+                    }
+                }
+            }
+        }
+        return errorSize;
     }
 
     public List<PlanReportCaseDTO> selectForPlanReport(List<String> reportIds) {
