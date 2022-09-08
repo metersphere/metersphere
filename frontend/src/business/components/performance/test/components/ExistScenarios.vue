@@ -143,9 +143,6 @@ export default {
         let data = returnData.scenarioJmxList;
         data.forEach(d => {
           let jmxName = d.name + "_" + new Date().getTime() + ".jmx";
-          if (jmxName.indexOf("/") !== -1) {
-            jmxName = jmxName.replace(/\//g, "");
-          }
           let threadGroups = findThreadGroup(d.jmx, jmxName);
           threadGroups.forEach(tg => {
             tg.options = {};
