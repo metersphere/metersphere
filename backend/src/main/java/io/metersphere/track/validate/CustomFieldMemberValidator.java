@@ -32,6 +32,7 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         if (StringUtils.isBlank(value)) {
             return;
         }
+        value = value.toLowerCase();
         if (userIdMap.containsKey(value) || userNameMap.containsKey(value)) {
             return;
         }
@@ -44,8 +45,8 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         if (userIdMap.containsKey(keyOrValue)) {
             return userIdMap.get(keyOrValue);
         }
-        if (userNameMap.containsKey(keyOrValue.toLowerCase())) {
-            return userNameMap.get(keyOrValue.toLowerCase());
+        if (userNameMap.containsKey(keyOrValue)) {
+            return userNameMap.get(keyOrValue);
         }
         return keyOrValue;
     }
