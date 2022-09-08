@@ -1719,21 +1719,23 @@ public class ApiDefinitionService {
                         .build();
                 noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
-            if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
-                for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
-                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
-                        sendImportApiCreateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
-                    }
-                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
-                        sendImportApiUpdateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
-                    }
-                    if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTO.getCaseDTOList())) {
-                        for (ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
-                            if (apiTestCaseDTO.isUpdated()) {
-                                sendImportCaseUpdateNotice(apiTestCaseDTO);
-                            }
-                            if (!apiTestCaseDTO.isUpdated()) {
-                                sendImportCaseCreateNotice(apiTestCaseDTO);
+            if (!StringUtils.equals(request.getType(), "schedule")) {
+                if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
+                    for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
+                        if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
+                            sendImportApiCreateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
+                        }
+                        if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
+                            sendImportApiUpdateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
+                        }
+                        if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTO.getCaseDTOList())) {
+                            for (ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
+                                if (apiTestCaseDTO.isUpdated()) {
+                                    sendImportCaseUpdateNotice(apiTestCaseDTO);
+                                }
+                                if (!apiTestCaseDTO.isUpdated()) {
+                                    sendImportCaseCreateNotice(apiTestCaseDTO);
+                                }
                             }
                         }
                     }
