@@ -175,6 +175,7 @@ public class ApiDefinitionService {
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
     private static final String COPY = "Copy";
+    private static final String SCHEDULE = "schedule";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -1676,7 +1677,7 @@ public class ApiDefinitionService {
                 MSException.throwException(e.getMessage());
             }
         }
-        if (StringUtils.equals(request.getType(), "schedule")) {
+        if (StringUtils.equals(request.getType(), SCHEDULE)) {
             request.setProtocol("HTTP");
         }
         try {
@@ -1704,7 +1705,7 @@ public class ApiDefinitionService {
                 request.setId(JSON.toJSONString(ids));
             }
             // 发送通知
-            if (StringUtils.equals(request.getType(), "schedule")) {
+            if (StringUtils.equals(request.getType(), SCHEDULE)) {
                 String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
                 String context = request.getSwaggerUrl() + "导入成功";
                 Map<String, Object> paramMap = new HashMap<>();
@@ -1719,7 +1720,7 @@ public class ApiDefinitionService {
                         .build();
                 noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
-            if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
+            if (!StringUtils.equals(request.getType(), SCHEDULE) && CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
                 for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
                     if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
                         sendImportApiCreateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
@@ -1731,8 +1732,7 @@ public class ApiDefinitionService {
                         for (ApiTestCaseDTO apiTestCaseDTO : apiImportSendNoticeDTO.getCaseDTOList()) {
                             if (apiTestCaseDTO.isUpdated()) {
                                 sendImportCaseUpdateNotice(apiTestCaseDTO);
-                            }
-                            if (!apiTestCaseDTO.isUpdated()) {
+                            } else {
                                 sendImportCaseCreateNotice(apiTestCaseDTO);
                             }
                         }
@@ -1748,7 +1748,7 @@ public class ApiDefinitionService {
     }
 
     private void sendFailMessage(ApiTestImportRequest request, Project project) {
-        if (StringUtils.equals(request.getType(), "schedule")) {
+        if (StringUtils.equals(request.getType(), SCHEDULE)) {
             String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
             String context = request.getSwaggerUrl() + "导入失败";
             Map<String, Object> paramMap = new HashMap<>();
