@@ -245,7 +245,7 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
   let caseData = {
     id: item.id,
     text: item.name,
-    priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
+    priority: item.priority ? Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1 : null,
     resource: [i18n.t('api_test.definition.request.case')],
     type: 'case',
     method: item.method,
