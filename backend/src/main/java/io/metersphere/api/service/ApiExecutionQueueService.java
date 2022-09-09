@@ -157,7 +157,7 @@ public class ApiExecutionQueueService {
             queue.setRetryEnable(config.isRetryEnable());
             queue.setRetryNumber(config.getRetryNum());
             queue.setProjectIds(JSON.toJSONString(new ArrayList<>() {{
-                runMap.get(k).getProjectId();
+                this.add(runMap.get(k).getProjectId());
             }}));
             queueDetails.add(queue);
             detailMap.put(k, queue.getId());
