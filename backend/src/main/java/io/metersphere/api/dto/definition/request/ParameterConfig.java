@@ -97,6 +97,15 @@ public class ParameterConfig extends MsParameter {
 
     private List<String> csvFilePaths = new ArrayList<>();
 
+    /**
+     * 是否开始重试
+     */
+    private Boolean retryEnable;
+
+    /**
+     * 重试次数
+     */
+    private Long retryNumber;
 
     public boolean isEffective(String projectId) {
         if (this.config != null && this.config.get(projectId) != null) {

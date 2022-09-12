@@ -2335,7 +2335,7 @@ export default {
     report_name: "报告名称",
     run_with_resource_pool: "资源池运行",
     retry_on_failure: "失败重试",
-    retry_message: "重试接口用例，重试n次后，仍然失败，则用例失败",
+    retry_message: "重试接口/UI用例，重试n次后，仍然失败，则用例失败",
     retry: "重试",
     retry_frequency: "次"
   },
