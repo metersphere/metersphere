@@ -2332,7 +2332,7 @@ export default {
     report_name: "報告名稱",
     run_with_resource_pool: "資源池運行",
     retry_on_failure: "失敗重試",
-    retry_message: "重試接口用例，重試n次後，仍然失敗，則用例失敗",
+    retry_message: "重試接口/UI用例，重試n次後，仍然失敗，則用例失敗",
     retry: "重試",
     retry_frequency: "次"
   },
