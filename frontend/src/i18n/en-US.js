@@ -474,7 +474,8 @@ export default {
       api_scenario: 'default',
       ui_element: 'default',
       ui_scenario: 'default'
-    }
+    },
+    executing: "Executing...",
   },
   login: {
     normal_Login: "Normal Login",

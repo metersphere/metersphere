@@ -477,7 +477,8 @@ export default {
       ui_element: '未规划元素',
       ui_scenario: '未规划场景'
     },
-    template_delete: "模版删除"
+    template_delete: "模版删除",
+    executing: "正在执行...",
   },
   login: {
     normal_Login: "普通登录",
