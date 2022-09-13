@@ -46,9 +46,12 @@
 
                   <el-row style="margin-top: 0;">
                     <el-col>
-                      <el-divider content-position="left">
+                      <el-divider content-position="left" class="title-divider">
                         <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
-                        <span class="title-link" :title="testCase.name">
+                        <span
+                          class="title-link"
+                          :title="testCase.name"
+                          :style="{'max-width': titleWith + 'px'}">
                           {{ testCase.num }}-{{ testCase.name }}
                         </span>
                         </el-button>
@@ -215,7 +218,8 @@ export default {
       hasZentaoId: false,
       formLabelWidth: '100px',
       isCustomFiledActive: false,
-      oldReviewStatus: ''
+      oldReviewStatus: '',
+      titleWith: 0
     };
   },
   props: {
@@ -389,6 +393,15 @@ export default {
       })
 
     },
+    setTitleWith() {
+      this.$nextTick(() => {
+        this.titleWith = 0;
+        let titleDivider = document.getElementsByClassName("title-divider");
+        if (titleDivider && titleDivider.length > 0) {
+          this.titleWith = 0.9 * titleDivider[0].clientWidth;
+        }
+      });
+    },
     getFileMetaData(testCase) {
       this.tableData = [];
       this.result = this.$get("test/case/file/metadata/" + testCase.caseId, response => {
@@ -411,6 +424,7 @@ export default {
       this.hasZentaoId = false;
       listenGoBack(this.handleClose);
       let initFuc = this.getTestCase;
+      this.setTitleWith();
 
       if (tableData) {
         this.testCases = tableData;
@@ -540,7 +554,6 @@ export default {
 
 .title-link {
   display: inline-block;
-  max-width: 830px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
