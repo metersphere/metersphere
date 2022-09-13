@@ -16,6 +16,8 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseWithBLOBs> caseList(@Param("request") ApiTestCaseRequest request);
 
+    List<ApiTestCaseWithBLOBs> unTrashCaseListByIds(@Param("ids") List<String> ids);
+
     List<ApiTestCaseDTO> listSimple(@Param("request") ApiTestCaseRequest request);
 
     List<String> selectIdsNotExistsInPlan(@Param("projectId") String projectId, @Param("planId") String planId);
