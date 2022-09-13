@@ -23,6 +23,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.schedule.ScheduleReference;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -91,9 +92,9 @@ public class ScheduleService {
         return null;
     }
 
-    public List<Schedule> getScheduleByResourceIds(List<String>resourceIds, String group) {
+    public List<Schedule> getScheduleByResourceIds(List<String> resourceIds, String group) {
         ScheduleExample example = new ScheduleExample();
-        if(resourceIds.size()==0){
+        if (CollectionUtils.isEmpty(resourceIds)) {
             return new ArrayList<>();
         }
         example.createCriteria().andResourceIdIn(resourceIds).andGroupEqualTo(group);
@@ -194,7 +195,7 @@ public class ScheduleService {
             LogUtil.error(e);
             MSException.throwException("重置定时任务-删除旧定时任务时出现异常");
         }
-        if(!request.getEnable()){
+        if (!request.getEnable()) {
             return;
         }
         try {
@@ -314,6 +315,12 @@ public class ScheduleService {
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
             request.setJob(TestPlanTestJob.class.getName());
+            needResetJob = true;
+        } else if (ScheduleGroup.SWAGGER_IMPORT.name().equals(request.getGroup())) {
+            jobKey = SwaggerUrlImportJob.getJobKey(request.getResourceId());
+            triggerKey = SwaggerUrlImportJob.getTriggerKey(request.getResourceId());
+            clazz = SwaggerUrlImportJob.class;
+            request.setJob(SwaggerUrlImportJob.class.getName());
             needResetJob = true;
         } else {
             //默认为情景
