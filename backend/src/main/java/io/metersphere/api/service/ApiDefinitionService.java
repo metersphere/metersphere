@@ -1001,6 +1001,8 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setPriority("P0");
             }
 
+            apiTestCaseWithBLOBs.setStatus("");
+
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 BeanUtils.copyBean(apiTestCaseDTO, apiTestCaseWithBLOBs);
                 apiTestCaseDTO.setUpdated(true);
