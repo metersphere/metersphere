@@ -30,7 +30,7 @@ public abstract class JiraAbstractClient extends BaseClient {
     public JiraIssue getIssues(String issuesId) {
         LogUtil.info("getIssues: " + issuesId);
         ResponseEntity<String> responseEntity;
-        responseEntity = restTemplate.exchange(getBaseUrl() + "/issue/" + issuesId + "?fields=status,assignee,summary,created,updated,attachment,description", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        responseEntity = restTemplate.exchange(getBaseUrl() + "/issue/" + issuesId, HttpMethod.GET, getAuthHttpEntity(), String.class);
         return  (JiraIssue) getResultForObject(JiraIssue.class, responseEntity);
     }
 
