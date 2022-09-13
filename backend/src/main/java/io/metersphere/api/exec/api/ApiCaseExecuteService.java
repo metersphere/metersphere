@@ -286,7 +286,7 @@ public class ApiCaseExecuteService {
             request.setConfig(new RunModeConfigDTO());
         }
 
-        if (StringUtils.equals("GROUP", request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
+        if (StringUtils.equals(EnvironmentType.GROUP.toString(), request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
 
@@ -294,10 +294,7 @@ public class ApiCaseExecuteService {
                 (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andIdIn(request.getIds()).andStatusNotEqualTo("Trash");
-        List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        List<ApiTestCaseWithBLOBs> caseList = extApiTestCaseMapper.unTrashCaseListByIds(request.getIds());
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
         Map<String, List<String>> testCaseEnvMap = new HashMap<>();
         // 环境检查

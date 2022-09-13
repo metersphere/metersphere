@@ -1008,4 +1008,14 @@
             </foreach>
         </if>
     </select>
+    <select id="unTrashCaseListByIds" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+        SELECT * FROM api_test_case
+        <where>
+            (api_test_case.status IS NULL OR api_test_case.status != 'Trash')
+            AND id IN
+            <foreach collection="ids" item="v" separator="," open="(" close=")">
+                #{v}
+            </foreach>
+        </where>
+    </select>
 </mapper>
