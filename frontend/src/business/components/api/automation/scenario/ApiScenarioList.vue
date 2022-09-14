@@ -96,7 +96,7 @@
 
           <ms-table-column prop="status"
                            :label="$t('test_track.plan.plan_status')"
-                           sortable
+                           :sortable="trashEnable ? false : true"
                            :field="item"
                            :fields-width="fieldsWidth"
                            :filters="!trashEnable ? apiscenariofilters.STATUS_FILTERS : null"

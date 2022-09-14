@@ -67,8 +67,8 @@
 
         <ms-table-column
           prop="status"
-          sortable="custom"
-          :filters="!trashEnable ? statusFilters : statusFiltersTrash"
+          :filters="!trashEnable ? statusFilters : null"
+          :sortable="trashEnable ? false : true"
           :field="item"
           :fields-width="fieldsWidth"
           min-width="120px"
@@ -398,10 +398,6 @@ export default {
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-      ],
-
-      statusFiltersTrash: [
-        {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
       ],
 
       caseStatusFilters: [
