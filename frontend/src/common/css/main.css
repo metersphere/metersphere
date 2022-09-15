@@ -314,3 +314,9 @@ textarea {
 .el-form-item__error {
   position: relative;
 }
+
+
+.el-message.is-closable .el-message__content {
+  max-width: 800px;
+  word-wrap: break-word;
+}
