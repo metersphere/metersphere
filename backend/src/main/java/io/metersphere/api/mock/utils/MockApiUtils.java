@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONValidator;
 import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.api.mock.dto.MockParamConditionEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.json.JSONSchemaGenerator;
@@ -281,6 +282,7 @@ public class MockApiUtils {
                     LogUtil.error(e);
                 }
             }
+            ScriptFilter.verify(scriptLanguage, "Mock后置脚本", script);
             scriptEngine = scriptEngineUtils.getBaseScriptEngine(projectId, scriptLanguage, url, headerMap, requestMockParams);
             if (StringUtils.isNotEmpty(script) && scriptEngine != null) {
                 scriptEngineUtils.runScript(scriptEngine, script);
