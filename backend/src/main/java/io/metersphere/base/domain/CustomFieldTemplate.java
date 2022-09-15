@@ -17,11 +17,11 @@ public class CustomFieldTemplate implements Serializable {
 
     private Integer order;
 
-    private String defaultValue;
-
     private String customData;
 
     private String key;
+
+    private String defaultValue;
 
     private static final long serialVersionUID = 1L;
 }
