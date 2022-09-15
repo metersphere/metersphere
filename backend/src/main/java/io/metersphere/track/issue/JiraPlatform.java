@@ -360,8 +360,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
         } else {
             fields.put("summary", issuesRequest.getTitle());
             fields.put("description", desc);
-            issuesRequest.getRequestFields().add(getRichTextCustomField("description"));
-            issuesRequest.getRequestFields().add(getRichTextCustomField("summary"));
+            // 添加后，解析图片会用到
+            issuesRequest.getRequestFields().add(getRichTextCustomField("description", desc));
             parseCustomFiled(issuesRequest, fields);
         }
         setSpecialParam(fields);
@@ -369,11 +369,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return addJiraIssueParam;
     }
 
-    private CustomFieldItemDTO getRichTextCustomField(String name) {
+    private CustomFieldItemDTO getRichTextCustomField(String name, String value) {
         CustomFieldItemDTO customField = new CustomFieldItemDTO();
         customField.setId(name);
         customField.setType(CustomFieldType.RICH_TEXT.getValue());
         customField.setCustomData(name);
+        customField.setValue(value);
         return customField;
     }
 
