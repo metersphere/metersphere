@@ -287,7 +287,7 @@ public class ApiAutomationService {
         checkScenarioNum(request);
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         scenario.setVersion(0);
-
+        scenario.setLastResult("");
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setNum(nextNum);
         scenario.setOrder(ServiceUtils.getNextOrder(scenario.getProjectId(), extApiScenarioMapper::getLastOrder));
@@ -526,8 +526,6 @@ public class ApiAutomationService {
         } else {
             scenario.setVersionId(request.getVersionId());
         }
-        scenario.setLastResult("");
-
         // 存储附件关系
         fileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
