@@ -992,20 +992,22 @@ public class ApiScenarioReportService {
      */
     private long getUiErrorSize(ResultDTO dto) {
         int errorSize = 0;
-        boolean success = false;
-        String processType = null;
-        String cmdName = null;
-        for (RequestResult r : dto.getRequestResults()) {
-            if (StringUtils.isNotEmpty(r.getResponseResult().getHeaders())) {
-                JSONArray responseArr = JSONArray.parseArray(r.getResponseResult().getHeaders());
-                for (int i = 0; i < responseArr.size(); i++) {
-                    JSONObject stepResult = responseArr.getJSONObject(i);
-                    success = Optional.ofNullable(stepResult.getBoolean("success")).orElse(Boolean.FALSE);
-                    processType = Optional.ofNullable(stepResult.getString("processType")).orElse("");
-                    cmdName = Optional.ofNullable(stepResult.getString("cmdName")).orElse("");
-                    if (!success && (StringUtils.equalsIgnoreCase("MAIN", processType) || cmdName.startsWith("verify") || cmdName.startsWith("assert"))) {
-                        errorSize++;
-                    }
+        boolean success;
+        String processType;
+        String cmdName;
+        RequestResult r = null;
+        if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+            r = dto.getRequestResults().get(dto.getRequestResults().size() - 1);
+        }
+        if (StringUtils.isNotEmpty(r.getResponseResult().getHeaders())) {
+            JSONArray responseArr = JSONArray.parseArray(r.getResponseResult().getHeaders());
+            for (int i = 0; i < responseArr.size(); i++) {
+                JSONObject stepResult = responseArr.getJSONObject(i);
+                success = Optional.ofNullable(stepResult.getBoolean("success")).orElse(Boolean.FALSE);
+                processType = Optional.ofNullable(stepResult.getString("processType")).orElse("");
+                cmdName = Optional.ofNullable(stepResult.getString("cmdName")).orElse("");
+                if (!success && (StringUtils.equalsIgnoreCase("MAIN", processType) || cmdName.startsWith("verify") || cmdName.startsWith("assert"))) {
+                    errorSize++;
                 }
             }
         }
