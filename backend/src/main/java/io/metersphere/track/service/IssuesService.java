@@ -14,6 +14,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.CustomFieldOption;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -730,7 +731,41 @@ public class IssuesService {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setPlanId(planId);
         List<IssuesDao> planIssues = extIssuesMapper.getPlanIssues(issueRequest);
+
+        buildCustomField(planIssues);
+
+        replaceStatus(planIssues, planId);
+
         return disconnectIssue(planIssues);
+    }
+
+    private void replaceStatus(List<IssuesDao> planIssues, String planId) {
+        TestPlanWithBLOBs testPlan = testPlanService.get(planId);
+        CustomField customField = customFieldService.getCustomFieldByName(testPlan.getProjectId(), SystemCustomField.ISSUE_STATUS);
+        planIssues.forEach(issue -> {
+            List<CustomFieldDao> fields = issue.getFields();
+            if (CollectionUtils.isNotEmpty(fields)) {
+                for (CustomFieldDao field : fields) {
+                    if (field.getId().equals(customField.getId())) {
+                        List<CustomFieldOption> options = JSONObject.parseArray(customField.getOptions(), CustomFieldOption.class);
+                        for (CustomFieldOption option : options) {
+                            String value = field.getValue();
+                            if (value != null) {
+                                value = (String) JSONObject.parse(value);
+                            }
+                            if (StringUtils.equals(option.getValue(), value)) {
+                                if (option.getSystem()) {
+                                    issue.setStatus(option.getValue());
+                                } else {
+                                    issue.setStatus(option.getText());
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     public List<IssuesDao> disconnectIssue(List<IssuesDao> issues) {

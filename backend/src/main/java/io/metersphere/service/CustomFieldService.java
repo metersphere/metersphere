@@ -284,6 +284,24 @@ public class CustomFieldService {
                 .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
     }
 
+    public CustomField getCustomFieldByName(String projectId, String fieldName) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andProjectIdEqualTo(projectId)
+                .andNameEqualTo(fieldName);
+        List<CustomField> customFields = customFieldMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            return customFields.get(0);
+        } else {
+            example.clear();
+            example.createCriteria()
+                    .andGlobalEqualTo(true)
+                    .andNameEqualTo(fieldName);
+            customFields = customFieldMapper.selectByExample(example);
+            return CollectionUtils.isNotEmpty(customFields) ? customFields.get(0) : null;
+        }
+    }
+
     public Map<String, String> getIssueSystemCustomFieldByName(String fieldName, String projectId, List<String> resourceIds) {
         if (CollectionUtils.isEmpty(resourceIds)) {
             return null;
