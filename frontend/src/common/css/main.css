@@ -325,3 +325,8 @@ textarea {
 .el-message-box {
   margin-bottom: 20%;
 }
+
+.el-message.is-closable .el-message__content {
+  max-width: 800px;
+  word-wrap: break-word;
+}
