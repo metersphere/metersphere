@@ -9,16 +9,19 @@
 
     <el-form :model="form" :rules="rules" label-position="right" size="small" ref="form">
       <el-form-item :label="$t('custom_field.field_name')" prop="name" :label-width="labelWidth">
-        <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
-        <el-input v-else v-model="form.name" autocomplete="off"></el-input>
+        <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])"
+                  autocomplete="off"></el-input>
+        <el-input v-else v-model="form.name" autocomplete="off" maxlength="64" show-word-limit></el-input>
       </el-form-item>
 
       <el-form-item :label="$t('custom_field.field_remark')" prop="remark" :label-width="labelWidth">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.remark"></el-input>
+        <el-input v-model="form.remark" :autosize="{ minRows: 2, maxRows: 4}" maxlength="255" show-word-limit
+                  type="textarea"></el-input>
       </el-form-item>
 
       <el-form-item :label="$t('custom_field.scene')" prop="type" :label-width="labelWidth">
-        <el-select :disabled="isSystem || isTemplateEdit" filterable v-model="form.scene" :placeholder="$t('custom_field.scene')">
+        <el-select v-model="form.scene" :disabled="isSystem || isTemplateEdit" :placeholder="$t('custom_field.scene')"
+                   filterable>
           <el-option
             v-for="item in (form.scene === 'PLAN' ? planSceneOptions : sceneOptions)"
             :key="item.value"
@@ -44,9 +47,9 @@
         :label="$t('custom_field.field_option')"
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
-            :is-kv="form.scene === 'ISSUE'"
-            :disable="form.name === '用例等级'"
-            :data="form.options"/>
+          :data="form.options"
+          :disable="form.name === '用例等级'"
+          :is-kv="form.scene === 'ISSUE'"/>
       </el-form-item>
 
     </el-form>
@@ -88,8 +91,8 @@ export default {
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
           {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
         ],
-        scene: [{required: true,  trigger: 'change'}],
-        type: [{required: true,  trigger: 'change'}],
+        scene: [{required: true, trigger: 'change'}],
+        type: [{required: true, trigger: 'change'}],
       },
       visible: false,
       url: '',
@@ -105,7 +108,7 @@ export default {
     },
     planSceneOptions() {
       let tmp = [...CUSTOM_FIELD_SCENE_OPTION];
-      tmp.push( {value: 'PLAN',text: i18n.t('workstation.table_name.track_plan')});// 创建和编辑不能选测试计划
+      tmp.push({value: 'PLAN', text: i18n.t('workstation.table_name.track_plan')});// 创建和编辑不能选测试计划
       return tmp;
     },
     showOptions() {
@@ -164,7 +167,7 @@ export default {
           }
           Object.assign(param, this.form);
           param.projectId = getCurrentProjectID();
-          if (['select','multipleSelect','radio','checkbox'].indexOf(param.type) > -1) {
+          if (['select', 'multipleSelect', 'radio', 'checkbox'].indexOf(param.type) > -1) {
             if (param.options.length < 1) {
               this.$warning(this.$t('custom_field.option_check'));
               return;

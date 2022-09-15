@@ -11,8 +11,11 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')" prop="type" :label-width="labelWidth">
-        <el-select :disabled="isSystem" filterable v-model="form.type" :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')">
+      <el-form-item :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')" :label-width="labelWidth"
+                    prop="type">
+        <el-select v-model="form.type" :disabled="isSystem"
+                   :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')"
+                   filterable>
           <el-option
             v-for="item in caseTypeOption"
             :key="item.value"
@@ -25,16 +28,22 @@
 
     <template v-slot:default>
       <el-form-item :label="$t('test_track.case.name')" prop="caseName" :label-width="labelWidth">
-        <el-input v-model="form.caseName" autocomplete="off"></el-input>
+        <el-input v-model="form.caseName" autocomplete="off" maxlength="64" show-word-limit></el-input>
       </el-form-item>
 
-      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+      <form-rich-text-item :data="form" :label-width="labelWidth" :title="$t('test_track.case.prerequisite')"
+                           prop="prerequisite"/>
 
       <step-change-item :form="form"/>
       <test-case-step-item :label-width="labelWidth" v-if="form.stepModel === 'STEP'" :form="form"/>
-      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
+      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :data="form"
+                           :label-width="labelWidth" :title="$t('test_track.case.step_desc')" prop="stepDescription"/>
+      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :data="form"
+                           :label-width="labelWidth" :title="$t('test_track.case.expected_results')"
+                           prop="expectedResult"/>
+      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :data="form"
+                           :label-width="labelWidth" :title="$t('test_track.plan_view.actual_result')"
+                           prop="actualResult"/>
     </template>
 
   </field-template-edit>
@@ -91,7 +100,7 @@ export default {
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
           {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
         ],
-        type: [{required: true,  trigger: 'change'}],
+        type: [{required: true, trigger: 'change'}],
       },
       result: {},
       url: '',

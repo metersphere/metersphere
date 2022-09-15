@@ -9,7 +9,6 @@
     <result column="case_name" jdbcType="VARCHAR" property="caseName" />
     <result column="system" jdbcType="BIT" property="system" />
     <result column="global" jdbcType="BIT" property="global" />
-    <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
@@ -17,6 +16,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+    <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite"/>
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
     <result column="expected_result" jdbcType="LONGVARCHAR" property="expectedResult" />
     <result column="actual_result" jdbcType="LONGVARCHAR" property="actualResult" />
@@ -81,11 +81,13 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, case_name, `system`, `global`, prerequisite, create_time, 
-    update_time, step_model, create_user, project_id
+    id
+    , `name`, `type`, description, case_name, `system`, `global`, create_time, update_time,
+    step_model, create_user, project_id
   </sql>
   <sql id="Blob_Column_List">
-    step_description, expected_result, actual_result, steps
+    prerequisite
+    , step_description, expected_result, actual_result, steps
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseTemplateExample" resultMap="ResultMapWithBLOBs">
     select
@@ -136,18 +138,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
-    INSERT INTO test_case_template (id, `name`, `type`,
-      description, case_name, `system`, 
-      `global`, prerequisite, create_time, 
-      update_time, step_model, create_user, 
-      project_id, step_description, expected_result, 
-      actual_result, steps)
-    VALUES (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-      #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
-      #{global,jdbcType=BIT}, #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
-      #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
+    insert into test_case_template (id, `name`, `type`,
+                                    description, case_name, `system`,
+                                    `global`, create_time, update_time,
+                                    step_model, create_user, project_id,
+                                    prerequisite, step_description,
+                                    expected_result, actual_result, steps)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+            #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT},
+            #{global,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
+            #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR},
+            #{prerequisite,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR},
+            #{expectedResult,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     insert into test_case_template
@@ -173,9 +175,6 @@
       <if test="global != null">
         `global`,
       </if>
-      <if test="prerequisite != null">
-        prerequisite,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -190,6 +189,9 @@
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="prerequisite != null">
+        prerequisite,
       </if>
       <if test="stepDescription != null">
         step_description,
@@ -226,9 +228,6 @@
       <if test="global != null">
         #{global,jdbcType=BIT},
       </if>
-      <if test="prerequisite != null">
-        #{prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
@@ -243,6 +242,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="prerequisite != null">
+        #{prerequisite,jdbcType=LONGVARCHAR},
       </if>
       <if test="stepDescription != null">
         #{stepDescription,jdbcType=LONGVARCHAR},
@@ -288,9 +290,6 @@
       <if test="record.global != null">
         `global` = #{record.global,jdbcType=BIT},
       </if>
-      <if test="record.prerequisite != null">
-        prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -305,6 +304,9 @@
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.prerequisite != null">
+        prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.stepDescription != null">
         step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
@@ -327,21 +329,21 @@
     update test_case_template
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      case_name = #{record.caseName,jdbcType=VARCHAR},
-      `system` = #{record.system,jdbcType=BIT},
-      `global` = #{record.global,jdbcType=BIT},
-      prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      step_model = #{record.stepModel,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
-      expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
-      actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
-      steps = #{record.steps,jdbcType=LONGVARCHAR}
+    `type` = #{record.type,jdbcType=VARCHAR},
+    description = #{record.description,jdbcType=VARCHAR},
+    case_name = #{record.caseName,jdbcType=VARCHAR},
+    `system` = #{record.system,jdbcType=BIT},
+    `global` = #{record.global,jdbcType=BIT},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    update_time = #{record.updateTime,jdbcType=BIGINT},
+    step_model = #{record.stepModel,jdbcType=VARCHAR},
+    create_user = #{record.createUser,jdbcType=VARCHAR},
+    project_id = #{record.projectId,jdbcType=VARCHAR},
+    prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
+    step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
+    expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
+    actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
+    steps = #{record.steps,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -355,7 +357,6 @@
       case_name = #{record.caseName,jdbcType=VARCHAR},
       `system` = #{record.system,jdbcType=BIT},
       `global` = #{record.global,jdbcType=BIT},
-      prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
@@ -386,9 +387,6 @@
       <if test="global != null">
         `global` = #{global,jdbcType=BIT},
       </if>
-      <if test="prerequisite != null">
-        prerequisite = #{prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -403,6 +401,9 @@
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="prerequisite != null">
+        prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       </if>
       <if test="stepDescription != null">
         step_description = #{stepDescription,jdbcType=LONGVARCHAR},
@@ -421,22 +422,22 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     update test_case_template
-    set `name` = #{name,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      case_name = #{caseName,jdbcType=VARCHAR},
-      `system` = #{system,jdbcType=BIT},
-      `global` = #{global,jdbcType=BIT},
-      prerequisite = #{prerequisite,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      step_model = #{stepModel,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      step_description = #{stepDescription,jdbcType=LONGVARCHAR},
-      expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
-      actual_result = #{actualResult,jdbcType=LONGVARCHAR},
-      steps = #{steps,jdbcType=LONGVARCHAR}
+    set `name`           = #{name,jdbcType=VARCHAR},
+        `type`           = #{type,jdbcType=VARCHAR},
+        description      = #{description,jdbcType=VARCHAR},
+        case_name        = #{caseName,jdbcType=VARCHAR},
+        `system`         = #{system,jdbcType=BIT},
+        `global`         = #{global,jdbcType=BIT},
+        create_time      = #{createTime,jdbcType=BIGINT},
+        update_time      = #{updateTime,jdbcType=BIGINT},
+        step_model       = #{stepModel,jdbcType=VARCHAR},
+        create_user      = #{createUser,jdbcType=VARCHAR},
+        project_id       = #{projectId,jdbcType=VARCHAR},
+        prerequisite     = #{prerequisite,jdbcType=LONGVARCHAR},
+        step_description = #{stepDescription,jdbcType=LONGVARCHAR},
+        expected_result  = #{expectedResult,jdbcType=LONGVARCHAR},
+        actual_result    = #{actualResult,jdbcType=LONGVARCHAR},
+        steps            = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseTemplate">
@@ -447,7 +448,6 @@
       case_name = #{caseName,jdbcType=VARCHAR},
       `system` = #{system,jdbcType=BIT},
       `global` = #{global,jdbcType=BIT},
-      prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       step_model = #{stepModel,jdbcType=VARCHAR},
