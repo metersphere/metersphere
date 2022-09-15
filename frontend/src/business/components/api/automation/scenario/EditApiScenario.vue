@@ -2127,7 +2127,11 @@ export default {
               this.recursionDelete(item, this.scenarioDefinition);
             });
             this.sort();
-            this.forceRerender();
+            if (this.scenarioDefinition.length <= 1) {
+              this.cancelBatchProcessing();
+            } else {
+              this.forceRerender();
+            }
           }
         }
       });
