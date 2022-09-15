@@ -901,7 +901,8 @@ export default {
     },
     resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.id + "_" + item.data.parentIndex === resourceId) {
+        let id = item.data.id || item.data.resourceId;
+        if (id + "_" + item.data.parentIndex === resourceId) {
           item.data.testing = false;
           this.evaluationParent(item.parent, status);
         }
