@@ -1,22 +1,22 @@
 <template>
   <ms-table
-    v-loading="result.loading"
-    :enable-selection="false"
-    :operators="operators"
-    :data="tableData"
-    :screen-height="null"
-    @refresh="refreshTable"
-    ref="table">
+      ref="table"
+      v-loading="result.loading"
+      :data="tableData"
+      :enable-selection="false"
+      :operators="operators"
+      :screen-height="null"
+      @refresh="refreshTable">
 
     <ms-table-column
-      :label="$t('commons.name')"
-      prop="name">
+        :label="$t('commons.name')"
+        prop="name">
       <template v-slot="scope">
         <span v-if="scope.row.system">
-          {{$t(systemNameMap[scope.row.name])}}
+          {{ $t(systemNameMap[scope.row.name]) }}
         </span>
         <span v-else>
-          {{scope.row.name}}
+          {{ scope.row.name }}
         </span>
       </template>
     </ms-table-column>
@@ -27,7 +27,8 @@
       prop="type">
       <template v-slot="scope">
         <el-scrollbar>
-          <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue"/>
+          <custom-filed-component :data="scope.row" :is-template-edit="true" class="default-value-item"
+                                  prop="defaultValue"/>
         </el-scrollbar>
       </template>
     </ms-table-column>
@@ -35,31 +36,31 @@
     <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
-      :label="$t('api_test.definition.document.table_coloum.is_required')"
-      width="80"
-      prop="type">
+        :label="$t('api_test.definition.document.table_coloum.is_required')"
+        prop="type"
+        width="80">
       <template v-slot="scope">
         <el-checkbox v-model="scope.row.required"/>
       </template>
     </ms-table-column>
 
     <ms-table-column
-    :label="$t('custom_field.system_field')"
-    width="80"
-    prop="system">
+        :label="$t('custom_field.system_field')"
+        prop="system"
+        width="80">
       <template v-slot="scope">
         <span v-if="scope.row.system">
-          {{$t('commons.yes')}}
+          {{ $t('commons.yes') }}
         </span>
         <span v-else>
-          {{$t('commons.no')}}
+          {{ $t('commons.no') }}
         </span>
       </template>
     </ms-table-column>
 
     <ms-table-column
-      :label="$t('commons.remark')"
-      prop="remark">
+        :label="$t('commons.remark')"
+        prop="remark">
     </ms-table-column>
 
   </ms-table>
@@ -83,18 +84,18 @@ export default {
   data() {
     return {
       result: {},
-     operators: [
-       {
-         tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-         exec: this.handleDelete,
-         isDisable: (row) => {
-           if (row.name === '用例等级') {
-             return true;
-           }
-           return false;
-         }
-       }
-     ],
+      operators: [
+        {
+          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+          exec: this.handleDelete,
+          isDisable: (row) => {
+            if (row.name === '用例等级') {
+              return true;
+            }
+            return false;
+          }
+        }
+      ],
     };
   },
   props: {
@@ -130,21 +131,21 @@ export default {
       let condition = {};
       condition.ids = customFieldIds;
       this.result = this.$post('custom/field/list',
-        condition, (response) => {
-          let data = response.data;
-          data.forEach(item => {
-            if (item.id) {
-              this.templateContainIds.add(item.id);
-            }
-            item.fieldId = item.id;
-            item.id = null;
-            item.options = JSON.parse(item.options);
-            if (item.type === 'checkbox') {
-              item.defaultValue = [];
-            }
+          condition, (response) => {
+            let data = response.data;
+            data.forEach(item => {
+              if (item.id) {
+                this.templateContainIds.add(item.id);
+              }
+              item.fieldId = item.id;
+              item.id = null;
+              item.options = JSON.parse(item.options);
+              if (item.type === 'checkbox') {
+                item.defaultValue = [];
+              }
+            });
+            this.tableData.push(...data);
           });
-          this.tableData.push(...data);
-        });
     }
   }
 };

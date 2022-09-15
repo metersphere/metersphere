@@ -16,15 +16,21 @@ public interface CustomFieldTemplateMapper {
 
     int insertSelective(CustomFieldTemplate record);
 
+    List<CustomFieldTemplate> selectByExampleWithBLOBs(CustomFieldTemplateExample example);
+
     List<CustomFieldTemplate> selectByExample(CustomFieldTemplateExample example);
 
     CustomFieldTemplate selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") CustomFieldTemplate record, @Param("example") CustomFieldTemplateExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") CustomFieldTemplate record, @Param("example") CustomFieldTemplateExample example);
+
     int updateByExample(@Param("record") CustomFieldTemplate record, @Param("example") CustomFieldTemplateExample example);
 
     int updateByPrimaryKeySelective(CustomFieldTemplate record);
+
+    int updateByPrimaryKeyWithBLOBs(CustomFieldTemplate record);
 
     int updateByPrimaryKey(CustomFieldTemplate record);
 }

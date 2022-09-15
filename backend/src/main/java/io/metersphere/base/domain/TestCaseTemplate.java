@@ -20,8 +20,6 @@ public class TestCaseTemplate implements Serializable {
 
     private Boolean global;
 
-    private String prerequisite;
-
     private Long createTime;
 
     private Long updateTime;

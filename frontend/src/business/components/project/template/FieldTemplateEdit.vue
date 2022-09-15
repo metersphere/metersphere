@@ -19,13 +19,15 @@
 
           <el-form :model="form" :rules="rules" label-position="right" label-width="80px" size="small" ref="form">
             <el-form-item :label="$t('commons.name')" prop="name" :label-width="labelWidth">
-              <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
+              <el-input v-model="form.name" :disabled="isSystem" autocomplete="off" maxlength="64"
+                        show-word-limit></el-input>
             </el-form-item>
 
             <slot name="base"></slot>
 
             <el-form-item :label="$t('commons.description')" prop="description" :label-width="labelWidth">
-              <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
+              <el-input v-model="form.description" :autosize="{ minRows: 2, maxRows: 4}" maxlength="255" show-word-limit
+                        type="textarea"></el-input>
             </el-form-item>
 
             <ms-form-divider :title="$t('custom_field.template_setting')"/>
@@ -33,8 +35,11 @@
             <slot></slot>
 
             <el-form-item :label="$t('table.selected_fields')" class="filed-list" :label-width="labelWidth">
-              <el-button type="primary" @click="relateField">{{$t('custom_field.add_field')}}</el-button>
-              <el-button type="primary" @click="addField" plain>{{ $t('custom_field.custom_field_setting') }}</el-button>
+              <el-button type="primary" @click="relateField">{{ $t('custom_field.add_field') }}</el-button>
+              <el-button plain type="primary" @click="addField">{{
+                  $t('custom_field.custom_field_setting')
+                }}
+              </el-button>
             </el-form-item>
 
             <el-form-item :label-width="labelWidth">
@@ -57,7 +62,8 @@
             :scene="scene"
             ref="customFieldRelateList"/>
 
-          <custom-field-edit :label-width="labelWidth" :scene="scene" @save="handleCustomFieldAdd" ref="customFieldEdit"/>
+          <custom-field-edit ref="customFieldEdit" :label-width="labelWidth" :scene="scene"
+                             @save="handleCustomFieldAdd"/>
 
         </el-scrollbar>
       </el-main>
@@ -95,17 +101,17 @@ export default {
     };
   },
   props: {
-    visible:{
+    visible: {
       type: Boolean,
       default() {
         return false;
       }
     },
     scene: String,
-    url:String,
+    url: String,
     rules: Object,
     labelWidth: String,
-    form:{
+    form: {
       type: Object,
       default() {
         return {};
@@ -211,20 +217,20 @@ export default {
         scene: this.scene
       };
       this.result = this.$post('custom/field/default', condition, (response) => {
-          let data = response.data;
-          data.forEach(item => {
-            if (item.id) {
-              this.templateContainIds.add(item.id);
-            }
-            item.fieldId = item.id;
-            item.id = null;
-            item.options = JSON.parse(item.options);
-            if (item.type === 'checkbox') {
-              item.defaultValue = [];
-            }
-          });
-          this.relateFields.push(...data);
+        let data = response.data;
+        data.forEach(item => {
+          if (item.id) {
+            this.templateContainIds.add(item.id);
+          }
+          item.fieldId = item.id;
+          item.id = null;
+          item.options = JSON.parse(item.options);
+          if (item.type === 'checkbox') {
+            item.defaultValue = [];
+          }
         });
+        this.relateFields.push(...data);
+      });
     }
   }
 };
