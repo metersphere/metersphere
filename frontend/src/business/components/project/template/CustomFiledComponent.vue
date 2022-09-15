@@ -183,13 +183,16 @@ export default {
 .el-select {
   width: 100%;
 }
+
 .el-date-editor.el-input {
   width: 100%;
 }
-.custom-with >>> .el-input__inner{
+
+.custom-with >>> .el-input__inner {
   height: 32px;
 }
->>> .el-input--suffix .el-input__inner{
+
+>>> .el-input--suffix .el-input__inner {
   height: 32px;
 }
 </style>

@@ -1,11 +1,14 @@
 <template>
   <el-row type="flex" class="head-bar">
-    <el-col :span="12">
+    <el-col :span="18">
       <span class="title">{{ template[prop] }}</span>
     </el-col>
-    <el-col :span="12" class="head-right">
+    <el-col :span="6" class="head-right">
       <el-button plain size="mini" @click="handleCancel">{{ $t('test_track.return') }}</el-button>
-      <el-button v-prevent-re-click type="primary" size="mini" @click="handleSave">{{ $t('test_track.save') }}</el-button>
+      <el-button v-prevent-re-click size="mini" type="primary" @click="handleSave">{{
+          $t('test_track.save')
+        }}
+      </el-button>
     </el-col>
   </el-row>
 

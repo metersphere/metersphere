@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.CustomFieldTemplateMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.CustomFieldTemplate">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="field_id" jdbcType="VARCHAR" property="fieldId" />
-    <result column="template_id" jdbcType="VARCHAR" property="templateId" />
-    <result column="scene" jdbcType="VARCHAR" property="scene" />
-    <result column="required" jdbcType="BIT" property="required" />
-    <result column="order" jdbcType="INTEGER" property="order" />
-    <result column="default_value" jdbcType="VARCHAR" property="defaultValue" />
-    <result column="custom_data" jdbcType="VARCHAR" property="customData" />
-    <result column="key" jdbcType="VARCHAR" property="key" />
-  </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" prefixOverrides="and" suffix=")">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
-                  and ${criterion.condition}
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.CustomFieldTemplate">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="field_id" jdbcType="VARCHAR" property="fieldId"/>
+        <result column="template_id" jdbcType="VARCHAR" property="templateId"/>
+        <result column="scene" jdbcType="VARCHAR" property="scene"/>
+        <result column="required" jdbcType="BIT" property="required"/>
+        <result column="order" jdbcType="INTEGER" property="order"/>
+        <result column="custom_data" jdbcType="VARCHAR" property="customData"/>
+        <result column="key" jdbcType="VARCHAR" property="key"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.CustomFieldTemplate">
+        <result column="default_value" jdbcType="LONGVARCHAR" property="defaultValue"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
                 </when>
                 <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
@@ -70,34 +72,58 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List">
-    id, field_id, template_id, scene, required, `order`, default_value, custom_data,
-    `key`
-  </sql>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from custom_field_template
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from custom_field_template
-    where id = #{id,jdbcType=VARCHAR}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from custom_field_template
-    where id = #{id,jdbcType=VARCHAR}
-  </delete>
+    <sql id="Base_Column_List">
+        id
+        , field_id, template_id, scene, required, `order`, custom_data, `key`
+    </sql>
+    <sql id="Blob_Column_List">
+        default_value
+    </sql>
+    <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample"
+            resultMap="ResultMapWithBLOBs">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from custom_field_template
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample"
+            resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from custom_field_template
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from custom_field_template
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from custom_field_template
+        where id = #{id,jdbcType=VARCHAR}
+    </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample">
     delete from custom_field_template
     <if test="_parameter != null">
@@ -105,14 +131,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
-    insert into custom_field_template (id, field_id, template_id,
-      scene, required, `order`,
-      default_value, custom_data, `key`
-      )
-    values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR},
-      #{scene,jdbcType=VARCHAR}, #{required,jdbcType=BIT}, #{order,jdbcType=INTEGER},
-      #{defaultValue,jdbcType=VARCHAR}, #{customData,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}
-      )
+      insert into custom_field_template (id, field_id, template_id,
+                                         scene, required, `order`,
+                                         custom_data, `key`, default_value)
+      values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR},
+              #{scene,jdbcType=VARCHAR}, #{required,jdbcType=BIT}, #{order,jdbcType=INTEGER},
+              #{customData,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{defaultValue,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
     insert into custom_field_template
@@ -130,20 +154,20 @@
         scene,
       </if>
       <if test="required != null">
-        required,
+          required,
       </if>
-      <if test="order != null">
-        `order`,
-      </if>
-      <if test="defaultValue != null">
-        default_value,
-      </if>
-      <if test="customData != null">
-        custom_data,
-      </if>
-      <if test="key != null">
-        `key`,
-      </if>
+        <if test="order != null">
+            `order`,
+        </if>
+        <if test="customData != null">
+            custom_data,
+        </if>
+        <if test="key != null">
+            `key`,
+        </if>
+        <if test="defaultValue != null">
+            default_value,
+        </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -159,20 +183,20 @@
         #{scene,jdbcType=VARCHAR},
       </if>
       <if test="required != null">
-        #{required,jdbcType=BIT},
+          #{required,jdbcType=BIT},
       </if>
-      <if test="order != null">
-        #{order,jdbcType=INTEGER},
-      </if>
-      <if test="defaultValue != null">
-        #{defaultValue,jdbcType=VARCHAR},
-      </if>
-      <if test="customData != null">
-        #{customData,jdbcType=VARCHAR},
-      </if>
-      <if test="key != null">
-        #{key,jdbcType=VARCHAR},
-      </if>
+        <if test="order != null">
+            #{order,jdbcType=INTEGER},
+        </if>
+        <if test="customData != null">
+            #{customData,jdbcType=VARCHAR},
+        </if>
+        <if test="key != null">
+            #{key,jdbcType=VARCHAR},
+        </if>
+        <if test="defaultValue != null">
+            #{defaultValue,jdbcType=LONGVARCHAR},
+        </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample" resultType="java.lang.Long">
@@ -197,34 +221,48 @@
         scene = #{record.scene,jdbcType=VARCHAR},
       </if>
       <if test="record.required != null">
-        required = #{record.required,jdbcType=BIT},
+          required = #{record.required,jdbcType=BIT},
       </if>
-      <if test="record.order != null">
-        `order` = #{record.order,jdbcType=INTEGER},
-      </if>
-      <if test="record.defaultValue != null">
-        default_value = #{record.defaultValue,jdbcType=VARCHAR},
-      </if>
-      <if test="record.customData != null">
-        custom_data = #{record.customData,jdbcType=VARCHAR},
-      </if>
-      <if test="record.key != null">
-        `key` = #{record.key,jdbcType=VARCHAR},
-      </if>
+        <if test="record.order != null">
+            `order` = #{record.order,jdbcType=INTEGER},
+        </if>
+        <if test="record.customData != null">
+            custom_data = #{record.customData,jdbcType=VARCHAR},
+        </if>
+        <if test="record.key != null">
+            `key` = #{record.key,jdbcType=VARCHAR},
+        </if>
+        <if test="record.defaultValue != null">
+            default_value = #{record.defaultValue,jdbcType=LONGVARCHAR},
+        </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
+      <if test="_parameter != null">
+          <include refid="Update_By_Example_Where_Clause"/>
+      </if>
   </update>
-  <update id="updateByExample" parameterType="map">
-    update custom_field_template
-    set id = #{record.id,jdbcType=VARCHAR},
-      field_id = #{record.fieldId,jdbcType=VARCHAR},
-      template_id = #{record.templateId,jdbcType=VARCHAR},
-      scene = #{record.scene,jdbcType=VARCHAR},
+    <update id="updateByExampleWithBLOBs" parameterType="map">
+        update custom_field_template
+        set id = #{record.id,jdbcType=VARCHAR},
+        field_id = #{record.fieldId,jdbcType=VARCHAR},
+        template_id = #{record.templateId,jdbcType=VARCHAR},
+        scene = #{record.scene,jdbcType=VARCHAR},
+        required = #{record.required,jdbcType=BIT},
+        `order` = #{record.order,jdbcType=INTEGER},
+        custom_data = #{record.customData,jdbcType=VARCHAR},
+        `key` = #{record.key,jdbcType=VARCHAR},
+        default_value = #{record.defaultValue,jdbcType=LONGVARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update custom_field_template
+        set id = #{record.id,jdbcType=VARCHAR},
+        field_id = #{record.fieldId,jdbcType=VARCHAR},
+        template_id = #{record.templateId,jdbcType=VARCHAR},
+        scene = #{record.scene,jdbcType=VARCHAR},
       required = #{record.required,jdbcType=BIT},
       `order` = #{record.order,jdbcType=INTEGER},
-      default_value = #{record.defaultValue,jdbcType=VARCHAR},
       custom_data = #{record.customData,jdbcType=VARCHAR},
       `key` = #{record.key,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -244,32 +282,43 @@
         scene = #{scene,jdbcType=VARCHAR},
       </if>
       <if test="required != null">
-        required = #{required,jdbcType=BIT},
+          required = #{required,jdbcType=BIT},
       </if>
-      <if test="order != null">
-        `order` = #{order,jdbcType=INTEGER},
-      </if>
-      <if test="defaultValue != null">
-        default_value = #{defaultValue,jdbcType=VARCHAR},
-      </if>
-      <if test="customData != null">
-        custom_data = #{customData,jdbcType=VARCHAR},
-      </if>
-      <if test="key != null">
-        `key` = #{key,jdbcType=VARCHAR},
-      </if>
+        <if test="order != null">
+            `order` = #{order,jdbcType=INTEGER},
+        </if>
+        <if test="customData != null">
+            custom_data = #{customData,jdbcType=VARCHAR},
+        </if>
+        <if test="key != null">
+            `key` = #{key,jdbcType=VARCHAR},
+        </if>
+        <if test="defaultValue != null">
+            default_value = #{defaultValue,jdbcType=LONGVARCHAR},
+        </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+      where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
-    update custom_field_template
-    set field_id = #{fieldId,jdbcType=VARCHAR},
-      template_id = #{templateId,jdbcType=VARCHAR},
-      scene = #{scene,jdbcType=VARCHAR},
-      required = #{required,jdbcType=BIT},
-      `order` = #{order,jdbcType=INTEGER},
-      default_value = #{defaultValue,jdbcType=VARCHAR},
-      custom_data = #{customData,jdbcType=VARCHAR},
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
+        update custom_field_template
+        set field_id      = #{fieldId,jdbcType=VARCHAR},
+            template_id   = #{templateId,jdbcType=VARCHAR},
+            scene         = #{scene,jdbcType=VARCHAR},
+            required      = #{required,jdbcType=BIT},
+            `order`       = #{order,jdbcType=INTEGER},
+            custom_data   = #{customData,jdbcType=VARCHAR},
+            `key`         = #{key,jdbcType=VARCHAR},
+            default_value = #{defaultValue,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
+        update custom_field_template
+        set field_id    = #{fieldId,jdbcType=VARCHAR},
+            template_id = #{templateId,jdbcType=VARCHAR},
+            scene       = #{scene,jdbcType=VARCHAR},
+            required    = #{required,jdbcType=BIT},
+            `order`     = #{order,jdbcType=INTEGER},
+            custom_data = #{customData,jdbcType=VARCHAR},
       `key` = #{key,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
