@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
@@ -209,6 +210,22 @@ public class ApiJmeterFileService {
             }
         }
         return multipartFiles;
+    }
+
+    public byte[] zipFilesToByteArray(BodyFileRequest request) {
+        Map<String, byte[]> files = new LinkedHashMap<>();
+        if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            for (BodyFile bodyFile : request.getBodyFiles()) {
+                File file = new File(bodyFile.getName());
+                if (file != null && file.exists()) {
+                    byte[] fileByte = FileUtils.fileToByte(file);
+                    if (fileByte != null) {
+                        files.put(file.getAbsolutePath(), fileByte);
+                    }
+                }
+            }
+        }
+        return listBytesToZip(files);
     }
 
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {

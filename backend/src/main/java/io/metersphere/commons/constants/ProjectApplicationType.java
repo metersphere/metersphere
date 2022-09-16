@@ -25,7 +25,7 @@ public enum ProjectApplicationType {
      */
     API_QUICK_MENU,
     /**
-     *接口定义URL可重复
+     * 接口定义URL可重复
      */
     URL_REPEATABLE,
     /**
@@ -71,5 +71,13 @@ public enum ProjectApplicationType {
     /**
      * UI报告分享链接有效期
      */
-    UI_SHARE_REPORT_TIME
+    UI_SHARE_REPORT_TIME,
+    /**
+     * 开启接口测试默认资源池
+     */
+    POOL_ENABLE,
+    /**
+     * 资源池ID
+     */
+    RESOURCE_POOL_ID,
 }

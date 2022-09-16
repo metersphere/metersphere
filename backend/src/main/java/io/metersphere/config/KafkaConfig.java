@@ -22,6 +22,9 @@ import java.util.Map;
 public class KafkaConfig {
     //执行结果回传
     public static final String TOPICS = "ms-api-exec-topic";
+    public static final String DEBUG_TOPICS = "MS-API-DEBUG-TOPIC";
+    public static final String DEBUG_TOPICS_KEY = "MS-API-DEBUG-KEY";
+
     @Resource
     private KafkaProperties kafkaProperties;
 
@@ -36,6 +39,7 @@ public class KafkaConfig {
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSize());
+        producerProps.put(DEBUG_TOPICS_KEY, DEBUG_TOPICS);
         return producerProps;
     }
 

@@ -4,75 +4,76 @@
     :title="$t('load_test.runtime_config')"
     width="550px"
     @close="close"
-    :visible.sync="runModeVisible"
-  >
-    <div style="margin-bottom: 10px;">
-      <span class="ms-mode-span">{{ $t("commons.environment") }}：</span>
-      <env-popover :project-ids="projectIds"
-                   :placement="'bottom-start'"
-                   :project-list="projectList"
-                   :project-env-map="projectEnvListMap"
-                   :environment-type.sync="runConfig.environmentType"
-                   :group-id="runConfig.environmentGroupId"
-                   @setEnvGroup="setEnvGroup"
-                   @setProjectEnvMap="setProjectEnvMap"
-                   @showPopover="showPopover"
-                   ref="envPopover" class="env-popover"/>
-    </div>
-    <div>
-      <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
-      <el-radio-group v-model="runConfig.mode" @change="changeMode">
-        <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
-        <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
-      </el-radio-group>
-    </div>
-    <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
-      <el-row>
-        <el-col :span="6">
-          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-        </el-col>
-        <el-col :span="18">
-          <div>
-            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
-          </div>
-          <div v-if="testType === 'API'" style="padding-top: 10px">
-            <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
-              {{ $t('run_mode.run_with_resource_pool') }}
-            </el-checkbox>
-            <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
-              <el-option
-                v-for="item in resourcePools"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
-      <el-row>
-        <el-col :span="6">
-          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-        </el-col>
-        <el-col :span="18">
-          <div v-if="testType === 'API'">
-            <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
-              {{ $t('run_mode.run_with_resource_pool') }}
-            </el-checkbox>
-            <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
-              <el-option
-                v-for="item in resourcePools"
-                :key="item.id"
-                :label="item.name"
-                :disabled="!item.api"
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </div>
-        </el-col>
-      </el-row>
+    :visible.sync="runModeVisible">
+    <div v-loading="loading">
+      <div style="margin-bottom: 10px;">
+        <span class="ms-mode-span">{{ $t("commons.environment") }}：</span>
+        <env-popover :project-ids="projectIds"
+                     :placement="'bottom-start'"
+                     :project-list="projectList"
+                     :project-env-map="projectEnvListMap"
+                     :environment-type.sync="runConfig.environmentType"
+                     :group-id="runConfig.environmentGroupId"
+                     @setEnvGroup="setEnvGroup"
+                     @setProjectEnvMap="setProjectEnvMap"
+                     @showPopover="showPopover"
+                     ref="envPopover" class="env-popover"/>
+      </div>
+      <div>
+        <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
+        <el-radio-group v-model="runConfig.mode" @change="changeMode">
+          <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
+          <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
+        </el-radio-group>
+      </div>
+      <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
+        <el-row>
+          <el-col :span="6">
+            <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+          </el-col>
+          <el-col :span="18">
+            <div>
+              <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
+            </div>
+            <div v-if="testType === 'API'" style="padding-top: 10px">
+              <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
+                {{ $t('run_mode.run_with_resource_pool') }}
+              </el-checkbox>
+              <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+                <el-option
+                  v-for="item in resourcePools"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
+        <el-row>
+          <el-col :span="6">
+            <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+          </el-col>
+          <el-col :span="18">
+            <div v-if="testType === 'API'">
+              <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
+                {{ $t('run_mode.run_with_resource_pool') }}
+              </el-checkbox>
+              <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+                <el-option
+                  v-for="item in resourcePools"
+                  :key="item.id"
+                  :label="item.name"
+                  :disabled="!item.api"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
     </div>
     <template v-slot:footer>
       <div class="dialog-footer" v-if="showSave">
@@ -95,7 +96,7 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-import {hasLicense, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
 import {ENV_TYPE} from "@/common/js/constants";
 
 export default {
@@ -104,6 +105,8 @@ export default {
   data() {
     return {
       runModeVisible: false,
+      loading: false,
+      runMode: "",
       testType: null,
       resourcePools: [],
       runConfig: {
@@ -150,13 +153,40 @@ export default {
       }
       this.runModeVisible = true;
       this.testType = testType;
+      this.query();
       this.getResourcePools();
       this.getWsProjects();
     },
+    query() {
+      this.loading = true;
+      this.result = this.$get("/system/base/info", response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        } else {
+          this.loading = false;
+        }
+      })
+    },
+    getResourcePools() {
+      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
+        this.resourcePools = response.data;
+      });
+    },
+    getProjectApplication() {
+      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+        this.loading = false;
+      });
+    },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
     },
     close() {
       this.runConfig = {
@@ -175,11 +205,6 @@ export default {
     handleRunBatch() {
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
-    },
-    getResourcePools() {
-      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
-        this.resourcePools = response.data;
-      });
     },
     setProjectEnvMap(projectEnvMap) {
       this.runConfig.envMap = strMapToObj(projectEnvMap);

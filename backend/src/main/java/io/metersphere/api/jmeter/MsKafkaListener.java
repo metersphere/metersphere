@@ -1,11 +1,15 @@
 package io.metersphere.api.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.exec.utils.NamedThreadFactory;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.websocket.c.to.c.WebSocketUtils;
+import io.metersphere.websocket.c.to.c.util.MsgDto;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
+    public static final String DEBUG_CONSUME_ID = "ms-api-debug-consume";
+
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
@@ -34,7 +40,6 @@ public class MsKafkaListener {
     private final static int KEEP_ALIVE_TIME = 1;
     // 线程池所使用的缓冲队列大小
     private final static int WORK_QUEUE_SIZE = 10000;
-
 
     private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
             CORE_POOL_SIZE,
@@ -61,6 +66,19 @@ public class MsKafkaListener {
             LoggerUtil.error("KAFKA消费失败：", e);
         } finally {
             ack.acknowledge();
+        }
+    }
+
+    @KafkaListener(id = DEBUG_CONSUME_ID, topics = KafkaConfig.DEBUG_TOPICS, groupId = "${spring.kafka.consumer.debug.group-id}")
+    public void consume(ConsumerRecord<?, String> record) {
+        try {
+            LoggerUtil.info("接收到执行结果：", record.key());
+            if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtils.has(record.key().toString())) {
+                MsgDto dto = JSON.parseObject(record.value(), MsgDto.class);
+                WebSocketUtils.sendMessageSingle(dto);
+            }
+        } catch (Exception e) {
+            LoggerUtil.error("KAFKA消费失败：", e);
         }
     }
 

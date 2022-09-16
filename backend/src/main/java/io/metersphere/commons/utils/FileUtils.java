@@ -420,7 +420,7 @@ public class FileUtils {
         return jarFiles;
     }
 
-    public List<Object> getMultipartFiles(HashTree hashTree) {
+    public static List<Object> getMultipartFiles(HashTree hashTree) {
         List<Object> multipartFiles = new LinkedList<>();
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
@@ -430,7 +430,7 @@ public class FileUtils {
                 File file = new File(bodyFile.getName());
                 if (file != null && !file.exists()) {
                     FileSystemResource resource = new FileSystemResource(file);
-                    byte[] fileByte = this.fileToByte(file);
+                    byte[] fileByte = fileToByte(file);
                     if (fileByte != null) {
                         ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
                             @Override

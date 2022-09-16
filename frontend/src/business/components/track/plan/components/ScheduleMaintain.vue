@@ -63,7 +63,7 @@
                     <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
                   </div>
                   <div v-if="testType === 'API'" style="padding-top: 10px">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
                       {{ $t('run_mode.run_with_resource_pool') }}
                     </el-checkbox>
                     <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
@@ -86,7 +86,7 @@
                 </el-col>
                 <el-col :span="18">
                   <div v-if="testType === 'API'">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
                       {{ $t('run_mode.run_with_resource_pool') }}
                     </el-checkbox>
                     <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
@@ -198,6 +198,7 @@ export default {
       }
     };
     return {
+      runMode: "",
       isHasLicense: hasLicense(),
       result: {},
       scheduleReceiverOptions: [],
@@ -313,7 +314,27 @@ export default {
       listenGoBack(this.close);
       this.activeName = 'first';
       this.getResourcePools();
+      this.query();
       this.runConfig.environmentType = ENV_TYPE.JSON;
+    },
+    query() {
+      this.result = this.$get("/system/base/info", response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        }
+      })
+    },
+    getProjectApplication() {
+      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+      });
     },
     findSchedule() {
       let scheduleResourceID = this.testId;
@@ -453,8 +474,6 @@ export default {
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
     },
   },
   computed: {

@@ -29,4 +29,8 @@ public class ProjectConfig {
     private Boolean cleanUiReport = false;
     private String cleanUiReportExpr;
     private Boolean urlRepeatable = false;
+
+    private String resourcePoolId;
+    private Boolean poolEnable = false;
+
 }
