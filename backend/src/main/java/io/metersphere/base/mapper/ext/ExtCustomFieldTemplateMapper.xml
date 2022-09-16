@@ -18,6 +18,7 @@
         <if test="request.templateId != null">
             where cft.template_id = #{request.templateId}
         </if>
+        order by `order` asc
     </select>
     <select id="lisSimple" resultType="io.metersphere.dto.CustomFieldDao">
         select
@@ -30,5 +31,12 @@
         <if test="request.templateId != null">
             where cft.template_id = #{request.templateId}
         </if>
+    </select>
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from custom_field_template where template_id = #{templateId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
     </select>
 </mapper>

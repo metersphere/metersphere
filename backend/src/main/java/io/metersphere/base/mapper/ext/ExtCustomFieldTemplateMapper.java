@@ -13,4 +13,6 @@ public interface ExtCustomFieldTemplateMapper {
     List<CustomFieldTemplateDao> list(@Param("request") CustomFieldTemplate request);
 
     List<CustomFieldDao> lisSimple(@Param("request") CustomFieldTemplate request);
+
+    Long getLastOrder(@Param("templateId") String templateId, @Param("baseOrder") Long baseOrder);
 }
