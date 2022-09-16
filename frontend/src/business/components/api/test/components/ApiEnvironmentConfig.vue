@@ -37,7 +37,7 @@ import MsAsideContainer from "../../../common/components/MsAsideContainer";
 import MsMainContainer from "../../../common/components/MsMainContainer";
 import MsAsideItem from "../../../common/components/MsAsideItem";
 import EnvironmentEdit from "./environment/EnvironmentEdit";
-import {hasPermission, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+import {getUUID, hasPermission, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
 import {Environment, parseEnvironment} from "../model/EnvironmentModel";
 import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
@@ -145,6 +145,11 @@ export default {
       if (!this.validateEnvironment(newEnvironment)) {
         return;
       }
+      newEnvironment.config.databaseConfigs.forEach(dataSource => {
+        if (dataSource.id) {
+          dataSource.id = getUUID();
+        }
+      })
       this.$refs.environmentEdit._save(newEnvironment);
       this.environments.unshift(newEnvironment);
       this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);

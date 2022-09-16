@@ -126,7 +126,12 @@ public class MsJDBCPreProcessor extends MsTestElement {
             } else {
                 // 取当前环境下默认的一个数据源
                 if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
-                    this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
+                    DatabaseConfig dataSourceOrg = ElementUtil.dataSource(getProjectId(), dataSourceId, config.getConfig().get(this.getProjectId()));
+                    if (dataSourceOrg != null) {
+                        this.dataSource = dataSourceOrg;
+                    } else {
+                        this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
+                    }
                 }
             }
         }
