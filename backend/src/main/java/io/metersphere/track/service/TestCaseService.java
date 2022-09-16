@@ -1503,7 +1503,8 @@ public class TestCaseService {
         }
         for (CustomFieldDao dto : customFieldList) {
             Map<String, String> map = new HashMap<>();
-            if (StringUtils.equals("select", dto.getType())) {
+            if (StringUtils.equalsAny(dto.getType(), CustomFieldType.SELECT.getValue(), CustomFieldType.MULTIPLE_SELECT.getValue(),
+                    CustomFieldType.CHECKBOX.getValue(), CustomFieldType.RADIO.getValue())) {
                 try {
                     JSONArray optionsArr = JSONArray.parseArray(dto.getOptions());
                     for (int i = 0; i < optionsArr.size(); i++) {
@@ -1623,13 +1624,27 @@ public class TestCaseService {
                     if (obj.containsKey("name") && obj.containsKey("value")) {
                         //进行key value对换
                         String name = obj.getString("name");
-                        String value = obj.getString("value");
-                        if (customSelectValueMap.containsKey(name)) {
-                            if (customSelectValueMap.get(name).containsKey(value)) {
-                                value = customSelectValueMap.get(name).get(value);
+                        Object value = obj.get("value");
+                        if (value instanceof List) {
+                            List<String> values = ((List) value);
+                            for (int i = 0; i < values.size(); i++) {
+                                String item = values.get(i);
+                                if (customSelectValueMap.containsKey(name)) {
+                                    if (customSelectValueMap.get(name).containsKey(item)) {
+                                        values.set(i, customSelectValueMap.get(name).get(item));
+                                    }
+                                }
+                            }
+
+                        } else {
+                            if (customSelectValueMap.containsKey(name)) {
+                                if (customSelectValueMap.get(name).containsKey(value)) {
+                                    value = customSelectValueMap.get(name).get(value);
+                                }
                             }
                         }
-                        map.put(name, value);
+
+                        map.put(name, value.toString());
                     }
                 }
                 data.setCustomDatas(map);
