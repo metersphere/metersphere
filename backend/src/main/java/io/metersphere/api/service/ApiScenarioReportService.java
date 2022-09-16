@@ -987,6 +987,7 @@ public class ApiScenarioReportService {
      */
     private long getUiErrorSize(ResultDTO dto) {
         int errorSize = 0;
+        int successSize = 0;
         try {
             boolean success;
             String processType;
@@ -1007,11 +1008,16 @@ public class ApiScenarioReportService {
                     cmdName = Optional.ofNullable(stepResult.getString("cmdName")).orElse("");
                     if (!success && (StringUtils.equalsIgnoreCase("MAIN", processType) || cmdName.startsWith("verify") || cmdName.startsWith("assert"))) {
                         errorSize++;
+                    } else {
+                        successSize++;
                     }
                 }
             }
         } catch (Exception e) {
             errorSize = 1;
+        }
+        if (successSize == 0 && errorSize == 0) {
+            return 1;
         }
         return errorSize;
     }
