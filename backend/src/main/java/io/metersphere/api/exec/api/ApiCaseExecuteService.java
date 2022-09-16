@@ -11,6 +11,7 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.exec.utils.PerformInspectionUtil;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiCaseResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
@@ -64,6 +65,8 @@ public class ApiCaseExecuteService {
     private ApiCaseResultService apiCaseResultService;
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
+    @Resource
+    private JMeterService jMeterService;
 
     /**
      * 测试计划case执行
@@ -209,6 +212,7 @@ public class ApiCaseExecuteService {
         if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
         }
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
 
         if (StringUtils.equals("GROUP", request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));

@@ -16,14 +16,20 @@
             <i>({{ $t('commons.examples') }}:http://ms-prometheus:9090)</i>
           </el-form-item>
           <el-form-item :label="$t('system_config.selenium_docker_url')" prop="seleniumDockerUrl">
-            <el-input v-model="formInline.seleniumDockerUrl" :placeholder="$t('system_config.selenium_docker.url_tip')"/>
+            <el-input v-model="formInline.seleniumDockerUrl"
+                      :placeholder="$t('system_config.selenium_docker.url_tip')"/>
             <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
+          </el-form-item>
+          <el-form-item :label="$t('commons.api_default_run')" prop="runMode" v-if="hasLicense()">
+            <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <div>
-      <el-button @click="edit" v-if="showEdit" size="small" v-permission="['SYSTEM_SETTING:READ+EDIT']">{{ $t('commons.edit') }}</el-button>
+      <el-button @click="edit" v-if="showEdit" size="small" v-permission="['SYSTEM_SETTING:READ+EDIT']">
+        {{ $t('commons.edit') }}
+      </el-button>
       <el-button type="success" @click="save('formInline')" v-if="showSave" :disabled="disabledSave" size="small">
         {{ $t('commons.save') }}
       </el-button>
@@ -33,12 +39,13 @@
 </template>
 
 <script>
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "BaseSetting",
   data() {
     return {
-      formInline: {},
+      formInline: {runMode: true},
       input: '',
       visible: true,
       result: {},
@@ -72,13 +79,31 @@ export default {
     this.query()
   },
   methods: {
+    hasLicense,
     query() {
       this.result = this.$get("/system/base/info", response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
         this.formInline = response.data;
         this.$nextTick(() => {
           this.$refs.formInline.clearValidate();
         })
       })
+    },
+    modeChange(v) {
+      if (v === 'POOL') {
+        this.formInline.runMode = 'LOCAL';
+        this.$alert(this.$t('commons.api_default_run_message'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.formInline.runMode = v;
+            }
+          }
+        });
+      }
     },
     edit() {
       this.showEdit = false;
@@ -96,6 +121,7 @@ export default {
         {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
         {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
         {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
+        {paramKey: "base.run.mode", paramValue: this.formInline.runMode, type: "text", sort: 5},
       ];
 
       this.$refs[formInline].validate(valid => {

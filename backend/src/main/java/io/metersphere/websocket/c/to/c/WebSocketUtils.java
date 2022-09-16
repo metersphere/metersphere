@@ -2,6 +2,7 @@ package io.metersphere.websocket.c.to.c;
 
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.websocket.c.to.c.util.MsgDto;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -24,6 +25,10 @@ public class WebSocketUtils {
             return;
         }
         async.sendText(message);
+    }
+
+    public static boolean has(String key) {
+        return StringUtils.isNotEmpty(key) && ONLINE_USER_SESSIONS.containsKey(key);
     }
 
     // 单用户推送

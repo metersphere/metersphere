@@ -248,7 +248,7 @@
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
     <ms-api-case-run-mode-with-env
-      :project-id="projectId"
+      :is-scenario="false"
       @handleRunBatch="runBatch"
       @close="initTable"
       ref="batchRun"/>
@@ -275,7 +275,7 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import MsApiCaseRunModeWithEnv from "./ApiCaseRunModeWithEnv";
+import MsApiCaseRunModeWithEnv from "@/business/components/api/automation/scenario/common/RunMode";
 
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 

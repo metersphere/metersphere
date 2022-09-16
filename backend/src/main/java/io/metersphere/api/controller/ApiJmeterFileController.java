@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JmeterThreadUtils;
 import io.metersphere.api.service.ApiJmeterFileService;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/jmeter")
+@RequestMapping("/api/jmeter/")
 public class ApiJmeterFileController {
 
     @Resource
@@ -38,6 +39,15 @@ public class ApiJmeterFileController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportId + "_" + testId + ".zip\"")
+                .body(bytes);
+    }
+
+    @PostMapping("download/files")
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody BodyFileRequest request) {
+        byte[] bytes = apiJmeterFileService.zipFilesToByteArray(request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getReportId() + ".zip\"")
                 .body(bytes);
     }
 
