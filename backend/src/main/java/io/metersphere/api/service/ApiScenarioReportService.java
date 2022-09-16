@@ -485,7 +485,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResultWithBLOBs> requestResults, ResultDTO dto) {
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
+        long errorSize = getUiErrorSize(dto);
         // 更新报告状态
         String status = getStatus(dto);
 
@@ -963,12 +963,7 @@ public class ApiScenarioReportService {
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())).count();
         //类型为ui时的统计
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
-            try {
-                errorSize = getUiErrorSize(dto);
-            } catch (Exception e) {
-                // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
-                errorSize = 1;
-            }
+            errorSize = getUiErrorSize(dto);
         }
         String status = dto.getRequestResults().isEmpty() ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
         if (errorSize > 0) {
@@ -992,24 +987,31 @@ public class ApiScenarioReportService {
      */
     private long getUiErrorSize(ResultDTO dto) {
         int errorSize = 0;
-        boolean success;
-        String processType;
-        String cmdName;
-        RequestResult r = null;
-        if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
-            r = dto.getRequestResults().get(dto.getRequestResults().size() - 1);
-        }
-        if (StringUtils.isNotEmpty(r.getResponseResult().getHeaders())) {
-            JSONArray responseArr = JSONArray.parseArray(r.getResponseResult().getHeaders());
-            for (int i = 0; i < responseArr.size(); i++) {
-                JSONObject stepResult = responseArr.getJSONObject(i);
-                success = Optional.ofNullable(stepResult.getBoolean("success")).orElse(Boolean.FALSE);
-                processType = Optional.ofNullable(stepResult.getString("processType")).orElse("");
-                cmdName = Optional.ofNullable(stepResult.getString("cmdName")).orElse("");
-                if (!success && (StringUtils.equalsIgnoreCase("MAIN", processType) || cmdName.startsWith("verify") || cmdName.startsWith("assert"))) {
-                    errorSize++;
+        try {
+            boolean success;
+            String processType;
+            String cmdName;
+            RequestResult r = null;
+            if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+                r = dto.getRequestResults().get(dto.getRequestResults().size() - 1);
+            }
+            if (!StringUtils.contains(r.getName(), "WebDriverSampler")) {
+                return 1;
+            }
+            if (StringUtils.isNotEmpty(r.getResponseResult().getHeaders())) {
+                JSONArray responseArr = JSONArray.parseArray(r.getResponseResult().getHeaders());
+                for (int i = 0; i < responseArr.size(); i++) {
+                    JSONObject stepResult = responseArr.getJSONObject(i);
+                    success = Optional.ofNullable(stepResult.getBoolean("success")).orElse(Boolean.FALSE);
+                    processType = Optional.ofNullable(stepResult.getString("processType")).orElse("");
+                    cmdName = Optional.ofNullable(stepResult.getString("cmdName")).orElse("");
+                    if (!success && (StringUtils.equalsIgnoreCase("MAIN", processType) || cmdName.startsWith("verify") || cmdName.startsWith("assert"))) {
+                        errorSize++;
+                    }
                 }
             }
+        } catch (Exception e) {
+            errorSize = 1;
         }
         return errorSize;
     }
