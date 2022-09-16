@@ -3,7 +3,7 @@
              :append-to-body='true'
              @close="close">
     <template>
-      <div>
+      <div v-loading="request.loading">
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('schedule.task_config')" name="first">
             <div class="el-step__icon is-text" style="margin-right: 10px;">
@@ -60,7 +60,7 @@
             </div>
             <div class="ms-mode-div">
                   <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-              <el-checkbox v-model="runConfig.runWithinResourcePool">
+              <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="runMode === 'POOL'">
                 {{ $t('run_mode.run_with_resource_pool') }}
               </el-checkbox>
               <el-select style="margin-left: 10px" :disabled="!runConfig.runWithinResourcePool"
@@ -167,6 +167,8 @@ export default {
       }
     };
     return {
+      runMode: "",
+      result: {},
       scheduleReceiverOptions: [],
       operation: true,
       dialogVisible: false,
@@ -212,9 +214,26 @@ export default {
       }
       return true;
     },
+    query() {
+      this.result = this.$get("/system/base/info", response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        }
+      })
+    },
+    getProjectApplication() {
+      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+      });
+    },
     changeMode() {
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
       this.runConfig.reportType = "iddReport";
       this.runConfig.reportName = "";
     },
@@ -325,6 +344,7 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.getWsProjects();
+      this.query();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {

@@ -78,6 +78,27 @@
                                  :unit-options="applyUnitOptions"
                                  @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime)"
                                  :title="$t('report.report_sharing_link')"/>
+
+                    <!-- 接口测试资源池 -->
+                    <app-manage-item :title="$t('commons.api_run_pool_title')" :prepend-span="8" :middle-span="12" :append-span="4" v-if="isPool && isXpack">
+                      <template #middle>
+                        <el-select v-model="config.resourcePoolId"
+                                   size="mini"
+                                   @change="runModeChange(true, ['RESOURCE_POOL_ID', config.resourcePoolId])" >
+                          <el-option
+                            v-for="item in resourcePools"
+                            :key="item.id"
+                            :label="item.name"
+                            :disabled="!item.api"
+                            :value="item.id">
+                          </el-option>
+                        </el-select>
+                      </template>
+                      <template #append>
+                        <el-switch v-model="config.poolEnable"  @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
+                      </template>
+                    </app-manage-item>
+
                   </el-row>
                 </el-col>
                 <el-col :span="8" class="commons-view-setting">
@@ -191,6 +212,7 @@ export default {
   data() {
     return {
       activeName: 'test_track',
+      resourcePools: [],
       form: {
         cleanTrackReport: false,
         cleanTrackReportExpr: "",
@@ -235,11 +257,14 @@ export default {
         cleanUiReportExpr: "",
         urlRepeatable: false,
         shareReport: true
-      }
+      },
+      isPool: false
     };
   },
   created() {
     this.init();
+    this.getBase();
+    this.getResourcePools();
     this.isXpack = !!hasLicense();
   },
   computed: {
@@ -248,6 +273,16 @@ export default {
     },
   },
   methods: {
+    getBase() {
+      this.result = this.$get("/system/base/info", response => {
+        this.isPool = response.data.runMode === 'POOL';
+      })
+    },
+    getResourcePools() {
+      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
+        this.resourcePools = response.data;
+      });
+    },
     tcpMockSwitchChange(value, other) {
       if (value && this.config.mockTcpPort === 0) {
         this.$get('/project/genTcpMockPort/' + this.projectId).then(res => {
@@ -264,6 +299,14 @@ export default {
         });
       } else {
         this.switchChange("MOCK_TCP_OPEN", value, other);
+      }
+    },
+    runModeChange(value, other) {
+      if (value && !this.config.resourcePoolId) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        this.config.poolEnable = false;
+      } else {
+        this.switchChange("POOL_ENABLE", value, other);
       }
     },
     switchChange(type, value, other) {

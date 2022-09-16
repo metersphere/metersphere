@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -187,6 +188,8 @@ public class TestPlanService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private JMeterService jMeterService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -996,7 +999,7 @@ public class TestPlanService {
         if (planReportId == null) {
             planReportId = UUID.randomUUID().toString();
         }
-
+        jMeterService.verifyPool(projectID, runModeConfig);
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanID, userId, triggerMode);
         //测试计划准备执行，取消测试计划的实际结束时间

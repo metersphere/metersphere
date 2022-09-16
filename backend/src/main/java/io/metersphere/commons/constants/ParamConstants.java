@@ -114,7 +114,8 @@ public interface ParamConstants {
         URL("base.url"),
         CONCURRENCY("base.concurrency"),
         PROMETHEUS_HOST("base.prometheus.host"),
-        SELENIUM_DOCKER_URL("base.selenium.docker.url");
+        SELENIUM_DOCKER_URL("base.selenium.docker.url"),
+        RUN_MODE("base.run.mode");
 
         private String value;
 

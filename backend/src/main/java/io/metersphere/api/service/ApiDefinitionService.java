@@ -27,6 +27,7 @@ import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -42,6 +43,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RelationshipEdgeDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -144,6 +146,8 @@ public class ApiDefinitionService {
     private EsbApiParamsMapper esbApiParamsMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private JMeterService jMeterService;
 
     @Lazy
     @Resource
@@ -1258,6 +1262,12 @@ public class ApiDefinitionService {
      * @return
      */
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        if(request.getConfig() == null ) {
+            request.setConfig(new RunModeConfigDTO());
+        }
+        // 验证是否本地执行
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
+
         if (!request.isDebug()) {
             String testId = request.getTestElement() != null &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&

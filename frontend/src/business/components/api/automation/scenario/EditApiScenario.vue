@@ -1019,6 +1019,9 @@ export default {
       this.runningEvaluation(e.data);
       this.message = getUUID();
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
+        if (this.messageWebSocket) {
+          this.messageWebSocket.close();
+        }
         this.runScenario = undefined;
         this.debugLoading = false;
         this.message = "stop";
