@@ -17,4 +17,6 @@ public interface ExtCustomFieldTemplateMapper {
     List<String> getSystemCustomField(@Param("templateId") String templateId, @Param("fieldName") String fieldName);
 
     void batchInsert(@Param("customFieldTemplates") List<CustomFieldTemplate> customFieldTemplates);
+
+    Long getLastOrder(@Param("templateId") String templateId, @Param("baseOrder") Long baseOrder);
 }
