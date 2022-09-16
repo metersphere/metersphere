@@ -18,6 +18,7 @@
         <if test="request.templateId != null">
             where cft.template_id = #{request.templateId}
         </if>
+        order by `order` asc
     </select>
     <select id="lisSimple" resultType="io.metersphere.dto.CustomFieldDao">
         select
@@ -37,6 +38,13 @@
                  join custom_field cf on cft.field_id = cf.id
         where cft.template_id = #{templateId}
           and cf.name = #{fieldName}
+    </select>
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from custom_field_template where template_id = #{templateId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
     </select>
 
     <insert id="batchInsert" parameterType="java.util.List">

@@ -1,12 +1,12 @@
 package io.metersphere.service;
 
-
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldTemplate;
 import io.metersphere.base.domain.CustomFieldTemplateExample;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldTemplateDao;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +44,7 @@ public class CustomFieldTemplateService {
     public List<CustomFieldTemplate> getCustomFields(String templateId) {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateId);
+        example.setOrderByClause("`order` asc");
         return customFieldTemplateMapper.selectByExample(example);
     }
 
@@ -110,15 +111,18 @@ public class CustomFieldTemplateService {
         CustomFieldTemplateMapper customFieldTemplateMapper =
                 sqlSession.getMapper(CustomFieldTemplateMapper.class);
         if (CollectionUtils.isNotEmpty(customFields)) {
-            customFields.forEach(item -> {
+            Long nextOrder = ServiceUtils.getNextOrder(templateId, extCustomFieldTemplateMapper::getLastOrder);
+            for (CustomFieldTemplate item : customFields) {
                 item.setId(UUID.randomUUID().toString());
                 item.setTemplateId(templateId);
                 item.setScene(scene);
                 if (item.getRequired() == null) {
                     item.setRequired(false);
                 }
+                nextOrder += ServiceUtils.ORDER_STEP;
+                item.setOrder((int) nextOrder.longValue());
                 customFieldTemplateMapper.insert(item);
-            });
+            }
         }
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
