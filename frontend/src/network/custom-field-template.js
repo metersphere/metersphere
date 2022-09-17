@@ -29,3 +29,19 @@ export function getTestTemplate() {
 export function updateCustomFieldTemplate(request) {
   post('/custom/field/template/update', request);
 }
+
+export function getApiTemplate() {
+  return getTemplate('project/field/template/api/get-template/relate/');
+}
+
+
+export function getApiTemplate() {
+  return getTemplate('project/field/template/api/get-template/relate/');
+}
+
+
+export function getApiTemplate() {
+  return getTemplate('project/field/template/api/get-template/relate/');
+}
+
+

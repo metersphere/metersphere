@@ -20,6 +20,7 @@
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="third_part_template" jdbcType="BIT" property="thirdPartTemplate" />
     <result column="version_enable" jdbcType="BIT" property="versionEnable" />
+    <result column="api_template_id" jdbcType="VARCHAR" property="apiTemplateId"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Project">
     <result column="issue_config" jdbcType="LONGVARCHAR" property="issueConfig" />
@@ -83,9 +84,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
+      id
+      , workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key,
     zentao_id, azure_devops_id, case_template_id, issue_template_id, create_user, system_id, 
-    azure_filter_id, platform, third_part_template, version_enable
+    azure_filter_id, platform, third_part_template, version_enable, api_template_id
   </sql>
   <sql id="Blob_Column_List">
     issue_config
@@ -139,20 +141,21 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.Project">
-    insert into project (id, workspace_id, `name`, 
-      description, create_time, update_time, 
-      tapd_id, jira_key, zentao_id, 
-      azure_devops_id, case_template_id, issue_template_id, 
-      create_user, system_id, azure_filter_id, 
-      platform, third_part_template, version_enable, 
-      issue_config)
-    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
-      #{azureDevopsId,jdbcType=VARCHAR}, #{caseTemplateId,jdbcType=VARCHAR}, #{issueTemplateId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{azureFilterId,jdbcType=VARCHAR}, 
-      #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, #{versionEnable,jdbcType=BIT}, 
-      #{issueConfig,jdbcType=LONGVARCHAR})
+      insert into project (id, workspace_id, `name`,
+                           description, create_time, update_time,
+                           tapd_id, jira_key, zentao_id,
+                           azure_devops_id, case_template_id, issue_template_id,
+                           create_user, system_id, azure_filter_id,
+                           platform, third_part_template, version_enable,
+                           api_template_id, issue_config)
+      values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+              #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
+              #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR},
+              #{azureDevopsId,jdbcType=VARCHAR}, #{caseTemplateId,jdbcType=VARCHAR},
+              #{issueTemplateId,jdbcType=VARCHAR},
+              #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{azureFilterId,jdbcType=VARCHAR},
+              #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, #{versionEnable,jdbcType=BIT},
+              #{apiTemplateId,jdbcType=VARCHAR}, #{issueConfig,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -193,27 +196,30 @@
       <if test="issueTemplateId != null">
         issue_template_id,
       </if>
-      <if test="createUser != null">
-        create_user,
-      </if>
-      <if test="systemId != null">
-        system_id,
-      </if>
-      <if test="azureFilterId != null">
-        azure_filter_id,
-      </if>
-      <if test="platform != null">
-        platform,
-      </if>
-      <if test="thirdPartTemplate != null">
-        third_part_template,
-      </if>
-      <if test="versionEnable != null">
-        version_enable,
-      </if>
-      <if test="issueConfig != null">
-        issue_config,
-      </if>
+        <if test="createUser != null">
+            create_user,
+        </if>
+        <if test="systemId != null">
+            system_id,
+        </if>
+        <if test="azureFilterId != null">
+            azure_filter_id,
+        </if>
+        <if test="platform != null">
+            platform,
+        </if>
+        <if test="thirdPartTemplate != null">
+            third_part_template,
+        </if>
+        <if test="versionEnable != null">
+            version_enable,
+        </if>
+        <if test="apiTemplateId != null">
+            api_template_id,
+        </if>
+        <if test="issueConfig != null">
+            issue_config,
+        </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -252,27 +258,30 @@
       <if test="issueTemplateId != null">
         #{issueTemplateId,jdbcType=VARCHAR},
       </if>
-      <if test="createUser != null">
-        #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="systemId != null">
-        #{systemId,jdbcType=VARCHAR},
-      </if>
-      <if test="azureFilterId != null">
-        #{azureFilterId,jdbcType=VARCHAR},
-      </if>
-      <if test="platform != null">
-        #{platform,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartTemplate != null">
-        #{thirdPartTemplate,jdbcType=BIT},
-      </if>
-      <if test="versionEnable != null">
-        #{versionEnable,jdbcType=BIT},
-      </if>
-      <if test="issueConfig != null">
-        #{issueConfig,jdbcType=LONGVARCHAR},
-      </if>
+        <if test="createUser != null">
+            #{createUser,jdbcType=VARCHAR},
+        </if>
+        <if test="systemId != null">
+            #{systemId,jdbcType=VARCHAR},
+        </if>
+        <if test="azureFilterId != null">
+            #{azureFilterId,jdbcType=VARCHAR},
+        </if>
+        <if test="platform != null">
+            #{platform,jdbcType=VARCHAR},
+        </if>
+        <if test="thirdPartTemplate != null">
+            #{thirdPartTemplate,jdbcType=BIT},
+        </if>
+        <if test="versionEnable != null">
+            #{versionEnable,jdbcType=BIT},
+        </if>
+        <if test="apiTemplateId != null">
+            #{apiTemplateId,jdbcType=VARCHAR},
+        </if>
+        <if test="issueConfig != null">
+            #{issueConfig,jdbcType=LONGVARCHAR},
+        </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultType="java.lang.Long">
@@ -320,27 +329,30 @@
       <if test="record.issueTemplateId != null">
         issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
       </if>
-      <if test="record.createUser != null">
-        create_user = #{record.createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.systemId != null">
-        system_id = #{record.systemId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.azureFilterId != null">
-        azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.platform != null">
-        platform = #{record.platform,jdbcType=VARCHAR},
-      </if>
-      <if test="record.thirdPartTemplate != null">
-        third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
-      </if>
-      <if test="record.versionEnable != null">
-        version_enable = #{record.versionEnable,jdbcType=BIT},
-      </if>
-      <if test="record.issueConfig != null">
-        issue_config = #{record.issueConfig,jdbcType=LONGVARCHAR},
-      </if>
+        <if test="record.createUser != null">
+            create_user = #{record.createUser,jdbcType=VARCHAR},
+        </if>
+        <if test="record.systemId != null">
+            system_id = #{record.systemId,jdbcType=VARCHAR},
+        </if>
+        <if test="record.azureFilterId != null">
+            azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
+        </if>
+        <if test="record.platform != null">
+            platform = #{record.platform,jdbcType=VARCHAR},
+        </if>
+        <if test="record.thirdPartTemplate != null">
+            third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
+        </if>
+        <if test="record.versionEnable != null">
+            version_enable = #{record.versionEnable,jdbcType=BIT},
+        </if>
+        <if test="record.apiTemplateId != null">
+            api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
+        </if>
+        <if test="record.issueConfig != null">
+            issue_config = #{record.issueConfig,jdbcType=LONGVARCHAR},
+        </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -366,10 +378,11 @@
       platform = #{record.platform,jdbcType=VARCHAR},
       third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
       version_enable = #{record.versionEnable,jdbcType=BIT},
+      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
       issue_config = #{record.issueConfig,jdbcType=LONGVARCHAR}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
+      <if test="_parameter != null">
+          <include refid="Update_By_Example_Where_Clause"/>
+      </if>
   </update>
   <update id="updateByExample" parameterType="map">
     update project
@@ -390,10 +403,11 @@
       azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
       third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
-      version_enable = #{record.versionEnable,jdbcType=BIT}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
+      version_enable = #{record.versionEnable,jdbcType=BIT},
+      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR}
+      <if test="_parameter != null">
+          <include refid="Update_By_Example_Where_Clause"/>
+      </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Project">
     update project
@@ -431,71 +445,76 @@
       <if test="issueTemplateId != null">
         issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
       </if>
-      <if test="createUser != null">
-        create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="systemId != null">
-        system_id = #{systemId,jdbcType=VARCHAR},
-      </if>
-      <if test="azureFilterId != null">
-        azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
-      </if>
-      <if test="platform != null">
-        platform = #{platform,jdbcType=VARCHAR},
-      </if>
-      <if test="thirdPartTemplate != null">
-        third_part_template = #{thirdPartTemplate,jdbcType=BIT},
-      </if>
-      <if test="versionEnable != null">
-        version_enable = #{versionEnable,jdbcType=BIT},
-      </if>
-      <if test="issueConfig != null">
-        issue_config = #{issueConfig,jdbcType=LONGVARCHAR},
-      </if>
+        <if test="createUser != null">
+            create_user = #{createUser,jdbcType=VARCHAR},
+        </if>
+        <if test="systemId != null">
+            system_id = #{systemId,jdbcType=VARCHAR},
+        </if>
+        <if test="azureFilterId != null">
+            azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
+        </if>
+        <if test="platform != null">
+            platform = #{platform,jdbcType=VARCHAR},
+        </if>
+        <if test="thirdPartTemplate != null">
+            third_part_template = #{thirdPartTemplate,jdbcType=BIT},
+        </if>
+        <if test="versionEnable != null">
+            version_enable = #{versionEnable,jdbcType=BIT},
+        </if>
+        <if test="apiTemplateId != null">
+            api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
+        </if>
+        <if test="issueConfig != null">
+            issue_config = #{issueConfig,jdbcType=LONGVARCHAR},
+        </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.Project">
-    update project
-    set workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      `name` = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      tapd_id = #{tapdId,jdbcType=VARCHAR},
-      jira_key = #{jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{zentaoId,jdbcType=VARCHAR},
-      azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
-      case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
-      issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      system_id = #{systemId,jdbcType=VARCHAR},
-      azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
-      platform = #{platform,jdbcType=VARCHAR},
-      third_part_template = #{thirdPartTemplate,jdbcType=BIT},
-      version_enable = #{versionEnable,jdbcType=BIT},
-      issue_config = #{issueConfig,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+      update project
+      set workspace_id        = #{workspaceId,jdbcType=VARCHAR},
+          `name`              = #{name,jdbcType=VARCHAR},
+          description         = #{description,jdbcType=VARCHAR},
+          create_time         = #{createTime,jdbcType=BIGINT},
+          update_time         = #{updateTime,jdbcType=BIGINT},
+          tapd_id             = #{tapdId,jdbcType=VARCHAR},
+          jira_key            = #{jiraKey,jdbcType=VARCHAR},
+          zentao_id           = #{zentaoId,jdbcType=VARCHAR},
+          azure_devops_id     = #{azureDevopsId,jdbcType=VARCHAR},
+          case_template_id    = #{caseTemplateId,jdbcType=VARCHAR},
+          issue_template_id   = #{issueTemplateId,jdbcType=VARCHAR},
+          create_user         = #{createUser,jdbcType=VARCHAR},
+          system_id           = #{systemId,jdbcType=VARCHAR},
+          azure_filter_id     = #{azureFilterId,jdbcType=VARCHAR},
+          platform            = #{platform,jdbcType=VARCHAR},
+          third_part_template = #{thirdPartTemplate,jdbcType=BIT},
+          version_enable      = #{versionEnable,jdbcType=BIT},
+          api_template_id     = #{apiTemplateId,jdbcType=VARCHAR},
+          issue_config        = #{issueConfig,jdbcType=LONGVARCHAR}
+      where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Project">
-    update project
-    set workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      `name` = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      tapd_id = #{tapdId,jdbcType=VARCHAR},
-      jira_key = #{jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{zentaoId,jdbcType=VARCHAR},
-      azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
-      case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
-      issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      system_id = #{systemId,jdbcType=VARCHAR},
-      azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
-      platform = #{platform,jdbcType=VARCHAR},
-      third_part_template = #{thirdPartTemplate,jdbcType=BIT},
-      version_enable = #{versionEnable,jdbcType=BIT}
-    where id = #{id,jdbcType=VARCHAR}
+      update project
+      set workspace_id        = #{workspaceId,jdbcType=VARCHAR},
+          `name`              = #{name,jdbcType=VARCHAR},
+          description         = #{description,jdbcType=VARCHAR},
+          create_time         = #{createTime,jdbcType=BIGINT},
+          update_time         = #{updateTime,jdbcType=BIGINT},
+          tapd_id             = #{tapdId,jdbcType=VARCHAR},
+          jira_key            = #{jiraKey,jdbcType=VARCHAR},
+          zentao_id           = #{zentaoId,jdbcType=VARCHAR},
+          azure_devops_id     = #{azureDevopsId,jdbcType=VARCHAR},
+          case_template_id    = #{caseTemplateId,jdbcType=VARCHAR},
+          issue_template_id   = #{issueTemplateId,jdbcType=VARCHAR},
+          create_user         = #{createUser,jdbcType=VARCHAR},
+          system_id           = #{systemId,jdbcType=VARCHAR},
+          azure_filter_id     = #{azureFilterId,jdbcType=VARCHAR},
+          platform            = #{platform,jdbcType=VARCHAR},
+          third_part_template = #{thirdPartTemplate,jdbcType=BIT},
+          version_enable      = #{versionEnable,jdbcType=BIT},
+          api_template_id     = #{apiTemplateId,jdbcType=VARCHAR}
+      where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

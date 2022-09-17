@@ -154,6 +154,24 @@ export function getTemplate(baseUrl, vueObj) {
   });
 }
 
+export function getApiFieldTemplate(vueObj) {
+  return new Promise((resolve) => {
+    let template = {};
+    let baseUrl = 'project/field/template/api/get-template/relate/';
+    vueObj.$get(baseUrl + vueObj.projectId, (response) => {
+      template = response.data;
+      if (template.customFields) {
+        template.customFields.forEach(item => {
+          if (item.options) {
+            item.options = JSON.parse(item.options);
+          }
+        });
+      }
+      resolve(template);
+    });
+  });
+}
+
 // 兼容旧字段
 export function buildTestCaseOldFields(testCase) {
   let oldFields = new Map();

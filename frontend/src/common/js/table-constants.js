@@ -55,6 +55,7 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
 export const CUSTOM_FIELD_SCENE_OPTION = [
     {value: 'TEST_CASE', text: 'workspace.case_template_manage'},
     {value: 'ISSUE', text: 'workspace.issue_template_manage'},
+    {value: 'API', text: 'workspace.api_template_manage'}
 ];
 
 export function CASE_TYPE_OPTION() {
@@ -89,9 +90,10 @@ export const FIELD_TYPE_MAP = {
 };
 
 export const SCENE_MAP = {
-    ISSUE: 'workspace.issue_template_manage',
-    TEST_CASE: 'workspace.case_template_manage',
-    PLAN: 'workstation.table_name.track_plan'
+  ISSUE: 'workspace.issue_template_manage',
+  TEST_CASE: 'workspace.case_template_manage',
+  PLAN: 'workstation.table_name.track_plan',
+  API: 'workspace.api_template_manage'
 };
 
 export const SYSTEM_FIELD_NAME_MAP = {

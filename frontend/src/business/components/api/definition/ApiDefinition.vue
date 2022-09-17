@@ -1,7 +1,7 @@
 <template>
   <div>
     <ms-container v-if="renderComponent">
-      <ms-aside-container>
+      <ms-aside-container v-show="isAsideHidden">
         <ms-api-module
           :show-operator="true"
           :default-protocol="defaultProtocol"
@@ -386,6 +386,7 @@ export default {
       activeTab: "api",
       currentVersion: null,
       trashVersion: null,
+      isAsideHidden: true,
     };
   },
   activated() {
@@ -460,6 +461,9 @@ export default {
         }
       }
     },
+    apiDefaultTab() {
+      this.isAsideHidden = (this.apiDefaultTab === 'default' || this.apiDefaultTab === 'trash');
+    }
   },
   created() {
     let routeParamObj = this.$route.params.paramObj;

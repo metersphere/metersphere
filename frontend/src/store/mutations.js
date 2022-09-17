@@ -17,6 +17,7 @@ const mutations = {
   setIsTestCaseMinderChanged: (state, value) => state.isTestCaseMinderChanged = value,
   setCurrentProjectIsCustomNum: (state, value) => state.currentProjectIsCustomNum = value,
   setTestCaseTemplate: (state, value) => state.testCaseTemplate = value,
+  setApiTemplate: (state, value) => state.apiTemplate = value,
   setCurTabId: (state, value) => state.curTabId = value,
   setTestCaseDefaultValue: (state, value) => state.testCaseDefaultValue = value,
   setSelectCommand: (state, value) => state.selectCommand = value,

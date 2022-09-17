@@ -1,8 +1,11 @@
 package io.metersphere.api.dto.definition;
 
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.dto.CustomFieldDao;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -35,4 +38,6 @@ public class ApiDefinitionResult extends ApiDefinitionWithBLOBs {
     private Boolean versionEnable;
 
     private boolean updated;
+
+    private List<CustomFieldDao> fields;
 }

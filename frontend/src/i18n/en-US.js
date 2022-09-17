@@ -622,6 +622,7 @@ export default {
     template_manage: "Template Manage",
     case_template_manage: "Case Template",
     issue_template_manage: "Issue Template",
+    api_template_manage: "Api Template",
     custom_filed: {
       input: 'Input',
       textarea: 'Textarea',
@@ -2320,7 +2321,10 @@ export default {
   table: {
     header_display_field: 'Header display field',
     fields_to_be_selected: 'Fields to be selected',
-    selected_fields: 'Selected fields'
+    selected_fields: 'Selected fields',
+    base_fields: 'Base fields',
+    template_name: 'Template name',
+    selected_custom_fields: 'Custom fields to be selected'
   },
   run_mode: {
     title: "Mode",
@@ -2536,6 +2540,7 @@ export default {
       read: "READ",
       case_template: "CASE TEMPLATE",
       issue_template: "ISSUE TEMPLATE",
+      api_template: "API TEMPLATE",
       custom: "CUSTOM FIELDS"
     },
     workspace_project_manager: {
