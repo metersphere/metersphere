@@ -34,7 +34,7 @@
     </select>
 
     <select id="selectNameByIds" resultType="io.metersphere.api.dto.definition.ApiModuleDTO">
-        SELECT name
+        SELECT id,name
         FROM api_module
         WHERE id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">

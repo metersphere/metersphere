@@ -77,25 +77,28 @@ public class ShareInfoService {
             apiDocumentInfoDTOS = this.findApiDocumentSimpleInfoByRequest(apiDocumentRequest, goPage, pageSize);
         }
         PageHelper.clearPage();
+        List<ApiDocumentInfoDTO> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(apiDocumentInfoDTOS)) {
+            List<String> apiModuleIdList = new ArrayList<>();
+            LogUtil.info("查找模块相关信息");
+            List<String> userIdList = new ArrayList<>();
+            apiDocumentInfoDTOS.forEach(item -> {
+                if (StringUtils.isNotBlank(item.getModuleId()) && !apiModuleIdList.contains(item.getModuleId())) {
+                    apiModuleIdList.add(item.getModuleId());
+                    if (!userIdList.contains(item.getUserId())) {
+                        userIdList.add(item.getUserId());
+                    }
+                    if (!userIdList.contains(item.getCreateUser())) {
+                        userIdList.add(item.getCreateUser());
+                    }
+                }
+            });
+            Map<String, User> seletedUserMap = userService.getUserIdMapByIds(userIdList);
+            Map<String, String> moduleNameMap = apiModuleService.getApiModuleNameDicByIds(apiModuleIdList);
+            LogUtil.info("开始遍历组装数据");
+            returnList = this.conversionModelListToDTO(apiDocumentInfoDTOS, seletedUserMap, moduleNameMap);
+        }
 
-        List<String> apiModuleIdList = new ArrayList<>();
-        LogUtil.info("查找模块相关信息");
-        List<String> userIdList = new ArrayList<>();
-        apiDocumentInfoDTOS.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getModuleId()) && !apiModuleIdList.contains(item.getModuleId())) {
-                apiModuleIdList.add(item.getModuleId());
-                if (!userIdList.contains(item.getUserId())) {
-                    userIdList.add(item.getUserId());
-                }
-                if (!userIdList.contains(item.getCreateUser())) {
-                    userIdList.add(item.getCreateUser());
-                }
-            }
-        });
-        Map<String, User> seletedUserMap = userService.getUserIdMapByIds(userIdList);
-        Map<String, String> moduleNameMap = apiModuleService.getApiModuleNameDicByIds(apiModuleIdList);
-        LogUtil.info("开始遍历组装数据");
-        List<ApiDocumentInfoDTO> returnList = this.conversionModelListToDTO(apiDocumentInfoDTOS, seletedUserMap, moduleNameMap);
 
         return PageUtils.setPageInfo(page, returnList);
     }
