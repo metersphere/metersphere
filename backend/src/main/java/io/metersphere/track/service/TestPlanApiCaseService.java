@@ -90,13 +90,13 @@ public class TestPlanApiCaseService {
 
     public void buildUserInfo(List<? extends TestPlanApiCaseDTO> apiTestCases) {
         List<String> userIds = new ArrayList();
-        userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getCreateUser).collect(Collectors.toList()));
+        userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getCreateUserId).collect(Collectors.toList()));
         userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getUpdateUser).collect(Collectors.toList()));
         userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getUserId).collect(Collectors.toList()));
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
             Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
             apiTestCases.forEach(caseResult -> {
-                caseResult.setCreatorName(userMap.get(caseResult.getCreateUser()));
+                caseResult.setCreatorName(userMap.get(caseResult.getCreateUserId()));
                 caseResult.setUpdateName(userMap.get(caseResult.getUpdateUser()));
                 caseResult.setPrincipalName(userMap.get(caseResult.getUserId()));
             });
@@ -135,7 +135,7 @@ public class TestPlanApiCaseService {
     }
 
     public int deleteByCaseId(String caseId) {
-       return this.deleteByCaseIds(Arrays.asList(caseId));
+        return this.deleteByCaseIds(Arrays.asList(caseId));
     }
 
     public int deleteByCaseIds(List<String> caseIds) {
