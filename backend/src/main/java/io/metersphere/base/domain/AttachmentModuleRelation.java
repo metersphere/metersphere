@@ -12,5 +12,7 @@ public class AttachmentModuleRelation implements Serializable {
 
     private String attachmentId;
 
+    private String fileMetadataRefId;
+
     private static final long serialVersionUID = 1L;
 }

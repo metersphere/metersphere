@@ -70,6 +70,8 @@ export default {
     save_success: '保存成功',
     send_success: '發送成功',
     delete_success: '刪除成功',
+    relate_success: '關聯成功',
+    unrelated_success: '取消關聯成功',
     copy_success: '復製成功',
     warning_module_add: "模塊樹深度最大為8層",
     modify_success: '修改成功',
@@ -181,6 +183,13 @@ export default {
       day: "天",
       month: "月",
       year: "年"
+    },
+    file_upload_status: {
+      success: '完成',
+      to_upload: '待上傳',
+      to_relate: '待關聯',
+      expired: '已失效',
+      error: '失敗'
     },
     test_unit: '測試',
     system_parameter_setting: '系統參數設置',
@@ -1102,6 +1111,7 @@ export default {
     related_file_not_found: "未找到關聯的測試文件！",
     delete_file_when_uploading: '當前操作可能會中斷正在上傳的文件!',
     delete_file_confirm: '確認刪除文件: ',
+    unrelated_file_confirm: '確認取消關聯: ',
     file_size_limit: "文件個數超出限製！",
     file_size_out_of_bounds: "文件大小超出範圍, 文件名称: ",
     delete_file: "文件已存在，請先刪除同名文件！",
@@ -1167,6 +1177,7 @@ export default {
     report_type: "报告类型",
     upload_jmx: '上傳 JMX 文件',
     exist_jmx: '已存在的文件',
+    exist_related_file: '已存在的關聯文件',
     other_resource: '資源文件',
     upload_file: '上傳新文件',
     load_exist_file: '加載文件',

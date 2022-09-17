@@ -137,7 +137,7 @@ export default {
     cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
     img_loading_fail: "Image failed to load",
     pdf_loading_fail: "PDF loading failed",
-    upload_tip: "file size limit[0-500MB]",
+    upload_tip: "Local upload file size is limited to [0-500MB]",
     add_attachment: "Add",
     attachment: "Attachment",
     upload_time: "Upload Time",

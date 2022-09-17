@@ -5,6 +5,7 @@
     <result column="relation_id" jdbcType="VARCHAR" property="relationId" />
     <result column="relation_type" jdbcType="VARCHAR" property="relationType" />
     <result column="attachment_id" jdbcType="VARCHAR" property="attachmentId" />
+    <result column="file_metadata_ref_id" jdbcType="VARCHAR" property="fileMetadataRefId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    relation_id, relation_type, attachment_id
+    relation_id, relation_type, attachment_id, file_metadata_ref_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.AttachmentModuleRelationExample" resultMap="BaseResultMap">
     select
@@ -88,10 +89,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.AttachmentModuleRelation">
-    insert into attachment_module_relation (relation_id, relation_type, attachment_id
-      )
-    values (#{relationId,jdbcType=VARCHAR}, #{relationType,jdbcType=VARCHAR}, #{attachmentId,jdbcType=VARCHAR}
-      )
+    insert into attachment_module_relation (relation_id, relation_type, attachment_id, 
+      file_metadata_ref_id)
+    values (#{relationId,jdbcType=VARCHAR}, #{relationType,jdbcType=VARCHAR}, #{attachmentId,jdbcType=VARCHAR}, 
+      #{fileMetadataRefId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.AttachmentModuleRelation">
     insert into attachment_module_relation
@@ -105,6 +106,9 @@
       <if test="attachmentId != null">
         attachment_id,
       </if>
+      <if test="fileMetadataRefId != null">
+        file_metadata_ref_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="relationId != null">
@@ -115,6 +119,9 @@
       </if>
       <if test="attachmentId != null">
         #{attachmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileMetadataRefId != null">
+        #{fileMetadataRefId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -136,6 +143,9 @@
       <if test="record.attachmentId != null">
         attachment_id = #{record.attachmentId,jdbcType=VARCHAR},
       </if>
+      <if test="record.fileMetadataRefId != null">
+        file_metadata_ref_id = #{record.fileMetadataRefId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -145,7 +155,8 @@
     update attachment_module_relation
     set relation_id = #{record.relationId,jdbcType=VARCHAR},
       relation_type = #{record.relationType,jdbcType=VARCHAR},
-      attachment_id = #{record.attachmentId,jdbcType=VARCHAR}
+      attachment_id = #{record.attachmentId,jdbcType=VARCHAR},
+      file_metadata_ref_id = #{record.fileMetadataRefId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

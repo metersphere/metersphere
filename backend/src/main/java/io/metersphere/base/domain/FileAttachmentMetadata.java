@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class FileAttachmentMetadata implements Serializable {
@@ -20,6 +21,10 @@ public class FileAttachmentMetadata implements Serializable {
     private String creator;
 
     private String filePath;
+
+    private Boolean isLocal;
+
+    private Boolean isRelatedDeleted;
 
     private static final long serialVersionUID = 1L;
 }

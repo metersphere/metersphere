@@ -37,6 +37,10 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -91,11 +96,15 @@ public class IssuesService {
     @Resource
     IssueFileMapper issueFileMapper;
     @Resource
+    SqlSessionFactory sqlSessionFactory;
+    @Resource
     private AttachmentService attachmentService;
     @Resource
     private CustomFieldService customFieldService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private FileMetadataMapper fileMetadataMapper;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -129,15 +138,57 @@ public class IssuesService {
             attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
             attachmentService.copyAttachment(attachmentRequest);
         } else {
+            final String issueId = issues.getId();
             // 新增, 需保存并同步所有待上传的附件
             if (CollectionUtils.isNotEmpty(files)) {
-                final String issueId = issues.getId();
                 files.forEach(file -> {
                     AttachmentRequest attachmentRequest = new AttachmentRequest();
                     attachmentRequest.setBelongId(issueId);
                     attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
                     attachmentService.uploadAttachment(attachmentRequest, file);
                 });
+            }
+            // 处理待关联的文件附件, 生成关联记录, 并同步至第三方平台
+            if (CollectionUtils.isNotEmpty(issuesRequest.getRelateFileMetaIds())) {
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
+                AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+                FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
+                issuesRequest.getRelateFileMetaIds().forEach(filemetaId -> {
+                    FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
+                    FileAssociation fileAssociation = new FileAssociation();
+                    fileAssociation.setId(UUID.randomUUID().toString());
+                    fileAssociation.setFileMetadataId(filemetaId);
+                    fileAssociation.setFileType(fileMetadata.getType());
+                    fileAssociation.setType(FileAssociationType.ISSUE.name());
+                    fileAssociation.setProjectId(fileMetadata.getProjectId());
+                    fileAssociation.setSourceItemId(filemetaId);
+                    fileAssociation.setSourceId(issueId);
+                    associationBatchMapper.insert(fileAssociation);
+                    AttachmentModuleRelation relation = new AttachmentModuleRelation();
+                    relation.setRelationId(issueId);
+                    relation.setRelationType(AttachmentType.ISSUE.type());
+                    relation.setFileMetadataRefId(fileAssociation.getId());
+                    relation.setAttachmentId(UUID.randomUUID().toString());
+                    attachmentModuleRelationBatchMapper.insert(relation);
+                    FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+                    BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
+                    fileAttachmentMetadata.setId(relation.getAttachmentId());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath());
+                    fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
+                    // 下载文件管理文件, 同步到第三方平台
+                    File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
+                    IssuesRequest addIssueRequest = new IssuesRequest();
+                    addIssueRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    Objects.requireNonNull(IssueFactory.createPlatform(issuesRequest.getPlatform(), addIssueRequest))
+                            .syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
+                    FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
+                });
+                sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
             }
         }
         return getIssue(issues.getId());

@@ -19,6 +19,7 @@ import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtAttachmentModuleRelationMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -134,6 +135,8 @@ public class TestCaseService {
     TestCaseTestMapper testCaseTestMapper;
     @Resource
     AttachmentModuleRelationMapper attachmentModuleRelationMapper;
+    @Resource
+    ExtAttachmentModuleRelationMapper extAttachmentModuleRelationMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
@@ -2100,6 +2103,41 @@ public class TestCaseService {
                     attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
                     attachmentService.uploadAttachment(attachmentRequest, file);
                 });
+            }
+            // 同步待关联的文件附件, 生成关联记录
+            if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
+                AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+                FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
+                request.getRelateFileMetaIds().forEach(filemetaId -> {
+                    FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
+                    FileAssociation fileAssociation = new FileAssociation();
+                    fileAssociation.setId(UUID.randomUUID().toString());
+                    fileAssociation.setFileMetadataId(filemetaId);
+                    fileAssociation.setFileType(fileMetadata.getType());
+                    fileAssociation.setType(FileAssociationType.TEST_CASE.name());
+                    fileAssociation.setProjectId(fileMetadata.getProjectId());
+                    fileAssociation.setSourceItemId(filemetaId);
+                    fileAssociation.setSourceId(testCaseWithBLOBs.getId());
+                    associationBatchMapper.insert(fileAssociation);
+                    AttachmentModuleRelation record = new AttachmentModuleRelation();
+                    record.setRelationId(testCaseWithBLOBs.getId());
+                    record.setRelationType(AttachmentType.TEST_CASE.type());
+                    record.setFileMetadataRefId(fileAssociation.getId());
+                    record.setAttachmentId(UUID.randomUUID().toString());
+                    attachmentModuleRelationBatchMapper.insert(record);
+                    FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+                    BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
+                    fileAttachmentMetadata.setId(record.getAttachmentId());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath());
+                    fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
+                });
+                sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+                }
             }
         }
         return testCaseWithBLOBs;

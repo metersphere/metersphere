@@ -151,3 +151,8 @@ ALTER TABLE `file_metadata` ADD INDEX `INDEX_REF_ID`(`ref_id`);
 ALTER TABLE `ui_scenario` ADD COLUMN scenario_type VARCHAR(100) NOT NULL DEFAULT 'scenario' COMMENT 'Scenario type'  AFTER `level`;
 
 ALTER TABLE `ui_scenario_module` ADD COLUMN scenario_type VARCHAR(100) NOT NULL DEFAULT 'scenario' COMMENT 'Scenario type' AFTER `level`;
+
+-- 功能用例, 缺陷管理文件管理关联字段
+ALTER TABLE `attachment_module_relation` MODIFY COLUMN attachment_id VARCHAR(50) NULL;
+
+ALTER TABLE `attachment_module_relation` ADD COLUMN file_metadata_ref_id VARCHAR(50) DEFAULT NULL COMMENT 'FILE ASSOCIATION ID';

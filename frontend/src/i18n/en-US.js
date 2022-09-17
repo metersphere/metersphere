@@ -72,6 +72,8 @@ export default {
     warning_module_add: "Tree modules are up to 8 levels deep",
     send_success: 'Send successfully',
     delete_success: 'Deleted successfully',
+    relate_success: 'Related successfully',
+    unrelated_success: 'Unrelated successfully',
     modify_success: 'Modify Success',
     copy_success: 'Copy Success',
     delete_cancel: 'Deleted Cancel',
@@ -187,6 +189,13 @@ export default {
       day: "Day",
       month: "Month",
       year: "Year"
+    },
+    file_upload_status: {
+      success: 'Success',
+      to_upload: 'To upload',
+      to_relate: 'To be associated',
+      expired: 'Expired',
+      error: 'Error'
     },
     test_unit: 'tests',
     remove: 'Remove',
@@ -1098,6 +1107,7 @@ export default {
     related_file_not_found: "No related test file found!",
     delete_file_when_uploading: 'The current operation may interrupt the file being uploaded!',
     delete_file_confirm: 'Confirm delete file:',
+    unrelated_file_confirm: 'Confirm unrelated file: ',
     file_size_out_of_bounds: "File size out of bounds, file name: ",
     file_size_limit: "The number of files exceeds the limit！",
     delete_file: "The file already exists, please delete the file with the same name first!",
@@ -1160,6 +1170,7 @@ export default {
     report_type: 'Report type',
     upload_jmx: 'Upload JMX',
     exist_jmx: 'Existed Files',
+    exist_related_file: 'Existed Relate Files',
     other_resource: 'Resource Files',
     upload_file: 'Upload Files',
     load_exist_file: 'Load Project Files',

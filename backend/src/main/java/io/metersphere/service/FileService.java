@@ -8,6 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.apache.commons.collections.CollectionUtils;
+import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,12 @@ public class FileService {
         FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
         File attachmentFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
         return FileUtils.fileToByte(attachmentFile);
+    }
+
+    public MultipartFile getAttachmentMultipartFile(String id) {
+        FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
+        File attachmentFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
+        return FileUtil.fileToMultipartFile(attachmentFile);
     }
 
     public FileContent getFileContent(String fileId) {

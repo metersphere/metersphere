@@ -313,6 +313,76 @@ public class AttachmentModuleRelationExample {
             addCriterion("attachment_id not between", value1, value2, "attachmentId");
             return (Criteria) this;
         }
+
+        public Criteria andFileMetadataRefIdIsNull() {
+            addCriterion("file_metadata_ref_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdIsNotNull() {
+            addCriterion("file_metadata_ref_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdEqualTo(String value) {
+            addCriterion("file_metadata_ref_id =", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdNotEqualTo(String value) {
+            addCriterion("file_metadata_ref_id <>", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdGreaterThan(String value) {
+            addCriterion("file_metadata_ref_id >", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdGreaterThanOrEqualTo(String value) {
+            addCriterion("file_metadata_ref_id >=", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdLessThan(String value) {
+            addCriterion("file_metadata_ref_id <", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdLessThanOrEqualTo(String value) {
+            addCriterion("file_metadata_ref_id <=", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdLike(String value) {
+            addCriterion("file_metadata_ref_id like", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdNotLike(String value) {
+            addCriterion("file_metadata_ref_id not like", value, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdIn(List<String> values) {
+            addCriterion("file_metadata_ref_id in", values, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdNotIn(List<String> values) {
+            addCriterion("file_metadata_ref_id not in", values, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdBetween(String value1, String value2) {
+            addCriterion("file_metadata_ref_id between", value1, value2, "fileMetadataRefId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileMetadataRefIdNotBetween(String value1, String value2) {
+            addCriterion("file_metadata_ref_id not between", value1, value2, "fileMetadataRefId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
