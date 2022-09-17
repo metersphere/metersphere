@@ -147,7 +147,12 @@ public class MsJDBCSampler extends MsTestElement {
                     if (config.getConfig().get(this.getProjectId()) != null) {
                         envConfig = config.getConfig().get(this.getProjectId());
                         if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
-                            this.dataSource = envConfig.getDatabaseConfigs().get(0);
+                            DatabaseConfig dataSourceOrg = ElementUtil.dataSource(getProjectId(), dataSourceId, envConfig);
+                            if (dataSourceOrg != null) {
+                                this.dataSource = dataSourceOrg;
+                            } else {
+                                this.dataSource = envConfig.getDatabaseConfigs().get(0);
+                            }
                         }
                     }
                 }

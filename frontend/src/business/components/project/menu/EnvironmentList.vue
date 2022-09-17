@@ -134,7 +134,7 @@ import EnvironmentEdit from "@/business/components/api/test/components/environme
 import MsAsideItem from "@/business/components/common/components/MsAsideItem";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
-import {downloadFile, getCurrentProjectID, operationConfirm} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, operationConfirm} from "@/common/js/utils";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
@@ -298,6 +298,11 @@ export default {
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
       let newEnvironment = new Environment(temEnv);
       newEnvironment.id = null;
+      newEnvironment.config.databaseConfigs.forEach(dataSource => {
+        if (dataSource.id) {
+          dataSource.id = getUUID();
+        }
+      })
       newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
       this.dialogVisible = true;
       this.currentEnvironment = newEnvironment;
