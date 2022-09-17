@@ -38,7 +38,9 @@
         <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
           <template v-slot="scope">
             <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>{{ $t('workspace.env_group.view_details') }}</el-button>
+            <el-button v-else icon="el-icon-s-data" size="mini" @click="showInfo(scope.row)">
+              {{ $t('workspace.env_group.view_details') }}
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -323,7 +325,7 @@ export default {
       this.dialogVisible = true;
       this.ifCreate = false;
     },
-    save(){
+    save() {
       this.$refs.environmentEdit.save();
     },
     copyEnv(environment) {
@@ -334,6 +336,11 @@ export default {
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
       let newEnvironment = new Environment(temEnv);
       newEnvironment.id = null;
+      newEnvironment.config.databaseConfigs.forEach(dataSource => {
+        if (dataSource.id) {
+          dataSource.id = getUUID();
+        }
+      })
       newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
       this.dialogVisible = true;
       this.currentEnvironment = newEnvironment;
@@ -464,7 +471,7 @@ export default {
       this.selectRow.forEach(row => {
         map.set(row.projectId, row.id);
       })
-      this.$post("/environment/group/batch/add", {map: strMapToObj(map), groupIds:value}, () => {
+      this.$post("/environment/group/batch/add", {map: strMapToObj(map), groupIds: value}, () => {
         this.$success(this.$t('commons.save_success'));
         this.getEnvironments();
       })

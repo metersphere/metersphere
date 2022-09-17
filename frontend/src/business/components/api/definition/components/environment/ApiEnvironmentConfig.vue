@@ -91,6 +91,11 @@ export default {
       let newEnvironment = {};
       newEnvironment = new Environment(environment);
       newEnvironment.id = null;
+      newEnvironment.config.databaseConfigs.forEach(dataSource => {
+        if (dataSource.id) {
+          dataSource.id = getUUID();
+        }
+      })
       newEnvironment.name = this.getNoRepeatName(newEnvironment.name);
       if (!this.validateEnvironment(newEnvironment)) {
         return;

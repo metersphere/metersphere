@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
+import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -785,4 +786,29 @@ public class ElementUtil {
             return evlValue;
         }
     }
+
+    public static DatabaseConfig dataSource(String projectId, String dataSourceId, EnvironmentConfig envConfig) {
+        try {
+            ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+            List<ApiTestEnvironmentWithBLOBs> environment = environmentService.list(projectId);
+            EnvironmentConfig dataConfig = null;
+            List<String> dataName = new ArrayList<>();
+            List<ApiTestEnvironmentWithBLOBs> orgDataSource = environment.stream().filter(ApiTestEnvironmentWithBLOBs -> ApiTestEnvironmentWithBLOBs.getConfig().contains(dataSourceId)).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(orgDataSource)) {
+                dataConfig = JSONObject.parseObject(orgDataSource.get(0).getConfig(), EnvironmentConfig.class);
+                if (CollectionUtils.isNotEmpty(dataConfig.getDatabaseConfigs())) {
+                    dataName = dataConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getId().equals(dataSourceId)).map(DatabaseConfig::getName).collect(Collectors.toList());
+                }
+            }
+            List<String> finalDataName = dataName;
+            List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getName().equals(finalDataName.get(0))).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                return collect.get(0);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
+    }
+
 }
