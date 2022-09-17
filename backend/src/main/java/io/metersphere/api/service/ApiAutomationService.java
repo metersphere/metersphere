@@ -1752,6 +1752,7 @@ public class ApiAutomationService {
         StringBuilder builder = new StringBuilder();
         for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : scenarios) {
             try {
+                apiScenarioEnvService.setScenarioEnv(apiScenarioWithBLOBs, null);
                 boolean haveEnv = apiScenarioEnvService.checkScenarioEnv(apiScenarioWithBLOBs, null);
                 if (!haveEnv) {
                     builder.append(apiScenarioWithBLOBs.getName()).append("; ");
