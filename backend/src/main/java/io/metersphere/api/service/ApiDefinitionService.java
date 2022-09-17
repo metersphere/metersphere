@@ -32,6 +32,7 @@ import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
@@ -42,10 +43,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.RelationshipEdgeRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
-import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.dto.ProjectConfig;
-import io.metersphere.dto.RelationshipEdgeDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -172,6 +170,9 @@ public class ApiDefinitionService {
     @Resource
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
 
+    @Resource
+    private CustomFieldApiService customFieldApiService;
+
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
     private static final String COPY = "Copy";
@@ -187,7 +188,17 @@ public class ApiDefinitionService {
         } else {
             buildProjectInfoWithoutProject(resList);
         }
+        buildCustomField(resList);
         return resList;
+    }
+
+    private void buildCustomField(List<ApiDefinitionResult> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+        Map<String, List<CustomFieldDao>> fieldMap =
+                customFieldApiService.getMapByResourceIds(data.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList()));
+        data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
     }
 
     private void buildProjectInfoWithoutProject(List<ApiDefinitionResult> resList) {
@@ -469,7 +480,10 @@ public class ApiDefinitionService {
             esbApiParamService.deleteByResourceId(api.getId());
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.deleteMockConfigByApiId(api.getId());
-            relationshipEdgeService.delete(api.getId()); // 删除关系图
+            // 删除自定义字段关联关系
+            customFieldApiService.deleteByResourceId(api.getId());
+            // 删除关系图
+            relationshipEdgeService.delete(api.getId());
             FileUtils.deleteBodyFiles(api.getId());
             deleteFollows(api.getId());
         });
@@ -495,7 +509,10 @@ public class ApiDefinitionService {
         // 删除附件关系
         fileAssociationService.deleteByResourceIds(apiIds);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-        relationshipEdgeService.delete(apiIds); // 删除关系图
+        // 删除自定义字段关联关系
+        customFieldApiService.deleteByResourceIds(apiIds);
+        // 删除关系图
+        relationshipEdgeService.delete(apiIds);
         for (String apiId : apiIds) {
             mockConfigService.deleteMockConfigByApiId(apiId);
             deleteFollows(apiId);
@@ -754,6 +771,9 @@ public class ApiDefinitionService {
 
         // 存储附件关系
         fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
+        //保存自定义字段
+        customFieldApiService.editFields(test.getId(), request.getEditFields());
+        customFieldApiService.addFields(test.getId(), request.getAddFields());
         return result;
     }
 
@@ -880,6 +900,13 @@ public class ApiDefinitionService {
         }
         // 存储附件关系
         fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
+
+        //保存自定义字段
+        List<CustomFieldResource> addFields = request.getAddFields();
+        if (CollectionUtils.isNotEmpty(addFields)) {
+            addFields.addAll(request.getEditFields());
+            customFieldApiService.addFields(request.getId(), addFields);
+        }
 
         return getById(test.getId());
     }

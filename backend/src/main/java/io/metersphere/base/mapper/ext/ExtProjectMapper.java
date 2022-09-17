@@ -46,7 +46,9 @@ public interface ExtProjectMapper {
 
     List<ProjectDTO> queryListByIds(@Param("ids") List<String> ids);
 
-    void updateUseDefaultCaseTemplateProject(@Param("originId") String originId,@Param("templateId") String templateId,@Param("projectId") String projectId);
+    void updateUseDefaultCaseTemplateProject(@Param("originId") String originId, @Param("templateId") String templateId, @Param("projectId") String projectId);
+
+    void updateUseDefaultApiTemplateProject(@Param("originId") String originId, @Param("templateId") String templateId, @Param("projectId") String projectId);
 
     List<String> getThirdPartProjectIds();
 }

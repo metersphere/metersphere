@@ -551,8 +551,8 @@ export default {
       }
     },
     closeConfirm(targetName) {
-      this.activeName = 'default';
       if (targetName === 'trash') {
+        this.activeName = 'default';
         this.trashEnable = false;
       } else {
         this.closeTabWithSave(targetName);

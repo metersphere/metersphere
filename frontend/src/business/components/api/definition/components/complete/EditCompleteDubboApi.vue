@@ -29,16 +29,6 @@
         </div>
       </el-col>
     </el-row>
-    <!-- 基础信息 -->
-    <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-    <br/>
-    <el-row>
-      <el-col>
-        <ms-basis-api @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions"
-                      :basisData="basisData" ref="basicForm"
-                      @callback="callback"/>
-      </el-col>
-    </el-row>
 
     <!-- 请求参数 -->
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>

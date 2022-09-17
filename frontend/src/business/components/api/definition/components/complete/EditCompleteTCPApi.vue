@@ -28,35 +28,7 @@
         </div>
       </el-col>
     </el-row>
-    <!-- 基础信息 -->
-    <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
-    <br/>
-    <el-row>
-      <el-col>
-        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree"
-                          :moduleOptions="moduleOptions"
-                          :basisData="basisData" ref="basicForm"
-                          @changeApiProtocol="changeApiProtocol" @callback="callback"/>
-      </el-col>
-    </el-row>
-    <!-- MOCK信息 -->
-    <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
-    <div class="mock-info">
-      <el-row>
-        <el-col :span="20">
-          Mock地址：
-          <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
-                   type="primary">{{ this.mockInfo }}
-          </el-link>
-          <el-link v-else target="_blank" style="color: darkred"
-                   type="primary">当前项目未开启Mock服务
-          </el-link>
-        </el-col>
-        <el-col :span="4">
-          <el-link @click="mockSetting" type="primary">Mock设置</el-link>
-        </el-col>
-      </el-row>
-    </div>
+
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -243,45 +215,37 @@ export default {
     callback() {
       this.validated = true;
     },
-    validateApi() {
-      this.validated = false;
-      this.basisData.method = this.apiProtocol;
-      this.$refs['basicForm'].validate();
-    },
     saveApi() {
-      this.validateApi();
-      if (this.validated) {
-        if (this.basisData.tags instanceof Array) {
-          this.basisData.tags = JSON.stringify(this.basisData.tags);
+      if (this.basisData.tags instanceof Array) {
+        this.basisData.tags = JSON.stringify(this.basisData.tags);
+      }
+      if (this.basisData.method == 'ESB') {
+        let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
+        if (!validataResult) {
+          return;
         }
-        if (this.basisData.method == 'ESB') {
-          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
-          if (!validataResult) {
-            return;
-          }
-          if (this.request.esbDataStruct != null) {
-            this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
-            this.basisData.esbDataStruct = this.esbDataStruct;
-          }
-          if (this.request.backEsbDataStruct != null) {
-            this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
-          }
-          if (this.request.backScript != null) {
-            this.basisData.backScript = JSON.stringify(this.request.backScript);
-          }
-        } else {
-          if (this.$refs.tcpFormatParameter) {
-            this.$refs.tcpFormatParameter.validateXmlDataStruct();
-          }
+        if (this.request.esbDataStruct != null) {
+          this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
+          this.basisData.esbDataStruct = this.esbDataStruct;
         }
-        this.$emit('saveApi', this.basisData);
-        this.$store.state.apiStatus.set("fromChange", false);
-        this.$store.state.apiMap.set(this.basisData.id, this.$store.state.apiStatus);
+        if (this.request.backEsbDataStruct != null) {
+          this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
+        }
+        if (this.request.backScript != null) {
+          this.basisData.backScript = JSON.stringify(this.request.backScript);
+        }
       } else {
-        if (this.$refs.versionHistory) {
-          this.$refs.versionHistory.loading = false;
+        if (this.$refs.tcpFormatParameter) {
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
       }
+      this.$emit('saveApi', this.basisData);
+      this.$store.state.apiStatus.set("fromChange", false);
+      this.$store.state.apiMap.set(this.basisData.id, this.$store.state.apiStatus);
+      if (this.$refs.versionHistory) {
+        this.$refs.versionHistory.loading = false;
+      }
+
     },
     runTest() {
       this.validateApi();

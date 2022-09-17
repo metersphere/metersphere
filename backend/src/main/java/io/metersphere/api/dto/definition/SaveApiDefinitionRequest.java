@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition;
 
 import io.metersphere.api.dto.definition.response.Response;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
@@ -82,8 +83,12 @@ public class SaveApiDefinitionRequest {
 
     //发送信息给场景创建人
     private Boolean scenarioCreator;
-    
+
     //是否新建
     private Boolean newCreate;
+
+    //自定义字段
+    private List<CustomFieldResource> addFields;
+    private List<CustomFieldResource> editFields;
 
 }

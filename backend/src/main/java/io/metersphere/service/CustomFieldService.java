@@ -53,6 +53,10 @@ public class CustomFieldService {
 
     @Lazy
     @Resource
+    ApiTemplateService apiTemplateService;
+
+    @Lazy
+    @Resource
     CustomFieldTemplateService customFieldTemplateService;
     @Resource
     private ProjectMapper projectMapper;
@@ -111,6 +115,8 @@ public class CustomFieldService {
             add(customFieldDao);
             if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.TEST_CASE.name())) {
                 testCaseTemplateService.handleSystemFieldCreate(customFieldDao);
+            } else if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.API.name())) {
+                apiTemplateService.handleSystemFieldCreate(customFieldDao);
             } else {
                 issueTemplateService.handleSystemFieldCreate(customFieldDao);
             }
@@ -234,7 +240,7 @@ public class CustomFieldService {
         return new ArrayList<>();
     }
 
-    public  List<CustomField> getWorkspaceIdSystemFields(String workspaceId, String scene) {
+    public List<CustomField> getWorkspaceIdSystemFields(String workspaceId, String scene) {
         return extCustomFieldMapper.getWorkspaceIdSystemFields(workspaceId, scene);
     }
 

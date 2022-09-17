@@ -625,6 +625,7 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    api_template_manage: "接口模版",
     custom_filed: {
       input: '輸入框',
       textarea: '文本框',
@@ -2325,7 +2326,10 @@ export default {
   table: {
     header_display_field: '表頭顯示字段',
     fields_to_be_selected: '待選字段',
-    selected_fields: '已選字段'
+    selected_fields: '已選字段',
+    base_fields: '基礎字段',
+    template_name: '模版名稱',
+    selected_custom_fields: '已選自定義字段'
   },
   run_mode: {
     title: "模式",
@@ -2541,6 +2545,7 @@ export default {
       read: "查詢",
       case_template: "用例模版",
       issue_template: "缺陷模版",
+      api_template: "接口模版",
       custom: "自定義字段"
     },
     workspace_project_manager: {

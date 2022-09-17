@@ -210,6 +210,7 @@ public class ProjectService {
         }
     }
 
+
     public void addProjectVersion(Project project) {
         ProjectVersion projectVersion = new ProjectVersion();
         projectVersion.setId(UUID.randomUUID().toString());
@@ -435,6 +436,11 @@ public class ProjectService {
      */
     public void updateCaseTemplate(String originId, String templateId, String projectId) {
         extProjectMapper.updateUseDefaultCaseTemplateProject(originId, templateId, projectId);
+    }
+
+    //修改默认接口模版id
+    public void updateApiTemplate(String originId, String templateId, String projectId) {
+        extProjectMapper.updateUseDefaultApiTemplateProject(originId, templateId, projectId);
     }
 
     private void deleteLoadTestResourcesByProjectId(String projectId) {
@@ -690,6 +696,13 @@ public class ProjectService {
         ProjectExample example = new ProjectExample();
         example.createCriteria()
                 .andCaseTemplateIdEqualTo(templateId);
+        return projectMapper.selectByExample(example);
+    }
+
+    public List<Project> getByApiTemplateId(String templateId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andApiTemplateIdEqualTo(templateId);
         return projectMapper.selectByExample(example);
     }
 

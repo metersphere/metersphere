@@ -152,9 +152,7 @@ public class CustomFieldResourceService {
         long count = extCustomFieldResourceMapper.countFieldResource(tableName, resourceId, field.getFieldId());
         field.setResourceId(resourceId);
         if (count > 0) {
-            if (StringUtils.isNotBlank(field.getValue()) || StringUtils.isNotBlank(field.getTextValue())) {
-                extCustomFieldResourceMapper.updateByPrimaryKeySelective(tableName, field);
-            }
+            extCustomFieldResourceMapper.updateByPrimaryKeySelective(tableName, field);
         } else {
             extCustomFieldResourceMapper.insert(tableName, field);
         }
@@ -174,7 +172,7 @@ public class CustomFieldResourceService {
 
     public void batchUpdateByResourceIds(String tableName, List<String> resourceIds, CustomFieldResourceDTO customField) {
         if (CollectionUtils.isEmpty(resourceIds)) {
-             return;
+            return;
         }
         SubListUtil.dealForSubList(resourceIds, 5000, (subIds) ->
                 extCustomFieldResourceMapper.batchUpdateByResourceIds(tableName, subIds, customField));
@@ -187,7 +185,7 @@ public class CustomFieldResourceService {
         });
     }
 
-    protected List<CustomFieldResource>  getByResourceIds(String tableName, List<String> resourceIds) {
+    protected List<CustomFieldResource> getByResourceIds(String tableName, List<String> resourceIds) {
         if (CollectionUtils.isEmpty(resourceIds)) {
             return new ArrayList<>();
         }
@@ -273,13 +271,13 @@ public class CustomFieldResourceService {
         this.compatibleCommon(param);
     }
 
-    public void compatibleIssue( CustomFieldResourceRequest param, Project project) {
+    public void compatibleIssue(CustomFieldResourceRequest param, Project project) {
         // 是否勾选了自动获取模板
         boolean enableJiraSync = project.getPlatform().equals(IssuesManagePlatform.Jira.toString()) &&
-                (project.getThirdPartTemplate() == null ? false : project.getThirdPartTemplate() );
+                (project.getThirdPartTemplate() == null ? false : project.getThirdPartTemplate());
         param.setEnableJiraSync(enableJiraSync);
         param.setResourceType(TemplateConstants.FieldTemplateScene.ISSUE.name());
-       this.compatibleCommon(param);
+        this.compatibleCommon(param);
     }
 
     /**
@@ -309,7 +307,9 @@ public class CustomFieldResourceService {
                             fields.forEach(field -> {
                                 try {
                                     CustomField customField;
-                                    if (StringUtils.isBlank(field.getName())) { return; }
+                                    if (StringUtils.isBlank(field.getName())) {
+                                        return;
+                                    }
                                     if (param.isEnableJiraSync()) {
                                         if (StringUtils.isBlank(field.getId()) || field.getId().length() == 36) {
                                             // 自定义字段中id为空，或者是uuid的，就不处理了
@@ -344,6 +344,7 @@ public class CustomFieldResourceService {
     /**
      * 如果是jira勾选了自动获取模板
      * 则创建对应的自定义字段，并标记成 thirdPart 为 true
+     *
      * @param projectId
      * @param field
      * @param param

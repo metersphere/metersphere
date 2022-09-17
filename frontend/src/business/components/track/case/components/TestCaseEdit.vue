@@ -358,7 +358,7 @@ export default {
       },
       deep: true
     },
-    'testCaseTemplate.customFields': {
+    customFieldForm: {
       handler(val) {
         if (val && this.$store.state.testCaseMap && this.form.id) {
           let change = this.$store.state.testCaseMap.get(this.form.id);

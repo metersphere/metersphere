@@ -52,6 +52,9 @@ export default {
       if (this.scene === 'ISSUE') {
         url = 'field/template/issue/option/';
       }
+      if (this.scene === 'API') {
+        url = 'project/field/template/api/option/';
+      }
       let projectId = this.projectId || '';
       this.$get(url + projectId, (response) => {
         this.templateOptions = response.data;

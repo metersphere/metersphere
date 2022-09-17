@@ -198,68 +198,74 @@
             </if>
         </set>
         WHERE project.id IN (SELECT id FROM (SELECT id
-                FROM project
-                WHERE workspace_id = #{workspaceId}) AS a)
+        FROM project
+        WHERE workspace_id = #{workspaceId}) AS a)
     </update>
     <update id="updateUseDefaultCaseTemplateProject">
-        update project set case_template_id = #{templateId}
+        update project
+        set case_template_id = #{templateId}
         where (case_template_id = #{originId} or case_template_id is null or case_template_id = '')
-        and id = #{projectId}
+          and id = #{projectId}
+    </update>
+    <update id="updateUseDefaultApiTemplateProject">
+        update project
+        set api_template_id = #{templateId}
+        where (api_template_id = #{originId} or api_template_id is null or api_template_id = '')
+          and id = #{projectId}
     </update>
 
     <select id="selectProjectByResourceId" resultType="io.metersphere.base.domain.Project">
         SELECT *
         FROM project
         WHERE id IN (
-                SELECT project_id
-                FROM test_plan
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM test_case_review
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM issues
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM test_plan_report
-                             JOIN test_plan tp ON tp.id = test_plan_report.test_plan_id
-                WHERE test_plan_report.id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM test_case
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM swagger_url_project
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM api_scenario
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM api_definition
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM api_test_case
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM api_scenario_report
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM load_test
-                WHERE id = #{resourceId}
-                UNION
-                SELECT project_id
-                FROM load_test_report
-                WHERE id = #{resourceId})
-        LIMIT 1
+            SELECT project_id
+            FROM test_plan
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM test_case_review
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM issues
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM test_plan_report
+                     JOIN test_plan tp ON tp.id = test_plan_report.test_plan_id
+            WHERE test_plan_report.id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM test_case
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM swagger_url_project
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM api_scenario
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM api_definition
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM api_test_case
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM api_scenario_report
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM load_test
+            WHERE id = #{resourceId}
+            UNION
+            SELECT project_id
+            FROM load_test_report
+            WHERE id = #{resourceId}) LIMIT 1
     </select>
     <select id="getProjectMemberSize" resultType="java.lang.Long">
         SELECT count(distinct (`user`.id)) FROM user_group JOIN `user` ON user_group.user_id = `user`.id

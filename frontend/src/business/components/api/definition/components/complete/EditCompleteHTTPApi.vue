@@ -41,17 +41,8 @@
           </el-dropdown>
         </div>
         <br/>
-
-        <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
-
-        <!-- 基础信息 -->
         <div class="base-info">
           <el-row>
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.name')" prop="name">
-                <el-input class="ms-http-input" size="small" v-model="httpForm.name"/>
-              </el-form-item>
-            </el-col>
             <el-col :span="16">
               <el-form-item :label="$t('api_report.request')" prop="path">
                 <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
@@ -63,70 +54,6 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-row>
-            <el-col :span="8">
-              <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
-                <el-select v-model="httpForm.userId"
-                           :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                           class="ms-http-select">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.name + ' (' + item.email + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule"
-                                :obj="moduleObj" clearable checkStrictly ref="msTree"/>
-              </el-form-item>
-            </el-col>
-
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.status')" prop="status">
-                <el-select class="ms-http-select" size="small" v-model="httpForm.status">
-                  <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.tag')" prop="tag">
-                <ms-input-tag :currentScenario="httpForm" ref="tag" v-model="httpForm.tags"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.description')" prop="description">
-                <el-input class="ms-http-textarea"
-                          v-model="httpForm.description"
-                          type="textarea"
-                          :autosize="{ minRows: 1, maxRows: 10}"
-                          :rows="1" size="small"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </div>
-
-        <!-- MOCK信息 -->
-        <ms-form-divider :title="$t('test_track.plan_view.mock_info')"/>
-        <div class="base-info mock-info">
-          <el-row>
-            <el-col :span="20">
-              Mock地址：
-              <el-link :href="getUrlPrefix" target="_blank" style="color: black"
-                       type="primary">{{ this.getUrlPrefix }}
-              </el-link>
-            </el-col>
-            <el-col :span="4">
-              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
-            </el-col>
-          </el-row>
-
         </div>
 
         <!-- 请求参数 -->
@@ -376,59 +303,9 @@ export default {
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
   watch: {
-    'httpForm.name': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
     'httpForm.path': {
       handler(v, v1) {
         if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.userId': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.moduleId': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.status': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.follows': {
-      handler(v, v1) {
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.description': {
-      handler(v, v1) {
-        if (v && v1 !== undefined && v !== v1) {
-          this.apiMapStatus();
-        }
-      }
-    },
-    'httpForm.tags': {
-      handler(v, v1) {
-        this.count++;
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.count > 1) {
           this.apiMapStatus();
         }
       }
@@ -578,7 +455,6 @@ export default {
       this.$refs['httpForm'].validate((valid) => {
         if (valid) {
           this.setParameter();
-
           if (!this.httpForm.versionId) {
             if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;

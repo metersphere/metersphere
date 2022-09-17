@@ -1323,6 +1323,76 @@ public class ProjectExample {
             addCriterion("version_enable not between", value1, value2, "versionEnable");
             return (Criteria) this;
         }
+
+        public Criteria andApiTemplateIdIsNull() {
+            addCriterion("api_template_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdIsNotNull() {
+            addCriterion("api_template_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdEqualTo(String value) {
+            addCriterion("api_template_id =", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdNotEqualTo(String value) {
+            addCriterion("api_template_id <>", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdGreaterThan(String value) {
+            addCriterion("api_template_id >", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdGreaterThanOrEqualTo(String value) {
+            addCriterion("api_template_id >=", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdLessThan(String value) {
+            addCriterion("api_template_id <", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdLessThanOrEqualTo(String value) {
+            addCriterion("api_template_id <=", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdLike(String value) {
+            addCriterion("api_template_id like", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdNotLike(String value) {
+            addCriterion("api_template_id not like", value, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdIn(List<String> values) {
+            addCriterion("api_template_id in", values, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdNotIn(List<String> values) {
+            addCriterion("api_template_id not in", values, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdBetween(String value1, String value2) {
+            addCriterion("api_template_id between", value1, value2, "apiTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiTemplateIdNotBetween(String value1, String value2) {
+            addCriterion("api_template_id not between", value1, value2, "apiTemplateId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -423,6 +423,11 @@
       "resourceId": "PROJECT_TEMPLATE"
     },
     {
+      "id": "PROJECT_TEMPLATE:READ+API_TEMPLATE",
+      "name": "permission.project_template.api_template",
+      "resourceId": "PROJECT_TEMPLATE"
+    },
+    {
       "id": "PROJECT_TEMPLATE:READ+CUSTOM",
       "name": "permission.project_template.custom",
       "resourceId": "PROJECT_TEMPLATE"
