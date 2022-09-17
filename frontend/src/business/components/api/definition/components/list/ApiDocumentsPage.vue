@@ -1,7 +1,7 @@
 <template>
   <div>
     <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable"
-                         :project-id="projectId" :module-ids="moduleIds"
+                         :module-ids="moduleIds" :project-id="projectId" :version-id="versionId"
                          ref="documentAnchor"/>
   </div>
 </template>

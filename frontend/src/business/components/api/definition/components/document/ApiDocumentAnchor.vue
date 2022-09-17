@@ -100,9 +100,7 @@
 <script>
 import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
-import {formatJson,} from "@/common/js/format-utils";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
-import {calculate} from "@/business/components/api/definition/model/ApiTestModel";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import Api from "@/business/components/api/router";
 import {generateApiDocumentShareInfo} from "@/network/share";
@@ -175,6 +173,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    versionId: String
   },
   activated() {
     this.initApiDocSimpleList();
@@ -220,8 +219,6 @@ export default {
     },
   },
   methods: {
-
-
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
         let countPageHeight = 210;
@@ -254,10 +251,8 @@ export default {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.trashEnable = this.trashEnable;
-
+      simpleRequest.verisonId = this.versionId;
       let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
-
-
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiInfoArray = response.data;
         this.apiStepIndex = 0;
