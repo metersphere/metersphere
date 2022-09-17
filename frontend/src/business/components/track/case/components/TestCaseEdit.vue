@@ -742,6 +742,9 @@ export default {
       if (this.validate(param)) {
         let option = this.getOption(param);
         this.result = this.$request(option, (response) => {
+          // 保存用例后刷新附件
+          this.currentTestCaseInfo.isCopy = false;
+          this.$refs.otherInfo.getFileMetaData(response.data.id);
           this.$success(this.$t('commons.save_success'));
           this.path = "/test/case/edit";
           // this.operationType = "edit"
@@ -767,8 +770,6 @@ export default {
           if (callback) {
             callback(this);
           }
-          // 保存用例后刷新附件
-
           //更新版本
           if (hasLicense()) {
             this.getVersionHistory();
@@ -809,6 +810,12 @@ export default {
       //配置多版本复制的时候是否要连带复制其他信息
       if (this.selectedOtherInfo) {
         param.otherInfoConfig = this.selectedOtherInfo;
+      }
+      if (this.$refs.otherInfo.relateFiles.length > 0) {
+        param.relateFileMetaIds = this.$refs.otherInfo.relateFiles;
+      }
+      if (this.$refs.otherInfo.unRelateFiles.length > 0) {
+        param.unRelateFileMetaIds = this.$refs.otherInfo.unRelateFiles;
       }
       return param;
     },

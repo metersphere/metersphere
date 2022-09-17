@@ -128,7 +128,7 @@ export default {
     cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
     img_loading_fail: "圖片加載失敗",
     pdf_loading_fail: "PDF加載失敗",
-    upload_tip: "文件大小限制[0-500MB]",
+    upload_tip: "本地上傳, 文件大小限制[0-500MB]",
     add_attachment: "添加",
     attachment: "附件",
     upload_time: "上傳時間",

@@ -28,6 +28,10 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
     private String copyCaseId;
     // 是否处理附件文件
     private boolean handleAttachment = true;
+    // 关联文件管理引用ID
+    private List<String> relateFileMetaIds = new ArrayList<>();
+    // 取消关联文件应用ID
+    private List<String> unRelateFileMetaIds = new ArrayList<>();
 
     /**
      * 创建新版本时 是否连带复制其他信息的配置类

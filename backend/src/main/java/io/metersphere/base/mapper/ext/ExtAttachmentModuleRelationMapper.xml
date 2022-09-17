@@ -3,10 +3,10 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtAttachmentModuleRelationMapper">
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO
-            attachment_module_relation (relation_id, relation_type, attachment_id)
+            attachment_module_relation (relation_id, relation_type, attachment_id, file_metadata_ref_id)
         VALUES
         <foreach collection="attachmentModuleRelations" item="relation" separator="," >
-            (#{relation.relationId}, #{relation.relationType}, #{relation.attachmentId})
+            (#{relation.relationId}, #{relation.relationType}, #{relation.attachmentId}, #{relation.fileMetadataRefId})
         </foreach>
     </insert>
 </mapper>

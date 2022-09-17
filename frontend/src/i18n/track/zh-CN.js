@@ -128,7 +128,7 @@ export default {
     cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
     img_loading_fail: "图片加载失败",
     pdf_loading_fail: "PDF加载失败",
-    upload_tip: "文件大小限制[0-500MB]",
+    upload_tip: "本地上传, 文件大小限制[0-500MB]",
     add_attachment: "添加",
     attachment: "附件",
     upload_time: "上传时间",

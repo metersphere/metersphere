@@ -2,6 +2,8 @@ package io.metersphere.track.request.attachment;
 
 import lombok.Data;
 
+import java.util.List;
+
 
 /**
  * @author songcc
@@ -14,4 +16,6 @@ public class AttachmentRequest {
     private String belongId;
 
     private String copyBelongId;
+
+    private List<String> metadataRefIds;
 }

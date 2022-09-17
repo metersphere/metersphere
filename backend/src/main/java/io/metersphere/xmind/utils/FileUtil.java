@@ -1,12 +1,13 @@
 package io.metersphere.xmind.utils;
 
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * 工具类
@@ -45,6 +46,23 @@ public class FileUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * File 转 MultipartFile
+     * @param file
+     * @return
+     */
+    public static MultipartFile fileToMultipartFile(File file) {
+        DiskFileItem item = new DiskFileItem("file", MediaType.MULTIPART_FORM_DATA_VALUE, true,
+                file.getName(), (int)file.length(), file.getParentFile());
+        try {
+            OutputStream os = item.getOutputStream();
+            os.write(FileUtils.fileToByte(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new CommonsMultipartFile(item);
     }
 
     public static boolean deleteDir(File dir) {

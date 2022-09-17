@@ -8,6 +8,7 @@ import io.metersphere.track.dto.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -53,4 +54,8 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * 复制缺陷时原始缺陷ID
      */
     private String copyIssueId;
+    // 关联文件管理引用ID
+    private List<String> relateFileMetaIds = new ArrayList<>();
+    // 取消关联文件应用ID
+    private List<String> unRelateFileMetaIds = new ArrayList<>();
 }

@@ -2,13 +2,22 @@
   <div>
     <el-row type="flex" justify="center">
       <el-col>
-        <el-table class="basic-config" :data="tableData">
+        <el-table class="basic-config" :data="tableData" :row-class-name="handleIsRelated">
           <el-table-column
             prop="name"
             :label="$t('load_test.file_name')">
             <template v-slot:default="scope">
               <el-tooltip class="item" effect="dark" :content="scope.row.name" placement="top">
                 <el-progress
+                  class="row-delete-name"
+                  type="line"
+                  v-if="!scope.row.isLocal && scope.row.isRelatedDeleted"
+                  :stroke-width="40"
+                  :text-inside="true"
+                  :format="clearPercentage(scope.row)">
+                </el-progress>
+                <el-progress
+                  v-else
                   :color="scope.row.progress >= 100 ? '' : uploadProgressColor"
                   type="line"
                   :format="clearPercentage(scope.row)"
@@ -37,7 +46,7 @@
             :width="70"
             :label="$t('commons.status')">
             <template v-slot:default="scope">
-              <span :class="scope.row.status === 'success' ? 'green' : scope.row.status === 'error' ? 'red' : scope.row.status === 'toUpload' ? 'yellow' : ''">{{ scope.row.status | formatStatus}}</span>
+              <span :class="scope.row.status === 'expired' ? 'lightgrey' : scope.row.status === 'success' ? 'green' : scope.row.status === 'error' ? 'red' : scope.row.status === 'toUpload' || 'toRelate' ? 'yellow' : ''">{{ formatStatus(scope.row.status) }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -46,19 +55,27 @@
             :label="$t('group.operator')">
           </el-table-column>
           <el-table-column
-            :width="140"
+            :width="180"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="preview(scope.row)" :disabled="!scope.row.id" type="primary"
+              <el-button @click="preview(scope.row)" type="primary" :disabled="!scope.row.id || scope.row.status === 'toRelate' || scope.row.isRelatedDeleted"
                          v-if="scope.row.progress === 100 && isPreview(scope.row)"
                          icon="el-icon-view" size="mini" circle/>
-              <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id"
+              <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id || scope.row.status === 'toRelate' || scope.row.isRelatedDeleted"
                          v-if="scope.row.progress === 100"
                          icon="el-icon-download" size="mini" circle/>
+              <el-button :disabled="isCopy || !scope.row.id"
+                         @click="handleUpload(scope.row)"  type="primary"
+                         v-if="scope.row.progress === 100 && scope.row.isLocal"
+                         icon="el-icon-upload" size="mini" circle/>
               <el-button :disabled="readOnly || !isDelete || isCopy || (!scope.row.id && scope.row.status !== 'toUpload')"
                          @click="handleDelete(scope.row, scope.$index)" type="danger"
-                         v-if="scope.row.progress === 100"
-                         icon="el-icon-delete" size="mini"
+                         v-if="scope.row.progress === 100 && scope.row.isLocal"
+                         icon="el-icon-delete" size="mini" circle/>
+              <el-button :disabled="readOnly || !isDelete || isCopy || (!scope.row.id && scope.row.status !== 'toRelate')"
+                         @click="handleUnRelate(scope.row, scope.$index)" type="danger"
+                         v-if="scope.row.progress === 100 && !scope.row.isLocal"
+                         icon="el-icon-unlock" size="mini"
                          circle/>
               <el-button :disabled="readOnly || !isDelete" @click="handleCancel(scope.row, scope.$index)" type="danger"
                          v-if="scope.row.progress < 100"
@@ -100,10 +117,14 @@ export default {
   data() {
     return {
       uploadProgressColor: '#d4f6d4',
-      uploadSuccessColor: '#FFFFFF'
+      uploadSuccessColor: '#FFFFFF',
+      that: null,
     }
   },
   methods: {
+    handleIsRelated(row, rowIndex) {
+      return row.row.isRelatedDeleted ? 'delete-row' : '';
+    },
     clearPercentage(row) {
       return () => {
         return row.name;
@@ -120,19 +141,35 @@ export default {
       this.$fileDownloadPost('/attachment/download', {
         name: file.name,
         id: file.id,
+        isLocal: file.isLocal
       });
+    },
+    handleUpload(file) {
+      this.$emit("handleDump", file);
     },
     handleDelete(file, index) {
       this.$emit("handleDelete", file, index);
     },
+    handleUnRelate(file, index) {
+      this.$emit("handleUnRelate", file, index);
+    },
     handleCancel(file, index) {
       this.$emit("handleCancel", file, index);
     },
-  },
-  filters: {
     formatStatus(status) {
       if (isNaN(status)) {
-        return status === 'success' ? '完成' : status === 'toUpload' ? '待上传' : '失败'
+        switch (status) {
+          case 'success':
+            return this.$t('commons.file_upload_status.success');
+          case 'toUpload':
+            return this.$t('commons.file_upload_status.to_upload');
+          case 'toRelate':
+            return this.$t('commons.file_upload_status.to_relate');
+          case 'expired':
+            return this.$t('commons.file_upload_status.expired');
+          default:
+            return this.$t('commons.file_upload_status.error');
+        }
       }
       return Math.floor(status * 100 / 100) + "%";
     }
@@ -143,6 +180,10 @@ export default {
 <style scoped>
 .el-progress-bar__innerText {
   color: black;
+}
+
+::v-deep .el-progress.row-delete-name .el-progress-bar__innerText {
+  color: lightgrey!important;
 }
 
 ::v-deep .el-progress-bar__outer,
@@ -168,5 +209,15 @@ export default {
 
 .yellow {
   color: #E6A23C;
+}
+
+.lightgrey {
+  color: lightgrey;
+}
+</style>
+
+<style>
+.el-table .delete-row {
+  color: lightgrey;
 }
 </style>

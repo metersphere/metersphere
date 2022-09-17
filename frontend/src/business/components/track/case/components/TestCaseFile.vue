@@ -1,10 +1,10 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" width="80%" :destroy-on-close="true" :before-close="close" :append-to-body="true">
     <div>
-      <img :src="'/attachment/preview/' + file.id" :alt="$t('test_track.case.img_loading_fail')" style="width: 100%;height: 100%;"
+      <img :src="'/attachment/preview/' + file.id + '/' + file.isLocal" :alt="$t('test_track.case.img_loading_fail')" style="width: 100%;height: 100%;"
            v-if="file.type === 'JPG' || file.type === 'JPEG' || file.type === 'PNG'">
       <div v-if="file.type === 'PDF'">
-        <test-case-pdf :file-id="file.id"/>
+        <test-case-pdf :file-id="file.id" :is-local="file.isLocal"/>
       </div>
     </div>
   </el-dialog>

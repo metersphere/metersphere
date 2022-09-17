@@ -10,7 +10,8 @@ export default {
   name: "TestCasePdf",
   components: {pdf},
   props: {
-    fileId: String
+    fileId: String,
+    isLocal: Boolean
   },
   data() {
     return {
@@ -21,7 +22,7 @@ export default {
   },
   mounted() {
     this.loading = true;
-    this.loadingTask = pdf.createLoadingTask("/attachment/preview/" + this.fileId);
+    this.loadingTask = pdf.createLoadingTask("/attachment/preview/" + this.fileId + "/" + this.isLocal);
     this.loadingTask.promise.then(pdf => {
       this.numPages = pdf.numPages
       this.loading = false;

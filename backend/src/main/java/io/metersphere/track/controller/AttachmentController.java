@@ -1,6 +1,8 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.FileAttachmentMetadata;
+import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.metadata.vo.AttachmentDumpRequest;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.attachment.AttachmentRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,15 +30,23 @@ public class AttachmentController {
     private FileService fileService;
     @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private FileMetadataService fileMetadataService;
 
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
     public void uploadAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         attachmentService.uploadAttachment(request, file);
     }
 
-    @GetMapping("/preview/{fileId}")
-    public ResponseEntity<byte[]> previewAttachment(@PathVariable String fileId) {
-        byte[] bytes = fileService.getAttachmentBytes(fileId);
+    @GetMapping("/preview/{fileId}/{isLocal}")
+    public ResponseEntity<byte[]> previewAttachment(@PathVariable String fileId, @PathVariable Boolean isLocal) {
+        byte[] bytes;
+        if (isLocal) {
+            bytes = fileService.getAttachmentBytes(fileId);
+        } else {
+            String refId = attachmentService.getRefIdByAttachmentId(fileId);
+            bytes = fileMetadataService.loadFileAsBytes(refId);
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
@@ -44,7 +55,13 @@ public class AttachmentController {
 
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadAttachment(@RequestBody FileOperationRequest fileOperationRequest) {
-        byte[] bytes = fileService.getAttachmentBytes(fileOperationRequest.getId());
+        byte[] bytes;
+        if (fileOperationRequest.getIsLocal()) {
+            bytes = fileService.getAttachmentBytes(fileOperationRequest.getId());
+        } else {
+            String refId = attachmentService.getRefIdByAttachmentId(fileOperationRequest.getId());
+            bytes = fileMetadataService.loadFileAsBytes(refId);
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileOperationRequest.getName(), StandardCharsets.UTF_8) + "\"")
@@ -60,5 +77,23 @@ public class AttachmentController {
     @PostMapping("/metadata/list")
     public List<FileAttachmentMetadata> listMetadata(@RequestBody AttachmentRequest request) {
         return attachmentService.listMetadata(request);
+    }
+
+    @PostMapping("/metadata/relate")
+    public void relate(@RequestBody AttachmentRequest request) {
+        attachmentService.relate(request);
+    }
+
+    @PostMapping("/metadata/unrelated")
+    public void unrelated(@RequestBody AttachmentRequest request) {
+        attachmentService.unrelated(request);
+    }
+
+    @PostMapping(value = "/metadata/dump")
+    public void dumpFile(@RequestBody AttachmentDumpRequest request) {
+        List<MultipartFile> files = new ArrayList<>();
+        MultipartFile file = fileService.getAttachmentMultipartFile(request.getAttachmentId());
+        files.add(file);
+        fileMetadataService.dumpFile(request, files);
     }
 }

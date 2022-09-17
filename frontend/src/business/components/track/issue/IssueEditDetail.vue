@@ -102,23 +102,33 @@
 
               <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
                 <el-row>
-                  <el-col :span="22">
-                    <el-upload
-                      multiple
-                      :limit="8"
-                      action=""
-                      :auto-upload="true"
-                      :file-list="fileList"
-                      :show-file-list="false"
-                      :before-upload="beforeUpload"
-                      :http-request="handleUpload"
-                      :on-exceed="handleExceed"
-                      :on-success="handleSuccess"
-                      :on-error="handleError"
-                      :disabled="type === 'copy'">
-                      <el-button type="primary" :disabled="type === 'copy'" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+                  <el-col :span="22" style="margin-bottom: 10px;">
+                    <div class="upload-default" @click.stop>
+                      <el-popover placement="right" trigger="hover">
+                        <div>
+                          <el-upload
+                            multiple
+                            :limit="8"
+                            action=""
+                            :auto-upload="true"
+                            :file-list="fileList"
+                            :show-file-list="false"
+                            :before-upload="beforeUpload"
+                            :http-request="handleUpload"
+                            :on-exceed="handleExceed"
+                            :on-success="handleSuccess"
+                            :on-error="handleError"
+                            :disabled="readOnly || type === 'copy'">
+                            <el-button :disabled="readOnly || type === 'copy'" type="text">{{$t('permission.project_file.local_upload')}}</el-button>
+                          </el-upload>
+                        </div>
+                        <el-button type="text" :disabled="readOnly || type === 'copy'" @click="associationFile">{{ $t('permission.project_file.associated_files') }}</el-button>
+                        <i class="el-icon-plus" slot="reference"/>
+                      </el-popover>
+                    </div>
+                    <div class="local-upload-tips">
                       <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
-                    </el-upload>
+                    </div>
                   </el-col>
                 </el-row>
                 <el-row style="margin-top: 10px">
@@ -128,7 +138,9 @@
                                           :is-delete="isDelete"
                                           :is-copy="type === 'copy'"
                                           @handleDelete="handleDelete"
-                                          @handleCancel="handleCancel"/>
+                                          @handleCancel="handleCancel"
+                                          @handleUnRelate="handleUnRelate"
+                                          @handleDump="handleDump"/>
                   </el-col>
                 </el-row>
               </el-tab-pane>
@@ -170,9 +182,10 @@
         <issue-comment :issues-id="form.id"
                        @getComments="getComments"
                        ref="issueComment"/>
+        <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
+        <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
       </el-form>
     </el-scrollbar>
-
   </el-main>
 </template>
 
@@ -193,7 +206,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
-  getCurrentWorkspaceId, getTypeByFileName, hasLicense,
+  getCurrentWorkspaceId, getTypeByFileName, getUUID, hasLicense,
 } from "@/common/js/utils";
 import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getPlatformTransitions} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
@@ -204,6 +217,8 @@ import {TokenKey} from "@/common/js/constants";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import axios from "axios";
+import MsFileMetadataList from "@/business/components/project/menu/file/quote/QuoteFileList";
+import MsFileBatchMove from "@/business/components/project/menu/file/module/FileBatchMove";
 
 const {getIssuesById} = require("@/network/Issue");
 
@@ -222,7 +237,9 @@ export default {
     MsMarkDownText,
     IssueComment,
     ReviewCommentItem,
-    TestCaseAttachment
+    TestCaseAttachment,
+    MsFileMetadataList,
+    MsFileBatchMove,
   },
   data() {
     return {
@@ -308,7 +325,10 @@ export default {
       readOnly: false,
       isDelete: true,
       cancelFileToken: [],
-      uploadFiles: []
+      uploadFiles: [],
+      relateFiles: [],
+      unRelateFiles: [],
+      dumpFile: {},
     };
   },
   props: {
@@ -362,6 +382,7 @@ export default {
       }
     },
     open(data, type) {
+      this.uploadFiles = [];
       this.tabActiveName = 'relateTestCase'
       this.showFollow = false;
       this.result.loading = true;
@@ -546,8 +567,10 @@ export default {
       }
 
       param.withoutTestCaseIssue = this.isMinder;
-
       param.thirdPartPlatform = this.enableThirdPartTemplate;
+      if (this.relateFiles.length > 0) {
+        param.relateFileMetaIds = this.relateFiles;
+      }
       return param;
     },
     _save() {
@@ -651,7 +674,8 @@ export default {
         progress: this.type === 'add' || this.isCaseEdit? 100 : 0,
         status: this.type === 'add' || this.isCaseEdit? 'toUpload' : 0,
         creator: user.name,
-        type: getTypeByFileName(file.name)
+        type: getTypeByFileName(file.name),
+        isLocal: true
       });
 
       if (this.type === 'add' || this.isCaseEdit) {
@@ -753,13 +777,46 @@ export default {
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
       if (this.type === 'add' || this.isCaseEdit) {
-        this.uploadFiles.splice(index, 1);
+        let delIndex = this.uploadFiles.findIndex(uploadFile => uploadFile.name === file.name)
+        this.uploadFiles.splice(delIndex, 1);
       } else {
         this.$get('/attachment/delete/issue/' + file.id , response => {
           this.$success(this.$t('commons.delete_success'));
           this.getFileMetaData(this.issueId);
         });
       }
+    },
+    handleUnRelate(file, index) {
+      // 取消关联
+      this.$alert(this.$t('load_test.unrelated_file_confirm') + file.name + "?", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        dangerouslyUseHTMLString: true,
+        callback: (action) => {
+          if (action === 'confirm') {
+            let unRelateFileIndex = this.tableData.findIndex(f => f.name === file.name);
+            this.tableData.splice(unRelateFileIndex, 1);
+            if (file.status === 'toRelate') {
+              // 待关联的记录, 直接移除
+              let unRelateId = this.relateFiles.findIndex(f => f === file.id);
+              this.relateFiles.splice(unRelateId, 1);
+            } else {
+              // 已经关联的记录
+              this.unRelateFiles.push(file.id);
+              let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': this.unRelateFiles};
+              this.result.loading = true;
+              this.$post('/attachment/metadata/unrelated', data, response => {
+                this.$success(this.$t('commons.unrelated_success'));
+                this.result.loading = false;
+                this.getFileMetaData(this.issueId);
+              });
+            }
+          }
+        }
+      });
+    },
+    handleDump(file) {
+      this.$refs.module.init();
+      this.dumpFile = file;
     },
     handleCancel(file, index) {
       this.fileList.splice(index, 1);
@@ -769,7 +826,63 @@ export default {
       cancelFile.progress = 100;
       cancelFile.status = 'error';
     },
+    associationFile() {
+      this.$refs.metadataList.open();
+    },
+    checkRows(rows) {
+      let repeatRecord = false;
+      for (let row of rows) {
+        let rowIndex = this.tableData.findIndex(item => item.name === row.name);
+        if (rowIndex >= 0) {
+          this.$error(this.$t('load_test.exist_related_file') + ": "  + row.name);
+          repeatRecord = true;
+          break;
+        }
+      }
+      if (!repeatRecord) {
+        if (this.type === 'add') {
+          // 新增
+          rows.forEach(row => {
+            this.relateFiles.push(row.id);
+            this.tableData.push({
+              id: row.id,
+              name: row.name,
+              size: byteToSize(row.size),
+              updateTime: row.createTime,
+              progress: 100,
+              status: 'toRelate',
+              creator: row.createUser,
+              type: row.type,
+              isLocal: false,
+            });
+          })
+        } else {
+          // 编辑
+          let metadataRefIds = [];
+          rows.forEach(row => metadataRefIds.push(row.id));
+          let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': metadataRefIds};
+          this.result.loading = true;
+          this.$post('/attachment/metadata/relate', data, response => {
+            this.$success(this.$t('commons.relate_success'));
+            this.result.loading = false;
+            this.getFileMetaData(this.issueId);
+          });
+        }
+      }
+    },
+    setModuleId(moduleId) {
+      let data = {id: getUUID(), resourceId: getCurrentProjectID(), moduleId: moduleId,
+        projectId: getCurrentProjectID(), fileName: this.dumpFile.name, attachmentId: this.dumpFile.id};
+      this.$post("/attachment/metadata/dump", data, (response) => {
+        this.$success(this.$t("organization.integration.successful_operation"));
+      });
+    },
     getFileMetaData(id) {
+      if (this.type === 'edit') {
+        this.uploadFiles = [];
+        this.relateFiles = [];
+        this.unRelateFiles = [];
+      }
       // 保存用例后传入用例id，刷新文件列表，可以预览和下载
       this.fileList = [];
       this.tableData = [];
@@ -837,5 +950,39 @@ export default {
   width: 18px;
   font-size: xx-small;
   border-radius: 50%;
+}
+
+.el-icon-plus {
+  font-size: 16px;
+}
+
+.upload-default {
+  background-color: #fbfdff;
+  border: 1px dashed #c0ccda;
+  border-radius: 6px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 40px;
+  height: 30px;
+  line-height: 32px;
+  vertical-align: top;
+  text-align: center;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.upload-default i {
+  color: #8c939d;
+}
+
+.upload-default:hover {
+  border: 1px dashed #783887;
+}
+
+.local-upload-tips {
+  display: inline-block;
+  position: relative;
+  left: 25px;
+  top: 8px;
 }
 </style>

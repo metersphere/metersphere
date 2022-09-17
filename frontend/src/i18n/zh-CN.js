@@ -71,6 +71,8 @@ export default {
     warning_module_add: "模块树深度最大为8层",
     send_success: '发送成功',
     delete_success: '删除成功',
+    relate_success: '关联成功',
+    unrelated_success: '取消关联成功',
     copy_success: '复制成功',
     modify_success: '修改成功',
     delete_cancel: '已取消删除',
@@ -181,6 +183,13 @@ export default {
       day: "天",
       month: "月",
       year: "年"
+    },
+    file_upload_status: {
+      success: '完成',
+      to_upload: '待上传',
+      to_relate: '待关联',
+      expired: '已失效',
+      error: '失败'
     },
     test_unit: '测试',
     system_parameter_setting: '系统参数设置',
@@ -1106,6 +1115,7 @@ export default {
     related_file_not_found: "未找到关联的测试文件！",
     delete_file_when_uploading: '当前操作可能会中断正在上传的文件!',
     delete_file_confirm: '确认删除文件: ',
+    unrelated_file_confirm: '确认取消关联: ',
     file_size_limit: "文件个数超出限制！",
     file_size_out_of_bounds: "文件大小超出范围, 文件名称: ",
     delete_file: "文件已存在，请先删除同名文件！",
@@ -1171,6 +1181,7 @@ export default {
     report_type: "报告类型",
     upload_jmx: '上传 JMX 文件',
     exist_jmx: '已存在的文件',
+    exist_related_file: '已存在的关联文件',
     other_resource: '资源文件',
     upload_file: '上传新文件',
     load_exist_file: '加载文件',

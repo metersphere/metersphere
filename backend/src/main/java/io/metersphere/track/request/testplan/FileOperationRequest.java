@@ -8,4 +8,5 @@ import lombok.Setter;
 public class FileOperationRequest {
     private String id;
     private String name;
+    private Boolean isLocal;
 }
