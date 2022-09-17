@@ -35,13 +35,3 @@ export function getApiTemplate() {
 }
 
 
-export function getApiTemplate() {
-  return getTemplate('project/field/template/api/get-template/relate/');
-}
-
-
-export function getApiTemplate() {
-  return getTemplate('project/field/template/api/get-template/relate/');
-}
-
-

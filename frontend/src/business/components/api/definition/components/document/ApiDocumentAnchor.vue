@@ -192,6 +192,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    versionId: String
   },
   activated() {
     this.initApiDocSimpleList();
@@ -270,6 +271,7 @@ export default {
       } else {
         simpleRequest.moduleIds = [];
       }
+      simpleRequest.versionId = this.versionId;
       simpleRequest.trashEnable = this.trashEnable;
       let simpleInfoUrl = "/share/info/selectApiInfoByParam/" + this.currentPage + "/" + this.pageSize;
       this.$post(simpleInfoUrl, simpleRequest, response => {
