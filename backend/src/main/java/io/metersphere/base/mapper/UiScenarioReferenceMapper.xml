@@ -267,6 +267,13 @@
     <if test="request.timeOrder != null and request.timeOrder == 0">
       ORDER by usf.create_time ASC
     </if>
+
+    <if test="request.idOrder != null and request.idOrder == 1">
+      ORDER by us.num DESC
+    </if>
+    <if test="request.idOrder != null and request.idOrder == 0">
+      ORDER by us.num ASC
+    </if>
   </select>
 
   <select id="getTestPlanRef"  parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.RefResp">
