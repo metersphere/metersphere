@@ -657,6 +657,15 @@ public class ShareInfoService {
                 }
             }
         }
+
+        if (StringUtils.equals(shareInfo.getShareType(), "UI_REPORT")) {
+            type = ProjectApplicationType.UI_SHARE_REPORT_TIME.toString();
+            APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(shareInfo.getCustomData());
+            if (reportResult != null) {
+                projectId = reportResult.getProjectId();
+            }
+        }
+
         if (StringUtils.isBlank(type) || Strings.isBlank(projectId)) {
             millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), 1000 * 60 * 60 * 24, shareInfo.getId());
         } else {
