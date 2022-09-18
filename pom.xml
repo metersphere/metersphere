@@ -16,7 +16,7 @@
 
     <name>metersphere</name>
     <properties>
-        <revision>dev</revision>
+        <revision>2.2</revision>
     </properties>
     <modules>
         <module>frontend</module>
