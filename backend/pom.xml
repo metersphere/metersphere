@@ -27,7 +27,7 @@
         <xmlbeans.version>5.1.0</xmlbeans.version>
         <poi.version>5.1.0</poi.version>
         <jgit.version>6.2.0.202206071550-r</jgit.version>
-        <commons-fileupload.version>1.3</commons-fileupload.version>
+        <commons-fileupload.version>1.3.3</commons-fileupload.version>
     </properties>
 
     <dependencies>
