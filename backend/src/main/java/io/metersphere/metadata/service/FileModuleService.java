@@ -201,7 +201,11 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
             }
             if (StringUtils.equalsIgnoreCase(node.getModuleType(), FileModuleTypeConstants.REPOSITORY.getValue())) {
                 example.clear();
+                criteria = example.createCriteria();
                 criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId()).andModuleTypeEqualTo(FileModuleTypeConstants.REPOSITORY.getValue());
+                if (StringUtils.isNotBlank(node.getId())) {
+                    criteria.andIdNotEqualTo(node.getId());
+                }
                 if (fileModuleMapper.selectByExample(example).size() > 0) {
                     MSException.throwException(Translator.get("repository_module_already_exists") + ": " + node.getName());
                 }
