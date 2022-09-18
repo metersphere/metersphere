@@ -21,7 +21,7 @@ export default {
     this.shareId = getShareId();
     getShareInfo(this.shareId, (data) => {
       if (!data) {
-        this.$error('报告已删除!');
+        this.$error('链接已失效，请重新获取!');
         return;
       }
       if (data.shareType === 'UI_REPORT') {
