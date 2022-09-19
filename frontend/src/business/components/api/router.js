@@ -48,11 +48,6 @@ export default {
       component: () => import('@/business/components/api/automation/ApiAutomation'),
     },
     {
-      path: "automation",
-      name: "ApiAutomationSingle",
-      component: () => import('@/business/components/api/automation/ApiAutomation'),
-    },
-    {
       path: 'monitor/view',
       name: 'ApiMonitor',
       component: () => import('@/business/components/api/monitor/ApiMonitor'),

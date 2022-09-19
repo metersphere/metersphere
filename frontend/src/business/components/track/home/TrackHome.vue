@@ -172,7 +172,7 @@ export default {
         case "testCase":
           this.$router.push({
             name: 'testCaseRedirect',
-            params: {paramObj: redirectObj}
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           });
           break;
         case "testPlanEdit":
@@ -186,8 +186,8 @@ export default {
           break;
         case "api":
           this.$router.push({
-            name: 'ApiDefinition',
-            params: {paramObj: redirectObj}
+            name: 'ApiDefinitionWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           });
           break;
       }
