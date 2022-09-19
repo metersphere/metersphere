@@ -77,7 +77,7 @@
 
     <select id="moduleCountByMetadataIds" resultType="java.util.Map">
         select module_id AS moduleId,count(id) AS countNum from file_metadata
-        where module_id in
+        where latest IS TRUE AND  module_id in
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
