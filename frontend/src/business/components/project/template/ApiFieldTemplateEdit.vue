@@ -184,6 +184,7 @@ export default {
           this.showDialog = false;
         });
       } else {
+        this.isSystem = false;
         this.form = {
           id: "",
           name: "",
