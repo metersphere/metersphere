@@ -488,7 +488,7 @@ export default {
         }
       }
       // 通知过来的数据跳转到编辑
-      if (this.routeParamObj.caseId) {
+      if (routeParamObj.caseId) {
         this.activeDom = 'middle';
       }
     }
