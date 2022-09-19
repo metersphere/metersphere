@@ -9,10 +9,10 @@
           v-model="form.userIds"
           multiple
           filterable
-          @visible-change="visibleChange"
-          :filter-method="userFilter"
           :popper-append-to-body="false"
           class="member_select"
+          :filter-method="filterUserOption"
+          @visible-change="resetUserOption"
           :placeholder="$t('member.please_choose_member')">
           <el-option
             v-for="item in userList"
@@ -21,6 +21,9 @@
             :value="item.id">
             <user-option-item :user="item"/>
           </el-option>
+          <div style="text-align: center; color: #8a8b8d;" v-if="showUserSearchGetMore">
+            {{ $t('user.search_get_more_tip') }}
+          </div>
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('commons.group')" prop="groupIds">
@@ -68,7 +71,9 @@ export default {
       },
       userList: [],
       copyUserList: [],
-      result: {}
+      result: {},
+      limitOptionCount: 400,
+      showUserSearchGetMore: false,
     }
   },
   props: {
@@ -117,7 +122,7 @@ export default {
     open() {
       this.dialogVisible = true;
       this.result = this.$get(this.userResourceUrl, response => {
-        this.userList = response.data;
+        this.handleUserOption(response.data);
         this.copyUserList = response.data;
       })
       let param = {type: this.groupType, resourceId: this.groupScopeId};
@@ -142,7 +147,40 @@ export default {
       } else {
         this.userList = this.copyUserList;
       }
-    }
+    },
+    handleUserOption(users) {
+      if (!users) {
+        return;
+      }
+      this.showUserSearchGetMore = users.length > this.limitOptionCount;
+      this.userList = users.slice(0, this.limitOptionCount);
+      if (!this.form.userIds || this.form.userIds.length === 0) {
+        return;
+      }
+      this._handleSelectOption(this.form.userIds, this.userList);
+    },
+    _handleSelectOption(ids, data) {
+      for (let id of ids) {
+        let index = data.findIndex(o => o.id === id);
+        if (index <= -1) {
+          let obj = this.copyUserList.find(d => d.id === id);
+          if (obj) {
+            data.unshift(obj);
+          }
+        }
+      }
+    },
+    filterUserOption(queryString) {
+      this.handleUserOption(queryString ? this.copyUserList.filter(this.createFilter(queryString)) : this.copyUserList);
+    },
+    createFilter(queryString) {
+      return item => (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+    },
+    resetUserOption(val) {
+      if (val) {
+        this.handleUserOption(this.copyUserList);
+      }
+    },
   }
 }
 </script>

@@ -63,22 +63,31 @@
             :popper-append-to-body="false"
             class="member_select"
             :disabled="userSelectDisable"
+            :filter-method="filterUserOption"
+            @visible-change="resetUserOption"
             :placeholder="$t('member.please_choose_member')">
             <el-option
               v-for="item in users"
               :key="item.id"
               :label="item.id"
               :value="item.id">
-              <template>
-                <user-option-item :user="item"/>
-              </template>
+              <user-option-item :user="item"/>
             </el-option>
+            <div style="text-align: center; color: #8a8b8d;" v-if="showUserSearchGetMore">
+              {{ $t('user.search_get_more_tip') }}
+            </div>
           </el-select>
         </el-form-item>
         <el-form-item :label="typeLabel" v-if="showTypeLabel" prop="sourceIds">
-          <el-select v-model="form.sourceIds" :placeholder="typeLabel" class="other_source_select"
+          <el-select v-model="form.sourceIds" :placeholder="typeLabel"
+                     :filter-method="filterResourceOption"
+                     @visible-change="resetResourceOption"
+                     class="other_source_select"
                      clearable multiple filterable>
             <el-option v-for="item in sourceData" :key="item.id" :label="item.name" :value="item.id"/>
+            <div style="text-align: center; color: #8a8b8d;" v-if="showResourceSearchGerMore">
+              {{ $t('user.search_get_more_tip') }}
+            </div>
           </el-select>
         </el-form-item>
       </el-form>
@@ -125,7 +134,9 @@ export default {
       group: {},
       groupSource: [],
       sourceData: [],
+      sourceDataCopy: [],
       users: [],
+      usersCopy: [],
       currentProject: {
         id: "",
         name: ""
@@ -139,7 +150,10 @@ export default {
       rules: {
         userIds: {required: true, message: this.$t('member.please_choose_member'), trigger: 'blur'},
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
-      }
+      },
+      limitOptionCount: 400,
+      showUserSearchGetMore: false,
+      showResourceSearchGerMore: false,
     };
   },
   computed: {
@@ -208,6 +222,8 @@ export default {
         let sourceIds = data.map(d => d.id);
         this.$set(this.form, 'userIds', userIds);
         this.$set(this.form, 'sourceIds', sourceIds);
+        this._handleSelectOption(this.form.userIds, this.users);
+        this._handleSelectOption(this.form.sourceIds, this.sourceData);
       });
     },
     editMember() {
@@ -226,7 +242,8 @@ export default {
     },
     getUser() {
       this.memberResult = this.$get(this.initUserUrl, response => {
-        this.users = response.data;
+        this.handleUserOption(response.data);
+        this.usersCopy = response.data;
       });
     },
     removeMember(row) {
@@ -281,6 +298,7 @@ export default {
         let data = res.data;
         if (data) {
           this._setResource(this.group.type, data);
+          this.handleResourceOption(this.sourceData);
         }
       });
     },
@@ -288,6 +306,7 @@ export default {
       switch (type) {
         case GROUP_WORKSPACE:
           this.sourceData = data.workspaces;
+          this.sourceDataCopy = data.workspaces;
           break;
         case GROUP_PROJECT:
           if (this.initUserUrl === 'user/ws/current/member/list') {
@@ -296,8 +315,10 @@ export default {
               this.currentProject.name = sessionStorage.getItem("project_name");
             }
             this.sourceData = [this.currentProject];
+            this.sourceDataCopy = [this.currentProject];
           } else {
             this.sourceData = data.projects;
+            this.sourceDataCopy = data.projects;
           }
           break;
         default:
@@ -307,6 +328,58 @@ export default {
       this.form = {};
       this.memberVisible = false;
       this.userSelectDisable = false;
+    },
+    handleUserOption(users) {
+      if (!users) {
+        return;
+      }
+      this.showUserSearchGetMore = users.length > this.limitOptionCount;
+      this.users = users.slice(0, this.limitOptionCount);
+      if (!this.form.userIds || this.form.userIds.length === 0) {
+        return;
+      }
+      this._handleSelectOption(this.form.userIds, this.users, this.usersCopy);
+    },
+    _handleSelectOption(ids, options, origins) {
+      for (let id of ids) {
+        let index = options.findIndex(o => o.id === id);
+        if (index <= -1) {
+          let obj = origins.find(d => d.id === id);
+          if (obj) {
+            options.unshift(obj);
+          }
+        }
+      }
+    },
+    handleResourceOption(resources) {
+      if (!resources) {
+        return;
+      }
+      this.showResourceSearchGerMore = resources.length > this.limitOptionCount;
+      this.sourceData = resources.slice(0, this.limitOptionCount);
+      if (!this.form.sourceIds || this.form.sourceIds.length === 0) {
+        return;
+      }
+      this._handleSelectOption(this.form.sourceIds, this.sourceData, this.sourceDataCopy);
+    },
+    filterUserOption(queryString) {
+      this.handleUserOption(queryString ? this.usersCopy.filter(this.createFilter(queryString)) : this.usersCopy);
+    },
+    filterResourceOption(queryString) {
+      this.handleResourceOption(queryString ? this.sourceDataCopy.filter(this.createFilter(queryString)) : this.sourceDataCopy);
+    },
+    createFilter(queryString) {
+      return item => (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+    },
+    resetUserOption(val) {
+      if (val) {
+        this.handleUserOption(this.usersCopy);
+      }
+    },
+    resetResourceOption(val) {
+      if (val) {
+        this.handleResourceOption(this.sourceDataCopy);
+      }
     }
   }
 };
