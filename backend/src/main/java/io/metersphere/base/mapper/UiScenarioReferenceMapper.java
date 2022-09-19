@@ -4,10 +4,7 @@ import io.metersphere.base.domain.UiScenarioReference;
 import io.metersphere.base.domain.UiScenarioReferenceExample;
 import java.util.List;
 
-import io.metersphere.xpack.ui.dto.RefReq;
-import io.metersphere.xpack.ui.dto.RefResp;
-import io.metersphere.xpack.ui.dto.UiCheckRefDTO;
-import io.metersphere.xpack.ui.dto.UiCheckRefReq;
+import io.metersphere.xpack.ui.dto.*;
 import org.apache.ibatis.annotations.Param;
 
 public interface UiScenarioReferenceMapper {
@@ -38,7 +35,7 @@ public interface UiScenarioReferenceMapper {
      */
     List<RefResp> refList(@Param("request") RefReq request);
 
-    List<RefResp> getTestPlanRef(@Param("request") RefReq request);
+    List<TestPlanRefResp> getTestPlanRef(@Param("request") RefReq request);
 
     List<UiCheckRefDTO> checkRef(@Param("request")UiCheckRefReq request);
 }
