@@ -2965,6 +2965,7 @@ export default {
     test_plan_ref_label: "測試計劃引用",
     delete_scenario_lable: "刪除場景",
     delete_command_lable: "刪除指令",
+    command_name_label: "指令名稱",
   },
   project_application: {
     workstation: {
