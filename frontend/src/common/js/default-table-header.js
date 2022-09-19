@@ -97,6 +97,17 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'passRate', key: 'b', label: 'api_test.automation.passing_rate'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
   ],
+  //自定义指令
+  UI_CUSTOM_COMMAND: [
+    {id: 'num', key: '1', label: "ID"},
+    {id: 'name', key: '2', label: 'ui.command_name_label'},
+    {id: 'tags', key: '5', label: 'commons.tag'},
+    {id: 'creatorName', key: 'd', label: 'api_test.automation.creator'},
+    {id: 'principalName', key: '6', label: 'api_test.definition.api_principal'},
+    {id: 'updateTime', key: '7', label: 'api_test.definition.api_last_time'},
+    {id: 'lastResult', key: 'a', label: 'ui.debug_result_label'},
+    {id: 'createTime', key: 'c', label: 'commons.create_time'},
+  ],
   //用例评审
   TEST_CASE_REVIEW: [
     {id: 'name', key: '1', label: 'test_track.review.review_name'},
