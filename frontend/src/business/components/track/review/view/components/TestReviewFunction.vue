@@ -169,10 +169,6 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-button-group>.el-button:first-child {
-  padding: 4px 1px !important;
-}
-
 .version-select {
   padding-left: 10px;
 }
