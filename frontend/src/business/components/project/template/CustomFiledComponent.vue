@@ -73,6 +73,7 @@
        class="custom-with"
        @change="handleChange"
        v-else-if="data.type === 'date' || data.type === 'datetime'"
+       :value-format="data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
        :disabled="disabled"
        v-model="data[prop]"
        :type="data.type === 'date' ? 'date' : 'datetime'"
