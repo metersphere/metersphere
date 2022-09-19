@@ -6,10 +6,9 @@
           <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" @keyup.enter.native="handleSaveKeyUp"
                     style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
           <span v-else>
-            <router-link v-if="isSingleScenario"
-                         :to="{name: isUi ? 'uiAutomation' : 'ApiAutomation', params: { dataSelectRange: 'edit:' + scenarioId }}">
+            <a v-if="isSingleScenario" class="report-head" @click="isLink(report)">
               {{ report.name }}
-            </router-link>
+            </a>
             <span v-else>
               {{ report.name }}
             </span>
@@ -78,8 +77,9 @@
 <script>
 
 import {generateShareInfoWithExpired} from "@/network/share";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const UiDownloadScreenshot = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiDownloadScreenshot.vue") : {};
 
@@ -178,7 +178,7 @@ export default {
       pram.shareType = 'API_REPORT';
       let thisHost = window.location.host;
       let shareUrl = thisHost + "/shareApiReport";
-      if(this.isUi){
+      if (this.isUi) {
         pram.shareType = 'UI_REPORT';
         shareUrl = thisHost + "/shareUiReport";
       }
@@ -187,8 +187,8 @@ export default {
       });
     },
     getProjectApplication() {
-      let path  = "/API_SHARE_REPORT_TIME";
-      if(this.isUi){
+      let path = "/API_SHARE_REPORT_TIME";
+      if (this.isUi) {
         path = "/UI_SHARE_REPORT_TIME";
       }
       this.$get('/project_application/get/' + getCurrentProjectID() + path, res => {
@@ -208,6 +208,19 @@ export default {
         }
       });
     },
+    isLink(data) {
+      let uri = "/#/api/automation?resourceId=" + data.scenarioId;
+      let automationData = this.$router.resolve({
+        name: 'ApiAutomationWithQuery',
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + data.scenarioId,
+          projectId: data.projectId,
+        }
+      });
+      window.open(automationData.href, '_blank');
+    },
   }
 }
 </script>
@@ -224,5 +237,13 @@ export default {
   margin-right: 10px;
   background-color: #F2F9EF;
   color: #87C45D;
+}
+
+.report-head {
+  border-bottom: 1px solid var(--primary_color);
+  color: var(--primary_color);
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
 }
 </style>
