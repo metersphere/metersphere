@@ -184,7 +184,7 @@ public class ApiDataCountDTO {
 
     public void countRunResult(List<ApiDataCountResult> countResultByRunResult) {
         for (ApiDataCountResult countResult : countResultByRunResult) {
-            if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), "notRun", "unexecute")) {
+            if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), "notRun", "unexecute") || StringUtils.isEmpty(countResult.getGroupField())) {
                 this.unexecuteCount += countResult.getCountNumber();
             } else if ("Fail".equals(countResult.getGroupField())) {
                 this.executionFailedCount += countResult.getCountNumber();
