@@ -2006,6 +2006,8 @@ export default {
     date: "日期"
   },
   test_track: {
+    fold_right_collapse: '右侧折叠',
+    expand_right_collapse: '右側展開',
     sync_add_api_load: '同步添加關聯的接口和性能測試',
     next: '下一條',
     total_size: '共 {0} 條',

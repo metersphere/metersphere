@@ -252,6 +252,7 @@
       :test-cases="tableData"
       :is-read-only="isReadOnly"
       :total="total"
+      :fold="false"
       @refreshTable="search"/>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"

@@ -10,17 +10,21 @@
 
     <template v-slot:default="scope">
       <el-row>
-          <el-col :span="17">
+          <el-col :span="fold ? 24 : 17">
             <div class="container">
               <el-card>
                 <el-scrollbar>
                   <el-header>
                     <el-row type="flex" class="head-bar">
 
-                      <el-col :span="4">
+                      <el-col :span="6">
                         <el-button plain size="mini"
                                    icon="el-icon-back"
                                    @click="cancel">{{ $t('test_track.return') }}
+                        </el-button>
+                        <el-button type="primary" size="mini"
+                                   @click="handleRightCollapse">
+                          {{fold ? $t('test_track.expand_right_collapse') : $t('test_track.fold_right_collapse')}}
                         </el-button>
                       </el-col>
 
@@ -122,7 +126,7 @@
               </el-card>
             </div>
           </el-col>
-          <el-col :span="7">
+          <el-col :span="7" v-if="!fold">
             <div class="comment-card">
             <el-card>
               <template slot="header">
@@ -224,7 +228,11 @@ export default {
       default: 1
     },
     nextPageData: Object,
-    prePageData: Object
+    prePageData: Object,
+    fold: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     projectId() {
@@ -261,6 +269,9 @@ export default {
     cancel() {
       this.handleClose();
       this.$emit('refreshTable');
+    },
+    handleRightCollapse() {
+      this.fold = !this.fold;
     },
     statusChange(status) {
       this.originalStatus = this.testCase.status;
