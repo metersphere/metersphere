@@ -7,6 +7,13 @@
         from custom_field_template
         where custom_field_template.template_id = #{templateId}
     </select>
+
+    <select id="getCustomFields" resultType="io.metersphere.base.domain.CustomFieldTemplate">
+        select id, field_id fieldId, template_id templateId, scene, required, `order`, default_value defaultValue, custom_data customData, `key`
+        from custom_field_template
+        where custom_field_template.template_id = #{templateId}
+    </select>
+
     <select id="list" resultType="io.metersphere.dto.CustomFieldTemplateDao">
         select
         field_id, template_id, required, default_value, custom_data,
