@@ -985,7 +985,7 @@ export default {
 }
 
 /deep/ .el-main {
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /deep/ .el-tabs__header {
