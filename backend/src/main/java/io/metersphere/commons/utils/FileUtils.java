@@ -400,7 +400,7 @@ public class FileUtils {
                             file.setStorage(StorageConstants.GIT.name());
                             file.setFileId(source.getPropertyAsString("fileId"));
                             file.setName(reportId + File.separator + fileMetadata.getName());
-                            source.setFilename(BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
+                            ((CSVDataSet) key).setProperty("filename", BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
                         }
                     }
                     files.add(file);
