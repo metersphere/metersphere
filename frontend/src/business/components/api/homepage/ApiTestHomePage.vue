@@ -291,8 +291,8 @@ export default {
       switch (page) {
         case "api":
           this.$router.push({
-            name: 'ApiDefinition',
-            params: {paramObj: redirectObj}
+            name: 'ApiDefinitionWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           });
           break;
         case "apiWithQuery":
@@ -303,8 +303,8 @@ export default {
           break;
         case "scenario":
           this.$router.push({
-            name: 'ApiAutomationSingle',
-            params: {paramObj: redirectObj}
+            name: 'ApiAutomationWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           });
           break;
         case "scenarioWithQuery":

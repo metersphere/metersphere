@@ -33,7 +33,8 @@
           class="ms-api-button"
           ref="environmentSelect"/>
         <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab" @tab-remove="removeTab" ref="mainTabs">
+        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab" @tab-remove="removeTab"
+                 ref="mainTabs">
           <el-tab-pane
             name="trash" :closable="true"
             :label="$t('commons.trash')" v-if="trashEnable">
@@ -287,7 +288,7 @@ export default {
     },
     isSelectDefaultProtocol() {
       let selectDefaultProtocol = true;
-      let routeParamObj = this.$route.params.paramObj;
+      let routeParamObj = this.$route.params;
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;
@@ -391,7 +392,7 @@ export default {
   },
   activated() {
     this.$nextTick(() => {
-      let routeParamObj = this.$route.params.paramObj;
+      let routeParamObj = this.$route.params;
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         if (dataRange && dataRange.length > 0) {
@@ -466,7 +467,7 @@ export default {
     }
   },
   created() {
-    let routeParamObj = this.$route.params.paramObj;
+    let routeParamObj = this.$route.params;
     if (routeParamObj) {
       let workspaceId = routeParamObj.workspaceId;
       if (workspaceId) {
@@ -792,35 +793,17 @@ export default {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
     init() {
-      let routeParamObj = this.$route.params.paramObj;
-      if (routeParamObj) {
-        let dataRange = routeParamObj.dataSelectRange;
-        let dataType = routeParamObj.dataType;
-        if (dataRange && typeof dataRange === 'string') {
-          let selectParamArr = dataRange.split("edit:");
-          if (selectParamArr.length === 2) {
-            let scenarioId = selectParamArr[1];
-            if (dataType === 'api') {
-              this.$get('/api/definition/get/' + scenarioId, (response) => {
-                this.defaultProtocol = response.data.protocol;
-                this.editApi(response.data);
-              });
-            }
-          }
-        }
-      } else {
-        let dataRange = this.$route.params.dataSelectRange;
-        let dataType = this.$route.params.dataType;
-        if (dataRange && typeof dataRange === 'string') {
-          let selectParamArr = dataRange.split("edit:");
-          if (selectParamArr.length === 2) {
-            let scenarioId = selectParamArr[1];
-            if (dataType === 'api') {
-              this.$get('/api/definition/get/' + scenarioId, (response) => {
-                this.defaultProtocol = response.data.protocol;
-                this.editApi(response.data);
-              });
-            }
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if (dataRange && typeof dataRange === 'string') {
+        let selectParamArr = dataRange.split("edit:");
+        if (selectParamArr.length === 2) {
+          let scenarioId = selectParamArr[1];
+          if (dataType === 'api') {
+            this.$get('/api/definition/get/' + scenarioId, (response) => {
+              this.defaultProtocol = response.data.protocol;
+              this.editApi(response.data);
+            });
           }
         }
       }
@@ -969,8 +952,8 @@ export default {
       this.nodeTree = data;
     },
     changeSelectDataRangeAll(tableType) {
-      if (this.$route.params.paramObj) {
-        this.$route.params.paramObj.dataSelectRange = 'all';
+      if (this.$route.params) {
+        this.$route.params.dataSelectRange = 'all';
       }
     },
     enableTrash(data) {
