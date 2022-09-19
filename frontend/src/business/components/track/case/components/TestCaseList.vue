@@ -74,7 +74,7 @@
           min-width="80">
           <template v-slot:default="scope">
             <el-tooltip :content="$t('commons.edit')">
-              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
+              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
             </el-tooltip>
           </template>
         </ms-table-column>
