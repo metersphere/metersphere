@@ -2976,6 +2976,7 @@ export default {
     test_plan_ref_label: "Test plan reference",
     delete_scenario_lable: "Delete scenario",
     delete_command_lable: "Delete command",
+    command_name_label: "Command name",
   },
   project_application: {
     workstation: {

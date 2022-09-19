@@ -249,13 +249,13 @@
     WHERE usf.reference_id = #{request.scenarioId}
       AND usf.reference_type = "REF"
       AND us.scenario_type = #{request.scenarioType}
-    <if test="request.workspace != null">
+    <if test="request.workspace != null and request.workspace.size() > 0">
       AND w.id in
       <foreach close=")" collection="request.workspace" item="listItem" open="(" separator=",">
         #{listItem}
       </foreach>
     </if>
-    <if test="request.project != null">
+    <if test="request.project != null and request.project.size() > 0">
       AND p.id in
       <foreach close=")" collection="request.project" item="listItem" open="(" separator=",">
         #{listItem}
@@ -285,13 +285,13 @@
 
     WHERE
      us.ui_scenario_id = #{request.scenarioId}
-        <if test="request.workspace != null">
+        <if test="request.workspace != null and request.workspace.size() > 0">
           AND w.id in
           <foreach close=")" collection="request.workspace" item="listItem" open="(" separator=",">
             #{listItem}
           </foreach>
         </if>
-        <if test="request.project != null">
+        <if test="request.project != null  and request.project.size() > 0">
           AND p.id in
           <foreach close=")" collection="request.project" item="listItem" open="(" separator=",">
             #{listItem}
