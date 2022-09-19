@@ -65,26 +65,10 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class, Feature.DisableSpecialKeyDetect);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
 
-        /*Set<String> moduleIdSet = scenarioImport.getData().stream()
-                .map(ApiScenarioWithBLOBs::getApiScenarioModuleId).collect(Collectors.toSet());*/
-
-/*
-        Map<String, NodeTree> nodeMap = null;
-*/
-/*
-        List<NodeTree> nodeTree = scenarioImport.getNodeTree();
-*/
-        /*if (CollectionUtils.isNotEmpty(nodeTree)) {
-            cutDownTree(nodeTree, moduleIdSet);
-            ApiScenarioImportUtil.createNodeTree(nodeTree, projectId, importRequest.getModuleId());
-            nodeMap = getNodeMap(nodeTree);
-        }*/
-
         if (CollectionUtils.isNotEmpty(data)) {
-/*
-            Map<String, NodeTree> finalNodeMap = nodeMap;
-*/
             data.forEach(item -> {
+                //导入的用例，执行次数应当归零，否则会影响到首页的统计
+                item.setExecuteTimes(0);
                 String scenarioDefinitionStr = item.getScenarioDefinition();
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
                     JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr, Feature.DisableSpecialKeyDetect);
@@ -101,17 +85,6 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     }
                 }
 
-                /*if (finalNodeMap != null && finalNodeMap.get(item.getApiScenarioModuleId()) != null) {
-                    NodeTree node = finalNodeMap.get(item.getApiScenarioModuleId());
-                    item.setApiScenarioModuleId(node.getNewId());
-                    item.setModulePath(node.getPath());
-                } else {
-                    if (StringUtils.isBlank(item.getModulePath())) {
-                        item.setApiScenarioModuleId(null);
-                    }
-                    // 旧版本未导出模块
-                    parseModule(item.getModulePath(), importRequest, item);
-                }*/
                 item.setProjectId(this.projectId);
             });
         }
