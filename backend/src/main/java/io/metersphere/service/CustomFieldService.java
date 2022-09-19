@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.CustomFieldIssuesMapper;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
+import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
@@ -62,6 +63,8 @@ public class CustomFieldService {
     private ProjectMapper projectMapper;
     @Resource
     private CustomFieldIssuesMapper customFieldIssuesMapper;
+    @Resource
+    private ExtCustomFieldTemplateMapper extCustomFieldTemplateMapper;
 
     public String add(CustomField customField) {
         checkExist(customField);
@@ -136,7 +139,7 @@ public class CustomFieldService {
     }
 
     public List<CustomFieldDao> getCustomFieldByTemplateId(String templateId) {
-        List<CustomFieldTemplate> customFields = customFieldTemplateService.getCustomFields(templateId);
+        List<CustomFieldTemplate> customFields = extCustomFieldTemplateMapper.getCustomFields(templateId);
         List<String> fieldIds = customFields.stream()
                 .map(CustomFieldTemplate::getFieldId)
                 .collect(Collectors.toList());
