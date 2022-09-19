@@ -41,7 +41,9 @@
           <span v-else-if="scope.row.caseType === 'TEST_CASE'">
               {{ $t('test_track.case.test_case') }}
             </span>
-
+          <span v-else-if="scope.row.caseType === 'LOAD_CASE'">
+              {{ $t('commons.performance') }}
+            </span>
         </template>
       </ms-table-column>
 
@@ -118,16 +120,35 @@ export default {
       });
     },
     updateFileVersion(row) {
-      this.condition.ids = [row.id];
+
+      if (row.caseType === 'LOAD_CASE') {
+        this.condition.loadCaseFileIdMap = {};
+        this.$set(this.condition.loadCaseFileIdMap, row.caseId, row.id);
+      } else {
+        this.condition.ids = [row.id];
+      }
       this.$post('/file/metadata/case/version/update/' + this.fileMetadataRefId, this.condition, res => {
         this.$success('Pull ' + this.$t('variables.end'));
+        this.condition.ids = [];
+        this.condition.loadCaseFileIdMap = {};
         this.selectData();
       });
+
     },
     batchUpdateFileVersion() {
-      let selectIds = this.$refs.table.selectIds;
-      this.condition.ids = selectIds;
+      let selectRows = this.$refs.table.selectRows;
+      this.condition.ids = [];
+      this.condition.loadCaseFileIdMap = {};
+      this.$refs.table.selectRows.forEach(row => {
+        if (row.caseType === 'LOAD_CASE') {
+          this.$set(this.condition.loadCaseFileIdMap, row.caseId, row.id);
+        } else {
+          this.condition.ids.push(row.id);
+        }
+      });
       this.$post('/file/metadata/case/version/update/' + this.fileMetadataRefId, this.condition, res => {
+        this.condition.ids = [];
+        this.condition.loadCaseFileIdMap = {};
         this.$success('Pull ' + this.$t('variables.end'));
         this.selectData();
       });
