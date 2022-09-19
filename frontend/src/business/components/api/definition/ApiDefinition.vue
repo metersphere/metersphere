@@ -382,6 +382,7 @@ export default {
         this.activeDom = 'middle';
       }
     }
+    this.selectNodeIds = [];
 
     if (this.$route.params.dataSelectRange) {
       let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;

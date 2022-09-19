@@ -147,6 +147,9 @@ export default {
       return getCurrentProjectID();
     },
   },
+  activated() {
+    this.selectNodeIds = [];
+  },
   data() {
     return {
       total: 0,
