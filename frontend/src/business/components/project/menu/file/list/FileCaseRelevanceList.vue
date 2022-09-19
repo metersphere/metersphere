@@ -25,7 +25,7 @@
       </ms-table-column>
 
       <ms-table-column
-        :label="$t('project.project_file.repository.file_version')"
+        :label="$t('commons.type')"
         :min-width="120"
         prop="caseType">
         <template v-slot="scope">
@@ -39,7 +39,7 @@
               {{ $t('commons.scenario_case') }}
             </span>
           <span v-else-if="scope.row.caseType === 'TEST_CASE'">
-              {{ $t('commons.test_case') }}
+              {{ $t('test_track.case.test_case') }}
             </span>
 
         </template>
