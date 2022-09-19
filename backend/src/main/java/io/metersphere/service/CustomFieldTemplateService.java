@@ -45,7 +45,7 @@ public class CustomFieldTemplateService {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateId);
         example.setOrderByClause("`order` asc");
-        return customFieldTemplateMapper.selectByExample(example);
+        return customFieldTemplateMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<CustomFieldTemplateDao> list(CustomFieldTemplate request) {
@@ -72,7 +72,7 @@ public class CustomFieldTemplateService {
         }
     }
 
-    public  List<CustomFieldTemplate> getSystemFieldCreateTemplate(CustomFieldDao customField, String templateId) {
+    public List<CustomFieldTemplate> getSystemFieldCreateTemplate(CustomFieldDao customField, String templateId) {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateId);
         // 获取全局模板的关联关系
@@ -87,7 +87,7 @@ public class CustomFieldTemplateService {
         return fieldTemplates;
     }
 
-    public  void updateFieldIdByTemplate(String templateId, String originId , String fieldId) {
+    public void updateFieldIdByTemplate(String templateId, String originId, String fieldId) {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria()
                 .andTemplateIdEqualTo(templateId)
@@ -97,7 +97,7 @@ public class CustomFieldTemplateService {
         customFieldTemplateMapper.updateByExampleSelective(customFieldTemplate, example);
     }
 
-    public  List<CustomFieldTemplate> getFieldTemplateByFieldIds(List<String> fieldIds) {
+    public List<CustomFieldTemplate> getFieldTemplateByFieldIds(List<String> fieldIds) {
         if (CollectionUtils.isNotEmpty(fieldIds)) {
             CustomFieldTemplateExample example = new CustomFieldTemplateExample();
             example.createCriteria().andFieldIdIn(fieldIds);
@@ -144,13 +144,14 @@ public class CustomFieldTemplateService {
     /**
      * 将原来全局字段与模板的关联
      * 改为项目下字段与模板的关联
+     *
      * @param customField
      * @param templateIds
      * @return
      */
     public int updateProjectTemplateGlobalField(CustomFieldDao customField, List<String> templateIds) {
         if (CollectionUtils.isEmpty(templateIds)) {
-          return 0;
+            return 0;
         }
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria()
