@@ -15,7 +15,7 @@
           :module-options="moduleOptions"
         />
       </ms-aside-container>
-      <ms-main-container class="ms-scenario-main-container" style="overflow: hidden">
+      <ms-main-container class="ms-scenario-main-container">
         <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed;">
           <el-button :class="{active: showApiList}" class="item" plain size="small" @click="changeTab('api')">
             API
