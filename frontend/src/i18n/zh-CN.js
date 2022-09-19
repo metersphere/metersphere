@@ -830,7 +830,7 @@ export default {
     },
     timing_clean_plan_report: "定时清理测试计划报告",
     timing_clean_api_report: "定时清理接口测试报告",
-    timing_clean_load_report: "定时清理性能测试报告",  
+    timing_clean_load_report: "定时清理性能测试报告",
     timing_clean_ui_report: "定时清理UI测试报告",
     keep_recent: "保留最近",
     please_select_cleaning_time: "请选择清理时间！"
@@ -2006,6 +2006,8 @@ export default {
     date: "日期"
   },
   test_track: {
+    fold_right_collapse: '右侧折叠',
+    expand_right_collapse: '右侧展开',
     sync_add_api_load: '同步添加关联的接口和性能测试',
     next: '下一条',
     total_size: '共 {0} 条',

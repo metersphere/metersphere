@@ -2002,6 +2002,8 @@ export default {
     date: "Date"
   },
   test_track: {
+    fold_right_collapse: 'Fold Right',
+    expand_right_collapse: 'Expand Right',
     sync_add_api_load: 'Synchronously add associated api and load tests',
     next: 'Next',
     total_size: 'Total {0}',
