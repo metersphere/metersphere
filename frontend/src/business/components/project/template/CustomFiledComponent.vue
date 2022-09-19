@@ -155,15 +155,14 @@ export default {
         }
       }
     }
-    if (this.data.type.indexOf("member") < 0) {
-      return;
+    if (this.data.type === 'member' || this.data.type === 'multipleMember') {
+      getProjectMemberOption((data) => {
+        this.memberOptions = data;
+        if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
+          this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+        }
+      });
     }
-    getProjectMemberOption((data) => {
-      this.memberOptions = data;
-      if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
-        this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
-      }
-    });
   },
   methods: {
     getTranslateOption(item) {
