@@ -11,8 +11,8 @@
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
       :default-label="$t('commons.module_title')"
       :show-case-num="showCaseNum"
-      operation_type_add="external"
-      operation_type_edit="external"
+      :operation_type_add="treeOperationType"
+      :operation_type_edit="treeOperationType"
       @edit="edit"
       @drag="drag"
       @remove="remove"
@@ -39,7 +39,7 @@ import MsNodeTree from "../../../../track/common/NodeTree";
 import {buildTree} from "@/business/components/api/definition/model/NodeTree";
 import MsMyFile from "./MyFile";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
-import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, hasLicense} from "@/common/js/utils";
 import FileModuleDialog from "@/business/components/project/menu/file/dialog/FileModuleDialog";
 
 export default {
@@ -71,6 +71,10 @@ export default {
   computed: {
     projectId() {
       return getCurrentProjectID();
+    },
+    treeOperationType() {
+      let returnStr = hasLicense() ? 'external' : 'simple'
+      return returnStr;
     }
   },
   data() {
