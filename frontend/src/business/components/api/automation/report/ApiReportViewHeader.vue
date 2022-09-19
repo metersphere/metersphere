@@ -6,10 +6,9 @@
           <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" @keyup.enter.native="handleSaveKeyUp"
                     style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
           <span v-else>
-            <router-link v-if="isSingleScenario"
-                         :to="{name: isUi ? 'uiAutomation' : 'ApiAutomation', params: { dataSelectRange: 'edit:' + scenarioId }}">
+            <el-link v-if="isSingleScenario" @click="redirect">
               {{ report.name }}
-            </router-link>
+            </el-link>
             <span v-else>
               {{ report.name }}
             </span>
@@ -68,6 +67,7 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const UiDownloadScreenshot = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiDownloadScreenshot.vue") : {};
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 
 export default {
   name: "MsApiReportViewHeader",
@@ -131,7 +131,20 @@ export default {
     handleSaveKeyUp($event) {
       $event.target.blur();
     },
-    returnView(){
+    redirect() {
+      let data = this.$router.resolve({
+        name: this.isUi ? 'uiAutomation' : 'ApiAutomation',
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + this.scenarioId,
+          projectId: getCurrentProjectID(),
+          workspaceId: getCurrentWorkspaceId(),
+        }
+      });
+      window.open(data.href, '_blank');
+    },
+    returnView() {
       if (this.isUi) {
         this.$router.push('/ui/report');
       } else {
