@@ -276,8 +276,9 @@
     </if>
   </select>
 
-  <select id="getTestPlanRef"  parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.RefResp">
-    SELECT tp.name AS scenarioName , us.id AS id,  p.name AS project,  us.create_time AS dateStr , w.name AS workspace, tp.id AS targetId
+  <select id="getTestPlanRef"  parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.TestPlanRefResp">
+    SELECT tp.name AS scenarioName , us.id AS id,  p.name AS project,  us.create_time AS dateStr , w.name AS workspace, tp.id AS targetId,
+    p.workspace_id AS workspaceId, p.id AS projectId
     FROM
     `test_plan_ui_scenario` us LEFT JOIN `test_plan` tp ON us.test_plan_id = tp.id
     LEFT JOIN project p ON tp.project_id = p.id
