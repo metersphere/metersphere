@@ -160,10 +160,10 @@ public class TestPlanMessageService {
 
         // 执行率 通过率 两位小数
         if (report.getPassRate() != null && !report.getPassRate().isNaN()) {
-            paramMap.put("passRate", String.format("%.2f", report.getPassRate()));
+            paramMap.put("passRate", String.format("%.2f", report.getPassRate() * 100));
         }
         if (report.getExecuteRate() != null && !report.getExecuteRate().isNaN()) {
-            paramMap.put("executeRate", String.format("%.2f", report.getExecuteRate()));
+            paramMap.put("executeRate", String.format("%.2f", report.getExecuteRate() * 100));
         }
 
         paramMap.putAll(caseCountMap);
