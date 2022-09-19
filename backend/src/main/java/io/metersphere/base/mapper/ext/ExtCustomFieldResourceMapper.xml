@@ -23,6 +23,9 @@
             <if test="record.textValue != null">
                 text_value = #{record.textValue,jdbcType=LONGVARCHAR},
             </if>
+            <if test="record.value == null and record.textValue == null">
+                `value` = null and text_value = null
+            </if>
         </set>
     </sql>
     <update id="batchUpdateByResourceIds">
