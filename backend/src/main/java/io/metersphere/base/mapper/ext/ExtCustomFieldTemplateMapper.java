@@ -10,6 +10,8 @@ import java.util.List;
 public interface ExtCustomFieldTemplateMapper {
     List<String> getCustomFieldIds(@Param("templateId") String templateId);
 
+    List<CustomFieldTemplate> getCustomFields(@Param("templateId") String templateId);
+
     List<CustomFieldTemplateDao> list(@Param("request") CustomFieldTemplate request);
 
     List<CustomFieldDao> lisSimple(@Param("request") CustomFieldTemplate request);
