@@ -1200,7 +1200,7 @@ export default {
     isRedirectFilter() {
       this.selectDataRange = "all";
       this.selectDataType = "all";
-      let routeParamObj = this.$route.params.paramObj;
+      let routeParamObj = this.$route.params;
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;

@@ -218,7 +218,6 @@ import MsTag from "@/business/components/common/components/MsTag";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus.vue";
 import {
   buildBatchParam,
-  deepClone,
   getCustomFieldBatchEditOption,
   getCustomFieldFilter,
   getCustomFieldValue,
@@ -236,7 +235,8 @@ import {
   getCurrentProjectID,
   getCurrentWorkspaceId,
   getUUID,
-  hasLicense, operationConfirm,
+  hasLicense,
+  operationConfirm,
   parseTag
 } from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
@@ -632,12 +632,9 @@ export default {
       });
     },
     getSelectDataRange() {
-      let routeParamObj = this.$route.params.paramObj;
       this.selectDataRange = 'all';
-      if (routeParamObj) {
-        let dataRange = routeParamObj.dataSelectRange;
-        this.selectDataRange = dataRange;
-      }
+      let dataRange = this.$route.params.dataSelectRange;
+      this.selectDataRange = dataRange;
     },
     initTableData(nodeIds) {
       this.condition.planId = "";
@@ -800,7 +797,7 @@ export default {
           this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
         } else {
           operationConfirm(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
-             this._handleDeleteVersion(testCase, false);
+            this._handleDeleteVersion(testCase, false);
           });
         }
       });
