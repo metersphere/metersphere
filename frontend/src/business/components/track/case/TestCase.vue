@@ -131,6 +131,9 @@
           :label="item.label"
           :name="item.name"
           closable>
+          <el-tooltip slot="label" effect="dark" :content="item.label" placement="bottom-start" class="ms-tab-name-width">
+            <span>{{ item.label }}</span>
+          </el-tooltip>
           <div class="ms-api-scenario-div" v-if="!showPublic">
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
@@ -859,4 +862,12 @@ export default {
   padding-left: 10px;
 }
 
+.ms-tab-name-width {
+  display: inline-block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  max-width: 200px;
+}
 </style>
