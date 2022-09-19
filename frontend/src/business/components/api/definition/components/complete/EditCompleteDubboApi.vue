@@ -165,26 +165,18 @@ export default {
     callback() {
       this.validated = true;
     },
-    validateApi() {
-      this.validated = false;
-      this.basisData.method = this.request.protocol;
-      this.$refs['basicForm'].validate();
-    },
     saveApi() {
-      this.validateApi();
-      if (this.validated) {
-        this.basisData.request = this.request;
-        if (this.basisData.tags instanceof Array) {
-          this.basisData.tags = JSON.stringify(this.basisData.tags);
-        }
-        this.$emit('saveApi', this.basisData);
-        this.$store.state.apiStatus.set("fromChange", false);
-        this.$store.state.apiMap.set(this.basisData.id, this.$store.state.apiStatus);
-      } else {
-        if (this.$refs.versionHistory) {
-          this.$refs.versionHistory.loading = false;
-        }
+      this.basisData.request = this.request;
+      if (this.basisData.tags instanceof Array) {
+        this.basisData.tags = JSON.stringify(this.basisData.tags);
       }
+      this.$emit('saveApi', this.basisData);
+      this.$store.state.apiStatus.set("fromChange", false);
+      this.$store.state.apiMap.set(this.basisData.id, this.$store.state.apiStatus);
+      if (this.$refs.versionHistory) {
+        this.$refs.versionHistory.loading = false;
+      }
+
     },
     runTest() {
       this.validateApi();
