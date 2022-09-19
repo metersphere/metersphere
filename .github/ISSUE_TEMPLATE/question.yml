@@ -2,7 +2,7 @@ name: 问题咨询
 description: 提出针对本项目安装部署、使用及其他方面的相关问题
 title: "[QUESTION]"
 labels: question
-assignees: Hyyfit
+assignees: luty2018
 body:
   - type: textarea
     id: description

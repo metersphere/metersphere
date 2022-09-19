@@ -249,7 +249,7 @@ public class APITestController {
         apiCountResult.setExecutionPassCount(executionPassCount);
         apiCountResult.setFakeErrorCount(fakeErrorCount);
 
-        if (unexecuteCount + executedCountNumber + executionPassCount > 0) {
+        if (unexecuteCount + executionFailedCount + executionPassCount + fakeErrorCount > 0) {
             //通过率
             float coverageRageNumber = (float) executionPassCount * 100 / (unexecuteCount + executedCountNumber + executionPassCount);
             DecimalFormat df = new DecimalFormat("0.0");
