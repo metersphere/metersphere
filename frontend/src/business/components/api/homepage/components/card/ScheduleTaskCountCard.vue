@@ -78,7 +78,7 @@
               {{ $t('api_test.home_page.detail_card.failed') }}
                <el-link type="info" class="rows-count-number" @click="redirectPage('executionFailedCount')"
                         target="_blank">
-                 <b>{{ scheduleTaskCountData.failedCount + scheduleTaskCountData.failedCount }}</b>
+                 <b>{{ scheduleTaskCountData.failedCount }}</b>
                 </el-link>
             </span>
           </el-col>
