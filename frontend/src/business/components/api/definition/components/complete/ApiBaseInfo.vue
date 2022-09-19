@@ -1,7 +1,7 @@
 <template>
   <div v-loading="isloading">
     <el-form ref="apiForm" :model="basicForm" :rules="rules" class="case-form" label-position="right"
-             label-width="100px"
+             label-width="80px"
              size="small"
              style="margin-left: 5px;margin-right: 5px">
       <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
@@ -64,10 +64,9 @@
                     size="small" type="textarea"/>
         </el-form-item>
       </el-row>
-
       <!-- 自定义字段 -->
       <el-form v-if="isFormAlive" ref="customFieldForm" :model="customFieldForm" :rules="customFieldRules"
-               class="case-form" label-position="right" label-width="100px"
+               class="case-form" label-position="right" label-width="80px"
                size="small">
         <custom-filed-form-row :default-open="defaultOpen"
                                :disabled="readOnly"
