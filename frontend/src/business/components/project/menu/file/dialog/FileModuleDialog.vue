@@ -11,12 +11,12 @@
       </el-radio-group>
     </el-row>
     <el-form :model="moduleForm" :rules="moduleRule" ref="form" label-width="100px" @submit.native.prevent>
-      <el-form-item v-show="moduleForm.moduleType === 'module'"
+      <el-form-item v-if="moduleForm.moduleType === 'module'"
                     :label="$t('test_track.module.name')"
                     prop="name">
         <el-input v-model="moduleForm.name"></el-input>
       </el-form-item>
-      <div v-show="moduleForm.moduleType === 'repository'">
+      <div v-if="moduleForm.moduleType === 'repository'">
         <el-form-item
           :label="$t('project.project_file.repository.name')"
           prop="name">
