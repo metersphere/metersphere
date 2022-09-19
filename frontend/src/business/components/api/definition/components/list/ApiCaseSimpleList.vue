@@ -1200,19 +1200,10 @@ export default {
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     isRedirectFilter() {
       this.selectDataRange = "all";
-      let routeParamObj = this.$route.params.paramObj;
-      if (routeParamObj) {
-        let routeParam = routeParamObj.dataSelectRange;
-        let dataType = routeParamObj.dataType;
-        if (dataType === 'apiTestCase') {
-          this.selectDataRange = routeParam;
-        }
-      } else {
-        let routeParam = this.$route.params.dataSelectRange;
-        let dataType = this.$route.params.dataType;
-        if (dataType === 'apiTestCase') {
-          this.selectDataRange = routeParam;
-        }
+      let routeParam = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if (dataType === 'apiTestCase') {
+        this.selectDataRange = routeParam;
       }
     },
     changeSelectDataRangeAll() {

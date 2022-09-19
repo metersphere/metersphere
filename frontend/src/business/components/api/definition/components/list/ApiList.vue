@@ -968,33 +968,16 @@ export default {
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     getSelectDataRange() {
-      let routeParamObj = this.$route.params.paramObj;
-      if (routeParamObj) {
-        let dataRange = routeParamObj.dataSelectRange;
-        let dataType = routeParamObj.dataType;
-        this.selectDataRange = dataType === 'api' ? dataRange : "all";
-        if (this.selectDataRange &&
-          Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-          && this.selectDataRange.indexOf(":") !== -1) {
-          let selectParamArr = this.selectDataRange.split(":");
-          if (selectParamArr.length === 2) {
-            if (selectParamArr[0] === "apiList") {
-              this.condition.name = selectParamArr[1];
-            }
-          }
-        }
-      } else {
-        let dataRange = this.$route.params.dataSelectRange;
-        let dataType = this.$route.params.dataType;
-        this.selectDataRange = dataType === 'api' ? dataRange : "all";
-        if (this.selectDataRange &&
-          Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-          && this.selectDataRange.indexOf(":") !== -1) {
-          let selectParamArr = this.selectDataRange.split(":");
-          if (selectParamArr.length === 2) {
-            if (selectParamArr[0] === "apiList") {
-              this.condition.name = selectParamArr[1];
-            }
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      this.selectDataRange = dataType === 'api' ? dataRange : "all";
+      if (this.selectDataRange &&
+        Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+        && this.selectDataRange.indexOf(":") !== -1) {
+        let selectParamArr = this.selectDataRange.split(":");
+        if (selectParamArr.length === 2) {
+          if (selectParamArr[0] === "apiList") {
+            this.condition.name = selectParamArr[1];
           }
         }
       }

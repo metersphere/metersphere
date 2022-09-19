@@ -33,7 +33,7 @@ export default {
       component: TestCase,
     },
     {
-      path: 'case/all',
+      path: 'case/all/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?',
       name: 'testCaseRedirect',
       component: TestCase,
     },

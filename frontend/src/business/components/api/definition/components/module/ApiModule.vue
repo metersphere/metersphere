@@ -187,25 +187,12 @@ export default {
     },
     isRedirect() {
       let isRedirectPage = false;
-      let routeParamObj = this.$route.params.paramObj;
-      if (routeParamObj) {
-        if (routeParamObj.dataSelectRange) {
-          let item = JSON.parse(JSON.stringify(routeParamObj.dataSelectRange)).param;
-          if (item !== undefined) {
-            let type = item.taskGroup.toString();
-            if (type === "SWAGGER_IMPORT") {
-              isRedirectPage = true;
-            }
-          }
-        }
-      } else {
-        if (this.$route.params.dataSelectRange) {
-          let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
-          if (item !== undefined) {
-            let type = item.taskGroup.toString();
-            if (type === "SWAGGER_IMPORT") {
-              isRedirectPage = true;
-            }
+      if (this.$route.params.dataSelectRange) {
+        let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
+        if (item !== undefined) {
+          let type = item.taskGroup.toString();
+          if (type === "SWAGGER_IMPORT") {
+            isRedirectPage = true;
           }
         }
       }
