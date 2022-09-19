@@ -8,6 +8,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestFileMapper;
 import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.FileAssociationType;
 import io.metersphere.commons.constants.FileModuleTypeConstants;
@@ -30,6 +31,7 @@ import io.metersphere.metadata.vo.repository.GitFileAttachInfo;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -70,6 +72,8 @@ public class FileMetadataService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestCaseMapper testCaseMapper;
+    @Resource
+    private ExtLoadTestFileMapper extLoadTestFileMapper;
 
     public List<FileMetadata> create(FileMetadataCreateRequest fileMetadata, List<MultipartFile> files) {
         List<FileMetadata> result = new ArrayList<>();
@@ -655,6 +659,11 @@ public class FileMetadataService {
                     this.add("TEST_CASE");
                 }});
                 List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(associationExample);
+
+                LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+                loadTestFileExample.createCriteria().andFileIdIn(new ArrayList<>(fileCommitIdMap.keySet()));
+                List<LoadTestFile> loadTestFileList = loadTestFileMapper.selectByExample(loadTestFileExample);
+
                 for (FileAssociation fileAssociation : fileAssociationList) {
                     String caseId = null;
                     String caseName = null;
@@ -689,6 +698,14 @@ public class FileMetadataService {
                         list.add(dto);
                     }
                 }
+                for (LoadTestFile loadTestFile : loadTestFileList) {
+                    LoadTest loadTest = loadTestMapper.selectByPrimaryKey(loadTestFile.getTestId());
+                    if (loadTest != null) {
+                        FileRelevanceCaseDTO dto = new FileRelevanceCaseDTO(loadTestFile.getFileId(), loadTest.getId(), loadTest.getName(), "LOAD_CASE"
+                                , fileCommitIdMap.get(loadTestFile.getFileId()));
+                        list.add(dto);
+                    }
+                }
             }
         }
 
@@ -703,23 +720,29 @@ public class FileMetadataService {
 
     public String updateCaseVersion(String refId, QueryProjectFileRequest request) {
         String returnString = "";
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            FileMetadataExample example = new FileMetadataExample();
-            example.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
-            List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(fileMetadataList)) {
-                String latestId = fileMetadataList.get(0).getId();
-
+        int updateCount = 0;
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
+        List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(fileMetadataList)) {
+            String latestId = fileMetadataList.get(0).getId();
+            if (CollectionUtils.isNotEmpty(request.getIds())) {
                 FileAssociationExample associationExample = new FileAssociationExample();
                 associationExample.createCriteria().andIdIn(request.getIds());
-
                 FileAssociation fileAssociation = new FileAssociation();
                 fileAssociation.setFileMetadataId(latestId);
-
-                int updateCount = fileAssociationMapper.updateByExampleSelective(fileAssociation, associationExample);
-                returnString = String.valueOf(updateCount);
+                updateCount = fileAssociationMapper.updateByExampleSelective(fileAssociation, associationExample);
+            }
+            if (MapUtils.isNotEmpty(request.getLoadCaseFileIdMap())) {
+                for (Map.Entry<String, String> entry : request.getLoadCaseFileIdMap().entrySet()) {
+                    String caseId = entry.getKey();
+                    String fileId = entry.getValue();
+                    extLoadTestFileMapper.updateFileIdByTestIdAndFileId(latestId, caseId, fileId);
+                }
             }
         }
+
+        returnString = String.valueOf(updateCount);
         return returnString;
     }
 }
