@@ -78,10 +78,16 @@ function redirectLoginPath(originPath, next) {
     if (!defaultMenuRoute) {
       // 记录标识，防止死循环
       sessionStorage.setItem('defaultMenuRoute', 'sign');
-      originPath = getDefaultSecondLevelMenu(originPath);
-      next({path: originPath});
-      if (router.currentRoute.fullPath === originPath) {
-        sessionStorage.setItem('redirectUrl', originPath);
+      let changedPath = getDefaultSecondLevelMenu(originPath);
+      if (changedPath === originPath) {
+        // 通过了权限校验，保留路由相关信息，直接放行
+        next();
+      } else {
+        // 未通过校验，放行至有权限路由
+        next({path: changedPath});
+      }
+      if (router.currentRoute.fullPath === changedPath) {
+        sessionStorage.setItem('redirectUrl', changedPath);
         // 路径相同时，移除标识
         sessionStorage.removeItem("defaultMenuRoute");
       }
