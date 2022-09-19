@@ -152,6 +152,7 @@ public class TestPlanMessageService {
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
+        paramMap.put("creator", testPlan.getCreator());
         if (userDTO != null) {
             paramMap.put("operator", userDTO.getName());
             paramMap.put("executor", userDTO.getId());
