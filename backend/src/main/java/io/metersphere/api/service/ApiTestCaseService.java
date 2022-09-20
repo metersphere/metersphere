@@ -460,7 +460,7 @@ public class ApiTestCaseService {
                 test.setTags(request.getTags());
             }
             ApiTestCaseSyncService apiTestCaseSyncService = CommonBeanFactory.getBean(ApiTestCaseSyncService.class);
-            if(apiTestCaseSyncService != null){
+            if (apiTestCaseSyncService != null) {
                 apiTestCaseSyncService.setCaseUpdateValue(test);
             }
 
@@ -1321,5 +1321,15 @@ public class ApiTestCaseService {
         apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.CASE.name()).andReferenceTypeEqualTo(MsTestElementConstants.REF.name()).andReferenceIdEqualTo(testId);
         List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
         return apiScenarioReferenceIds.size();
+    }
+
+    public ApiTestCaseWithBLOBs getById(String id) {
+        return apiTestCaseMapper.selectByPrimaryKey(id);
+    }
+
+    public void update(ApiTestCaseWithBLOBs apiTestCaseWithBLOBs) {
+        if (apiTestCaseWithBLOBs != null) {
+            apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
+        }
     }
 }
