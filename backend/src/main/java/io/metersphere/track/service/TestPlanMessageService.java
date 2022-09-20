@@ -1,5 +1,6 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
 import io.metersphere.api.service.ShareInfoService;
@@ -334,6 +335,7 @@ public class TestPlanMessageService {
                         result.put("uiScenarioFailedCount", v);
                         break;
                     case "unexecute":
+                    case "stop":
                         result.put("uiScenarioUnExecuteCount", v);
                         break;
                     default:
