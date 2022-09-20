@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -892,4 +893,25 @@ public class ElementUtil {
         return null;
     }
 
+    public static void replaceFileMetadataId(MsTestElement testElement, String newFileMetadataId, String oldFileMetadataId) {
+        if (testElement != null && testElement instanceof MsHTTPSamplerProxy) {
+            if (((MsHTTPSamplerProxy) testElement).getBody() != null && CollectionUtils.isNotEmpty(((MsHTTPSamplerProxy) testElement).getBody().getKvs())) {
+                for (KeyValue keyValue : ((MsHTTPSamplerProxy) testElement).getBody().getKvs()) {
+                    if (CollectionUtils.isNotEmpty(keyValue.getFiles())) {
+                        for (BodyFile bodyFile : keyValue.getFiles()) {
+                            if (StringUtils.equals(bodyFile.getFileId(), oldFileMetadataId)) {
+                                bodyFile.setFileId(newFileMetadataId);
+                            }
+                        }
+                    }
+                }
+            }
+            if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
+                for (MsTestElement childElement : testElement.getHashTree()) {
+                    replaceFileMetadataId(childElement, newFileMetadataId, oldFileMetadataId);
+
+                }
+            }
+        }
+    }
 }
