@@ -2130,8 +2130,8 @@ public class TestCaseService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(record.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
                     fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 });
                 sqlSession.flushStatements();
