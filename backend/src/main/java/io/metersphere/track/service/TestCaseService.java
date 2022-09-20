@@ -832,8 +832,10 @@ public class TestCaseService {
         });
 
         returnList.forEach(testCase -> {
-            String status = projectStatusOptionMap.get(testCase.getProjectId()).get(testCase.getStatus());
-            String priority = projectPriorityOptionMap.get(testCase.getProjectId()).get(testCase.getStatus());
+            Map<String, String> statusMap = projectStatusOptionMap.get(testCase.getProjectId());
+            Map<String, String> priorityMap = projectPriorityOptionMap.get(testCase.getProjectId());
+            String status = statusMap == null ? testCase.getStatus() : statusMap.get(testCase.getStatus());
+            String priority = priorityMap == null ? testCase.getPriority() : priorityMap.get(testCase.getPriority());
             if (StringUtils.isNotBlank(status)) {
                 testCase.setStatus(status);
             }
