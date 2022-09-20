@@ -199,8 +199,8 @@ export default {
       }
     },
     setModule(id, data) {
-      this.basicForm.module = id;
-      this.basicForm.nodePath = data.path;
+      this.basicForm.moduleId = id;
+      this.basicForm.modulePath = data.path;
     },
     validateForm() {
       let isValidate = true;
