@@ -270,7 +270,8 @@ public class TestPlanMessageService {
 
         List<TestPlanFailureApiDTO> apiAllCases = report.getApiAllCases();
         if (CollectionUtils.isNotEmpty(apiAllCases)) {
-            Map<String, Long> apiCountMap = apiAllCases.stream().collect(Collectors.groupingBy(TestPlanFailureApiDTO::getExecResult, Collectors.counting()));
+            Map<String, Long> apiCountMap = apiAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getExecResult()) ? "default" : plan.getExecResult().toLowerCase(), Collectors.counting()));
             // ["success", "error", "default", "errorReportResult"]
             apiCountMap.forEach((k, v) -> {
                 switch (k) {
@@ -283,7 +284,7 @@ public class TestPlanMessageService {
                     case "default":
                         result.put("apiCaseUnExecuteCount", v);
                         break;
-                    case "errorReportResult":
+                    case "errorreportresult":
                         result.put("apiCaseErrorReportCount", v);
                         break;
                     default:
@@ -295,20 +296,21 @@ public class TestPlanMessageService {
 
         List<TestPlanFailureScenarioDTO> scenarioAllCases = report.getScenarioAllCases();
         if (CollectionUtils.isNotEmpty(scenarioAllCases)) {
-            Map<String, Long> scenarioCountMap = scenarioAllCases.stream().collect(Collectors.groupingBy(TestPlanFailureScenarioDTO::getLastResult, Collectors.counting()));
+            Map<String, Long> scenarioCountMap = scenarioAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getLastResult()) ? "unexecute" : plan.getLastResult().toLowerCase(), Collectors.counting()));
             // ["Fail", "Success", "unexecute", "errorReportResult"]
             scenarioCountMap.forEach((k, v) -> {
                 switch (k) {
-                    case "Success":
+                    case "success":
                         result.put("apiScenarioSuccessCount", v);
                         break;
-                    case "Fail":
+                    case "fail":
                         result.put("apiScenarioFailedCount", v);
                         break;
                     case "unexecute":
                         result.put("apiScenarioUnExecuteCount", v);
                         break;
-                    case "errorReportResult":
+                    case "errorreportresult":
                         result.put("apiScenarioErrorReportCount", v);
                         break;
                     default:
@@ -320,13 +322,15 @@ public class TestPlanMessageService {
 
         List<TestPlanUiScenarioDTO> uiAllCases = report.getUiAllCases();
         if (CollectionUtils.isNotEmpty(uiAllCases)) {
-            Map<String, Long> uiCountMap = uiAllCases.stream().collect(Collectors.groupingBy(TestPlanUiScenarioDTO::getLastResult, Collectors.counting()));
+            Map<String, Long> uiCountMap = uiAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getLastResult()) ? "unexecute" : plan.getLastResult().toLowerCase(), Collectors.counting()));
             uiCountMap.forEach((k, v) -> {
                 switch (k) {
-                    case "Success":
+                    case "success":
                         result.put("uiScenarioSuccessCount", v);
                         break;
-                    case "Fail":
+                    case "fail":
+                    case "error":
                         result.put("uiScenarioFailedCount", v);
                         break;
                     case "unexecute":
