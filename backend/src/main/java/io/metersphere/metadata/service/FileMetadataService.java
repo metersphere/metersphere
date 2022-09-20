@@ -91,7 +91,7 @@ public class FileMetadataService {
                 fileMetadata.setName(MetadataUtils.getFileNameByRemotePath(fileMetadata.getRepositoryPath()));
                 fileMetadata.setType(MetadataUtils.getFileType(fileMetadata.getRepositoryPath()));
                 fileMetadata.setPath(fileMetadata.getRepositoryPath());
-                fileMetadata.setSize(Long.valueOf(0));
+                fileMetadata.setSize(gitFileInfo.getSize());
                 fileMetadata.setAttachInfo(JSONObject.toJSONString(gitFileInfo));
                 result.add(this.save(fileMetadata));
             } else {
@@ -590,7 +590,7 @@ public class FileMetadataService {
         newMetadata.setAttachInfo(JSONObject.toJSONString(gitFileAttachInfo));
         newMetadata.setName(baseMetadata.getName());
         newMetadata.setType(baseMetadata.getType());
-        newMetadata.setSize(baseMetadata.getSize());
+        newMetadata.setSize(gitFileAttachInfo.getSize());
         newMetadata.setCreateTime(operationTime);
         newMetadata.setUpdateTime(operationTime);
         newMetadata.setStorage(baseMetadata.getStorage());

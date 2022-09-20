@@ -41,6 +41,7 @@ import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.threads.JMeterVariables;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -110,7 +111,6 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         WebSocketUtils.sendMessageSingle(dto);
         WebSocketUtils.onClose(this.getName());
         PoolExecBlockingQueueUtil.offer(this.getName());
-        FileUtils.deleteBodyFiles(this.getName());
     }
 
     @Override
@@ -164,16 +164,24 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                         transactionResult.getResponseResult().setConsole(console);
                         //解析误报内容
                         RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
+                        if (FileUtils.isFolderExists(dto.getToReport())) {
+                            expandDTO.getResponseResult().setConsole(expandDTO.getResponseResult().getConsole() + "\r\n" + "tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getToReport() + " has deleted.");
+                        }
                         JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(expandDTO));
-                        dto.setContent("result_" + JSON.toJSONString(requestResultObject));
+                        String consoleStr = JSON.toJSONString(requestResultObject);
+                        dto.setContent("result_" + consoleStr);
                         WebSocketUtils.sendMessageSingle(dto);
                     });
                 } else {
                     requestResult.getResponseResult().setConsole(console);
                     //解析误报内容
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
+                    if (FileUtils.isFolderExists(dto.getToReport())) {
+                        expandDTO.getResponseResult().setConsole(expandDTO.getResponseResult().getConsole() + "\r\n" + "tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getToReport() + " has deleted.");
+                    }
                     JSONObject requestResultObject = JSONObject.parseObject(JSON.toJSONString(expandDTO));
-                    dto.setContent("result_" + JSON.toJSONString(requestResultObject));
+                    String consoleStr = JSON.toJSONString(requestResultObject);
+                    dto.setContent("result_" + consoleStr);
                     WebSocketUtils.sendMessageSingle(dto);
                 }
                 LoggerUtil.debug("send. " + this.getName());

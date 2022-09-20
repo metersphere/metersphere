@@ -13,6 +13,7 @@ public class GitFileAttachInfo extends FileAttachInfo {
     private String commitId;
     private String filePath;
     private String commitMessage;
+    private long size;
 
     public String getRepositoryInfo() {
         return repositoryPath + "-" + userName + "-" + token;

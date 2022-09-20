@@ -20,6 +20,7 @@ import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +61,12 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
             }
 
-            dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())));
+            String console = FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
+            if (FileUtils.isFolderExists(dto.getReportId())) {
+                console += "\r\n" + "tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getReportId() + " has deleted.";
+            }
+            dto.setConsole(console);
+
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
