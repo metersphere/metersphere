@@ -195,7 +195,7 @@
         </ms-table-column>
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
-                         :filters="getCustomFieldFilter(field)"
+                         :filters="!trashEnable ? getCustomFieldFilter(field) : ''"
                          :field="item"
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
