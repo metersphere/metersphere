@@ -106,7 +106,7 @@
     <el-input class="custom-with"
               @input="handleChange"
               :disabled="disabled"
-              v-else v-model="data[prop]"/>
+              v-else v-model="data[prop]" maxlength="500" show-word-limit/>
 
   </span>
 
