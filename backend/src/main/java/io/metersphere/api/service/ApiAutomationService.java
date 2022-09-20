@@ -1300,6 +1300,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
                 scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
+                checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
                 batchMapper.insert(scenarioWithBLOBs);
             } else {
                 ApiScenarioWithBLOBs existScenario = scenarioOp.get();
@@ -1308,9 +1309,9 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setOrder(existScenario.getOrder());
                 scenarioWithBLOBs.setNum(existScenario.getNum());
+                checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
-            checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
             apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
             extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
             extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());
@@ -1381,7 +1382,6 @@ public class ApiAutomationService {
                 } else {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
                 if (scenarioWithBLOBs.getOrder() == null) {
                     scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
                 }
@@ -1391,6 +1391,7 @@ public class ApiAutomationService {
                 if (scenarioWithBLOBs.getRefId() == null) {
                     scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                 }
+                checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
                 batchMapper.insert(scenarioWithBLOBs);
                 // 存储依赖关系
                 ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
