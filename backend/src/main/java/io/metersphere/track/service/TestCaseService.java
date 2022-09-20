@@ -2415,7 +2415,7 @@ public class TestCaseService {
         List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
         Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
                 .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
-        List<ApiTestCase> apiCases = apiTestCaseService.getApiCaseByIds(
+        List<ApiTestCase> apiCases = apiTestCaseService.getNoTrashApiCaseByIds(
                 getTestIds(testCaseTests, TestCaseTestType.testcase.name())
         );
         List<ApiScenario> apiScenarios = apiAutomationService.getScenarioCaseByIds(
