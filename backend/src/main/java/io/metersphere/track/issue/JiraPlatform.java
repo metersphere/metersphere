@@ -360,11 +360,21 @@ public class JiraPlatform extends AbstractIssuePlatform {
         } else {
             fields.put("summary", issuesRequest.getTitle());
             fields.put("description", desc);
+            issuesRequest.getRequestFields().add(getRichTextCustomField("description"));
+            issuesRequest.getRequestFields().add(getRichTextCustomField("summary"));
             parseCustomFiled(issuesRequest, fields);
         }
         setSpecialParam(fields);
 
         return addJiraIssueParam;
+    }
+
+    private CustomFieldItemDTO getRichTextCustomField(String name) {
+        CustomFieldItemDTO customField = new CustomFieldItemDTO();
+        customField.setId(name);
+        customField.setType(CustomFieldType.RICH_TEXT.getValue());
+        customField.setCustomData(name);
+        return customField;
     }
 
     private String dealWithImage(String description) {
