@@ -280,6 +280,7 @@ export default {
     setParameter(data) {
       data.name = this.currentApi.name;
       data.moduleId = this.currentApi.moduleId;
+      data.modulePath = this.currentApi.modulePath;
       data.userId = this.currentApi.userId;
       data.status = this.currentApi.status;
       if (this.currentApi.tags instanceof Array) {
