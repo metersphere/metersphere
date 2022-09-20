@@ -139,6 +139,7 @@ public class IssuesService {
             attachmentService.copyAttachment(attachmentRequest);
         } else {
             final String issueId = issues.getId();
+            final String platform = issues.getPlatform();
             // 新增, 需保存并同步所有待上传的附件
             if (CollectionUtils.isNotEmpty(files)) {
                 files.forEach(file -> {
@@ -174,14 +175,14 @@ public class IssuesService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(relation.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
                     fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                     // 下载文件管理文件, 同步到第三方平台
                     File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
                     IssuesRequest addIssueRequest = new IssuesRequest();
                     addIssueRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                    Objects.requireNonNull(IssueFactory.createPlatform(issuesRequest.getPlatform(), addIssueRequest))
+                    Objects.requireNonNull(IssueFactory.createPlatform(platform, addIssueRequest))
                             .syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
                     FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
                 });

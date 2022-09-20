@@ -253,8 +253,8 @@ public class AttachmentService {
                 FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                 BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                 fileAttachmentMetadata.setId(record.getAttachmentId());
-                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser());
-                fileAttachmentMetadata.setFilePath(fileMetadata.getPath());
+                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
+                fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
                 fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 // 缺陷类型的附件, 关联时需单独同步第三方平台
                 if (AttachmentType.ISSUE.type().equals(request.getBelongType())) {
@@ -296,6 +296,13 @@ public class AttachmentService {
         example.createCriteria().andRelationIdEqualTo(request.getBelongId())
                 .andRelationTypeEqualTo(request.getBelongType())
                 .andAttachmentIdIn(request.getMetadataRefIds());
+        List<AttachmentModuleRelation> relations = attachmentModuleRelationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(relations)) {
+            List<String> refIds = relations.stream().map(AttachmentModuleRelation::getFileMetadataRefId).collect(Collectors.toList());
+            FileAssociationExample associationExample = new FileAssociationExample();
+            associationExample.createCriteria().andIdIn(refIds);
+            fileAssociationMapper.deleteByExample(associationExample);
+        }
         FileAttachmentMetadataExample exampleAttachment = new FileAttachmentMetadataExample();
         exampleAttachment.createCriteria().andIdIn(request.getMetadataRefIds());
         fileAttachmentMetadataMapper.deleteByExample(exampleAttachment);
