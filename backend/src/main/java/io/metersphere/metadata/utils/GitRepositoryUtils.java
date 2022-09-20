@@ -128,7 +128,9 @@ public class GitRepositoryUtils {
             if (!treeWalk.next()) {
                 return null;
             } else {
-                attachInfo = new GitFileAttachInfo(repositoryUrl, userName, token, branch, fileCommitId.getName(), filePath, commit.getFullMessage());
+                ObjectId objectId = treeWalk.getObjectId(0);
+                ObjectLoader loader = repo.open(objectId);
+                attachInfo = new GitFileAttachInfo(repositoryUrl, userName, token, branch, fileCommitId.getName(), filePath, commit.getFullMessage(), loader.getSize());
                 return attachInfo;
             }
         } catch (Exception e) {
