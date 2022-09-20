@@ -849,8 +849,8 @@ public class ElementUtil {
                 }
             });
             // 清空变量，防止重复添加
-            config.getConfig().get(projectId).getCommonConfig().getVariables().remove(constants);
-            config.getConfig().get(projectId).getCommonConfig().getVariables().remove(variableList);
+            config.getConfig().get(projectId).getCommonConfig().getVariables().removeAll(constants);
+            config.getConfig().get(projectId).getCommonConfig().getVariables().removeAll(variableList);
         }
 
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
