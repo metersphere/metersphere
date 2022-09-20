@@ -827,16 +827,16 @@
         select * from api_test_case
         <where>
             (api_test_case.status is null or api_test_case.status != 'Trash')
-            <if test="request.name !='' || request.name != null">
+            <if test="request.name !='' and request.name != null">
                 and name =#{request.name}
             </if>
-            <if test="request.apiDefinitionId !='' || request.apiDefinitionId != null">
+            <if test="request.apiDefinitionId !='' and request.apiDefinitionId != null">
                 and api_definition_id =#{request.apiDefinitionId}
             </if>
-            <if test="request.id !='' || request.id != null">
+            <if test="request.id !='' and request.id != null">
                 and id !=#{request.id}
             </if>
-            <if test="request.versionId !='' || request.versionId != null">
+            <if test="request.versionId !='' and request.versionId != null">
                 and version_id =#{request.versionId}
             </if>
 
