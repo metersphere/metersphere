@@ -5,7 +5,6 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.AttachmentDumpRequest;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.attachment.AttachmentRequest;
-import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.AttachmentService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,20 +50,14 @@ public class AttachmentController {
                 .body(bytes);
     }
 
-    @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadAttachment(@RequestBody FileOperationRequest fileOperationRequest) {
-        byte[] bytes;
-        if (fileOperationRequest.getIsLocal()) {
-            bytes = fileService.getAttachmentBytes(fileOperationRequest.getId());
+    @GetMapping("/download/{id}/{isLocal}")
+    public ResponseEntity<byte[]> downloadAttachment(@PathVariable("id") String fileId, @PathVariable("isLocal") Boolean isLocal) {
+        if (isLocal) {
+            return fileService.downloadLocalAttachment(fileId);
         } else {
-            String refId = attachmentService.getRefIdByAttachmentId(fileOperationRequest.getId());
-            bytes = fileMetadataService.loadFileAsBytes(refId);
+            String refId = attachmentService.getRefIdByAttachmentId(fileId);
+            return fileMetadataService.getFile(refId);
         }
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileOperationRequest.getName(), StandardCharsets.UTF_8) + "\"")
-                .contentLength(bytes.length)
-                .body(bytes);
     }
 
     @GetMapping("/delete/{attachmentType}/{attachmentId}")
