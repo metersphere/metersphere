@@ -515,6 +515,11 @@ public class FileUtils {
         return list;
     }
 
+    public static boolean isFolderExists(String requestId) {
+        File file = new File(BODY_FILE_DIR + File.separator + requestId);
+        return file.isDirectory();
+    }
+
     public List<Object> getZipJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包

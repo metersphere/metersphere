@@ -61,7 +61,7 @@
                     <span>{{ data.type }}</span>
                   </el-form-item>
 
-                  <el-form-item v-if="!isRepositoryFile()" :label="$t('load_test.file_size')" prop="size">
+                  <el-form-item :label="$t('load_test.file_size')" prop="size">
                     <span>{{ formatFileSize(data.size) }}</span>
                   </el-form-item>
 
