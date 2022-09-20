@@ -284,6 +284,9 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
+        if (StringUtils.isEmpty(this.getName())) {
+            tcpSampler.setName("TcpSamplerProxy");
+        }
         if (config.isOperating()) {
             String[] testNameArr = tcpSampler.getName().split("<->");
             if (testNameArr.length > 0) {
