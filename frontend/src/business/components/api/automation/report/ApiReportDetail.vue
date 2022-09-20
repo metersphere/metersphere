@@ -1,5 +1,5 @@
 <template>
-  <ms-container v-loading="loading">
+  <ms-container v-loading="loading" :element-loading-text="$t('commons.executing')">
     <ms-main-container class="api-report-content">
       <el-card class="report-body">
         <section class="report-container" v-if="this.report.testId">
