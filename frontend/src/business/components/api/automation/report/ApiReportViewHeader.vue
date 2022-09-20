@@ -6,7 +6,10 @@
           <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" @keyup.enter.native="handleSaveKeyUp"
                     style="width: 200px" v-model="report.name" maxlength="60" show-word-limit/>
           <span v-else>
-            <el-link v-if="isSingleScenario" @click="redirect">
+            <el-link v-if="isSingleScenario"
+                     type="primary"
+                     class="report-name"
+                     @click="redirect">
               {{ report.name }}
             </el-link>
             <span v-else>
@@ -134,12 +137,12 @@ export default {
     redirect() {
       let data = this.$router.resolve({
         name: this.isUi ? 'uiAutomation' : 'ApiAutomation',
-        params: {
+        query: {
           redirectID: getUUID(),
           dataType: "scenario",
-          dataSelectRange: 'edit:' + this.scenarioId,
           projectId: getCurrentProjectID(),
           workspaceId: getCurrentWorkspaceId(),
+          resourceId: this.scenarioId
         }
       });
       window.open(data.href, '_blank');
@@ -199,4 +202,7 @@ export default {
   margin-right: 10px;
 }
 
+.report-name {
+  border-bottom: 1px solid var(--primary_color);
+}
 </style>
