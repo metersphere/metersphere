@@ -840,7 +840,7 @@ export default {
         }
       }
       if (!repeatRecord) {
-        if (this.type === 'add') {
+        if (this.type === 'add' || this.isCaseEdit) {
           // 新增
           rows.forEach(row => {
             this.relateFiles.push(row.id);
