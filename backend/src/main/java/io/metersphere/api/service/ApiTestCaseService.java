@@ -1074,6 +1074,16 @@ public class ApiTestCaseService {
         return new ArrayList<>();
     }
 
+    public List<ApiTestCase> getNoTrashApiCaseByIds(List<String> apiCaseIds) {
+        if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.or(example.createCriteria().andIdIn(apiCaseIds).andStatusIsNull());
+            example.or(example.createCriteria().andIdIn(apiCaseIds).andStatusNotEqualTo(CommonConstants.TrashStatus));
+            return apiTestCaseMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
+
     public void initOrderField() {
         ServiceUtils.initOrderField(ApiTestCaseWithBLOBs.class, ApiTestCaseMapper.class,
                 extApiTestCaseMapper::selectProjectIds,
