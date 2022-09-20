@@ -180,6 +180,9 @@ public class MsDubboSampler extends MsTestElement {
         DubboSample sampler = new DubboSample();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
+        if (StringUtils.isEmpty(this.getName())) {
+            sampler.setName("DubboSamplerProxy");
+        }
         if (config.isOperating()) {
             String[] testNameArr = sampler.getName().split("<->");
             if (testNameArr.length > 0) {
