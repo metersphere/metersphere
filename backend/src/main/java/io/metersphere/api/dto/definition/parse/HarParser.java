@@ -182,14 +182,36 @@ public class HarParser extends HarAbstractParser {
                     body.getKvs().add(kv);
                 }
             } else if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
-                contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-                List<HarPostParam> postParams = content.params;
-                if (CollectionUtils.isNotEmpty(postParams)) {
-                    for (HarPostParam postParam : postParams) {
-                        KeyValue kv = new KeyValue(postParam.name, postParam.value);
-                        body.getKvs().add(kv);
+                if (contentType.contains("boundary=") && StringUtils.contains(content.text, this.getBoundaryFromContentType(contentType))) {
+                    contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+                    String[] textArr = StringUtils.split(content.text, "\r\n");
+                    String paramData = this.parseMultipartByTextArr(textArr);
+                    JSONObject obj = null;
+                    try {
+                        obj = JSONObject.parseObject(paramData);
+                        if (obj != null) {
+                            for (String key : obj.keySet()) {
+                                KeyValue kv = new KeyValue(key, obj.getString(key));
+                                body.getKvs().add(kv);
+                            }
+                        }
+                    } catch (Exception e) {
+                        obj = null;
+                    }
+                    if (obj == null) {
+                        body.setRaw(paramData);
+                    }
+                } else {
+                    contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+                    List<HarPostParam> postParams = content.params;
+                    if (CollectionUtils.isNotEmpty(postParams)) {
+                        for (HarPostParam postParam : postParams) {
+                            KeyValue kv = new KeyValue(postParam.name, postParam.value);
+                            body.getKvs().add(kv);
+                        }
                     }
                 }
+
             } else if (contentType.startsWith(org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
                 contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
                 body.setRaw(content.text);
@@ -208,6 +230,22 @@ public class HarParser extends HarAbstractParser {
             }
         }
         body.setType(getBodyType(contentType));
+    }
+
+    private String getBoundaryFromContentType(String contentType) {
+        if (StringUtils.contains(contentType, "boundary=")) {
+            String[] strArr = StringUtils.split(contentType, "boundary=");
+            return strArr[strArr.length - 1];
+        }
+        return null;
+    }
+
+    private String parseMultipartByTextArr(String[] textArr) {
+        String data = null;
+        if (textArr != null && textArr.length > 2) {
+            data = textArr[textArr.length - 2];
+        }
+        return data;
     }
 
     private void parseResponseBody(HarContent content, Body body) {
