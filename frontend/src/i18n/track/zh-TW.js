@@ -206,7 +206,7 @@ export default {
     input_plan_project: "請選擇所屬項目",
     input_related_project: "請選擇關聯項目",
     input_plan_stage: "請選擇測試階段",
-    plan_status_prepare: "未開始",
+    plan_status_prepare: "未执行",
     plan_status_running: "進行中",
     plan_status_finished: "已結束",
     plan_status_completed: "已完成",

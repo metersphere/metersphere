@@ -213,7 +213,7 @@ export default {
     input_plan_project: "Please select project",
     input_related_project: "Please Related project",
     input_plan_stage: "Please select stage",
-    plan_status_prepare: "Not started",
+    plan_status_prepare: "Un execute",
     plan_status_running: "Starting",
     plan_status_finished: "Finished",
     plan_status_completed: "Completed",
