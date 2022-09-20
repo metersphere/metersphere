@@ -6,11 +6,15 @@ import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.apache.commons.collections.CollectionUtils;
 import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +53,17 @@ public class FileService {
         FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
         File attachmentFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
         return FileUtils.fileToByte(attachmentFile);
+    }
+
+    public ResponseEntity<byte[]> downloadLocalAttachment(String id) {
+        FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
+        File attachmentFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
+        byte[] bytes = FileUtils.fileToByte(attachmentFile);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + MetadataUtils.getFileName(fileAttachmentMetadata.getName(), fileAttachmentMetadata.getType()) + "\"")
+                .contentLength(bytes.length)
+                .body(bytes);
     }
 
     public MultipartFile getAttachmentMultipartFile(String id) {
