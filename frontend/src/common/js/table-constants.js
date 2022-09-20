@@ -154,23 +154,31 @@ export function API_SCENARIO_FILTERS() {
             {text: i18n.t('error_report_library.option.name'), value: 'errorReportResult'}
         ]
     };
-    /*LEVEL_FILTERS: [
+}
+
+export function UI_SCENARIO_FILTERS() {
+  return {
+    STATUS_FILTERS: [
+      {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+      {text: i18n.t('test_track.plan.plan_status_running'), value: 'Underway'},
+      {text: i18n.t('test_track.plan.plan_status_completed'), value: 'Completed'},
+    ],
+    TRASH_FILTERS: [
+      {text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'},
+    ],
+
+    LEVEL_FILTERS: [
       {text: 'P0', value: 'P0'},
       {text: 'P1', value: 'P1'},
       {text: 'P2', value: 'P2'},
       {text: 'P3', value: 'P3'}
-    ];
+    ],
     RESULT_FILTERS: [
       {text: i18n.t('api_test.automation.fail'), value: 'Fail'},
-      {text: i18n.t('api_test.automation.success'), value: 'Success'}
-    ];*/
-
-    /*STATUS_FILTERS: [
-      {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-      {text: i18n.t('test_track.plan.plan_status_running'), value: 'Underway'},
-      {text: i18n.t('test_track.plan.plan_status_completed'), value: 'Completed'},
-      {text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'},
-    ],*/
+      {text: i18n.t('api_test.automation.success'), value: 'Success'},
+      {text: i18n.t('api_test.home_page.detail_card.unexecute'), value: 'unexecute'},
+    ]
+  };
 }
 
 

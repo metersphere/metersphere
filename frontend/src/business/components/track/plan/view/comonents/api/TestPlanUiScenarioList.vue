@@ -208,7 +208,7 @@ import {ENV_TYPE, TEST_PLAN_UI_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
-import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
+import {UI_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTaskCenter from "../../../../../task/TaskCenter";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -321,7 +321,7 @@ export default {
     }
   },
   created() {
-    this.apiscenariofilters = API_SCENARIO_FILTERS();
+    this.apiscenariofilters = UI_SCENARIO_FILTERS();
     this.search();
     this.getVersionOptions();
   },
