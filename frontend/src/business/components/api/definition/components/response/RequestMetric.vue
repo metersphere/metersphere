@@ -47,7 +47,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-row type="flex" v-if="response.envName">
+    <el-row v-if="response && response.envName" type="flex">
       <div style="font-size: 14px;color: #AAAAAA;float: left">
         <span> {{ $t('commons.environment') + ':' }} </span>
       </div>
