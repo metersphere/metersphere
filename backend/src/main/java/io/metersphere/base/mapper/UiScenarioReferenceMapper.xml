@@ -242,7 +242,9 @@
   </update>
 
   <select id="refList" parameterType="io.metersphere.xpack.ui.dto.RefReq" resultType="io.metersphere.xpack.ui.dto.RefResp">
-    SELECT us.id AS targetId, us.name AS scenarioName , us.num AS id,  p.name AS project,  usf.create_time AS dateStr , w.name AS workspace FROM `ui_scenario_reference` usf
+    SELECT us.id AS targetId, us.name AS scenarioName , us.num AS id,  p.name AS project,  usf.create_time AS dateStr ,
+    w.name AS workspace, p.workspace_id AS workspaceId, p.id AS projectId
+    FROM `ui_scenario_reference` usf
     LEFT JOIN ui_scenario us ON usf.ui_scenario_id = us.id
     LEFT JOIN project p ON us.project_id = p.id
     LEFT JOIN `workspace` w ON  p.workspace_id = w.id
