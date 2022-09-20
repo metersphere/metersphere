@@ -138,11 +138,7 @@ export default {
       return fileType === 'JPG' || fileType === 'JPEG' || fileType === 'PDF' || fileType === 'PNG';
     },
     handleDownload(file) {
-      this.$fileDownloadPost('/attachment/download', {
-        name: file.name,
-        id: file.id,
-        isLocal: file.isLocal
-      });
+      this.$fileDownload('/attachment/download/' + file.id + "/" + file.isLocal, file.name);
     },
     handleUpload(file) {
       this.$emit("handleDump", file);
