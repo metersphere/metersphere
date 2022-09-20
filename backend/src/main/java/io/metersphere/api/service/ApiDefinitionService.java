@@ -412,6 +412,12 @@ public class ApiDefinitionService {
         return createTest(request);
     }
 
+    public void update(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        if (apiDefinitionWithBLOBs != null) {
+            apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinitionWithBLOBs);
+        }
+    }
+
     public ApiDefinitionResult update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if (request.getRequest() != null && StringUtils.isNotEmpty(request.getRequest().getId())) {
             deleteFileByTestId(request.getRequest().getId());

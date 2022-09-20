@@ -2435,4 +2435,14 @@ public class ApiAutomationService {
         List<ApiScenario> apiScenarioList = extApiScenarioMapper.selectBaseInfoByProjectIdAndStatus(projectId, status);
         return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
     }
+
+    public ApiScenarioWithBLOBs getById(String id) {
+        return apiScenarioMapper.selectByPrimaryKey(id);
+    }
+
+    public void update(ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
+        if (apiScenarioWithBLOBs != null) {
+            apiScenarioMapper.updateByPrimaryKeySelective(apiScenarioWithBLOBs);
+        }
+    }
 }

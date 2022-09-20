@@ -5,6 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.common.utils.ByteUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
@@ -701,7 +704,7 @@ public class FileMetadataService {
                 for (LoadTestFile loadTestFile : loadTestFileList) {
                     LoadTest loadTest = loadTestMapper.selectByPrimaryKey(loadTestFile.getTestId());
                     if (loadTest != null) {
-                        FileRelevanceCaseDTO dto = new FileRelevanceCaseDTO(loadTestFile.getFileId(), loadTest.getId(), loadTest.getName(), "LOAD_CASE"
+                        FileRelevanceCaseDTO dto = new FileRelevanceCaseDTO(loadTestFile.getFileId(), loadTest.getNum() + "", loadTest.getName(), "LOAD_CASE"
                                 , fileCommitIdMap.get(loadTestFile.getFileId()));
                         list.add(dto);
                     }
@@ -729,6 +732,9 @@ public class FileMetadataService {
             if (CollectionUtils.isNotEmpty(request.getIds())) {
                 FileAssociationExample associationExample = new FileAssociationExample();
                 associationExample.createCriteria().andIdIn(request.getIds());
+                List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(associationExample);
+                //同步更新具体的场景/用例/接口的hashTree
+                this.updateResource(latestId, fileAssociationList);
                 FileAssociation fileAssociation = new FileAssociation();
                 fileAssociation.setFileMetadataId(latestId);
                 updateCount = fileAssociationMapper.updateByExampleSelective(fileAssociation, associationExample);
@@ -744,5 +750,40 @@ public class FileMetadataService {
 
         returnString = String.valueOf(updateCount);
         return returnString;
+    }
+
+    private void updateResource(String newFileMetadataId, List<FileAssociation> fileAssociationList) {
+        if (CollectionUtils.isNotEmpty(fileAssociationList)) {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+            fileAssociationList.forEach(item -> {
+                if (StringUtils.equals(item.getType(), FileAssociationType.API.name()) && apiDefinitionService != null) {
+                    ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(item.getSourceId());
+                    if (apiDefinitionWithBLOBs != null && StringUtils.isNotBlank(apiDefinitionWithBLOBs.getRequest())) {
+                        String requestStr = apiDefinitionWithBLOBs.getRequest();
+                        requestStr = StringUtils.replace(requestStr, item.getFileMetadataId(), newFileMetadataId);
+                        apiDefinitionWithBLOBs.setRequest(requestStr);
+                        apiDefinitionService.update(apiDefinitionWithBLOBs);
+                    }
+                } else if (StringUtils.equals(item.getType(), FileAssociationType.SCENARIO.name()) && apiAutomationService != null) {
+                    ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiAutomationService.getById(item.getSourceId());
+                    if (apiScenarioWithBLOBs != null && StringUtils.isNotBlank(apiScenarioWithBLOBs.getScenarioDefinition())) {
+                        String requestStr = apiScenarioWithBLOBs.getScenarioDefinition();
+                        requestStr = StringUtils.replace(requestStr, item.getFileMetadataId(), newFileMetadataId);
+                        apiScenarioWithBLOBs.setScenarioDefinition(requestStr);
+                        apiAutomationService.update(apiScenarioWithBLOBs);
+                    }
+                } else if (StringUtils.equals(item.getType(), FileAssociationType.CASE.name()) && apiTestCaseService != null) {
+                    ApiTestCaseWithBLOBs testCaseWithBLOBs = apiTestCaseService.getById(item.getSourceId());
+                    if (testCaseWithBLOBs != null && StringUtils.isNotBlank(testCaseWithBLOBs.getRequest())) {
+                        String requestStr = testCaseWithBLOBs.getRequest();
+                        requestStr = StringUtils.replace(requestStr, item.getFileMetadataId(), newFileMetadataId);
+                        testCaseWithBLOBs.setRequest(requestStr);
+                        apiTestCaseService.update(testCaseWithBLOBs);
+                    }
+                }
+            });
+        }
     }
 }

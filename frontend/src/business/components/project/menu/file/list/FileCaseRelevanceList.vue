@@ -30,7 +30,7 @@
         prop="caseType">
         <template v-slot="scope">
             <span v-if="scope.row.caseType === 'API'">
-              {{ $t('api_test.home_page.api_details_card.title') }}
+              {{ $t('workstation.table_name.api_definition') }}
             </span>
           <span v-else-if="scope.row.caseType === 'CASE'">
               {{ $t('commons.api_case') }}
