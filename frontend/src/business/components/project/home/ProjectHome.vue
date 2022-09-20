@@ -84,7 +84,7 @@
                   </div>
                   <div style="float: left">
                     <span class="title"
-                          @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">
+                          @click="click('/project/file/manage', ['PROJECT_FILE:READ', 'PROJECT_FILE:READ+FILE'])">
                       {{ $t('project.file_manage') }}
                     </span><br/>
                     <span class="desc">{{ $t('project.file_desc') }}</span>
