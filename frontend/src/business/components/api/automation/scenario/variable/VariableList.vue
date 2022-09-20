@@ -60,61 +60,61 @@
                 <el-col :span="12">
                   <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
                     <ms-table
-                      v-loading="loading"
-                      row-key="id"
-                      :data="variables"
-                      :total="variables.length"
-                      :screen-height="screenHeight"
-                      :batch-operators="batchButtons"
-                      :remember-order="true"
-                      :highlightCurrentRow="true"
-                      :fields.sync="fields"
-                      :field-key="tableHeaderKey"
-                      @handleRowClick="handleRowClick"
-                      @refresh="onChange"
-                      ref="variableTable">
+                        ref="variableTable"
+                        v-loading="loading"
+                        :batch-operators="batchButtons"
+                        :data="variables"
+                        :field-key="tableHeaderKey"
+                        :fields.sync="fields"
+                        :highlightCurrentRow="true"
+                        :remember-order="true"
+                        :screen-height="screenHeight"
+                        :total="variables.length"
+                        row-key="id"
+                        @handleRowClick="handleRowClick"
+                        @refresh="onChange">
                           <span v-for="item in fields" :key="item.key">
                             <ms-table-column
-                              prop="num"
-                              :field="item"
-                              :fields-width="fieldsWidth"
-                              sortable
-                              label="ID"
-                              min-width="60">
+                                :field="item"
+                                :fields-width="fieldsWidth"
+                                label="ID"
+                                min-width="60"
+                                prop="num"
+                                sortable>
                             </ms-table-column>
                             <ms-table-column
-                              prop="name"
-                              :field="item"
-                              :fields-width="fieldsWidth"
-                              :label="$t('api_test.variable_name')"
-                              min-width="100"
-                              sortable>
+                                :field="item"
+                                :fields-width="fieldsWidth"
+                                :label="$t('api_test.variable_name')"
+                                min-width="100"
+                                prop="name"
+                                sortable>
                             </ms-table-column>
                             <ms-table-column
-                              prop="type"
-                              :field="item"
-                              :fields-width="fieldsWidth"
-                              :label="$t('test_track.case.type')"
-                              min-width="70"
-                              sortable>
+                                :field="item"
+                                :fields-width="fieldsWidth"
+                                :label="$t('test_track.case.type')"
+                                min-width="70"
+                                prop="type"
+                                sortable>
                               <template v-slot:default="scope">
                                 <span>{{ types.get(scope.row.type) }}</span>
                               </template>
                             </ms-table-column>
                             <ms-table-column
-                              prop="value"
-                              :field="item"
-                              :fields-width="fieldsWidth"
-                              :label="$t('api_test.value')"
-                              sortable>
+                                :field="item"
+                                :fields-width="fieldsWidth"
+                                :label="$t('api_test.value')"
+                                prop="value"
+                                sortable>
                             </ms-table-column>
                             <ms-table-column
-                              prop="description"
-                              :field="item"
-                              :fields-width="fieldsWidth"
-                              :label="$t('commons.description')"
-                              min-width="70"
-                              sortable>
+                                :field="item"
+                                :fields-width="fieldsWidth"
+                                :label="$t('commons.description')"
+                                min-width="70"
+                                prop="description"
+                                sortable>
                             </ms-table-column>
                           </span>
                     </ms-table>
@@ -276,7 +276,7 @@ export default {
     },
     exportVariable() {
       if (this.$refs.variableTable.selectIds.length < 1) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
+        this.$warning(this.$t('api_test.environment.select_variable'));
         return;
       }
       let variablesJson = [];
@@ -564,7 +564,7 @@ export default {
       this.variables.forEach(item => {
         if (this.searchType && this.searchType != "" && this.selectVariable && this.selectVariable != "") {
           if ((item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1 && this.searchType != 'ALL')
-            || (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1)) {
+              || (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1)) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
