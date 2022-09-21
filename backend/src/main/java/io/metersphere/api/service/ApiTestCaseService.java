@@ -865,7 +865,10 @@ public class ApiTestCaseService {
         if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
             ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
-            List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            List<ApiTestCaseWithBLOBs> caseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            List<String> caseIds = caseWithBLOBs.stream().map(ApiTestCaseWithBLOBs::getId).collect(Collectors.toList());
+            List<ApiTestCaseWithBLOBs> bloBs = extApiTestCaseMapper.unTrashCaseListByIds(caseIds);
+
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
