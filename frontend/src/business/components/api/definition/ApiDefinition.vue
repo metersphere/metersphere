@@ -999,7 +999,6 @@ export default {
 
 .ms-api-div {
   overflow-y: auto;
-  height: calc(100vh - 125px)
 }
 
 /deep/ .el-main {
