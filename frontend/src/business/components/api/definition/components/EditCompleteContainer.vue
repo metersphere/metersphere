@@ -207,7 +207,6 @@ export default {
     }
   },
   created() {
-    console.log(this.leftHeight)
     this.refreshButtonActiveClass(this.activeDom);
     getApiFieldTemplate(this)
       .then((template) => {
