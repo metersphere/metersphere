@@ -394,16 +394,14 @@ public class TestCaseReviewService {
         TestCaseReview testCaseReview = new TestCaseReview();
         testCaseReview.setId(reviewId);
 
-        for (String status : statusList) {
-            if (StringUtils.equals(status, TestReviewCaseStatus.Prepare.name())) {
-                testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
-                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-                return;
-            } else if (StringUtils.equals(status, TestReviewCaseStatus.UnPass.name())) {
-                testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
-                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-                return;
-            }
+        if (statusList.contains(TestReviewCaseStatus.Prepare.name())) {
+            testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
+            testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+            return;
+        } else if(statusList.contains(TestReviewCaseStatus.UnPass.name())){
+            testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
+            testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+            return;
         }
         testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
