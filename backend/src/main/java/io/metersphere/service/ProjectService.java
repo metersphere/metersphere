@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
@@ -507,14 +508,16 @@ public class ProjectService {
         Boolean cleanTrackReport = project.getCleanTrackReport();
         Boolean cleanApiReport = project.getCleanApiReport();
         Boolean cleanLoadReport = project.getCleanLoadReport();
-        LogUtil.info("clean track/api/performance report: " + cleanTrackReport + "/" + cleanApiReport + "/" + cleanLoadReport);
+        Boolean cleanUiReport = project.getCleanUiReport();
+        LogUtil.info("clean track/api/performance report: " + cleanTrackReport + "/" + cleanApiReport + "/" + cleanLoadReport + "/" + cleanUiReport);
         // 未设置则不更新定时任务
-        if (cleanTrackReport == null && cleanApiReport == null && cleanLoadReport == null) {
+        if (cleanTrackReport == null && cleanApiReport == null && cleanLoadReport == null && cleanUiReport == null) {
             return;
         }
         String projectId = project.getId();
         Boolean enable = BooleanUtils.isTrue(cleanTrackReport) ||
                 BooleanUtils.isTrue(cleanApiReport) ||
+                BooleanUtils.isTrue(cleanUiReport) ||
                 BooleanUtils.isTrue(cleanLoadReport);
         Schedule schedule = scheduleService.getScheduleByResource(projectId, ScheduleGroup.CLEAN_UP_REPORT.name());
         if (schedule != null && StringUtils.isNotBlank(schedule.getId())) {
@@ -1051,24 +1054,25 @@ public class ProjectService {
             ApiScenarioReportExample example = new ApiScenarioReportExample();
             example.createCriteria()
                     .andProjectIdEqualTo(projectId)
-                    .andCreateTimeLessThan(backupTime).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
-                    .andExecuteTypeEqualTo(ExecuteType.Debug.name());
+                    .andCreateTimeLessThan(backupTime).andReportTypeIn(Lists.newArrayList(ReportTypeConstants.UI_INDEPENDENT.name(),
+                    ReportTypeConstants.UI_INTEGRATED.name()))
+                    .andExecuteTypeIn(Lists.newArrayList(ExecuteType.Debug.name(), ExecuteType.Saved.name()));
             List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
             // 删除调试报告的截图
             for (ApiScenarioReport apiScenarioReport : apiScenarioReports) {
+                // 删除调试报告
+                ApiScenarioReportResultExample resultExample = new ApiScenarioReportResultExample();
+                resultExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+                ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+                structureExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+
+                apiScenarioReportDetailMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                apiScenarioReportResultMapper.deleteByExample(resultExample);
+                apiScenarioReportStructureMapper.deleteByExample(structureExample);
+                apiScenarioReportMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                //如果有截图数据则删除
                 if (FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + apiScenarioReport.getId()))) {
                     LogUtil.info("删除 UI 调试报告截图成功，报告 ID 为 ：" + apiScenarioReport.getId());
-
-                    // 删除调试报告
-                    ApiScenarioReportResultExample resultExample = new ApiScenarioReportResultExample();
-                    resultExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
-                    ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
-                    structureExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
-
-                    apiScenarioReportDetailMapper.deleteByPrimaryKey(apiScenarioReport.getId());
-                    apiScenarioReportResultMapper.deleteByExample(resultExample);
-                    apiScenarioReportStructureMapper.deleteByExample(structureExample);
-                    apiScenarioReportMapper.deleteByPrimaryKey(apiScenarioReport.getId());
                 }
             }
         } catch (Exception e) {

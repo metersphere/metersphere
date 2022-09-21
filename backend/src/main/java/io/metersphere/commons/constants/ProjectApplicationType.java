@@ -59,6 +59,14 @@ public enum ProjectApplicationType {
     /**
      * 是否开启定时清理接口测试报告
      */
+    CLEAN_UI_REPORT,
+    /**
+     * 清理时间配置 (Y|M|D)
+     */
+    CLEAN_UI_REPORT_EXPR,
+    /**
+     * 是否开启定时清理接口测试报告
+     */
     CLEAN_LOAD_REPORT,
     /**
      * 清理时间配置 (Y|M|D)

@@ -19,6 +19,8 @@ public class AddProjectRequest extends Project {
     private String cleanTrackReportExpr;
     private Boolean cleanApiReport;
     private String cleanApiReportExpr;
+    private Boolean cleanUiReport;
+    private String cleanUiReportExpr;
     private Boolean cleanLoadReport;
     private String cleanLoadReportExpr;
 }
