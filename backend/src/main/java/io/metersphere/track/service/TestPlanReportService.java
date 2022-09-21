@@ -523,17 +523,46 @@ public class TestPlanReportService {
 
     }
 
-    public TestPlanReport finishedTestPlanReport(String testPlanReportId, String status) {
+    /**
+     * 通过查询 execution_queue 来判断执行是否完毕
+     * （执行结束的原因有很多种，比如失败停止，手动停止，正常执行结束）
+     *
+     * @param testPlanReportId
+     * @param queueId
+     * @return
+     */
+    private boolean testAllQueueFinished(String testPlanReportId, String queueId) {
+        if (StringUtils.isBlank(queueId)) {
+            return true;
+        }
+        ApiExecutionQueueExample example = new ApiExecutionQueueExample();
+        example.createCriteria().andIdNotEqualTo(queueId).andReportIdEqualTo(testPlanReportId);
+        List<ApiExecutionQueue> queues = CommonBeanFactory.getBean(ApiExecutionQueueMapper.class).selectByExample(example);
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(queues)) {
+            //只有一条执行链表明执行结束
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * 结束测试计划并且发送消息
+     *
+     * @param testPlanReportId 测试计划报告id
+     * @param queueId          当前执行链的id(需要该标记来判断一个测试计划中所有其他的执行链是否结束) 为空表示直接发送消息不需要检查其他队列是否结束
+     * @param status           结束标志
+     * @return
+     */
+    public TestPlanReport finishedTestPlanReport(String testPlanReportId, String queueId, String status) {
+        boolean needSendMessage = testAllQueueFinished(testPlanReportId, queueId);
+
         TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
         if (testPlanReport != null && StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), "stopped")) {
             return testPlanReport;
         }
-        boolean isSendMessage = false;
         TestPlanReportContentWithBLOBs content = null;
         if (testPlanReport != null) {
-            if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
-                isSendMessage = true;
-            }
             //初始化测试计划包含组件信息
             int[] componentIndexArr = new int[]{1, 3, 4};
             testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
@@ -607,7 +636,7 @@ public class TestPlanReportService {
             testPlanReportMapper.updateByPrimaryKey(testPlanReport);
         }
         //发送通知
-        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, needSendMessage);
         return testPlanReport;
     }
 
