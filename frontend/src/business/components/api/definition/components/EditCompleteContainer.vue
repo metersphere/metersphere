@@ -1,7 +1,7 @@
 <template>
-  <el-card class="card-content" v-if="isShow && !loading">
-    <ms-container v-loading="loading" style="overflow: auto">
-      <ms-aside-container>
+  <el-card v-if="isShow && !loading" class="ms-api-card">
+    <ms-container v-loading="loading">
+      <ms-aside-container :height="leftHeight">
         <api-base-info
           ref="apiBaseInfo"
           :api-template="apiTemplate"
@@ -15,7 +15,7 @@
           :module-options="moduleOptions"
         />
       </ms-aside-container>
-      <ms-main-container class="ms-scenario-main-container">
+      <ms-main-container class="ms-api-main-container">
         <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed;">
           <el-button :class="{active: showApiList}" class="item" plain size="small" @click="changeTab('api')">
             API
@@ -201,7 +201,13 @@ export default {
       default: false,
     },
   },
+  computed: {
+    leftHeight() {
+      return 'calc(100vh - 100px)';
+    }
+  },
   created() {
+    console.log(this.leftHeight)
     this.refreshButtonActiveClass(this.activeDom);
     getApiFieldTemplate(this)
       .then((template) => {
@@ -493,4 +499,11 @@ export default {
   margin-top: 5px;
 }
 
+.ms-api-main-container {
+  height: calc(100vh - 100px);
+}
+
+.ms-api-card >>> .el-card__body {
+  padding: 0px;
+}
 </style>
