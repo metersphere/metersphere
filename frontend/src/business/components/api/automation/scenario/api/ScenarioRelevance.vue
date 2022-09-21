@@ -13,6 +13,7 @@
         @setModuleOptions="setModuleOptions"
         @enableTrash="false"
         :is-read-only="true"
+        :select-project-id="projectId"
         ref="nodeTree"/>
     </template>
 
