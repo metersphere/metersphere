@@ -134,7 +134,7 @@
                 @handleTestCase="handleTestCase"
                 @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                @editApi="editApi"
+                @editApiModule="editApiModule"
                 @copyApi="copyApi"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
@@ -273,6 +273,7 @@ import ApiSchedule from "@/business/components/api/definition/components/import/
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
+import {buildTree} from "@/business/components/api/definition/model/NodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -806,6 +807,23 @@ export default {
             });
           }
         }
+      }
+    },
+    editApiModule(row) {
+      if (this.moduleOptions && this.moduleOptions.length === 0) {
+        let url = "/api/module/list/" + (row.projectId ? row.projectId : this.projectId) + "/" + row.protocol;
+        this.$get(url, response => {
+          if (response.data) {
+            response.data.forEach(node => {
+              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
+              buildTree(node, {path: ''});
+            });
+            this.moduleOptions = response.data;
+          }
+          this.editApi(row);
+        });
+      } else {
+        this.editApi(row);
       }
     },
     editApi(row) {

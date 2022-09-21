@@ -87,10 +87,7 @@ import MsApiReportDetail from "@/business/components/api/automation/report/ApiRe
 import MsTableMoreBtn from "@/business/components/api/automation/scenario/TableMoreBtn";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-import {
-  API_SCENARIO_CONFIGS,
-  TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
-} from "@/business/components/common/components/search/search-components";
+import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {ENV_TYPE} from "@/common/js/constants";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -174,21 +171,20 @@ export default {
     this.getVersionOptions();
   },
   methods: {
-    search(projectId) {
+    search(currentProjectId) {
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
         this.condition.moduleIds = [];
       }
-
-      if (projectId) {
-        this.projectId = projectId;
-      }
       if (this.projectId != null && typeof projectId === 'string') {
         this.condition.projectId = this.projectId;
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
+      }
+      if (currentProjectId) {
+        this.condition.projectId = currentProjectId;
       }
 
       let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
