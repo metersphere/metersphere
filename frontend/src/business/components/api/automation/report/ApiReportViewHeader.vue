@@ -66,11 +66,11 @@
 <script>
 
 import {generateShareInfoWithExpired} from "@/network/share";
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const UiDownloadScreenshot = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiDownloadScreenshot.vue") : {};
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 
 export default {
   name: "MsApiReportViewHeader",
@@ -161,7 +161,7 @@ export default {
       pram.shareType = 'API_REPORT';
       let thisHost = window.location.host;
       let shareUrl = thisHost + "/shareApiReport";
-      if(this.isUi){
+      if (this.isUi) {
         pram.shareType = 'UI_REPORT';
         shareUrl = thisHost + "/shareUiReport";
       }
@@ -170,8 +170,8 @@ export default {
       });
     },
     getProjectApplication() {
-      let path  = "/API_SHARE_REPORT_TIME";
-      if(this.isUi){
+      let path = "/API_SHARE_REPORT_TIME";
+      if (this.isUi) {
         path = "/UI_SHARE_REPORT_TIME";
       }
       this.$get('/project_application/get/' + getCurrentProjectID() + path, res => {
