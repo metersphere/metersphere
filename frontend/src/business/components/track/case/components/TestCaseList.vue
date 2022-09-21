@@ -669,6 +669,9 @@ export default {
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
       this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
+      if (!this.selectDataRange) {
+        delete this.condition.filters.review_status
+      }
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
