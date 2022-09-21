@@ -670,7 +670,7 @@ export default {
               this.clickCase(response.data)
             }
           } else {
-            this.$error("接口用例场景场景已经被删除");
+            this.$error("接口用例已经被删除");
           }
         });
       }
