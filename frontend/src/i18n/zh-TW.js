@@ -2967,6 +2967,8 @@ export default {
     delete_scenario_lable: "刪除場景",
     delete_command_lable: "刪除指令",
     command_name_label: "指令名稱",
+    command_steps_label: "指令步驟",
+    command_step_info: "在右側添加指令步驟",
   },
   project_application: {
     workstation: {

@@ -523,6 +523,8 @@ export default {
     fail_case: "Fail Case",
     issue_list: "Issue List",
     all_case: "All Case",
+    command_steps_label: "Command steps",
+    command_step_info: "Add a command step on the right",
   },
   reporter: 'Reporter',
   lastmodify: 'Last Modify',
