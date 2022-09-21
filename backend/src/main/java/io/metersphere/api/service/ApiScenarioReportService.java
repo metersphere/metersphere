@@ -988,7 +988,7 @@ public class ApiScenarioReportService {
      * @param dto
      * @return
      */
-    private long getUiErrorSize(ResultDTO dto) {
+    public static long getUiErrorSize(ResultDTO dto) {
         int errorSize = 0;
         int successSize = 0;
         try {
