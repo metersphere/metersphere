@@ -777,7 +777,7 @@ export default {
     },
 
     editApi(row) {
-      this.$emit('editApi', row);
+      this.$emit('editApiModule', row);
     },
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));
