@@ -24,6 +24,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.constants.SystemConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
@@ -222,9 +223,15 @@ public class ApiExecutionQueueService {
                 }
             }
         } else {
-            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
-            if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
-                isError = true;
+            if (StringUtils.startsWith(executionQueue.getRunMode(), SystemConstants.TestTypeEnum.UI.name())) {
+                //UI 失败停止
+                isError = ApiScenarioReportService.getUiErrorSize(dto) > 0;
+            } else {
+
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
+                if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
+                    isError = true;
+                }
             }
         }
         if (isError) {
@@ -232,7 +239,7 @@ public class ApiExecutionQueueService {
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
 
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), "Stopped");
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), executionQueue.getId(), "Stopped");
             }
             // 更新未执行的报告状态
             List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
@@ -302,7 +309,7 @@ public class ApiExecutionQueueService {
         List<ApiExecutionQueue> queues = queueMapper.selectByExample(apiExecutionQueueExample);
         if (CollectionUtils.isEmpty(queues)) {
             LoggerUtil.info("Normal execution completes, update test plan report status：" + testPlanReportId);
-            CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, TestPlanReportStatus.COMPLETED.name());
+            CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, null, TestPlanReportStatus.COMPLETED.name());
         } else {
             List<String> ids = queues.stream().map(ApiExecutionQueue::getId).collect(Collectors.toList());
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
@@ -310,7 +317,7 @@ public class ApiExecutionQueueService {
             long count = executionQueueDetailMapper.countByExample(example);
             if (count == 0) {
                 LoggerUtil.info("Normal execution completes, update test plan report status：" + testPlanReportId);
-                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, TestPlanReportStatus.COMPLETED.name());
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(testPlanReportId, null, TestPlanReportStatus.COMPLETED.name());
 
                 LoggerUtil.info("Clear Queue：" + ids);
                 ApiExecutionQueueExample queueExample = new ApiExecutionQueueExample();
@@ -492,7 +499,7 @@ public class ApiExecutionQueueService {
                 // 更新测试计划报告
                 if (StringUtils.isNotEmpty(item.getReportId())) {
                     LoggerUtil.info("Handling test plan reports that are not in the execution queue：【" + item.getReportId() + "】");
-                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(item.getReportId(), TestPlanReportStatus.COMPLETED.name());
+                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(item.getReportId(), item.getId(), TestPlanReportStatus.COMPLETED.name());
                 }
             });
         }
@@ -501,7 +508,7 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(testPlanReports)) {
             testPlanReports.forEach(reportId -> {
                 LoggerUtil.info("Compensation Test Plan Report：【" + reportId + "】");
-                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(reportId, TestPlanReportStatus.COMPLETED.name());
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(reportId, null, TestPlanReportStatus.COMPLETED.name());
             });
         }
         // 清除异常队列/一般是服务突然停止产生
@@ -522,7 +529,7 @@ public class ApiExecutionQueueService {
                 ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(detail.getQueueId());
                 // 更新测试计划报告
                 if (queue != null && StringUtils.isNotEmpty(queue.getReportId())) {
-                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), "Stopped");
+                    CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), null, "Stopped");
                 }
             }
         });
@@ -548,7 +555,7 @@ public class ApiExecutionQueueService {
             ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(queueId);
             // 更新测试计划报告
             if (queue != null && StringUtils.isNotEmpty(queue.getReportId())) {
-                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), "Stopped");
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), null, "Stopped");
                 queueMapper.deleteByPrimaryKey(queueId);
             }
         }

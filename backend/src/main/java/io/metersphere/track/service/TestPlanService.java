@@ -1485,11 +1485,7 @@ public class TestPlanService {
             List<String> statusList = getUiReportStatusList(config);
             if (statusList != null) {
                 // 不等于null，说明配置了用例，根据配置的状态查询用例
-                if (testPlanExecuteReportDTO != null) {
-                    allCases = testPlanUiScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap(), testPlanExecuteReportDTO.getUiScenarioInfoDTOMap());
-                } else {
-                    allCases = testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
-                }
+                allCases = testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
                 report.setUiAllCases(allCases);
                 if (saveResponse) {
                     buildUiScenarioResponse(allCases);
@@ -1499,8 +1495,8 @@ public class TestPlanService {
                     List<TestPlanUiScenarioDTO> failureCases = null;
                     if (!CollectionUtils.isEmpty(allCases)) {
                         failureCases = allCases.stream()
-                                .filter(i -> StringUtils.isNotBlank(i.getStatus())
-                                        && StringUtils.equalsAnyIgnoreCase(i.getStatus(), "Error"))
+                                .filter(i -> StringUtils.isNotBlank(i.getLastResult())
+                                        && StringUtils.equalsAnyIgnoreCase(i.getLastResult(), "Error", "Fail"))
                                 .collect(Collectors.toList());
                     }
                     report.setUiFailureCases(failureCases);
