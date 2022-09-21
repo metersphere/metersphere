@@ -24,6 +24,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.constants.SystemConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
@@ -222,9 +223,15 @@ public class ApiExecutionQueueService {
                 }
             }
         } else {
-            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
-            if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
-                isError = true;
+            if (StringUtils.startsWith(executionQueue.getRunMode(), SystemConstants.TestTypeEnum.UI.name())) {
+                //UI 失败停止
+                isError = ApiScenarioReportService.getUiErrorSize(dto) > 0;
+            } else {
+
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
+                if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), "Error")) {
+                    isError = true;
+                }
             }
         }
         if (isError) {
@@ -232,7 +239,7 @@ public class ApiExecutionQueueService {
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
 
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(dto.getTestPlanReportId(), "Stopped");
+                this.testPlanReportTestEnded(dto.getTestPlanReportId());
             }
             // 更新未执行的报告状态
             List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
