@@ -570,6 +570,10 @@ export default {
 }
 
 /deep/ .el-form-item__content {
-  z-index: 1;
+  z-index: 2;
+}
+
+/deep/ .el-scrollbar__bar.is-vertical {
+  z-index: 3;
 }
 </style>
