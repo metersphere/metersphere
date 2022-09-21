@@ -161,7 +161,9 @@ export default {
 
       //默认最大化
       this.$nextTick(() => {
-        this.$refs.testCaseDrawer.setfullScreen();
+        if (this.$refs.testCaseDrawer) {
+          this.$refs.testCaseDrawer.setfullScreen();
+        }
       });
     },
     add(api) {
@@ -225,8 +227,10 @@ export default {
           }
         }
       }
-      let item = this.apiCaseList[index];
-      this.$refs.apiCaseItem[index].saveTestCase(item, hideAlert);
+      if (this.apiCaseList && this.apiCaseList.length !== 0) {
+        let item = this.apiCaseList[index];
+        this.$refs.apiCaseItem[index].saveTestCase(item, hideAlert);
+      }
     },
     saveApiAndCase(api) {
       if (api && api.url) {
@@ -489,11 +493,14 @@ export default {
         this.condition.apiDefinitionId = this.api.id;
         this.result = this.$post("/api/testcase/list", this.condition, response => {
           let data = response.data;
-          if (data) {
+          if (data && data.length > 0) {
             data.forEach(apiCase => {
               this.formatCase(apiCase);
             });
             this.apiCaseList = data;
+          } else {
+            this.$warning(this.$t('commons.please_add_api_case'));
+            return;
           }
         });
       }
