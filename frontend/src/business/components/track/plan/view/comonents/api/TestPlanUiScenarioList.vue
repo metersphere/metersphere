@@ -467,7 +467,80 @@ export default {
       }
 
     },
-    execute(row) {
+    async validateSeleniumSetting() {
+      //选择本地调试默认取消性能模式
+      const h = this.$createElement;
+        //检测是否配置了 个人地址, 检测配置的ip端口 是否正常
+        let result = await this.$get("/ui/automation/verify/seleniumServer");
+        if (result.data) {
+          let res = result.data;
+          if (res.data === "ok") {
+            return true;
+          } else if (res.data === "connectionErr") {
+            this.showServerMessageBox(
+              h("p", null, [
+                h(
+                  "span",
+                  null,
+                  "连接失败，请检查 selenium-grid 服务状态"
+                ),
+                h(
+                  "p",
+                  {
+                    style: "color: #aeb0b3;cursor:pointer;font-size: 10px;",
+                    on: {
+                      click: (value) => {
+                        this.redirectSetting();
+                      },
+                    },
+                  },
+                  "查看配置信息"
+                ),
+              ])
+            );
+            return false;
+          } else {
+            this.showServerMessageBox(
+              h("p", null, [
+                h("span", null, "连接失败，请检查 selenium-grid 地址信息"),
+                h(
+                  "p",
+                  {
+                    style: "color: #aeb0b3;cursor:pointer;font-size: 10px;",
+                    on: {
+                      click: (value) => {
+                        this.redirectSetting();
+                      },
+                    },
+                  },
+                  "查看配置信息"
+                ),
+              ])
+            );
+            return false;
+          }
+        }
+      return true;
+    },
+    redirectSetting() {
+      window.open("/#/setting/systemparametersetting");
+    },    
+    showServerMessageBox(msg) {
+      this.$msgbox({
+        title: "",
+        message: msg,
+        confirmButtonText: this.$t("commons.confirm"),
+        cancelButtonText: this.$t("commons.cancel"),
+      })
+        .then((action) => {})
+        .catch(() => {});
+    },
+    async doExecute(row){
+      //校验selenium
+      let serverResult = await this.validateSeleniumSetting();
+      if(!serverResult){
+        return;
+      }
       this.infoDb = false;
       let param ={planCaseIds: []};
       this.reportId = "";
@@ -491,6 +564,9 @@ export default {
           this.reportId = response.data;
         });
       }
+    },
+    execute(row) {
+      this.doExecute(row);
     },
     buildExecuteParam(param,row) {
       // param.id = row.id;
