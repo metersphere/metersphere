@@ -183,6 +183,14 @@ export default {
                 if (this.srcList.indexOf(itemStrArr) < 0) {
                   this.srcList.push(imgUrl);
                 }
+                if (endUrlIndex !== itemStr.length - 1) {
+                  let inputStr = itemStr.substr(endUrlIndex + 1, itemStr.length - 1);
+                  if (this.imgDescription === "") {
+                    this.imgDescription = inputStr;
+                  } else {
+                    this.imgDescription = "\n" + inputStr;
+                  }
+                }
               }
             } else {
               let inputStr = itemStr.substr(0, picNameIndex);
