@@ -259,7 +259,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                         }
                     }
                     // 如果合并单元格的最后一个单元格，标记下
-                    if (rowIndex == mergeInfo.getLastRowIndex()) {
+                    if (rowIndex.equals(mergeInfo.getLastRowIndex())) {
                         // 根据名称列是否是合并单元格判断是不是同一条用例
                         if (getNameColIndex().equals(col)) {
                             this.isMergeLastRow = true;
