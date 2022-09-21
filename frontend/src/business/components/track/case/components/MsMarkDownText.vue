@@ -1,7 +1,7 @@
 <template>
   <mavon-editor :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpenValue"
                 :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px', 'min-width': '100px'}"
-                @change="change"
+                @change="change" :image-click="imageClick"
                 :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="!disabled"
                 @imgDel="imgDel" v-model="data[prop]" ref="md"/>
 </template>
@@ -207,6 +207,46 @@ export default {
       this.$nextTick(() => {
         this.$emit('change');
       });
+    },
+    imageClick(e) {
+      // 富文本点击时使用el-image的方式展示, 去掉自定义action及关闭元素, 避免多个mavon-editor遮罩影响
+      // 创建img标签
+      let url = e.src;
+      let imgTag = document.createElement("img");
+      imgTag.src = url;
+      imgTag.classList.add("el-image-viewer__img");
+      imgTag.style.transformStyle = "scale(1) rotate(0deg)";
+      imgTag.style.marginLeft = "0px";
+      imgTag.style.marginTop = "0px";
+      imgTag.style.maxHeight = "100%";
+      imgTag.style.maxWidth = "100%";
+      // 创建el-image-viewer__canvas元素div
+      let canvas = document.createElement("div");
+      canvas.classList.add("el-image-viewer__canvas");
+      canvas.appendChild(imgTag);
+      // 设置点击监听函数用于关闭预览
+      // canvas.addEventListener("click", function () {
+      //   wrap.remove();
+      // });
+
+      //创建el-image-viewer__mask遮罩元素div
+      let mask = document.createElement("div");
+      mask.classList.add("el-image-viewer__mask");
+
+      //创建el-image-viewer__wrapper元素div
+      let wrap = document.createElement("div");
+      wrap.classList.add("el-image-viewer__wrapper");
+      wrap.style.zIndex = '99999';
+      // 元素关闭事件
+      wrap.addEventListener("click", function () {
+        wrap.remove();
+      });
+      wrap.appendChild(canvas);
+      wrap.appendChild(mask);
+      // 获取body的第一个子节点
+      let first = document.body.firstChild;
+      // 将div插入
+      document.body.insertBefore(wrap, first);
     }
   }
 }
