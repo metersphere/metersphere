@@ -41,13 +41,6 @@
               <el-main>
                 <el-form :model="data" :rules="rules" label-position="right" label-width="80px" size="small" ref="form">
                   <!-- 基础信息 -->
-                  <el-form-item :label="$t('commons.description')" prop="description">
-                    <el-input class="ms-http-textarea"
-                              v-model="data.description"
-                              type="textarea"
-                              :rows="2" size="small" @blur="save"/>
-                  </el-form-item>
-
                   <el-form-item :label="$t('load_test.file_name')" prop="name">
                     <el-input
                       class="ms-file-item-input"
@@ -56,11 +49,15 @@
                       :disabled="isRepositoryFile()"
                       show-word-limit @blur="save"/>
                   </el-form-item>
-
+                  <el-form-item :label="$t('commons.description')" prop="description">
+                    <el-input class="ms-http-textarea"
+                              v-model="data.description"
+                              type="textarea"
+                              :rows="2" size="small" @blur="save"/>
+                  </el-form-item>
                   <el-form-item :label="$t('load_test.file_type')" prop="type">
                     <span>{{ data.type }}</span>
                   </el-form-item>
-
                   <el-form-item :label="$t('load_test.file_size')" prop="size">
                     <span>{{ formatFileSize(data.size) }}</span>
                   </el-form-item>
