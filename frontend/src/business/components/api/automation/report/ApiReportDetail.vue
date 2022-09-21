@@ -711,10 +711,14 @@ export default {
 
   created() {
     this.getReport();
-    this.$EventBus.$on('projectChange', this.handleProjectChange);
+    if (this.$EventBus) {
+      this.$EventBus.$on('projectChange', this.handleProjectChange);
+    }
   },
   destroyed() {
-    this.$EventBus.$off('projectChange', this.handleProjectChange);
+    if (this.$EventBus) {
+      this.$EventBus.$off('projectChange', this.handleProjectChange);
+    }
   },
   computed: {
     path() {
@@ -780,7 +784,7 @@ export default {
   transform: rotate(90deg);
 }
 
-.report-body{
-  min-width: 750px!important;
+.report-body {
+  min-width: 750px !important;
 }
 </style>
