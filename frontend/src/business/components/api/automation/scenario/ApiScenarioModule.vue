@@ -84,6 +84,12 @@ export default {
       default() {
         return true;
       }
+    },
+    selectProjectId: {
+      type: String,
+      default() {
+        return getCurrentProjectID();
+      }
     }
   },
   computed: {
@@ -94,7 +100,11 @@ export default {
       return this.relevanceProjectId ? true : false;
     },
     projectId() {
-      return getCurrentProjectID();
+      if (this.selectProjectId) {
+        return this.selectProjectId;
+      } else {
+        return getCurrentProjectID();
+      }
     }
   },
   data() {
@@ -178,15 +188,18 @@ export default {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
     list(projectId) {
+      if (!projectId) {
+        projectId = this.projectId ? this.projectId : getCurrentProjectID();
+      }
       let url = undefined;
       if (this.isPlanModel) {
         url = '/api/automation/module/list/plan/' + this.planId;
       } else if (this.isRelevanceModel) {
         url = "/api/automation/module/list/" + this.relevanceProjectId;
       } else if (this.isTrashData) {
-        url = "/api/automation/module/trash/list/" + (projectId ? projectId : this.projectId);
+        url = "/api/automation/module/trash/list/" + projectId;
       } else {
-        url = "/api/automation/module/list/" + (projectId ? projectId : this.projectId);
+        url = "/api/automation/module/list/" + projectId;
         if (!this.projectId) {
           return;
         }
