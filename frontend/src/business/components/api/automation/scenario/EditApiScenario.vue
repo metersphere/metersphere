@@ -392,9 +392,9 @@ import {
   handleCtrlREvent,
   handleCtrlSEvent,
   hasLicense,
+  hasPermission,
   objToStrMap,
-  strMapToObj,
-  hasPermission
+  strMapToObj
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css";
 import OutsideClick from "@/common/js/outside-click";
@@ -1393,7 +1393,7 @@ export default {
     },
     resetResourceId(hashTree) {
       hashTree.forEach(item => {
-        item.resourceId = getUUID();
+        item.resourceId = item.resourceId || getUUID();
         if (item.hashTree && item.hashTree.length > 0) {
           this.resetResourceId(item.hashTree);
         }
