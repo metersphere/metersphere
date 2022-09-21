@@ -33,7 +33,7 @@
           </el-button>
 
         </el-button-group>
-        <div style="height: 40px"></div>
+        <div v-if='currentApi.id' style="height: 40px"></div>
         <template v-slot:header>
           <slot name="header"></slot>
         </template>

@@ -5,16 +5,15 @@
 </template>
 
 <script>
-  export default {
-    name: "MsMainContainer"
-  }
+export default {
+  name: "MsMainContainer"
+}
 </script>
 
 <style scoped>
 
-  .ms-main-container {
-    padding: 5px 10px;
-    height: calc(100vh - 45px);
-  }
+.ms-main-container {
+  padding: 5px 10px;
+}
 
 </style>
