@@ -85,8 +85,7 @@
         INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
         INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
         WHERE (
-        apiCase.`status` IS NULL
-        OR apiCase.`status` != 'Trash'
+        (apiCase.`status` IS NULL OR apiCase.`status` != 'Trash')
         AND apiCase.project_id = #{projectId})) testCase
         INNER JOIN (SELECT executionInfo.source_id AS sourceId,
         COUNT(executionInfo.id) AS dataCountNumber
