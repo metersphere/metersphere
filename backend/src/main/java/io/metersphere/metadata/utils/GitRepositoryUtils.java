@@ -135,6 +135,7 @@ public class GitRepositoryUtils {
             }
         } catch (Exception e) {
             LogUtil.error("获取文件库文件报错!", e);
+            MSException.throwException("Connect repository error!");
         } finally {
             this.closeConnection(repo);
         }
