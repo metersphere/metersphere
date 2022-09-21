@@ -785,7 +785,13 @@ export default {
       this.$emit('copyApi', obj);
     },
     runApi(row) {
-      let request = row ? JSON.parse(row.request) : {};
+      let request;
+      if (typeof (row.request) === 'string') {
+        request = row ? JSON.parse(row.request) : {};
+      } else {
+        request = row ? row.request : {};
+      }
+
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
       }
