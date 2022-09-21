@@ -998,7 +998,8 @@ export default {
 <style scoped>
 
 .ms-api-div {
-  overflow-y: auto;
+  overflow-y: hidden;
+  height: calc(100vh - 100px)
 }
 
 /deep/ .el-main {

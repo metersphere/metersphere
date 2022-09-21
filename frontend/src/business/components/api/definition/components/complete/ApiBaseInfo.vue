@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="isloading">
+  <div v-loading="isloading" class="ms-base-div">
     <el-form ref="apiForm" :model="basicForm" :rules="rules" class="case-form" label-position="right"
              label-width="80px"
              size="small"
@@ -242,5 +242,8 @@ export default {
 </script>
 
 <style scoped>
-
+.ms-base-div {
+  height: calc(100vh - 100px) !important;
+  overflow: auto !important;
+}
 </style>
