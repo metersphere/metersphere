@@ -302,14 +302,16 @@ public class FileMetadataService {
 
 
     private void checkName(FileMetadata fileMetadata) {
-        FileMetadataExample example = new FileMetadataExample();
-        FileMetadataExample.Criteria criteria = example.createCriteria();
-        criteria.andNameEqualTo(fileMetadata.getName())
-                .andProjectIdEqualTo(fileMetadata.getProjectId())
-                .andIdNotEqualTo(fileMetadata.getId());
-
-        if (fileMetadataMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("project_file_already_exists"));
+        //文件库的名字不用判断是否唯一.是根据文件库路径自动解析生成的。
+        if (!StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+            FileMetadataExample example = new FileMetadataExample();
+            FileMetadataExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(fileMetadata.getName())
+                    .andProjectIdEqualTo(fileMetadata.getProjectId())
+                    .andIdNotEqualTo(fileMetadata.getId());
+            if (fileMetadataMapper.countByExample(example) > 0) {
+                MSException.throwException(Translator.get("project_file_already_exists"));
+            }
         }
     }
 
