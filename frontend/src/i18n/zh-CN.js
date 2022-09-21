@@ -238,6 +238,7 @@ export default {
     no_corresponding: "无对应的",
     code_template: "代码模版",
     api_case: "接口用例",
+    please_add_api_case: "请先添加接口用例",
     scenario_case: "场景用例",
     task_center: "任务中心",
     task_close: "收起",

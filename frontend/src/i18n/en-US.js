@@ -237,6 +237,7 @@ export default {
     no_corresponding: "No corresponding",
     code_template: "code template",
     api_case: "Api Case",
+    please_add_api_case: "Please add api case",
     scenario_case: "Scenario Case",
     task_center: "Task center",
     task_close: "Put away",
