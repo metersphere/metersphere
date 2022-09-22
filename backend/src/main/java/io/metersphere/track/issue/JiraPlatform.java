@@ -934,13 +934,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
         // 获取富文本图片附件名称
         List<CustomFieldItemDTO> richTexts = request.getRequestFields().stream().filter(item -> item.getType().equals("richText")).collect(Collectors.toList());
         richTexts.forEach(richText -> {
-            String url = richText.getValue().toString();
-            if (url.contains("fileName")) {
-                // 本地上传的图片URL
-                msFileNames.add(url.substring(url.indexOf("=") + 1, url.lastIndexOf(")")));
-            } else if (url.contains("platform=Jira")) {
-                // Jira同步的图片URL
-                msFileNames.add(url.substring(url.indexOf("[") + 1, url.indexOf("]")));
+            if (richText.getValue() != null) {
+                String url = richText.getValue().toString();
+                if (url.contains("fileName")) {
+                    // 本地上传的图片URL
+                    msFileNames.add(url.substring(url.indexOf("=") + 1, url.lastIndexOf(")")));
+                } else if (url.contains("platform=Jira")) {
+                    // Jira同步的图片URL
+                    msFileNames.add(url.substring(url.indexOf("[") + 1, url.indexOf("]")));
+                }
             }
         });
 
