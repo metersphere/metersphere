@@ -14,7 +14,7 @@ pipeline {
         }
     }
     triggers {
-        pollSCM('0 * * * *')
+        pollSCM('0 4 * * *')
     }
     environment { 
         IMAGE_NAME = 'metersphere'
