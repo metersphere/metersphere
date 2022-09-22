@@ -391,6 +391,7 @@ export default {
     init() {
       // 深度复制
       this.api = JSON.parse(JSON.stringify(this.apiData));
+      this.initLocalFile();
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
       if (!this.api.environmentId && this.$store.state.useEnvironment) {
@@ -398,6 +399,28 @@ export default {
       }
       this.runLoading = false;
       this.checkVersionEnable();
+    },
+    initLocalFile() {
+      if (this.apiData.request && this.apiData.request.body) {
+        if (this.apiData.request.body.binary && this.apiData.request.body.binary.length > 0) {
+          this.apiData.request.body.binary.forEach(item => {
+            this.api.request.body.binary.forEach(api => {
+              if (item.uuid && api.uuid && item.uuid === api.uuid) {
+                api = item;
+              }
+            })
+          })
+        }
+        if (this.apiData.request.body.kvs && this.apiData.request.body.kvs.length > 0) {
+          this.apiData.request.body.kvs.forEach(item => {
+            this.api.request.body.kvs.forEach(api => {
+              if (item.uuid && api.uuid && item.uuid === api.uuid && item.files && api.files) {
+                api.files = item.files;
+              }
+            })
+          })
+        }
+      }
     }
   },
   created() {
