@@ -346,15 +346,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject addJiraIssueParam = new JSONObject();
         addJiraIssueParam.put("fields", fields);
 
+        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
+
         if (issuesRequest.isThirdPartPlatform()) {
-            parseCustomFiled(issuesRequest, fields);
+            parseCustomFiled(issuesRequest, customFields, fields);
             issuesRequest.setTitle(fields.getString("summary"));
         } else {
             fields.put("summary", issuesRequest.getTitle());
             fields.put("description", desc);
-            issuesRequest.getRequestFields().add(getRichTextCustomField("description"));
-            issuesRequest.getRequestFields().add(getRichTextCustomField("summary"));
-            parseCustomFiled(issuesRequest, fields);
+            customFields.add(getRichTextCustomField("description"));
+            customFields.add(getRichTextCustomField("summary"));
+            parseCustomFiled(issuesRequest, customFields, fields);
         }
         setSpecialParam(fields);
 
@@ -405,9 +407,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return result;
     }
 
-    private void parseCustomFiled(IssuesUpdateRequest issuesRequest, JSONObject fields) {
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
-
+    private void parseCustomFiled(IssuesUpdateRequest issuesRequest, List<CustomFieldItemDTO> customFields, JSONObject fields) {
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
