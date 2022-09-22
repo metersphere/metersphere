@@ -251,7 +251,7 @@ public class APITestController {
 
         if (unexecuteCount + executionFailedCount + executionPassCount + fakeErrorCount > 0) {
             //通过率
-            float coverageRageNumber = (float) executionPassCount * 100 / (unexecuteCount + executedCountNumber + executionPassCount);
+            float coverageRageNumber = (float) executionPassCount * 100 / (unexecuteCount + executionFailedCount + fakeErrorCount + executionPassCount);
             DecimalFormat df = new DecimalFormat("0.0");
             apiCountResult.setPassRage(df.format(coverageRageNumber) + "%");
         } else {
