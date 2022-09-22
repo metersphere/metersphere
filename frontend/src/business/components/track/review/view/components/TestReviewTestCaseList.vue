@@ -40,12 +40,31 @@
     >
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
-          v-if="item.id === 'num'"
-          prop="customNum"
-          sortable="custom"
+          v-if="!customNum"
+          :field="item"
           :fields-width="fieldsWidth"
+          :column-key="'num'"
+          :prop="'num'"
+          sortable
           :label="$t('commons.id')"
-          min-width="120px"/>
+          min-width="80">
+          <template v-slot:default="scope">
+            {{ scope.row.num }}
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          v-if="item.id === 'num' && customNum"
+          :fields-width="fieldsWidth"
+          :column-key="'customNum'"
+          :prop="'customNum'"
+          sortable
+          :label="$t('commons.id')"
+          min-width="80">
+          <template v-slot:default="scope">
+            {{ scope.row.customNum }}
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="name"
@@ -316,7 +335,13 @@ export default {
     },
     editTestReviewTestCaseOrder() {
       return editTestReviewTestCaseOrder;
-    }
+    },
+    customNum() {
+      return this.$store.state.currentProjectIsCustomNum;
+    },
+    projectId() {
+      return getCurrentProjectID();
+    },
   },
   created() {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
@@ -328,6 +353,7 @@ export default {
     this.isTestManagerOrTestUser = true;
     this.initTableHeader();
     this.getVersionOptions();
+    this.getProject();
   },
   methods: {
     nextPage() {
@@ -424,6 +450,14 @@ export default {
     search() {
       this.initTableData();
       this.$emit('search');
+    },
+    getProject() {
+      this.$get('/project_application/get/config/' + this.projectId + "/CASE_CUSTOM_NUM", result => {
+        let data = result.data;
+        if (data) {
+          this.$store.commit('setCurrentProjectIsCustomNum', data.caseCustomNum);
+        }
+      });
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
