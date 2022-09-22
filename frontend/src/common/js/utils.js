@@ -96,11 +96,19 @@ export function hasPermissions(...permissions) {
 }
 
 export function getCurrentWorkspaceId() {
-  return sessionStorage.getItem(WORKSPACE_ID);
+  let workspaceId = sessionStorage.getItem(WORKSPACE_ID);
+  if (workspaceId) {
+    return workspaceId;
+  }
+  return getCurrentUser().lastWorkspaceId;
 }
 
 export function getCurrentProjectID() {
-  return sessionStorage.getItem(PROJECT_ID);
+  let projectId = sessionStorage.getItem(PROJECT_ID);
+  if (projectId) {
+    return projectId;
+  }
+  return getCurrentUser().lastProjectId;
 }
 
 export function getCurrentUser() {
@@ -607,11 +615,11 @@ export function operationConfirm(tip, success, cancel) {
   if (tip[tip.length - 1] !== '?' && tip[tip.length - 1] !== '？') {
     tip += '?';
   }
- return confirm(tip, '', {
-   confirmButtonText: i18n.t('commons.confirm'),
-   cancelButtonText: i18n.t('commons.cancel'),
-   type: 'warning',
-   center: false
+  return confirm(tip, '', {
+    confirmButtonText: i18n.t('commons.confirm'),
+    cancelButtonText: i18n.t('commons.cancel'),
+    type: 'warning',
+    center: false
   }).then(() => {
     if (success) {
       success();
@@ -620,7 +628,7 @@ export function operationConfirm(tip, success, cancel) {
     if (cancel) {
       cancel();
     }
- });
+  });
 }
 
 
