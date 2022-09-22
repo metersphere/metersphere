@@ -207,6 +207,12 @@ export default {
         });
       }
     },
+    'basisData.method': {
+      handler(v) {
+        this.changeApiProtocol(v);
+      },
+      deep: true
+    }
   },
   methods: {
     openHis() {
@@ -215,49 +221,12 @@ export default {
     callback() {
       this.validated = true;
     },
-    refreshEsbDataStruct(esbDataStruct) {
-      if (esbDataStruct && esbDataStruct.length > 0) {
-        esbDataStruct.forEach(row => {
-          row.status = "";
-          if (row.children == null || row.children.length === 0) {
-            row.children = [];
-          } else if (row.children.length > 0) {
-            this.refreshEsbDataStruct(row.children);
-          }
-        });
-      }
-    },
-    checkEsbDataStructData(esbDataStruct) {
-      let allCheckResult = true;
-      if (esbDataStruct && esbDataStruct.length > 0) {
-        for (let i = 0; i < esbDataStruct.length; i++) {
-          let row = esbDataStruct[i];
-          allCheckResult = this.$refs.esbTable.validateRowData(row);
-          if (allCheckResult) {
-            if (row.children != null && row.children.length > 0) {
-              allCheckResult = this.checkEsbDataStructData(row.children);
-              if (!allCheckResult) {
-                return false;
-              }
-            }
-          } else {
-            return false;
-          }
-        }
-      }
-      return allCheckResult;
-    },
-    validateEsbDataStruct(esbDataStruct) {
-      this.refreshEsbDataStruct(esbDataStruct);
-      const result = this.checkEsbDataStructData(esbDataStruct);
-      return result;
-    },
     saveApi() {
       if (this.basisData.tags instanceof Array) {
         this.basisData.tags = JSON.stringify(this.basisData.tags);
       }
-      if (this.basisData.method == 'ESB') {
-        let validataResult = this.validateEsbDataStruct(this.request.esbDataStruct);
+      if (this.basisData.method === 'ESB') {
+        let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
         if (!validataResult) {
           return;
         }
@@ -291,7 +260,7 @@ export default {
         if (this.basisData.tags instanceof Array) {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
         }
-        if (this.basisData.method == 'ESB') {
+        if (this.basisData.method === 'ESB') {
           let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
           if (!validataResult) {
             return;
