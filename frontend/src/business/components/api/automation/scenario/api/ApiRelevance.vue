@@ -10,6 +10,7 @@
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
+        :select-project-id="projectId"
         :is-relevance="true"
         :is-read-only="true"
         ref="nodeTree"/>
@@ -90,9 +91,9 @@ export default {
     ScenarioRelevanceApiList,
     MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList
   },
-  props:{
-    isAcrossSpace:{
-      type:Boolean,
+  props: {
+    isAcrossSpace: {
+      type: Boolean,
       default() {
         return false;
       }
@@ -234,6 +235,7 @@ export default {
 /deep/ .filter-input {
   width: 140px !important;
 }
+
 .version-select {
   padding-left: 10px;
 }
