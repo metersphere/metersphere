@@ -55,6 +55,7 @@
         <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
       </template>
       <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId"
+                         @openDependGraphDrawer="setRelationshipGraph"
                          :version-enable="versionEnable" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
@@ -195,7 +196,7 @@ export default {
       uploadFiles: [],
       relateFiles: [],
       unRelateFiles: [],
-      dumpFile: {},
+      dumpFile: {}
     };
   },
   computed: {
@@ -254,6 +255,9 @@ export default {
     },
     setRelationshipCount(count) {
       this.relationshipCount = count;
+    },
+    setRelationshipGraph(val) {
+      this.$emit("syncRelationGraphOpen", val);
     },
     reset() {
       this.tabActiveName = "remark";
