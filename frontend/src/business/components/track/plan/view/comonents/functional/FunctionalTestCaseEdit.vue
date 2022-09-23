@@ -115,7 +115,7 @@
 
                       <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
                         <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
-                                                   :is-test-plan-edit="true"
+                                                   :is-test-plan-edit="true" @syncRelationGraphOpen="syncRelationGraphOpen"
                                                    :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
                                                    :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                       </el-form-item >
@@ -126,7 +126,7 @@
               </el-card>
             </div>
           </el-col>
-          <el-col :span="7" v-if="!fold">
+          <el-col :span="7" v-if="!fold || !relationGraphOpen">
             <div class="comment-card">
             <el-card>
               <template slot="header">
@@ -520,6 +520,9 @@ export default {
         }
       }
     },
+    syncRelationGraphOpen(val) {
+      this.relationGraphOpen = val;
+    },
     openTestTestCase(item) {
       let TestCaseData = this.$router.resolve(
         {path: '/track/case/all', query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId}}
@@ -642,6 +645,11 @@ p {
 
 /deep/ .el-form-item__content {
   z-index: 1;
+}
+
+/deep/ .el-scrollbar__bar.is-vertical {
+  z-index: 0;
+  width: 0;
 }
 
 .head-bar {
