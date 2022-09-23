@@ -25,7 +25,7 @@
       </el-tooltip>
     </div>
 
-    <relationship-graph-drawer v-xpack v-permission :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack v-permission :graph-data="graphData" @closeRelationGraph="closeRelationGraph" ref="relationshipGraph"/>
 
   </div>
 </template>
@@ -67,7 +67,11 @@ export default {
       getRelationshipGraph(this.resourceId, this.resourceType,  (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
+        this.$emit("openDependGraphDrawer", true);
       });
+    },
+    closeRelationGraph() {
+      this.$emit("openDependGraphDrawer", false);
     },
     setPreCount(count) {
       this.preCount = count;
