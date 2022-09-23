@@ -35,6 +35,7 @@
           :options="options"
           :total="total"
           :is-trash-data="isTrashData"
+          :select-project-id="projectId"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -115,6 +116,12 @@ export default {
       default() {
         return OPTIONS;
       }
+    },
+    selectProjectId: {
+      type: String,
+      default() {
+        return getCurrentProjectID();
+      }
     }
   },
   computed: {
@@ -128,7 +135,11 @@ export default {
       return this.reviewId ? true : false;
     },
     projectId() {
-      return getCurrentProjectID();
+      if (this.selectProjectId) {
+        return this.selectProjectId;
+      } else {
+        return getCurrentProjectID();
+      }
     }
   },
   mounted() {
@@ -202,6 +213,9 @@ export default {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
     list(projectId) {
+      if (!projectId) {
+        projectId = this.projectId ? this.projectId : getCurrentProjectID();
+      }
       let url = undefined;
       if (this.isPlanModel) {
         url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
@@ -209,10 +223,10 @@ export default {
         url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
           (this.currentVersion ? '/' + this.currentVersion : '');
       } else if (this.isTrashData) {
-        url = "/api/module/trash/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+        url = "/api/module/trash/list/" + projectId + "/" + this.condition.protocol +
           (this.currentVersion ? '/' + this.currentVersion : '');
       } else {
-        url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+        url = "/api/module/list/" + projectId + "/" + this.condition.protocol +
           (this.currentVersion ? '/' + this.currentVersion : '');
         if (!this.projectId) {
           return;

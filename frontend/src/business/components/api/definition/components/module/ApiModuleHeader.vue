@@ -179,11 +179,21 @@ export default {
       default() {
         return OPTIONS;
       }
+    },
+    selectProjectId: {
+      type: String,
+      default() {
+        return getCurrentProjectID();
+      }
     }
   },
   computed: {
     projectId() {
-      return getCurrentProjectID();
+      if (this.selectProjectId) {
+        return this.selectProjectId;
+      } else {
+        return getCurrentProjectID();
+      }
     },
     showTrashNode() {
       return (!this.isReadOnly && !this.isTrashData);
