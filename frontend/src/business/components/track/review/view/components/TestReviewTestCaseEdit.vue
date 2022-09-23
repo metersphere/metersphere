@@ -115,6 +115,7 @@
 
                     <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
                       <test-case-edit-other-info @openTest="openTest" :read-only="true"
+                                                 @syncRelationGraphOpen="syncRelationGraphOpen"
                                                  :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
                                                  ref="otherInfo"/>
                     </el-form-item>
@@ -126,7 +127,7 @@
             </el-card>
           </div>
         </el-col>
-        <el-col :span="7">
+        <el-col :span="7" v-if="!relationGraphOpen">
             <div class="comment-card">
               <test-review-test-case-execute
                 :test-case="testCase"
@@ -219,7 +220,8 @@ export default {
       formLabelWidth: '100px',
       isCustomFiledActive: false,
       oldReviewStatus: '',
-      titleWith: 0
+      titleWith: 0,
+      relationGraphOpen: false,
     };
   },
   props: {
@@ -281,6 +283,9 @@ export default {
           break;
         }
       }
+    },
+    syncRelationGraphOpen(val) {
+      this.relationGraphOpen = val;
     },
     handleClose() {
       removeGoBackListener(this.handleClose);
@@ -574,6 +579,7 @@ export default {
 }
 
 /deep/ .el-scrollbar__bar.is-vertical {
-  z-index: 3;
+  z-index: 0;
+  width: 0;
 }
 </style>
