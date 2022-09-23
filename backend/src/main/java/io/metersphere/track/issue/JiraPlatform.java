@@ -746,6 +746,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 value = CustomFieldType.MULTIPLE_SELECT.getValue();
             } else if (customType.contains("version")) {
                 value = CustomFieldType.SELECT.getValue();
+            } else if (StringUtils.isNotBlank(schema.getType()) &&
+                    (schema.getType().contains("option") || schema.getType().contains("array"))) {
+                value = CustomFieldType.SELECT.getValue();
             }
         } else {
             // 系统字段
