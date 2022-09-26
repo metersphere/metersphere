@@ -40,20 +40,21 @@
                p.issue_template_id,
                p.case_template_id,
                p.create_time,
-               w.id               AS workspaceId,
-               w.name             AS workspaceName,
-               p.tapd_id,
-               p.jira_key,
-               p.zentao_id,
-               p.azure_devops_id,
-               p.azure_filter_id,
-               user.name          AS createUserName,
-               p.platform,
-               p.third_part_template,
-               p.issue_config
+        w.id AS workspaceId,
+        w.name AS workspaceName,
+        p.tapd_id,
+        p.jira_key,
+        p.zentao_id,
+        p.azure_devops_id,
+        p.azure_filter_id,
+        user.name AS createUserName,
+        p.platform,
+        p.third_part_template,
+        p.issue_config,
+        p.api_template_id
         FROM project p
-                     JOIN workspace w ON p.workspace_id = w.id
-                     LEFT JOIN user ON user.id = p.create_user
+        JOIN workspace w ON p.workspace_id = w.id
+        LEFT JOIN user ON user.id = p.create_user
         <where>
             <if test="proRequest.combine != null">
                 <include refid="combine">
