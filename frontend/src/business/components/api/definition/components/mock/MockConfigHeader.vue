@@ -18,7 +18,7 @@
                         ref="tag"/>
         </el-col>
         <el-col :span="4">
-          <el-button size="mini" style="float: right;margin-right: 65px;margin-top: 5px" type="primary"
+          <el-button size="small" style="float: right;margin-right: 65px" type="primary"
                      @click="saveMockExpectConfig"
                      title="ctrl + s" v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">{{
               $t('commons.save')
