@@ -433,7 +433,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Object value = issue.get(fieldName);
             if (value != null) {
                 if (value instanceof JSONObject) {
-                    item.setValue(getSyncJsonParamValue(value));
+                    if (StringUtils.equals(fieldName, "assignee")) {
+                        item.setValue(((JSONObject) value).get("displayName"));
+                    } else {
+                        item.setValue(getSyncJsonParamValue(value));
+                    }
                 } else if (value instanceof JSONArray) {
                     // Sprint 是单选 同步回来是 JSONArray
                     if (StringUtils.equals(item.getType(), "select")) {
