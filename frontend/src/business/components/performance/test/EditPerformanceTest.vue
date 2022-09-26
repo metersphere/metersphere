@@ -440,7 +440,6 @@ export default {
       });
     },
     saveCronExpression(cronExpression) {
-      this.test.schedule.enable = true;
       this.test.schedule.value = cronExpression;
       this.saveSchedule();
     },
@@ -459,6 +458,9 @@ export default {
       let url = '/performance/schedule/create';
       if (param.id) {
         url = '/performance/schedule/update';
+      } else {
+        // 创建定时任务，初始化是开启状态
+        this.test.schedule.enable = true;
       }
       this.$post(url, param, response => {
         this.$success(this.$t('commons.save_success'));
