@@ -24,6 +24,7 @@
       :row-order-group-id="projectId"
       :row-order-func="editTestCaseOrder"
       @handlePageChange="initTableData"
+      @order="initTableData"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
       @filter="search"
