@@ -6,38 +6,38 @@
                 @change="handleChange"
                 filterable v-model="data[prop]" :placeholder="$t('commons.default')">
       <el-option
-        v-for="(item,index) in data.options ? data.options : []"
-        :key="index"
-        @change="handleChange"
-        :label="getTranslateOption(item)"
-        :value="item.value">
+          v-for="(item,index) in data.options ? data.options : []"
+          :key="index"
+          :label="getTranslateOption(item)"
+          :value="item.value"
+          @change="handleChange">
       </el-option>
     </el-select>
 
     <el-cascader
-      v-else-if="data.type === 'cascadingSelect'"
-      expand-trigger="hover"
-      @change="handleChange"
-      :props="{label: 'text'}"
-      :options="data.options"
-      v-model="data[prop]">
+        v-else-if="data.type === 'cascadingSelect'"
+        v-model="data[prop]"
+        :options="data.options"
+        :props="{label: 'text'}"
+        expand-trigger="hover"
+        @change="handleChange">
     </el-cascader>
 
     <el-input
-      v-else-if="data.type === 'textarea'"
-      type="textarea"
-      @change="handleChange"
-      :rows="2"
-      :disabled="disabled"
-      :placeholder="$t('commons.input_content')"
-      class="custom-with"
-      v-model="data[prop]">
+        v-else-if="data.type === 'textarea'"
+        v-model="data[prop]"
+        :disabled="disabled"
+        :placeholder="$t('commons.input_content')"
+        :rows="2"
+        class="custom-with"
+        type="textarea"
+        @change="handleChange">
     </el-input>
 
     <el-checkbox-group
-      v-else-if="data.type === 'checkbox'"
-      :disabled="disabled"
-      v-model="data[prop]">
+        v-else-if="data.type === 'checkbox'"
+        v-model="data[prop]"
+        :disabled="disabled">
       <el-checkbox v-for="(item, index) in data.options ? data.options : []"
                    :key="index"
                    @change="handleChange"
@@ -47,37 +47,37 @@
     </el-checkbox-group>
 
     <el-radio
-      v-else-if="data.type === 'radio'"
-      v-model="data[prop]"
-      :disabled="disabled"
-      v-for="(item,index) in data.options ? data.options : []"
-      :key="index"
-      @change="handleChange"
-      :label="item.value">
+        v-for="(item,index) in data.options ? data.options : []"
+        v-else-if="data.type === 'radio'"
+        :key="index"
+        v-model="data[prop]"
+        :disabled="disabled"
+        :label="item.value"
+        @change="handleChange">
       {{ getTranslateOption(item) }}
     </el-radio>
 
     <el-input-number
-      v-else-if="data.type === 'int'"
-      v-model="data[prop]"
-      :disabled="disabled"
-      @change="handleChange"/>
+        v-else-if="data.type === 'int'"
+        v-model="data[prop]"
+        :disabled="disabled"
+        @change="handleChange"/>
 
     <el-input-number
-      v-else-if="data.type === 'float'"
-      :disabled="disabled"
-      @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1"/>
+        v-else-if="data.type === 'float'"
+        v-model="data[prop]"
+        :disabled="disabled"
+        :precision="2" :step="0.1" @change="handleChange"/>
 
      <el-date-picker
-       class="custom-with"
-       @change="handleChange"
-       v-else-if="data.type === 'date' || data.type === 'datetime'"
-       :value-format="data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
-       :disabled="disabled"
-       v-model="data[prop]"
-       :type="data.type === 'date' ? 'date' : 'datetime'"
-       :placeholder="$t('commons.select_date')">
+         v-else-if="data.type === 'date' || data.type === 'datetime'"
+         v-model="data[prop]"
+         :disabled="disabled"
+         :placeholder="$t('commons.select_date')"
+         :type="data.type === 'date' ? 'date' : 'datetime'"
+         :value-format="data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
+         class="custom-with"
+         @change="handleChange">
     </el-date-picker>
 
     <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
@@ -86,10 +86,10 @@
                :disabled="disabled"
                filterable v-model="data[prop]" :placeholder="$t('commons.default')">
        <el-option
-         v-for="(item) in memberOptions"
-         :key="item.id"
-         :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
-         :value="item.id">
+           v-for="(item) in memberOptions"
+           :key="item.id"
+           :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
+           :value="item.id">
        </el-option>
     </el-select>
 
@@ -106,7 +106,7 @@
     <el-input class="custom-with"
               @input="handleChange"
               :disabled="disabled"
-              v-else v-model="data[prop]" maxlength="500" show-word-limit/>
+              v-else v-model="data[prop]" maxlength="450" show-word-limit/>
 
   </span>
 
