@@ -410,23 +410,28 @@ public class ApiDefinitionExecResultService {
             List<ExecutedCaseInfoResult> apiCaseList = extApiDefinitionExecResultMapper.findFaliureApiCaseInfoByProjectID(projectId, startTime.getTime(), limitNumber);
             List<ExecutedCaseInfoResult> scenarioCaseList = extApiDefinitionExecResultMapper.findFaliureScenarioInfoByProjectID(projectId, startTime.getTime(), limitNumber);
             apiCaseList.forEach(item -> {
-                if(treeMap.containsKey(item.getFailureTimes())){
-                    treeMap.get(item.getFailureTimes()).add(item);    
-                }else {
-                    treeMap.put(item.getFailureTimes(),new ArrayList<>(){{this.add(item);}});
+                if (treeMap.containsKey(item.getFailureTimes())) {
+                    treeMap.get(item.getFailureTimes()).add(item);
+                } else {
+                    treeMap.put(item.getFailureTimes(), new ArrayList<>() {{
+                        this.add(item);
+                    }});
                 }
             });
             scenarioCaseList.forEach(item -> {
-                if(treeMap.containsKey(item.getFailureTimes())){
+                if (treeMap.containsKey(item.getFailureTimes())) {
                     treeMap.get(item.getFailureTimes()).add(item);
-                }else {
-                    treeMap.put(item.getFailureTimes(),new ArrayList<>(){{this.add(item);}});
+                } else {
+                    treeMap.put(item.getFailureTimes(), new ArrayList<>() {{
+                        this.add(item);
+                    }});
                 }
             });
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
             NavigableMap<Long, List<ExecutedCaseInfoResult>> descendingMap = treeMap.descendingMap();
-            caseInfoListforeach:for (List<ExecutedCaseInfoResult> itemList : descendingMap.values()) {
+            caseInfoListforeach:
+            for (List<ExecutedCaseInfoResult> itemList : descendingMap.values()) {
                 for (ExecutedCaseInfoResult item : itemList) {
                     if (returnList.size() <= 10) {
                         QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
@@ -531,6 +536,7 @@ public class ApiDefinitionExecResultService {
 
     public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "end_time"));
+        this.initReportRequest(request);
         List<ApiDefinitionExecResultExpand> list = extApiDefinitionExecResultMapper.list(request);
         List<String> userIds = list.stream().map(ApiDefinitionExecResult::getUserId)
                 .collect(Collectors.toList());
@@ -541,5 +547,21 @@ public class ApiDefinitionExecResultService {
                 item.setUserName(user.getName());
         });
         return list;
+    }
+
+    private void initReportRequest(QueryAPIReportRequest request) {
+        if (request != null) {
+            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")) {
+                boolean filterHasApi = false;
+                for (String triggerMode : request.getFilters().get("trigger_mode")) {
+                    if (StringUtils.equalsIgnoreCase(triggerMode, "api")) {
+                        filterHasApi = true;
+                    }
+                }
+                if (filterHasApi) {
+                    request.getFilters().get("trigger_mode").add("JENKINS");
+                }
+            }
+        }
     }
 }
