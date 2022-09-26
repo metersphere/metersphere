@@ -44,7 +44,7 @@
         <el-form-item
           :label="$t('project.project_file.repository.token')"
           prop="repositoryToken">
-          <el-input v-model="moduleForm.repositoryToken"></el-input>
+          <el-input show-password v-model="moduleForm.repositoryToken"></el-input>
         </el-form-item>
         <el-form-item
           type="textarea"
