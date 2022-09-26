@@ -251,7 +251,7 @@ export default {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.trashEnable = this.trashEnable;
-      simpleRequest.verisonId = this.versionId;
+      simpleRequest.versionId = this.versionId;
       let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiInfoArray = response.data;
