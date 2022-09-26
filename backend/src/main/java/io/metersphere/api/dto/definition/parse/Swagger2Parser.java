@@ -3,6 +3,10 @@ package io.metersphere.api.dto.definition.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -47,11 +51,19 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
-            JSONObject jsonObject = JSONObject.parseObject(sourceStr);
-            if (jsonObject.get("swagger") == null || jsonObject.get("swagger") == "null" || jsonObject.get("swagger") == " ") {
-                if (jsonObject.get("openapi") == null || jsonObject.get("openapi") == "null" || jsonObject.get("openapi") == " ") {
-                    MSException.throwException("wrong format");
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            try {
+                JsonNode jsonNode = objectMapper.readTree(sourceStr);
+                String keyName = objectMapper.writeValueAsString(jsonNode.get("swagger"));
+                if (StringUtils.isBlank(keyName) || StringUtils.equals(keyName, "\"\"")) {
+                    String openapi = objectMapper.writeValueAsString(jsonNode.get("openapi"));
+                    if (StringUtils.isBlank(openapi) || StringUtils.equals(openapi, "\"\"")) {
+                        MSException.throwException("wrong format");
+                    }
                 }
+            } catch (JsonProcessingException e) {
+                LoggerUtil.error("解析swagger出错", e);
             }
             swagger = new SwaggerParser().readWithInfo(sourceStr, false).getSwagger();
         }
