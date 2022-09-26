@@ -7,7 +7,7 @@
       Mock地址：
       <el-link v-if="this.getUrlPrefix !== '' " :href="getUrlPrefix" style="color: black" target="_blank"
                type="primary">
-        <span :style="{width: urlWidth}" class="ms-tab-name-width">{{ this.getUrlPrefix }}</span>
+        <span>{{ this.getUrlPrefix }}</span>
       </el-link>
       <el-link v-else style="color: darkred" target="_blank"
                type="primary">当前项目未开启Mock服务
@@ -441,12 +441,4 @@ export default {
   margin-bottom: 10px;
 }
 
-.ms-tab-name-width {
-  display: inline-block;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  max-width: 1030px;
-}
 </style>

@@ -502,7 +502,4 @@ export default {
   height: calc(100vh - 100px);
 }
 
-.ms-api-card >>> .el-card__body {
-  padding: 0px;
-}
 </style>
