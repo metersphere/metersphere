@@ -256,15 +256,11 @@ export default {
             scenarioJmxs.jmxs.forEach(item => {
               if (item.scenarioId) {
                 this.$refs.basicConfig.importScenario(item.scenarioId);
-                this.$refs.basicConfig.handleUpload();
                 relateApiList.push({
                   apiId: item.scenarioId,
                   apiVersion: item.version,
                   type: 'SCENARIO'
                 });
-              }
-              if (item.caseId) {
-                this.$refs.basicConfig.importCase(item);
               }
               if (JSON.stringify(item.attachFiles) !== "{}") {
                 let attachFiles = [];
@@ -277,6 +273,7 @@ export default {
               }
               this.$set(this.test, "apiList", relateApiList);
             });
+            this.$refs.basicConfig.handleUpload();
             this.active = '1';
             this.$store.commit("clearScenarioJmxs");
           }
