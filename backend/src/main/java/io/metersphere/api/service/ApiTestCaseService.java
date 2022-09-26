@@ -867,6 +867,9 @@ public class ApiTestCaseService {
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
             List<ApiTestCaseWithBLOBs> caseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
             List<String> caseIds = caseWithBLOBs.stream().map(ApiTestCaseWithBLOBs::getId).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(caseIds)) {
+                return;
+            }
             List<ApiTestCaseWithBLOBs> bloBs = extApiTestCaseMapper.unTrashCaseListByIds(caseIds);
 
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
