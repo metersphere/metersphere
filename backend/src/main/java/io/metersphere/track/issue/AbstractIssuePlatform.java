@@ -419,7 +419,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Object value = issue.get(fieldName);
             if (value != null) {
                 if (value instanceof JSONObject) {
-                    item.setValue(getSyncJsonParamValue(value));
+                    if (StringUtils.equals(fieldName, "assignee")) {
+                        item.setValue(((JSONObject) value).get("displayName"));
+                    } else {
+                        item.setValue(getSyncJsonParamValue(value));
+                    }
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
                     ((JSONArray)value).forEach(attr -> {
