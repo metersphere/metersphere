@@ -518,6 +518,7 @@ public class ApiDefinitionExecResultService {
 
     public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "end_time"));
+        this.initReportRequest(request);
         List<ApiDefinitionExecResultExpand> list = extApiDefinitionExecResultMapper.list(request);
         List<String> userIds = list.stream().map(ApiDefinitionExecResult::getUserId)
                 .collect(Collectors.toList());
@@ -543,6 +544,22 @@ public class ApiDefinitionExecResultService {
             ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
             apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(testPlanReportIdList);
             apiDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
+        }
+    }
+
+    private void initReportRequest(QueryAPIReportRequest request) {
+        if (request != null) {
+            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")) {
+                boolean filterHasApi = false;
+                for (String triggerMode : request.getFilters().get("trigger_mode")) {
+                    if (StringUtils.equalsIgnoreCase(triggerMode, "api")) {
+                        filterHasApi = true;
+                    }
+                }
+                if (filterHasApi) {
+                    request.getFilters().get("trigger_mode").add("JENKINS");
+                }
+            }
         }
     }
 }
