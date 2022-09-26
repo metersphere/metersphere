@@ -674,7 +674,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     List<ApiDefinitionWithBLOBs> singleOptionDatas = new ArrayList<>();
                     removeOtherChooseModuleRepeat(optionDatas, singleOptionDatas, chooseModulePath);
                     optionDatas = singleOptionDatas;
-                    optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
+                    optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName().concat(chooseModulePath), api -> api));
                 } else {
                     getNoHChooseModuleUrlRepeatOptionMap(optionDatas, optionMap, chooseModulePath);
                 }
