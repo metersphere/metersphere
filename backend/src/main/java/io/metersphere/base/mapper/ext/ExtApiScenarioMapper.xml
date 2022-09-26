@@ -199,10 +199,10 @@
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
         project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time
         ,u2.name as principal_name,
-        api_scenario.create_user as creator , user.name as creator_name
+        api_scenario.create_user as create_user , user.name as creator_name
         from api_scenario
         left join project on api_scenario.project_id = project.id
-        left join user on api_scenario.user_id = user.id and api_scenario.create_user = user.id
+        left join user on api_scenario.create_user = user.id
         left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
         left join user u2 on api_scenario.principal = u2.id
         left join project_version on api_scenario.project_id = project_version.project_id AND project_version.id =
