@@ -55,6 +55,7 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
 export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
   {value: 'ISSUE',text: 'workspace.issue_template_manage'},
+  {value: 'PLAN',text: 'workstation.table_name.track_plan'},
 ];
 
 export function CASE_TYPE_OPTION(){
