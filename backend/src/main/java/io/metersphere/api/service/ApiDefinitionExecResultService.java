@@ -551,7 +551,7 @@ public class ApiDefinitionExecResultService {
 
     private void initReportRequest(QueryAPIReportRequest request) {
         if (request != null) {
-            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")) {
+            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode") && CollectionUtils.isNotEmpty(request.getFilters().get("trigger_mode"))) {
                 boolean filterHasApi = false;
                 for (String triggerMode : request.getFilters().get("trigger_mode")) {
                     if (StringUtils.equalsIgnoreCase(triggerMode, "api")) {
