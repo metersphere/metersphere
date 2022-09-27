@@ -419,21 +419,26 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
+            String name = item.getName();
             if (StringUtils.isNotBlank(fieldName)) {
                 if (ObjectUtils.isNotEmpty(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType())) {
                         if (StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
-                            JSONObject param = new JSONObject();
-                            if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
-                                if (issuesRequest.isThirdPartPlatform()) {
-                                    param.put("id", item.getValue());
-                                } else {
-                                    param.put("name", item.getValue());
-                                }
+                            if (StringUtils.equalsAnyIgnoreCase(name, "PML", "PMLinkTest", "PMLink")) {
+                                fields.put(fieldName, item.getValue());
                             } else {
-                                param.put("id", item.getValue());
+                                JSONObject param = new JSONObject();
+                                if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
+                                    if (issuesRequest.isThirdPartPlatform()) {
+                                        param.put("id", item.getValue());
+                                    } else {
+                                        param.put("name", item.getValue());
+                                    }
+                                } else {
+                                    param.put("id", item.getValue());
+                                }
+                                fields.put(fieldName, param);
                             }
-                            fields.put(fieldName, param);
                         } else if (StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
                             JSONArray attrs = new JSONArray();
                             if (item.getValue() != null) {
