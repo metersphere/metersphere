@@ -155,6 +155,56 @@ public class ElementUtil {
         }
     }
 
+    public static void addApiCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
+        if (CollectionUtils.isNotEmpty(variables)) {
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+                list.forEach(item -> {
+                    CSVDataSet csvDataSet = new CSVDataSet();
+                    csvDataSet.setEnabled(true);
+                    csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
+                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
+                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
+                    if (CollectionUtils.isEmpty(item.getFiles())) {
+                        MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+                    } else {
+                        boolean isRef = false;
+                        String fileId = null;
+                        boolean isRepository = false;
+                        BodyFile file = item.getFiles().get(0);
+                        String path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
+                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                            isRef = true;
+                            fileId = file.getFileId();
+                            if (fileMetadataService != null) {
+                                FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
+                                if (fileMetadata != null && StringUtils.equals(fileMetadata.getStorage(), StorageConstants.GIT.name())) {
+                                    isRepository = true;
+                                }
+                            }
+                            path = FileUtils.getFilePath(file);
+                        }
+                        if (!config.isOperating() && !isRepository && !new File(path).exists()) {
+                            MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+                        }
+                        csvDataSet.setProperty("filename", path);
+                        csvDataSet.setProperty("isRef", isRef);
+                        csvDataSet.setProperty("fileId", fileId);
+                    }
+                    csvDataSet.setIgnoreFirstLine(false);
+                    csvDataSet.setProperty("shareMode", shareMode);
+                    csvDataSet.setProperty("recycle", true);
+                    csvDataSet.setProperty("delimiter", item.getDelimiter());
+                    csvDataSet.setProperty("quotedData", item.isQuotedData());
+                    csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
+                    tree.add(csvDataSet);
+                });
+            }
+        }
+    }
+
     public static void addCounter(HashTree tree, List<ScenarioVariable> variables, boolean isInternal) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
@@ -860,10 +910,10 @@ public class ElementUtil {
         return null;
     }
 
-    public static void addOtherVariables(ParameterConfig config, HashTree httpSamplerTree, String projectId) {
+    public static void addApiVariables(ParameterConfig config, HashTree httpSamplerTree, String projectId) {
         if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
-            ElementUtil.addCsvDataSet(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), config, "shareMode.group");
+            ElementUtil.addApiCsvDataSet(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), config, "shareMode.group");
             ElementUtil.addCounter(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), false);
             ElementUtil.addRandom(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables());
         }
