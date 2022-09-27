@@ -176,7 +176,7 @@ public class MsTCPSampler extends MsTestElement {
             tree.add(arguments);
         }
         //添加csv
-        ElementUtil.addOtherVariables(config, tree, this.getProjectId());
+        ElementUtil.addApiVariables(config, tree, this.getProjectId());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(config), samplerHashTree);

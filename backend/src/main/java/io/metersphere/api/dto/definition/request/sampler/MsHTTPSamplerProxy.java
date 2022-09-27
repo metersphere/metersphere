@@ -49,7 +49,6 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -232,7 +231,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             httpSamplerTree.add(arguments);
         }
         //添加csv
-        ElementUtil.addOtherVariables(config, httpSamplerTree, this.getProjectId());
+        ElementUtil.addApiVariables(config, httpSamplerTree, this.getProjectId());
         //判断是否要开启DNS
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
