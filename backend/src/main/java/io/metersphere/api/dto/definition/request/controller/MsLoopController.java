@@ -173,7 +173,7 @@ public class MsLoopController extends MsTestElement {
     private IfController ifController(String condition) {
         IfController ifController = new IfController();
         ifController.setEnabled(this.isEnable());
-        ifController.setName("while ifController");
+        ifController.setName("Loop ifController");
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
         ifController.setCondition(condition);
@@ -208,27 +208,7 @@ public class MsLoopController extends MsTestElement {
     }
 
     private String script() {
-        String script = "\n" +
-                "import java.util.*;\n" +
-                "import java.text.SimpleDateFormat;\n" +
-                "import org.apache.jmeter.threads.JMeterContextService;\n" +
-                "\n" +
-                "// 循环控制器超时后结束循环\n" +
-                "try{\n" +
-                "\tString ms_current_timer = vars.get(\"" + ms_current_timer + "\");\n" +
-                "\tlong _nowTime = System.currentTimeMillis(); \n" +
-                "\tif(ms_current_timer == null ){\n" +
-                "\t\tvars.put(\"" + ms_current_timer + "\",_nowTime.toString());\n" +
-                "\t}\n" +
-                "\tlong time = Long.parseLong(vars.get(\"" + ms_current_timer + "\"));\n" +
-                "\t if((_nowTime - time) > " + this.whileController.getTimeout() + " ){\n" +
-                "\t \tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" +
-                "\t \tlog.info( \"结束循环\");\n" +
-                "\t }\n" +
-                "}catch (Exception e){\n" +
-                "\tlog.info( e.getMessage());\n" +
-                "\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" +
-                "}\n";
+        String script = "\n" + "import java.util.*;\n" + "import java.text.SimpleDateFormat;\n" + "import org.apache.jmeter.threads.JMeterContextService;\n" + "\n" + "// 循环控制器超时后结束循环\n" + "try{\n" + "\tString ms_current_timer = vars.get(\"" + ms_current_timer + "\");\n" + "\tlong _nowTime = System.currentTimeMillis(); \n" + "\tif(ms_current_timer == null ){\n" + "\t\tvars.put(\"" + ms_current_timer + "\",_nowTime.toString());\n" + "\t}\n" + "\tlong time = Long.parseLong(vars.get(\"" + ms_current_timer + "\"));\n" + "\t if((_nowTime - time) > " + this.whileController.getTimeout() + " ){\n" + "\t \tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "\t \tlog.info( \"结束循环\");\n" + "\t }\n" + "}catch (Exception e){\n" + "\tlog.info( e.getMessage());\n" + "\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "}\n";
 
         return script;
     }
@@ -281,7 +261,9 @@ public class MsLoopController extends MsTestElement {
             return tree.add(initForeachController());
         }
         if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
-            return tree.add(initLoopController());
+            String ifCondition = StringUtils.join("${__jexl3(", countController.getLoops(), " > 0 ", ")}");
+            HashTree ifHashTree = tree.add(ifController(ifCondition));
+            return ifHashTree.add(initLoopController());
         }
         return null;
     }
