@@ -254,7 +254,7 @@ export default {
 
 <style scoped>
 
-/deep/ .v-note-wrapper {
+.v-note-wrapper {
   display: block !important;
   position: static !important;
 }
