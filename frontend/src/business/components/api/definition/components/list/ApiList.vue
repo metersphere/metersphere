@@ -194,7 +194,6 @@
             prop="description"
             :field="item"
             min-width="120px"
-            sortable
             :fields-width="fieldsWidth"
             :label="$t('commons.description')"/>
         </span>
