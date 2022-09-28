@@ -125,7 +125,7 @@ export default {
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
         }
-        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOriginal(scenarioDefinition[i].hashTree);
         }
       }
