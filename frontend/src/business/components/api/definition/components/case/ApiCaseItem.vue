@@ -465,7 +465,7 @@ export default {
           scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
           scenarioDefinition[i].originalEnvironmentId = scenarioDefinition[i].environmentId;
         }
-        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOriginal(scenarioDefinition[i].hashTree);
         }
       }
