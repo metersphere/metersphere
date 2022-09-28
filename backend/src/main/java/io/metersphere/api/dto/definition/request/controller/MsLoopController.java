@@ -173,7 +173,7 @@ public class MsLoopController extends MsTestElement {
     private IfController ifController(String condition) {
         IfController ifController = new IfController();
         ifController.setEnabled(this.isEnable());
-        ifController.setName("while ifController");
+        ifController.setName("Loop ifController");
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
         ifController.setCondition(condition);
@@ -281,7 +281,9 @@ public class MsLoopController extends MsTestElement {
             return tree.add(initForeachController());
         }
         if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
-            return tree.add(initLoopController());
+            String ifCondition = StringUtils.join("${__jexl3(", countController.getLoops(), " > 0 ", ")}");
+            HashTree ifHashTree = tree.add(ifController(ifCondition));
+            return ifHashTree.add(initLoopController());
         }
         return null;
     }
