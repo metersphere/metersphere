@@ -31,21 +31,6 @@ export default {
       default: false,
     },
   },
-  created: function () {
-  },
-  watch: {
-    versionId() {
-      this.initApiDocSimpleList();
-    }
-  },
-  computed: {},
-  methods: {
-    initApiDocSimpleList() {
-      this.condition.versionId = this.versionId;
-      Object.assign(this.$refs.documentAnchor.apiSearch, this.condition);
-      this.$refs.documentAnchor.initApiDocSimpleList();
-    }
-  },
 };
 </script>
 
