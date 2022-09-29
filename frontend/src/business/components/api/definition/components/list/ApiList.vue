@@ -173,7 +173,6 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
-          sortable
           :label="$t('api_test.definition.api_case_number')"/>
 
         <ms-table-column
