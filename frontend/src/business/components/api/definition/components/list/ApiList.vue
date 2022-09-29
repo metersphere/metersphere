@@ -664,9 +664,20 @@ export default {
                 if (!item.request.body) {
                   item.request.body = new Body();
                 }
+                if (!item.request.body.type) {
+                  this.$set(item.request.body, "type", null);
+                }
                 if (!item.request.headers) {
                   item.request.headers = [];
                 }
+                if (!item.request.body.kvs) {
+                  item.request.body.kvs = [];
+                }
+                item.request.body.kvs.forEach(i => {
+                  if (!i.files) {
+                    i.files = []
+                  }
+                })
                 if (!item.request.rest) {
                   item.request.rest = [];
                 }
