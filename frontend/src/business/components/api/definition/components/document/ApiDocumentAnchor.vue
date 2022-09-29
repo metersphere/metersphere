@@ -217,6 +217,9 @@ export default {
     trashEnable() {
       this.initApiDocSimpleList();
     },
+    versionId() {
+      this.initApiDocSimpleList();
+    }
   },
   methods: {
     changeFixed(clientHeight) {
