@@ -141,7 +141,6 @@ import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/ApiCaseList";
 import {getUUID} from "@/common/js/utils";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-import _ from 'lodash';
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -272,11 +271,6 @@ export default {
       if (this.currentApi.request != null && this.currentApi.request != 'null' && this.currentApi.request != undefined) {
         if (Object.prototype.toString.call(this.currentApi.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
           this.currentApi.request = JSON.parse(this.currentApi.request);
-          if (this.currentApi.request.body && !this.currentApi.request.body.type) {
-            let tempRequest = _.cloneDeep(this.currentApi.request);
-            tempRequest.body = {type: null};
-            this.currentApi.request = tempRequest;
-          }
         }
       }
       if (this.currentApi && this.currentApi.request && !this.currentApi.request.hashTree) {
