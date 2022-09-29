@@ -187,7 +187,6 @@
           prop="casePassingRate"
           :field="item"
           min-width="120px"
-          sortable
           :fields-width="fieldsWidth"
           :label="$t('api_test.definition.api_case_passing_rate')"/>
 
@@ -195,7 +194,6 @@
             prop="description"
             :field="item"
             min-width="120px"
-            sortable
             :fields-width="fieldsWidth"
             :label="$t('commons.description')"/>
         </span>
