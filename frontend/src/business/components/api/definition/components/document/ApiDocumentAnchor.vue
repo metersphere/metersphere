@@ -236,6 +236,9 @@ export default {
     trashEnable() {
       this.initApiDocSimpleList();
     },
+    versionId() {
+      this.initApiDocSimpleList();
+    }
   },
   methods: {
     handleSizeChange(val) {
