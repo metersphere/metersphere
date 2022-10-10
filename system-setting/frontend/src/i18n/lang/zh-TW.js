@@ -6,6 +6,9 @@ const message = {
   user: {
     search_get_more_tip: '搜索獲取其他選項'
   },
+  system: {
+    environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})"
+  },
   display: {
     title: '顯示設置',
     logo: '系統 LOGO',

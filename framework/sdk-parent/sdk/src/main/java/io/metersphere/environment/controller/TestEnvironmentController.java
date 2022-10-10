@@ -70,6 +70,12 @@ public class TestEnvironmentController {
         return baseEnvironmentService.add(apiTestEnvironmentWithBLOBs, sslFiles, variableFile);
     }
 
+    @PostMapping("/import")
+    public String create(@RequestBody List<TestEnvironmentDTO> environments) {
+        environments.forEach(this::checkParams);
+        return baseEnvironmentService.importEnvironment(environments);
+    }
+
     @PostMapping(value = "/update")
     public void update(@RequestPart("request") TestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironment);
