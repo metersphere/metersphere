@@ -34,3 +34,12 @@ target
 .classpath
 .jython_cache
 qywx.json
+
+
+### VS Code ###
+.vscode/
+**/src/test/
+### flattened
+.flattened-pom.xml
+
+.node/
