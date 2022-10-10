@@ -78,7 +78,6 @@
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
-        <npmRegistry>https://npm.fit2cloud.com</npmRegistry>
     </properties>
 
     <modules>
