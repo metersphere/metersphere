@@ -217,7 +217,7 @@
             </div>
 
             <!-- 定时任务 -->
-            <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
+            <div v-if="item.type=== 'SCHEDULE'" class="ms-api-schedule-div">
               <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules"/>
             </div>
           </el-tab-pane>
@@ -1004,6 +1004,11 @@ export default {
 
 .ms-api-div {
   overflow-y: hidden;
+  height: calc(100vh - 100px)
+}
+
+.ms-api-schedule-div {
+  overflow-y: auto;
   height: calc(100vh - 100px)
 }
 

@@ -1,17 +1,21 @@
 <template>
   <el-main>
-    <div class="api-schedule-form">
+    <div class="api-schedule-form" style="overflow: auto!important;">
       <el-form :model="formData" :rules="rules" v-loading="result" label-width="80px" ref="form">
         <el-row>
           <el-col :span="12">
             <el-form-item :label-width="labelWith" :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
               <el-input size="small" v-model="formData.swaggerUrl" clearable/>
             </el-form-item>
-            <el-form-item :label-width="labelWith" :label="'Cron表达式'" prop="rule">
+            <el-form-item :label-width="labelWith" :label="$t('commons.schedule_cron_title')" prop="rule">
               <el-input :disabled="isReadOnly"
                         v-model="formData.rule"
                         size="small"
-                        :placeholder="$t('schedule.please_input_cron_expression')"/>
+                        :placeholder="$t('schedule.please_input_cron_expression')">
+                <a :disabled="isReadOnly" @click="showCronDialog" slot="suffix" class="head">
+                  {{ $t('schedule.generate_expression') }}
+                </a>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -60,39 +64,30 @@
           </el-col>
         </el-row>
 
-        <el-form-item class="expression-link">
-          <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
-            {{ $t('schedule.generate_expression') }}
-          </el-link>
-        </el-form-item>
         <el-form-item>
           <crontab-result :ex="formData.rule" ref="crontabResult"/>
         </el-form-item>
       </el-form>
 
-      <div style="margin-top: 20px;" class="clearfix">
-        <el-row>
-          <el-col :span="4">
-            <el-button type="primary" style="float: right" size="mini" @click="openSchedule">
-              {{ $t('schedule.task_notification') }}
-            </el-button>
-          </el-col>
-          <el-col :span="20">
-            <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">
-              {{ $t('commons.add') }}
-            </el-button>
-            <div v-else>
-              <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
-                {{ $t('commons.clear') }}
-              </el-button>
-              <el-button type="primary" style="float: right" size="mini" @click="saveCron">{{ $t('commons.update') }}
-              </el-button>
-            </div>
-          </el-col>
-        </el-row>
+      <div class="clearfix">
+        <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">
+          {{ $t('commons.add') }}
+        </el-button>
+        <div v-else>
+          <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+            {{ $t('commons.clear') }}
+          </el-button>
+          <el-button type="primary" style="float: right" size="mini" @click="saveCron">{{ $t('commons.update') }}
+          </el-button>
+        </div>
       </div>
     </div>
 
+    <div style="margin-top: 10px;">
+      <el-button type="primary" style="float: left" size="mini" @click="openSchedule">
+        {{ $t('schedule.task_notification') }}
+      </el-button>
+    </div>
     <div class="task-list">
       <swagger-task-list
         @clear="clear"
@@ -414,10 +409,14 @@ export default {
 }
 
 .task-list {
-  margin-top: 15px;
+  margin-top: 50px;
 }
 
-.expression-link {
-  margin-bottom: 0;
+.head {
+  border-bottom: 1px solid var(--primary_color);
+  color: var(--primary_color);
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
 }
 </style>
