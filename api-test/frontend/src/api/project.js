@@ -17,6 +17,11 @@ export function getMaintainer() {getAll
 }
 
 export function getProjectConfig(projectId, type) {
+  let url = '/project_application/get/config/' + projectId + type;
+  return get(url);
+}
+
+export function getProjectApplicationConfig(projectId, type) {
   let url = '/project_application/get/' + projectId + type;
   return get(url);
 }
