@@ -558,7 +558,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                                     }
 
                                     String projectSocket = String.valueOf(obj.get("socket"));
-                                    if (!StringUtils.contains(projectSocket, "/mock/" + projectNumber)) {
+                                    if (!StringUtils.contains(projectSocket, "/api/mock/" + projectNumber)) {
                                         needUpdate = true;
                                         break;
                                     }
@@ -657,7 +657,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         JSONObject httpItem = new JSONObject();
         httpItem.put("id", UUID.randomUUID().toString());
         httpItem.put("type", "NONE");
-        httpItem.put("socket", socket + "/mock/" + projectNumber);
+        httpItem.put("socket", socket + "/api/mock/" + projectNumber);
         httpItem.put("protocol", protocal);
         List<Map<String, Object>> protocolVariablesArr = new LinkedList<>();
         Map<String, Object> protocolMap = new HashMap<>();
