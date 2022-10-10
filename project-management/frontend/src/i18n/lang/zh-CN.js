@@ -3,6 +3,9 @@ import fu from "fit2cloud-ui/src/locale/lang/zh-CN"; // 加载fit2cloud的内容
 import mf from "metersphere-frontend/src/i18n/lang/zh-CN"
 
 const message = {
+  pj: {
+    environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})"
+  },
   file_manage: {
     my_file: '我的文件',
     update_user: '更新人',

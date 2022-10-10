@@ -43,7 +43,7 @@
 
 <script>
 
-import {addEnvironment} from "../../../api/environment";
+import {importEnvironment} from "../../../api/environment";
 
 export default {
   name: "EnvironmentImport",
@@ -92,19 +92,25 @@ export default {
             reader.onload = (e) => {
               let fileString = e.target.result;
               try {
-                JSON.parse(fileString).map(env => {
-                  //projectId为空字符串要转换为null，空字符串会被认为有projectId
-                  env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
-                  if (!env.projectId) {
-                    this.$warning(this.$t('api_test.environment.project_warning'));
-                    return;
-                  }
-                  addEnvironment(env).then(() => {
-                    this.dialogVisible = false;
-                    this.$emit('refresh');
-                    this.$success(this.$t('commons.save_success'));
-                  });
+                let tempProjectId = this.currentProjectId === '' ? null : this.currentProjectId;
+                if (!tempProjectId) {
+                  this.$warning(this.$t('api_test.environment.project_warning'));
+                  return;
+                }
+                let arr = [];
+                JSON.parse(e.target.result).map(env => {
+                  env.projectId = tempProjectId;
+                  arr.push(env);
                 })
+                importEnvironment(arr).then(res => {
+                  if (res.data === 'OK') {
+                    this.$success(this.$t('commons.save_success'));
+                  } else {
+                    this.$success(this.$t('commons.save_success') + this.$t('system.environment_import_repeat_tip', [res.data]));
+                  }
+                  this.dialogVisible = false;
+                  this.$emit('refresh');
+                });
               } catch (exception) {
                 this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
               }

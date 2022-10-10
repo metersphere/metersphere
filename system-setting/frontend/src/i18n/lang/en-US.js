@@ -6,6 +6,9 @@ const message = {
   user: {
     search_get_more_tip: 'Search for other options'
   },
+  system: {
+    environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})"
+  },
   display: {
     title: 'Theme',
     logo: 'System LOGO',

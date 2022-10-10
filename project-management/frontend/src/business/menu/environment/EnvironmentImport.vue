@@ -43,7 +43,9 @@
 </template>
 
 <script>
-import {addEnvironment} from "../../../api/environment";
+import {importEnvironment} from "../../../api/environment";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+
 export default {
   name: "EnvironmentImport",
   props: {
@@ -92,33 +94,27 @@ export default {
             continue;
           }
           let reader = new FileReader();
-
           reader.readAsText(file.raw)
           reader.onload = (e) => {
-            let fileString = e.target.result;
             try {
-              JSON.parse(fileString).map(env => {
-                //projectId为空字符串要转换为null，空字符串会被认为有projectId
-                if (this.toImportProjectId) {
-                  env.projectId = this.toImportProjectId;
-                } else {
-                  env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
-                }
-                if (!env.projectId) {
-                  this.$warning(this.$t('api_test.environment.project_warning'));
-                  return;
-                }
-                addEnvironment(env).then(() => {
-                  this.dialogVisible = false;
-                  this.$emit('refresh');
-                  this.$success(this.$t('commons.save_success'));
-                });
+              let arr = [];
+              JSON.parse(e.target.result).map(env => {
+                env.projectId = getCurrentProjectID();
+                arr.push(env);
               })
+              importEnvironment(arr).then(res => {
+                if (res.data === 'OK') {
+                  this.$success(this.$t('commons.save_success'));
+                } else {
+                  this.$success(this.$t('commons.save_success') + this.$t('pj.environment_import_repeat_tip', [res.data]));
+                }
+                this.dialogVisible = false;
+                this.$emit('refresh');
+              });
             } catch (exception) {
               this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
             }
           }
-
         }
       }
     },

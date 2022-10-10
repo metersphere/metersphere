@@ -26,6 +26,9 @@ export function addEnvironment(param) {
   return request(config);
 }
 
+export function importEnvironment(params) {
+  return post("/environment/import", params);
+}
 
 export function editEnv(formData, param) {
   let url = '/api/environment/add';

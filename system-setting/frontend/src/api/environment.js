@@ -25,6 +25,10 @@ export function addEnvironment(param) {
   };  return request(config);
 }
 
+export function importEnvironment(params) {
+  return post("/environment/import", params);
+}
+
 export function getEnvironmentGroupPages(goPage, pageSize, param) {
   return post(`/environment/group/list/${goPage}/${pageSize}`, param);
 }

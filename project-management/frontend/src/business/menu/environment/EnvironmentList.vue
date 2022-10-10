@@ -285,6 +285,7 @@ export default {
       this.dialogVisible = true;
       this.currentEnvironment = new Environment();
       this.currentEnvironment.projectId = this.currentProjectId;
+      this.currentEnvironment.currentProjectId = this.currentProjectId;
       this.ifCreate = true;
     },
     search() {
@@ -292,8 +293,7 @@ export default {
     },
     editEnv(environment) {
       this.dialogTitle = this.$t('api_test.environment.config_environment');
-      this.currentProjectId = environment.projectId;
-      environment.currentProjectId = environment.projectId;
+      environment.currentProjectId = getCurrentProjectID();
       const temEnv = {};
       Object.assign(temEnv, environment);
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
@@ -303,9 +303,8 @@ export default {
     },
 
     copyEnv(environment) {
-      this.currentProjectId = environment.projectId;  //复制时默认选择所要复制环境对应的项目
       this.dialogTitle = this.$t('api_test.environment.copy_environment');
-      environment.currentProjectId = environment.projectId;
+      environment.currentProjectId = getCurrentProjectID();
       const temEnv = {};
       Object.assign(temEnv, environment);
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替

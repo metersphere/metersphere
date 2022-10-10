@@ -378,6 +378,41 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         return request.getId();
     }
 
+    public String importEnvironment(List<TestEnvironmentDTO> environments) {
+        StringBuilder existNames = new StringBuilder();
+        for (TestEnvironmentDTO request : environments) {
+            request.setId(UUID.randomUUID().toString());
+            request.setCreateUser(SessionUtils.getUserId());
+            if (request.getName() != null) {
+                if (StringUtils.isBlank(request.getProjectId())) {
+                    MSException.throwException(Translator.get("项目ID不能为空"));
+                }
+                ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+                ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();
+                criteria.andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
+                if (StringUtils.isNotBlank(request.getId())) {
+                    criteria.andIdNotEqualTo(request.getId());
+                }
+                if (apiTestEnvironmentMapper.selectByExample(example).size() > 0) {
+                    existNames.append(" ").append(request.getName());
+                    continue;
+                }
+            }
+            //检查Config，判断isMock参数是否给True
+            this.updateConfig(request, false);
+            request.setCreateTime(System.currentTimeMillis());
+            request.setUpdateTime(System.currentTimeMillis());
+            apiTestEnvironmentMapper.insert(request);
+            // 存储附件关系
+            saveEnvironment(request.getId(), request.getConfig(), FileAssociationType.ENVIRONMENT.name());
+        }
+        if (existNames.length() > 0) {
+            return existNames.toString();
+        } else {
+            return "OK";
+        }
+    }
+
     private TestEnvironmentDTO updateConfig(TestEnvironmentDTO request, boolean isMock) {
         if (StringUtils.isNotEmpty(request.getConfig())) {
             try {
