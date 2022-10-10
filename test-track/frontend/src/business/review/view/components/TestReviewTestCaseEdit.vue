@@ -385,7 +385,7 @@ export default {
           parseCustomField(item, this.testCaseTemplate, null, buildTestCaseOldFields(item));
           this.isCustomFiledActive = true;
           this.testCase = item;
-          this.oldReviewStatus = this.testCase.status;
+          this.oldReviewStatus = this.testCase.reviewStatus;
           if (!this.testCase.actualResult) {
             // 如果没值,使用模板的默认值
             this.testCase.actualResult = this.testCaseTemplate.actualResult;
@@ -404,7 +404,7 @@ export default {
     openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       // 一开始加载时候需要保存用例评审旧的状态
-      this.oldReviewStatus = testCase.status;
+      this.oldReviewStatus = testCase.reviewStatus;
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;

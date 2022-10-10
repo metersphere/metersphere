@@ -152,12 +152,8 @@ export function getReviewCasesForMinder(request, callback) {
 }
 
 export function getRelateTest(caseId) {
-  if (caseId) {
-    return get('/test/case/relate/test/list/' + caseId);
-  }
-  return {};
+  return get('/test/case/relate/test/list/' + caseId);
 }
-
 
 export function deleteRelateTest(caseId, testId) {
   return get('/test/case/relate/delete/' + caseId + '/' + testId);
