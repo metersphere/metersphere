@@ -568,6 +568,12 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         if (returnModel.getConfig() != null && project != null) {
             try {
                 JSONObject configObj = parseObject(returnModel.getConfig());
+                String socket = url;
+                if (socket.startsWith("http://")) {
+                    socket = socket.substring(7);
+                } else if (socket.startsWith("https://")) {
+                    socket = socket.substring(8);
+                }
                 if (configObj.has("httpConfig")) {
                     JSONObject httpObj = configObj.getJSONObject("httpConfig");
                     if (httpObj.has("isMock") && httpObj.getBoolean("isMock")) {
@@ -578,12 +584,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                             } else {
                                 for (int i = 0; i < conditions.length(); i++) {
                                     JSONObject obj = conditions.getJSONObject(i);
-                                    String socket = url;
-                                    if (socket.startsWith("http://")) {
-                                        socket = socket.substring(7);
-                                    } else if (socket.startsWith("https://")) {
-                                        socket = socket.substring(8);
-                                    }
+
                                     if (!obj.has("socket") || !StringUtils.startsWith(String.valueOf(obj.get("socket")), socket)) {
                                         needUpdate = true;
                                         break;
@@ -615,8 +616,13 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                             needUpdate = true;
                         }
 
+                        String ipStr = socket;
+                        if (socket.contains(":")) {
+                            String[] urlArr = socket.split(":");
+                            ipStr = urlArr[0];
+                        }
                         if (tcpConfigObj.has("server")) {
-                            if (!StringUtils.equals(tcpConfigObj.optString("server"), url)) {
+                            if(!StringUtils.equals(tcpConfigObj.optString("server"), ipStr)){
                                 needUpdate = true;
                             }
                         } else {
