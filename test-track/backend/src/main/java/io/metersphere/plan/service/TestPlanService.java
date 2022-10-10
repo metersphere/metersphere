@@ -366,12 +366,13 @@ public class TestPlanService {
 
     /**
      * 出现异常不回滚，继续计算其他
+     *
      * @param planId
      * @return
      */
-    List<String> calcExecResultStatus(String planId,TestPlanDTOWithMetric testPlan, Function<String, List<String>> getResultFunc) {
+    List<String> calcExecResultStatus(String planId, TestPlanDTOWithMetric testPlan, Function<String, List<String>> getResultFunc) {
         try {
-            List<String> execResults  = getResultFunc.apply(planId);
+            List<String> execResults = getResultFunc.apply(planId);
             execResults.forEach(item -> {
                 if (StringUtils.isNotBlank(item)) {
                     testPlan.setTested(testPlan.getTested() + 1);
@@ -589,7 +590,7 @@ public class TestPlanService {
                             apiCaseIds.add(l.getTestId());
                         }
                         if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
-                          scenarioIds.add(l.getTestId());
+                            scenarioIds.add(l.getTestId());
                         }
                     }
                     try {
@@ -1271,7 +1272,7 @@ public class TestPlanService {
     }
 
     public Boolean checkReportConfig(Map config, String key) {
-       return ServiceUtils.checkConfigEnable(config, key);
+        return ServiceUtils.checkConfigEnable(config, key);
     }
 
 
@@ -1410,7 +1411,7 @@ public class TestPlanService {
 
     public String runPlan(TestPlanRunRequest testplanRunRequest) {
         //检查测试计划下有没有可以执行的用例；
-        if (!haveExecCase(testplanRunRequest.getTestPlanId()) && !haveUiCase(testplanRunRequest.getTestPlanId())) {
+        if (!haveExecCase(testplanRunRequest.getTestPlanId())) {
             MSException.throwException(Translator.get("plan_warning"));
         }
         String envType = testplanRunRequest.getEnvironmentType();
@@ -1637,7 +1638,7 @@ public class TestPlanService {
                     append.append("/");
                 }
             }
-            if (!haveExecCase(planList.get(i).getId()) && !haveUiCase(planList.get(i).getId())) {
+            if (!haveExecCase(planList.get(i).getId())) {
                 haveExecCaseBuilder.append(planList.get(i).getName()).append("; ");
             }
         }
