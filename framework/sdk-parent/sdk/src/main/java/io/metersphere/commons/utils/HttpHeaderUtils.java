@@ -29,23 +29,36 @@ public class HttpHeaderUtils {
         headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString());
         headers.add(HttpHeaders.COOKIE, SessionUtils.getHttpHeader(HttpHeaders.COOKIE));
 
-        if (StringUtils.isNotBlank(SessionUtils.getHttpHeader(SessionConstants.HEADER_TOKEN))) {
-            headers.add(SessionConstants.HEADER_TOKEN, SessionUtils.getHttpHeader(SessionConstants.HEADER_TOKEN));
+        String headerToken = SessionUtils.getHttpHeader(SessionConstants.HEADER_TOKEN);
+        if (StringUtils.isNotBlank(headerToken)) {
+            headers.add(SessionConstants.HEADER_TOKEN, headerToken);
         }
-        if (StringUtils.isNotBlank(SessionUtils.getHttpHeader(SessionConstants.CSRF_TOKEN))) {
-            headers.add(SessionConstants.CSRF_TOKEN, SessionUtils.getHttpHeader(SessionConstants.CSRF_TOKEN));
+        String csrfToken = SessionUtils.getHttpHeader(SessionConstants.CSRF_TOKEN);
+        if (StringUtils.isNotBlank(csrfToken)) {
+            headers.add(SessionConstants.CSRF_TOKEN, csrfToken);
         }
-        if (StringUtils.isNotBlank(SessionUtils.getHttpHeader(SessionConstants.CURRENT_PROJECT))) {
-            headers.add(SessionConstants.CURRENT_PROJECT, SessionUtils.getHttpHeader(SessionConstants.CURRENT_PROJECT));
+        String currentProject = SessionUtils.getHttpHeader(SessionConstants.CURRENT_PROJECT);
+        if (StringUtils.isNotBlank(currentProject)) {
+            headers.add(SessionConstants.CURRENT_PROJECT, currentProject);
         }
-        if (StringUtils.isNotBlank(SessionUtils.getHttpHeader(SessionConstants.CURRENT_WORKSPACE))) {
-            headers.add(SessionConstants.CURRENT_WORKSPACE, SessionUtils.getHttpHeader(SessionConstants.CURRENT_WORKSPACE));
+        String currentWorkspace = SessionUtils.getHttpHeader(SessionConstants.CURRENT_WORKSPACE);
+        if (StringUtils.isNotBlank(currentWorkspace)) {
+            headers.add(SessionConstants.CURRENT_WORKSPACE, currentWorkspace);
         }
+        String accessKey = SessionUtils.getHttpHeader(SessionConstants.ACCESS_KEY);
+        if (StringUtils.isNotBlank(accessKey)) {
+            headers.add(SessionConstants.ACCESS_KEY, accessKey);
+        }
+        String signature = SessionUtils.getHttpHeader(SessionConstants.SIGNATURE);
+        if (StringUtils.isNotBlank(signature)) {
+            headers.add(SessionConstants.SIGNATURE, signature);
+        }
+
 
         UserDTO user = sessionUserThreadLocal.get();
         if (user != null) {
             UserKey userKey = getUserKey(user);
-            String accessKey = userKey.getAccessKey();
+            accessKey = userKey.getAccessKey();
             String secretKey = userKey.getSecretKey();
             headers.add(SessionConstants.ACCESS_KEY, accessKey);
             headers.add(SessionConstants.SIGNATURE, CodingUtil.aesDecrypt(accessKey + "|" + System.currentTimeMillis(), secretKey, accessKey));
