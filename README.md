@@ -83,7 +83,7 @@ MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本
 
 -   后端: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
 -   前端: [Vue.js](https://vuejs.org/)
--   中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/)
+-   中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/), [MinIO](https://min.io/)
 -   基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 -   测试引擎: [JMeter](https://jmeter.apache.org/)
 
