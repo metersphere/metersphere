@@ -63,7 +63,6 @@ public class HttpHeaderUtils {
             headers.add(SessionConstants.ACCESS_KEY, accessKey);
             headers.add(SessionConstants.SIGNATURE, CodingUtil.aesDecrypt(accessKey + "|" + System.currentTimeMillis(), secretKey, accessKey));
             headers.remove(HttpHeaders.COOKIE);
-            sessionUserThreadLocal.remove();
         }
 
         return headers;
@@ -94,5 +93,9 @@ public class HttpHeaderUtils {
         } else {
             sessionUserThreadLocal.remove();
         }
+    }
+
+    public static void clearUser() {
+        sessionUserThreadLocal.remove();
     }
 }

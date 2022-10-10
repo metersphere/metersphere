@@ -3,9 +3,10 @@ package io.metersphere.plan.job;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sechedule.MsScheduleJob;
+import io.metersphere.service.BaseUserService;
 import org.quartz.*;
 
 /**
@@ -20,8 +21,11 @@ public class TestPlanTestJob extends MsScheduleJob {
 
     private TestPlanService testPlanService;
 
+    private BaseUserService baseUserService;
+
     public TestPlanTestJob() {
         this.testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        this.baseUserService = CommonBeanFactory.getBean(BaseUserService.class);
     }
 
     /**
@@ -43,6 +47,7 @@ public class TestPlanTestJob extends MsScheduleJob {
 
         businessExecute(context);
     }
+
     @Override
     protected void businessExecute(JobExecutionContext context) {
 
@@ -52,14 +57,11 @@ public class TestPlanTestJob extends MsScheduleJob {
         String runResourceId = this.resourceId;
         String runProjectId = this.projectID;
         String runUserId = this.userId;
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.info("Start test_plan_scehdule. test_plan_id:" + runResourceId);
-                testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(),null,config);
-            }
-        });
-        thread.start();
+
+        // 定时任务指定调用微服务的user
+        HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(runUserId));
+        testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(), null, config);
+        HttpHeaderUtils.clearUser();
     }
 
     public static JobKey getJobKey(String testId) {

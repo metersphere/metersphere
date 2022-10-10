@@ -110,11 +110,6 @@ public class MicroService {
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), typeReference);
     }
 
-    public MicroService runAsUser(UserDTO user) {
-        HttpHeaderUtils.runAsUser(user);
-        return this;
-    }
-
     /**
      * 批量GET
      *
