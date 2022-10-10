@@ -690,7 +690,7 @@ public class ApiTestCaseService {
     public void editApiBathByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFrontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null, request.getCombine());
+            ids = this.getAllApiCaseIdsByFrontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId(), request.getCombine());
         }
 
         if (StringUtils.equals("tags", request.getType())) {
