@@ -1,0 +1,192 @@
+{
+  "permissions": [
+    {
+      "id": "PROJECT_API_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_API_HOME"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ",
+      "name": "permission.project_api_definition.read",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+CREATE_API",
+      "name": "permission.project_api_definition.create_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+EDIT_API",
+      "name": "permission.project_api_definition.edit_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+DELETE_API",
+      "name": "permission.project_api_definition.delete_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+COPY_API",
+      "name": "permission.project_api_definition.copy_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+CREATE_CASE",
+      "name": "permission.project_api_definition.create_case",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+EDIT_CASE",
+      "name": "permission.project_api_definition.edit_case",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+DELETE_CASE",
+      "name": "permission.project_api_definition.delete_case",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+COPY_CASE",
+      "name": "permission.project_api_definition.copy_case",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+IMPORT_API",
+      "name": "permission.project_api_definition.import_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+EXPORT_API",
+      "name": "permission.project_api_definition.export_api",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+TIMING_SYNC",
+      "name": "permission.project_api_definition.timing_sync",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE",
+      "name": "permission.project_api_definition.create_performance",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+RUN",
+      "name": "permission.project_api_definition.run",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+DEBUG",
+      "name": "permission.project_api_definition.debug",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ+MOCK",
+      "name": "permission.project_api_definition.mock",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ",
+      "name": "permission.project_api_scenario.read",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+CREATE",
+      "name": "permission.project_api_scenario.create",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+EDIT",
+      "name": "permission.project_api_scenario.edit",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+DELETE",
+      "name": "permission.project_api_scenario.delete",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+COPY",
+      "name": "permission.project_api_scenario.copy",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+RUN",
+      "name": "permission.project_api_scenario.run",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+DEBUG",
+      "name": "permission.project_api_scenario.debug",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+SCHEDULE",
+      "name": "permission.project_api_scenario.schedule",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+IMPORT_SCENARIO",
+      "name": "permission.project_api_scenario.import",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO",
+      "name": "permission.project_api_scenario.export",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+MOVE_BATCH",
+      "name": "permission.project_api_scenario.move_batch",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE",
+      "name": "permission.project_api_scenario.create_performance",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH",
+      "name": "permission.project_api_scenario.create_performance_batch",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ+BATCH_COPY",
+      "name": "permission.project_api_scenario.batch_copy",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
+      "id": "PROJECT_API_REPORT:READ",
+      "name": "permission.project_api_report.read",
+      "resourceId": "PROJECT_API_REPORT"
+    },
+    {
+      "id": "PROJECT_API_REPORT:READ+DELETE",
+      "name": "permission.project_api_report.delete",
+      "resourceId": "PROJECT_API_REPORT"
+    },
+    {
+      "id": "PROJECT_API_REPORT:READ+EXPORT",
+      "name": "permission.project_api_report.export",
+      "resourceId": "PROJECT_API_REPORT"
+    }
+  ],
+  "resource": [
+    {
+      "id": "PROJECT_API_HOME",
+      "name": "permission.common.home"
+    },
+    {
+      "id": "PROJECT_API_DEFINITION",
+      "name": "permission.project_api_definition.name"
+    },
+    {
+      "id": "PROJECT_API_SCENARIO",
+      "name": "permission.project_api_scenario.name"
+    },
+    {
+      "id": "PROJECT_API_REPORT",
+      "name": "permission.project_api_report.name"
+    }
+  ]
+}

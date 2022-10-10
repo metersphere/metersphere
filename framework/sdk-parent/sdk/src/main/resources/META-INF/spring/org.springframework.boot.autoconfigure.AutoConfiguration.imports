@@ -1,0 +1,13 @@
+io.metersphere.autoconfigure.CommonsDatabaseConfig
+io.metersphere.autoconfigure.I18nConfig
+io.metersphere.autoconfigure.RsaConfig
+io.metersphere.autoconfigure.SessionConfig
+io.metersphere.autoconfigure.WebSocketConfig
+io.metersphere.autoconfigure.OpenApiConfig
+io.metersphere.autoconfigure.RestTemplateConfig
+io.metersphere.autoconfigure.PermissionConfig
+io.metersphere.autoconfigure.ScheduleConfig
+io.metersphere.autoconfigure.ShiroConfig
+io.metersphere.autoconfigure.AsyncConfig
+io.metersphere.autoconfigure.MinIOConfig
+io.metersphere.autoconfigure.RedissonConfig

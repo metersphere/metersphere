@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.BaseApiTestEnvironmentMapper">
+
+    <select id="selectNameByIds" resultType="java.lang.String">
+        SELECT name
+        FROM api_test_environment
+        <where>
+            id IN
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT name
+        FROM api_test_environment
+        WHERE id = #{0}
+    </select>
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.environment.dto.ApiModuleDTO">
+        select * from api_module
+        where api_module.project_id = #{projectId}
+        and api_module.protocol = #{protocol}
+        order by api_module.pos asc
+    </select>
+</mapper>

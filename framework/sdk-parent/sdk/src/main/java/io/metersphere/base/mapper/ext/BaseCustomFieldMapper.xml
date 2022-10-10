@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.BaseCustomFieldMapper">
+    <select id="getWorkspaceSystemFields" resultType="io.metersphere.base.domain.CustomField">
+        select cf.*
+        from custom_field cf
+        left join project p
+            on cf.project_id = p.id
+        where p.workspace_id = #{workspaceId} and cf.scene = #{scene}
+    </select>
+</mapper>

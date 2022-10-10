@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.BaseUserMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.User">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <result column="language" jdbcType="VARCHAR" property="language"/>
+        <result column="last_workspace_id" jdbcType="VARCHAR" property="lastWorkspaceId"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+    </resultMap>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.id != null">
+                AND USER.id LIKE CONCAT('%', #{request.id},'%')
+            </if>
+            <if test="request.name != null">
+                AND USER.name LIKE CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.email != null">
+                AND USER.email LIKE CONCAT('%', #{request.email},'%')
+            </if>
+
+            <if test="request.unSelectIds != null and request.unSelectIds.size() > 0">
+                AND USER.id NOT IN
+                <foreach collection="request.unSelectIds" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getUserList" resultMap="BaseResultMap">
+        SELECT u.id, u.name, u.email, u.phone, u.language, u.status, u.source,
+        u.last_workspace_id, u.language, u.create_time, u.update_time
+        FROM `user` u
+        <where>
+            <if test="userRequest.id != null">
+                AND u.id LIKE CONCAT('%', #{userRequest.id},'%')
+            </if>
+            <if test="userRequest.name != null">
+                AND (u.name LIKE CONCAT('%', #{userRequest.name},'%')
+                        OR u.id LIKE CONCAT('%', #{userRequest.name},'%'))
+            </if>
+            <if test="userRequest.email != null">
+                AND u.email LIKE CONCAT('%', #{userRequest.email},'%')
+            </if>
+        </where>
+        <if test="userRequest.orders != null and userRequest.orders.size() > 0">
+            ORDER BY
+            <foreach collection="userRequest.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+    <select id="queryTypeByIds" parameterType="java.lang.String" resultType="io.metersphere.notice.domain.UserDetail">
+        SELECT
+        id, email, phone, name
+        FROM user
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+    </select>
+
+    <!--修改密码-->
+    <update id="updatePassword" parameterType="io.metersphere.base.domain.User">
+    UPDATE user
+    SET
+       password=#{password,jdbcType=VARCHAR},
+       update_time = #{updateTime,jdbcType=BIGINT}
+    WHERE  id=#{id,jdbcType=VARCHAR}
+   </update>
+    <select id="getDefaultLanguage" parameterType="java.lang.String" resultType="java.lang.String">
+    SELECT param_value FROM system_parameter
+    WHERE param_key=#{paramKey,jdbcType=VARCHAR}
+   </select>
+
+    <select id="searchUser" parameterType="java.lang.String" resultType="io.metersphere.base.domain.User">
+        SELECT id, name, email, last_workspace_id FROM `user` WHERE id LIKE CONCAT('%', #{condition},'%') OR email LIKE CONCAT('%', #{condition},'%') limit 100;
+    </select>
+
+    <select id="queryNameByIds" resultType="io.metersphere.base.domain.User">
+        SELECT id, name
+        FROM `user`
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryName" resultType="io.metersphere.base.domain.User">
+        SELECT id, name
+        FROM `user`
+    </select>
+
+    <select id="selectAllId" resultType="java.lang.String">
+        SELECT id FROM `user`
+    </select>
+
+    <select id="selectIdsByQuery" resultType="java.lang.String">
+        SELECT user.id
+        FROM user
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <update id="updateLastProjectIdIfNull">
+        UPDATE user SET last_project_id = #{projectId} WHERE id = #{userId}
+        AND (last_project_id IS NULL OR last_project_id = '')
+    </update>
+
+    <update id="updateLastWorkspaceIdIfNull">
+        UPDATE user SET last_workspace_id = #{workspaceId} WHERE id = #{userId}
+        AND (last_workspace_id IS NULL OR last_workspace_id = '')
+    </update>
+</mapper>

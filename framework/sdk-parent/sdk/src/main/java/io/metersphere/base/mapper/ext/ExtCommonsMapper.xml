@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtCommonsMapper">
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                LIKE CONCAT('%', #{${object}.value}, '%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                NOT LIKE CONCAT('%', #{
+                    ${object}.value}, '%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                NOT IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                BETWEEN #{${object}.value[0]} AND #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+</mapper>

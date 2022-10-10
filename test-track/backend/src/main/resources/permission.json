@@ -1,0 +1,242 @@
+{
+  "permissions": [
+    {
+      "id": "PROJECT_TRACK_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_TRACK_HOME"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ",
+      "name": "permission.project_track_case.read",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+CREATE",
+      "name": "permission.project_track_case.create",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+EDIT",
+      "name": "permission.project_track_case.edit",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+DELETE",
+      "name": "permission.project_track_case.delete",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+COPY",
+      "name": "permission.project_track_case.copy",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+IMPORT",
+      "name": "permission.project_track_case.import",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+EXPORT",
+      "name": "permission.project_track_case.export",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+RECOVER",
+      "name": "permission.project_track_case.recover",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_EDIT",
+      "name": "test_track.case.batch_edit_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_MOVE",
+      "name": "test_track.case.batch_move_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_COPY",
+      "name": "api_test.batch_copy",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_DELETE",
+      "name": "test_track.case.batch_delete_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_REDUCTION",
+      "name": "commons.batch_restore",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND",
+      "name": "test_track.case.batch_link_demand",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES",
+      "name": "test_track.case.generate_dependencies",
+      "resourceId": "PROJECT_TRACK_CASE",
+      "license": true
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC",
+      "name": "test_track.case.batch_add_public",
+      "resourceId": "PROJECT_TRACK_CASE",
+      "license": true
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ",
+      "name": "permission.project_track_review.read",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+CREATE",
+      "name": "permission.project_track_review.create",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+EDIT",
+      "name": "permission.project_track_review.edit",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+DELETE",
+      "name": "permission.project_track_review.delete",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+REVIEW",
+      "name": "permission.project_track_review.review",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+COMMENT",
+      "name": "permission.project_track_review.comment",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL",
+      "name": "permission.project_track_review.relevance_or_cancel",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ",
+      "name": "permission.project_track_plan.read",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CREATE",
+      "name": "permission.project_track_plan.create",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+EDIT",
+      "name": "permission.project_track_plan.edit",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+DELETE",
+      "name": "permission.project_track_plan.delete",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+COPY",
+      "name": "permission.project_track_plan.copy",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+RUN",
+      "name": "permission.project_track_plan.run",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN",
+      "name": "permission.project_track_plan.batch_run",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT",
+      "name": "permission.project_track_plan.batch_edit",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+SCHEDULE",
+      "name": "permission.project_track_plan.schedule",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL",
+      "name": "permission.project_track_plan.relevance_or_cancel",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE",
+      "name": "permission.project_track_plan.batch_delete",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_ISSUE:READ",
+      "name": "permission.project_track_issue.read",
+      "resourceId": "PROJECT_TRACK_ISSUE"
+    },
+    {
+      "id": "PROJECT_TRACK_ISSUE:READ+CREATE",
+      "name": "permission.project_track_issue.create",
+      "resourceId": "PROJECT_TRACK_ISSUE"
+    },
+    {
+      "id": "PROJECT_TRACK_ISSUE:READ+EDIT",
+      "name": "permission.project_track_issue.edit",
+      "resourceId": "PROJECT_TRACK_ISSUE"
+    },
+    {
+      "id": "PROJECT_TRACK_ISSUE:READ+DELETE",
+      "name": "permission.project_track_issue.delete",
+      "resourceId": "PROJECT_TRACK_ISSUE"
+    },
+    {
+      "id": "PROJECT_TRACK_REPORT:READ",
+      "name": "permission.project_track_report.read",
+      "resourceId": "PROJECT_TRACK_REPORT"
+    },
+    {
+      "id": "PROJECT_TRACK_REPORT:READ+DELETE",
+      "name": "permission.project_track_report.delete",
+      "resourceId": "PROJECT_TRACK_REPORT"
+    },
+    {
+      "id": "PROJECT_TRACK_REPORT:READ+EXPORT",
+      "name": "permission.project_track_report.export",
+      "resourceId": "PROJECT_TRACK_REPORT"
+    }
+  ],
+  "resource": [
+    {
+      "id": "PROJECT_TRACK_HOME",
+      "name": "permission.common.home"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE",
+      "name": "permission.project_track_case.name"
+    },
+    {
+      "id": "PROJECT_TRACK_REVIEW",
+      "name": "permission.project_track_review.name"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN",
+      "name": "permission.project_track_plan.name"
+    },
+    {
+      "id": "PROJECT_TRACK_ISSUE",
+      "name": "permission.project_track_issue.name"
+    },
+    {
+      "id": "PROJECT_TRACK_REPORT",
+      "name": "permission.project_track_report.name"
+    }
+  ]
+}

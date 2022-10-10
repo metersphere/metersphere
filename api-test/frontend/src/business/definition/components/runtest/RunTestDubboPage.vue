@@ -1,0 +1,324 @@
+<template>
+
+  <div class="card-container">
+    <div class="ms-opt-btn" v-if="versionEnable">
+      {{ $t('project.version.name') }}: {{ apiData.versionName }}
+    </div>
+    <el-card class="card-content">
+      <!-- 操作按钮 -->
+      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+                   @command="handleCommand" size="small" style="float: right;margin-right: 20px" v-if="!runLoading"
+                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
+        {{ $t('commons.test') }}
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
+          </el-dropdown-item>
+          <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
+          </el-dropdown-item>
+          <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
+          <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">
+        {{ $t('report.stop_btn') }}
+      </el-button>
+
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <div v-loading="loading">
+        <!-- TCP 请求参数 -->
+        <ms-basis-parameters :request="api.request" ref="requestForm" :response="responseData"/>
+
+        <!--返回结果-->
+        <!-- HTTP 请求返回数据 -->
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <ms-request-result-tail :response="responseData" ref="runResult"/>
+      </div>
+    </el-card>
+
+    <!-- 加载用例 -->
+    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
+                      :loaded="loaded" :refreshSign="refreshSign" :createCase="createCase"
+                      :save-button-text="loadCaseConfirmButton"
+                      ref="caseList"/>
+
+    <!-- 环境 -->
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+    <!-- 执行组件 -->
+    <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
+
+  </div>
+</template>
+
+<script>
+import {updateDefinition} from "@/api/definition";
+import {getApiReportDetail} from "@/api/definition-report";
+import {versionEnableByProjectId} from "@/api/xpack";
+import {getUUID} from "metersphere-frontend/src/utils";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import MsApiCaseList from "../case/EditApiCase";
+import MsContainer from "metersphere-frontend/src/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
+import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsRun from "../Run";
+import MsBasisParameters from "../request/dubbo/BasisParameters";
+import {REQ_METHOD} from "../../model/JsonData";
+import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
+import {mergeRequestDocumentData} from "@/business/definition/api-definition";
+import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
+import {execStop} from "@/api/scenario";
+
+export default {
+  name: "RunTestDubboPage",
+  components: {
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    MsRequestResultTail,
+    ApiEnvironmentConfig,
+    MsRun,
+    MsBasisParameters
+  },
+  data() {
+    return {
+      visible: false,
+      api: {},
+      loaded: false,
+      loading: false,
+      currentRequest: {},
+      loadCaseConfirmButton: this.$t("commons.confirm"),
+      createCase: "",
+      refreshSign: "",
+      responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
+      reqOptions: REQ_METHOD,
+      environments: [],
+      rules: {
+        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+        url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
+        environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
+      },
+      runData: [],
+      reportId: "",
+      runLoading: false,
+      versionEnable: false,
+    }
+  },
+  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  methods: {
+    handleCommand(e) {
+      mergeRequestDocumentData(this.request);
+      switch (e) {
+        case "load_case":
+          return this.loadCase();
+        case "save_as_case":
+          return this.saveAsCase();
+        case "update_api":
+          return this.updateApi();
+        case "save_as_api":
+          return this.saveAsApi();
+        default:
+          return this.runTest();
+      }
+    },
+    refresh() {
+      this.$emit('refresh');
+    },
+    runTest() {
+      this.runLoading = true;
+      this.loading = true;
+      this.api.request.name = this.api.id;
+      this.api.protocol = this.currentProtocol;
+      this.runData = [];
+      this.runData.push(this.api.request);
+      /*触发执行操作*/
+      this.reportId = getUUID().substring(0, 8);
+    },
+    runRefresh(data) {
+      this.responseData = data;
+      this.loading = false;
+      this.runLoading = false;
+    },
+    errorRefresh() {
+      this.loading = false;
+      this.runLoading = false;
+    },
+    saveAs() {
+      this.$emit('saveAs', this.api);
+    },
+    loadCase() {
+      this.refreshSign = getUUID();
+      this.loaded = true;
+      this.$refs.caseList.open();
+      this.visible = true;
+    },
+    apiCaseClose() {
+      this.visible = false;
+    },
+    getBodyUploadFiles() {
+      let bodyUploadFiles = [];
+      this.api.bodyUploadIds = [];
+      let request = this.api.request;
+      if (request.body) {
+        request.body.kvs.forEach(param => {
+          if (param.files) {
+            param.files.forEach(item => {
+              if (item.file) {
+                let fileId = getUUID().substring(0, 8);
+                item.name = item.file.name;
+                item.id = fileId;
+                this.api.bodyUploadIds.push(fileId);
+                bodyUploadFiles.push(item.file);
+              }
+            });
+          }
+        });
+      }
+      return bodyUploadFiles;
+    },
+    saveAsCase() {
+      //用于触发创建操作
+      this.$emit('saveAsCase', this.api);
+    },
+    saveAsApi() {
+      let data = {};
+      let req = this.api.request;
+      req.id = getUUID();
+      data.request = JSON.stringify(req);
+      data.method = this.api.method;
+      data.status = this.api.status;
+      data.userId = this.api.userId;
+      data.description = this.api.description;
+      this.$emit('saveAsApi', data);
+      this.$emit('refresh');
+    },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
+    updateApi() {
+      let bodyFiles = this.getBodyUploadFiles();
+      if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+        this.api.response = JSON.parse(this.api.response);
+      }
+      if (this.api.tags instanceof Array) {
+        this.api.tags = JSON.stringify(this.api.tags);
+      }
+      // 历史数据兼容处理
+      if (this.api.request) {
+        this.api.request.clazzName = TYPE_TO_C.get(this.api.request.type);
+        this.compatibleHistory(this.api.request.hashTree);
+      }
+      updateDefinition(null, null, bodyFiles, this.api).then(() => {
+        this.$success(this.$t('commons.save_success'));
+        if (this.syncTabs.indexOf(this.api.id) === -1) {
+          this.syncTabs.push(this.api.id);
+        }
+        this.$emit('saveApi', this.api);
+      });
+    },
+    selectTestCase(item) {
+      if (item != null) {
+        this.api.request = item.request;
+      } else {
+        this.api.request = this.currentRequest;
+      }
+    },
+    getEnvironments() {
+      getEnvironmentByProjectId(this.projectId).then(response => {
+        this.environments = response.data;
+        this.environments.forEach(environment => {
+          parseEnvironment(environment);
+        });
+        let hasEnvironment = false;
+        for (let i in this.environments) {
+          if (this.environments[i].id === this.api.environmentId) {
+            this.api.environment = this.environments[i];
+            hasEnvironment = true;
+            break;
+          }
+        }
+        if (!hasEnvironment) {
+          this.api.environmentId = '';
+          this.api.environment = undefined;
+        }
+      });
+    },
+    openEnvironmentConfig() {
+      this.$refs.environmentConfig.open(this.projectId);
+    },
+    environmentChange(value) {
+      for (let i in this.environments) {
+        if (this.environments[i].id === value) {
+          this.api.request.useEnvironment = this.environments[i].id;
+          break;
+        }
+      }
+    },
+    environmentConfigClose() {
+      this.getEnvironments();
+    },
+    getResult() {
+      if (this.api.id) {
+        getApiReportDetail(this.api.id).then(response => {
+          if (response.data) {
+            let data = JSON.parse(response.data.content);
+            this.responseData = data;
+          }
+        });
+      }
+    },
+    stop() {
+      execStop(this.reportId).then(() => {
+        this.runLoading = false;
+        this.loading = false;
+        this.$success(this.$t('report.test_stop_success'));
+      });
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        versionEnableByProjectId(this.projectId).then(response => {
+          this.versionEnable = response.data;
+        });
+      }
+    }
+  },
+  created() {
+    // 深度复制
+    this.api = JSON.parse(JSON.stringify(this.apiData));
+    this.api.protocol = this.currentProtocol;
+    this.currentRequest = this.api.request;
+    this.runLoading = false;
+    this.getEnvironments();
+    this.getResult();
+    this.checkVersionEnable();
+  }
+}
+</script>
+
+<style scoped>
+.ms-htt-width {
+  width: 350px;
+}
+
+.environment-button {
+  margin-left: 20px;
+  padding: 7px;
+}
+
+:deep(.el-drawer) {
+  overflow: auto;
+}
+</style>

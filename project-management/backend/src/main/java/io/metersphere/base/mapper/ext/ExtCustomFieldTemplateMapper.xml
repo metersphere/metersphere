@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper">
+
+    <select id="getCustomFieldIds" resultType="java.lang.String">
+        select field_id
+        from custom_field_template
+        where custom_field_template.template_id = #{templateId}
+    </select>
+    <select id="list" resultType="io.metersphere.dto.CustomFieldTemplateDao">
+        select
+        field_id, template_id, required, default_value, custom_data,
+        cft.id as id,
+        cf.name as name, cf.type as type, cf.remark as remark, cf.`system` as `system`, cf.options as options
+        from custom_field_template cft
+        inner join custom_field cf
+        on cft.field_id = cf.id
+        <if test="request.templateId != null">
+            where cft.template_id = #{request.templateId}
+        </if>
+        order by `order` asc
+    </select>
+    <select id="getCustomFields" resultType="io.metersphere.base.domain.CustomFieldTemplate">
+        select id, field_id fieldId, template_id templateId, scene, required, `order`, default_value defaultValue, custom_data customData, `key`
+        from custom_field_template
+        where custom_field_template.template_id = #{templateId}
+    </select>
+    <select id="getCustomFieldByTemplateId" resultType="io.metersphere.dto.CustomFieldDao">
+        select
+        template_id, required, default_value, custom_data,
+        cf.id as id,
+        cf.name as name, cf.type as type
+        from custom_field_template cft
+        inner join custom_field cf
+        on cft.field_id = cf.id
+        <if test="request.templateId != null">
+            where cft.template_id = #{templateId}
+        </if>
+    </select>
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+        custom_field_template
+        VALUES
+        <foreach collection="customFieldTemplates" item="customFieldTemplate" separator="," >
+            (#{customFieldTemplate.id}, #{customFieldTemplate.fieldId}, #{customFieldTemplate.templateId}, #{customFieldTemplate.scene},
+            #{customFieldTemplate.required}, #{customFieldTemplate.order}, #{customFieldTemplate.defaultValue}, #{customFieldTemplate.customData},
+            #{customFieldTemplate.key})
+        </foreach>
+    </insert>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from custom_field_template where template_id = #{templateId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+</mapper>

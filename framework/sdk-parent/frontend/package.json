@@ -1,0 +1,79 @@
+{
+  "name": "metersphere-frontend",
+  "version": "1.0.0",
+  "private": false,
+  "main": "lib/metersphere-frontend.common.js",
+  "scripts": {
+    "gateway": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "build-lib": "vue-cli-service build --target lib --name metersphere-frontend --dest lib ./src/index.js --formats commonjs",
+    "lint": "vue-cli-service lint"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
+    "@fortawesome/free-regular-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/vue-fontawesome": "^2.0.2",
+    "axios": "^0.27.2",
+    "element-ui": ">2.15.9 || 2.15.8",
+    "fit2cloud-ui": "^1.8.0",
+    "js-cookie": "^2.2.1",
+    "jsencrypt": "^3.1.0",
+    "normalize.css": "^8.0.1",
+    "nprogress": "^0.2.0",
+    "pinia": "^2.0.14",
+    "pinia-plugin-persistedstate": "^1.6.3",
+    "mavon-editor": "2.10.4",
+    "qiankun": "^2.8.0",
+    "vue": "^2.7.3",
+    "vue-i18n": "^8.22.4",
+    "vuedraggable": "^2.24.3",
+    "jsondiffpatch": "^0.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "^5.0.7",
+    "@vue/cli-plugin-eslint": "^5.0.7",
+    "@vue/cli-service": "^5.0.7",
+    "core-js": "^3.19.1",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^7.20.0",
+    "jspdf": "^2.3.1",
+    "mockjs": "^1.1.0",
+    "sass": "^1.43.4",
+    "sass-loader": "^10.1.1",
+    "svg-sprite-loader": "^6.0.11",
+    "vue-template-compiler": "^2.7.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "@babel/eslint-parser"
+    },
+    "rules": {
+      "vue/no-unused-components": "off",
+      "no-console": "off",
+      "no-unused-vars": "off",
+      "no-unused-expressions": "off",
+      "no-unused-labels": "off",
+      "no-useless-escape": "off"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

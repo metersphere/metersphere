@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.BaseModuleNodeMapper">
+
+    <insert id="insertSelective">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="record.id != null">
+                id,
+            </if>
+            <if test="record.projectId != null">
+                project_id,
+            </if>
+            <if test="record.name != null">
+                `name`,
+            </if>
+            <if test="record.modulePath != null">
+                `module_path`,
+            </if>
+            <if test="record.parentId != null">
+                parent_id,
+            </if>
+            <if test="record.level != null">
+                `level`,
+            </if>
+            <if test="record.createTime != null">
+                create_time,
+            </if>
+            <if test="record.updateTime != null">
+                update_time,
+            </if>
+            <if test="record.pos != null">
+                pos,
+            </if>
+            <if test="record.createUser != null">
+                create_user,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="record.id != null">
+                #{record.id,jdbcType=VARCHAR},
+            </if>
+            <if test="record.projectId != null">
+                #{record.projectId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.name != null">
+                #{record.name,jdbcType=VARCHAR},
+            </if>
+            <if test="record.modulePath != null">
+                #{record.modulePath,jdbcType=VARCHAR},
+            </if>
+            <if test="record.parentId != null">
+                #{record.parentId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.level != null">
+                #{record.level,jdbcType=INTEGER},
+            </if>
+            <if test="record.createTime != null">
+                #{record.createTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.updateTime != null">
+                #{record.updateTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.pos != null">
+                #{record.pos,jdbcType=DOUBLE},
+            </if>
+            <if test="record.createUser != null">
+                #{record.createUser,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insert">
+        insert into ${tableName} (id, project_id, `name`,
+                                  parent_id, `level`, create_time,
+                                  update_time, pos, create_user)
+        values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+                #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER},
+                #{record.createTime,jdbcType=BIGINT},
+                #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE},
+                #{record.createUser,jdbcType=VARCHAR})
+    </insert>
+</mapper>

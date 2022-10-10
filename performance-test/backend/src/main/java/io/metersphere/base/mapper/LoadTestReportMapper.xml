@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.LoadTestReportMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestReport">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="test_id" jdbcType="VARCHAR" property="testId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="max_users" jdbcType="VARCHAR" property="maxUsers" />
+    <result column="avg_response_time" jdbcType="VARCHAR" property="avgResponseTime" />
+    <result column="tps" jdbcType="VARCHAR" property="tps" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="test_name" jdbcType="VARCHAR" property="testName" />
+    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
+    <result column="test_start_time" jdbcType="BIGINT" property="testStartTime" />
+    <result column="test_end_time" jdbcType="BIGINT" property="testEndTime" />
+    <result column="test_duration" jdbcType="BIGINT" property="testDuration" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
+    <result column="jmx_content" jdbcType="LONGVARCHAR" property="jmxContent" />
+    <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
+    <result column="env_info" jdbcType="LONGVARCHAR" property="envInfo" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
+    max_users, avg_response_time, tps, project_id, test_name, test_resource_pool_id, 
+    test_start_time, test_end_time, test_duration, version_id
+  </sql>
+  <sql id="Blob_Column_List">
+    description, load_configuration, jmx_content, advanced_configuration, env_info
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from load_test_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from load_test_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from load_test_report
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from load_test_report
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.LoadTestReportExample">
+    delete from load_test_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    insert into load_test_report (id, test_id, `name`, 
+      create_time, update_time, `status`, 
+      user_id, trigger_mode, file_id, 
+      max_users, avg_response_time, tps, 
+      project_id, test_name, test_resource_pool_id, 
+      test_start_time, test_end_time, test_duration, 
+      version_id, description, load_configuration, 
+      jmx_content, advanced_configuration, 
+      env_info)
+    values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
+      #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
+      #{testStartTime,jdbcType=BIGINT}, #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, 
+      #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
+      #{envInfo,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    insert into load_test_report
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testId != null">
+        test_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="maxUsers != null">
+        max_users,
+      </if>
+      <if test="avgResponseTime != null">
+        avg_response_time,
+      </if>
+      <if test="tps != null">
+        tps,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="testName != null">
+        test_name,
+      </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id,
+      </if>
+      <if test="testStartTime != null">
+        test_start_time,
+      </if>
+      <if test="testEndTime != null">
+        test_end_time,
+      </if>
+      <if test="testDuration != null">
+        test_duration,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="loadConfiguration != null">
+        load_configuration,
+      </if>
+      <if test="jmxContent != null">
+        jmx_content,
+      </if>
+      <if test="advancedConfiguration != null">
+        advanced_configuration,
+      </if>
+      <if test="envInfo != null">
+        env_info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        #{testId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="maxUsers != null">
+        #{maxUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="avgResponseTime != null">
+        #{avgResponseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="tps != null">
+        #{tps,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="testName != null">
+        #{testName,jdbcType=VARCHAR},
+      </if>
+      <if test="testResourcePoolId != null">
+        #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="testStartTime != null">
+        #{testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="testEndTime != null">
+        #{testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="testDuration != null">
+        #{testDuration,jdbcType=BIGINT},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="loadConfiguration != null">
+        #{loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jmxContent != null">
+        #{jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="advancedConfiguration != null">
+        #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="envInfo != null">
+        #{envInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultType="java.lang.Long">
+    select count(*) from load_test_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update load_test_report
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testId != null">
+        test_id = #{record.testId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.triggerMode != null">
+        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileId != null">
+        file_id = #{record.fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.maxUsers != null">
+        max_users = #{record.maxUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="record.avgResponseTime != null">
+        avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tps != null">
+        tps = #{record.tps,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testName != null">
+        test_name = #{record.testName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testResourcePoolId != null">
+        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testStartTime != null">
+        test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.testEndTime != null">
+        test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.testDuration != null">
+        test_duration = #{record.testDuration,jdbcType=BIGINT},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.loadConfiguration != null">
+        load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.jmxContent != null">
+        jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.advancedConfiguration != null">
+        advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.envInfo != null">
+        env_info = #{record.envInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update load_test_report
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      file_id = #{record.fileId,jdbcType=VARCHAR},
+      max_users = #{record.maxUsers,jdbcType=VARCHAR},
+      avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
+      tps = #{record.tps,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      test_name = #{record.testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      test_duration = #{record.testDuration,jdbcType=BIGINT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR},
+      load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
+      jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{record.envInfo,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update load_test_report
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      file_id = #{record.fileId,jdbcType=VARCHAR},
+      max_users = #{record.maxUsers,jdbcType=VARCHAR},
+      avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
+      tps = #{record.tps,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      test_name = #{record.testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      test_duration = #{record.testDuration,jdbcType=BIGINT},
+      version_id = #{record.versionId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    update load_test_report
+    <set>
+      <if test="testId != null">
+        test_id = #{testId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="maxUsers != null">
+        max_users = #{maxUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="avgResponseTime != null">
+        avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="tps != null">
+        tps = #{tps,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="testName != null">
+        test_name = #{testName,jdbcType=VARCHAR},
+      </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="testStartTime != null">
+        test_start_time = #{testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="testEndTime != null">
+        test_end_time = #{testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="testDuration != null">
+        test_duration = #{testDuration,jdbcType=BIGINT},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="loadConfiguration != null">
+        load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jmxContent != null">
+        jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="advancedConfiguration != null">
+        advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="envInfo != null">
+        env_info = #{envInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
+    update load_test_report
+    set test_id = #{testId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      max_users = #{maxUsers,jdbcType=VARCHAR},
+      avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
+      tps = #{tps,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      test_name = #{testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      test_start_time = #{testStartTime,jdbcType=BIGINT},
+      test_end_time = #{testEndTime,jdbcType=BIGINT},
+      test_duration = #{testDuration,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR},
+      load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
+      jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{envInfo,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">
+    update load_test_report
+    set test_id = #{testId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      file_id = #{fileId,jdbcType=VARCHAR},
+      max_users = #{maxUsers,jdbcType=VARCHAR},
+      avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
+      tps = #{tps,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      test_name = #{testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      test_start_time = #{testStartTime,jdbcType=BIGINT},
+      test_end_time = #{testEndTime,jdbcType=BIGINT},
+      test_duration = #{testDuration,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

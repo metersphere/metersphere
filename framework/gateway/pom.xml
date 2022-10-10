@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.metersphere</groupId>
+        <artifactId>framework</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>gateway</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>sdk</artifactId>
+            <version>${revision}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-jetty</artifactId>
+                </exclusion>
+                <!-- http2 配置-->
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-alpn-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-alpn-conscrypt-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.http2</groupId>
+                    <artifactId>http2-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-validation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.kafka</groupId>
+                    <artifactId>spring-kafka</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-rsocket</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.metersphere</groupId>
+                    <artifactId>metersphere-jmeter-functions</artifactId>
+                </exclusion>
+                <!-- easyexcel -->
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>easyexcel</artifactId>
+                </exclusion>
+                <!-- 反射工具包 -->
+                <exclusion>
+                    <groupId>org.reflections</groupId>
+                    <artifactId>reflections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fit2cloud</groupId>
+                    <artifactId>quartz-spring-boot-starter</artifactId>
+                </exclusion>
+                <!-- shiro   -->
+                <exclusion>
+                    <groupId>org.apache.shiro</groupId>
+                    <artifactId>shiro-spring-boot-starter</artifactId>
+                </exclusion>
+                <!-- ms-jmeter-core -->
+                <exclusion>
+                    <groupId>io.metersphere</groupId>
+                    <artifactId>ms-jmeter-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+                <!--解决升级JDK11后动态加载JAR 需要JVM的JCA签名信任才能作为加密提供者-->
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+                <!-- jdk11 环境下有 Illegal reflective access   -->
+                <exclusion>
+                    <groupId>com.google.inject</groupId>
+                    <artifactId>guice</artifactId>
+                </exclusion>
+                <!--   排除jmeter中的 xstream 解决bug     -->
+                <exclusion>
+                    <groupId>com.thoughtworks.xstream</groupId>
+                    <artifactId>xstream</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.xmlbeans</groupId>
+                    <artifactId>xmlbeans</artifactId>
+                </exclusion>
+
+                <!-- swagger 解析 -->
+                <exclusion>
+                    <groupId>io.swagger.parser.v3</groupId>
+                    <artifactId>swagger-parser</artifactId>
+                </exclusion>
+                <!-- 执行 js 代码依赖 -->
+                <exclusion>
+                    <groupId>org.mozilla</groupId>
+                    <artifactId>rhino-engine</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jsoup</groupId>
+                    <artifactId>jsoup</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.commonmark</groupId>
+                    <artifactId>commonmark</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                </exclusion>
+                <!--xpath不加这个依赖会报错-->
+                <exclusion>
+                    <groupId>jaxen</groupId>
+                    <artifactId>jaxen</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sourceforge.htmlcleaner</groupId>
+                    <artifactId>htmlcleaner</artifactId>
+                </exclusion>
+                <!-- k8s client -->
+                <exclusion>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>kubernetes-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.java-websocket</groupId>
+                    <artifactId>Java-WebSocket</artifactId>
+                </exclusion>
+                <!-- xmind export-->
+                <exclusion>
+                    <groupId>com.github.eljah</groupId>
+                    <artifactId>xmindjbehaveplugin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                </exclusion>
+                <!-- selenium包  -->
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-java</artifactId>
+                </exclusion>
+
+                <!-- 基础包 -->
+                <exclusion>
+                    <groupId>io.metersphere</groupId>
+                    <artifactId>metersphere-plugin-core</artifactId>
+                </exclusion>
+                <!--随机数据生成API-->
+                <exclusion>
+                    <groupId>com.apifan.common</groupId>
+                    <artifactId>common-random</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.mifmif</groupId>
+                    <artifactId>generex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.json-lib</groupId>
+                    <artifactId>json-lib</artifactId>
+                </exclusion>
+
+                <!--java json schema json格式校验-->
+                <exclusion>
+                    <groupId>com.github.java-json-tools</groupId>
+                    <artifactId>json-schema-validator</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <artifactId>xz</artifactId>
+                    <groupId>org.tukaani</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-webflux-ui</artifactId>
+            <version>${springdoc-openapi-ui.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.json</include>
+                    <include>**/*.tpl</include>
+                    <include>**/*.js</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/resources/static</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>main-class-placement</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <skip>${skipAntRunForJenkins}</skip>
+                            <target>
+                                <copy todir="src/main/resources/static">
+                                    <fileset dir="../sdk-parent/frontend/dist"/>
+                                </copy>
+                                <copy todir="src/main/resources/static/assets">
+                                    <fileset dir="../sdk-parent/frontend/src/assets"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

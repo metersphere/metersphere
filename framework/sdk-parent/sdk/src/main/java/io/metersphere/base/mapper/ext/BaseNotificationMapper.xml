@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.BaseNotificationMapper">
+
+    <select id="getNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        SELECT * FROM notification
+        WHERE id = #{id} AND receiver = #{receiver}
+        limit 1
+    </select>
+
+    <select id="listNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        SELECT * FROM notification
+        WHERE receiver = #{notification.receiver} AND create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
+        <if test='notification.title != null and notification.title != ""'>
+            AND ( title LIKE #{notification.title} OR content LIKE #{notification.title} )
+        </if>
+        <if test='notification.type != null and notification.type != ""'>
+            AND type = #{notification.type}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="listReadNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        SELECT * FROM notification
+        WHERE receiver = #{receiver} AND status = 'READ'
+        <if test='search != null and search != ""'>
+            AND ( title LIKE #{search} OR content LIKE #{search} )
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="listUnreadNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        SELECT * FROM notification
+        WHERE receiver = #{receiver} AND status = 'UNREAD'
+        <if test='search != null and search != ""'>
+            AND ( title LIKE #{search} OR content LIKE #{search} )
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countNotification" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM notification
+        WHERE receiver = #{notification.receiver} AND create_time &gt; (unix_timestamp() - 3600) * 1000
+        <if test="notification.type != null">
+            AND type = #{notification.type}
+        </if>
+        <if test="notification.status != null">
+            AND status = #{notification.status}
+        </if>
+
+    </select>
+
+
+</mapper>

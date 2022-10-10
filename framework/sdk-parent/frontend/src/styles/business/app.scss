@@ -1,0 +1,50 @@
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 14px;
+  // -webkit-font-smoothing: antialiased;
+  // -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+:focus {
+  outline: none;
+}
+
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar{
+  width: 10px;
+  height: 10px;
+  position: fixed;
+}
+::-webkit-scrollbar-thumb{
+  border-radius: 1em;
+  background-color: rgba(50,50,50,.3);
+  position: fixed;
+}
+::-webkit-scrollbar-track{
+  border-radius: 1em;
+  background-color: transparent;
+  position: fixed;
+}

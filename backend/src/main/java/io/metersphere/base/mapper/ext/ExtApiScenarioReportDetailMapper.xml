@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioReportDetailMapper">
-    <select id="selectByIds" resultType="io.metersphere.base.domain.ApiScenarioReportDetail">
-        select t.* from api_scenario_report_detail t where t.report_id in (${ids}) ORDER BY FIND_IN_SET(t.report_id,${oderId})
-    </select>
-</mapper>

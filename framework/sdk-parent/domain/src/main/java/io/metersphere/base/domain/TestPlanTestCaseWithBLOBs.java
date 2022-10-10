@@ -1,0 +1,20 @@
+package io.metersphere.base.domain;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class TestPlanTestCaseWithBLOBs extends TestPlanTestCase implements Serializable {
+    private String results;
+
+    private String issues;
+
+    private String actualResult;
+
+    private static final long serialVersionUID = 1L;
+}

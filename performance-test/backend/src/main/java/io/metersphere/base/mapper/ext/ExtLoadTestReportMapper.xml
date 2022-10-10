@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtLoadTestReportMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestReport">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="test_id" jdbcType="VARCHAR" property="testId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        , test_id, name, create_time, update_time, status
+    </sql>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                LIKE CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                NOT LIKE CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                NOT IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                BETWEEN #{${object}.value[0]} AND #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and ltr.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and lt.name
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and ltr.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and ltr.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and ltr.trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and ltr.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="getReportList" resultType="io.metersphere.dto.ReportDTO">
+        select ltr.id, ltr.name, ltr.test_id as testId, ltr.max_users maxUsers, ltr.avg_response_time avgResponseTime,
+        ltr.tps, ltr.test_start_time as testStartTime, ltr.test_end_time as testEndTime, ltr.test_duration as
+        testDuration,
+        ltr.description, user.name as userName, project.name as
+        projectName, ltr.trigger_mode,
+        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
+        project.id as projectId, project_version.name as version_name
+        from load_test_report ltr
+        left join load_test lt on ltr.test_id = lt.id
+        join user on ltr.user_id = user.id
+        join project on project.id = ltr.project_id
+        JOIN project_version on project.id = project_version.project_id AND ltr.version_id = project_version.id
+        <where>
+            <if test="reportRequest.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="reportRequest.combine"/>
+                    <property name="name" value="reportRequest.name"/>
+                </include>
+            </if>
+            <if test="reportRequest.name != null">
+                AND ltr.name like CONCAT('%', #{reportRequest.name},'%')
+            </if>
+            <if test="reportRequest.userId != null">
+                AND ltr.user_id = #{reportRequest.userId,jdbcType=VARCHAR}
+            </if>
+            <if test="reportRequest.workspaceId != null">
+                AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
+            </if>
+            <if test="reportRequest.projectId != null">
+                AND project.id = #{reportRequest.projectId,jdbcType=VARCHAR}
+            </if>
+            <if test="reportRequest.testId != null">
+                AND ltr.test_id = #{reportRequest.testId,jdbcType=VARCHAR}
+            </if>
+            <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
+                <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and ltr.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='project_id'">
+                                and ltr.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and ltr.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        <if test="reportRequest.orders != null and reportRequest.orders.size() > 0">
+            order by
+            <foreach collection="reportRequest.orders" separator="," item="order">
+                ltr.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getReportTestAndProInfo" resultType="io.metersphere.dto.ReportDTO">
+        select ltr.*,
+               p.id      as projectId,
+               p.name    as projectName,
+               user.name as userName
+        from load_test_report ltr
+                 left join load_test lt on ltr.test_id = lt.id
+                 join project p on ltr.project_id = p.id
+                 JOIN user on ltr.user_id = user.id
+        where ltr.id = #{id}
+    </select>
+
+    <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
+        SELECT min(create_time) AS date, count(load_test_report.id) AS count,
+        date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
+        FROM load_test_report
+        WHERE test_id IN (SELECT load_test.id
+            FROM load_test
+            JOIN project ON load_test.project_id = project.id
+            WHERE project_id = #{projectId, jdbcType=VARCHAR})
+          AND create_time
+            > #{startTimestamp}
+        GROUP BY x
+    </select>
+
+    <select id="selectResourceId" resultType="string">
+        SELECT resource_id
+        FROM load_test_report_log
+        WHERE report_id = #{reportId}
+        GROUP BY resource_id
+    </select>
+    <select id="selectReportByProjectId" resultType="io.metersphere.base.domain.LoadTestReport">
+        select t.*
+        from load_test_report t
+                 left join `user` t1 ON t.user_id = t1.id
+                 left join test_resource_pool t2 on t.test_resource_pool_id = t2.id
+        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
+          and t.project_id = #{projectId}
+          and t.status = 'running'
+
+    </select>
+
+    <update id="updateJmxContentIfAbsent">
+        update load_test_report
+        set jmx_content = #{jmxContent,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=VARCHAR}
+          and jmx_content is null
+    </update>
+
+    <update id="updateReportVumStatus">
+        update load_test_report_result
+        set report_value = #{nextStatus,jdbcType=VARCHAR}
+        WHERE report_id = #{reportId,jdbcType=VARCHAR}
+          and report_key = #{reportKey,jdbcType=VARCHAR}
+          and report_value = #{preStatus,jdbcType=VARCHAR}
+    </update>
+
+    <select id="getFileMetadataById" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT file_metadata.*
+        FROM load_test_report_file
+                 JOIN file_metadata ON file_id = file_metadata.id
+        WHERE report_id = #{reportId}
+        ORDER BY sort
+    </select>
+
+    <select id="selectReportIdByTestId" resultType="string">
+        SELECT id
+        FROM load_test_report
+        WHERE test_id = #{testId}
+          AND `status` !='Completed'
+    </select>
+
+    <select id="selectStatusById" resultType="string">
+        SELECT status
+        FROM load_test_report
+        WHERE id = #{0}
+    </select>
+
+    <select id="getStatusByIds" resultType="string">
+        select status from load_test_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
+
+</mapper>

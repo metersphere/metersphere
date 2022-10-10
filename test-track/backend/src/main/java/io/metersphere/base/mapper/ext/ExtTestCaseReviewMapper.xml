@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper">
+
+    <select id="list" resultType="io.metersphere.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.request.testreview.QueryCaseReviewRequest">
+        select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
+        test_case_review.tags,
+        test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
+
+        from test_case_review
+        join project on project.id = test_case_review.project_id
+        left join user on test_case_review.creator = user.id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_case_review.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and test_case_review.name
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and test_case_review.create_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and test_case_review.update_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.endTime != null">
+            and test_case_review.end_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.endTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and test_case_review.status
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (test_case_review.tags is null or test_case_review.tags
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and test_case_review.tags
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and test_case_review.id in (
+            select review_id from test_case_review_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.creator != null">
+            and test_case_review.create_user
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and test_case_review.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.reviewerId != null">
+                and test_case_review.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{request.reviewerId})
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                and test_case_review.project_id = #{request.projectId}
+            </if>
+            <include refid="filter"/>
+        </where>
+    </sql>
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='stage'">
+                            and test_case_review.stage in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and test_case_review.status in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='creator_name'">
+                            and test_case_review.creator in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <select id="listByWorkspaceId" resultType="io.metersphere.dto.TestCaseReviewDTO"
+            parameterType="io.metersphere.request.testreview.QueryCaseReviewRequest">
+        select distinct test_case_review.*
+        from test_case_review, test_case_review_users
+        <where>
+            <if test="projectId != null">
+                and test_case_review.project_id = #{projectId}
+            </if>
+            and (
+            (test_case_review_users.review_id = test_case_review.id
+            and test_case_review_users.user_id = #{userId} )
+            or test_case_review.creator = #{userId}
+            )
+        </where>
+        order by test_case_review.update_time desc
+    </select>
+
+    <select id="listRelate" resultType="io.metersphere.dto.TestReviewDTOWithMetric">
+        select distinct test_case_review.*, project.name as projectName from test_case_review
+        inner join project on project.id = test_case_review.project_id
+        inner join test_case_review_users on test_case_review_users.review_id = test_case_review.id
+        <where>
+            project.workspace_id = #{request.workspaceId}
+            <if test="request.reviewerId != null">
+                and test_case_review_users.user_id = #{request.reviewerId}
+            </if>
+            <if test="request.projectId != null">
+                and test_case_review.project_id = #{request.projectId}
+            </if>
+            <if test="request.creator != null">
+                and (test_case_review.creator = #{request.creator}
+                <if test="request.reviewIds != null and request.reviewIds.size() > 0">
+                    or test_case_review.id in
+                    <foreach collection="request.reviewIds" item="reviewId" open="(" close=")" separator=",">
+                        #{reviewId}
+                    </foreach>
+                </if>
+                )
+            </if>
+        </where>
+
+        order by test_case_review.update_time desc
+    </select>
+    <select id="checkIsHave" resultType="int">
+        select sum(c) from (
+        SELECT COUNT(1) as c
+        FROM project, test_case_review_project
+        WHERE project.id = test_case_review_project.project_id AND test_case_review_project.review_id = #{reviewId}
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        union
+        select count(1) as c from test_case_review, project
+        WHERE project_id = project.id AND test_case_review.id = #{reviewId}
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project_id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>) as temp
+    </select>
+</mapper>

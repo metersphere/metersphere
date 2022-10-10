@@ -1,0 +1,560 @@
+<template>
+  <div v-permission="['PROJECT_API_SCENARIO:READ','WORKSPACE_USER:READ']">
+    <div class="ms-header-menu align-right">
+      <el-tooltip effect="light" v-if="showMenu">
+        <template v-slot:content>
+          <span>{{ $t('commons.task_center') }}</span>
+        </template>
+        <div @click="showTaskCenter" v-if="runningTotal > 0">
+          <el-badge :value="runningTotal" class="item" type="primary">
+            <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"/>
+          </el-badge>
+        </div>
+        <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
+      </el-tooltip>
+    </div>
+    <el-drawer
+      :visible.sync="taskVisible"
+      :destroy-on-close="true"
+      direction="rtl"
+      :withHeader="true"
+      :modal="false"
+      :title="$t('commons.task_center')"
+      :size="size.toString()"
+      custom-class="ms-drawer-task">
+      <el-card style="float: left;" :style="{'width': (size - 550)+'px'}" v-if="size > 550 ">
+        <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
+        <!-- 接口用例结果 -->
+        <micro-app :to="`/definition/report/view/${reportId}`" service="api"
+                   v-if="executionModule === 'API' && reportType !=='API_INTEGRATED'"/>
+        <!-- 接口场景报告 -->
+        <micro-app :to="`/automation/report/view/${reportId}`" service="api"
+                   v-if="executionModule === 'SCENARIO'|| reportType ==='API_INTEGRATED'"/>
+        <!-- 性能测试报告 -->
+        <micro-app :to="`/performance/report/view/${reportId}`" service="performance"
+                   v-if="executionModule === 'PERFORMANCE'"/>
+        <!-- UI测试报告 -->
+        <micro-app :to="`/ui/report/view/${reportId}`" service="ui"
+                   v-if="executionModule === 'UI_SCENARIO'"/>
+      </el-card>
+
+      <el-card style="width: 550px;float: right" v-loading="loading">
+        <div style="color: #2B415C;margin: 0px 20px 0px;">
+          <el-form label-width="95px" class="ms-el-form-item">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
+                             :disabled="isDebugHistory">
+                    <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item :label="$t('commons.status')" prop="status">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
+                             :disabled="isDebugHistory">
+                    <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item :label="$t('commons.executor')" prop="status">
+                  <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
+                             style="margin-right: 10px" @change="init" :disabled="isDebugHistory">
+                    <el-option
+                      v-for="item in maintainerOptions"
+                      :key="item.id"
+                      :label="item.id + ' (' + item.name + ')'"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-button size="small" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
+                  {{ $t('report.stop_btn_all') }}
+                </el-button>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+        <el-divider direction="horizontal" style="width: 100%"/>
+
+        <div class="report-container">
+          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
+            <el-card class="ms-card-task" @click.native="showReport(item)">
+              <span>
+                {{ getModeName(item.executionModule) }} : <el-link type="primary" class="ms-task-name-width"> {{
+                  item.name
+                }} </el-link>
+              </span>
+              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
+                         v-if="showStop(item.executionStatus)">
+                {{ $t('report.stop_btn') }}
+              </el-button>
+              <br/>
+              <span>
+                  {{ $t('commons.actuator') }}：{{ item.actuator }} {{ $t('commons.from') }} {{ item.executor }} {{
+                  item.executionTime | datetimeFormat
+                }} {{ getMode(item.triggerMode) }}
+              </span>
+              <br/>
+              <el-row>
+                <el-col :span="20">
+                  <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
+                </el-col>
+                <el-col :span="4">
+                  <ms-task-report-status :status="item.executionStatus"/>
+                </el-col>
+              </el-row>
+            </el-card>
+          </div>
+        </div>
+        <div class="report-bottom">
+          <ms-table-pagination v-if="showType !== 'SCENARIO' && showType !== 'CASE'" :change="init"
+                               :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
+                               small/>
+          <span v-else> {{ $t('commons.task_center_remark') }}</span>
+        </div>
+      </el-card>
+
+    </el-drawer>
+  </div>
+</template>
+
+<script>
+import MsDrawer from "../MsDrawer";
+import {getCurrentProjectID, getCurrentUser} from "../../utils/token";
+import {hasPermissions} from "../../utils/permission";
+import {getProjectUsers} from "../../api/user";
+import {getScenarioData, getCaseData, getTaskSocket, getTaskList, stopTask, stopBatchTask} from "../../api/task";
+import MicroApp from "../../components/MicroApp";
+import {prefetchApps} from "qiankun";
+
+export default {
+  name: "MsTaskCenter",
+  components: {
+    MicroApp,
+    MsDrawer,
+    MsTaskReportStatus: () => import("./TaskReportStatus"),
+    MsTablePagination: () => import("./TaskPagination"),
+  },
+  inject: [
+    'reload'
+  ],
+  data() {
+    return {
+      runningTotal: 0,
+      taskVisible: false,
+      result: {},
+      loading: false,
+      taskData: [],
+      response: {},
+      initEnd: false,
+      visible: false,
+      showType: "",
+      pageSize: 10,
+      currentPage: 1,
+      total: 0,
+      runMode: [
+        {id: '', label: this.$t('api_test.definition.document.data_set.all')},
+        {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
+        {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
+        {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
+        {id: 'API', label: 'API'}
+      ],
+      runStatus: [
+        {id: '', label: this.$t('api_test.definition.document.data_set.all')},
+        {id: 'STARTING', label: 'Starting'},
+        {id: 'PENDING', label: 'Pending'},
+        {id: 'RUNNING', label: 'Running'},
+        {id: 'REPORTING', label: 'Reporting'},
+        {id: 'SUCCESS', label: 'Success'},
+        {id: "FAKE_ERROR", label: 'FakeError'},
+        {id: 'ERROR', label: 'Error'},
+        {id: 'STOPPED', label: 'Stopped'},
+        {id: 'COMPLETED', label: 'Completed'},
+      ],
+      condition: {triggerMode: "", executionStatus: ""},
+      maintainerOptions: [],
+      websocket: Object,
+      size: 550,
+      reportId: "",
+      executionModule: "",
+      reportType: "",
+      isDebugHistory: false
+    };
+  },
+  props: {
+    showMenu: {
+      type: Boolean,
+      default: true
+    }
+  },
+  computed: {
+    disabled() {
+      return this.loading
+    },
+  },
+
+  created() {
+    if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
+      this.condition.executor = getCurrentUser().id;
+    }
+    //
+    this.prefetchApps();
+  },
+  watch: {
+    taskVisible(v) {
+      if (!v) {
+        this.close();
+      }
+    }
+  },
+  methods: {
+    nextData() {
+      this.loading = true;
+      this.init();
+    },
+    format(item) {
+      return '';
+    },
+    packUp() {
+      this.size = 550;
+    },
+    stop(row) {
+      if (row) {
+        let request = {type: row.executionModule, reportId: row.id};
+        stopTask(request).then(response => {
+          this.$success(this.$t('report.test_stop_success'));
+          this.init();
+        });
+      } else {
+        let array = [];
+        array.push({type: 'API', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        array.push({type: 'SCENARIO', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        stopBatchTask(array).then(response => {
+          this.$success(this.$t('report.test_stop_success'));
+          this.init();
+        });
+      }
+    },
+    getMaintainerOptions() {
+      getProjectUsers()
+        .then(response => {
+          this.maintainerOptions = response.data;
+          this.condition.executor = getCurrentUser().id;
+        })
+    },
+    initWebSocket() {
+      this.websocket = getTaskSocket();
+      this.websocket.onmessage = this.onMessage;
+      this.websocket.onopen = this.onOpen;
+      this.websocket.onerror = this.onError;
+      this.websocket.onclose = this.onClose;
+    },
+    onOpen() {
+    },
+    onError(e) {
+    },
+    onMessage(e) {
+      this.currentPage = 1;
+      this.loading = false;
+      let taskTotal = e.data;
+      this.runningTotal = taskTotal;
+      this.initIndex++;
+      if (this.taskVisible && this.initEnd) {
+        setTimeout(() => {
+          this.initEnd = false;
+          this.init();
+        }, 3000);
+      }
+    },
+    onClose(e) {
+    },
+    showTaskCenter() {
+      this.getTaskRunning();
+      this.getMaintainerOptions();
+      this.init();
+      this.taskVisible = true;
+    },
+    close() {
+      this.visible = false;
+      this.size = 550;
+      this.showType = "";
+      this.currentPage = 1;
+      if (this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
+    },
+    open() {
+      this.showTaskCenter();
+      this.initIndex = 0;
+      this.noMore = false;
+      this.currentPage = 1;
+    },
+    getPercentage(status) {
+      if (status) {
+        status = status.toLowerCase();
+        if (status === "pending" || status === 'stopped') {
+          return 0;
+        }
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
+          'pending' || status === 'fake_error') {
+          return 100;
+        }
+      }
+      return 60;
+    },
+    showStop(status) {
+      if (status) {
+        status = status.toLowerCase();
+        if (status === "stopped" || status === 'saved' || status === 'completed' || status === 'success' || status ===
+          'error' || status === 'pending' || status === 'fake_error') {
+          return false;
+        }
+      }
+      return true;
+    },
+    getModeName(executionModule) {
+      switch (executionModule) {
+        case "SCENARIO":
+          return this.$t('test_track.scenario_test_case');
+        case "PERFORMANCE":
+          return this.$t('test_track.performance_test_case');
+        case "API":
+          return this.$t('test_track.api_test_case');
+        case "UI_SCENARIO":
+          return this.$t("test_track.ui_scenario_test_case");
+      }
+    },
+    showReport(row) {
+      if (this.size > 550 && this.reportId === row.id) {
+        this.packUp();
+        return;
+      }
+      let status = row.executionStatus;
+      if (status) {
+        status = row.executionStatus.toLowerCase();
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
+          'pending' || status === 'fake_error') {
+          this.executionModule = null;
+          this.$nextTick(() => {
+            this.size = window.innerWidth - 50;
+            this.reportId = row.id;
+            this.executionModule = row.executionModule;
+            this.reportType = row.reportType;
+          })
+        } else if (status === 'stopped') {
+          this.$warning(this.$t('commons.run_stop'));
+        } else {
+          this.$warning(this.$t('commons.run_warning'))
+        }
+      }
+    },
+    getMode(mode) {
+      if (mode === 'MANUAL') {
+        return this.$t('commons.trigger_mode.manual');
+      }
+      if (mode === 'SCHEDULE') {
+        return this.$t('commons.trigger_mode.schedule');
+      }
+      if (mode === 'TEST_PLAN_SCHEDULE') {
+        return this.$t('commons.trigger_mode.schedule');
+      }
+      if (mode === 'API') {
+        return this.$t('commons.trigger_mode.api');
+      }
+      if (mode === 'BATCH') {
+        return this.$t('api_test.automation.batch_execute');
+      }
+      return mode;
+    },
+    getTaskRunning() {
+      this.initWebSocket();
+    },
+    init() {
+      if (this.showType === "CASE" || this.showType === "SCENARIO") {
+        return;
+      }
+      this.condition.projectId = getCurrentProjectID();
+      this.condition.userId = getCurrentUser().id;
+      this.result = getTaskList(this.condition, this.currentPage, this.pageSize)
+        .then(response => {
+          this.total = response.data.itemCount;
+          this.taskData = response.data.listObject;
+          this.initEnd = true;
+          this.loading = false;
+        });
+    },
+    initCaseHistory(id) {
+      getCaseData(id)
+        .then(response => {
+          this.taskData = response.data;
+        })
+    },
+    openHistory(id) {
+      this.initCaseHistory(id);
+      this.taskVisible = true;
+      this.isDebugHistory = true;
+      this.condition.triggerMode = "MANUAL";
+      this.showType = "CASE";
+    },
+    openScenarioHistory(id) {
+      getScenarioData(id)
+        .then(response => {
+          this.taskData = response.data;
+        });
+      this.showType = "SCENARIO";
+      this.isDebugHistory = true;
+      this.condition.triggerMode = "MANUAL";
+      this.taskVisible = true;
+    },
+    prefetchApps() {
+      const microPorts = JSON.parse(sessionStorage.getItem("micro_ports"));
+      let apps = [];
+      if (microPorts.api) {
+        apps.push({name: 'api', entry: '//127.0.0.1:' + (microPorts.api - 4000)})
+      }
+      if (microPorts.performance) {
+        apps.push({name: 'performance', entry: '//127.0.0.1:' + (microPorts.performance - 4000)})
+      }
+      if (microPorts.ui) {
+        apps.push({name: 'ui', entry: '//127.0.0.1:' + (microPorts.ui - 4000)})
+      }
+
+      if (process.env.NODE_ENV !== 'development') {
+        // 替换成后端的端口
+        apps.forEach(app => {
+          app.entry = app.entry.replace(/127\.0\.0\.1:\d+/g, window.location.host + "/" + app.name);
+        })
+      }
+      prefetchApps(apps);
+    }
+  }
+};
+</script>
+
+
+<style scoped>
+.report-container {
+  height: calc(100vh - 270px);
+  overflow-y: auto;
+}
+
+.align-right {
+  float: right;
+}
+
+.icon {
+  width: 24px;
+}
+
+:deep(.el-drawer__header) {
+  font-size: 18px;
+  color: #0a0a0a;
+  border-bottom: 1px solid #E6E6E6;
+  background-color: #FFF;
+  margin-bottom: 10px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.ms-card-task :deep(.el-card__body) {
+  padding: 10px;
+}
+
+.global {
+  color: rgb(96, 98, 102);
+  font-size: 14px
+}
+
+.ms-card-task:hover {
+  cursor: pointer;
+  border-color: #783887;
+}
+
+.ms-header-menu {
+  padding-top: 12px;
+  width: 24px;
+}
+
+.ms-header-menu:hover {
+  cursor: pointer;
+  border-color: var(--color);
+}
+
+:deep(.el-progress-bar) {
+  padding-right: 20px;
+}
+
+.item {
+  margin-right: 10px;
+}
+
+.ms-task-stop {
+  color: #F56C6C;
+  float: right;
+  margin-right: 20px;
+}
+
+
+.ms-task-stop {
+  color: #909399;
+}
+
+.ms-task-name-width {
+  display: inline-block;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 300px;
+}
+
+.ms-el-form-item :deep(.el-form-item) {
+  margin-bottom: 6px;
+}
+
+.ms-task-opt-btn {
+  position: fixed;
+  right: calc(98% - var(--asideWidth));
+  top: 50%;
+  z-index: 5;
+  width: 20px;
+  height: 60px;
+  padding: 3px;
+  line-height: 30px;
+  border-radius: 0 15px 15px 0;
+  background-color: #783887;
+  color: white;
+  display: inline-block;
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 1px;
+}
+
+.ms-task-opt-btn i {
+  margin-left: -2px;
+}
+
+.ms-task-opt-btn:hover {
+  opacity: 0.8;
+}
+
+.ms-task-opt-btn:hover i {
+  margin-left: 0;
+  color: white;
+}
+
+.report-bottom {
+  margin-top: 10px;
+}
+</style>

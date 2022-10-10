@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.BaseShareInfoMapper">
+
+    <sql id="Api_Where_Clause">
+        <if test="request.trashEnable == true">
+            AND api.status = 'Trash'
+        </if>
+        <if test="request.trashEnable == false">
+            AND api.status != 'Trash'
+        </if>
+        <if test="request.projectId != null">
+            AND api.project_Id = #{request.projectId}
+        </if>
+        <if test="request.name != null and request.name != '' ">
+            AND api.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.type != null and request.type != '' and request.type != 'ALL' ">
+            AND api.method = #{request.type}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            AND api.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.apiIdList != null and request.apiIdList.size() > 0">
+            AND api.id in
+            <foreach collection="request.apiIdList" item="apiId" separator="," open="(" close=")">
+                #{apiId}
+            </foreach>
+        </if>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="api"/>
+        </include>
+        <if test="request.orderCondition == 'createTimeDesc'">
+            ORDER BY api.create_time DESC
+        </if>
+        <if test="request.orderCondition == 'editTimeAsc'">
+            ORDER BY api.update_time
+        </if>
+        <if test="request.orderCondition == 'editTimeDesc'">
+            ORDER BY api.update_time DESC
+        </if>
+    </sql>
+
+    <select id="findIdByRequest" resultType="java.lang.String">
+        SELECT api.id FROM api_definition api WHERE api.protocol = 'HTTP'
+        <include refid="Api_Where_Clause"/>
+    </select>
+    <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+        SELECT api.* FROM api_definition api WHERE api.protocol = 'HTTP'
+        <include refid="Api_Where_Clause"/>
+    </select>
+
+
+    <select id="selectByShareTypeAndShareApiIdWithBLOBs" resultType="io.metersphere.base.domain.ShareInfo">
+        SELECT id,share_type,custom_data FROM share_info
+        <where>
+            share_type = #{shareType}
+            <if test="customData != null and customData != ''">
+                AND custom_data = #{customData}
+            </if>
+        </where>
+    </select>
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+</mapper>

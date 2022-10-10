@@ -1,0 +1,22 @@
+package io.metersphere.api.dto;
+
+import io.metersphere.base.domain.ApiTestReport;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+@Setter
+@Getter
+public class ApiReportResult extends ApiTestReport {
+
+    private String testName;
+
+    private String projectName;
+
+    private String userName;
+
+    private List<String> scenarioIds;
+
+    private String content;
+}

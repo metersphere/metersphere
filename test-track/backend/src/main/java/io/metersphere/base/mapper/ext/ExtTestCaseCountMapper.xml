@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseCountMapper">
+
+    <select id="getFunctionCaseCount" resultType="io.metersphere.dto.TestCaseCountChartResult">
+        select
+        <if test="testCaseGroupColumn != null and testCaseGroupColumn != ''">
+            ${testCaseGroupColumn} AS groupName,
+        </if>
+        count(id) AS countNum
+        FROM test_case
+        <where>
+            project_id = #{projectId}
+            AND `status` != 'Trash'
+            <if test="startTime > 0">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime > 0">
+                AND create_time &lt;= #{endTime}
+            </if>
+            <if test="filterSearchList != null and filterSearchList.size() > 0">
+                AND
+                <trim prefix="(" prefixOverrides="AND|OR" suffix=")">
+                    <foreach collection="filterSearchList.entrySet()" index="key" item="values">
+                        <if test="values != null and values.size() > 0">
+                            <choose>
+                                <when test="key=='caselevel'">
+                                    ${filterType} priority in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                                <when test="key=='creator'">
+                                    ${filterType} create_user in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                                <when test="key=='maintainer'">
+                                    ${filterType} maintainer in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                                <when test="key=='casestatus'">
+                                    ${filterType} UPPER(status) in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </if>
+                    </foreach>
+                </trim>
+            </if>
+        </where>
+        <if test="testCaseGroupColumn != null and testCaseGroupColumn != ''">
+            GROUP BY ${testCaseGroupColumn}
+        </if>
+    </select>
+
+</mapper>

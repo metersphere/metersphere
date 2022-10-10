@@ -1,0 +1,42 @@
+package io.metersphere.listener;
+
+import io.metersphere.base.domain.ModuleNode;
+import io.metersphere.base.mapper.ext.ExtModuleNodeMapper;
+import io.metersphere.commons.constants.KafkaTopicConstants;
+import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.UUID;
+
+@Component
+public class ProjectCreatedListener {
+    public static final String CONSUME_ID = "test_track_project-created";
+
+    @Resource
+    private ExtModuleNodeMapper extModuleNodeMapper;
+
+    @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.PROJECT_CREATED_TOPIC, groupId = "${spring.application.name}")
+    public void consume(ConsumerRecord<?, String> record) {
+        String projectId = record.value();
+        LogUtil.info("track service consume project_create message, project id: " + projectId);
+        this.initProjectDefaultNode(projectId);
+    }
+
+    private void initProjectDefaultNode(String projectId) {
+        ModuleNode record = new ModuleNode();
+        record.setId(UUID.randomUUID().toString());
+        record.setCreateUser(SessionUtils.getUserId());
+        record.setPos(1.0);
+        record.setLevel(1);
+        record.setCreateTime(System.currentTimeMillis());
+        record.setUpdateTime(System.currentTimeMillis());
+        record.setProjectId(projectId);
+        record.setName(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getNodeName());
+        extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getTableName(), record);
+    }
+}

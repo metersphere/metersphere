@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.BaseTaskMapper">
+    <select id="getTasks" resultType="io.metersphere.task.dto.TaskCenterDTO"
+            parameterType="java.lang.String">
+        SELECT tt.* FROM (
+        (SELECT t.id,t.name AS name ,'SCENARIO' AS
+        executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS
+        executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+        FROM api_scenario_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+        !='Marge' AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        )
+        UNION ALL
+        (SELECT t.id,t.name,'API' AS executionModule, t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS
+        executor,t.create_time AS executionTime, ifnull(t.trigger_mode,'MANUAL') AS triggerMode
+        ,ifnull(t.status,'Saved') AS executionStatus
+        FROM api_definition_exec_result t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        AND (t.integrated_report_id IS NULL OR t.integrated_report_id = 'null')
+        )
+        UNION ALL
+        (SELECT t.id,t.name,'PERFORMANCE' AS executionModule,'PERFORMANCE' AS report_type, ifnull(t2.name,'LOCAL') AS
+        actuator, t1.`name` AS executor,t.create_time AS executionTime, t.trigger_mode AS triggerMode ,t.`status` AS
+        executionStatus
+        FROM load_test_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.test_resource_pool_id = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        )
+        UNION ALL
+        (SELECT t.id,t.name AS name ,'UI_SCENARIO' AS
+        executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS
+        executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+        FROM ui_scenario_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+        !='Marge' AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        )
+        )tt ORDER BY tt.executionTime DESC
+    </select>
+
+    <select id="getCases" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
+        SELECT t.id,t.name,'API' AS executionModule, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS executionTime, ifnull(t.trigger_mode,'MANUAL') AS triggerMode ,ifnull(t.status,'Saved') AS executionStatus
+        FROM api_definition_exec_result t
+        LEFT JOIN `user` t1 ON t.user_id = t1.id
+        LEFT JOIN test_resource_pool t2 ON t.actuator  = t2.id
+        LEFT JOIN api_test_case t4 ON t4.id = t.resource_id
+        WHERE t4.id=#{id} AND t.content != "" ORDER BY t.create_time DESC LIMIT 5;
+    </select>
+
+    <select id="getScenario" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
+        SELECT t.id,if(t.scenario_id LIKE "[\"%\"]", t.name,t.scenario_name) AS name ,'SCENARIO' AS executionModule, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+        FROM api_scenario_report t
+        LEFT JOIN `user` t1 ON t.user_id = t1.id
+        LEFT JOIN test_resource_pool t2 ON t.actuator  = t2.id
+        WHERE  t.execute_type ='Debug' AND t.scenario_id=#{id} ORDER BY t.create_time DESC LIMIT 5;
+    </select>
+
+    <select id="getRunningTasks" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT COUNT(tt.id) FROM (
+        (SELECT t.id,'SCENARIO' AS executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS
+        executor,t.create_time AS executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+        FROM api_scenario_report t LEFT JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+        !='Marge' AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        AND t.status IN ("running","starting","waiting")
+        )
+        UNION ALL
+        (SELECT t.id,'API' AS executionModule, t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS
+        executor,t.create_time AS executionTime, ifnull(t.trigger_mode,'MANUAL') AS triggerMode
+        ,ifnull(t.status,'Saved') AS executionStatus
+        FROM api_definition_exec_result t LEFT JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        AND (t.integrated_report_id IS NULL OR t.integrated_report_id = 'null')
+        AND t.status IN ("running","starting","waiting")
+        )
+        UNION ALL
+        (SELECT t.id,'PERFORMANCE' AS executionModule,'PERFORMANCE' AS report_type, ifnull(t2.name,'LOCAL') AS actuator,
+        t1.`name` AS executor,t.create_time AS executionTime, t.trigger_mode AS triggerMode ,t.`status` AS
+        executionStatus
+        FROM load_test_report t LEFT JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.test_resource_pool_id = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        AND t.status IN ("running","starting","waiting")
+        )
+        )tt;
+    </select>
+
+    <select id="checkActuator" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+            name
+        FROM
+            api_scenario_report
+        WHERE
+            actuator =#{actuator}
+            AND `status` IN ('Running','Waiting')
+
+        UNION ALL
+
+        SELECT
+            name
+        FROM
+            api_definition_exec_result
+        WHERE
+            actuator = #{actuator}
+        AND `status` IN ('Running','Waiting')
+    </select>
+
+    <update id="stopScenario">
+        UPDATE api_scenario_report SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <update id="stopApi">
+        UPDATE api_definition_exec_result SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

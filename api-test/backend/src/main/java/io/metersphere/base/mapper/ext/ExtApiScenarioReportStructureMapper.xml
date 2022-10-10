@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioReportStructureMapper">
+    <delete id="deleteByProjectId" parameterType="java.lang.String">
+        delete from api_scenario_report_structure ars
+        where ars.report_id in  (select ar.id from api_scenario_report ar where ar.project_id = #{projectId,jdbcType=VARCHAR} )
+    </delete>
+
+</mapper>

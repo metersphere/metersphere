@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtModuleNodeMapper">
+
+    <insert id="insertSelective">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="record.id != null">
+                id,
+            </if>
+            <if test="record.projectId != null">
+                project_id,
+            </if>
+            <if test="record.name != null">
+                `name`,
+            </if>
+            <if test="record.modulePath != null">
+                `module_path`,
+            </if>
+            <if test="record.parentId != null">
+                parent_id,
+            </if>
+            <if test="record.level != null">
+                `level`,
+            </if>
+            <if test="record.createTime != null">
+                create_time,
+            </if>
+            <if test="record.updateTime != null">
+                update_time,
+            </if>
+            <if test="record.pos != null">
+                pos,
+            </if>
+            <if test="record.createUser != null">
+                create_user,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="record.id != null">
+                #{record.id,jdbcType=VARCHAR},
+            </if>
+            <if test="record.projectId != null">
+                #{record.projectId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.name != null">
+                #{record.name,jdbcType=VARCHAR},
+            </if>
+            <if test="record.modulePath != null">
+                #{record.modulePath,jdbcType=VARCHAR},
+            </if>
+            <if test="record.parentId != null">
+                #{record.parentId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.level != null">
+                #{record.level,jdbcType=INTEGER},
+            </if>
+            <if test="record.createTime != null">
+                #{record.createTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.updateTime != null">
+                #{record.updateTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.pos != null">
+                #{record.pos,jdbcType=DOUBLE},
+            </if>
+            <if test="record.createUser != null">
+                #{record.createUser,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <insert id="insert">
+        insert into ${tableName} (id, project_id, `name`,
+                                  parent_id, `level`, create_time,
+                                  update_time, pos, create_user)
+        values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+                #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER},
+                #{record.createTime,jdbcType=BIGINT},
+                #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE},
+                #{record.createUser,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertWithModulePath">
+        insert into ${tableName} (id, project_id, `name`, module_path,
+                                  parent_id, `level`, create_time,
+                                  update_time, pos, create_user)
+        values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+                #{record.modulePath,jdbcType=VARCHAR},
+                #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER},
+                #{record.createTime,jdbcType=BIGINT},
+                #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE},
+                #{record.createUser,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateByPrimaryKeySelective">
+        update ${tableName}
+        <set>
+            <if test="record.projectId != null">
+                project_id = #{record.projectId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.name != null">
+                `name` = #{record.name,jdbcType=VARCHAR},
+            </if>
+            <if test="record.modulePath != null">
+                `module_path` = #{record.modulePath,jdbcType=VARCHAR},
+            </if>
+            <if test="record.parentId != null">
+                parent_id = #{record.parentId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.level != null">
+                `level` = #{record.level,jdbcType=INTEGER},
+            </if>
+            <if test="record.createTime != null">
+                create_time = #{record.createTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.updateTime != null">
+                update_time = #{record.updateTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.pos != null">
+                pos = #{record.pos,jdbcType=DOUBLE},
+            </if>
+            <if test="record.createUser != null">
+                create_user = #{record.createUser,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{record.id,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updatePos">
+        update ${tableName}
+        set pos = #{pos}
+        where id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey">
+        update ${tableName}
+        set project_id = #{record.projectId,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
+        <if test="record.modulePath != null">
+            `module_path` = #{record.modulePath,jdbcType=VARCHAR},
+        </if>
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
+        `level` = #{record.level,jdbcType=INTEGER},
+        create_time = #{record.createTime,jdbcType=BIGINT},
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+        pos = #{record.pos,jdbcType=DOUBLE},
+        create_user = #{record.createUser,jdbcType=VARCHAR}
+        where id = #{record.id,jdbcType=VARCHAR}
+    </update>
+
+    <delete id="deleteByExample">
+        delete from ${tableName}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+
+    <select id="selectByExample" resultType="io.metersphere.base.domain.ModuleNode">
+        select
+        <if test="example.distinct">
+            distinct
+        </if>
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        ,module_path
+        from ${tableName}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="example.orderByClause != null">
+            order by ${example.orderByClause}
+        </if>
+    </select>
+    <select id="getNodeIdsByPid" resultType="java.lang.String">
+        select id
+        from ${tableName}
+        where parent_id = #{parentId}
+    </select>
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.dto.ModuleNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from ${tableName}
+        where project_id = #{projectId}
+        order by pos asc
+    </select>
+    <select id="selectByIds" resultType="io.metersphere.dto.ModuleNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from ${tableName}
+        where id IN
+        <foreach close=")" collection="ids" item="id" open="(" separator=",">
+            #{id}
+        </foreach>
+        order by pos asc
+    </select>
+    <select id="getAllNodeTree" resultType="io.metersphere.base.domain.ModuleNode">
+        select id
+             , project_id
+             , `name`
+             , parent_id
+             , `level`
+             , create_time
+             , update_time
+             , pos
+             , create_user
+             , module_path
+        from ${tableName}
+        order by pos asc
+    </select>
+    <select id="get" resultType="io.metersphere.dto.ModuleNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from ${tableName}
+        where id = #{id}
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="io.metersphere.base.domain.ModuleNode">
+        select *
+        from ${tableName}
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+    <select id="countByExample" resultType="java.lang.Long">
+        select count(*) from ${tableName}
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+
+    <select id="selectByModulePath" resultType="io.metersphere.base.domain.ModuleNode"
+            parameterType="io.metersphere.base.domain.ModuleNode">
+        SELECT *
+        FROM ${tableName}
+        WHERE project_id = #{projectId}
+          AND module_path = #{modulePath}
+    </select>
+</mapper>

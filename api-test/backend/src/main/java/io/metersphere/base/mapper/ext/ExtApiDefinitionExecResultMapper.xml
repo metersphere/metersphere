@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper">
+    <delete id="deleteByResourceId" parameterType="java.lang.String">
+        delete
+        from api_definition_exec_result
+        where resource_id = #{id,jdbcType=VARCHAR}
+    </delete>
+
+    <select id="selectMaxResultByResourceId" parameterType="java.lang.String"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+        select *
+        from api_definition_exec_result
+        where resource_id = #{resourceId,jdbcType=VARCHAR}
+        ORDER BY create_time DESC LIMIT 1
+    </select>
+    <select id="selectMaxResultByResourceIdAndType"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+        select *
+        from api_definition_exec_result
+        where resource_id = #{resourceId,jdbcType=VARCHAR}
+          and `type` = #{type, jdbcType=VARCHAR}
+        ORDER BY start_time DESC LIMIT 5, 1
+    </select>
+
+    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber
+        FROM api_case_execution_info
+        WHERE (source_id IN (
+            SELECT testCase.id
+            FROM api_test_case testCase
+            WHERE testCase.project_id = #{projectId}
+        )
+            OR
+               source_id IN (
+                   SELECT id
+                   FROM test_plan_api_case
+                   WHERE api_case_id IN (
+                       SELECT testCase.id
+                       FROM api_test_case testCase
+                       WHERE testCase.project_id = #{projectId})
+               ))
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countByTestCaseIDInProject" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber
+        FROM api_case_execution_info
+        WHERE source_id IN (
+            SELECT testCase.id
+            FROM api_test_case testCase
+            WHERE testCase.project_id = #{projectId}
+        )
+           OR source_id IN (SELECT id
+                            FROM test_plan_api_case
+                            WHERE api_case_id IN (
+                                SELECT testCase.id
+                                FROM api_test_case testCase
+                                WHERE testCase.project_id = #{projectId}))
+    </select>
+
+    <select id="selectDistinctStatusByReportId" resultType="java.lang.String">
+        SELECT DISTINCT status
+        FROM api_definition_exec_result
+        WHERE integrated_report_id = #{0}
+    </select>
+
+    <select id="findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
+            resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
+        SELECT *
+        FROM (
+        SELECT testCase.testPlanCaseID AS testPlanCaseID,
+        testCase.id AS id,
+        testCase.testCaseName AS caseName,
+        testCase.testPlanName AS testPlan,
+        testCase.testPlanId AS testPlanId,
+        caseErrorCountData.dataCountNumber AS failureTimes,
+        'apiCase' AS caseType
+        FROM (SELECT testPlanCase.id AS testPlanCaseID,
+        apiCase.id AS id,
+        apiCase.`name` AS testCaseName,
+        testPlan.id AS testPlanId,
+        testPlan.`name` AS testPlanName
+        FROM api_test_case apiCase
+        INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
+        INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
+        WHERE (
+        (apiCase.`status` IS NULL OR apiCase.`status` != 'Trash')
+        AND apiCase.project_id = #{projectId})) testCase
+        INNER JOIN (SELECT executionInfo.source_id AS sourceId,
+        COUNT(executionInfo.id) AS dataCountNumber
+        FROM api_case_execution_info executionInfo
+        INNER JOIN test_plan_api_case testPlanCase
+        ON executionInfo.source_id = testPlanCase.id
+        WHERE executionInfo.`result` = 'ERROR'
+        AND executionInfo.create_time > #{startTimestamp}
+        GROUP BY source_id) caseErrorCountData
+        ON caseErrorCountData.sourceId = testCase.testPlanCaseID
+        UNION
+
+        SELECT scene.id AS testCaseID,
+        scene.id AS id,
+        scene.`name` AS caseName,
+        apiScene.testPlanName AS testPlan,
+        apiScene.testPlanId AS testPlanId,
+        count(executionInfo.id) AS failureTimes,
+        'scenario' AS caseType
+        FROM scenario_execution_info executionInfo
+        INNER JOIN (SELECT testPlanScenario.id,
+        testPlanScenario.api_scenario_id,
+        testPlan.id AS testPlanId,
+        testPlan.`name` AS testPlanName
+        FROM test_plan_api_scenario testPlanScenario
+        INNER JOIN test_plan testPlan ON testPlan.id = testPlanScenario.test_plan_id) apiScene
+        ON apiScene.id = executionInfo.source_id
+        INNER JOIN api_scenario scene ON scene.id = apiScene.api_scenario_id
+
+        WHERE scene.project_id = #{projectId}
+        AND scene.`status` != 'Trash'
+        AND ( executionInfo.result = 'ERROR' )
+        AND executionInfo.create_time >= #{startTimestamp}
+        GROUP BY
+        scene.id,apiScene.testPlanId
+        <if test="selectFunctionCase == true">
+            UNION
+            SELECT
+            testCase.id AS testCaseID,
+            testCase.id AS id,
+            testCase.`name` AS caseName,
+            testCasePlan.testPlanName AS testPlan,
+            testCasePlan.testPlanId AS testPlanId,
+            count( executionInfo.id ) AS failureTimes,
+            'testCase' AS caseType
+            FROM
+            function_case_execution_info executionInfo
+            INNER JOIN (
+            SELECT
+            testPlanTestCase.id,
+            testPlanTestCase.case_id,
+            testPlan.id AS testPlanId,
+            testPlan.`name` AS testPlanName
+            FROM
+            test_plan_test_case testPlanTestCase
+            INNER JOIN test_plan testPlan ON testPlan.id = testPlanTestCase.plan_id
+            ) testCasePlan ON testCasePlan.id = executionInfo.source_id
+            INNER JOIN test_case testCase ON testCase.id = testCasePlan.case_id
+            WHERE
+            testCase.project_id = #{projectId}
+            AND testCase.`status` != 'Trash'
+            AND ( executionInfo.result = 'Failure' )
+            AND executionInfo.create_time >= #{startTimestamp}
+            GROUP BY
+            testCase.id
+        </if>
+        ) showTable
+        ORDER BY showTable.failureTimes DESC
+    </select>
+    <select id="selectExecResult" resultType="java.lang.String">
+        select ader.status
+        from api_definition_exec_result ader
+        where ader.resource_id = #{resourceId}
+    </select>
+    <select id="selectPlanApiMaxResultByTestIdAndType"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+        select *
+        from api_definition_exec_result
+        where resource_id = #{resourceId,jdbcType=VARCHAR}
+        <if test="type != 'API_PLAN'.toString()">
+            and
+            `type` = #{type, jdbcType=VARCHAR}
+        </if>
+
+        ORDER BY start_time DESC LIMIT 1
+    </select>
+
+    <select id="selectStatusByIdList"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select id,status from api_definition_exec_result
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
+    <select id="selectApiResultByProjectId" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select *
+        from api_definition_exec_result t
+                 left join `user` t1 ON t.user_id = t1.id
+                 left join test_resource_pool t2 on t.actuator = t2.id
+                 left join api_definition t3 on t.resource_id = t3.id
+                 left join api_test_case t4 on t4.id = t.resource_id
+                 left join test_plan_api_case t5 on t.resource_id = t5.id
+                 left join test_plan t6 on t5.test_plan_id = t6.id
+        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
+          and (t3.project_id = #{projectId} OR t4.project_id = #{projectId} OR t6.project_id = #{projectId})
+          and t.`status` in ('RUNNING', 'PENDING')
+    </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.dto.PlanReportCaseDTO">
+        select status from api_definition_exec_result
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="list" resultType="io.metersphere.base.domain.ApiDefinitionExecResultExpand">
+        SELECT a_r.name AS test_name,
+        a_r.end_time,
+        a_r.user_id,
+        a_r.name,
+        a_r.id,
+        a_r.project_id,
+        a_r.create_time,
+        a_r.status,
+        a_r.trigger_mode,
+        a_r.report_type,
+        'Saved' as execute_type
+        from api_definition_exec_result a_r
+        where a_r.relevance_test_plan_report_id IS NULL AND (a_r.integrated_report_id is null or
+        a_r.integrated_report_id = 'null')
+        <if test="request.combine != null">
+            <include refid="listCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+            </include>
+        </if>
+
+        <if test="request.name != null">
+            and a_r.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.userId != null">
+            AND a_r.user_id = #{request.userId,jdbcType=VARCHAR}
+        </if>
+        <if test="request.projectId != null">
+            AND a_r.project_id = #{request.projectId}
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and a_r.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='trigger_mode'">
+                            and a_r.trigger_mode in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_name'">
+                            and a_r.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='report_type'">
+                            and a_r.report_type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <otherwise>
+                        `${order.name}` ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </select>
+
+    <sql id="listCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <update id="update" parameterType="java.util.List">
+        update api_definition_exec_result set status="STOPPED" where id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </update>
+
+    <select id="selectByResourceIdsAndMaxCreateTime"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+        SELECT
+        execResult.resource_id,
+        execResult.create_time,
+        execResult.id,
+        execResult.env_config,
+        execResult.project_id
+        FROM api_definition_exec_result execResult
+        INNER JOIN ( SELECT
+        resource_id,
+        max( create_time + 0 ) AS create_time
+        FROM
+        api_definition_exec_result
+        WHERE
+        resource_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY
+        resource_id )maxdata ON maxdata.resource_id = execResult.resource_id AND maxdata.create_time =
+        execResult.create_time;
+
+
+    </select>
+
+    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiDefinitionExecResult"
+            parameterType="java.lang.String">
+        select actuator ,id from api_definition_exec_result where status in ("running","starting","PENDING") and
+        project_id in
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectResourceId" resultType="java.lang.String">
+        SELECT resource_id
+        FROM api_definition_exec_result
+        WHERE id = #{0}
+    </select>
+
+    <select id="selectRerunResult" resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+        SELECT r.*
+        FROM api_definition_exec_result r
+                 INNER JOIN api_test_case c ON r.resource_id = c.id
+            AND c.`status` != 'Trash'
+        WHERE
+            r.status not in ('SUCCESS'
+            , 'FAKE_ERROR')
+          AND r.integrated_report_id = #{reportId}
+        ORDER BY
+            r.create_time ASC
+    </select>
+    <select id="selectByProjectIdAndLessThanTime" resultType="java.lang.String">
+        select id
+        from api_definition_exec_result
+        where project_id = #{projectId}
+          and create_time &lt; #{time}
+          and relevance_test_plan_report_id IS NULL
+    </select>
+
+    <update id="updateAllStatus">
+        update api_definition_exec_result
+        set status="STOPPED"
+        where status in ('Rerunning', 'Running', 'PENDING')
+    </update>
+
+</mapper>

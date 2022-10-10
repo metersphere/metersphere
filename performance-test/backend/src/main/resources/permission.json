@@ -1,0 +1,78 @@
+{
+  "permissions": [
+    {
+      "id": "PROJECT_PERFORMANCE_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_PERFORMANCE_HOME"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ",
+      "name": "permission.project_performance_test.read",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+CREATE",
+      "name": "permission.project_performance_test.create",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+EDIT",
+      "name": "permission.project_performance_test.edit",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+DELETE",
+      "name": "permission.project_performance_test.delete",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+COPY",
+      "name": "permission.project_performance_test.copy",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+RUN",
+      "name": "permission.project_performance_test.run",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ+SCHEDULE",
+      "name": "permission.project_performance_test.schedule",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ",
+      "name": "permission.project_performance_report.read",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ+DELETE",
+      "name": "permission.project_performance_report.delete",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ+EXPORT",
+      "name": "permission.project_performance_report.export",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ+COMPARE",
+      "name": "permission.project_performance_report.compare",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    }
+  ],
+  "resource": [
+    {
+      "id": "PROJECT_PERFORMANCE_HOME",
+      "name": "permission.common.home"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST",
+      "name": "permission.project_performance_test.name"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT",
+      "name": "permission.project_performance_report.name"
+    }
+  ]
+}
