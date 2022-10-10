@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition.request.sampler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.mock.MockApiHeaders;
 import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -163,6 +164,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         final HashTree httpSamplerTree = tree.add(sampler);
         // 注意顺序，放在config前面，会优先于环境的请求头生效
+        if(httpConfig.isMock() && StringUtils.isNotEmpty(this.getId())){
+            //如果选择的是mock环境，则自动添加一个apiHeader。
+            AtomicBoolean headersHasMockApiId = new AtomicBoolean(false);
+            if(CollectionUtils.isNotEmpty(this.headers)){
+                this.headers.forEach(item -> {
+                    if(StringUtils.equals(item.getName(),MockApiHeaders.MOCK_API_RESOURCE_ID)){
+                        headersHasMockApiId.set(true);
+                    }
+                });
+            }
+            if(!headersHasMockApiId.get()){
+                this.headers.add( new KeyValue(MockApiHeaders.MOCK_API_RESOURCE_ID,this.getId()));
+            }
+        }
         if (CollectionUtils.isNotEmpty(this.headers)) {
             setHeader(httpSamplerTree, this.headers);
         }

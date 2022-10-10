@@ -2207,12 +2207,17 @@ public class ApiDefinitionService {
         return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
     }
 
-    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix) {
+    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix,String mockApiResourceId) {
         if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
+            String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId,projectId);
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
+            ApiDefinitionExample.Criteria criteria = example.createCriteria();
+            criteria.andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
+            if(StringUtils.isNotBlank(apiId)){
+                criteria.andIdEqualTo(apiId);
+            }
             List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
             List<String> apiIdList = new ArrayList<>();
             boolean urlSuffixEndEmpty = false;
@@ -2265,6 +2270,24 @@ public class ApiDefinitionService {
                 return apiDefinitionMapper.selectByExampleWithBLOBs(example);
             }
         }
+    }
+
+    private String getApiIdFromMockApiResourceId(String mockApiResourceId,String projectId) {
+        String returnId = null;
+        ApiDefinition apiDefinition = this.get(mockApiResourceId);
+        if(apiDefinition == null){
+            ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(mockApiResourceId);
+            if(testCase != null){
+                if(StringUtils.equals(testCase.getProjectId(),projectId) && !StringUtils.equals(testCase.getStatus(),"Trash")){
+                    returnId = testCase.getApiDefinitionId();
+                }
+            }
+        }else {
+            if(StringUtils.equals(apiDefinition.getProjectId(),projectId) && !StringUtils.equals(apiDefinition.getStatus(),"Trash") && apiDefinition.getLatest()){
+                returnId =  mockApiResourceId;
+            }
+        }
+        return returnId;
     }
 
     public String getLogDetails(String id) {

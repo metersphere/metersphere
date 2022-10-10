@@ -3,11 +3,7 @@ package io.metersphere.service;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
-import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
-import io.metersphere.api.dto.mock.MockConfigRequestParams;
-import io.metersphere.api.dto.mock.MockExpectConfigDTO;
-import io.metersphere.api.dto.mock.MockParamSuggestions;
-import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.api.dto.mock.*;
 import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.api.dto.mock.config.MockConfigRequest;
 import io.metersphere.api.dto.mock.config.MockExpectConfigRequest;
@@ -860,7 +856,7 @@ public class MockConfigService {
         String url = request.getRequestURL().toString();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix);
+            List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix,requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             Object paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
@@ -894,7 +890,7 @@ public class MockConfigService {
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix);
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix,requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
 
             /**
              * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
