@@ -477,6 +477,10 @@ export default {
         if (ids) {
           this.condition.ids = ids;
         }
+        let dataSelectRange = this.$route.params.dataSelectRange;
+        if (!dataSelectRange) {
+          delete this.condition.filters.review_status
+        }
         this.initTableData();
         this.condition.ids = null;
         this.getVersionOptions();
@@ -670,9 +674,6 @@ export default {
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
       this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
-      if (!this.selectDataRange) {
-        delete this.condition.filters.review_status
-      }
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;

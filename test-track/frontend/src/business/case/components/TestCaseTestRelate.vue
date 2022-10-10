@@ -132,11 +132,13 @@ export default {
         });
     },
     initTable() {
-      getRelateTest(this.caseId)
-        .then((response) => {
-          this.data = response.data;
-          this.notInIds = this.data.map(i => i.testId);
-        });
+      if (this.caseId) {
+        getRelateTest(this.caseId)
+          .then((response) => {
+            this.data = response.data;
+            this.notInIds = this.data.map(i => i.testId);
+          });
+      }
     },
   }
 }

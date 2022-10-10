@@ -9,7 +9,7 @@
       </div>
       <div class="ms_btn">
         <el-button v-if="enableCancel" @click="cancel" :size="btnSize">{{ $t('commons.cancel') }}</el-button>
-        <el-button type="primary" @click="confirm" @keydown.enter.native.prevent :size="btnSize">
+        <el-button type="primary" @click="confirm" @keydown.enter.native.prevent v-prevent-re-click :size="btnSize">
           {{ $t('commons.confirm') }}
         </el-button>
       </div>

@@ -622,6 +622,9 @@ export default {
           this.operationType = 'add';
           this.copyCaseId = testCase.copyId;
           this.setFormData(testCase);
+          this.testCaseTemplate.customFields.forEach(item => {
+            item.isEdit = false;
+          });
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
           this.reload();
