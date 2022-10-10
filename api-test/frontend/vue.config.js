@@ -6,7 +6,7 @@ function resolve(dir) {
 }
 
 module.exports = {
-  // transpileDependencies: true,
+  productionSourceMap: false,
   devServer: {
     port: 4004,
     client: {
@@ -46,7 +46,7 @@ module.exports = {
     },
   },
   configureWebpack: {
-    devtool: 'source-map',
+    devtool: 'cheap-module-source-map',
     resolve: {
       alias: {
         '@': resolve('src')

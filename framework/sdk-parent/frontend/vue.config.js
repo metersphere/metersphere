@@ -6,6 +6,7 @@ function resolve(dir) {
 }
 
 module.exports = {
+  productionSourceMap: false,
   devServer: {
     port: 3000,
     client: {
@@ -24,7 +25,7 @@ module.exports = {
     },
   },
   configureWebpack: {
-    devtool: 'source-map',
+    devtool: 'cheap-module-source-map',
     resolve: {
       alias: {
         '@': resolve('src')
