@@ -79,7 +79,7 @@
 import {generateShareInfoWithExpired,getShareRedirectUrl} from "@/api/share";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {getProjectConfig} from "@/api/project";
+import {getProjectApplicationConfig} from "@/api/project";
 import {apiTestReRun} from "@/api/xpack";
 import {getUUID} from "metersphere-frontend/src/utils";
 
@@ -186,7 +186,7 @@ export default {
       });
     },
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), "/API_SHARE_REPORT_TIME").then(res => {
+      getProjectApplicationConfig(getCurrentProjectID(), "/API_SHARE_REPORT_TIME").then(res => {
         if (res.data && res.data.typeValue) {
           let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
           let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
