@@ -63,23 +63,29 @@ export default {
       let params = this.parameters.split("\n");
       let index = 1;
       let isNormal = true;
+      let msg = '';
       params.forEach(item => {
         if (item) {
           let line = item.split(/：|:/);
           if (!line[0]) {
             isNormal = false;
-            this.$warning(this.$t('api_test.params_format_warning', [index]) + " :" + this.$t('api_test.automation.variable_warning'));
-            return;
+            let indexMsg = index + '、';
+            msg = msg + indexMsg;
           }
           index++;
         }
       });
+      if (msg !== '') {
+        this.$warning(this.$t('api_test.params_format_warning', [msg.slice(0, msg.length - 1)]) + " :" + this.$t('api_test.automation.variable_warning'));
+      }
       if (isNormal) {
         this.dialogVisible = false;
         this.$emit("batchSave", this.parameters);
         this.parameters = "";
       }
+
     }
+
   }
 }
 </script>
