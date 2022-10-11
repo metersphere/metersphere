@@ -1132,11 +1132,13 @@ public class ApiScenarioService {
             String tags = apiScenario.getTags();
             if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
                 apiScenario.setTags(JSON.toJSONString(request.getTagList()));
+                apiScenario.setUpdateTime(System.currentTimeMillis());
             } else {
                 try {
                     List<String> list = JSON.parseArray(tags, String.class);
                     list.addAll(request.getTagList());
                     apiScenario.setTags(JSON.toJSONString(list));
+                    apiScenario.setUpdateTime(System.currentTimeMillis());
                 } catch (Exception e) {
                     LogUtil.error("batch edit tags error.");
                     LogUtil.error(e, e.getMessage());

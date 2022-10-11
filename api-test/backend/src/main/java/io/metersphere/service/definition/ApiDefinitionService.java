@@ -369,7 +369,7 @@ public class ApiDefinitionService {
                 //计算全部用例
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
             }
-            
+
             if (CollectionUtils.isNotEmpty(definitionList)) {
                 //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
                 Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
@@ -1862,11 +1862,13 @@ public class ApiDefinitionService {
             String tags = apiDefinition.getTags();
             if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
                 apiDefinition.setTags(JSON.toJSONString(request.getTagList()));
+                apiDefinition.setUpdateTime(System.currentTimeMillis());
             } else {
                 try {
                     List<String> list = JSON.parseArray(tags, String.class);
                     list.addAll(request.getTagList());
                     apiDefinition.setTags(JSON.toJSONString(list));
+                    apiDefinition.setUpdateTime(System.currentTimeMillis());
                 } catch (Exception e) {
                     LogUtil.error("batch edit tags error.");
                     LogUtil.error(e, e.getMessage());

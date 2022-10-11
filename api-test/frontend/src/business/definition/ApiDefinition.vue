@@ -188,7 +188,7 @@
               />
             </div>
             <!-- 快捷调试 -->
-            <div v-else-if="item.type=== 'debug'" class="ms-api-div">
+            <div v-else-if="item.type=== 'debug'" class="ms-api-schedule-div">
               <ms-debug-http-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
@@ -250,7 +250,7 @@
 <script>
 import {createDefinitionEnv, getDefinitionById, getDefinitionEnv} from "@/api/definition";
 import {getProjectConfig} from "@/api/project";
-import {getApiModuleByProjectIdAndProtocol, getApiModules, trashCount} from "@/api/definition-module";
+import {getApiModuleByProjectIdAndProtocol, trashCount} from "@/api/definition-module";
 import MsApiList from './components/list/ApiList';
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
@@ -804,7 +804,7 @@ export default {
         if (selectParamArr.length === 2) {
           let scenarioId = selectParamArr[1];
           if (dataType === 'api') {
-            getDefinitionById( scenarioId).then((response) => {
+            getDefinitionById(scenarioId).then((response) => {
               this.defaultProtocol = response.data.protocol;
               this.editApi(response.data);
             });

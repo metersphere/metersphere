@@ -2,7 +2,7 @@ import {fileUpload} from "@/api/base-network";
 import {get, post} from "metersphere-frontend/src/plugins/request"
 
 export function editApiTestCaseOrder(request) {
-  return get('/api/testcase/sort', request);
+  return post('/api/testcase/sort', request);
 }
 
 export function getCaseById(id) {
