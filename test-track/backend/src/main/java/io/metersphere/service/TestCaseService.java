@@ -1884,6 +1884,7 @@ public class TestCaseService {
                     tc.setTags(JSON.toJSONString(request.getTagList()));
                 }
             }
+            tc.setUpdateTime(System.currentTimeMillis());
             mapper.updateByPrimaryKey(tc);
         }
         sqlSession.flushStatements();
