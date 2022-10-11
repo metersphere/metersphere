@@ -17,7 +17,7 @@
 
 <script>
 
-import MsMarkDownText from "@/business/compnent/form/MsMarkDownText";
+import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 
 export default {
   name: "ReportAttachInfo",

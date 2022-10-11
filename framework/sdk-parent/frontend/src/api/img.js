@@ -1,5 +1,5 @@
 import {getUUID} from "../utils";
-import {get, request} from "../plugins/request"
+import {fileUpload, get} from "../plugins/request"
 
 
 export function uploadMarkDownImg(file) {
@@ -8,15 +8,7 @@ export function uploadMarkDownImg(file) {
   };
   file.prefix = param.id;
   param.fileName = file.name.substring(file.name.lastIndexOf('.'));
-  let config = {
-    method: 'POST',
-    url: '/plugin/add',
-    data: param,
-    headers: {
-      'Content-Type': undefined
-    }
-  };
-  return request(config);
+  return fileUpload('/resource/md/upload', file, param);
 }
 
 export function deleteMarkDownImg(file) {
