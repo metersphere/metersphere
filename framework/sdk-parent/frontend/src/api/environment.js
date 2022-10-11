@@ -121,6 +121,13 @@ export function getApiDocument(id, type) {
   return get('/environment/relate/api/definition/document/' + id + '/' + type);
 }
 
+export function batchGetApiDefinition(obj) {
+  if (currentModuleName === 'api') {
+    return post('/api/definition/list/batch', obj);
+  }
+  return post('/environment/relate/api/definition/list/batch', obj);
+}
+
 export function jsonGenerator(params) {
   if (currentModuleName === 'api') {
     return post('/api/definition/generator', params);
@@ -175,5 +182,12 @@ export function getApiTestCasePages(goPage, pageSize, param) {
     return post(`/api/testcase/list/${goPage}/${pageSize}`, param);
   }
   return post(`/environment/relate/api/testcase/list/${goPage}/${pageSize}`, param);
+}
+
+export function getTestCaseBLOBs(params) {
+  if (currentModuleName === 'api') {
+    return post('/api/testcase/list-blobs', params);
+  }
+  return post('/environment/relate/api/testcase/list-blobs', params);
 }
 //
