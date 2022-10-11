@@ -130,9 +130,9 @@ public class TestPlanMessageService {
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
-            subject = Translator.get("task_notification_jenkins");
+            subject = "Jenkins任务通知";
         } else {
-            subject = Translator.get("task_notification");
+            subject = "任务通知";
         }
         // 计算通过率
         TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
