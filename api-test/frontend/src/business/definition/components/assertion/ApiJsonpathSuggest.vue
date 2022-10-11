@@ -175,8 +175,12 @@ export default {
 }
 
 :deep(.el-icon-close:hover) {
-  font-size: 30px;
+  font-size: 18px;
   font-weight: bold;
+}
+
+:deep(.fulls-screen-btn) {
+  position: fixed !important;
 }
 
 </style>

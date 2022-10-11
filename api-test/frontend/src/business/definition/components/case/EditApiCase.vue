@@ -573,7 +573,7 @@ export default {
     },
     singleRun(row) {
       let methods = ["SQL", "DUBBO", "dubbo://", "TCP"];
-      if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && !this.environment) {
+      if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && this.environment === undefined) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }

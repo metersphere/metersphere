@@ -172,6 +172,13 @@ public class ApiDefinitionService {
     private static final String SCHEDULE = "schedule";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
+        // 来自工作台条件
+        if (BooleanUtils.isTrue(request.getToBeUpdated())) {
+            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
@@ -1427,7 +1434,7 @@ public class ApiDefinitionService {
 
     private boolean setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
-        MsHTTPSamplerProxy msHTTPSamplerProxy = JSON.parseObject(request, MsHTTPSamplerProxy.class);
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONUtil.parseObject(request, MsHTTPSamplerProxy.class);
         boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
         if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
             createCase = true;
@@ -2209,15 +2216,15 @@ public class ApiDefinitionService {
         return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
     }
 
-    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix,String mockApiResourceId) {
+    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix, String mockApiResourceId) {
         if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
-            String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId,projectId);
+            String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId, projectId);
             ApiDefinitionExample example = new ApiDefinitionExample();
             ApiDefinitionExample.Criteria criteria = example.createCriteria();
             criteria.andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
-            if(StringUtils.isNotBlank(apiId)){
+            if (StringUtils.isNotBlank(apiId)) {
                 criteria.andIdEqualTo(apiId);
             }
             List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
@@ -2274,19 +2281,19 @@ public class ApiDefinitionService {
         }
     }
 
-    private String getApiIdFromMockApiResourceId(String mockApiResourceId,String projectId) {
+    private String getApiIdFromMockApiResourceId(String mockApiResourceId, String projectId) {
         String returnId = null;
         ApiDefinition apiDefinition = this.get(mockApiResourceId);
-        if(apiDefinition == null){
+        if (apiDefinition == null) {
             ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(mockApiResourceId);
-            if(testCase != null){
-                if(StringUtils.equals(testCase.getProjectId(),projectId) && !StringUtils.equals(testCase.getStatus(),"Trash")){
+            if (testCase != null) {
+                if (StringUtils.equals(testCase.getProjectId(), projectId) && !StringUtils.equals(testCase.getStatus(), "Trash")) {
                     returnId = testCase.getApiDefinitionId();
                 }
             }
-        }else {
-            if(StringUtils.equals(apiDefinition.getProjectId(),projectId) && !StringUtils.equals(apiDefinition.getStatus(),"Trash") && apiDefinition.getLatest()){
-                returnId =  mockApiResourceId;
+        } else {
+            if (StringUtils.equals(apiDefinition.getProjectId(), projectId) && !StringUtils.equals(apiDefinition.getStatus(), "Trash") && apiDefinition.getLatest()) {
+                returnId = mockApiResourceId;
             }
         }
         return returnId;

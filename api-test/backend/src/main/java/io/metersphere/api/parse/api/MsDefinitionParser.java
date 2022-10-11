@@ -37,7 +37,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         if (this.projectId == null) {
             MSException.throwException("wrong format");
         }
-        if (testObject.get("projectName") != null || testObject.get("projectId") != null) {//  metersphere 格式导入
+        if (testObject.opt("projectName") != null || testObject.opt("projectId") != null) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
         } else {    //  chrome 插件录制格式导入
             request.setPlatform(ApiImportPlatform.Plugin.name());
