@@ -620,7 +620,7 @@ export default {
       let path = route.path;
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
-        let caseId = this.$route.params.caseId;
+        let caseId = this.$route.query.caseId;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
