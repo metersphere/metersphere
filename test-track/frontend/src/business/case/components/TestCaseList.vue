@@ -219,7 +219,6 @@ import MsTag from "metersphere-frontend/src/components/MsTag";
 import {
   buildBatchParam,
   getCustomFieldBatchEditOption, getCustomFieldFilter,
-  getCustomFieldValue,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
@@ -264,7 +263,12 @@ import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCrea
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
 import RelateDemand from "@/business/case/components/RelateDemand";
 import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCaseStatusTableItem";
-import {generateColumnKey, getAdvSearchCustomField, getProjectMemberOption} from "@/business/utils/sdk-utils";
+import {
+  generateColumnKey,
+  getAdvSearchCustomField,
+  getCustomFieldValueForTrack,
+  getProjectMemberOption
+} from "@/business/utils/sdk-utils";
 
 
 export default {
@@ -591,7 +595,7 @@ export default {
       useStore().testCaseDefaultValue = testCaseDefaultValue;
     },
     getCustomFieldValue(row, field, defaultVal = '') {
-      let value = getCustomFieldValue(row, field, this.members);
+      let value = getCustomFieldValueForTrack(row, field, this.members);
       if (field.name === '用例等级') {
         return row.priority;
       } else if (field.name === '责任人') {

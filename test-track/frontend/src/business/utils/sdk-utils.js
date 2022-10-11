@@ -17,3 +17,26 @@ export {getOwnerProjects, getProjectListAll} from "metersphere-frontend/src/api/
 export {deleteRelationshipEdge} from "metersphere-frontend/src/api/relationship-edge";
 export {isProjectVersionEnable} from "metersphere-frontend/src/api/version";
 
+
+import {
+  getCustomFieldValue,
+} from "metersphere-frontend/src/utils/tableUtils";
+import i18n from "@/i18n";
+
+export function getCustomFieldValueForTrack(row, field, members) {
+  if (field.name === '用例状态' && field.system) {
+    return parseStatus(row, field.options);
+  }
+  return getCustomFieldValue(row, field, members);
+}
+
+function parseStatus(row, options) {
+  if (options) {
+    for (let option of options) {
+      if (option.value === row.status) {
+        return option.system ? i18n.t(option.text) : option.text;
+      }
+    }
+  }
+  return row.status;
+}
