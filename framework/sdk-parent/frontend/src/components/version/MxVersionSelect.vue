@@ -80,6 +80,9 @@ export default {
   },
   watch: {
     projectId() {
+      if (!hasLicense()) {
+        return;
+      }
       this.currentVersion = null;
       this.getVersionOptionList(this.projectId);
       this.isVersionEnable();
