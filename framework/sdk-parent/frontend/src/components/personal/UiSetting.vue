@@ -60,7 +60,7 @@ export default {
       let userId = getCurrentUserId();
       let res = await getUserInfo(userId);
       if (res.data) {
-        this.seleniumServer = res.data.data.seleniumServer || "";
+        this.seleniumServer = res.data.seleniumServer || "";
       }
     },
     updateSeleniumServer() {
