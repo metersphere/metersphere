@@ -79,7 +79,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
                         java -version
-                        ./mvnw clean package package -Drevision=${REVISION} --settings ./settings.xml
+                        ./mvnw clean package -Drevision=${REVISION} --settings ./settings.xml
 
                         frameworks=('framework/eureka' 'framework/gateway')
                         for library in "${frameworks[@]}";
