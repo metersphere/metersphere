@@ -250,7 +250,7 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <File>${logging.file.path}/ms-jmeter-run-log.log</File>
+        <File>${logging.file.path}/ms-jmeter-run.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/ms-jmeter-run-log.%d{yyyyMMdd}-%i.log
             </FileNamePattern>

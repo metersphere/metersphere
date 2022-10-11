@@ -16,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 @Component
-public class ApiAppStartListener implements ApplicationListener<ApplicationReadyEvent> {
+public class ApiAppStartListener implements ApplicationRunner {
     @Resource
     private BaseScheduleService scheduleService;
     @Resource
@@ -49,7 +51,7 @@ public class ApiAppStartListener implements ApplicationListener<ApplicationReady
     private int quartzThreadCount;
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+    public void run(ApplicationArguments args) throws Exception {
         LogUtil.info("================= API 应用启动 =================");
         System.setProperty("jmeter.home", jmeterHome);
 
@@ -69,7 +71,10 @@ public class ApiAppStartListener implements ApplicationListener<ApplicationReady
         initPythonEnv();
 
         //检查状态为开启的TCP-Mock服务端口
+        LogUtil.info("starting check mock ");
         mockConfigService.initMockTcpService();
+
+        LogUtil.info("starting quartz");
         StringBuffer buffer = new StringBuffer("定时任务相关设置：");
         buffer.append("quartz.acquireTriggersWithinLock :")
                 .append(acquireTriggersWithinLock).append("\n")
@@ -83,6 +88,7 @@ public class ApiAppStartListener implements ApplicationListener<ApplicationReady
         LogUtil.info(buffer.toString());
         scheduleService.startEnableSchedules(ScheduleGroup.API_SCENARIO_TEST);
         scheduleService.startEnableSchedules(ScheduleGroup.SWAGGER_IMPORT);
+        LogUtil.info("Startup complete");
     }
 
 

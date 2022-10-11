@@ -748,6 +748,7 @@ export default {
       this.apiDefaultTab = activeName
       this.apiTabs = tabs.filter(tab => tab.name !== targetName);
       this.$refs.mainTabs.$children = [];
+      this.$refs.apiDefList[0].refreshTable();
     },
     //创建左侧树的根目录模块
     createRootModel() {

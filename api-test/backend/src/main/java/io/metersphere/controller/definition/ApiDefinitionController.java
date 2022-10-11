@@ -52,8 +52,6 @@ public class ApiDefinitionController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
-    private ApiTestCaseService apiTestCaseService;
-    @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
     private EsbImportService esbImportService;
@@ -67,12 +65,6 @@ public class ApiDefinitionController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
-        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
-            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
-            if (toBeUpdatedTime != null) {
-                request.setToBeUpdateTime(toBeUpdatedTime);
-            }
-        }
         apiDefinitionService.checkFilterHasCoverage(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
