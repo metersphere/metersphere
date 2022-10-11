@@ -126,4 +126,14 @@ public class SystemProjectController {
     public Object getFieldTemplateOption(@PathVariable String type, @PathVariable(required = false) String projectId) {
         return microService.getForData(MicroServiceName.PROJECT_MANAGEMENT, String.format("/field/template/%s/option/%s", type, projectId));
     }
+
+    @PostMapping("/check/third/project")
+    public void checkThirdProjectExist(@RequestBody Project project) {
+        microService.postForData(MicroServiceName.TEST_TRACK, "/issues/check/third/project", project);
+    }
+
+    @PostMapping("/issues/jira/issuetype")
+    public Object getJiraIssueType(@RequestBody Object request) {
+        return microService.postForData(MicroServiceName.TEST_TRACK, "/issues/jira/issuetype", request);
+    }
 }

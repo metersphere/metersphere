@@ -48,6 +48,7 @@ import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1001,5 +1002,35 @@ public class IssuesService {
 
     public boolean isThirdPartTemplate(Project project) {
         return project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && project.getPlatform().equals(IssuesManagePlatform.Jira.name());
+    }
+
+
+    public void checkThirdProjectExist(Project project) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        if (StringUtils.isBlank(project.getId())) {
+            MSException.throwException("project ID cannot be empty");
+        }
+        issuesRequest.setProjectId(project.getId());
+        issuesRequest.setWorkspaceId(project.getWorkspaceId());
+        if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+            TapdPlatform tapd = new TapdPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(tapd, project.getTapdId());
+        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
+            JiraPlatform jira = new JiraPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(jira, project.getJiraKey());
+        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Zentao.name())) {
+            ZentaoPlatform zentao = new ZentaoPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(zentao, project.getZentaoId());
+        }
+    }
+
+    private void doCheckThirdProjectExist(AbstractIssuePlatform platform, String relateId) {
+        if (StringUtils.isBlank(relateId)) {
+            MSException.throwException(Translator.get("issue_project_not_exist"));
+        }
+        Boolean exist = platform.checkProjectExist(relateId);
+        if (BooleanUtils.isFalse(exist)) {
+            MSException.throwException(Translator.get("issue_project_not_exist"));
+        }
     }
 }
