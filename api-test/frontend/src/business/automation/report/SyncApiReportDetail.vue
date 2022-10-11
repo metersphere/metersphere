@@ -498,6 +498,7 @@ export default {
     },
 
     cleanHeartBeat() {
+      this.$emit('refresh', this.debugResult);
     },
     heartBeat() {
       let msg = {

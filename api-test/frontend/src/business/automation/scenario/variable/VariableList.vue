@@ -126,7 +126,7 @@
                   <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
                   <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
                   <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
-                  <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
+                  <ms-edit-csv v-if="editData.type==='CSV' && !loading" ref="csv" :editData.sync="editData"/>
                   <div v-if="editData.type" style="float: right">
                     <el-button size="small" style="margin-left: 10px" type="primary" @click="confirmVariable">
                       {{ $t('commons.confirm') }}
@@ -496,7 +496,14 @@ export default {
         this.addVariable();
         this.$refs.variableTable.cancelCurrentRow();
       }
+      this.reload();
       this.$success(this.$t('commons.save_success'));
+    },
+    reload() {
+      this.loading = true;
+      this.$nextTick(() => {
+        this.loading = false;
+      });
     },
     cancelVariable() {
       this.$refs.variableTable.cancelCurrentRow();
