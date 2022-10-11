@@ -485,7 +485,7 @@ export const PRINCIPAL = {
       }
     }
   },
-  options: MS_USER_OPTIONS,
+  options: MS_PROJECT_USER_OPTIONS,
   props: {
     multiple: true
   },

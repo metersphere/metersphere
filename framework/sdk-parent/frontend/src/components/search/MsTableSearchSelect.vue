@@ -2,7 +2,7 @@
   <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs" v-on="$listeners">
     <template v-slot="scope">
       <el-select v-model="scope.component.value" :placeholder="$t('commons.please_select')" size="small"
-                 filterable v-bind="scope.component.props" class="search-select" v-loading="result.loading">
+                 filterable v-bind="scope.component.props" class="search-select" v-loading="loading">
         <el-option v-for="op in options" :key="op.value" :label="label(op)" :value="op.value">
           <span class="demand-span">{{label(op)}}</span>
         </el-option>
@@ -13,6 +13,7 @@
 
 <script>
 import MsTableSearchComponent from "./MsTableSearchComponet";
+import {get} from "../../plugins/request";
 
 export default {
     name: "MsTableSearchSelect",
@@ -21,15 +22,13 @@ export default {
     inheritAttrs: false,
     data() {
       return {
-        result: {
-          loading: false
-        },
+        loading: false,
         options: !(this.component.options instanceof Array) ? [] : this.component.options || []
       }
     },
     created() {
       if (!(this.component.options instanceof Array) && this.component.options.url) {
-        this.result = this.$get(this.component.options.url, response => {
+        this.loading = get(this.component.options.url).then(response => {
           if (response.data) {
             response.data.forEach(item => {
               this.options.push({
