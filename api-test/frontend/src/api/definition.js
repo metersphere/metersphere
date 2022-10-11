@@ -10,7 +10,7 @@ export function getRelationshipApi(id, relationshipType) {
 }
 
 export function editApiDefinitionOrder(request) {
-  return get('/api/definition/sort', request);
+  return post('/api/definition/sort', request);
 }
 
 export function getDefinitionById(id) {
