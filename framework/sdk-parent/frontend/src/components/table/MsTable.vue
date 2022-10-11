@@ -12,6 +12,7 @@
       :height="screenHeight"
       :row-key="rowKey"
       :row-class-name="tableRowClassName"
+      :row-style='rowStyle'
       :cell-class-name="addPaddingColClass"
       :highlight-current-row="highlightCurrentRow"
       @sort-change="sort"
@@ -511,6 +512,9 @@ export default {
         return 'padding-col';
       }
     },
+    rowStyle({row}) {
+      return row.hidden ? {"display": "none"} : {};
+    },
     tableRowClassName(row) {
       if (row.row.hidden) {
         return 'ms-variable-hidden-row';
@@ -571,5 +575,4 @@ export default {
 .row-click {
   cursor: pointer;
 }
-
 </style>

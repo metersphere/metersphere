@@ -13,6 +13,9 @@
             v-else-if="getStatus(status) === 'fake_error'">
       FakeError
     </el-tag>
+    <span v-else-if="status === '-'" size="mini" type="info">
+      -
+    </span>
     <el-tag v-else size="mini" type="info">
       {{ showStatus(status) }}
     </el-tag>

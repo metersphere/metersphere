@@ -138,7 +138,7 @@ export class BaseConfig {
     options = this.initOptions(options)
     if (types) {
       for (let name in types) {
-        if (Object.prototype.hasOwnProperty.call(types, name) && Object.prototype.hasOwnProperty.call(options, name)) {
+        if (options[name] !== null && Object.prototype.hasOwnProperty.call(types, name) && Object.prototype.hasOwnProperty.call(options, name)) {
           options[name].forEach(o => {
             this[name].push(new types[name](o));
           })
@@ -1269,7 +1269,7 @@ class JMXDubboRequest {
   copy(target, source) {
     for (let key in source) {
       if (Object.prototype.hasOwnProperty.call(source, key)) {
-        if (source[key]  && !target[key]) {
+        if (source[key] && !target[key]) {
           target[key] = source[key];
         }
       }
@@ -1289,7 +1289,7 @@ class JMXTCPRequest {
   copy(target, source) {
     for (let key in source) {
       if (Object.prototype.hasOwnProperty.call(source, key)) {
-        if (source[key]  && !target[key]) {
+        if (source[key] && !target[key]) {
           target[key] = source[key];
         }
       }
@@ -1420,7 +1420,7 @@ class JMXGenerator {
         let domain = environment.config.httpConfig.domain;
         let validHosts = [];
         hosts.forEach(item => {
-          if (item.domain  && domain ) {
+          if (item.domain && domain) {
             let d = item.domain.trim().replace("http://", "").replace("https://", "");
             if (d === domain.trim()) {
               item.domain = d; // 域名去掉协议
