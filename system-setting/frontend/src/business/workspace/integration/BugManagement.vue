@@ -4,16 +4,16 @@
       <div>{{ $t('organization.integration.select_defect_platform') }}</div>
       <el-radio-group v-model="platform" style="margin-top: 10px" @change="change">
         <el-radio label="Tapd">
-          <img class="platform" src="~metersphere-frontend/src/assets/tapd.png" alt="Tapd"/>
+          <img class="platform" src="/assets/tapd.png" alt="Tapd"/>
         </el-radio>
         <el-radio label="Jira">
-          <img class="platform" src="~metersphere-frontend/src/assets/jira.png" alt="Jira"/>
+          <img class="platform" src="/assets/jira.png" alt="Jira"/>
         </el-radio>
         <el-radio label="Zentao">
-          <img class="zentao_platform" src="~metersphere-frontend/src/assets/zentao.jpg" alt="Zentao"/>
+          <img class="zentao_platform" src="/assets/zentao.jpg" alt="Zentao"/>
         </el-radio>
         <el-radio label="AzureDevops" v-xpack>
-          <img class="platform" src="~metersphere-frontend/src/assets/AzureDevops.png" alt="AzureDevops"/>
+          <img class="platform" src="/assets/AzureDevops.png" alt="AzureDevops"/>
         </el-radio>
       </el-radio-group>
     </div>
