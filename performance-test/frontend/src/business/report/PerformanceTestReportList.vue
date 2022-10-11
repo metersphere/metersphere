@@ -182,6 +182,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {deleteReport, deleteReportBatch, getOverview, getReportTime, renameReport, searchReports} from "@/api/report";
 import {getProjectVersions, isProjectVersionEnable} from "metersphere-frontend/src/api/version";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "PerformanceTestReportList",
@@ -459,6 +460,9 @@ export default {
       }
     },
     openReNameDialog($event) {
+      if (!hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE')) {
+        return false;
+      }
       this.$refs.renameDialog.open($event);
     },
     rename(data) {
