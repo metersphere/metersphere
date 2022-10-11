@@ -21,7 +21,7 @@
               v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane :label="$t('api_report.total')" name="total">
+                <el-tab-pane label="All" name="total">
                   <ms-scenario-results
                     :treeData="fullTreeNodes"
                     :report="report"
@@ -32,9 +32,7 @@
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
-                    <span class="fail">
-                      {{ $t('api_report.fail') }}
-                    </span>
+                    Error
                   </template>
                   <ms-scenario-results
                     :console="content.console"
@@ -46,16 +44,18 @@
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #F6972A">{{ $t('error_report_library.option.name') }}</span>
+                    <span class="fail" style="color: #F6972A">
+                    FakeError
+                  </span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
                                        :treeData="fullTreeNodes" ref="errorReportTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #9C9B9A">{{
-                        $t('api_test.home_page.detail_card.unexecute')
-                      }}</span>
+                    <span class="fail" style="color: #9C9B9A">
+                      Pending
+                    </span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :report="report"
@@ -65,7 +65,7 @@
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
-                    <span class="console">{{ $t('api_test.definition.request.console') }}</span>
+                    <span class="console">Console</span>
                   </template>
                   <pre>{{ content.console }}</pre>
                 </el-tab-pane>

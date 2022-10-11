@@ -763,6 +763,9 @@ public class ApiDefinitionService {
 
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.API.name());
+        //保存自定义字段
+        customFieldApiService.editFields(test.getId(), request.getEditFields());
+        customFieldApiService.addFields(test.getId(), request.getAddFields());
         return result;
     }
 
@@ -889,7 +892,12 @@ public class ApiDefinitionService {
         }
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.API.name());
-
+        //保存自定义字段
+        List<CustomFieldResourceDTO> addFields = request.getAddFields();
+        if (CollectionUtils.isNotEmpty(addFields)) {
+            addFields.addAll(request.getEditFields());
+            customFieldApiService.addFields(request.getId(), addFields);
+        }
         return getById(test.getId());
     }
 
