@@ -172,14 +172,14 @@ export default {
     },
     'basicForm.description': {
       handler(v, v1) {
-        if (v && v1  && v !== v1) {
+        if (v && v1 && v !== v1) {
           this.apiMapStatus();
         }
       }
     },
     'basicForm.tags': {
       handler(v, v1) {
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
+        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && v1.length !== 0) {
           this.apiMapStatus();
         }
       }

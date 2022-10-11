@@ -2,7 +2,8 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree"
+    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApiValidate"
+                               @createRootModelInTree="createRootModelInTree"
                                :request="request" :response="response" :project-id="projectId"
                                @mockConfig="mockConfig"
                                @changeTab="changeTab"
@@ -11,20 +12,20 @@
                                v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
-                              @saveApi="saveApi" :basisData="currentApi"
+                              @saveApi="saveApiValidate" :basisData="currentApi"
                               @changeTab="changeTab"
                               @checkout="checkout"
                               :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"
                               ref="tcpApi"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
-                                @saveApi="saveApi" :basisData="currentApi"
+                                @saveApi="saveApiValidate" :basisData="currentApi"
                                 @checkout="checkout"
                                 :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"
                                 ref="dubboApi"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
-                              @saveApi="saveApi" :basisData="currentApi"
+                              @saveApi="saveApiValidate" :basisData="currentApi"
                               @checkout="checkout"
                               :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"
                               ref="sqlApi"/>
@@ -322,6 +323,8 @@ export default {
       });
       this.responseCount = 0;
       this.count = 0;
+      store.apiStatus.set("fromChange", false);
+      store.apiMap.set(this.currentApi.id, store.apiStatus);
       store.apiStatus.set("requestChange", false);
       store.apiMap.set(this.currentApi.id, store.apiStatus);
       store.apiStatus.set("responseChange", false);

@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import {createMockConfig,getTcpMockInfo} from "@/api/api-mock";
+import {createMockConfig, getTcpMockInfo} from "@/api/api-mock";
 import {definitionFollow, delDefinitionByRefId, getDefinitionById, getDefinitionVersions} from "@/api/definition";
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
@@ -244,8 +244,6 @@ export default {
         }
       }
       this.$emit('saveApi', this.basisData);
-      store.apiStatus.set("fromChange", false);
-      store.apiMap.set(this.basisData.id, store.apiStatus);
       if (this.$refs.versionHistory) {
         this.$refs.versionHistory.loading = false;
       }

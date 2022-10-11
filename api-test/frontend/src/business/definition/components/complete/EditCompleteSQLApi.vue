@@ -188,8 +188,6 @@ export default {
         this.basisData.tags = JSON.stringify(this.basisData.tags);
       }
       this.$emit('saveApi', this.basisData);
-      store.apiStatus.set("fromChange", false);
-      store.apiMap.set(this.basisData.id, store.apiStatus);
       if (this.$refs.versionHistory) {
         this.$refs.versionHistory.loading = false;
       }
