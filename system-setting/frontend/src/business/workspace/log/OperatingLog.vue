@@ -154,10 +154,9 @@
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "../../common/config";
+import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST, WORKSYSLIST} from "../../common/config";
 import MsLogDetail from "../../common/LogDetail";
 import {getProjectById, getProjectsByWorkspaceId} from "../../../api/project";
-import {getWorkspaces} from "../../../api/workspace";
 import {getUserListByResourceUrl} from "../../../api/user";
 import {modifyUserByResourceId} from "metersphere-frontend/src/api/user";
 import {getOperatingLogPages} from "../../../api/operating-log";
@@ -199,12 +198,12 @@ export default {
   watch: {
     '$route.path': {
       handler(toPath) {
-        if (toPath === '/setting/operatingLog/system') {
-          this.isSystem = true;
-          this.sysList = new SYSLIST();
-          this.condition.workspaceId = '';
-          this.getWorkSpaceList();
-          this.getMember();
+        if (toPath === '/setting/operatingLog/workspace') {
+          this.isSystem = false;
+          this.sysList = new WORKSYSLIST();
+          this.condition.workspaceId = getCurrentWorkspaceId();
+          this.initProject();
+          this.getMember('/user/ws/current/member/list');
         }
       },
       deep: true,
@@ -315,22 +314,6 @@ export default {
         times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()]
       };
       this.initTableData();
-    },
-    getWorkSpaceList() {
-      getWorkspaces().then(res => {
-        let workspaceList = res.data;
-        let workspaceIds = [];
-        if (workspaceList) {
-          this.workspaceList = [];
-          workspaceList.forEach(item => {
-            let data = {id: item.id, label: item.name};
-            this.workspaceList.push(data);
-            workspaceIds.push(item.id);
-          })
-        }
-        this.condition.workspaceIds = workspaceIds;
-        this.initTableData();
-      });
     },
     initProject() {
       this.loading = getProjectsByWorkspaceId(getCurrentWorkspaceId()).then(res => {

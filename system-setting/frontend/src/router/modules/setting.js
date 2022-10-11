@@ -105,7 +105,7 @@ const Setting = {
     },
     {
       path: 'operatingLog/workspace',
-      component: () => import('../../business/system/log/OperatingLog'),
+      component: () => import('../../business/workspace/log/OperatingLog'),
       name: 'workspace',
       meta: {workspace: true, title: 'operating_log.title', permissions: ['WORKSPACE_OPERATING_LOG:READ']}
     },
