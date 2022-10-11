@@ -219,10 +219,13 @@ export const API_CASE_RESULT = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {value: 'success', label: 'api_test.automation.success'},
-    {value: 'error', label: 'api_test.automation.fail'},
-    {value: '', label: 'api_test.home_page.detail_card.unexecute'},
-    {value: 'Running', label: 'commons.testing'}
+    {text: 'Pending', value: 'PENDING'},
+    {text: 'Running', value: 'RUNNING'},
+    {text: 'Rerunning', value: 'RERUNNING'},
+    {text: 'Success', value: 'SUCCESS'},
+    {text: 'Error', value: 'ERROR'},
+    {text: "FakeError", value: 'FAKE_ERROR'},
+    {text: 'Stopped', value: 'STOPPED'},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
@@ -237,8 +240,13 @@ export const API_SCENARIO_RESULT = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {value: 'Success', label: 'api_test.automation.success'},
-    {value: 'Fail', label: 'api_test.automation.fail'}
+    {text: 'Pending', value: 'PENDING'},
+    {text: 'Running', value: 'RUNNING'},
+    {text: 'Rerunning', value: 'RERUNNING'},
+    {text: 'Success', value: 'SUCCESS'},
+    {text: 'Error', value: 'ERROR'},
+    {text: "FakeError", value: 'FAKE_ERROR'},
+    {text: 'Stopped', value: 'STOPPED'},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
