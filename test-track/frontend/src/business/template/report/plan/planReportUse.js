@@ -39,12 +39,16 @@ function planReportUse(id, template) {
   Vue.use(PiniaVuePlugin);
   Vue.use(pinia);
 
-  new Vue({
-    el: id,
-    i18n,
-    pinia,
-    render: h => h(template)
-  });
+  setTimeout(() => {
+    new Vue({
+      el: id,
+      i18n,
+      pinia,
+      render: h => h(template)
+    });
+    // 不延迟页面渲染不出来
+  }, 500);
+
 }
 
 export default planReportUse;
