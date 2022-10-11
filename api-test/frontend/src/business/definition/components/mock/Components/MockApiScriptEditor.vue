@@ -70,7 +70,7 @@ export default {
     }
   },
   created() {
-    if(this.jsr223Processor){
+    if (this.jsr223Processor) {
       if (!this.jsr223Processor.scriptLanguage) {
         this.jsr223Processor.scriptLanguage = "beanshell";
       }
@@ -194,18 +194,6 @@ export default {
         case "body":
           if (laguanges === "python") {
             returnScript = 'param=vars["body.${param}"]';
-          } else {
-            returnScript = 'var param=vars.get("body.${param}");\n' +
-              '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
-              '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
-              'import com.alibaba.fastjson.JSON;\n' +
-              'import com.alibaba.fastjson.JSONArray;\n' +
-              'import com.alibaba.fastjson.JSONObject;\n' +
-              '\n' +
-              'var jsonParam = vars.get("body.json");\n' +
-              'JSONObject jsonObject = JSONObject.parseObject(jsonParam);\n' +
-              'var value = jsonObject.getJSONArray("rows").getJSONObject(0).getString("type");\n' +
-              'vars.put("key1","value");\n';
           }
           break;
         case "bodyRaw":
