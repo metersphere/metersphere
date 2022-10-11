@@ -1,6 +1,6 @@
 package io.metersphere.controller;
 
-import io.metersphere.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanReportService;

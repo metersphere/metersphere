@@ -24,6 +24,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.wapper.CheckPermissionService;
+import io.metersphere.xpack.track.dto.EditTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -144,6 +145,24 @@ public class TestCaseController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseIssueRelateList(request));
     }
+
+//    @PostMapping("/relevance/api/list/{goPage}/{pageSize}")
+//    public Pager<List<ApiTestCaseDTO>> getTestCaseApiCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
+//        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+//        return PageUtils.setPageInfo(page, testCaseService.getTestCaseApiCaseRelateList(request));
+//    }
+//
+//    @PostMapping("/relevance/scenario/list/{goPage}/{pageSize}")
+//    public Pager<List<ApiScenarioDTO>> getTestCaseScenarioCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
+//        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+//        return PageUtils.setPageInfo(page, testCaseService.getTestCaseScenarioCaseRelateList(request));
+//    }
+//
+//    @PostMapping("/relevance/load/list/{goPage}/{pageSize}")
+//    public Pager<List<LoadTestDTO>> getTestCaseLoadCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
+//        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+//        return PageUtils.setPageInfo(page, testCaseService.getTestCaseLoadCaseRelateList(request));
+//    }
 
     @GetMapping("/relate/test/list/{caseId}")
     public List<TestCaseTestDao> getRelateTest(@PathVariable String caseId) {

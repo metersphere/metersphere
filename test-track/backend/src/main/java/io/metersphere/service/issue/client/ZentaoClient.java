@@ -152,12 +152,12 @@ public abstract class ZentaoClient extends BaseClient {
         return (Map<String, Object>) JSON.parseMap(response.getBody()).get("data");
     }
 
-    public Map getBugsByProjectId(String projectId, int pageNum, int pageSize) {
+    public Map getBugsByProjectId(String projectId, Integer pageNum, Integer pageSize) {
         String sessionId = login();
         ResponseEntity<String> response = restTemplate.exchange(requestUrl.getBugList(),
                 HttpMethod.GET, null, String.class, projectId, 9999999, pageSize, pageNum, sessionId);
         try {
-            return (Map) JSON.parseMap(response.getBody()).get("data");
+            return JSON.parseMap(JSON.parseMap(response.getBody()).get("data").toString());
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException("请检查配置信息是否填写正确！");
@@ -222,7 +222,7 @@ public abstract class ZentaoClient extends BaseClient {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, authHeader);
 
         try {
-           restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST, requestEntity,
+            restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST, requestEntity,
                     String.class, objectType, objectId, sessionId);
         } catch (Exception e) {
             LogUtil.info("upload zentao attachment error");

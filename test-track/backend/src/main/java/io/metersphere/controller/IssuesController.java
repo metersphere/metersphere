@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesWithBLOBs;
-import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -14,7 +13,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.*;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.service.issue.domain.PlatformUser;
+import io.metersphere.xpack.track.dto.*;
 import io.metersphere.service.issue.domain.jira.JiraIssueType;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 
@@ -22,8 +21,8 @@ import io.metersphere.request.issues.JiraIssueTypeRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.IssuesService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -184,10 +183,5 @@ public class IssuesController {
     @PostMapping("/platform/transitions")
     public List<PlatformStatusDTO> getPlatformTransitions(@RequestBody PlatformIssueTypeRequest request) {
         return issuesService.getPlatformTransitions(request);
-    }
-
-    @PostMapping("/check/third/project")
-    public void checkThirdProjectExist(@RequestBody Project project) {
-        issuesService.checkThirdProjectExist(project);
     }
 }

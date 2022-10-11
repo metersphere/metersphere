@@ -43,10 +43,6 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
         super.batchEditFields(TABLE_NAME, resourceId, fields);
     }
 
-//    public void batchEditFields(HashMap<String, List<CustomFieldResourceDTO>> customFieldMap) {
-//        super.batchEditFields(TABLE_NAME, customFieldMap);
-//    }
-
     public int updateByPrimaryKeySelective(CustomFieldResourceDTO field) {
         return super.updateByPrimaryKeySelective(TABLE_NAME, field);
     }
@@ -71,7 +67,7 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
         return super.getByResourceId(TABLE_NAME, resourceId);
     }
 
-    public void batchEditFields(HashMap<String, List<CustomFieldResourceDTO>> customFieldMap) {
+    public void batchEditFields(Map<String, List<CustomFieldResourceDTO>> customFieldMap) {
         if (customFieldMap == null || customFieldMap.size() == 0) {
             return;
         }

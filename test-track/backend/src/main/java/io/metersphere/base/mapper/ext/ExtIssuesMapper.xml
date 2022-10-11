@@ -8,7 +8,7 @@
           and (resource_id = #{resourceId} or ref_id = #{resourceId})
     </delete>
 
-    <select id="getIssuesByCaseId" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getIssuesByCaseId" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select issues.*
         from issues
         inner join test_case_issues
@@ -17,7 +17,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
-    <select id="getIssueForMinder" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getIssueForMinder" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select issues.id, issues.title , issues.num , test_case_issues.resource_id, test_case_issues.ref_id, test_case_issues.ref_type
         from issues
         inner join test_case_issues
@@ -49,7 +49,7 @@
         issues.lastmodify
     </sql>
 
-    <select id="getIssues" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getIssues" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select
         <include refid="Issue_List_Column"/>
         <if test="request.projectId != null||request.workspaceId != null">
@@ -67,7 +67,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
-    <select id="getPlanIssues" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getPlanIssues" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select
         <include refid="Issue_List_Column"/>
         from issues
@@ -100,7 +100,7 @@
         where i.creator = #{request.creator}
         group by statusValue;
     </select>
-    <select id="getRelateIssues" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getRelateIssues" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
         issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.resource_id,issues.platform_status,
         issues.lastmodify
@@ -111,7 +111,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
         group by issues.id
     </select>
-    <select id="getIssueForSync" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getIssueForSync" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select id,platform, platform_id
         from issues
         where project_id = #{projectId} and platform = #{platform} and (platform_status != 'delete' or platform_status is null);
@@ -132,7 +132,7 @@
         where project_id = #{projectId}
         limit #{offset},#{pageSize}
     </select>
-    <select id="selectByPrimaryKey" parameterType="java.lang.String"  resultType="io.metersphere.dto.IssuesDao">
+    <select id="selectByPrimaryKey" parameterType="java.lang.String"  resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select
         <include refid="Issue_List_Column" />
         from issues
@@ -150,13 +150,13 @@
         join custom_field cf on cf.id = cfi.field_id
         where cfi.resource_id = #{issueId}
     </select>
-    <select id="getPlatformIssueByIds" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getPlatformIssueByIds" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select * from issues where project_id = #{projectId} and platform_id in
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
     </select>
-    <select id="getIssueCustomFields" resultType="io.metersphere.dto.IssuesDao">
+    <select id="getIssueCustomFields" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select cfi.field_id           as fieldId,
                cf.type fieldType,
                cft.custom_data,

@@ -6,20 +6,20 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.constants.AttachmentSyncType;
+import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.dto.*;
 import io.metersphere.request.attachment.AttachmentRequest;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.*;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.client.JiraClientV2;
-import io.metersphere.service.issue.domain.PlatformUser;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.issue.domain.ProjectIssueConfig;
 import io.metersphere.service.issue.domain.jira.*;
-import net.minidev.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -50,6 +50,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
         setConfig();
     }
 
+    // xpack 反射调用
+    public JiraClientV2 getJiraClientV2() {
+        return jiraClientV2;
+    }
+
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
         issuesRequest.setPlatform(key);
@@ -62,47 +67,61 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return issues;
     }
 
+    public IssuesWithBLOBs getUpdateIssue(JiraIssue jiraIssue) {
+        return getUpdateIssue(null, jiraIssue);
+    }
+
     public IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
-        if (issue == null) {
-            issue = new IssuesWithBLOBs();
-            issue.setCustomFields(defaultCustomFields);
-        } else {
-            mergeCustomField(issue, defaultCustomFields);
-        }
-
-        Map fields = jiraIssue.getFields();
-        String status = getStatus(fields);
-
-        Map<String, String> fileContentMap = getContextMap((List) fields.get("attachment"));
-
-        // 先转换下desc的图片
-        String description = dealWithDescription(fields.get("description").toString(), fileContentMap);
-        fields.put("description", description);
-        CustomFieldItemDTO descItem = null;
-        List<CustomFieldItemDTO> customFieldItems = syncIssueCustomFieldList(issue.getCustomFields(), jiraIssue.getFields());
-
-        // 其他自定义里有富文本框的也转换下图片
-        for (CustomFieldItemDTO item : customFieldItems) {
-            if (StringUtils.equals("description", item.getId())) {
-                // desc转过了，跳过
-                descItem = item;
+        try {
+            if (issue == null) {
+                issue = new IssuesWithBLOBs();
+                issue.setCustomFields(defaultCustomFields);
             } else {
-                if (StringUtils.equals(CustomFieldType.RICH_TEXT.getValue(), item.getType())) {
-                    item.setValue(dealWithDescription((String) item.getValue(), fileContentMap));
+                mergeCustomField(issue, defaultCustomFields);
+            }
+
+            Map fields = jiraIssue.getFields();
+            String status = getStatus(fields);
+
+            Map<String, String> fileContentMap = getContextMap((List) fields.get("attachment"));
+
+            // 先转换下desc的图片
+            String description = dealWithDescription(Optional.ofNullable(fields.get("description")).orElse("").toString(), fileContentMap);
+            fields.put("description", description);
+            CustomFieldItemDTO descItem = null;
+            List<CustomFieldItemDTO> customFieldItems = syncIssueCustomFieldList(issue.getCustomFields(), jiraIssue.getFields());
+
+            // 其他自定义里有富文本框的也转换下图片
+            for (CustomFieldItemDTO item : customFieldItems) {
+                if (StringUtils.equals("description", item.getId())) {
+                    // desc转过了，跳过
+                    descItem = item;
+                } else {
+                    if (StringUtils.equals(CustomFieldType.RICH_TEXT.getValue(), item.getType())) {
+                        item.setValue(dealWithDescription((String) item.getValue(), fileContentMap));
+                    }
                 }
             }
-        }
 
-        JSONObject assignee = (JSONObject) fields.get("assignee");
-        issue.setTitle(fields.get("summary").toString());
-        issue.setCreateTime((Long) fields.get("created"));
-        issue.setUpdateTime((Long) fields.get("updated"));
-        issue.setLastmodify(assignee == null ? "" : assignee.get("displayName").toString());
-        issue.setDescription(description);
-        issue.setPlatformStatus(status);
-        issue.setPlatform(key);
-        issue.setCustomFields(JSON.toJSONString(customFieldItems));
-        return issue;
+            Map assignee = (Map) fields.get("assignee");
+            issue.setTitle(fields.get("summary").toString());
+            issue.setLastmodify(assignee == null ? "" : assignee.get("displayName").toString());
+            issue.setDescription(description);
+            issue.setPlatformStatus(status);
+            issue.setPlatform(key);
+            issue.setCustomFields(JSON.toJSONString(customFieldItems));
+            try {
+                issue.setCreateTime(DateUtils.getTimestamp((String) fields.get("created")));
+                issue.setUpdateTime(DateUtils.getTimestamp((String) fields.get("updated")));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+            return issue;
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(e);
+            return null;
+        }
     }
 
     private String dealWithDescription(String description, Map<String, String> fileContentMap) {
@@ -207,11 +226,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public List<JiraIssueType> getIssueTypes(String jiraKey) {
-        try {
-            return jiraClientV2.getIssueType(jiraKey);
-        } catch (Exception e) {
-            return null;
-        }
+        return jiraClientV2.getIssueType(jiraKey);
     }
 
     @Override
@@ -220,8 +235,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
         setUserConfig();
         Project project = getProject();
 
-        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
-        JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
+        Map addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
+        JiraAddIssueResponse result = jiraClientV2.addIssue(JSON.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
         // 上传富文本中的图片作为附件
@@ -259,7 +274,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public Project getProject() {
-      return super.getProject(this.projectId, Project::getJiraKey);
+        return super.getProject(this.projectId, Project::getJiraKey);
     }
 
     private List<File> getImageFiles(IssuesUpdateRequest issuesRequest) {
@@ -284,7 +299,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
      * 参数比较特殊，需要特别处理
      * @param fields
      */
-    private void setSpecialParam(JSONObject fields) {
+    private void setSpecialParam(Map fields) {
         Project project = getProject();
         try {
             Map<String, JiraCreateMetadataResponse.Field> createMetadata = jiraClientV2.getCreateMetadata(project.getJiraKey(), getIssueType(project.getIssueConfig()));
@@ -310,9 +325,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 }
                 if (isUserKey) {
                     if (schema.getType() != null && schema.getType().endsWith("user")) {
-                    Map field = (Map) fields.get(key);
+                        Map field = (Map) fields.get(key);
                         // 如果不是用户ID，则是用户的key，参数调整为key
-                        JSONObject newField = new JSONObject();
+                        Map newField = new LinkedHashMap<>();
                         newField.put("name", field.get("id").toString());
                         fields.put(key, newField);
                     }
@@ -329,10 +344,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
     }
 
-    private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr, String jiraKey) {
+    private Map<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr, String jiraKey) {
         issuesRequest.setPlatform(key);
-        JSONObject fields = new JSONObject();
-        JSONObject project = new JSONObject();
+        Map fields = new LinkedHashMap<>();
+        Map project = new LinkedHashMap<>();
 
         String desc = "";
         // 附件描述信息处理
@@ -344,11 +359,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
         fields.put("project", project);
         project.put("key", jiraKey);
 
-        JSONObject issuetype = new JSONObject();
+        Map issuetype = new LinkedHashMap<>();
         issuetype.put("id", issuetypeStr);
         fields.put("issuetype", issuetype);
 
-        JSONObject addJiraIssueParam = new JSONObject();
+        Map addJiraIssueParam = new LinkedHashMap();
         addJiraIssueParam.put("fields", fields);
 
         if (issuesRequest.isThirdPartPlatform()) {
@@ -411,7 +426,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return result;
     }
 
-    private void parseCustomFiled(IssuesUpdateRequest issuesRequest, JSONObject fields) {
+    private void parseCustomFiled(IssuesUpdateRequest issuesRequest, Map fields) {
         List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
 
         customFields.forEach(item -> {
@@ -424,7 +439,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             if (StringUtils.equalsAnyIgnoreCase(name, "PML", "PMLinkTest", "PMLink")) {
                                 fields.put(fieldName, item.getValue());
                             } else {
-                                JSONObject param = new JSONObject();
+                                Map param = new LinkedHashMap<>();
                                 if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
                                     if (issuesRequest.isThirdPartPlatform()) {
                                         param.put("id", item.getValue());
@@ -441,7 +456,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             if (item.getValue() != null) {
                                 List values = JSON.parseArray((String) item.getValue());
                                 values.forEach(v -> {
-                                    JSONObject param = new JSONObject();
+                                    Map param = new LinkedHashMap<>();
                                     param.put("id", v);
                                     attrs.add(param);
                                 });
@@ -449,7 +464,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             fields.put(fieldName, attrs);
                         } else if (StringUtils.equalsAny(item.getType(),  "cascadingSelect")) {
                             if (item.getValue() != null) {
-                                JSONObject attr = new JSONObject();
+                                Map attr = new LinkedHashMap<>();
                                 if (item.getValue() instanceof List) {
                                     List values = JSON.parseArray((String) item.getValue());
                                     if (CollectionUtils.isNotEmpty(values)) {
@@ -457,7 +472,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                             attr.put("id", values.get(0));
                                         }
                                         if (values.size() > 1) {
-                                            JSONObject param = new JSONObject();
+                                            Map param = new LinkedHashMap<>();
                                             param.put("id", values.get(1));
                                             attr.put("child", param);
                                         }
@@ -486,8 +501,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         setUserConfig();
         Project project = getProject();
-        JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
-        jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
+        Map param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
+        jiraClientV2.updateIssue(request.getPlatformId(), JSON.toJSONString(param));
 
         // 同步Jira富文本有关的附件
         syncJiraRichTextAttachment(request);
@@ -535,10 +550,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         super.isThirdPartTemplate = isThirdPartTemplate();
         HashMap<String, List<CustomFieldResourceDTO>> customFieldMap = new HashMap<>();
 
-        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
-        if (project.getThirdPartTemplate()) {
-            super.defaultCustomFields =  issuesService.getCustomFieldsValuesString(getThirdPartTemplate().getCustomFields());
-        }
+        prepareSync(project);
 
         issues.forEach(item -> {
             try {
@@ -562,6 +574,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
             }
         });
         customFieldIssuesService.batchEditFields(customFieldMap);
+    }
+
+    public void prepareSync(Project project) {
+        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        if (project.getThirdPartTemplate()) {
+            super.defaultCustomFields =  issuesService.getCustomFieldsValuesString(getThirdPartTemplate().getCustomFields());
+        }
     }
 
     @Override
@@ -676,7 +695,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public String getStoryType(String configStr) {
         ProjectIssueConfig projectConfig = super.getProjectConfig(configStr);
         String jiraStoryType = projectConfig.getJiraStoryTypeId();
-       if (StringUtils.isBlank(jiraStoryType)) {
+        if (StringUtils.isBlank(jiraStoryType)) {
             MSException.throwException("请在项目中配置 Jira 需求类型！");
         }
         return jiraStoryType;
@@ -761,13 +780,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
             Object defaultValue = item.getDefaultValue();
             if (defaultValue != null) {
                 Object msDefaultValue;
-                if (defaultValue instanceof JSONObject) {
-                    msDefaultValue = ((JSONObject) defaultValue).get("id");
+                if (defaultValue instanceof Map) {
+                    msDefaultValue = ((Map) defaultValue).get("id");
                 } else if (defaultValue instanceof List) {
                     List defaultList = new ArrayList();
                     ((List) defaultValue).forEach(i -> {
-                        if (i instanceof JSONObject) {
-                            JSONObject obj = (JSONObject) i;
+                        if (i instanceof Map) {
+                            Map obj = (Map) i;
                             defaultList.add(obj.get("id"));
                         } else {
                             defaultList.add(i);
@@ -801,7 +820,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (allowedValues != null) {
             List options = new ArrayList<>();
             allowedValues.forEach(val -> {
-                JSONObject jsonObject = new JSONObject();
+                Map jsonObject = new LinkedHashMap();
                 jsonObject.put("value", val.getId());
                 if (StringUtils.isNotBlank(val.getName())) {
                     jsonObject.put("text", val.getName());
@@ -823,7 +842,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         List<JiraUser> userOptions = jiraClientV2.getAssignableUser(projectKey);
         List options = new ArrayList();
         userOptions.forEach(val -> {
-            JSONObject jsonObject = new JSONObject();
+            Map jsonObject = new LinkedHashMap<>();
             if (StringUtils.isNotBlank(val.getAccountId())) {
                 jsonObject.put("value", val.getAccountId());
             } else {
@@ -877,50 +896,55 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public void syncJiraIssueAttachments(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
-        List<String> jiraAttachmentsName = new ArrayList<String>();
-        AttachmentRequest request = new AttachmentRequest();
-        request.setBelongType(AttachmentType.ISSUE.type());
-        request.setBelongId(issue.getId());
-        List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(request);
-        List<String> msAttachmentsName = allMsAttachments.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
-        List attachments = (List) jiraIssue.getFields().get("attachment");
-        // 同步Jira中新的附件
-        if (CollectionUtils.isNotEmpty(attachments)) {
-            for (int i = 0; i < attachments.size(); i++) {
-                Map attachment = (Map) attachments.get(i);
-                String filename = attachment.get("filename").toString();
-                jiraAttachmentsName.add(filename);
-                if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
-                        && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))
-                        && !msAttachmentsName.contains(filename)) {
-                    try {
-                        byte[] content = jiraClientV2.getAttachmentContent(attachment.get("content").toString());
-                        FileAttachmentMetadata fileAttachmentMetadata = attachmentService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
-                        AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
-                        attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
-                        attachmentModuleRelation.setRelationId(issue.getId());
-                        attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
-                        attachmentModuleRelationMapper.insert(attachmentModuleRelation);
-                    } catch (Exception e) {
-                        LogUtil.error(e);
+        try {
+            List<String> jiraAttachmentsName = new ArrayList<String>();
+            AttachmentRequest request = new AttachmentRequest();
+            request.setBelongType(AttachmentType.ISSUE.type());
+            request.setBelongId(issue.getId());
+            List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(request);
+            List<String> msAttachmentsName = allMsAttachments.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+            List attachments = (List) jiraIssue.getFields().get("attachment");
+            // 同步Jira中新的附件
+            if (CollectionUtils.isNotEmpty(attachments)) {
+                for (int i = 0; i < attachments.size(); i++) {
+                    Map attachment = (Map) attachments.get(i);
+                    String filename = attachment.get("filename").toString();
+                    jiraAttachmentsName.add(filename);
+                    if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
+                            && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))
+                            && !msAttachmentsName.contains(filename)) {
+                        try {
+                            byte[] content = jiraClientV2.getAttachmentContent(attachment.get("content").toString());
+                            FileAttachmentMetadata fileAttachmentMetadata = attachmentService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
+                            AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+                            attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+                            attachmentModuleRelation.setRelationId(issue.getId());
+                            attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+                            attachmentModuleRelationMapper.insert(attachmentModuleRelation);
+                        } catch (Exception e) {
+                            LogUtil.error(e);
+                        }
                     }
                 }
             }
-        }
 
-        // 删除Jira中不存在的附件
-        if (CollectionUtils.isNotEmpty(allMsAttachments)) {
-            List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
-                    .filter(msAttachment -> !jiraAttachmentsName.contains(msAttachment.getName())).collect(Collectors.toList());
-            deleteMsAttachments.forEach(fileAttachmentMetadata -> {
-                List<String> ids = List.of(fileAttachmentMetadata.getId());
-                AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
-                example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
-                // 删除MS附件及关联数据
-                attachmentService.deleteAttachmentByIds(ids);
-                attachmentService.deleteFileAttachmentByIds(ids);
-                attachmentModuleRelationMapper.deleteByExample(example);
-            });
+            // 删除Jira中不存在的附件
+            if (CollectionUtils.isNotEmpty(allMsAttachments)) {
+                List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
+                        .filter(msAttachment -> !jiraAttachmentsName.contains(msAttachment.getName())).collect(Collectors.toList());
+                deleteMsAttachments.forEach(fileAttachmentMetadata -> {
+                    List<String> ids = List.of(fileAttachmentMetadata.getId());
+                    AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                    example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
+                    // 删除MS附件及关联数据
+                    attachmentService.deleteAttachmentByIds(ids);
+                    attachmentService.deleteFileAttachmentByIds(ids);
+                    attachmentModuleRelationMapper.deleteByExample(example);
+                });
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(e);
         }
     }
 

@@ -7,20 +7,23 @@ import io.metersphere.commons.constants.ZentaoIssuePlatformStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.constants.AttachmentSyncType;
+import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.dto.*;
 import io.metersphere.request.attachment.AttachmentRequest;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.DemandDTO;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.client.ZentaoClient;
 import io.metersphere.service.issue.client.ZentaoGetClient;
-import io.metersphere.service.issue.domain.PlatformUser;
+import io.metersphere.xpack.track.dto.PlatformUser;
 
 import io.metersphere.service.issue.domain.zentao.AddIssueResponse;
 import io.metersphere.service.issue.domain.zentao.GetIssueResponse;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.service.issue.domain.zentao.ZentaoConfig;
+import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -50,6 +53,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             "bmp", "jpg", "png", "tif", "gif", "jpeg"
     };
 
+    // xpack 反射调用
+    public ZentaoClient getZentaoClient() {
+        return zentaoClient;
+    }
 
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
@@ -77,12 +84,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return issues;
     }
 
-    public IssuesDao getZentaoAssignedAndBuilds(IssuesDao issue){
+    public IssuesDao getZentaoAssignedAndBuilds(IssuesDao issue) {
         Map zentaoIssue = (Map) zentaoClient.getBugById(issue.getPlatformId());
         String assignedTo = zentaoIssue.get("assignedTo").toString();
         String openedBuild = zentaoIssue.get("openedBuild").toString();
-        List<String>zentaoBuilds = new ArrayList<>();
-        if(Strings.isNotBlank(openedBuild)){
+        List<String> zentaoBuilds = new ArrayList<>();
+        if (Strings.isNotBlank(openedBuild)) {
             zentaoBuilds = Arrays.asList(openedBuild.split(","));
         }
         issue.setZentaoAssigned(assignedTo);
@@ -146,13 +153,19 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return list;
     }
 
+    public IssuesWithBLOBs getUpdateIssues(Map bug) {
+        return getUpdateIssues(null, bug);
+    }
+
     /**
      * 更新缺陷数据
+     *
      * @param issue 待更新缺陷数据
-     * @param bug 平台缺陷数据
+     * @param bug   平台缺陷数据
      * @return
      */
     public IssuesWithBLOBs getUpdateIssues(IssuesWithBLOBs issue, Map bug) {
+
         GetIssueResponse.Issue bugObj = JSON.parseObject(JSON.toJSONString(bug), GetIssueResponse.Issue.class);
         String description = bugObj.getSteps();
         String steps = description;
@@ -168,7 +181,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             mergeCustomField(issue, defaultCustomFields);
         }
         issue.setPlatformStatus(bugObj.getStatus());
-        if (StringUtils.equals(bugObj.getDeleted(),"1")) {
+        if (StringUtils.equals(bugObj.getDeleted(), "1")) {
             issue.setPlatformStatus(IssuesStatus.DELETE.toString());
             issuesMapper.updateByPrimaryKeySelective(issue);
         }
@@ -181,7 +194,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             String lastEditedDate = bug.get("lastEditedDate").toString();
             if (StringUtils.isNotBlank(openedDate) && !openedDate.startsWith("0000-00-00"))
                 issue.setCreateTime((Long) bug.get("openedDate"));
-            if (StringUtils.isNotBlank(lastEditedDate)  && !lastEditedDate.startsWith("0000-00-00"))
+            if (StringUtils.isNotBlank(lastEditedDate) && !lastEditedDate.startsWith("0000-00-00"))
                 issue.setUpdateTime((Long) bug.get("lastEditedDate"));
         } catch (Exception e) {
             LogUtil.error("update zentao time" + e.getMessage());
@@ -362,9 +375,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<PlatformUser> getPlatformUser() {
-        String session = zentaoClient.login();;
+        String session = zentaoClient.login();
+        ;
         HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
         String getUser = zentaoClient.requestUrl.getUserGet();
         ResponseEntity<String> responseEntity = restTemplate.exchange(getUser + session,
@@ -374,7 +388,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
         LogUtil.info("zentao user " + obj);
 
-        List data = (List) obj.get("data");
+        List data = JSON.parseArray(obj.get("data").toString());
 
         List<PlatformUser> users = new ArrayList<>();
         for (int i = 0; i < data.size(); i++) {
@@ -483,7 +497,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private String zentao2MsDescription(String ztDescription) {
-        String imgRegex ="<img src.*?/>";
+        String imgRegex = "<img src.*?/>";
         Pattern pattern = Pattern.compile(imgRegex);
         Matcher matcher = pattern.matcher(ztDescription);
         while (matcher.find()) {

@@ -11,21 +11,19 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldItemDTO;
-import io.metersphere.dto.IssueTemplateDao;
-import io.metersphere.dto.PlatformStatusDTO;
+import io.metersphere.xpack.track.dto.IssueTemplateDao;
+import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.request.IntegrationRequest;
-import io.metersphere.request.testcase.EditTestCaseRequest;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.EditTestCaseRequest;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.*;
-import io.metersphere.service.issue.IssuesPlatform;
+import io.metersphere.xpack.track.issue.IssuesPlatform;
 import io.metersphere.service.issue.domain.ProjectIssueConfig;
-import io.metersphere.service.remote.setting.IntegrationService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -44,7 +42,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
-    protected IntegrationService integrationService;
+    protected BaseIntegrationService baseIntegrationService;
     protected TestCaseIssueService testCaseIssueService;
     protected TestCaseIssuesMapper testCaseIssuesMapper;
     protected TrackProjectService trackProjectService;
@@ -82,7 +80,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     public AbstractIssuePlatform() {
-        this.integrationService = CommonBeanFactory.getBean(IntegrationService.class);
+        this.baseIntegrationService = CommonBeanFactory.getBean(BaseIntegrationService.class);
         this.testCaseIssuesMapper = CommonBeanFactory.getBean(TestCaseIssuesMapper.class);
         this.trackProjectService = CommonBeanFactory.getBean(TrackProjectService.class);
         this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
@@ -100,6 +98,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.baseProjectService = CommonBeanFactory.getBean(BaseProjectService.class);
     }
 
+    // xpack 反射调用
+    public String getProjectId() {
+        return projectId;
+    }
+
     protected String getPlatformConfig(String platform) {
         IntegrationRequest request = new IntegrationRequest();
         if (StringUtils.isBlank(workspaceId)) {
@@ -108,7 +111,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         request.setWorkspaceId(workspaceId);
         request.setPlatform(platform);
 
-        ServiceIntegration integration = integrationService.get(request);
+        ServiceIntegration integration = baseIntegrationService.get(request);
         return integration.getConfiguration();
     }
 
@@ -395,26 +398,27 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected Object getSyncJsonParamValue(Object value) {
         Map valObj = ((Map) value);
-        String accountId = valObj.get("accountId").toString();
+        String accountId = Optional.ofNullable(valObj.get("accountId")).orElse("").toString();
         Map child = (Map) valObj.get("child");
         if (child != null) {// 级联框
             List<Object> values = new ArrayList<>();
-            if (StringUtils.isNotBlank(valObj.get("id").toString()))  {
-                values.add(valObj.get("id").toString());
+            String id = Optional.ofNullable(valObj.get("id")).orElse("").toString();
+            if (StringUtils.isNotBlank(id))  {
+                values.add(valObj.get("id"));
             }
-            if (StringUtils.isNotBlank(child.get("id").toString()))  {
-                values.add(child.get("id").toString());
+            if (StringUtils.isNotBlank(id))  {
+                values.add(child.get("id"));
             }
             return values;
         } else if (StringUtils.isNotBlank(accountId) && isThirdPartTemplate) {
             // 用户选择框
             return accountId;
         } else {
-            String id = valObj.get("id").toString();
+            String id = Optional.ofNullable(valObj.get("id")).orElse("").toString();
             if (StringUtils.isNotBlank(id)) {
-                return valObj.get("id").toString();
+                return valObj.get("id");
             } else {
-                return valObj.get("key").toString();
+                return valObj.get("key");
             }
         }
     }
@@ -434,7 +438,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 if (value instanceof Map) {
                     item.setValue(getSyncJsonParamValue(value));
                     if (StringUtils.equals(fieldName, "assignee")) {
-                        item.setValue(((JSONObject) value).get("displayName"));
+                        item.setValue(((Map) value).get("displayName"));
                     } else {
                         item.setValue(getSyncJsonParamValue(value));
                     }

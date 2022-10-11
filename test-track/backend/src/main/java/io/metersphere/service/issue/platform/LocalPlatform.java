@@ -8,12 +8,12 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.constants.AttachmentSyncType;
+import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.dto.CustomFieldItemDTO;
-import io.metersphere.dto.DemandDTO;
-import io.metersphere.dto.IssuesDao;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.DemandDTO;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.lang3.StringUtils;
 

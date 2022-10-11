@@ -6,7 +6,8 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.issue.domain.tapd.AddTapdIssueResponse;
 import io.metersphere.service.issue.domain.tapd.TapdBug;
 import io.metersphere.service.issue.domain.tapd.TapdConfig;
-import io.metersphere.service.issue.domain.tapd.TapdGetIssueResponse;
+import io.metersphere.xpack.track.dto.TapdBaseResponse;
+import io.metersphere.xpack.track.dto.TapdGetIssueResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,8 +30,8 @@ public class TapdClient extends BaseClient {
     protected  String PASSWD;
 
 
-    public TapdGetIssueResponse getIssueForPage(String projectId, int pageNum, int limit) {
-       return getIssueForPageByIds(projectId, pageNum, limit, null);
+    public TapdGetIssueResponse getIssueForPage(String projectId, Integer pageNum, Integer limit) {
+        return getIssueForPageByIds(projectId, pageNum, limit, null);
     }
 
     public Map<String, String> getStatusMap(String projectId) {
@@ -42,10 +43,8 @@ public class TapdClient extends BaseClient {
             MSException.throwException("请检查配置信息是否填写正确！");
             LogUtil.error(e);
         }
-        String resultForObject = (String) getResultForObject(String.class, response);
-        Map<String, Object> jsonObject = JSON.parseMap(resultForObject);
-        String data = jsonObject.get("data").toString();
-        return JSON.parseObject(data, Map.class);
+        Map resultForObject = (Map) getResultForObject(Map.class, response);
+        return (Map<String, String>) resultForObject.get("data");
     }
 
     public List getPlatformUser(String projectId) {
@@ -126,7 +125,7 @@ public class TapdClient extends BaseClient {
     public boolean checkProjectExist(String relateId) {
         String url = getBaseUrl() + "/roles?workspace_id={1}";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, relateId);
-        TapdGetIssueResponse res = (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
+        TapdBaseResponse res = (TapdBaseResponse) getResultForObject(TapdBaseResponse.class, response);
         return res == null || res.getStatus() != 404;
     }
 }

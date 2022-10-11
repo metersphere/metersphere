@@ -1,6 +1,8 @@
-package io.metersphere.dto;
+package io.metersphere.xpack.track.dto;
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.CustomFieldItemDTO;
 import lombok.Getter;
 import lombok.Setter;
 

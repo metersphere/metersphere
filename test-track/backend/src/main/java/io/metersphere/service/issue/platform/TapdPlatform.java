@@ -5,21 +5,16 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.constants.AttachmentSyncType;
+import io.metersphere.commons.utils.*;
+import io.metersphere.xpack.track.dto.*;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.issue.client.TapdClient;
-import io.metersphere.service.issue.domain.PlatformUser;
 import io.metersphere.service.issue.domain.tapd.TapdBug;
 import io.metersphere.service.issue.domain.tapd.TapdConfig;
-import io.metersphere.service.issue.domain.tapd.TapdGetIssueResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,6 +33,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
         this.key = IssuesManagePlatform.Tapd.name();
         tapdClient = new TapdClient();
         setConfig();
+    }
+
+    // xpack 反射调用
+    public TapdClient getTapdClient() {
+        return tapdClient;
     }
 
     @Override
@@ -211,7 +211,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 Map bug = (Map) issue.get("Bug");
                 String platformId = bug.get("id").toString();
                 String id = idMap.get(platformId);
-                IssuesWithBLOBs updateIssue = getUpdateIssue(issuesMapper.selectByPrimaryKey(id), bug, statusMap);
+                IssuesWithBLOBs updateIssue = getUpdateIssue(issuesMapper.selectByPrimaryKey(id), bug);
                 updateIssue.setId(id);
                 updateIssue.setCustomFields(syncIssueCustomField(updateIssue.getCustomFields(), bug));
                 customFieldMap.put(id, baseCustomFieldService.getCustomFieldResourceDTO(updateIssue.getCustomFields()));
@@ -232,7 +232,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         customFieldIssuesService.batchEditFields(customFieldMap);
     }
 
-    protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, Map bug, Map<String, String> statusMap) {
+    public IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, Map bug) {
         if (issue == null) {
             issue = new IssuesWithBLOBs();
             issue.setCustomFields(defaultCustomFields);
@@ -244,6 +244,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
         return issue;
     }
 
+    public IssuesWithBLOBs getUpdateIssue(Map bug) {
+        return getUpdateIssue(null, bug);
+    }
+
     private void parseIssue(IssuesWithBLOBs issue, Map bug) {
         TapdBug bugObj = JSON.parseObject(JSON.toJSONString(bug), TapdBug.class);
         BeanUtils.copyBean(issue, bugObj);
@@ -251,11 +255,15 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issue.setDescription(htmlDesc2MsDesc(issue.getDescription()));
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         issue.setPlatform(key);
-        issue.setCreateTime((Long) bug.get("created"));
-        issue.setUpdateTime((Long) bug.get("modified"));
+        try {
+            issue.setCreateTime(DateUtils.getTimestamp((String) bug.get("created")));
+            issue.setUpdateTime(DateUtils.getTimestamp((String) bug.get("modified")));
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
-    protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, Map bug, List<CustomFieldItemDTO> customField) {
+    public IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, Map bug, List<CustomFieldItemDTO> customField) {
         if (issue == null) {
             issue = new IssuesWithBLOBs();
             issue.setCustomFields(defaultCustomFields);

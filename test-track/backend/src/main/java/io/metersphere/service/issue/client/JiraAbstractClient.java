@@ -5,6 +5,8 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.issue.domain.jira.*;
+import io.metersphere.xpack.track.dto.JiraIssue;
+import io.metersphere.xpack.track.dto.JiraIssueListResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
@@ -45,7 +47,7 @@ public abstract class JiraAbstractClient extends BaseClient {
             MSException.throwException(e.getMessage());
         }
         try {
-             fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
+            fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
                     .getProjects().get(0).getIssuetypes().get(0).getFields();
         } catch (Exception e) {
             MSException.throwException(Translator.get("issue_jira_info_error"));
@@ -138,7 +140,7 @@ public abstract class JiraAbstractClient extends BaseClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
         try {
-           restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.PUT, requestEntity, String.class);
+            restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.PUT, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
@@ -242,11 +244,11 @@ public abstract class JiraAbstractClient extends BaseClient {
         PASSWD = config.getPassword();
     }
 
-    public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType) {
+    public JiraIssueListResponse getProjectIssues(Integer startAt, Integer maxResults, String projectKey, String issueType) {
         return getProjectIssues(startAt, maxResults, projectKey, issueType, null);
     }
 
-    public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType, String fields) {
+    public JiraIssueListResponse getProjectIssues(Integer startAt, Integer maxResults, String projectKey, String issueType, String fields) {
         ResponseEntity<String> responseEntity;
         String url = getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}";
         if (StringUtils.isNotBlank(fields)) {
@@ -264,7 +266,7 @@ public abstract class JiraAbstractClient extends BaseClient {
         return responseEntity.getBody();
     }
 
-    public JiraIssueListResponse getProjectIssuesAttachment(int startAt, int maxResults, String projectKey, String issueType) {
+    public JiraIssueListResponse getProjectIssuesAttachment(Integer startAt, Integer maxResults, String projectKey, String issueType) {
         return getProjectIssues(startAt, maxResults, projectKey, issueType, "attachment");
 
     }

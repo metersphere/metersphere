@@ -5,7 +5,8 @@ import io.metersphere.dto.*;
 
 import io.metersphere.plan.dto.PlanReportIssueDTO;
 import io.metersphere.request.testcase.IssuesCountRequest;
-import io.metersphere.request.testcase.IssuesRequest;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

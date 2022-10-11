@@ -13,7 +13,6 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.AttachmentType;
-import io.metersphere.constants.TestCaseTestType;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.excel.converter.TestCaseExportConverter;
@@ -36,16 +35,17 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.attachment.AttachmentRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testcase.*;
-import io.metersphere.service.issue.XpackIssueService;
+import io.metersphere.xpack.track.dto.EditTestCaseRequest;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.service.issue.platform.AbstractIssuePlatform;
 import io.metersphere.service.issue.platform.IssueFactory;
-import io.metersphere.service.remote.api.RelevanceApiCaseService;
-import io.metersphere.service.remote.performance.RelevanceLoadCaseService;
 import io.metersphere.service.remote.project.TrackTestCaseTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
 import io.metersphere.xmind.utils.XmindExportUtil;
+import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -56,7 +56,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,10 +134,6 @@ public class TestCaseService {
     private IssuesMapper issuesMapper;
     @Resource
     private RelationshipEdgeService relationshipEdgeService;
-    @Resource
-    private RelevanceApiCaseService relevanceApiCaseService;
-    @Resource
-    private RelevanceLoadCaseService relevanceLoadCaseService;
     //    @Resource
 //    @Lazy
 //    private ApiTestCaseService apiTestCaseService;
@@ -259,7 +254,7 @@ public class TestCaseService {
         Project project = baseProjectService.getProjectById(request.getProjectId());
         if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
             updateRequest.setWorkspaceId(project.getWorkspaceId());
-            List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
+            List<IssuesPlatform> platformList = getAddPlatforms(updateRequest);
             platformList.forEach(platform -> {
                 platform.updateDemandHyperLink(request, project, type);
             });
@@ -293,7 +288,7 @@ public class TestCaseService {
         }
     }
 
-    private List<AbstractIssuePlatform> getAddPlatforms(IssuesRequest request) {
+    private List<IssuesPlatform> getAddPlatforms(IssuesRequest request) {
         List<String> platforms = new ArrayList<>();
         // 缺陷管理关联
         platforms.add(issuesService.getPlatform(request.getProjectId()));
@@ -417,10 +412,19 @@ public class TestCaseService {
      * @param testCase
      */
     public void updateThirdPartyIssuesLink(EditTestCaseRequest testCase) {
-        XpackIssueService issueService = CommonBeanFactory.getBean(XpackIssueService.class);
-        if (issueService != null) {
-            issueService.updateThirdPartyIssuesLink(testCase);
+        if (StringUtils.isBlank(testCase.getProjectId())) {
+            return;
         }
+        Project project = baseProjectService.getProjectById(testCase.getProjectId());
+        IssuesRequest issuesRequest = new IssuesRequest();
+        if (!issuesService.isThirdPartTemplate(project)) {
+            issuesRequest.setDefaultCustomFields(issuesService.getDefaultCustomFields(testCase.getProjectId()));
+        }
+        issuesRequest.setProjectId(testCase.getProjectId());
+        issuesRequest.setWorkspaceId(project.getWorkspaceId());
+        IssueFactory.createPlatform(issuesService.getPlatform(testCase.getProjectId()), issuesRequest)
+                .updateDemandIssueLink(testCase, project);
+
     }
 
     /**
@@ -1417,9 +1421,7 @@ public class TestCaseService {
     public void testCaseExport(HttpServletResponse response, TestCaseExportRequest request) {
         String projectId = request.getProjectId();
         request.getCondition().setStatusIsNot(CommonConstants.TrashStatus);
-        TestCaseBatchRequest batchRequest = new TestCaseBatchRequest();
-        BeanUtils.copyBean(batchRequest, request);
-        List<TestCaseDTO> testCases = getExportData(batchRequest);
+        List<TestCaseDTO> testCases = getExportData(request);
         List<List<String>> headList = getTestcaseExportHeads(request);
 
         Map<Integer, Integer> rowMergeInfo = new HashMap<>();
@@ -2587,53 +2589,56 @@ public class TestCaseService {
         List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
         Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
                 .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
-        List<ApiTestCase> apiCases = relevanceApiCaseService.getApiCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.testcase.name()));
-        List<ApiScenario> apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.automation.name()));
-        List<LoadTest> apiLoadTests = relevanceLoadCaseService.getLoadCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.performance.name()));
-        List<String> projectIds = apiCases.stream().map(c -> c.getProjectId()).collect(Collectors.toList());
-        projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-        projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-        projectIds = projectIds.stream().distinct().collect(Collectors.toList());
+//        List<ApiTestCase> apiCases = apiTestCaseService.getApiCaseByIds(
+//                getTestIds(testCaseTests, TestCaseTestType.testcase.name())
+//        );
+//        List<ApiScenario> apiScenarios = apiAutomationService.getScenarioCaseByIds(
+//                getTestIds(testCaseTests, TestCaseTestType.automation.name())
+//        );
+//        List<LoadTest> apiLoadTests = performanceTestService.getLoadCaseByIds(
+//                getTestIds(testCaseTests, TestCaseTestType.performance.name())
+//        );
+//        List<String> projectIds = apiCases.stream().map(c -> c.getProjectId()).collect(Collectors.toList());
+//        projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+//        projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+//        projectIds = projectIds.stream().distinct().collect(Collectors.toList());
+//
+//        List<String> versionIds = apiCases.stream().map(c -> c.getVersionId()).collect(Collectors.toList());
+//        versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+//        versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+//        versionIds = versionIds.stream().distinct().collect(Collectors.toList());
+//
+//        ProjectExample projectExample = new ProjectExample();
+//        projectExample.createCriteria().andIdIn(projectIds);
+//        List<Project> projects = new ArrayList<>();
+//        if (CollectionUtils.isNotEmpty(projectIds)) {
+//            projects = projectMapper.selectByExample(projectExample);
+//        }
+//
+//        Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+//
+//        ProjectVersionExample versionExample = new ProjectVersionExample();
+//        versionExample.createCriteria().andIdIn(versionIds);
+//        List<ProjectVersion> projectVersions = new ArrayList<>();
+//        if (CollectionUtils.isNotEmpty(versionIds)) {
+//            projectVersions = projectVersionMapper.selectByExample(versionExample);
+//        }
 
-        List<String> versionIds = apiCases.stream().map(c -> c.getVersionId()).collect(Collectors.toList());
-        versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
-        versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
-        versionIds = versionIds.stream().distinct().collect(Collectors.toList());
-
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andIdIn(projectIds);
-        List<Project> projects = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(projectIds)) {
-            projects = projectMapper.selectByExample(projectExample);
-        }
-
-        Map<String, String> projectNameMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getName));
-
-        ProjectVersionExample versionExample = new ProjectVersionExample();
-        versionExample.createCriteria().andIdIn(versionIds);
-        List<ProjectVersion> projectVersions = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(versionIds)) {
-            projectVersions = projectVersionMapper.selectByExample(versionExample);
-        }
-
-        Map<String, String> verisonNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
-
+//        Map<String, String> verisonNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+//
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
-        apiCases.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
-        });
-        apiScenarios.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
-        });
-        apiLoadTests.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
-                    testCaseTestList, testCaseTestsMap);
-        });
+//        apiCases.forEach(item -> {
+//            getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+//                    testCaseTestList, testCaseTestsMap);
+//        });
+//        apiScenarios.forEach(item -> {
+//            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+//                    testCaseTestList, testCaseTestsMap);
+//        });
+//        apiLoadTests.forEach(item -> {
+//            getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+//                    testCaseTestList, testCaseTestsMap);
+//        });
         return testCaseTestList;
     }
 
