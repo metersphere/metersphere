@@ -1,5 +1,5 @@
 <template>
-  <ms-container v-if="isShow && !loading"  >
+  <ms-container v-if="isShow && !loading">
     <ms-aside-container>
       <api-base-info
         ref="apiBaseInfo"
@@ -139,7 +139,6 @@ import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/EditApiCase";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import _ from 'lodash';
 import {useApiStore} from "@/store";
 import ApiBaseInfo from "@/business/definition/components/complete/ApiBaseInfo";
 import {getProjectMemberOption} from "@/api/project";
@@ -467,8 +466,8 @@ export default {
       }
     },
     getMaintainerOptions() {
-      getProjectMemberOption(data => {
-        this.maintainerOptions = data;
+      getProjectMemberOption().then(res => {
+        this.maintainerOptions = res.data;
       });
     },
   }
