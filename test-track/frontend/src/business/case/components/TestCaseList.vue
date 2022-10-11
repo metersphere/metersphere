@@ -405,7 +405,7 @@ export default {
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
       memberMap: new Map(),
       rowCase: {},
-      rowCaseResult: {},
+      rowCaseResult: {loading: false},
       userFilter: []
     };
   },
@@ -758,6 +758,7 @@ export default {
 
       getTestCaseStep(id)
         .then(response => {
+          this.rowCaseResult.loading = false;
           this.rowCase = response.data;
           this.rowCase.steps = JSON.parse(this.rowCase.steps);
           if (!this.rowCase.steps || this.rowCase.length < 1) {
