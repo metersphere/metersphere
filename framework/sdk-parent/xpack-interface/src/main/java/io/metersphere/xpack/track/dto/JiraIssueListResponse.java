@@ -1,4 +1,4 @@
-package io.metersphere.service.issue.domain.jira;
+package io.metersphere.xpack.track.dto;
 
 import lombok.Getter;
 import lombok.Setter;

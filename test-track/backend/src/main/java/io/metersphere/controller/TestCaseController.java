@@ -24,6 +24,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.wapper.CheckPermissionService;
+import io.metersphere.xpack.track.dto.EditTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;

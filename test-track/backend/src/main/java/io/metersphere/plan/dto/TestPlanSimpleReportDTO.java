@@ -3,6 +3,7 @@ package io.metersphere.plan.dto;
 
 import io.metersphere.base.domain.TestPlanReportContent;
 import io.metersphere.dto.*;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import lombok.Getter;
 import lombok.Setter;
 

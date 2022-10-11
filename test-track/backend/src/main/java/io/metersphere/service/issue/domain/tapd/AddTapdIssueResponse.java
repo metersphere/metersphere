@@ -1,5 +1,6 @@
 package io.metersphere.service.issue.domain.tapd;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ public class AddTapdIssueResponse {
     @Getter
     @Setter
     public static class Data {
+        @JsonAlias("Bug")
         private TapdBug bug;
     }
 
