@@ -310,6 +310,7 @@
             :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData"
             @runRefresh="runRefresh"
+            @errorRefresh="errorRefresh"
             ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
@@ -1161,6 +1162,9 @@ export default {
     },
     runRefresh(row) {
       this.$set(row, "isStop", false);
+    },
+    errorRefresh() {
+      this.search();
     },
     run(row) {
       this.scenarioId = row.id;
