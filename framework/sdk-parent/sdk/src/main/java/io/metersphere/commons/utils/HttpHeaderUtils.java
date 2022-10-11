@@ -1,11 +1,10 @@
 package io.metersphere.commons.utils;
 
+import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.UserKey;
 import io.metersphere.commons.constants.ApiKeyConstants;
 import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
-import io.metersphere.dto.UserDTO;
 import io.metersphere.service.UserKeyService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,14 +13,13 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 服务之间调用，需要添加HttpHeader,获取的时候注意当前线程的位置
  */
 public class HttpHeaderUtils {
 
-    private static final ThreadLocal<UserDTO> sessionUserThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<User> sessionUserThreadLocal = new ThreadLocal<>();
 
     public static HttpHeaders getHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -55,7 +53,7 @@ public class HttpHeaderUtils {
         }
 
 
-        UserDTO user = sessionUserThreadLocal.get();
+        User user = sessionUserThreadLocal.get();
         if (user != null) {
             UserKey userKey = getUserKey(user);
             accessKey = userKey.getAccessKey();
@@ -68,7 +66,7 @@ public class HttpHeaderUtils {
         return headers;
     }
 
-    private static UserKey getUserKey(UserDTO user) {
+    private static UserKey getUserKey(User user) {
         UserKeyService userKeyService = CommonBeanFactory.getBean(UserKeyService.class);
         List<UserKey> userKeys = userKeyService.getUserKeysInfo(user.getId());
         UserKey userKey;
@@ -84,7 +82,7 @@ public class HttpHeaderUtils {
         return userKey;
     }
 
-    public static void runAsUser(UserDTO user) {
+    public static void runAsUser(User user) {
         if (user != null) {
             if (StringUtils.isBlank(user.getId())) {
                 throw new IllegalArgumentException("User ID can't be null or empty.");

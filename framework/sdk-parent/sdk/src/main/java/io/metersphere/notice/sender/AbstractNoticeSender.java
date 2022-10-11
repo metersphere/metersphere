@@ -1,13 +1,19 @@
 package io.metersphere.notice.sender;
 
+import io.metersphere.base.domain.TestCaseReview;
+import io.metersphere.base.domain.User;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.BaseUserMapper;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.NotificationConstants;
+import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
+import io.metersphere.service.MicroService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -23,6 +29,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     private BaseUserMapper baseUserMapper;
+    @Resource
+    private MicroService microService;
+    @Resource
+    private UserMapper userMapper;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
         // 如果有自定义字段
@@ -151,7 +161,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
-                    toUsers.addAll(handleFollows(messageDetail, noticeModel));
+                    try {
+                        List<Receiver> follows = handleFollows(messageDetail, noticeModel);
+                        toUsers.addAll(follows);
+                    } catch (Exception e) {
+                        LogUtil.error("查询关注人失败: ", e);
+                    }
                     break;
                 case NoticeConstants.RelatedUser.PROCESSOR:
                     Object value = paramMap.get("processor"); // 处理人
@@ -172,55 +187,66 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
     private List<Receiver> handleFollows(MessageDetail messageDetail, NoticeModel noticeModel) {
         List<Receiver> receivers = new ArrayList<>();
-        // todo
-//        String id = (String) noticeModel.getParamMap().get("id");
-//        String taskType = messageDetail.getTaskType();
-//        switch (taskType) {
-//            case NoticeConstants.TaskType.TEST_PLAN_TASK:
-//                receivers = testPlanService.getPlanFollow(id)
-//                        .stream()
-//                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                break;
-//            case NoticeConstants.TaskType.REVIEW_TASK:
-//                TestCaseReview request = new TestCaseReview();
-//                request.setId(id);
-//                receivers = testCaseReviewService.getFollowByReviewId(request).stream()
-//                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                break;
-//            case NoticeConstants.TaskType.API_AUTOMATION_TASK:
-//                receivers = apiAutomationService.getFollows(id)
-//                        .stream()
-//                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                break;
-//            case NoticeConstants.TaskType.API_DEFINITION_TASK:
-//                receivers = apiDefinitionService.getFollows(id)
-//                        .stream()
-//                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                List<Receiver> caseFollows = apiTestCaseService.getFollows(id)
-//                        .stream()
-//                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                receivers.addAll(caseFollows);
-//                break;
-//            case NoticeConstants.TaskType.PERFORMANCE_TEST_TASK:
-//                receivers = performanceTestService.getFollows(id)
-//                        .stream()
-//                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                break;
-//            case NoticeConstants.TaskType.TRACK_TEST_CASE_TASK:
-//                receivers = testCaseService.getFollows(id)
-//                        .stream()
-//                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-//                        .collect(Collectors.toList());
-//                break;
-//            default:
-//                break;
-//        }
+        List<String> follows;
+        List<User> followUsers;
+        String id = (String) noticeModel.getParamMap().get("id");
+        String taskType = messageDetail.getTaskType();
+        String operator = noticeModel.getOperator();
+        HttpHeaderUtils.runAsUser(userMapper.selectByPrimaryKey(operator));
+        switch (taskType) {
+            case NoticeConstants.TaskType.TEST_PLAN_TASK:
+                followUsers = microService.getForDataArray(MicroServiceName.TEST_TRACK, "/test/plan/follow/" + id, User.class);
+                receivers = followUsers
+                        .stream()
+                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.REVIEW_TASK:
+                TestCaseReview request = new TestCaseReview();
+                request.setId(id);
+                followUsers = microService.postForDataArray(MicroServiceName.TEST_TRACK, "/test/case/review/follow", request, User.class);
+                receivers = followUsers
+                        .stream()
+                        .map(user -> new Receiver(user.getId(), NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.API_AUTOMATION_TASK:
+                follows = microService.getForDataArray(MicroServiceName.API_TEST, "/api/automation/follow/" + id, String.class);
+                receivers = follows
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.API_DEFINITION_TASK:
+                follows = microService.getForDataArray(MicroServiceName.API_TEST, "/api/definition/follow/" + id, String.class);
+                receivers = follows
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                follows = microService.getForDataArray(MicroServiceName.API_TEST, "/api/testcase/follow/" + id, String.class);
+                List<Receiver> caseFollows = follows
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                receivers.addAll(caseFollows);
+                break;
+            case NoticeConstants.TaskType.PERFORMANCE_TEST_TASK:
+                follows = microService.getForDataArray(MicroServiceName.PERFORMANCE_TEST, "/performance/test/follow/" + id, String.class);
+                receivers = follows
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            case NoticeConstants.TaskType.TRACK_TEST_CASE_TASK:
+                follows = microService.getForDataArray(MicroServiceName.TEST_TRACK, "/test/case/follow/" + id, String.class);
+                receivers = follows
+                        .stream()
+                        .map(userId -> new Receiver(userId, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                        .collect(Collectors.toList());
+                break;
+            default:
+                break;
+        }
         LogUtil.info("FOLLOW_PEOPLE: {}", receivers);
         return receivers;
     }
