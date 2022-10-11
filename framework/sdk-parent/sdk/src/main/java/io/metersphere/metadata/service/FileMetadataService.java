@@ -456,17 +456,24 @@ public class FileMetadataService {
         final FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         this.initBase(fileMetadata);
         fileMetadata.setName(fileName);
-        fileMetadata.setSize(fileSize);
-        String fileType = MetadataUtils.getFileType(fileName);
-        fileMetadata.setType(fileType);
-        checkName(fileMetadata);
-        FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
-        String path = fileManagerService.upload(fileByte, request);
-        fileMetadata.setPath(path);
-        fileMetadata.setLatest(true);
-        fileMetadata.setRefId(fileMetadata.getId());
-        fileMetadataMapper.insert(fileMetadata);
-        return fileMetadata;
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(fileMetadata.getProjectId()).andNameEqualTo(fileMetadata.getName());
+        List<FileMetadata> list = fileMetadataMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0);
+        } else {
+            fileMetadata.setSize(fileSize);
+            String fileType = MetadataUtils.getFileType(fileName);
+            fileMetadata.setType(fileType);
+            checkName(fileMetadata);
+            FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
+            String path = fileManagerService.upload(fileByte, request);
+            fileMetadata.setPath(path);
+            fileMetadata.setLatest(true);
+            fileMetadata.setRefId(fileMetadata.getId());
+            fileMetadataMapper.insert(fileMetadata);
+            return fileMetadata;
+        }
     }
 
     private void initBase(FileMetadata fileMetadata) {

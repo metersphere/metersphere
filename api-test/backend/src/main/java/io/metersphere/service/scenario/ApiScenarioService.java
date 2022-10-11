@@ -1556,8 +1556,8 @@ public class ApiScenarioService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 HashTreeInfoDTO hashTreeInfoDTO = generateJmx(item);
                 if (StringUtils.isNotEmpty(hashTreeInfoDTO.getJmx())) {
-                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), DataFormattingUtil.updateJmxString(hashTreeInfoDTO.getJmx(), false).getXml());
                     JmxInfoDTO dto = DataFormattingUtil.updateJmxString(hashTreeInfoDTO.getJmx(), true);
+                    ApiScenarioExportJmxDTO scenariosExportJmx = new ApiScenarioExportJmxDTO(item.getName(), dto.getXml());
                     dto.addFileMetadataLists(hashTreeInfoDTO.getRepositoryFiles());
                     scenariosExportJmx.setId(item.getId());
                     scenariosExportJmx.setVersion(item.getVersion());
