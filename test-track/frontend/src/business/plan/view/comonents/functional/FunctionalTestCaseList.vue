@@ -285,7 +285,6 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {
   buildBatchParam,
-  getCustomFieldValue,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
@@ -307,7 +306,7 @@ import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-consta
 import {getTestPlanTestCase} from "@/api/testCase";
 import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/TestPlanCaseIssueItem";
 import {getProjectVersions} from "@/api/project";
-import {getProjectMemberOption} from "@/business/utils/sdk-utils";
+import {getCustomFieldValueForTrack, getProjectMemberOption} from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
   testPlanTestCaseBatchEdit,
@@ -560,7 +559,7 @@ export default {
       });
     },
     getCustomFieldValue(row, field) {
-      return getCustomFieldValue(row, field, this.members);
+      return getCustomFieldValueForTrack(row, field, this.members);
     },
     initTableData(callback) {
       initCondition(this.condition, this.condition.selectAll);

@@ -223,7 +223,12 @@ export default {
       getCustomField(id)
         .then(res => {
           this.loading = false;
-          this.customField = res ? res.data : {};
+          if (res) {
+            res.data.defaultValue = null;
+            this.customField = res.data;
+          } else {
+            this.customField = {defaultValue: null};
+          }
           this.customField.options = JSON.parse(this.customField.options);
           if (this.customField.type === 'checkbox' || this.customField.type === 'multipleMember') {
             this.customField.defaultValue = [];
