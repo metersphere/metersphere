@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import {getLogDetailById} from "../../../api/operating-log";
+import {getLogDetailById} from "../../api/operating-log";
 
 const jsondiffpatch = require('jsondiffpatch');
   const formattersHtml = jsondiffpatch.formatters.html;
