@@ -47,10 +47,10 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         String successContext = "${operator}执行性能测试成功: ${name}, 报告: ${reportUrl}";
         String failedContext = "${operator}执行性能测试失败: ${name}, 报告: ${reportUrl}";
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())) {
-            subject = Translator.get("task_notification_jenkins");
+            subject = "Jenkins任务通知";
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
-            subject = Translator.get("task_notification");
+            subject = "任务通知";
         }
 
         if (PerformanceTestStatus.Completed.name().equals(loadTestReport.getStatus())) {

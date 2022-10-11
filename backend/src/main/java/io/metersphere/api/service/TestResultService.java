@@ -276,10 +276,10 @@ public class TestResultService {
         String failedContext = "${operator}执行接口自动化失败: ${name}" + ", 报告: ${reportUrl}";
 
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            subject = Translator.get("task_notification_jenkins");
+            subject = "Jenkins任务通知";
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            subject = Translator.get("task_notification");
+            subject = "任务通知";
         }
         if (StringUtils.equals("Success", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
