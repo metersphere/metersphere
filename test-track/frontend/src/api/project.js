@@ -15,18 +15,10 @@ export function getCurrentProject(callback) {
 }
 
 export function getVersionFilters(projectId) {
-  if (hasLicense() && projectId) {
-    return new Promise((resolve) => {
-      get('/project/version/get-project-versions/' + projectId)
-        .then(r => {
-          let versionFilters = r.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-          resolve(versionFilters);
-        });
-    });
+  if (projectId) {
+    return get('/project/version/get-project-versions/' + projectId);
   }
-  return new Promise(() => {});
+  return {};
 }
 
 

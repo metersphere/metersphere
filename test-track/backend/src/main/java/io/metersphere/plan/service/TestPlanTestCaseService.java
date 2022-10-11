@@ -12,10 +12,7 @@ import io.metersphere.commons.constants.ProjectApplicationType;
 
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.PlanReportCaseDTO;
@@ -43,6 +40,7 @@ import io.metersphere.dto.*;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.request.testreview.SaveCommentRequest;
 import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -117,9 +115,14 @@ public class TestPlanTestCaseService {
             queryMemberRequest.setProjectId(request.getProjectId());
             Map<String, String> userMap = baseUserService.getProjectMemberList(queryMemberRequest)
                     .stream().collect(Collectors.toMap(User::getId, User::getName));
+            List<String> versionIds = list.stream().map(TestPlanCaseDTO::getVersionId).collect(Collectors.toList());
+            ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+            Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                    .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
             list.forEach(item -> {
                 item.setExecutorName(userMap.get(item.getExecutor()));
                 item.setMaintainerName(userMap.get(item.getMaintainer()));
+                item.setVersionName(projectVersionMap.get(item.getVersionId()));
             });
         }
         return list;

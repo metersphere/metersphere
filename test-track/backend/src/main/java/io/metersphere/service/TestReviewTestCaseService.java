@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewUsersMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.vo.DetailColumn;
@@ -20,6 +21,7 @@ import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
+import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -71,11 +73,16 @@ public class TestReviewTestCaseService {
         queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentProjectId());
         Map<String, String> userMap = baseUserService.getMemberList(queryMemberRequest)
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
+        List<String> versionIds = list.stream().map(TestReviewCaseDTO::getVersionId).collect(Collectors.toList());
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
         list.forEach(item -> {
             String reviewId = item.getReviewId();
             List<String> userIds = getReviewUserIds(reviewId);
             item.setReviewerName(getReviewName(userIds, userMap));
             item.setMaintainerName(userMap.get(item.getMaintainer()));
+            item.setVersionName(projectVersionMap.get(item.getVersionId()));
         });
         return list;
     }
