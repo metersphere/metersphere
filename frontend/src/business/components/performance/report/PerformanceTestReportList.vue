@@ -178,6 +178,7 @@ import SameTestReports from "@/business/components/performance/report/components
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {hasPermission} from "../../../../common/js/utils";
 
 export default {
   name: "PerformanceTestReportList",
@@ -448,6 +449,9 @@ export default {
       }
     },
     openReNameDialog($event) {
+      if (!hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE')) {
+        return false;
+      }
       this.$refs.renameDialog.open($event);
     },
     rename(data) {
