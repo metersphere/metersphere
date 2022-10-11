@@ -492,8 +492,8 @@ export default {
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.hasSchedulePermission = hasPermission('PROJECT_TRACK_PLAN:READ+SCHEDULE');
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-    getPlanStageOption((data) => {
-      this.stageOption = data;
+    getPlanStageOption().then(r => {
+      this.stageOption = r.data;
       this.setAdvSearchStageOption();
       if (this.stageOption.length > 0) {
         this.stageFilters = this.stageOption;

@@ -16,7 +16,12 @@
         stage: {
           type: String
         },
-        option: []
+        option: {
+          type:Array,
+          default() {
+            return [];
+          }
+        }
       }
     }
 </script>
