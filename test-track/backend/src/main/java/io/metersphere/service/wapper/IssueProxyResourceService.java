@@ -3,7 +3,7 @@ package io.metersphere.service.wapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.request.testcase.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.service.issue.platform.IssueFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;

@@ -1,16 +1,11 @@
-package io.metersphere.service.issue;
+package io.metersphere.xpack.track.issue;
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
-import io.metersphere.constants.AttachmentSyncType;
-import io.metersphere.dto.IssueTemplateDao;
-import io.metersphere.dto.IssuesDao;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.DemandDTO;
-import io.metersphere.service.issue.domain.PlatformUser;
-import io.metersphere.request.testcase.EditTestCaseRequest;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.track.dto.*;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
@@ -123,4 +118,12 @@ public interface IssuesPlatform {
      * @param syncType 同步操作类型: UPLOAD, DELETE
      */
     void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType);
+
+
+    /**
+     * 获取第三方平台的状态集合
+     * @param issueKey
+     * @return
+     */
+    List<PlatformStatusDTO> getTransitions(String issueKey);
 }

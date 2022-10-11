@@ -2,7 +2,8 @@ package io.metersphere.service.issue.platform;
 
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.request.testcase.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class IssueFactory {
-    public static AbstractIssuePlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
+    public static IssuesPlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
         if (StringUtils.equals(IssuesManagePlatform.Tapd.toString(), platform)) {
             return new TapdPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.Jira.toString(), platform)) {
@@ -22,9 +23,9 @@ public class IssueFactory {
         } else if (StringUtils.equals(IssuesManagePlatform.AzureDevops.toString(), platform)) {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {
-                Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
+                Class clazz = loader.loadClass("io.metersphere.xpack.track.issue.platform.AzureDevopsPlatform");
                 Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
-                AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(addIssueRequest);
+                IssuesPlatform azureDevopsPlatform = (IssuesPlatform) cons.newInstance(addIssueRequest);
                 return azureDevopsPlatform;
             } catch (Throwable e) {
                 LogUtil.error(e);
@@ -35,10 +36,10 @@ public class IssueFactory {
         return null;
     }
 
-    public static List<AbstractIssuePlatform> createPlatforms(List<String> types, IssuesRequest addIssueRequest) {
-        List<AbstractIssuePlatform> platforms = new ArrayList<>();
+    public static List<IssuesPlatform> createPlatforms(List<String> types, IssuesRequest addIssueRequest) {
+        List<IssuesPlatform> platforms = new ArrayList<>();
         types.forEach(type -> {
-            AbstractIssuePlatform abstractIssuePlatform = createPlatform(type, addIssueRequest);
+            IssuesPlatform abstractIssuePlatform = createPlatform(type, addIssueRequest);
             if (abstractIssuePlatform != null) {
                 platforms.add(abstractIssuePlatform);
             }
@@ -46,10 +47,10 @@ public class IssueFactory {
         return platforms;
     }
 
-    public static Map<String, AbstractIssuePlatform> createPlatformsForMap(List<String> types, IssuesRequest addIssueRequest) {
-        Map<String, AbstractIssuePlatform> platformMap = new HashMap<>();
+    public static Map<String, IssuesPlatform> createPlatformsForMap(List<String> types, IssuesRequest addIssueRequest) {
+        Map<String, IssuesPlatform> platformMap = new HashMap<>();
         types.forEach(type -> {
-            AbstractIssuePlatform abstractIssuePlatform = createPlatform(type, addIssueRequest);
+            IssuesPlatform abstractIssuePlatform = createPlatform(type, addIssueRequest);
             if (abstractIssuePlatform != null) {
                 platformMap.put(type, abstractIssuePlatform);
             }

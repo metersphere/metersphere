@@ -1,6 +1,7 @@
 package io.metersphere.dto;
 
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import lombok.Getter;
 import lombok.Setter;
 

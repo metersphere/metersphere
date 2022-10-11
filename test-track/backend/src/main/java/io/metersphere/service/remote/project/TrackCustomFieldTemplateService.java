@@ -11,6 +11,6 @@ public class TrackCustomFieldTemplateService extends TrackProjectSettingService 
     private static final String BASE_UEL = "/custom/field/template";
 
     public List<CustomFieldDao> getCustomFieldByTemplateId(String templateId) {
-        return microService.getForDataArray(serviceName, BASE_UEL + templateId, CustomFieldDao.class);
+        return microService.getForDataArray(serviceName, BASE_UEL + "/list/" + templateId, CustomFieldDao.class);
     }
 }

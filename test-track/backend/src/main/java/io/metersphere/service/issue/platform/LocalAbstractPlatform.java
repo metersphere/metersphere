@@ -1,10 +1,10 @@
 package io.metersphere.service.issue.platform;
 
 import io.metersphere.base.domain.Project;
-import io.metersphere.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.request.testcase.IssuesRequest;
-import io.metersphere.service.issue.domain.PlatformUser;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.PlatformUser;
 
 import java.util.List;
 

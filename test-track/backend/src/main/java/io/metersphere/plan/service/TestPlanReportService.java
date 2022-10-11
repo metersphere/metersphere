@@ -25,6 +25,7 @@ import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +73,7 @@ public class TestPlanReportService {
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
-//    @Resource
+    //    @Resource
 //    private PerformanceTestService performanceTestService;
     @Resource
     private PlanApiDefinitionExecResultService planApiDefinitionExecResultService;
@@ -1022,7 +1023,7 @@ public class TestPlanReportService {
             TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanScenarioCaseService.generateEnvironmentInfo(testPlanReport);
             BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
         } catch (Exception e) {
-           LogUtil.error(e);
+            LogUtil.error(e);
         }
     }
 

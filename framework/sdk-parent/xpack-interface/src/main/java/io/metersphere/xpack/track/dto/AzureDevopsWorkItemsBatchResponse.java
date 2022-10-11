@@ -1,4 +1,4 @@
-package io.metersphere.service.issue.domain.azure;
+package io.metersphere.xpack.track.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ public class AzureDevopsWorkItemsBatchResponse {
 
     @Getter
     @Setter
-    public class Value {
+    public static class Value {
         private int id;
         private int rev;
         private Map fields;

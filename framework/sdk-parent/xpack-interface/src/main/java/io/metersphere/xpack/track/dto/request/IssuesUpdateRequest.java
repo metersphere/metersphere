@@ -1,11 +1,11 @@
-package io.metersphere.request.testcase;
+package io.metersphere.xpack.track.dto.request;
 
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.CustomFieldResourceDTO;
 
-import io.metersphere.dto.PlatformStatusDTO;
+import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
 

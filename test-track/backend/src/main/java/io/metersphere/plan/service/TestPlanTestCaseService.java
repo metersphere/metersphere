@@ -42,6 +42,7 @@ import io.metersphere.service.ServiceUtils;
 import io.metersphere.dto.*;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.request.testreview.SaveCommentRequest;
+import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

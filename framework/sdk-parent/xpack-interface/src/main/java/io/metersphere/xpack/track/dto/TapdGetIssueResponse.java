@@ -1,4 +1,4 @@
-package io.metersphere.service.issue.domain.tapd;
+package io.metersphere.xpack.track.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,9 +8,6 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class TapdGetIssueResponse {
-
-    private int status;
+public class TapdGetIssueResponse extends TapdBaseResponse {
     private List<Map> data;
-    private String info;
 }

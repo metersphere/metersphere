@@ -119,6 +119,10 @@ public class DateUtils {
         return dateSum(now, countDays).getTime() / 1000 * 1000;
     }
 
+    public static Long getTimestamp(String dateString) throws Exception {
+        return getDate(dateString).getTime();
+    }
+
     /**
      * 获取当天的起始时间Date
      *

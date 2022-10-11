@@ -1,6 +1,6 @@
 package io.metersphere.service.remote.project;
 
-import io.metersphere.dto.IssueTemplateDao;
+import io.metersphere.xpack.track.dto.IssueTemplateDao;
 import org.springframework.stereotype.Service;
 
 @Service
