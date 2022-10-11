@@ -141,17 +141,21 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
+        //工作台逻辑
+        initRequestBySearch(request);
         request = this.initRequest(request, true, true);
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
-
         buildUserInfo(apiTestCases, request.isSelectEnvironment());
         return apiTestCases;
     }
 
     public Long getToBeUpdatedTime(String projectId) {
+        if (StringUtils.isBlank(projectId)) {
+            return getTimeMills(System.currentTimeMillis(), DEFAULT_TIME_DATE);
+        }
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andTypeEqualTo(ProjectApplicationType.OPEN_UPDATE_TIME.name()).andProjectIdEqualTo(projectId);
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
@@ -1113,19 +1117,16 @@ public class ApiTestCaseService {
         if (!request.isToBeUpdated()) {
             return;
         }
-        if (StringUtils.isBlank(request.getProjectId())) {
-            long toBeUpdatedTime = getTimeMills(System.currentTimeMillis(), DEFAULT_TIME_DATE);
-            request.setToBeUpdateTime(toBeUpdatedTime);
-            request.setUpdateTime(toBeUpdatedTime);
-            List<String> syncRuleCaseStatus = new ArrayList<>();
-            syncRuleCaseStatus.add(ApiReportStatus.ERROR.name());
-            request.setStatusList(syncRuleCaseStatus);
-            return;
-        }
         Long toBeUpdatedTime = this.getToBeUpdatedTime(request.getProjectId());
         if (toBeUpdatedTime != null) {
             request.setToBeUpdateTime(toBeUpdatedTime);
             request.setUpdateTime(toBeUpdatedTime);
+        }
+        if (StringUtils.isBlank(request.getProjectId())) {
+            List<String> syncRuleCaseStatus = new ArrayList<>();
+            syncRuleCaseStatus.add(ApiReportStatus.ERROR.name());
+            request.setStatusList(syncRuleCaseStatus);
+            return;
         }
         if (request.isNoSearchStatus()) {
             request.setStatusList(new ArrayList<>());
