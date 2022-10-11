@@ -6,7 +6,7 @@
     v-bind="$attrs">
     <template v-slot="scope">
       <el-select
-        v-loading="result.loading"
+        v-loading="loading"
         v-model="scope.component.value"
         :placeholder="$t('commons.please_select')"
         :popper-append-to-body="false"
@@ -51,7 +51,8 @@
 import MsTableSearchComponent from "./MsTableSearchComponet";
 import MsNodeTree from "../module/MsNodeTree";
 import {cloneDeep} from "lodash";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID} from "../../utils/token";
+import {get, post} from "../../plugins/request";
 
 
 export default {
@@ -64,7 +65,7 @@ export default {
   data() {
     return {
       treeOptions: [],
-      result: {},
+      loading: false,
       treeNodes: [],
       filterText: '',
     }
@@ -87,15 +88,15 @@ export default {
       if (!url) return;
       url += '/' + getCurrentProjectID();
       if (type === "POST") {
-        this.result = this.$post(url, params || {}, response => {
+        this.loading = post(url, params || {}).then(response => {
           this.handleTreeNodes(response.data);
-        });
+        })
         return;
       }
       if (type === "GET") {
-        this.result = this.$get(this.handleGETUrl(url, params), response => {
+        this.loading = get(this.handleGETUrl(url, params)).then(response => {
           this.handleTreeNodes(response.data);
-        });
+        })
       }
     },
     reload() {

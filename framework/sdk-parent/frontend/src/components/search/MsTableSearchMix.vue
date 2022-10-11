@@ -1,13 +1,16 @@
 <template>
-  <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs" v-on="$listeners">
+  <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs"
+                             v-on="$listeners">
     <template v-slot="scope">
-      <el-select v-if="!component.showInput" v-model="scope.component.value" :placeholder="$t('commons.please_select')" size="small"
-                 filterable v-bind="scope.component.props" class="search-select" v-loading="result.loading">
+      <el-select v-if="!component.showInput" v-model="scope.component.value" :placeholder="$t('commons.please_select')"
+                 size="small"
+                 filterable v-bind="scope.component.props" class="search-select" v-loading="loading">
         <el-option v-for="op in options" :key="op.value" :label="label(op)" :value="op.value">
-          <span class="demand-span">{{label(op)}}</span>
+          <span class="demand-span">{{ label(op) }}</span>
         </el-option>
       </el-select>
-      <el-input v-model="scope.component.value" v-if="component.showInput" :placeholder="$t('commons.input_content')" size="small"/>
+      <el-input v-model="scope.component.value" v-if="component.showInput" :placeholder="$t('commons.input_content')"
+                size="small"/>
     </template>
   </ms-table-search-component>
 </template>
@@ -15,6 +18,7 @@
 <script>
 import MsTableSearchComponent from "./MsTableSearchComponet";
 import {getCurrentProjectID, getCurrentUser} from "../../utils/token";
+import {get} from "../../plugins/request";
 
 export default {
   name: "MsTableSearchMix",
@@ -23,9 +27,7 @@ export default {
   inheritAttrs: false,
   data() {
     return {
-      result: {
-        loading: false
-      },
+      loading: false,
       options: !(this.component.options instanceof Array) ? [] : this.component.options || []
     }
   },
@@ -37,7 +39,7 @@ export default {
         projectId = getCurrentUser().lastProjectId;
       }
       this.component.options.url += '/' + projectId;
-      this.result = this.$get(this.component.options.url, response => {
+      this.loading = get(this.component.options.url).then(response => {
         if (response.data) {
           response.data.forEach(item => {
             this.options.push({
@@ -72,6 +74,7 @@ export default {
   display: inline-block;
   width: 100%;
 }
+
 .demand-span {
   display: inline-block;
   max-width: 400px;
