@@ -6,18 +6,16 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.i18n.Translator;
+import io.metersphere.dto.*;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseShareInfoService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.dto.TestPlanDTOWithMetric;
-import io.metersphere.service.wapper.TrackProjectService;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -26,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -135,6 +134,9 @@ public class TestPlanMessageService {
         // 计算通过率
         TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
         testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
+        // 计算各种属性
+        TestPlanSimpleReportDTO report = testPlanReportService.getReport(testPlanReport.getId());
+        Map<String, Long> caseCountMap = calculateCaseCount(report);
 
         String creator = testPlanReport.getCreator();
         UserDTO userDTO = baseUserService.getUserDTO(creator);
@@ -147,6 +149,7 @@ public class TestPlanMessageService {
             paramMap.put("operator", userDTO.getName());
             paramMap.put("executor", userDTO.getId());
         }
+        paramMap.putAll(caseCountMap);
         paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
         String testPlanShareUrl = getTestPlanShareUrl(testPlanReport.getId(), creator);
@@ -197,5 +200,146 @@ public class TestPlanMessageService {
         shareRequest.setCreateUserId(userId);
         ShareInfo shareInfo = baseShareInfoService.generateShareInfo(shareRequest);
         return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
+    }
+
+    private Map<String, Long> calculateCaseCount(TestPlanSimpleReportDTO report) {
+        Map<String, Long> result = new HashMap<>();
+        // 功能用例
+        result.put("functionAllCount", 0L);
+        result.put("functionPreparedCount", 0L);
+        result.put("functionSuccessCount", 0L);
+        result.put("functionFailedCount", 0L);
+        result.put("functionBlockedCount", 0L);
+        result.put("functionSkippedCount", 0L);
+        //
+        result.put("apiCaseSuccessCount", 0L);
+        result.put("apiCaseFailedCount", 0L);
+        result.put("apiCaseUnExecuteCount", 0L);
+        result.put("apiCaseErrorReportCount", 0L);
+        result.put("apiCaseAllCount", 0L);
+        //
+        result.put("apiScenarioSuccessCount", 0L);
+        result.put("apiScenarioFailedCount", 0L);
+        result.put("apiScenarioUnExecuteCount", 0L);
+        result.put("apiScenarioErrorReportCount", 0L);
+        result.put("apiScenarioAllCount", 0L);
+        //
+        result.put("uiScenarioSuccessCount", 0L);
+        result.put("uiScenarioFailedCount", 0L);
+        result.put("uiScenarioUnExecuteCount", 0L);
+        result.put("uiScenarioAllCount", 0L);
+        //
+        result.put("loadCaseAllCount", 0L);
+
+
+        List<TestPlanCaseDTO> functionAllCases = report.getFunctionAllCases();
+        if (CollectionUtils.isNotEmpty(functionAllCases)) {
+            Map<String, Long> functionCountMap = functionAllCases.stream().collect(Collectors.groupingBy(TestPlanCaseDTO::getStatus, Collectors.counting()));
+            // ["Prepare", "Pass", "Failure", "Blocking", "Skip"]
+            functionCountMap.forEach((k, v) -> {
+                switch (k) {
+                    case "Prepare":
+                        result.put("functionPreparedCount", v);
+                        break;
+                    case "Pass":
+                        result.put("functionSuccessCount", v);
+                        break;
+                    case "Failure":
+                        result.put("functionFailedCount", v);
+                        break;
+                    case "Blocking":
+                        result.put("functionBlockedCount", v);
+                        break;
+                    case "Skip":
+                        result.put("functionSkippedCount", v);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            result.put("functionAllCount", (long) functionAllCases.size());
+        }
+
+        List<TestPlanFailureApiDTO> apiAllCases = report.getApiAllCases();
+        if (CollectionUtils.isNotEmpty(apiAllCases)) {
+            Map<String, Long> apiCountMap = apiAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getExecResult()) ? "default" : plan.getExecResult().toLowerCase(), Collectors.counting()));
+            // ["success", "error", "default", "errorReportResult"]
+            apiCountMap.forEach((k, v) -> {
+                switch (k) {
+                    case "success":
+                        result.put("apiCaseSuccessCount", v);
+                        break;
+                    case "error":
+                        result.put("apiCaseFailedCount", v);
+                        break;
+                    case "default":
+                        result.put("apiCaseUnExecuteCount", v);
+                        break;
+                    case "errorreportresult":
+                        result.put("apiCaseErrorReportCount", v);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            result.put("apiCaseAllCount", (long) apiAllCases.size());
+        }
+
+        List<TestPlanFailureScenarioDTO> scenarioAllCases = report.getScenarioAllCases();
+        if (CollectionUtils.isNotEmpty(scenarioAllCases)) {
+            Map<String, Long> scenarioCountMap = scenarioAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getLastResult()) ? "unexecute" : plan.getLastResult().toLowerCase(), Collectors.counting()));
+            // ["Fail", "Success", "unexecute", "errorReportResult"]
+            scenarioCountMap.forEach((k, v) -> {
+                switch (k) {
+                    case "success":
+                        result.put("apiScenarioSuccessCount", v);
+                        break;
+                    case "fail":
+                        result.put("apiScenarioFailedCount", v);
+                        break;
+                    case "unexecute":
+                        result.put("apiScenarioUnExecuteCount", v);
+                        break;
+                    case "errorreportresult":
+                        result.put("apiScenarioErrorReportCount", v);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            result.put("apiScenarioAllCount", (long) scenarioAllCases.size());
+        }
+
+        List<TestPlanUiScenarioDTO> uiAllCases = report.getUiAllCases();
+        if (CollectionUtils.isNotEmpty(uiAllCases)) {
+            Map<String, Long> uiCountMap = uiAllCases.stream()
+                    .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getLastResult()) ? "unexecute" : plan.getLastResult().toLowerCase(), Collectors.counting()));
+            uiCountMap.forEach((k, v) -> {
+                switch (k) {
+                    case "success":
+                        result.put("uiScenarioSuccessCount", v);
+                        break;
+                    case "fail":
+                    case "error":
+                        result.put("uiScenarioFailedCount", v);
+                        break;
+                    case "unexecute":
+                    case "stop":
+                        result.put("uiScenarioUnExecuteCount", v);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            result.put("uiScenarioAllCount", (long) uiAllCases.size());
+        }
+
+        if (CollectionUtils.isNotEmpty(report.getLoadAllCases())) {
+            result.put("loadCaseAllCount", (long) report.getLoadAllCases().size());
+        }
+
+        return result;
     }
 }
