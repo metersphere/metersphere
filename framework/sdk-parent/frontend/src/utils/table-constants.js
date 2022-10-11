@@ -3,20 +3,20 @@ import i18n from "../i18n";
 import {AZURE_DEVOPS, JIRA, LOCAL, TAPD, ZEN_TAO} from "./constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
-  {value: 'input',text: 'workspace.custom_filed.input'},
-  {value: 'textarea',text: 'workspace.custom_filed.textarea'},
-  {value: 'select',text: 'workspace.custom_filed.select'},
-  {value: 'multipleSelect',text: 'workspace.custom_filed.multipleSelect'},
-  {value: 'radio',text: 'workspace.custom_filed.radio'},
-  {value: 'checkbox',text: 'workspace.custom_filed.checkbox'},
-  {value: 'member',text: 'workspace.custom_filed.member'},
-  {value: 'multipleMember',text: 'workspace.custom_filed.multipleMember'},
-  {value: 'date',text: 'workspace.custom_filed.date'},
-  {value: 'datetime',text: 'workspace.custom_filed.datetime'},
-  {value: 'richText',text: 'workspace.custom_filed.richText'},
-  {value: 'int',text: 'workspace.custom_filed.int'},
-  {value: 'float',text: 'workspace.custom_filed.float'},
-  {value: 'multipleInput',text: 'workspace.custom_filed.multipleInput'}
+  {value: 'input', text: 'workspace.custom_filed.input'},
+  {value: 'textarea', text: 'workspace.custom_filed.textarea'},
+  {value: 'select', text: 'workspace.custom_filed.select', hasOption: true},
+  {value: 'multipleSelect', text: 'workspace.custom_filed.multipleSelect', hasOption: true},
+  {value: 'radio', text: 'workspace.custom_filed.radio', hasOption: true},
+  {value: 'checkbox', text: 'workspace.custom_filed.checkbox', hasOption: true},
+  {value: 'member', text: 'workspace.custom_filed.member', hasOption: true},
+  {value: 'multipleMember', text: 'workspace.custom_filed.multipleMember', hasOption: true},
+  {value: 'date', text: 'workspace.custom_filed.date'},
+  {value: 'datetime', text: 'workspace.custom_filed.datetime'},
+  {value: 'richText', text: 'workspace.custom_filed.richText'},
+  {value: 'int', text: 'workspace.custom_filed.int'},
+  {value: 'float', text: 'workspace.custom_filed.float'},
+  {value: 'multipleInput', text: 'workspace.custom_filed.multipleInput'}
 ];
 
 export function CUSTOM_FIELD_TYPE_FILTERS(_this) {
@@ -53,8 +53,9 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
-  {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
-  {value: 'ISSUE',text: 'workspace.issue_template_manage'},
+  {value: 'TEST_CASE', text: 'workspace.case_template_manage'},
+  {value: 'ISSUE', text: 'workspace.issue_template_manage'},
+  {value: 'PLAN',text: 'workstation.table_name.track_plan'},
   {value: 'API', text: 'workspace.api_template_manage'}
 ];
 
