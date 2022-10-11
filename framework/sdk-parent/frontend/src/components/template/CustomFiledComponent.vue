@@ -116,7 +116,7 @@
 import MsTableColumn from "../table/MsTableColumn";
 import MsInputTag from "../MsInputTag";
 import {getProjectMemberOption} from "../../api/user";
-import MsMarkDownText from "../MsMarkDownText";
+import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 
 export default {
   name: "CustomFiledComponent",

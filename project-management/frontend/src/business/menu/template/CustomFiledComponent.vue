@@ -121,7 +121,7 @@
 <script>
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
-import MsMarkDownText from "../common/MsMarkDownText";
+import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import {getProjectMemberOption} from "metersphere-frontend/src/api/user"
 
 export default {
