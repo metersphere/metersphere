@@ -204,12 +204,13 @@ import {
   citedApiScenarioCount,
   definitionFollow,
   delDefinitionByRefId,
-  getDefinitionById, getDefinitionByIdAndRefId,
+  getDefinitionById,
+  getDefinitionByIdAndRefId,
   getDefinitionVersions,
-  getMockEnvironment, updateDefinitionFollows
+  getMockEnvironment,
+  updateDefinitionFollows
 } from "@/api/definition";
-import {relationGet} from "@/api/xpack";
-import {updateRuleRelation} from "@/api/xpack";
+import {relationGet, updateRuleRelation} from "@/api/xpack";
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseText from "../response/ResponseText";
 import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
@@ -230,10 +231,10 @@ import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {getProjectMemberOption} from "@/api/project";
 import {deepClone} from "metersphere-frontend/src/utils/tableUtils";
 import SyncSetting from "@/business/definition/util/SyncSetting";
+import {useApiStore} from "@/store";
 
 const {Body} = require("@/business/definition/model/ApiTestModel");
 const Sampler = require("@/business/definition/components/jmeter/components/sampler/sampler");
-import {useApiStore} from "@/store";
 
 const store = useApiStore();
 
@@ -301,7 +302,6 @@ export default {
       },
       mockBaseUrl: "",
       newMockBaseUrl: "",
-      count: 0,
       versionData: [],
       newRequest: Sampler,
       newResponse: {},
@@ -525,9 +525,6 @@ export default {
           } else {
             this.$emit('saveApi', this.httpForm);
           }
-          this.count = 0;
-          store.apiStatus.set("fromChange", false);
-          store.apiMap.set(this.httpForm.id, store.apiStatus);
         } else {
           if (this.$refs.versionHistory) {
             this.$refs.versionHistory.loading = false;
