@@ -94,7 +94,7 @@ export default {
 </script>
 
 <style scoped>
-.wl-transfer .transfer-main {
+:deep(.wl-transfer .transfer-main) {
   height: calc(100% - 73px) !important;
 }
 </style>
