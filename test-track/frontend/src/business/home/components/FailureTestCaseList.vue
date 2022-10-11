@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
+  <el-card class="table-card" v-loading="loading" body-style="padding:10px;">
     <template v-slot:header>
       <span class="title">
         {{ $t('api_test.home_page.failed_case_list.title') }}
@@ -51,6 +51,7 @@
 <script>
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {homeTestPlanFailureCaseGet} from "@/api/remote/api/api-home";
 
 export default {
   name: "MsFailureTestCaseList",
@@ -61,7 +62,6 @@ export default {
 
   data() {
     return {
-      result: {},
       tableData: [],
       loading: false
     }
@@ -77,10 +77,12 @@ export default {
   methods: {
     search() {
       if (this.projectId) {
-        // todo
-        // this.result = this.$get("/api/faliureCaseAboutTestPlan/" + this.projectId + "/" + this.selectFunctionCase + "/10", response => {
-        //   this.tableData = response.data;
-        // });
+        this.loading = true;
+        homeTestPlanFailureCaseGet(this.projectId, this.selectFunctionCase, 10)
+          .then((r) => {
+            this.loading = false;
+            this.tableData = r.data;
+          });
       }
     },
     redirect(pageType, param) {
