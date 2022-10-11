@@ -316,6 +316,8 @@ export default {
       data.method = req.method;
       data.path = req.path;
       data.url = this.api.url;
+      data.moduleId = this.api.moduleId;
+      data.modulePath = this.api.modulePath;
       data.status = this.api.status;
       data.userId = this.api.userId;
       data.description = this.api.description;

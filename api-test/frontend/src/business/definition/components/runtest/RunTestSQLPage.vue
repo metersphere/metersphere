@@ -190,6 +190,8 @@ export default {
       data.method = this.api.method;
       data.status = this.api.status;
       data.userId = this.api.userId;
+      data.moduleId = this.api.moduleId;
+      data.modulePath = this.api.modulePath;
       data.description = this.api.description;
       this.$emit('saveAsApi', data);
       this.$emit('refresh');
