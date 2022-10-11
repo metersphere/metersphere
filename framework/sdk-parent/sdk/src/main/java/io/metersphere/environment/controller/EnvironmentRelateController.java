@@ -23,6 +23,16 @@ public class EnvironmentRelateController {
         return microService.getForData(MicroServiceName.API_TEST, "/api/definition/document/" + id + "/" + type);
     }
 
+    @PostMapping("/api/definition/list/batch")
+    public Object listBatch(@RequestBody Object obj) {
+        return microService.postForData(MicroServiceName.API_TEST, "/api/definition/generator", obj);
+    }
+
+    @PostMapping("/api/testcase/list-blobs")
+    public Object getCaseBLOBs(@RequestBody Object obj) {
+        return microService.postForData(MicroServiceName.API_TEST, "/api/testcase/list-blobs", obj);
+    }
+
     @PostMapping("/api/definition/generator")
     public Object jsonGenerator(@RequestBody Object obj) {
         return microService.postForData(MicroServiceName.API_TEST, "/api/definition/generator", obj);

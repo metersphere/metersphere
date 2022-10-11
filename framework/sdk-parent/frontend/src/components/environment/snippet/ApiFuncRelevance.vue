@@ -54,6 +54,7 @@ import RelevanceApiList from "./ext/RelevanceApiList";
 import MsApiModule from "./ext/module/ApiModule";
 import TestCaseRelevanceBase from "./ext/TestCaseRelevanceBase";
 import {parseEnvironment} from "../../../model/EnvironmentModel";
+import {batchGetApiDefinition, getEnvironmentById, getTestCaseBLOBs} from "../../../api/environment";
 
 export default {
   name: "ApiFuncRelevance",
@@ -177,39 +178,34 @@ export default {
     },
 
     save() {
-      let url = '';
       let environmentId = undefined;
-      let selectIds = [];
       if (this.isApiListEnable) {
         //查找所有数据
         let params = this.$refs.apiList.getConditions();
-        // todo ajax
-        this.result = this.$post("/api/definition/list/batch", params, (response) => {
+        batchGetApiDefinition(params).then(response => {
           let apis = response.data;
-          url = '/api/definition/relevance';
           environmentId = this.$refs.apiList.environmentId;
           if (!environmentId) {
             this.$warning(this.$t('api_test.environment.select_environment'));
             return;
           }
-          this.$get('/api/environment/get/' + environmentId, response => {
-            let environment = response.data;
+          getEnvironmentById(environmentId).then(res => {
+            let environment = res.data;
             parseEnvironment(environment);
             this.$emit("save", apis, environment);
           });
-        });
+        })
       } else {
         let params = this.$refs.apiCaseList.getConditions();
-        this.result = this.$post("/api/testcase/get/caseBLOBs/request", params, (response) => {
+        getTestCaseBLOBs(params).then(response => {
           let apiCases = response.data;
-          url = '/api/testcase/relevance';
           environmentId = this.$refs.apiCaseList.environmentId;
           if (!environmentId) {
             this.$warning(this.$t('api_test.environment.select_environment'));
             return;
           }
-          this.$get('/api/environment/get/' + environmentId, response => {
-            let environment = response.data;
+          getEnvironmentById(environmentId).then(res => {
+            let environment = res.data;
             parseEnvironment(environment);
             this.$emit("save", apiCases, environment);
           });
