@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -183,5 +184,10 @@ public class IssuesController {
     @PostMapping("/platform/transitions")
     public List<PlatformStatusDTO> getPlatformTransitions(@RequestBody PlatformIssueTypeRequest request) {
         return issuesService.getPlatformTransitions(request);
+    }
+
+    @PostMapping("/check/third/project")
+    public void checkThirdProjectExist(@RequestBody Project project) {
+        issuesService.checkThirdProjectExist(project);
     }
 }
