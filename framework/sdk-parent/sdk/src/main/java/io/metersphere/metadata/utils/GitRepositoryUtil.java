@@ -135,7 +135,7 @@ public class GitRepositoryUtil {
             }
         } catch (Exception e) {
             LogUtil.error("获取文件库文件报错!", e);
-            MSException.throwException("Connect repository error!");
+            MSException.throwException("Connect repository error!  " + e.getLocalizedMessage());
         } finally {
             this.closeConnection(repo);
         }
@@ -179,6 +179,7 @@ public class GitRepositoryUtil {
         List<String> returnList = new ArrayList<>();
         this.validateParams(repositoryUrl, userName, token);
         InMemoryRepository repo = null;
+        String errorMsg = null;
         try {
             Collection<Ref> refList;
             UsernamePasswordCredentialsProvider pro = new UsernamePasswordCredentialsProvider(userName, token);
@@ -187,13 +188,17 @@ public class GitRepositoryUtil {
                 returnList.add(item.getName());
             });
         } catch (Exception e) {
+            errorMsg = e.getMessage();
             LogUtil.error("获取文件库文件报错!", e);
         } finally {
             this.closeConnection(repo);
         }
-        if (CollectionUtils.isEmpty(returnList)) {
-            MSException.throwException("Repository connect error!");
+        if (StringUtils.isNotBlank(errorMsg)) {
+            MSException.throwException("Repository connect error!  " + errorMsg);
+        } else if (CollectionUtils.isEmpty(returnList)) {
+            MSException.throwException("Repository connect error!  Not find branches!");
         }
+
         return returnList;
 
     }
