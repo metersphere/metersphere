@@ -166,7 +166,7 @@ export default {
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
-        if (data.type === 'WEBHOOK') {
+        if (['WEBHOOK', 'WECHAT_ROBOT', 'LARK', 'NAIL_ROBOT'].indexOf(data.type) >= 0) {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
