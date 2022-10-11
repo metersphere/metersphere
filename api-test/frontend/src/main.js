@@ -20,6 +20,7 @@ import VueClipboard from 'vue-clipboard2';
 import formCreate from "@form-create/element-ui";
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
+import VuePapaParse from 'vue-papa-parse'
 
 Vue.config.productionTip = false
 
@@ -42,6 +43,7 @@ Vue.use(VueFab);
 Vue.use(JSONPathPicker);
 Vue.use(mavonEditor);
 Vue.use(formCreate);
+Vue.use(VuePapaParse);
 
 let instance = null;
 
