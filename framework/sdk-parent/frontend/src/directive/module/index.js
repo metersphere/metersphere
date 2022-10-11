@@ -1,7 +1,7 @@
 function enableModules(...modules) {
   for (let module of modules) {
     let modules = JSON.parse(localStorage.getItem('modules'));
-    if (modules[module] === 'DISABLE') {
+    if (modules && modules[module] === 'DISABLE') {
       return false;
     }
   }
