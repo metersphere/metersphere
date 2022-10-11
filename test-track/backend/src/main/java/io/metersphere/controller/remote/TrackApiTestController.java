@@ -19,7 +19,8 @@ import javax.servlet.http.HttpServletRequest;
         "/api/automation/module",
         "/api/project",
         "/test/case/relevance/api",
-        "/test/case/relevance/scenario"
+        "/test/case/relevance/scenario",
+        "home"
 })
 public class TrackApiTestController {
     @Resource
