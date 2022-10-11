@@ -3,7 +3,7 @@
     <ms-main-container>
       <div v-loading="loading">
         <el-card class="table-card">
-          <el-tabs v-model="activeName" style="height: 600px">
+          <el-tabs v-model="activeName" style="height: 600px" @tab-click="tabClick">
             <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation" v-if="isXpack">
               <el-row style="margin-top: 10px">
                 <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
@@ -50,7 +50,7 @@
                 <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
                              :expr.sync="config.trackShareReportTime" :share-link="true"
                              :unit-options="applyUnitOptions"
-                             @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime)"
+                             @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime, config.shareReport)"
                              :title="$t('report.report_sharing_link')"/>
               </el-row>
             </el-tab-pane>
@@ -92,7 +92,7 @@
                     <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
                                  :expr.sync="config.apiShareReportTime" :share-link="true"
                                  :unit-options="applyUnitOptions"
-                                 @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime)"
+                                 @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime, config.shareReport)"
                                  :title="$t('report.report_sharing_link')"/>
                   </el-row>
                 </el-col>
@@ -134,7 +134,7 @@
                   <timing-item ref="uiTimingItem" :choose.sync="config.shareReport"
                                :expr.sync="config.uiShareReportTime" :share-link="true"
                                :unit-options="applyUnitOptions"
-                               @chooseChange="switchChange('UI_SHARE_REPORT_TIME', config.uiShareReportTime)"
+                               @chooseChange="switchChange('UI_SHARE_REPORT_TIME', config.uiShareReportTime, config.shareReport)"
                                :title="$t('report.report_sharing_link')"/>
                 </el-row>
               </el-col>
@@ -174,7 +174,7 @@
                 <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
                              :expr.sync="config.performanceShareReportTime" :share-link="true"
                              :unit-options="applyUnitOptions"
-                             @chooseChange="switchChange('PERFORMANCE_SHARE_REPORT_TIME', config.performanceShareReportTime)"
+                             @chooseChange="switchChange('PERFORMANCE_SHARE_REPORT_TIME', config.performanceShareReportTime, config.shareReport)"
                              :title="$t('report.report_sharing_link')"/>
               </el-row>
             </el-tab-pane>
@@ -229,9 +229,9 @@
           </el-row>
           <el-row style="margin-top: 15px">
             <span>
-              <span style="font-size: 16px">{{
-                  $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting')
-                }}</span>
+              <span style="font-size: 16px">
+                {{ $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting') }}
+              </span>
               <i class="el-icon-arrow-down" v-if="showApiConfig" @click="showApiConfig=false"/>
               <i class="el-icon-arrow-right" v-if="!showApiConfig" @click="showApiConfig=true"/>
               <el-tooltip class="ms-num" effect="dark"
@@ -254,13 +254,11 @@
               <el-col :span="4">{{ $t('api_test.mock.req_param') + ":" }}</el-col>
               <el-col :span="20" style="color: #783887">
                 <el-checkbox v-model="apiSyncCaseRequest.headers">{{ "Header" + '\xa0\xa0' }}</el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.query">{{
-                    $t('api_test.definition.request.query_param')
-                  }}
+                <el-checkbox v-model="apiSyncCaseRequest.query">
+                  {{ $t('api_test.definition.request.query_param') }}
                 </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.rest">{{
-                    $t('api_test.definition.request.rest_param')
-                  }}
+                <el-checkbox v-model="apiSyncCaseRequest.rest">
+                  {{ $t('api_test.definition.request.rest_param') }}
                 </el-checkbox>
                 <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
               </el-col>
@@ -282,8 +280,8 @@
             </el-row>
           </div>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="showRuleSetting = false">{{$t('commons.cancel')}}</el-button>
-            <el-button type="primary" @click="saveSync">{{$t('commons.confirm')}}</el-button>
+            <el-button @click="showRuleSetting = false">{{ $t('commons.cancel') }}</el-button>
+            <el-button type="primary" @click="saveSync">{{ $t('commons.confirm') }}</el-button>
           </span>
         </el-dialog>
       </div>
@@ -407,6 +405,12 @@ export default {
       }
     },
     switchChange(type, value, other) {
+      if ([PROJECT_APP_SETTING.TRACK_SHARE_REPORT_TIME, PROJECT_APP_SETTING.API_SHARE_REPORT_TIME,
+          PROJECT_APP_SETTING.UI_SHARE_REPORT_TIME, PROJECT_APP_SETTING.PERFORMANCE_SHARE_REPORT_TIME].indexOf(type) >= 0
+        && other === false) {
+        // 分享报告时，关闭开关后不做操作
+        return;
+      }
       let configs = [];
       if (other && value) {
         // 在开启开关时需要保存的其它信息
@@ -526,6 +530,9 @@ export default {
       let params = {configs};
       this.startSaveData(params);
       this.showRuleSetting = false;
+    },
+    tabClick() {
+      this.config.shareReport = true;
     }
   }
 };
