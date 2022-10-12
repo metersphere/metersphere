@@ -114,12 +114,7 @@
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
-                <if test="${object}.value.contains(''.toString()) or ${object}.value.contains('PENDING'.toString())">
-                    or t3.status is null or t3.status = ''
-                </if>
-                <if test="${condition}.exec_result != null">
-                    )
-                </if>
+
             </when>
             <when test='${object}.operator == "not in"'>
                 not in
@@ -237,8 +232,11 @@
             <include refid="condition">
                 <property name="object" value="${condition}.exec_result"/>
             </include>
+            <if test="${condition}.exec_result.value.contains(''.toString()) or ${condition}.exec_result.value.contains('PENDING'.toString())">
+                or t3.status is null or t3.status = ''
+            </if>
+            )
         </if>
-
     </sql>
 
     <sql id="countCombine">
@@ -446,7 +444,8 @@
             </foreach>
         </if>
         <if test="request.redirectFilter == 'unexecuteCount' ">
-            and (t3.status IS NULL or t3.status = '' or t3.status = 'Prepare' or t3.status = 'Underway' or t3.status = 'stop')
+            and (t3.status IS NULL or t3.status = '' or t3.status = 'Prepare' or t3.status = 'Underway' or t3.status =
+            'stop')
         </if>
         <if test="request.redirectFilter == 'executionPassCount' ">
             and t3.status = 'success'
@@ -491,7 +490,7 @@
                         <when test="key=='execResult' or key=='exec_result'">
                             and (t3.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
-                                (#{value})
+                                #{value}
                             </foreach>
                             <if test="values.contains(''.toString()) or values.contains('PENDING'.toString())">
                                 or t3.status is null or t3.status = ''
@@ -1043,63 +1042,63 @@
         WHERE
         (atc.status is null or atc.status != 'Trash')
         <if test="request.protocol != null and request.protocol!=''">
-          and ad.protocol = #{request.protocol}
+            and ad.protocol = #{request.protocol}
         </if>
         <if test="request.projectId != null and request.projectId!=''">
-          and ad.project_id = #{request.projectId}
+            and ad.project_id = #{request.projectId}
         </if>
         <if test="request.name != null and request.name!=''">
-          and (atc.name like CONCAT('%', #{request.name},'%')
-          or atc.tags like CONCAT('%', #{request.name},'%')
-          or atc.num like CONCAT('%', #{request.name},'%'))
+            and (atc.name like CONCAT('%', #{request.name},'%')
+            or atc.tags like CONCAT('%', #{request.name},'%')
+            or atc.num like CONCAT('%', #{request.name},'%'))
         </if>
         <if test="request.notInIds != null and request.notInIds.size() > 0">
-          and atc.id not in
-          <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
-            #{notInId}
-          </foreach>
+            and atc.id not in
+            <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+                #{notInId}
+            </foreach>
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-          and ad.module_id in
-          <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-            #{nodeId}
-          </foreach>
+            and ad.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
         </if>
         <if test="request.combine != null">
-          <include refid="relavanceApiCombine">
-            <property name="condition" value="request.combine"/>
-            <property name="name" value="request.name"/>
-            <property name="objectKey" value="request.combine.tags"/>
-          </include>
+            <include refid="relavanceApiCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="objectKey" value="request.combine.tags"/>
+            </include>
         </if>
         <include refid="relevanceApiVersionCondition">
-          <property name="versionTable" value="ad"/>
+            <property name="versionTable" value="ad"/>
         </include>
         <if test="request.filters != null and request.filters.size() > 0">
-          <foreach collection="request.filters.entrySet()" index="key" item="values">
-            <if test="values != null and values.size() > 0">
-              <choose>
-                <when test="key == 'priority'">
-                  and atc.priority in
-                  <foreach collection="values" item="value" separator="," open="(" close=")">
-                    #{value}
-                  </foreach>
-                </when>
-                <when test="key=='status'">
-                  and atc.status in
-                  <foreach collection="values" item="value" separator="," open="(" close=")">
-                    #{value}
-                  </foreach>
-                </when>
-                <when test="key=='version_id'">
-                  and atc.version_id in
-                  <foreach collection="values" item="value" separator="," open="(" close=")">
-                    #{value}
-                  </foreach>
-                </when>
-              </choose>
-            </if>
-          </foreach>
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and atc.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and atc.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and atc.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
         </if>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
