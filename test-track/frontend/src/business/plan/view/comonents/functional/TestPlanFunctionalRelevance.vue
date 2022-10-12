@@ -54,12 +54,12 @@ export default {
       }
     },
     saveCaseRelevance(param, vueObj) {
-      vueObj.loading = true;
+      vueObj.page.result.loading = true;
       if (param.ids.length > 0) {
         param.planId = this.planId;
         testPlanRelevance(param)
           .then(() => {
-            vueObj.loading = false;
+            vueObj.page.result.loading = false;
             vueObj.isSaving = false;
             this.$success(this.$t('commons.save_success'));
             vueObj.$refs.baseRelevance.close();
@@ -69,6 +69,7 @@ export default {
           vueObj.isSaving = false;
         });
       } else {
+        vueObj.page.result.loading = false;
         vueObj.isSaving = false;
         this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
       }
