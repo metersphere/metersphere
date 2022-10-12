@@ -164,18 +164,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         final HashTree httpSamplerTree = tree.add(sampler);
         // 注意顺序，放在config前面，会优先于环境的请求头生效
-        if(httpConfig.isMock() && StringUtils.isNotEmpty(this.getId())){
+        if (httpConfig != null && httpConfig.isMock() && StringUtils.isNotEmpty(this.getId())) {
             //如果选择的是mock环境，则自动添加一个apiHeader。
             AtomicBoolean headersHasMockApiId = new AtomicBoolean(false);
-            if(CollectionUtils.isNotEmpty(this.headers)){
+            if (CollectionUtils.isNotEmpty(this.headers)) {
                 this.headers.forEach(item -> {
-                    if(StringUtils.equals(item.getName(),MockApiHeaders.MOCK_API_RESOURCE_ID)){
+                    if (StringUtils.equals(item.getName(), MockApiHeaders.MOCK_API_RESOURCE_ID)) {
                         headersHasMockApiId.set(true);
                     }
                 });
             }
-            if(!headersHasMockApiId.get()){
-                this.headers.add( new KeyValue(MockApiHeaders.MOCK_API_RESOURCE_ID,this.getId()));
+            if (!headersHasMockApiId.get()) {
+                this.headers.add(new KeyValue(MockApiHeaders.MOCK_API_RESOURCE_ID, this.getId()));
             }
         }
         if (CollectionUtils.isNotEmpty(this.headers)) {
@@ -613,28 +613,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        if (StringUtils.equalsIgnoreCase(this.method, "get")) {
-                            if (StringUtils.isNotEmpty(httpArgument.getValue())) {
-                                arguments.addArgument(httpArgument);
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                if (StringUtils.equalsIgnoreCase(this.method, "get")) {
+                                    if (StringUtils.isNotEmpty(httpArgument.getValue())) {
+                                        arguments.addArgument(httpArgument);
+                                    }
+                                } else {
+                                    arguments.addArgument(httpArgument);
+                                }
+                            } catch (Exception e) {
+                                LogUtil.error(e.getMessage(), e);
                             }
-                        } else {
-                            arguments.addArgument(httpArgument);
                         }
-                    } catch (Exception e) {
-                        LogUtil.error(e.getMessage(), e);
-                    }
-                }
-        );
+                );
         return arguments;
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,10 +16,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -51,7 +49,7 @@ public class JSONUtil {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * 解析JSONObject对象到具体类，递归算法
      *
@@ -62,53 +60,62 @@ public class JSONUtil {
     private static <T> T parseObject(Class<T> clazz, JSONObject jsonObject) {
         T obj = null;
         try {
-            //获取clazz的实例
-            obj = clazz.newInstance();
-            // 获取属性列表
-            Field[] fields = clazz.getDeclaredFields();
-            // 遍历每个属性，如果为基本类型和String则直接赋值，如果为List则得到每个Item添加后再赋值，如果是其它类则得到类的实例后赋值
-            for (Field field : fields) {
-                try {
-                    // 设置属性可操作
-                    field.setAccessible(true);
-                    // 获取字段类型
-                    Class<?> typeClazz = field.getType();
-                    // 是否基础变量
-                    if (typeClazz.isPrimitive()) {
-                        setProperty(obj, field, jsonObject.opt(field.getName()));
-                    } else {
-                        // 得到类型实例
-                        Object typeObj;
-                        if (typeClazz.isInterface() && typeClazz.getSimpleName().contains("List")) {
-                            //Field如果声明为List<T>接口，由于接口的Class对象不能newInstance()，此时需要转化为ArrayList
-                            typeObj = ArrayList.class.newInstance();
-                        } else {
-                            typeObj = typeClazz.newInstance();
-                        }
-                        // 是否为List
-                        if (typeObj instanceof List) {
-                            // 得到类型的结构，如:java.util.ArrayList<com.xxx.xxx>
-                            Type type = field.getGenericType();
-                            ParameterizedType pt = (ParameterizedType) type;
-                            // 获得List元素类型
-                            Class<?> dataClass = (Class<?>) pt.getActualTypeArguments()[0];
-                            // 得到List的JSONArray数组
-                            JSONArray jArray = jsonObject.optJSONArray(field.getName());
-                            // 将每个元素的实例类加入到类型的实例中
-                            for (int i = 0; i < jArray.length(); i++) {
-                                //对于数组，递归调用解析子元素
-                                ((List<Object>) typeObj).add(parseObject(dataClass, jsonObject.optJSONArray(field.getName()).optJSONObject(i)));
-                            }
-                            setProperty(obj, field, typeObj);
-                        } else if (typeObj instanceof String) {// 是否为String
+            if (jsonObject != null) {
+                //获取clazz的实例
+                obj = clazz.getDeclaredConstructor().newInstance();
+                // 获取属性列表
+                Field[] fields = clazz.getDeclaredFields();
+                // 遍历每个属性，如果为基本类型和String则直接赋值，如果为List则得到每个Item添加后再赋值，如果是其它类则得到类的实例后赋值
+                for (Field field : fields) {
+                    try {
+                        // 设置属性可操作
+                        field.setAccessible(true);
+                        // 获取字段类型
+                        Class<?> typeClazz = field.getType();
+                        // 是否基础变量
+                        if (typeClazz.isPrimitive()) {
                             setProperty(obj, field, jsonObject.opt(field.getName()));
                         } else {
-                            //是否为其它对象
-                            setProperty(obj, field, parseObject(typeClazz, jsonObject.optJSONObject(field.getName())));
+                            // 得到类型实例
+                            Object typeObj;
+                            if (typeClazz.isInterface() && typeClazz.getSimpleName().contains("List")) {
+                                //Field如果声明为List<T>接口，由于接口的Class对象不能newInstance()，此时需要转化为ArrayList
+                                typeObj = ArrayList.class.getDeclaredConstructor().newInstance();
+                            } else if (StringUtils.containsIgnoreCase(typeClazz.getSimpleName(), PropertyConstant.INTEGER)) {
+                                typeObj = Integer.class.getConstructor(int.class).newInstance(10);
+                            } else if (StringUtils.containsIgnoreCase(typeClazz.getSimpleName(), "Map")) {
+                                typeObj = LinkedHashMap.class.getConstructor().newInstance();
+                            } else {
+                                typeObj = typeClazz.getDeclaredConstructor().newInstance();
+                            }
+                            // 是否为List
+                            if (typeObj instanceof List) {
+                                // 得到类型的结构，如:java.util.ArrayList<com.xxx.xxx>
+                                Type type = field.getGenericType();
+                                ParameterizedType pt = (ParameterizedType) type;
+                                // 获得List元素类型
+                                Class<?> dataClass = (Class<?>) pt.getActualTypeArguments()[0];
+                                // 得到List的JSONArray数组
+                                JSONArray jArray = jsonObject.optJSONArray(field.getName());
+                                if (jArray == null) {
+                                    continue;
+                                }
+                                // 将每个元素的实例类加入到类型的实例中
+                                for (int i = 0; i < jArray.length(); i++) {
+                                    //对于数组，递归调用解析子元素
+                                    ((List<Object>) typeObj).add(parseObject(dataClass, jsonObject.optJSONArray(field.getName()).optJSONObject(i)));
+                                }
+                                setProperty(obj, field, typeObj);
+                            } else if (typeObj instanceof String) {// 是否为String
+                                setProperty(obj, field, jsonObject.opt(field.getName()));
+                            } else {
+                                //是否为其它对象
+                                setProperty(obj, field, parseObject(typeClazz, jsonObject.optJSONObject(field.getName())));
+                            }
                         }
+                    } catch (Exception e) {
+                        LogUtil.error(e);
                     }
-                } catch (Exception e) {
-                    LogUtil.error(e);
                 }
             }
         } catch (Exception e) {
@@ -125,7 +132,9 @@ public class JSONUtil {
      * @param valueObj 要被赋值的成员变量的值
      */
     private static void setProperty(Object obj, Field field, Object valueObj) {
-        if (ObjectUtils.isEmpty(valueObj) || StringUtils.isEmpty(field.getName()) || StringUtils.equals(field.getName(), "NULL")) {
+        if (ObjectUtils.isEmpty(valueObj) || StringUtils.isEmpty(field.getName())
+                || StringUtils.equalsIgnoreCase(field.getName(), "NULL")
+                || StringUtils.equalsIgnoreCase(JSONObject.valueToString(valueObj), "NULL")) {
             return;
         }
         Class<?> clazz = obj.getClass();
