@@ -185,7 +185,7 @@ import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import NodeBreadcrumb from "@/business/common/NodeBreadcrumb";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
-import ShowMoreBtn from "@/business/case/components/ShowMoreBtn";
+import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import BatchEdit from "@/business/case/components/BatchEdit";
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
 import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";

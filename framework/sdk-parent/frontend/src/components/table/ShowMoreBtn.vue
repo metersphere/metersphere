@@ -98,7 +98,7 @@ export default {
   text-align: center;
 }
 </style>
-<style scoped>
+<style>
 .batch-popper {
   top: -10000px !important;
 }
