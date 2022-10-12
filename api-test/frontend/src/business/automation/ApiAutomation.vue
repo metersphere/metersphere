@@ -110,11 +110,7 @@
 
 <script>
 
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId
-} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {PROJECT_ID, WORKSPACE_ID} from "metersphere-frontend/src/utils/constants";
@@ -734,7 +730,7 @@ export default {
     },
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
-        name: 'ApiAutomation',
+        name: 'ApiAutomationWithQuery',
         params: {
           redirectID: getUUID(),
           dataType: "scenario",
