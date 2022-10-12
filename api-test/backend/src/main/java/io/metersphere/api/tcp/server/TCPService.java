@@ -58,14 +58,14 @@ public class TCPService {
                 LogUtil.error(e);
             }
             if (responseObj.has("responseResult")) {
-                JSONObject respResultObj = responseObj.getJSONObject("responseResult");
+                JSONObject respResultObj = responseObj.optJSONObject("responseResult");
                 if (respResultObj.has("body")) {
                     MockApiUtils mockApiUtils = new MockApiUtils();
                     boolean useScript = false;
                     if (respResultObj.has("usePostScript")) {
                         useScript = respResultObj.getBoolean("usePostScript");
                     }
-                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.getJSONObject("body"), "", null, null, useScript);
+                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), "", null, null, useScript);
                 }
                 try {
                     if (respResultObj.has("delayed")) {

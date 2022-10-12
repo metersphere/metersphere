@@ -159,9 +159,9 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
     private void parseRawBody(Body body, JSONObject postmanBody, String bodyMode) {
         body.setRaw(parseVariable(postmanBody.optString(bodyMode)));
         body.setType(MsRequestBodyType.RAW.value());
-        JSONObject options = postmanBody.getJSONObject("options");
+        JSONObject options = postmanBody.optJSONObject("options");
         if (options != null) {
-            JSONObject raw = options.getJSONObject(PostmanRequestBodyMode.RAW.value());
+            JSONObject raw = options.optJSONObject(PostmanRequestBodyMode.RAW.value());
             if (raw != null) {
                 String bodyType = "";
                 switch (raw.optString("language")) {

@@ -41,7 +41,7 @@ public class ApiEnvironmentRunningParamService {
         try {
             JSONObject configObj = JSONUtil.parseObject(environment.getConfig());
             if (configObj.has("commonConfig")) {
-                JSONObject commonConfig = configObj.getJSONObject("commonConfig");
+                JSONObject commonConfig = configObj.optJSONObject("commonConfig");
                 if (commonConfig.has("variables")) {
                     JSONArray variables = commonConfig.getJSONArray("variables");
                     List<JSONObject> variableList = new LinkedList<>();
@@ -51,7 +51,7 @@ public class ApiEnvironmentRunningParamService {
 
                         boolean contains = false;
                         for (int i = 0; i < variables.length(); i++) {
-                            JSONObject jsonObj = variables.getJSONObject(i);
+                            JSONObject jsonObj = variables.optJSONObject(i);
                             if (jsonObj.has("name") && StringUtils.equals(jsonObj.optString("name"), key)) {
                                 contains = true;
                                 if (jsonObj.has("value") && StringUtils.equals(jsonObj.optString("value"), value)) {

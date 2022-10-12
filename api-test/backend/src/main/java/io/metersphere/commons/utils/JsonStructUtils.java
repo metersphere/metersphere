@@ -122,7 +122,7 @@ public class JsonStructUtils {
             try {
                 Set<String> matchKeys = matchObj.keySet();
                 for (int sourceIndex = 0; sourceIndex < sourceArray.length(); sourceIndex++) {
-                    JSONObject sourceObj = sourceArray.getJSONObject(sourceIndex);
+                    JSONObject sourceObj = sourceArray.optJSONObject(sourceIndex);
                     for (String key : matchKeys) {
                         if (sourceObj.has(key)) {
                             Object sourceObjItem = sourceObj.get(key);

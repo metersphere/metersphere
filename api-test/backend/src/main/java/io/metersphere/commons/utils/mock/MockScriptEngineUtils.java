@@ -122,7 +122,7 @@ public class MockScriptEngineUtils {
             if (requestMockParams.getBodyParams() != null) {
                 if (requestMockParams.getBodyParams().length() == 1) {
                     //参数是jsonObject
-                    JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
+                    JSONObject bodyParamObj = requestMockParams.getBodyParams().optJSONObject(0);
                     for (String key : bodyParamObj.keySet()) {
                         String value = String.valueOf(bodyParamObj.get(key));
                         value = StringUtils.replace(value, "\\", "\\\\");
@@ -177,7 +177,7 @@ public class MockScriptEngineUtils {
         if (requestMockParams.getBodyParams() != null) {
             if (requestMockParams.getBodyParams().length() == 1) {
                 //参数是jsonObject
-                JSONObject bodyParamObj = requestMockParams.getBodyParams().getJSONObject(0);
+                JSONObject bodyParamObj = requestMockParams.getBodyParams().optJSONObject(0);
                 for (String key : bodyParamObj.keySet()) {
                     String value = String.valueOf(bodyParamObj.get(key));
                     value = StringUtils.replace(value, "\\", "\\\\");

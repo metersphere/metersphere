@@ -214,7 +214,7 @@ public class MsHashTreeService {
 
     public void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.length(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
+            JSONObject element = hashTree.optJSONObject(i);
             if (element != null && StringUtils.equalsIgnoreCase(element.optString(TYPE), SCENARIO)) {
                 element = this.setRefScenario(element);
                 hashTree.put(i, element);

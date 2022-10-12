@@ -379,7 +379,7 @@ public class ElementUtil {
      */
     public static void relationships(JSONArray hashTree, List<String> referenceRelationships) {
         for (int i = 0; i < hashTree.length(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
+            JSONObject element = hashTree.optJSONObject(i);
             if (element != null && StringUtils.equals(element.get(PropertyConstant.TYPE).toString(), ElementConstants.SCENARIO) && StringUtils.equals(element.get("referenced").toString(), "REF")) {
                 if (!referenceRelationships.contains(element.get("id").toString())) {
                     referenceRelationships.add(element.get("id").toString());
@@ -395,7 +395,7 @@ public class ElementUtil {
 
     public static void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.length(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
+            JSONObject element = hashTree.optJSONObject(i);
             if (element == null) {
                 continue;
             }
@@ -426,7 +426,7 @@ public class ElementUtil {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (int i = 0; i < hashTree.length(); i++) {
-                JSONObject element = hashTree.getJSONObject(i);
+                JSONObject element = hashTree.optJSONObject(i);
                 boolean isScenarioEnv = false;
                 ParameterConfig config = new ParameterConfig();
                 if (element != null && element.get(PropertyConstant.TYPE).toString().equals(ElementConstants.SCENARIO)) {
@@ -746,7 +746,7 @@ public class ElementUtil {
         Map<String, List<JSONObject>> groupMap = new LinkedHashMap<>();
         if (elements != null) {
             for (int i = 0; i < elements.length(); i++) {
-                JSONObject item = elements.getJSONObject(i);
+                JSONObject item = elements.optJSONObject(i);
                 if (ElementConstants.ASSERTIONS.equals(item.optString(PropertyConstant.TYPE))) {
                     if (groupMap.containsKey(ASSERTIONS)) {
                         groupMap.get(ASSERTIONS).add(item);

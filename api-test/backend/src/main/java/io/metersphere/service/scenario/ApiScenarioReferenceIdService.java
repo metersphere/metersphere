@@ -113,7 +113,7 @@ public class ApiScenarioReferenceIdService {
             }
             JSONArray hashTree = jsonObject.getJSONArray(MsHashTreeService.HASH_TREE);
             for (int index = 0; index < hashTree.length(); index++) {
-                JSONObject item = hashTree.getJSONObject(index);
+                JSONObject item = hashTree.optJSONObject(index);
                 if (item == null) {
                     continue;
                 }
@@ -166,7 +166,7 @@ public class ApiScenarioReferenceIdService {
         List<ApiScenarioReferenceId> deepRelations = new LinkedList<>();
         if (hashTree != null) {
             for (int index = 0; index < hashTree.length(); index++) {
-                JSONObject item = hashTree.getJSONObject(index);
+                JSONObject item = hashTree.optJSONObject(index);
                 if (item.has(MsHashTreeService.ID) && item.has(MsHashTreeService.REFERENCED)) {
                     String method = null;
                     String url = null;

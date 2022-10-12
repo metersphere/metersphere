@@ -17,10 +17,10 @@ import java.util.*;
 public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
 
     protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag, boolean isSetUrl) {
-        JSONObject requests = testObject.getJSONObject(tag);
+        JSONObject requests = testObject.optJSONObject(tag);
         List<MsHTTPSamplerProxy> msHTTPSamplerProxies = new ArrayList<>();
         requests.keySet().forEach(requestName -> {
-            JSONObject requestObject = requests.getJSONObject(requestName);
+            JSONObject requestObject = requests.optJSONObject(requestName);
             String path = requestObject.optString("url");
             String method = requestObject.optString("method");
             MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
@@ -67,7 +67,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
         JSONArray headers = requestObject.getJSONArray("headers");
         if (headers != null) {
             for (int i = 0; i < headers.length(); i++) {
-                JSONObject header = headers.getJSONObject(i);
+                JSONObject header = headers.optJSONObject(i);
                 msHeaders.add(new KeyValue(header.optString("name"), header.optString("value")));
             }
         }
@@ -88,7 +88,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
                     msBody.setRaw(bodyStr.toString());
                 }
             } else if (body instanceof JSONObject) {
-                JSONObject bodyObj = requestObject.getJSONObject("body");
+                JSONObject bodyObj = requestObject.optJSONObject("body");
                 if (bodyObj != null) {
                     ArrayList<KeyValue> kvs = new ArrayList<>();
                     bodyObj.keySet().forEach(key -> {

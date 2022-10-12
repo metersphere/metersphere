@@ -43,7 +43,7 @@ public class XMLUtil {
             if (en == null || en.getValue() == null) continue;
             if (en.getValue() instanceof JSONObject) {
                 buffer.append(tab).append("<").append(en.getKey()).append(">\n");
-                JSONObject jo = jObj.getJSONObject(en.getKey());
+                JSONObject jo = jObj.optJSONObject(en.getKey());
                 jsonToXmlStr(jo, buffer, nowTab.append("\t"));
                 buffer.append(tab).append("</").append(en.getKey()).append(">\n");
             } else if (en.getValue() instanceof JSONArray) {
@@ -51,7 +51,7 @@ public class XMLUtil {
                 for (int i = 0; i < array.length(); i++) {
                     buffer.append(tab).append("<").append(en.getKey()).append(">\n");
                     if (StringUtils.isNotBlank(array.optString(i))) {
-                        JSONObject jsonobject = array.getJSONObject(i);
+                        JSONObject jsonobject = array.optJSONObject(i);
                         jsonToXmlStr(jsonobject, buffer, nowTab.append("\t"));
                         buffer.append(tab).append("</").append(en.getKey()).append(">\n");
                     }

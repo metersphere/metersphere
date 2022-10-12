@@ -197,7 +197,7 @@ public class ApiScenarioReportStructureService {
 
     public static void dataFormatting(JSONArray hashTree, StepTreeDTO dto, String id, String reportType) {
         for (int i = 0; i < hashTree.length(); i++) {
-            JSONObject element = hashTree.getJSONObject(i);
+            JSONObject element = hashTree.optJSONObject(i);
             if (element != null && element.getBoolean(ENABLE)) {
                 String resourceId = combinationResourceId(element, reportType, id);
                 StepTreeDTO children = new StepTreeDTO(element.optString(NAME), resourceId, element.optString(TYPE), resourceId, element.optInt("index"));

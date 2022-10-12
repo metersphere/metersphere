@@ -5,7 +5,7 @@
     <fieldset :disabled="disabled" class="ms-fieldset">
       <el-collapse-transition>
 
-        <el-tabs v-model="activeName">
+        <el-tabs v-model="activeName" @tab-click="reloadTable">
           <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
             <div>
               <el-row style="margin-bottom: 10px">
@@ -255,6 +255,11 @@ export default {
     };
   },
   methods: {
+    reloadTable() {
+      if (this.$refs.variableTable) {
+        this.$refs.variableTable.reloadTable();
+      }
+    },
     importVariable() {
       this.$refs.variableImport.open();
     },

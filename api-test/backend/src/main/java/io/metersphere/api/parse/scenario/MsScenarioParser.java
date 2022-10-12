@@ -63,7 +63,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
                     JSONObject scenarioDefinition = JSONUtil.parseObject(scenarioDefinitionStr);
                     if (scenarioDefinition != null) {
-                        JSONObject environmentMap = scenarioDefinition.getJSONObject("environmentMap");
+                        JSONObject environmentMap = scenarioDefinition.optJSONObject("environmentMap");
                         if (environmentMap != null) {
                             scenarioDefinition.put("environmentMap", new HashMap<>());
                         }

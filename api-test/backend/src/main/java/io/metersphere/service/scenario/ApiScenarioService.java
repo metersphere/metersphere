@@ -735,7 +735,7 @@ public class ApiScenarioService {
             } else {
                 if (value instanceof JSONObject) {
                     JSONObject valueJson = (JSONObject) value;
-                    JSONObject targetValue = jsonMerge(valueJson, target.getJSONObject(key));
+                    JSONObject targetValue = jsonMerge(valueJson, target.optJSONObject(key));
                     target.put(key, targetValue);
                 } else if (value instanceof JSONArray) {
                     JSONArray valueArray = (JSONArray) value;
@@ -2104,7 +2104,7 @@ public class ApiScenarioService {
                 }
                 JSONObject environmentMap = null;
                 if (object.has("environmentMap")) {
-                    environmentMap = object.getJSONObject("environmentMap");
+                    environmentMap = object.optJSONObject("environmentMap");
                 }
                 if (environmentMap != null) {
                     object.put("environmentMap", new HashMap<>());
