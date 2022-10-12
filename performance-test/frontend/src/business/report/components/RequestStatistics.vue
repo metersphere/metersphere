@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import {getPerformanceReportContent, getSharePerformanceReportContent} from "@/api/load-test";
+import {getPerformanceReportContent, getSharePerformanceReportContent} from "../../../api/load-test";
 
 export default {
   name: "RequestStatistics",

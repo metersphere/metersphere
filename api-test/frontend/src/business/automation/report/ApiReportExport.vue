@@ -87,7 +87,7 @@ import ApiReportReqestHeaderItem from "./ApiReportReqestHeaderItem";
 import MsMetricChart from "./components/MetricChart";
 import MsReportTitle from "metersphere-frontend/src/components/report/MsReportTitle";
 import MsReportExportTemplate from "metersphere-frontend/src/components/report/MsReportExportTemplate";
-import MsAssertionResults from "@/business/automation/report/components/AssertionResults"
+import MsAssertionResults from "../../../business/automation/report/components/AssertionResults"
 
 export default {
   name: "MsApiReportExport",

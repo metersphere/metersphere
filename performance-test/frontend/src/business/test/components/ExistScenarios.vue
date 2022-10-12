@@ -52,10 +52,10 @@ import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {findThreadGroup} from "@/business/test/model/ThreadGroup";
+import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
-import {exportScenarioJmx, searchScenarioList} from "@/api/performance";
+import {exportScenarioJmx, searchScenarioList} from "../../../api/performance";
 
 export default {
   name: "ExistScenarios",

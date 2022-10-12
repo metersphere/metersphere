@@ -97,7 +97,7 @@ module.exports = {
     // 报告模板打包成一个html
     config.plugin('inline-source-html-planReport')
       .after('html-planReport')
-      .use(HtmlWebpackInlineSourcePlugin, [HtmlWebpackPlugin, [/.(js|css)$/]]);
+      .use(HtmlWebpackInlineSourcePlugin, [HtmlWebpackPlugin]);
 
     config.plugins.delete('prefetch');
   }

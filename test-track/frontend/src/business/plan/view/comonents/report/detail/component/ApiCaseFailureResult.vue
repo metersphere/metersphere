@@ -49,21 +49,31 @@
       </el-card>
     </ms-aside-container>
     <ms-main-container v-loading="responseLoading">
-      <el-card v-if="showResponse">
-        <micro-app route-name="ApiReportView"
+      <div v-if="showResponse">
+        <micro-app v-if="!isTemplate"
+                   route-name="ApiReportView"
                    service="api"
                    :route-params="{
                       isTestPlan: showResponse,
                       response
                     }"/>
+        <el-card v-else>
+          <ms-request-result-tail :response="response"
+                                  :is-test-plan="showResponse"
+                                  ref="debugResult"/>
 
-      </el-card>
+        </el-card>
+      </div>
+
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
 </template>
 
 <script>
+// 测试计划报告导出的是时候需要引入
+import MsRequestResultTail from "../../../../../../../../../../api-test/frontend/src/business/definition/components/response/RequestResultTail";
+
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
@@ -94,7 +104,8 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem
+    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
+    MsRequestResultTail
   },
   props: {
     planId: String,

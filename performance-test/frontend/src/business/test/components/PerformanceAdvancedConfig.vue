@@ -461,9 +461,9 @@
 
 <script>
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton.vue";
-import EditMonitor from "@/business/test/components/EditMonitor";
-import BatchAddMonitor from "@/business/test/components/BatchAddMonitor";
-import {getAdvancedConfig} from "@/api/performance";
+import EditMonitor from "../../../business/test/components/EditMonitor";
+import BatchAddMonitor from "../../../business/test/components/BatchAddMonitor";
+import {getAdvancedConfig} from "../../../api/performance";
 
 export default {
   name: "PerformanceAdvancedConfig",

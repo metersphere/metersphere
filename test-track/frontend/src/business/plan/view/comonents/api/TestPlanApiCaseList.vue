@@ -158,10 +158,6 @@
 
       <test-plan-api-case-result :response="response" ref="apiCaseResult"/>
 
-      <!-- 执行组件 -->
-      <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
-
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                   :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit"
@@ -192,7 +188,6 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {strMapToObj, getUUID} from "metersphere-frontend/src/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
-import MsRun from "./Run";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import {TEST_PLAN_API_CASE} from "metersphere-frontend/src/utils/constants";
 import {
@@ -235,7 +230,6 @@ export default {
     HeaderLabelOperate,
     HeaderCustom,
     TestPlanApiCaseResult,
-    MsRun,
     TestPlanCaseListHeader,
     PriorityTableItem,
     MsTablePagination,
@@ -496,9 +490,10 @@ export default {
         return RESULT_MAP.get("default");
       }
     },
-    runRefresh(data) {
+    runRefresh() {
       this.rowLoading = '';
       this.$success(this.$t('schedule.event_success'));
+      this.autoCheckStatus();
       this.initTable();
     },
     singleRun(row) {

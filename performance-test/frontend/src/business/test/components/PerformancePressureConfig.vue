@@ -246,8 +246,8 @@
 
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
-import {findThreadGroup} from "@/business/test/model/ThreadGroup";
-import {getJmxContent, getLoadConfig, getResourcePools} from "@/api/performance";
+import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
+import {getJmxContent, getLoadConfig, getResourcePools} from "../../../api/performance";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";

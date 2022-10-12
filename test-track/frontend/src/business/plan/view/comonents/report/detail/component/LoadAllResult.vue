@@ -13,18 +13,33 @@
                            @setSize="setAllSize"/>
     </ms-aside-container>
     <ms-main-container>
-      <micro-app v-if="showResponse"
-                 route-name="perReportView"
-                 service="performance"
-                 :route-params="{
+
+      <div v-if="showResponse">
+        <micro-app v-if="!isTemplate"
+                   route-name="perReportView"
+                   service="performance"
+                   :route-params="{
                     reportId,
                  }"/>
+
+        <load-case-report-view v-else
+                               :is-plan-report="true"
+                               :share-id="shareId"
+                               :is-share="isShare"
+                               :plan-report-template="response"
+                               :report-id="reportId"
+                               ref="loadCaseReportView"/>
+
+      </div>
       <div class="empty" v-show="!showResponse">{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
 </template>
 
 <script>
+// 测试计划报告导出的是时候需要引入
+import LoadCaseReportView from "../../../../../../../../../../performance-test/frontend/src/template/report/performance/share/LoadCaseReportView";
+
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
@@ -35,13 +50,13 @@ import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContain
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 
-
 export default {
   name: "LoadAllResult",
   components: {
     MsMainContainer,
     MsAsideContainer,
     LoadFailureResult, StatusTableItem, MethodTableItem, TypeTableItem,
+    LoadCaseReportView,
     MicroApp
   },
   props: {

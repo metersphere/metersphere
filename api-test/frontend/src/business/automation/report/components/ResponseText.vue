@@ -53,8 +53,8 @@
 <script>
 import MsAssertionResults from "./AssertionResults";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import MsDropdown from "@/business/commons/MsDropdown";
-import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "@/business/definition/model/ApiTestModel";
+import MsDropdown from "../../../../business/commons/MsDropdown";
+import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "../../../../business/definition/model/ApiTestModel";
 import MsSqlResultTable from "./SqlResultTable";
 
 export default {

@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import PerformancePressureConfig from "@/business/test/components/PerformancePressureConfig";
-import PerformanceAdvancedConfig from "@/business/test/components/PerformanceAdvancedConfig";
-import PerformanceBasicConfig from "@/business/test/components/PerformanceBasicConfig";
+import PerformancePressureConfig from "../../../business/test/components/PerformancePressureConfig";
+import PerformanceAdvancedConfig from "../../../business/test/components/PerformanceAdvancedConfig";
+import PerformanceBasicConfig from "../../../business/test/components/PerformanceBasicConfig";
 
 export default {
   name: "TestConfiguration",

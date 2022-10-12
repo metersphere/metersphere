@@ -167,20 +167,20 @@
 import {exportPdf} from "metersphere-frontend/src/utils";
 import html2canvas from 'html2canvas';
 import {Message} from "element-ui";
-import MsPerformanceReportExport from "@/business/report/PerformanceReportExport";
-import MsReportErrorLog from "@/business/report/components/ErrorLog";
-import MsReportLogDetails from "@/business/report/components/LogDetails";
-import MsReportRequestStatistics from "@/business/report/components/RequestStatistics";
-import MsReportTestOverview from "@/business/report/components/TestOverview";
+import MsPerformanceReportExport from "../../../../business/report/PerformanceReportExport";
+import MsReportErrorLog from "../../../../business/report/components/ErrorLog";
+import MsReportLogDetails from "../../../../business/report/components/LogDetails";
+import MsReportRequestStatistics from "../../../../business/report/components/RequestStatistics";
+import MsReportTestOverview from "../../../../business/report/components/TestOverview";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MonitorCard from "@/business/report/components/MonitorCard";
-import MsReportTestDetails from '@/business/report/components/TestDetails';
-import ProjectEnvironmentDialog from "@/business/report/components/ProjectEnvironmentDialog";
+import MonitorCard from "../../../../business/report/components/MonitorCard";
+import MsReportTestDetails from '../../../../business/report/components/TestDetails';
+import ProjectEnvironmentDialog from "../../../../business/report/components/ProjectEnvironmentDialog";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {getPerformanceReport, getPerformanceReportTime, getSharePerformanceReport, getSharePerformanceReportTime} from "@/api/load-test";
-import MsTestConfiguration from "@/business/report/components/TestConfiguration";
-import {getTestProInfo, stopTest} from "@/api/report";
+import {getPerformanceReport, getPerformanceReportTime, getSharePerformanceReport, getSharePerformanceReportTime} from "../../../../api/load-test";
+import MsTestConfiguration from "../../../../business/report/components/TestConfiguration";
+import {getTestProInfo, stopTest} from "../../../../api/report";
 
 
 export default {

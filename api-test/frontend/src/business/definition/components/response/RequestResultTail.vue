@@ -9,7 +9,7 @@
 <script>
 import MsResponseResult from "../response/ResponseResult";
 import MsRequestMetric from "../response/RequestMetric";
-import {getApiReportDetail} from "@/api/definition-report";
+import {getApiReportDetail} from "../../../../api/definition-report";
 
 export default {
   name: "MsRequestResultTail",
