@@ -833,9 +833,6 @@ export default {
       } else {
         request = row ? row.request : {};
       }
-      if (row.tags instanceof Array) {
-        row.tags = JSON.stringify(row.tags);
-      }
       let response = "";
       if (row.response != null && row.response != 'null' && row.response != undefined) {
         if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
