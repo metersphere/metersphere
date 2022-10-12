@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="4" v-for="item in data" :key="item.id">
           <el-card :body-style="{ padding: '0px' }" class="ms-card-item" @click.native="handleView(item)">
-            <img :src="'/file/metadata/info/'+item.id" class="ms-image" v-if="isImage(item.type)"/>
+            <img :src="'/project/file/metadata/info/'+item.id" class="ms-image" v-if="isImage(item.type)"/>
             <div class="ms-image" v-else>
               <div class="ms-file">
                 <div class="icon-title">{{ getType(item.type) }}</div>
