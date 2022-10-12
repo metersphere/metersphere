@@ -3,7 +3,7 @@ package io.metersphere.api.exec.scenario;
 
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.algorithm.SmoothWeighted;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;

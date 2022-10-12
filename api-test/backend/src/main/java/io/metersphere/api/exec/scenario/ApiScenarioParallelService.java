@@ -5,7 +5,7 @@ import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.algorithm.SmoothWeighted;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;

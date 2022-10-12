@@ -14,7 +14,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
-import io.metersphere.api.jmeter.algorithm.SmoothWeighted;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;

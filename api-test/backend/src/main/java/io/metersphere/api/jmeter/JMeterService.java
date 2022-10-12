@@ -3,8 +3,8 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.exec.engine.EngineFactory;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
-import io.metersphere.api.jmeter.algorithm.ServerConfig;
-import io.metersphere.api.jmeter.algorithm.SmoothWeighted;
+import io.metersphere.api.jmeter.utils.ServerConfig;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.commons.config.KafkaConfig;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;

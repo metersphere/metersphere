@@ -1,4 +1,4 @@
-package io.metersphere.api.jmeter.algorithm;
+package io.metersphere.api.jmeter.utils;
 
 
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
