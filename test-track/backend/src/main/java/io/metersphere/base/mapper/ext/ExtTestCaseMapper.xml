@@ -415,7 +415,7 @@
         select
         test_case.id
         from test_case
-        <include refid="queryWhereCondition"/>
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
@@ -699,6 +699,52 @@
                 api_scenario WHERE `STATUS` != 'Trash')
                 )
             </if>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="test_case"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.notEqStatus != null">
+                and test_case.status != #{request.notEqStatus}
+            </if>
+            <if test="request.name != null">
+                and (test_case.name like CONCAT('%', #{request.name},'%')
+                or test_case.num like CONCAT('%', #{request.name},'%')
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.ids != null">
+                and test_case.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and test_case.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                and test_case.project_id = #{request.projectId}
+            </if>
+            <include refid="filters"/>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="test_case"/>
             </include>
