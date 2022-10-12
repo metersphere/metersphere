@@ -25,7 +25,7 @@ export function deleteIssue(id) {
 }
 
 export function issueStatusChange(param) {
-  return get(BASE_URL + 'change/status', param);
+  return post(BASE_URL + 'change/status', param);
 }
 
 export function saveOrUpdateIssue(url, param) {

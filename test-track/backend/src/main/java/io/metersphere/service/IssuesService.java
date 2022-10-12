@@ -48,6 +48,7 @@ import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -268,7 +269,44 @@ public class IssuesService {
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         issueRequest.setRefType(refType);
         List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
+        handleCustomFieldStatus(issues);
         return disconnectIssue(issues);
+    }
+
+    private void handleCustomFieldStatus(List<IssuesDao> issues) {
+        if (CollectionUtils.isEmpty(issues)) {
+            return;
+        }
+        List<String> issueIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
+        String projectId = issues.get(0).getProjectId();
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return;
+        }
+        String templateId = project.getIssueTemplateId();
+        if (StringUtils.isBlank(templateId)) {
+            return;
+        }
+        // 模版对于同一个系统字段应该只关联一次
+        List<CustomFieldDao> customFields = trackCustomFieldTemplateService.getCustomFieldByTemplateId(templateId);
+        List<String> fieldIds = customFields.stream()
+                .filter(customField -> StringUtils.equals(SystemCustomField.ISSUE_STATUS, customField.getName()))
+                .map(CustomFieldDao::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return;
+        }
+        // 该系统字段的自定义ID
+        String customFieldId = fieldIds.get(0);
+        CustomFieldIssuesExample example = new CustomFieldIssuesExample();
+        example.createCriteria().andFieldIdEqualTo(customFieldId).andResourceIdIn(issueIds);
+        List<CustomFieldIssues> customFieldIssues = customFieldIssuesMapper.selectByExample(example);
+        Map<String, String> statusMap = customFieldIssues.stream().collect(Collectors.toMap(CustomFieldIssues::getResourceId, CustomFieldIssues::getValue));
+        if (MapUtils.isEmpty(statusMap)) {
+            return;
+        }
+        for (IssuesDao issue : issues) {
+            issue.setStatus(statusMap.getOrDefault(issue.getId(), "").replaceAll("\"", ""));
+        }
     }
 
     public IssuesWithBLOBs getIssue(String id) {
