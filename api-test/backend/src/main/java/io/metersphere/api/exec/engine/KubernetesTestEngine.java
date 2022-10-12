@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.resourcepool.engine.provider.ClientCredential;
@@ -35,6 +36,7 @@ public class KubernetesTestEngine extends AbstractEngine {
 
     @Override
     public void start() {
+        LogUtil.info("k8s 执行开始", resourceList.size());
         resourceList.forEach(r -> {
             runApi(r);
         });

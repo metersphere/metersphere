@@ -131,7 +131,7 @@ export default {
     appendDialogToBody: {
       type: Boolean,
       default() {
-        return false;
+        return true;
       }
     },
     isReadOnly: {

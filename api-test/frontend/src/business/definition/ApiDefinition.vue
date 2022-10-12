@@ -966,6 +966,7 @@ export default {
     },
     handleProtocolChange(protocol) {
       this.initApiTableOpretion = "currentProtocol";
+      this.selectNodeIds = [];
       this.currentProtocol = protocol;
     },
     setModuleOptions(data) {

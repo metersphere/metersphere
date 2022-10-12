@@ -6,7 +6,7 @@ import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.config.JmeterProperties;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.service.BaseTestResourcePoolService;
@@ -17,9 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 public abstract class AbstractEngine implements Engine {
-    protected String JMETER_IMAGE;
-    protected String HEAP;
-    protected String GC_ALGO;
     protected List<TestResource> resourceList;
     protected TestResourcePool resourcePool;
     private final BaseTestResourcePoolService testResourcePoolService;
@@ -28,12 +25,10 @@ public abstract class AbstractEngine implements Engine {
     public AbstractEngine() {
         testResourcePoolService = CommonBeanFactory.getBean(BaseTestResourcePoolService.class);
         testResourceService = CommonBeanFactory.getBean(BaseTestResourceService.class);
-        JMETER_IMAGE = CommonBeanFactory.getBean(JmeterProperties.class).getImage();
-        HEAP = CommonBeanFactory.getBean(JmeterProperties.class).getHeap();
-        GC_ALGO = CommonBeanFactory.getBean(JmeterProperties.class).getGcAlgo();
     }
 
     protected void initApiConfig(JmeterRunRequestDTO runRequest) {
+        LogUtil.info("初始化参数", runRequest.getReportId());
         String resourcePoolId = runRequest.getPoolId();
         resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
         if (resourcePool == null || StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.DELETE.name())) {
@@ -46,24 +41,10 @@ public abstract class AbstractEngine implements Engine {
         if (!StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.VALID.name())) {
             MSException.throwException("Resource Pool Status is not VALID");
         }
-        // image
-        String image = resourcePool.getImage();
-        if (StringUtils.isNotEmpty(image)) {
-            JMETER_IMAGE = image;
-        }
-        // heap
-        String heap = resourcePool.getHeap();
-        if (StringUtils.isNotEmpty(heap)) {
-            HEAP = heap;
-        }
-        // gc_algo
-        String gcAlgo = resourcePool.getGcAlgo();
-        if (StringUtils.isNotEmpty(gcAlgo)) {
-            GC_ALGO = gcAlgo;
-        }
         this.resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
         if (CollectionUtils.isEmpty(this.resourceList)) {
             MSException.throwException("Test Resource is empty");
         }
+        LogUtil.info("初始化参数完成", runRequest.getReportId());
     }
 }

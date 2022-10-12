@@ -45,7 +45,7 @@ export default {
     appendToBody: {
       type: Boolean,
       default() {
-        return false;
+        return true;
       }
     },
     width: {

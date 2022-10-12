@@ -80,7 +80,7 @@ public class JSONSchemaGenerator {
                 }
             }
             if (object.has(PropertyConstant.DEFAULT)) {
-                concept.put(propertyName, object.get(PropertyConstant.DEFAULT));
+                concept.put(propertyName, object.get(PropertyConstant.DEFAULT).getAsString());
             } else if (object.has(PropertyConstant.ENUM)) {
                 try {
                     if (object.has(PropertyConstant.MOCK) && object.get(PropertyConstant.MOCK).getAsJsonObject() != null && StringUtils.isNotEmpty(object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString())) {
