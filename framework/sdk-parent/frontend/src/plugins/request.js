@@ -61,10 +61,15 @@ function clearLocalStorage() {
   localStorage.removeItem(TokenKey);
   sessionStorage.removeItem(WORKSPACE_ID);
   sessionStorage.removeItem(PROJECT_ID);
+  location.href = "/";
 }
 
 const checkAuth = response => {
   // 请根据实际需求修改
+  if (!response.headers) {
+    clearLocalStorage();
+    return;
+  }
   if (response.headers["authentication-status"] === "invalid" || response.status === 401) {
     clearLocalStorage();
   }
