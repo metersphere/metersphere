@@ -88,7 +88,7 @@ public class KubernetesTestEngine extends AbstractEngine {
         ClientCredential clientCredential = JSON.parseObject(resource.getConfiguration(), ClientCredential.class);
 
         try {
-            KubernetesProvider kubernetesProvider = ConstructorUtils.invokeConstructor(providerClass, loadTestReport);
+            KubernetesProvider kubernetesProvider = ConstructorUtils.invokeConstructor(providerClass, clientCredential);
             kubernetesProvider.deployJmeter(request, clientCredential);
         } catch (Exception e) {
             LogUtil.error(e);
@@ -102,7 +102,7 @@ public class KubernetesTestEngine extends AbstractEngine {
         resourceList.forEach(r -> {
             ClientCredential clientCredential = JSON.parseObject(r.getConfiguration(), ClientCredential.class);
             try {
-                KubernetesProvider kubernetesProvider = ConstructorUtils.invokeConstructor(providerClass, loadTestReport);
+                KubernetesProvider kubernetesProvider = ConstructorUtils.invokeConstructor(providerClass, clientCredential);
                 kubernetesProvider.deleteJmeter(testId, clientCredential.getNamespace());
             } catch (Exception e) {
                 LogUtil.error(e);
