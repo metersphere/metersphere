@@ -654,8 +654,8 @@ export class DatabaseConfig extends BaseConfig {
     super();
     this.id = undefined;
     this.name = undefined;
-    this.poolMax = undefined;
-    this.timeout = undefined;
+    this.poolMax = 1;
+    this.timeout = 100000;
     this.driver = undefined;
     this.dbUrl = undefined;
     this.username = undefined;
