@@ -1,7 +1,6 @@
 <template>
-  <div class="database-from" v-loading="result">
-    <el-form :model="currentConfig" :rules="rules" label-width="150px" size="small" :disabled="isReadOnly"
-             ref="databaseFrom">
+  <div class="database-from" v-loading="result.loading">
+    <el-form :model="currentConfig" :rules="rules" label-width="150px" size="small" :disabled="isReadOnly" ref="databaseFrom">
 
       <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="name">
         <el-input v-model="currentConfig.name" maxlength="300" show-word-limit
@@ -17,6 +16,9 @@
       <el-form-item :label="$t('api_test.request.sql.database_url')" prop="dbUrl">
         <el-input v-model="currentConfig.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
+        <div v-if="currentConfig.driver ==='com.mysql.jdbc.Driver'">
+          <span style="font-size:10px">{{this.$t('api_test.request.sql.tips')}}</span>
+        </div>
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.username')" prop="username">
@@ -31,24 +33,25 @@
 
       <el-form-item :label="$t('api_test.request.sql.pool_max')" prop="poolMax">
         <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.poolMax"
-                         :placeholder="$t('commons.please_select')" :max="1000*10000000" :min="0"/>
+                         :placeholder="$t('commons.please_select')" :max="100" :min="0"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0"/>
       </el-form-item>
 
 
       <el-form-item :label="$t('api_test.request.sql.timeout')" prop="timeout">
         <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.timeout"
-                         :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+                         :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0"/>
       </el-form-item>
 
       <el-form-item>
         <div class="buttons">
-          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">
-            {{ $t('commons.validate') }}
-          </el-button>
-          <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">
-            {{ $t('commons.update') }}
-          </el-button>
-          <el-button type="primary" size="small" @click="save('add')">{{ $t('commons.add') }}</el-button>
+          <el-button type="primary" size="small" @click="validate">{{$t('commons.validate')}}</el-button>
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="clear">{{$t('commons.clear')}}</el-button>
+          <el-button type="primary" v-show="!currentConfig.id"  size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
         </div>
       </el-form-item>
 
@@ -135,20 +138,23 @@ export default {
         }
       });
     },
+    clear() {
+      this.currentConfig = new DatabaseConfig();
+    },
     validate() {
       this.result = databaseValidate(this.currentConfig).then(() => {
         this.$success(this.$t('commons.connection_successful'));
       })
     },
-    driverChange(type) {
+    driverChange(type){
       this.currentConfig.dbUrl = "";
-      if (type === "com.mysql.jdbc.Driver") {
+      if(type === "com.mysql.jdbc.Driver"){
         this.currentConfig.dbUrl = "jdbc:mysql://127.0.0.1:3306/database";
-      } else if (type === "com.microsoft.sqlserver.jdbc.SQLServerDriver") {
+      }else if(type === "com.microsoft.sqlserver.jdbc.SQLServerDriver"){
         this.currentConfig.dbUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database";
-      } else if (type === "org.postgresql.Driver") {
+      }else if(type === "org.postgresql.Driver"){
         this.currentConfig.dbUrl = "jdbc:postgresql://127.0.0.1:5432/database";
-      } else if (type === "oracle.jdbc.OracleDriver") {
+      }else if(type === "oracle.jdbc.OracleDriver"){
         this.currentConfig.dbUrl = "jdbc:oracle:thin:@192.168.2.1:1521:database";
       }
     },
@@ -160,6 +166,10 @@ export default {
 
 .buttons {
   float: right;
+}
+
+.select-100 {
+  width: 100%;
 }
 
 </style>
