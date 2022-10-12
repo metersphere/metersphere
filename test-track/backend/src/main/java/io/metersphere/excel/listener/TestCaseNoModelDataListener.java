@@ -533,7 +533,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             this.ids = result2.stream().map(TestCase::getId).collect(Collectors.toList());
             updateList.clear();
         }
-        customFieldsMap.clear();
     }
 
     private TestCaseWithBLOBs convert2TestCase(TestCaseExcelData data) {
@@ -844,6 +843,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
         saveData();
         list.clear();
+        customFieldsMap.clear();
     }
 
     private void formatHeadMap() {

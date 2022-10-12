@@ -69,6 +69,7 @@
         <ms-table-column
           v-if="item.id === 'num' && customNum"
           :fields-width="fieldsWidth"
+          :column-key="'customNum'"
           prop="customNum"
           sortable
           :label="$t('commons.id')"
