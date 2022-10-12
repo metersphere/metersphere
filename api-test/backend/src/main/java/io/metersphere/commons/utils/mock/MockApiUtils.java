@@ -46,7 +46,7 @@ public class MockApiUtils {
     public static boolean matchRequestHeader(JSONArray mockExpectHeaderArray, Map<String, String> requestHeaderMap) {
         Map<String, String> mockExpectHeaders = new HashMap<>();
         for (int i = 0; i < mockExpectHeaderArray.length(); i++) {
-            JSONObject obj = mockExpectHeaderArray.getJSONObject(i);
+            JSONObject obj = mockExpectHeaderArray.optJSONObject(i);
             if (obj.has("name") && obj.has("value")) {
                 mockExpectHeaders.put(obj.optString("name"), obj.optString("value"));
             }
@@ -87,7 +87,7 @@ public class MockApiUtils {
                 String jsonString = "";
                 if (isJsonSchema) {
                     if (bodyObj.has("jsonSchema")) {
-                        String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").toString();
+                        String bodyRetunStr = bodyObj.optJSONObject("jsonSchema").toString();
                         jsonString = JSONSchemaGenerator.getJson(bodyRetunStr);
                     }
                 } else {
@@ -122,7 +122,7 @@ public class MockApiUtils {
                     JSONObject bodyParamArr = new JSONObject();
                     JSONArray kvsArr = bodyObj.getJSONArray("kvs");
                     for (int i = 0; i < kvsArr.length(); i++) {
-                        JSONObject kv = kvsArr.getJSONObject(i);
+                        JSONObject kv = kvsArr.optJSONObject(i);
                         if (kv.has("name")) {
                             String values = kv.optString("value");
                             if (StringUtils.isEmpty(values)) {
@@ -150,7 +150,7 @@ public class MockApiUtils {
     public static List<MockConfigRequestParams> getParamsByJSONArray(JSONArray array) {
         List<MockConfigRequestParams> requestParamsList = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
-            JSONObject obj = array.getJSONObject(i);
+            JSONObject obj = array.optJSONObject(i);
             if (obj.has("name") && obj.has("value")) {
                 String condition = null;
                 if (obj.has("rangeType")) {
@@ -174,7 +174,7 @@ public class MockApiUtils {
                 if (respObj != null) {
                     if (respObj.has("body")) {
                         String returnStr = "";
-                        JSONObject bodyObj = respObj.getJSONObject("body");
+                        JSONObject bodyObj = respObj.optJSONObject("body");
                         if (bodyObj.has(PropertyConstant.TYPE)) {
                             String type = bodyObj.optString(PropertyConstant.TYPE);
                             if (StringUtils.equals(type, "JSON")) {
@@ -187,7 +187,7 @@ public class MockApiUtils {
                                     }
                                 }
                                 if (isJsonSchema && bodyObj.has("jsonSchema")) {
-                                    String json = JSONSchemaGenerator.getJson(bodyObj.getJSONObject("jsonSchema").toString());
+                                    String json = JSONSchemaGenerator.getJson(bodyObj.optJSONObject("jsonSchema").toString());
                                     if (StringUtils.isNotEmpty(json)) {
                                         returnStr = json;
                                     }
@@ -206,7 +206,7 @@ public class MockApiUtils {
                                 if (bodyObj.has("kvs")) {
                                     JSONArray kvsArr = bodyObj.getJSONArray("kvs");
                                     for (int i = 0; i < kvsArr.length(); i++) {
-                                        JSONObject kv = kvsArr.getJSONObject(i);
+                                        JSONObject kv = kvsArr.optJSONObject(i);
                                         if (kv.has("name")) {
                                             String values = kv.optString("value");
                                             if (StringUtils.isEmpty(values)) {
@@ -231,7 +231,7 @@ public class MockApiUtils {
                         int code = 200;
                         if (statusCodeArray != null) {
                             for (int i = 0; i < statusCodeArray.length(); i++) {
-                                JSONObject object = statusCodeArray.getJSONObject(i);
+                                JSONObject object = statusCodeArray.optJSONObject(i);
                                 if (object.has("name") && StringUtils.isNotEmpty(object.optString("name"))) {
                                     try {
                                         code = Integer.parseInt(object.optString("name"));
@@ -248,7 +248,7 @@ public class MockApiUtils {
                         JSONArray jsonArray = respObj.getJSONArray("headers");
                         Map<String, String> headMap = new HashMap<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject headObj = jsonArray.getJSONObject(i);
+                            JSONObject headObj = jsonArray.optJSONObject(i);
                             if (headObj.has("name") && headObj.has("value") && headObj.has("enable")) {
                                 boolean enable = headObj.getBoolean("enable");
                                 if (enable) {
@@ -274,7 +274,7 @@ public class MockApiUtils {
         if (useScript) {
             if (bodyObj.has("scriptObject")) {
                 try {
-                    JSONObject scriptObj = bodyObj.getJSONObject("scriptObject");
+                    JSONObject scriptObj = bodyObj.optJSONObject("scriptObject");
                     scriptLanguage = scriptObj.optString("scriptLanguage");
                     script = scriptObj.optString("script");
                 } catch (Exception e) {
@@ -310,7 +310,7 @@ public class MockApiUtils {
                         }
                     }
                     if (isJsonSchema && bodyObj.has("jsonSchema")) {
-                        String json = JSONSchemaGenerator.getJson(bodyObj.getJSONObject("jsonSchema").toString());
+                        String json = JSONSchemaGenerator.getJson(bodyObj.optJSONObject("jsonSchema").toString());
                         if (StringUtils.isNotEmpty(json)) {
                             returnStr = json;
                         }
@@ -645,7 +645,7 @@ public class MockApiUtils {
     public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList, boolean isAllMatch) {
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject obj = jsonArray.getJSONObject(i);
+                JSONObject obj = jsonArray.optJSONObject(i);
                 boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
                 if (isMatch) {
                     return true;

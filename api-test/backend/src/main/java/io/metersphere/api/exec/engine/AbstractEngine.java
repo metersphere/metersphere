@@ -158,8 +158,8 @@ public abstract class AbstractEngine implements Engine {
             if (jsonArray.get(i) instanceof List) {
                 JSONArray o = jsonArray.getJSONArray(i);
                 for (int j = 0; j < o.length(); j++) {
-                    if (StringUtils.equals(o.getJSONObject(j).optString("key"), "TargetLevel")) {
-                        s += o.getJSONObject(j).optInt("value");
+                    if (StringUtils.equals(o.optJSONObject(j).optString("key"), "TargetLevel")) {
+                        s += o.optJSONObject(j).optInt("value");
                         break;
                     }
                 }

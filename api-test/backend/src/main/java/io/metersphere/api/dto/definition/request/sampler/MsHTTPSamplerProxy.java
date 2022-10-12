@@ -3,27 +3,23 @@ package io.metersphere.api.dto.definition.request.sampler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.mock.MockApiHeaders;
-import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.mock.MockApiHeaders;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.environment.service.CommandService;
 import io.metersphere.environment.ssl.KeyStoreConfig;
 import io.metersphere.environment.ssl.KeyStoreFile;
@@ -31,8 +27,7 @@ import io.metersphere.environment.ssl.MsKeyStore;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiTestCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,6 +42,7 @@ import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
+import org.codehaus.jackson.JsonNode;
 import org.json.JSONObject;
 
 import java.net.URL;
@@ -312,9 +308,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String useEvnId = environmentConfig.getApiEnvironmentid();
                 if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().has("authManager")) {
                     try {
-                        JSONObject authObject = environmentConfig.getAuthManager().getJSONObject("authManager");
+                        JsonNode authObject = environmentConfig.getAuthManager().get("authManager");
                         if (authObject != null) {
-                            if (authObject.has("verification") && !StringUtils.equalsIgnoreCase(authObject.optString("verification"), "No Auth")) {
+                            if (authObject.has("verification") && !StringUtils.equalsIgnoreCase(authObject.get("verification").asText(), "No Auth")) {
                                 this.authManager = JSON.parseObject(authObject.toString(), MsAuthManager.class);
                             }
                         }

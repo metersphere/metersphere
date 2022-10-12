@@ -9,7 +9,7 @@ import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.TCPConfig;
 import io.metersphere.environment.ssl.KeyStoreConfig;
 import lombok.Data;
-import org.json.JSONObject;
+import org.codehaus.jackson.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class EnvironmentConfig {
     private MsJSR223Processor postStepProcessor;
     //全局前后置脚本都配置
     private GlobalScriptConfig globalScriptConfig;
-    private JSONObject authManager;
+    private ObjectNode authManager;
     private List<MsAssertions> assertions;
     private boolean useErrorCode;
     private boolean higherThanSuccess;

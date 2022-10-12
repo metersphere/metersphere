@@ -49,12 +49,12 @@ public class HashTreeUtil {
                 try {
                     JSONObject configJson = JSONUtil.parseObject(environment.getConfig());
                     if (configJson.has(COMMON_CONFIG)) {
-                        JSONObject commonConfig = configJson.getJSONObject(COMMON_CONFIG);
+                        JSONObject commonConfig = configJson.optJSONObject(COMMON_CONFIG);
                         if (commonConfig.has(VARIABLES)) {
                             Map<String, String> envHeadMap = new HashMap<>();
                             JSONArray variablesArr = commonConfig.getJSONArray(VARIABLES);
                             for (int i = 0; i < variablesArr.length(); i++) {
-                                JSONObject object = variablesArr.getJSONObject(i);
+                                JSONObject object = variablesArr.optJSONObject(i);
                                 if (object.has(NAME) && object.has(VALUE)) {
                                     boolean isEnable = true;
                                     if (object.has(ENABLE)) {
