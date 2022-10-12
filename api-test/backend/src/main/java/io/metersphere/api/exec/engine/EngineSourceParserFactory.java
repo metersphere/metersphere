@@ -1,8 +1,6 @@
 package io.metersphere.api.exec.engine;
 
-import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.JmeterDocumentParser;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -20,16 +18,6 @@ import java.util.List;
 
 public class EngineSourceParserFactory {
     public static final boolean IS_TRANS = false;
-
-    public static EngineSourceParser createEngineSourceParser(String type) {
-        final FileType engineType = FileType.valueOf(type);
-
-        if (FileType.JMX.equals(engineType)) {
-            return new JmeterDocumentParser();
-        }
-
-        return null;
-    }
 
     public static Document getDocument(InputStream source) throws DocumentException {
         SAXReader reader = new SAXReader();
