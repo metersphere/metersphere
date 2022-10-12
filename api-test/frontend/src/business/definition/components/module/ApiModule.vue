@@ -135,9 +135,6 @@ export default {
     isRelevanceModel() {
       return this.relevanceProjectId ? true : false;
     },
-    isReviewModel() {
-      return this.reviewId ? true : false;
-    },
     projectId() {
       if (this.selectProjectId) {
         return this.selectProjectId;
