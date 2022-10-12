@@ -175,7 +175,7 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.getApiScenarioEnv(planId);
     }
 
-    @GetMapping("/plan/report")
+    @PostMapping("/plan/report")
     public ApiPlanReportDTO buildApiReport(@RequestBody ApiPlanReportRequest request) {
         return testPlanScenarioCaseService.buildApiReport(request);
     }

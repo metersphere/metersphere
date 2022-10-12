@@ -154,7 +154,7 @@ public class TestPlanLoadCaseController {
         testPlanLoadCaseService.copyPlan(sourcePlanId, targetPlanId);
     }
 
-    @GetMapping("/plan/report")
+    @PostMapping("/plan/report")
     public LoadPlanReportDTO buildApiReport(@RequestBody PlanSubReportRequest request) {
         return testPlanLoadCaseService.buildLoadReport(request);
     }

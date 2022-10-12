@@ -132,12 +132,12 @@ import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import ExistFiles from "@/business/test/components/ExistFiles";
-import ExistScenarios from "@/business/test/components/ExistScenarios";
-import {findThreadGroup} from "@/business/test/model/ThreadGroup";
+import ExistFiles from "../../../business/test/components/ExistFiles";
+import ExistScenarios from "../../../business/test/components/ExistScenarios";
+import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {downloadFile, getFiles, getMetadataById} from "@/api/performance";
+import {downloadFile, getFiles, getMetadataById} from "../../../api/performance";
 
 export default {
   name: "PerformanceBasicConfig",

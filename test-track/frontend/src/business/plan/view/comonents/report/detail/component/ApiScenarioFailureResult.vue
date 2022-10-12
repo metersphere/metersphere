@@ -50,17 +50,28 @@
     </ms-aside-container>
     <el-main>
 
-      <micro-app v-if="showResponse"
-                 route-name="ApiScenarioReportView"
-                 service="api"
-                 :route-params="{
-                    reportId,
-                    isShare,
-                    shareId,
-                    isPlanReport: true,
-                    isTemplate,
-                    response
-                 }"/>
+      <div v-if="showResponse">
+        <micro-app
+          v-if="!isTemplate"
+          route-name="ApiScenarioReportView"
+          service="api"
+          :route-params="{
+            reportId,
+            isShare,
+            shareId,
+            isPlanReport: true,
+            isTemplate,
+            response
+          }"/>
+        <ms-api-report v-else
+                       :report-id="reportId"
+                       :is-share="isShare"
+                       :share-id="shareId"
+                       :is-plan="true"
+                       :is-template="isTemplate"
+                       :template-report="response"/>
+
+      </div>
 
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </el-main>
@@ -68,6 +79,10 @@
 </template>
 
 <script>
+
+// 测试计划报告导出的是时候需要引入
+import MsApiReport from "../../../../../../../../../../api-test/frontend/src/business/automation/report/ApiReportDetail";
+
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
@@ -96,7 +111,8 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem
+    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
+    MsApiReport
   },
   props: {
     planId: String,

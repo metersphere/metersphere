@@ -103,11 +103,11 @@
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {findThreadGroup} from "@/business/test/model/ThreadGroup";
+import {findThreadGroup} from "../../../business/test/model/ThreadGroup";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
-import {checkFileIsRelated, deleteFile, getJmxContents, getProjectFileByName, getProjectFiles, updateFile, uploadFiles} from "@/api/performance";
+import {checkFileIsRelated, deleteFile, getJmxContents, getProjectFileByName, getProjectFiles, updateFile, uploadFiles} from "../../../api/performance";
 
 export default {
   name: "ExistFiles",

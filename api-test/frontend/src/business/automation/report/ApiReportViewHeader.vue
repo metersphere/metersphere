@@ -79,11 +79,11 @@
 
 <script>
 
-import {generateShareInfoWithExpired,getShareRedirectUrl} from "@/api/share";
+import {generateShareInfoWithExpired,getShareRedirectUrl} from "../../../api/share";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {getProjectApplicationConfig} from "@/api/project";
-import {apiTestReRun} from "@/api/xpack";
+import {getProjectApplicationConfig} from "../../../api/project";
+import {apiTestReRun} from "../../../api/xpack";
 import {getUUID} from "metersphere-frontend/src/utils";
 
 export default {

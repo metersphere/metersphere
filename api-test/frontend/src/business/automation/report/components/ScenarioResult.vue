@@ -38,8 +38,8 @@
 
 <script>
 import MsRequestResult from "./RequestResult";
-import {STEP} from "@/business/automation/scenario/Setting";
-import {getCurrentByResourceId} from "@/api/user";
+import {STEP} from "../../../../business/automation/scenario/Setting";
+import {getCurrentByResourceId} from "../../../../api/user";
 
 export default {
   name: "MsScenarioResult",

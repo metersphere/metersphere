@@ -121,8 +121,8 @@ import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID, windowPrint} from "metersphere-frontend/src/utils";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {getScenarioReport, getScenarioReportDetail, getShareScenarioReport, reportReName} from "@/api/scenario-report";
-import {STEP} from "@/business/automation/scenario/Setting";
+import {getScenarioReport, getScenarioReportDetail, getShareScenarioReport, reportReName} from "../../../api/scenario-report";
+import {STEP} from "../../automation/scenario/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 
 export default {

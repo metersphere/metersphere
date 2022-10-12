@@ -47,7 +47,7 @@
 <script>
 import MsAssertionResults from "./AssertionResults";
 import MsCodeEdit from "../MsCodeEdit";
-import MsDropdown from "@/business/commons/MsDropdown";
+import MsDropdown from "../../../../business/commons/MsDropdown";
 import {BODY_FORMAT} from "../../model/ApiTestModel";
 import MsSqlResultTable from "./SqlResultTable";
 

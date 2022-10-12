@@ -863,7 +863,7 @@ public class TestPlanScenarioCaseService {
                             if (StringUtils.isNotEmpty(contentStr)) {
                                 content.put("envName", apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
                             }
-                            contentStr = content.toString();
+                            contentStr = JSON.toJSONString(content);
                             apiCase.setResponse(contentStr);
                         } catch (Exception e) {
                             LogUtil.error("解析content失败!", e);

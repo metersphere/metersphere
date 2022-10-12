@@ -37,8 +37,8 @@ import {
   getPerformanceReportLogResourceDetail,
   getSharePerformanceReportLogResource,
   getSharePerformanceReportLogResourceDetail,
-} from "@/api/load-test";
-import {downloadLogFile} from "@/api/report";
+} from "../../../api/load-test";
+import {downloadLogFile} from "../../../api/report";
 
 export default {
   name: "LogDetails",

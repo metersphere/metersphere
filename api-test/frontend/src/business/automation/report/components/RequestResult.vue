@@ -74,13 +74,13 @@ import MsAssertionResults from "./AssertionResults";
 import MsRequestText from "./RequestText";
 import MsResponseText from "./ResponseText";
 import MsRequestResultTail from "./RequestResultTail";
-import {getCurrentByResourceId} from "@/api/user";
-import {getShareContent} from "@/api/share";
-import {getScenarioReportStepDetail} from "@/api/scenario-report";
+import {getCurrentByResourceId} from "../../../../api/user";
+import {getShareContent} from "../../../../api/share";
+import {getScenarioReportStepDetail} from "../../../../api/scenario-report";
 import MsApiReportStatus from "../ApiReportStatus";
 
 
-const {getReportStatusColor} = require("@/business/commons/js/commons");
+const {getReportStatusColor} = require("../../../../business/commons/js/commons");
 export default {
   name: "MsRequestResult",
   components: {
