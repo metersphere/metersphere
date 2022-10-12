@@ -7,7 +7,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.api.exec.generator.JSONSchemaGenerator;
-import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
 import io.metersphere.base.domain.User;
@@ -18,7 +17,7 @@ import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.ShareType;
 import io.metersphere.commons.utils.*;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiModuleService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,24 +57,24 @@ public class ShareInfoService extends BaseShareInfoService {
         PageHelper.clearPage();
         List<ApiDocumentInfoDTO> returnList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(apiDocumentInfoDTOS)) {
-        List<String> apiModuleIdList = new ArrayList<>();
-        LogUtil.info("查找模块相关信息");
-        List<String> userIdList = new ArrayList<>();
-        apiDocumentInfoDTOS.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getModuleId()) && !apiModuleIdList.contains(item.getModuleId())) {
-                apiModuleIdList.add(item.getModuleId());
-                if (!userIdList.contains(item.getUserId())) {
-                    userIdList.add(item.getUserId());
+            List<String> apiModuleIdList = new ArrayList<>();
+            LogUtil.info("查找模块相关信息");
+            List<String> userIdList = new ArrayList<>();
+            apiDocumentInfoDTOS.forEach(item -> {
+                if (StringUtils.isNotBlank(item.getModuleId()) && !apiModuleIdList.contains(item.getModuleId())) {
+                    apiModuleIdList.add(item.getModuleId());
+                    if (!userIdList.contains(item.getUserId())) {
+                        userIdList.add(item.getUserId());
+                    }
+                    if (!userIdList.contains(item.getCreateUser())) {
+                        userIdList.add(item.getCreateUser());
+                    }
                 }
-                if (!userIdList.contains(item.getCreateUser())) {
-                    userIdList.add(item.getCreateUser());
-                }
-            }
-        });
-        Map<String, User> selectedUserMap = this.getUserIdMapByIds(userIdList);
-        Map<String, String> moduleNameMap = apiModuleService.getApiModuleNameDicByIds(apiModuleIdList);
-        LogUtil.info("开始遍历组装数据");
-        returnList = this.conversionModelListToDTO(apiDocumentInfoDTOS, selectedUserMap, moduleNameMap);
+            });
+            Map<String, User> selectedUserMap = this.getUserIdMapByIds(userIdList);
+            Map<String, String> moduleNameMap = apiModuleService.getApiModuleNameDicByIds(apiModuleIdList);
+            LogUtil.info("开始遍历组装数据");
+            returnList = this.conversionModelListToDTO(apiDocumentInfoDTOS, selectedUserMap, moduleNameMap);
         }
         return PageUtils.setPageInfo(page, returnList);
     }
@@ -243,7 +242,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                 try {
                                     JsonNode bodyObj = requestObj.get("body");
                                     if (this.isObjectHasKey(bodyObj, PropertyConstant.TYPE)) {
-                                        String type = bodyObj.get(PropertyConstant.TYPE).toString();
+                                        String type = bodyObj.get(PropertyConstant.TYPE).asText();
                                         if (StringUtils.equals(type, "WWW_FORM")) {
                                             apiInfoDTO.setRequestBodyParamType("x-www-from-urlencoded");
                                         } else if (StringUtils.equals(type, "Form Data")) {
@@ -269,7 +268,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                                 this.setPreviewData(previewJsonArray, raw);
                                             } else {
                                                 if (bodyObj.has("raw")) {
-                                                    String raw = bodyObj.get("raw").toString();
+                                                    String raw = bodyObj.get("raw").asText();
                                                     jsonSchemaBodyDTO.setRaw(raw);
                                                     apiInfoDTO.setJsonSchemaBody(jsonSchemaBodyDTO);
                                                     apiInfoDTO.setRequestBodyStrutureData(raw);
@@ -279,14 +278,14 @@ public class ShareInfoService extends BaseShareInfoService {
                                             }
                                         } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                                             if (bodyObj.has("raw")) {
-                                                String raw = bodyObj.get("raw").toString();
+                                                String raw = bodyObj.get("raw").asText();
                                                 apiInfoDTO.setRequestBodyStrutureData(raw);
                                                 this.setPreviewData(previewJsonArray, raw);
                                             }
                                         } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                             if (bodyObj.has("kvs")) {
                                                 ArrayNode bodyParamArr = JSONUtil.createArray();
-                                                ArrayNode kvsArr = bodyObj.with("kvs");
+                                                ArrayNode kvsArr = bodyObj.withArray("kvs");
                                                 Map<String, String> previewObjMap = new LinkedHashMap<>();
                                                 for (int i = 0; i < kvsArr.size(); i++) {
                                                     JsonNode kv = kvsArr.get(i);
@@ -306,13 +305,12 @@ public class ShareInfoService extends BaseShareInfoService {
                                             if (bodyObj.has("binary")) {
                                                 List<Map<String, String>> bodyParamList = new ArrayList<>();
                                                 ArrayNode kvsArr = bodyObj.withArray("binary");
-
                                                 Map<String, String> previewObjMap = new LinkedHashMap<>();
                                                 for (int i = 0; i < kvsArr.size(); i++) {
                                                     JsonNode kv = kvsArr.get(i);
                                                     if (this.isObjectHasKey(kv, "description") && this.isObjectHasKey(kv, "files")) {
                                                         Map<String, String> bodyMap = new HashMap<>();
-                                                        String name = kv.get("description").toString();
+                                                        String name = kv.get("description").asText();
                                                         ArrayNode fileArr = kv.withArray("files");
                                                         String value = "";
                                                         for (int j = 0; j < fileArr.size(); j++) {
@@ -365,7 +363,7 @@ public class ShareInfoService extends BaseShareInfoService {
                             try {
                                 JsonNode bodyObj = responseJsonObj.get("body");
                                 if (this.isObjectHasKey(bodyObj, PropertyConstant.TYPE)) {
-                                    String type = bodyObj.get(PropertyConstant.TYPE).toString();
+                                    String type = bodyObj.get(PropertyConstant.TYPE).asText();
                                     if (StringUtils.equals(type, "WWW_FORM")) {
                                         apiInfoDTO.setResponseBodyParamType("x-www-from-urlencoded");
                                     } else if (StringUtils.equals(type, "Form Data")) {
@@ -388,7 +386,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                             apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
                                         } else {
                                             if (bodyObj.has("raw")) {
-                                                String raw = bodyObj.get("raw").toString();
+                                                String raw = bodyObj.get("raw").asText();
                                                 apiInfoDTO.setResponseBodyStrutureData(raw);
                                             }
                                         }
@@ -413,7 +411,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                                 if (kv.has("description") && kv.has("files")) {
                                                     Map<String, String> bodyMap = new HashMap<>();
 
-                                                    String name = kv.get("description").toString();
+                                                    String name = kv.get("description").asText();
                                                     ArrayNode fileArr = kv.withArray("files");
                                                     String value = "";
                                                     for (int j = 0; j < fileArr.size(); j++) {
