@@ -209,10 +209,10 @@ public class ApiScenarioService {
         }
         if (MapUtils.isNotEmpty(request.getFilters())
                 && request.getFilters().containsKey(ApiTestConstants.LAST_RESULT)) {
-            if (request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiReportStatus.PENDING.name())) {
+            if (request.getFilters().get(ApiTestConstants.LAST_RESULT) != null && request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiReportStatus.PENDING.name())) {
                 request.getFilters().get(ApiTestConstants.LAST_RESULT).add("");
             }
-            if (request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiTestConstants.FAKE_ERROR)) {
+            if (request.getFilters().get(ApiTestConstants.LAST_RESULT) != null && request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiTestConstants.FAKE_ERROR)) {
                 request.getFilters().get(ApiTestConstants.LAST_RESULT).add(ApiReportStatus.FAKE_ERROR.name());
             }
         }
