@@ -349,12 +349,16 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         List<BodyFile> files = new ArrayList<>();
         if (StringUtils.isNotEmpty(config)) {
             Map<String, Object> map = JSON.parseObject(config, Map.class);
-            JSONObject commonConfig = new JSONObject(map).getJSONObject("commonConfig");
-            JSONArray variables = commonConfig.getJSONArray("variables");
-            List<ScenarioVariable> list = JSON.parseArray(variables.toString(), ScenarioVariable.class);
-            list.stream().filter(ScenarioVariable::isCSVValid).forEach(keyValue -> {
-                files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
-            });
+            JSONObject commonConfig = new JSONObject(map).optJSONObject("commonConfig");
+            if (commonConfig!=null){
+                JSONArray variables = commonConfig.optJSONArray("variables");
+                if (variables!=null){
+                    List<ScenarioVariable> list = JSON.parseArray(variables.toString(), ScenarioVariable.class);
+                    list.stream().filter(ScenarioVariable::isCSVValid).forEach(keyValue -> {
+                        files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
+                    });
+                }
+            }
         }
         if (!org.springframework.util.CollectionUtils.isEmpty(files)) {
             List<BodyFile> list = files.stream().distinct().collect(Collectors.toList());

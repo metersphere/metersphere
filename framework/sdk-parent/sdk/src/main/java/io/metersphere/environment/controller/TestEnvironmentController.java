@@ -84,7 +84,8 @@ public class TestEnvironmentController {
 
     private void checkParams(TestEnvironmentDTO apiTestEnvironment) {
         try {
-            JSONObject json = new JSONObject(JSON.parseObject(apiTestEnvironment.getConfig()));
+           Map<Object,Object> map = JSON.parseObject(apiTestEnvironment.getConfig(),Map.class);
+            JSONObject json = new JSONObject(map);
             JSONObject commonConfig = json.getJSONObject("commonConfig");
             JSONArray databaseConfigs = json.getJSONArray("databaseConfigs");
 
