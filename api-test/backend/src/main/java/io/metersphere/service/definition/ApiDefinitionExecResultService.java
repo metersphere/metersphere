@@ -3,20 +3,8 @@ package io.metersphere.service.definition;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.User;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiDefinitionMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -24,10 +12,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
@@ -35,7 +20,6 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.commons.utils.ResponseUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -48,13 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -120,6 +98,7 @@ public class ApiDefinitionExecResultService {
                                 this.setId(dto.getExtendedParameters().get("userId").toString());
                                 this.setName(dto.getExtendedParameters().get("userName").toString());
                             }};
+                            result.setUserId(user.getId());
                         } else if (dto.getExtendedParameters().containsKey("userId")) {
                             result.setUserId(dto.getExtendedParameters().get("userId").toString());
                         }
@@ -188,7 +167,6 @@ public class ApiDefinitionExecResultService {
                 return;
             }
             BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
-
             String event;
             String status;
             if (StringUtils.equals(result.getStatus(), ApiReportStatus.SUCCESS.name())) {
