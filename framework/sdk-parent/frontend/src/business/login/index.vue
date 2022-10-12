@@ -66,6 +66,7 @@ import {useUserStore} from "@/store"
 import {checkMicroMode, operationConfirm} from "../../utils";
 import {getModuleList} from "../../api/module";
 import {getLicense} from "../../api/license";
+import {setLanguage} from "../../i18n";
 
 const checkLicense = () => {
   return getLicense()
@@ -180,9 +181,9 @@ export default {
       .catch(data => {
         // 保存公钥
         localStorage.setItem("publicKey", data.message);
-        let lang = localStorage.getItem(CURRENT_LANGUAGE);
+        let lang = localStorage.getItem("language");
         if (lang) {
-          this.$setLang(lang);
+          setLanguage(lang);
           this.rules = this.getDefaultRules();
         }
       });
