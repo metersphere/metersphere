@@ -458,7 +458,7 @@ export default {
         remark: "",
         stepDescription: "",
         expectedResult: "",
-        status: this.testCaseDefaultValue['用例状态'],
+        status: this.testCaseDefaultValue['用例状态'] ? this.testCaseDefaultValue['用例状态'] : 'Prepare',
         steps: [{
           num: 1,
           desc: '',
