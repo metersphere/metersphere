@@ -168,7 +168,7 @@ export function getMinderExtraNode(groupId, nodeId) {
 }
 
 export function testCaseMinderEdit(param) {
-  return post(BASE_URL + '/minder/edit', param);
+  return post(BASE_URL + 'minder/edit', param);
 }
 
 export function editTestReviewTestCaseOrder(request) {
