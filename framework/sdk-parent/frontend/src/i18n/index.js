@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueI18n from "vue-i18n";
-
+import {request} from "../plugins/request";
 Vue.use(VueI18n);
 
 // 直接加载翻译的语言文件
@@ -43,6 +43,7 @@ const importLanguage = lang => {
 const setLang = lang => {
   localStorage.setItem('language', lang)
   i18n.locale = lang;
+  request.defaults.headers.common['Accept-Language'] = lang.replace("_", "-");
 }
 
 export const setLanguage = lang => {
@@ -51,6 +52,8 @@ export const setLanguage = lang => {
   }
   if (i18n.locale !== lang) {
     importLanguage(lang).then(setLang);
+  } else {
+    setLang(lang);
   }
 }
 

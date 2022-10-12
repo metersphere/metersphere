@@ -18,6 +18,7 @@ import {DEFAULT_LANGUAGE} from '../../utils/constants';
 import {getCurrentUser} from "../../utils/token";
 import {useUserStore} from "@/store";
 import {fullScreenLoading, stopFullScreenLoading} from "../../utils";
+import {setLanguage} from "../../i18n";
 
 const userStore = useUserStore();
 
@@ -45,7 +46,7 @@ export default {
   methods: {
     checkLanguage(lang) {
       if (!lang) return;
-      this.$setLang(lang);
+      setLanguage(lang);
       this.language = this.languageMap[lang];
     },
     currentUser: () => {
