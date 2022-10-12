@@ -475,9 +475,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
         if (schema == null) return null;
-        if (StringUtils.isBlank(schema.get$ref()) && schema.getProperties() == null && refSet.isEmpty() && schema.getExample() == null) {
-            return null;
-        }
         JsonSchemaItem item = new JsonSchemaItem();
         if (schema.getRequired() != null) {
             item.setRequired(schema.getRequired());
@@ -521,7 +518,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         item.setPattern(schema.getPattern());
         item.setMaxLength(schema.getMaxLength());
         item.setMinLength(schema.getMinLength());
-
+        item.setMaximum(schema.getMaximum());
+        item.setMinimum(schema.getMinimum());
         return item;
     }
 
