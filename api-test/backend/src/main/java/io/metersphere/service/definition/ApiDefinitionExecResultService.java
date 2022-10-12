@@ -198,19 +198,20 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            if (user == null) {
-                if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
-                    user = SessionUtils.getUser();
-                } else {
-                    user = userMapper.selectByPrimaryKey(result.getUserId());
-                }
-            }
 
             Map paramMap = new HashMap<>(beanMap);
-            paramMap.put("operator", user != null ? user.getName() : result.getUserId());
+            String userId = user != null ? user.getName() : result.getUserId();
+            paramMap.put("operator", userId);
             paramMap.put("status", result.getStatus());
             String context = "${operator}执行接口用例" + status + ": ${name}";
-            NoticeModel noticeModel = NoticeModel.builder().operator(result.getUserId() != null ? result.getUserId() : SessionUtils.getUserId()).context(context).subject("接口用例通知").paramMap(paramMap).event(event).build();
+            NoticeModel noticeModel = NoticeModel
+                    .builder()
+                    .operator(userId)
+                    .context(context)
+                    .subject("接口用例通知")
+                    .paramMap(paramMap)
+                    .event(event)
+                    .build();
 
             String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
             Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
