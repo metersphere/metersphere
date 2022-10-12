@@ -823,6 +823,7 @@ export default {
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.isCopy = true;
+      delete obj.id;
       this.$emit('copyApi', obj);
     },
     runApi(row) {
