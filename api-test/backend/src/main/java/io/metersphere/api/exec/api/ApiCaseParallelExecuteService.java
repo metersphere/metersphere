@@ -3,7 +3,7 @@ package io.metersphere.api.exec.api;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.algorithm.SmoothWeighted;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
