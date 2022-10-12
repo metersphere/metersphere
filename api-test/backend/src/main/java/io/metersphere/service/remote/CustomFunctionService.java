@@ -19,6 +19,6 @@ public class CustomFunctionService {
     }
 
     public Object getPage(String requestURI, CustomFunctionRequest params) {
-        return microService.postForDataArray(MicroServiceName.PROJECT_MANAGEMENT, requestURI, params, CustomFunction.class);
+        return microService.postForData(MicroServiceName.PROJECT_MANAGEMENT, requestURI, params);
     }
 }
