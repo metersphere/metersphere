@@ -101,7 +101,7 @@
       "resourceId": "PROJECT_OPERATING_LOG"
     },
     {
-      "id": "PROJECT_FILE:READ+JAR",
+      "id": "PROJECT_FILE:READ",
       "name": "permission.project_file.jar",
       "resourceId": "PROJECT_FILE"
     },
@@ -152,7 +152,7 @@
     },
     {
       "id": "PROJECT_TEMPLATE:READ+API_TEMPLATE",
-      "name": "custom_template.api_template",
+      "name": "permission.project_template.api_template",
       "resourceId": "PROJECT_TEMPLATE"
     },
     {

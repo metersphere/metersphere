@@ -2575,6 +2575,7 @@ const message = {
       read: "READ",
       case_template: "CASE TEMPLATE",
       issue_template: "ISSUE TEMPLATE",
+      api_template: "Api Template",
       custom: "CUSTOM FIELDS"
     },
     workspace_project_manager: {
