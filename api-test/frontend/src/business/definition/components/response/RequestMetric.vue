@@ -9,7 +9,7 @@
           placement="top">
 
           <div
-            v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult
+            v-if="response.attachInfoMap && response.attachInfoMap.FAKE_ERROR
             && response.attachInfoMap.status === 'FAKE_ERROR'" class="node-title" :class="'ms-req-error-report-result'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
@@ -20,17 +20,17 @@
         <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
           {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
         </div>
-        <div v-if="response && response.attachInfoMap && response.attachInfoMap.errorReportResult">
+        <div v-if="response && response.attachInfoMap && response.attachInfoMap.FAKE_ERROR">
           <div class="node-title ms-req-error-report-result"
                v-if="response.attachInfoMap.status === 'FAKE_ERROR'" style="margin-left: 0px;padding-left: 0px">
-            {{ response.attachInfoMap.errorReportResult }}
+            {{ response.attachInfoMap.FAKE_ERROR }}
           </div>
           <div class="node-title ms-req-success" v-else-if="response.success"
                style="margin-left: 0px;padding-left: 0px">
-            {{ response.attachInfoMap.errorReportResult }}
+            {{ response.attachInfoMap.FAKE_ERROR }}
           </div>
           <div class="node-title ms-req-error" v-else style="margin-left: 0px;padding-left: 0px">
-            {{ response.attachInfoMap.errorReportResult }}
+            {{ response.attachInfoMap.FAKE_ERROR }}
           </div>
         </div>
       </el-col>

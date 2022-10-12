@@ -39,9 +39,9 @@
           </el-col>
           <!-- 请求响应时间 -->
           <el-col :span="3">
-              <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
-                {{ request.responseResult.responseTime }}
-              </div>
+            <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
+              {{ request.responseResult.responseTime }}
+            </div>
           </el-col>
           <el-col :span="2">
             <el-tag v-if="request.testing" class="ms-test-running" size="mini">
@@ -153,9 +153,9 @@ export default {
       handler(n) {
         if (this.request.errorCode) {
           this.baseErrorCode = this.request.errorCode;
-        } else if (this.request.attachInfoMap && this.request.attachInfoMap.errorReportResult) {
-          if (this.request.attachInfoMap.errorReportResult !== "") {
-            this.baseErrorCode = this.request.attachInfoMap.errorReportResult;
+        } else if (this.request.attachInfoMap && this.request.attachInfoMap.FAKE_ERROR) {
+          if (this.request.attachInfoMap.FAKE_ERROR !== "") {
+            this.baseErrorCode = this.request.attachInfoMap.FAKE_ERROR;
           }
         }
       },
