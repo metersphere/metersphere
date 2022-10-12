@@ -73,6 +73,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/system/theme", "anon");
         filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");
         filterChainDefinitionMap.put("/system/timeout", "anon");
+        filterChainDefinitionMap.put("/file/metadata/info/**", "anon");
 
         filterChainDefinitionMap.put("/v1/catalog/**", "anon");
         filterChainDefinitionMap.put("/v1/agent/**", "anon");

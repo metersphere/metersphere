@@ -21,7 +21,7 @@
               </el-col>
               <el-col :span="18" style="padding-top: 80px">
                 <el-card :body-style="{ padding: '0px' }" v-if="isImage(data.type) && !isRepositoryFile()">
-                  <img :src="'/file/metadata/info/' + data.id" class="ms-edit-image"/>
+                  <img :src="'/project/file/metadata/info/' + data.id" class="ms-edit-image"/>
                 </el-card>
                 <el-card :body-style="{ padding: '0px' }" v-else>
                   <div class="ms-edit-image">
