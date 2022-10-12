@@ -37,6 +37,7 @@
             v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
             style="margin-right: 10px;float: right;"
             placement="bottom"
+            trigger="click"
             width="300">
             <p>{{ shareUrl }}</p>
             <span style="color: red;float: left;margin-left: 10px;" v-if="application.typeValue">{{
@@ -47,10 +48,12 @@
                          v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}
               </el-button>
             </div>
-            <el-button slot="reference" :disabled="isReadOnly" type="danger" plain size="mini"
-                       @click="handleShare(report)">
-              {{ $t('test_track.plan_view.share_report') }}
-            </el-button>
+            <template v-slot:reference>
+              <el-button :disabled="isReadOnly" type="danger" plain size="mini"
+                         @click="handleShare(report)">
+                {{ $t('test_track.plan_view.share_report') }}
+              </el-button>
+            </template>
           </el-popover>
 
           <el-button v-if="showRerunButton" class="rerun-button" plain size="mini" @click="rerun">
