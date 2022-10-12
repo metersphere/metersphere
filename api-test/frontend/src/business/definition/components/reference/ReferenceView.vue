@@ -83,7 +83,7 @@ export default {
     },
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
-        name: 'ApiAutomation',
+        name: 'ApiAutomationWithQuery',
         params: {
           redirectID: getUUID(),
           dataType: "scenario",
