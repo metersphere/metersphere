@@ -27,11 +27,7 @@ public class CacheNodeAspect {
     @After("cacheNodes()")
     @Async
     public void after() {
-        try {
-            microService.getForResultHolder(MicroServiceName.PERFORMANCE_TEST, "/performance/update/cache");
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
+        microService.getForResultHolder(MicroServiceName.PERFORMANCE_TEST, "/performance/update/cache");
     }
 
 }
