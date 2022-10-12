@@ -2583,6 +2583,7 @@ const message = {
       read: "查询",
       case_template: "用例模版",
       issue_template: "缺陷模版",
+      api_template: "接口模版",
       custom: "自定义字段"
     },
     workspace_project_manager: {
