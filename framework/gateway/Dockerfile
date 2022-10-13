@@ -23,7 +23,6 @@ COPY src/main/resources/static/*.worker.js /app/static/
 
 ENV JAVA_CLASSPATH=/app:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.gateway.GatewayApplication
-ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
 ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED -Dreactor.netty.pool.leasingStrategy=lifo"
 
