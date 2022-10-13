@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.service.ExtErrorReportLibraryService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.dto.FileInfoDTO;
@@ -13,6 +12,7 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
+import io.metersphere.service.ExtErrorReportLibraryService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
@@ -236,7 +236,7 @@ public class HashTreeUtil {
         if (CollectionUtils.isNotEmpty(files)) {
             Map<String, String> repositoryFileMap = new HashMap<>();
             for (BodyFile bodyFile : files) {
-                if (StringUtils.equals(bodyFile.getStorage(), StorageConstants.GIT.name())
+                if (!StringUtils.equals(bodyFile.getStorage(), StorageConstants.LOCAL.name())
                         && StringUtils.isNotBlank(bodyFile.getFileId())) {
                     repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
                 }
