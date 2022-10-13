@@ -139,8 +139,6 @@ export default {
     };
   },
   created() {
-    this.getTypes();
-    this.getProjectFiles();
   },
   methods: {
     submit() {
@@ -150,11 +148,6 @@ export default {
       } else {
         this.$warning("请选择一条数据");
       }
-    },
-    changeList(pageSize, currentPage) {
-      this.currentPage = currentPage;
-      this.pageSize = pageSize;
-      this.getProjectFiles();
     },
     change(value) {
       this.showView = value;
@@ -166,15 +159,9 @@ export default {
       this.visible = false;
     },
     open() {
-      this.visible = true;
-    },
-    myFile() {
-      if (!this.condition.filters) {
-        this.condition.filters = {createUser: [getCurrentUserId()]};
-      } else {
-        this.condition.filters.createUser = [getCurrentUserId()];
-      }
+      this.getTypes();
       this.getProjectFiles();
+      this.visible = true;
     },
     getProjectFiles() {
       this.data.loading = getFileMetadataList(this.projectId, this.currentPage, this.pageSize, this.condition).then(res => {
@@ -187,17 +174,6 @@ export default {
           }
         });
       });
-    },
-    fileValidator(file) {
-      /// todo: 是否需要对文件内容和大小做限制
-      return file.size > 0;
-    },
-    beforeUploadFile(file) {
-      if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
-        return false;
-      }
-      return true;
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
@@ -223,14 +199,6 @@ export default {
           this.typeFilters.push({text: item, value: item});
         })
       });
-    },
-    moduleChange(ids) {
-      if (!this.condition.filters) {
-        this.condition.filters = {moduleIds: ids};
-      } else {
-        this.condition.filters.moduleIds = ids;
-      }
-      this.getProjectFiles();
     },
     moveSave(param) {
       this.buildBatchParam(param);
