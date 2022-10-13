@@ -796,7 +796,7 @@ public class ApiScenarioService {
             if (config.getConfig() != null && !config.getConfig().isEmpty()) {
                 ElementUtil.dataSetDomain(element.getJSONArray(ElementConstants.HASH_TREE), config);
             }
-            return JSON.toJSONString(element);
+            return element.toString();
         } catch (Exception e) {
             return scenarioDefinition;
         }
@@ -1160,7 +1160,7 @@ public class ApiScenarioService {
                 JSONObject object = JSONUtil.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
                 if (object != null) {
-                    item.setScenarioDefinition(JSON.toJSONString(object));
+                    item.setScenarioDefinition(object.toString());
                 }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
                 apiScenarioReferenceIdService.saveApiAndScenarioRelation(item);

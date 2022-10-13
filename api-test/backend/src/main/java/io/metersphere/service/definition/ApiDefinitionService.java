@@ -2131,7 +2131,7 @@ public class ApiDefinitionService {
         if (request.getAuthManager() != null && StringUtils.isNotBlank(request.getAuthManager().getUsername()) && StringUtils.isNotBlank(request.getAuthManager().getPassword())) {
             configObj.put("authManager", request.getAuthManager());
         }
-        return JSON.toJSONString(configObj);
+        return configObj.toString();
     }
 
     /**
@@ -2325,7 +2325,7 @@ public class ApiDefinitionService {
                     map.put(PropertyConstant.TYPE, "ESB");
                 }
                 request.remove("backEsbDataStruct");
-                bloBs.setRequest(JSON.toJSONString(request));
+                bloBs.setRequest(request.toString());
                 String response = JSON.toJSONString(map);
                 bloBs.setResponse(response);
             }
