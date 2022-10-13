@@ -110,7 +110,7 @@ public class MsDubboSampler extends MsTestElement {
         String environmentId = this.getEnvironmentId();
         if (environmentId == null) {
             if (StringUtils.isEmpty(this.useEnvironment) && envConfig != null) {
-                environmentId = envConfig.getApiEnvironmentid();
+                environmentId = envConfig.getEnvironmentId();
             } else {
                 environmentId = this.useEnvironment;
             }

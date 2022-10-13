@@ -34,13 +34,13 @@ public class MsJSR223PostProcessor extends MsTestElement {
         if (StringUtils.isEmpty(this.getEnvironmentId())) {
             if (config.getConfig() != null) {
                 if (config.getProjectId() != null && config.getConfig().containsKey(config.getProjectId())) {
-                    String evnId = config.getConfig().get(config.getProjectId()).getApiEnvironmentid();
+                    String evnId = config.getConfig().get(config.getProjectId()).getEnvironmentId();
                     this.setEnvironmentId(evnId);
                 } else {
                     Collection<EnvironmentConfig> evnConfigList = config.getConfig().values();
                     if (evnConfigList != null && !evnConfigList.isEmpty()) {
                         for (EnvironmentConfig configItem : evnConfigList) {
-                            String evnId = configItem.getApiEnvironmentid();
+                            String evnId = configItem.getEnvironmentId();
                             this.setEnvironmentId(evnId);
                             break;
                         }

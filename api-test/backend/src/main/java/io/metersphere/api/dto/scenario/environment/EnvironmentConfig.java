@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 public class EnvironmentConfig {
-    private String apiEnvironmentid;
+    private String environmentId;
     private CommonConfig commonConfig;
     private HttpConfig httpConfig;
     private List<DatabaseConfig> databaseConfigs;

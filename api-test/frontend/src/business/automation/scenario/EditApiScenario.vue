@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-aside-container :height="'calc(100vh - 90px)'">
-      <div @click="showAll">
+      <div @click="showAll" style="overflow-x: hidden">
         <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules"
                  ref="currentScenario">

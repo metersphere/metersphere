@@ -437,7 +437,7 @@ public class ApiScenarioEnvService {
                 ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentMap.get(projectId));
                 if (environment != null && environment.getConfig() != null) {
                     EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                    env.setApiEnvironmentid(environment.getId());
+                    env.setEnvironmentId(environment.getId());
                     envConfig.put(projectId, env);
                 }
             });
