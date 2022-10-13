@@ -85,14 +85,18 @@ public class GitFileRepository implements FileRepository {
                 }
 
                 GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
-                        baseGitFileInfo.getRepositoryPath(), baseGitFileInfo.getUserName(), baseGitFileInfo.getToken());
-
+                        baseGitFileInfo.getRepositoryPath(),
+                        baseGitFileInfo.getUserName(), baseGitFileInfo.getToken());
 
                 Map<String, byte[]> fileByteMap = repositoryUtils.getFiles(repositoryRequestList);
                 repositoryRequestList.forEach(repositoryFile -> {
                     if (fileByteMap.get(repositoryFile.getFileMetadataId()) != null) {
                         FileInfoDTO repositoryFileDTO = new FileInfoDTO(
-                                repositoryFile.getFileMetadataId(), MetadataUtils.getFileNameByRemotePath(repositoryFile.getFilePath()), StorageConstants.GIT.name(), fileByteMap.get(repositoryFile.getFileMetadataId()));
+                                repositoryFile.getFileMetadataId(),
+                                MetadataUtils.getFileNameByRemotePath(repositoryFile.getFilePath()),
+                                StorageConstants.GIT.name(),
+                                repositoryFile.getFilePath(),
+                                fileByteMap.get(repositoryFile.getFileMetadataId()));
                         list.add(repositoryFileDTO);
                     }
                 });

@@ -103,7 +103,7 @@ public class FileManagerService {
                 try {
                     list.addAll(FileCenter.getRepository(requestByStorageEntry.getKey()).getFileBatch(requestByStorageEntry.getValue()));
                 } catch (Exception e) {
-                    LogUtil.error("下载GIT文件失败!", e);
+                    LogUtil.error("下载文件失败!", e);
                     return list;
                 }
             }
