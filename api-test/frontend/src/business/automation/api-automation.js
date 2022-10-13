@@ -105,7 +105,7 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
       success(response.data);
     }
   }, error => {
-    _this.$emit('errorRefresh', error);
+    _this.errorRefresh();
   })
 }
 
