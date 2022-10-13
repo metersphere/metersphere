@@ -15,31 +15,20 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
-import io.metersphere.service.definition.TcpApiParamService;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.TestPlanApiCaseExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.ApiDefinitionExecResultUtil;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,13 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -208,7 +191,7 @@ public class ApiExecuteService {
             // 单接口调试生成tmp临时目录
             requests.forEach(item -> {
                 Body body = item.getBody();
-                String tmpFilePath = "tmp/" + UUID.randomUUID().toString();
+                String tmpFilePath = "tmp/" + request.getReportId();
                 body.setTmpFilePath(tmpFilePath);
                 FileUtils.copyBdyFile(item.getId(), tmpFilePath);
                 FileUtils.createBodyFiles(tmpFilePath, bodyFiles);

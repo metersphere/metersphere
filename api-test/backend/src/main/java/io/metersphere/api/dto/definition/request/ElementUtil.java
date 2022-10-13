@@ -30,10 +30,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
@@ -43,8 +40,6 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
-import io.metersphere.commons.utils.ApiFileUtil;
-import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -139,7 +134,7 @@ public class ElementUtil {
                             fileId = file.getFileId();
                             if (fileMetadataService != null) {
                                 FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
-                                if (fileMetadata != null && StringUtils.equals(fileMetadata.getStorage(), StorageConstants.GIT.name())) {
+                                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                                     isRepository = true;
                                 }
                             }

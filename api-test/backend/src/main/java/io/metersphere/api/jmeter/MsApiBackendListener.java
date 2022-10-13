@@ -4,10 +4,7 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
@@ -24,6 +21,7 @@ import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +63,12 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
 
             String console = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
             if (FileUtils.isFolderExists(dto.getReportId())) {
-                console += "\r\n" + "tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getReportId() + " has deleted.";
+                console += "\r\n" + DateUtils.getTimeString(new Date()) + " INFO " +
+                        "Tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getReportId() + " has deleted.";
+            }
+            if (FileUtils.isFolderExists("tmp" + File.separator + dto.getReportId())) {
+                console += "\r\n" + DateUtils.getTimeString(new Date()) + " INFO " +
+                        "Tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + "tmp" + File.separator + dto.getReportId() + " has deleted.";
             }
             dto.setConsole(console);
 
