@@ -1024,13 +1024,13 @@
         and api_definition.status != 'Trash';
     </select>
     <select id="scenarioList" resultType="io.metersphere.base.domain.ApiScenario">
-        select DISTINCT t1.id
-        from api_scenario t1
-                 join api_scenario_reference_id t2 on t1.id = t2.api_scenario_id and t1.`status` !='Trash'
-                 join api_test_case t3
-        on t2.reference_id = t3.id and t2.reference_type = 'REF'
-        where t3.api_definition_id = #{apiDefinitionId}
-          and t3.`status`!='Trash'
+        SELECT DISTINCT
+            t1.id
+        FROM
+            api_scenario t1
+                JOIN api_scenario_reference_id t2 ON t1.id = t2.api_scenario_id  AND t1.`status` != 'Trash'
+        WHERE
+            t2.reference_id = #{apiDefinitionId}
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
         select count(id) from api_definition
