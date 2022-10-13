@@ -355,9 +355,9 @@ export default {
       }
       updateDefinition(null, null, bodyFiles, this.api).then(() => {
         this.$success(this.$t('commons.save_success'));
-        this.$emit('saveApi', this.api);
         if (this.syncTabs.indexOf(this.api.id) === -1) {
           this.syncTabs.push(this.api.id);
+          this.$emit('syncApi', this.api);
         }
       });
     },
