@@ -49,10 +49,11 @@
       </el-card>
     </ms-aside-container>
     <el-main>
-      <micro-app v-if="showResponse"
-                 route-name="ApiReportView"
-                 service="ui"
-                 :route-params="{
+      <div v-if="showResponse">
+        <micro-app v-if="!isTemplate"
+                   service="ui"
+                   route-name="ApiReportView"
+                   :route-params="{
                     reportId,
                     isShare,
                     shareId,
@@ -60,13 +61,23 @@
                     isTemplate,
                     response
                  }"/>
-
+        <UiShareReportDetail
+          v-else
+          :report-id="reportId"
+          :share-id="shareId"
+          :is-share="isShare"
+          :template-report="response"
+          :is-template="true"
+          :is-plan="true"
+          :show-cancel-button="false"/>
+      </div>
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </el-main>
   </el-container>
 </template>
 
 <script>
+import UiShareReportDetail from "../ui/UiShareReportDetail"
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
@@ -85,7 +96,8 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem
+    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
+    UiShareReportDetail
   },
   props: {
     planId: String,
