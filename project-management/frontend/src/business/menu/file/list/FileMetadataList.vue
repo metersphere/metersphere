@@ -9,7 +9,6 @@
           <el-upload
             v-if="moduleType==='module'"
             action=""
-            :limit="fileNumLimit"
             multiple
             :show-file-list="false"
             :before-upload="beforeUploadFile"
@@ -235,7 +234,6 @@ export default {
       pageSize: 10,
       total: 0,
       metadataArr: [],
-      fileNumLimit: 10,
       condition: {},
       projectId: getCurrentProjectID(),
       height: 'calc(100vh - 160px)',
