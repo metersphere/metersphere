@@ -877,11 +877,6 @@ public class TestCaseService {
         }
     }
 
-    public List<TestCaseDTO> listTestCaseMethod(QueryTestCaseRequest request) {
-        return extTestCaseMapper.listByMethod(request);
-    }
-
-
     /**
      * 获取测试用例
      * 过滤已关联
