@@ -162,4 +162,8 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
     public List<ApiScenarioModuleDTO> getNodeByPlanId(List<String> projectIds, String planId) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId, projectIds, ApiScenarioModuleDTO.class);
     }
+
+    public List<TestPlanFailureScenarioDTO> buildResponse(List<TestPlanFailureScenarioDTO> scenarioCases) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanFailureScenarioDTO.class);
+    }
 }

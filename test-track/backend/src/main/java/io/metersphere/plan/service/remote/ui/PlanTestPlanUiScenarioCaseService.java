@@ -124,4 +124,8 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     public List<ModuleNodeDTO> getNodeByPlanId(List<String> projectIds, String planId) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId, projectIds, ModuleNodeDTO.class);
     }
+
+    public List<TestPlanUiScenarioDTO> buildResponse(List<TestPlanUiScenarioDTO> uiCases) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", uiCases, TestPlanUiScenarioDTO.class);
+    }
 }

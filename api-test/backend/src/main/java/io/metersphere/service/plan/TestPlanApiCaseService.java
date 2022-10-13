@@ -17,17 +17,10 @@ import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiTestCase;
-import io.metersphere.base.domain.ApiTestCaseExample;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironment;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.TestPlanApiCaseExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -36,11 +29,7 @@ import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.ApiDefinitionExecResultUtil;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
@@ -102,6 +91,8 @@ public class TestPlanApiCaseService {
     @Lazy
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Lazy
     @Resource
     private ApiScenarioEnvService apiScenarioEnvService;
@@ -427,6 +418,55 @@ public class TestPlanApiCaseService {
     public List<TestPlanFailureApiDTO> getAllCases(String planId) {
         List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, null);
         return buildCases(apiTestCases);
+    }
+
+    public void buildApiResponse(List<TestPlanFailureApiDTO> cases) {
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(cases)) {
+            List<String> reportIds = new ArrayList<>();
+            for (TestPlanFailureApiDTO apiCase : cases) {
+                if (StringUtils.isEmpty(apiCase.getReportId())) {
+                    ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(apiCase.getId(), "API_PLAN");
+                    if (result != null && StringUtils.isNotBlank(result.getContent())) {
+                        apiCase.setReportId(result.getId());
+                        String contentStr = result.getContent();
+                        try {
+                            Map content = JSON.parseMap(contentStr);
+                            if (StringUtils.isNotEmpty(contentStr)) {
+                                content.put("envName", apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+                            }
+                            contentStr = JSON.toJSONString(content);
+                            apiCase.setResponse(contentStr);
+                        } catch (Exception e) {
+                            LogUtil.error("解析content失败!", e);
+                        }
+                    }
+                } else {
+                    reportIds.add(apiCase.getReportId());
+                }
+            }
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(reportIds)) {
+                ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+                example.createCriteria().andIdIn(reportIds);
+                List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+                // 格式化数据结果
+                Map<String, ApiDefinitionExecResultWithBLOBs> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
+                cases.forEach(item -> {
+                    if (resultMap.get(item.getReportId()) != null &&
+                            StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
+                        ApiDefinitionExecResultWithBLOBs execResult = resultMap.get(item.getReportId());
+                        Map responseObj = new LinkedHashMap();
+                        try {
+                            responseObj = JSON.parseMap(execResult.getContent());
+                        } catch (Exception e) {
+                        }
+                        if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
+                            responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
+                        }
+                        item.setResponse(responseObj.toString());
+                    }
+                });
+            }
+        }
     }
 
     public List<TestPlanFailureApiDTO> buildCases(List<TestPlanFailureApiDTO> apiTestCases) {
