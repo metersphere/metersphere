@@ -14,19 +14,19 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.api.parse.scenario.TcpTreeTableDataParser;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -225,7 +225,7 @@ public class MsTCPSampler extends MsTestElement {
         if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             if (!isCustomizeReq() && config != null) {
                 this.server = config.getTcpConfig().getServer();
-                this.port = config.getTcpConfig().getPort();
+                this.port = config.getTcpConfig().getPort() + "";
                 if (StringUtils.equals(this.eolByte, " ")) {
                     this.eolByte = "";
                 } else {
