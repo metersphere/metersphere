@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class LocalFileRepository implements FileRepository {
@@ -108,14 +109,20 @@ public class LocalFileRepository implements FileRepository {
 
     @Override
     public List<FileInfoDTO> getFileBatch(List<FileRequest> requestList) throws Exception {
-        List<FileInfoDTO> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(requestList)) {
-            for (FileRequest fileRequest : requestList) {
-                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), this.getFile(fileRequest));
-                list.add(fileInfoDTO);
-            }
+            return requestList.stream().map(fileRequest -> {
+                byte[] content = new byte[0];
+                try {
+                    content = this.getFile(fileRequest);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return new FileInfoDTO(
+                        fileRequest.getResourceId(), fileRequest.getFileName(),
+                        fileRequest.getStorage(), fileRequest.getPath(), content);
+            }).collect(Collectors.toList());
         }
-        return list;
+        return new ArrayList<>();
     }
 
 

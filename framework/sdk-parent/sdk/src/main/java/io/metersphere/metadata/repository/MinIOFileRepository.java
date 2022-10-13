@@ -85,7 +85,7 @@ public class MinIOFileRepository implements FileRepository {
         List<FileInfoDTO> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(requestList)) {
             for (FileRequest fileRequest : requestList) {
-                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), this.getFile(fileRequest));
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), fileRequest.getPath(), this.getFile(fileRequest));
                 list.add(fileInfoDTO);
             }
         }

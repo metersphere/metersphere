@@ -9,5 +9,6 @@ public class FileInfoDTO {
     private String id;
     private String fileName;
     private String storage;
+    private String path;
     private byte[] fileByte;
 }
