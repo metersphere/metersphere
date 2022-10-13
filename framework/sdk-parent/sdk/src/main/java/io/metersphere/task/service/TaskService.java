@@ -37,6 +37,8 @@ public class TaskService {
     private static final String SCENARIO = "SCENARIO";
     private static final String PERF = "PERFORMANCE";
 
+    private static final String UI = "UI_SCENARIO";
+
     public List<String> getOwnerProjectIds(String userId) {
         Set<String> userRelatedProjectIds = null;
         if (StringUtils.isEmpty(userId)) {
@@ -88,6 +90,9 @@ public class TaskService {
             }
             if (taskRequestMap.containsKey(PERF)) {
                 microService.postForData(MicroServiceName.API_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+            }
+            if(taskRequestMap.containsKey(UI)){
+                microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
             }
         }
     }
