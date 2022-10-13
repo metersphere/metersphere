@@ -299,13 +299,13 @@ export default {
       };
     },
     fail() {
-      return ((this.content.error && this.content.total) ? (this.content.error / this.content.total * 100).toFixed(0) : 0) + "%";
+      return (this.content.error / this.content.total * 100).toFixed(0) + "%";
     },
     assertions() {
-      return (this.content.passAssertion ? this.content.passAssertion : 0) + " / " + (this.content.totalAssertions ? this.content.totalAssertions : 0);
+      return this.content.passAssertions + " / " + this.content.totalAssertions;
     },
     errorCodeAssertions() {
-      return (this.content.errorCode ? this.content.errorCode : 0) + " / " + (this.content.totalAssertions ? this.content.totalAssertions : 0);
+      return this.content.errorCode + " / " + this.content.totalAssertions;
     },
     showUnExecuteReport() {
       return (this.content.scenarioStepPending && this.content.scenarioStepPending > 0)
