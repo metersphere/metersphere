@@ -98,14 +98,6 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.listTestCaseForMinder(request));
     }
 
-    /*jenkins项目下所有接口和性能测试用例*/
-    @GetMapping("/list/method/{projectId}")
-    public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
-        QueryTestCaseRequest request = new QueryTestCaseRequest();
-        request.setProjectId(projectId);
-        return testCaseService.listTestCaseMethod(request);
-    }
-
     @GetMapping("/relationship/case/{id}/{relationshipType}")
     public List<RelationshipEdgeDTO> getRelationshipCase(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
         return testCaseService.getRelationshipCase(id, relationshipType);

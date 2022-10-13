@@ -339,36 +339,7 @@
         and tcrtc.case_id is null
         group by tcn.id
     </select>
-    <select id="listByMethod" resultType="io.metersphere.dto.TestCaseDTO">
-        select load_test.id, load_test.name, load_test.project_id,'性能测试' as type, project_version.name as version_name
-        from load_test inner join project_version on project_version.project_id = load_test.project_id and
-        project_version.id = load_test.version_id
-        <where>
-            <if test="request.projectId!=null">
-                and load_test.project_id= #{request.projectId}
-            </if>
-        </where>
-        UNION ALL
-        select api_scenario.id, api_scenario.name, api_scenario.project_id,'接口场景' as type, project_version.name as
-        version_name
-        from api_scenario inner join project_version on project_version.project_id = api_scenario.project_id and
-        project_version.id = api_scenario.version_id
-        <where>
-            <if test="request.projectId!=null">
-                and api_scenario.project_id= #{request.projectId}
-            </if>
-        </where>
-        and api_scenario.status!='Trash'
-        UNION ALL
-        select b.id,b.name,b.project_id,'接口用例' as type, project_version.name as version_name
-        from api_test_case b inner join api_definition a on b.api_definition_id = a.id and a.status != 'Trash'
-        inner join project_version on project_version.project_id = a.project_id and project_version.id = a.version_id
-        <where>
-            <if test="request.projectId!=null">
-                and b.project_id= #{request.projectId}
-            </if>
-        </where>
-    </select>
+
     <select id="listByTestCaseIds" resultType="io.metersphere.dto.TestCaseDTO">
         select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case left join api_test on
         test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
