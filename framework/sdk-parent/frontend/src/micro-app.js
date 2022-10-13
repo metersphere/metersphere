@@ -46,7 +46,7 @@ getApps()
     //注册子应用
     registerMicroApps(apps);
     //启动
-    start({prefetch: 'all'});
+    start();
   })
   .catch(e => {
     console.error(e);
