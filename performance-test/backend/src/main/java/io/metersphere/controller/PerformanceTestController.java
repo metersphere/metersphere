@@ -324,4 +324,10 @@ public class PerformanceTestController {
     public List<LoadTest> getLoadCaseByIds(@RequestBody List<String> ids) {
         return performanceTestService.getLoadCaseByIds(ids);
     }
+
+    @GetMapping("/get-base-case/{projectId}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
+        return performanceTestService.getBaseCaseByProjectId(projectId);
+    }
 }

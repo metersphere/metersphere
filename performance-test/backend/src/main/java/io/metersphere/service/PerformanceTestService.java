@@ -1014,4 +1014,8 @@ public class PerformanceTestService {
             MSException.throwException(errorMessage + Translator.get("project_file_in_use"));
         }
     }
+
+    public List<BaseCase> getBaseCaseByProjectId(String projectId) {
+        return extLoadTestMapper.selectBaseCaseByProjectId(projectId);
+    }
 }

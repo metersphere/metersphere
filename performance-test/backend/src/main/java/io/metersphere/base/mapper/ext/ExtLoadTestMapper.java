@@ -2,6 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.LoadCaseCountChartResult;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.plan.request.LoadCaseRequest;
@@ -49,4 +50,6 @@ public interface ExtLoadTestMapper {
     List<LoadCaseCountChartResult> countByRequest(LoadCaseCountRequest request);
 
     List<LoadTestDTO> relevanceLoadList(@Param("request") LoadCaseRequest request);
+
+    List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
 }
