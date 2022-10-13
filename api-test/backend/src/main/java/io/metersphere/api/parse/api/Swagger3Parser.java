@@ -328,6 +328,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = mediaType.getSchema();
+        if (StringUtils.isBlank(schema.get$ref()) && schema.getItems()==null && StringUtils.isNotBlank(schema.getType()) && StringUtils.equals(schema.getType(),"string")) {
+            ObjectSchema objectSchema = new ObjectSchema();
+            objectSchema.setExample(schema.getExample());
+            schema = objectSchema;
+        }
         Object bodyData = null;
         if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
@@ -341,7 +346,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
             parseKvBody(schema, body, bodyData, infoMap);
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
-            body.setJsonSchema(parseSchema(schema, refSet));
+            JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
+            if (MapUtils.isEmpty(jsonSchemaItem.getProperties())) {
+                jsonSchemaItem.setProperties(new HashMap<>());
+            }
+            body.setJsonSchema(jsonSchemaItem);
             body.setFormat("JSON-SCHEMA");
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_XML_VALUE)) {
             body.setRaw(parseXmlBody(schema, bodyData));
@@ -513,7 +522,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else {
             item.getMock().put(PropertyConstant.MOCK, "");
         }
-
         item.setDescription(schema.getDescription());
         item.setPattern(schema.getPattern());
         item.setMaxLength(schema.getMaxLength());
