@@ -154,6 +154,7 @@
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
+            :filters="environmentsFilters"
             prop="environmentMap"
             :label="$t('commons.environment')"
             min-width="180">
@@ -375,6 +376,7 @@ import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environmen
 import {REPORT_STATUS} from "@/business/commons/js/commons";
 import {usePerformanceStore} from "@/store";
 import {request} from "metersphere-frontend/src/plugins/request"
+import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
 
 const performanceStore = usePerformanceStore();
 export default {
@@ -454,6 +456,7 @@ export default {
   },
   data() {
     return {
+      environmentsFilters: [],
       projectName: "",
       result: false,
       tableHeaderKey: "API_SCENARIO",
@@ -464,6 +467,7 @@ export default {
       condition: {
         components: this.trashEnable ? API_SCENARIO_CONFIGS_TRASH : API_SCENARIO_CONFIGS
       },
+      projectId: "",
       scenarioId: "",
       isMoveBatch: true,
       currentScenario: {},
@@ -636,7 +640,7 @@ export default {
       this.getProjectName();
     }
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-
+    this.initEnvironment();
     if (this.trashEnable) {
       this.condition.filters = {status: ["Trash"]};
       this.condition.moduleIds = [];
@@ -738,9 +742,18 @@ export default {
         }
       });
     },
-    selectByParam() {
-      this.changeSelectDataRangeAll();
-      this.search();
+    initEnvironment() {
+      if (this.projectId) {
+        getEnvironmentByProjectId(this.projectId).then(response => {
+          this.environments = response.data;
+          this.environments.forEach(environment => {
+            parseEnvironment(environment);
+          });
+          this.environmentsFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
     },
     search(projectId) {
       if (this.needRefreshModule()) {
@@ -944,16 +957,6 @@ export default {
           }
         });
       }
-    },
-    getEnvsOptions(option) {
-      getEnvironmentByProjectId(this.projectId).then(response => {
-        option.push(...response.data);
-        option.forEach(environment => {
-          if (!(environment.config instanceof Object)) {
-            environment.config = JSON.parse(environment.config);
-          }
-        });
-      });
     },
     cancel() {
       this.planVisible = false;

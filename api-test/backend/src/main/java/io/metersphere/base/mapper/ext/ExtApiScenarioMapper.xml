@@ -392,6 +392,14 @@
                                 #{value}
                             </foreach>
                         </when>
+
+                        <when test="key=='environment_map'">
+                            and api_scenario.environment_json REGEXP  CONCAT_WS('|',
+                            <foreach collection="values" item="item" open="" close="" separator=",">
+                                #{item}
+                            </foreach>
+                            )
+                        </when>
                     </choose>
                 </if>
             </foreach>

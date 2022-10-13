@@ -276,7 +276,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private void initConnectAndResponseTimeout(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
-            String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+            String useEvnId = config.getConfig().get(this.getProjectId()).getEnvironmentId();
             if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                 this.setEnvironmentId(useEvnId);
             }
@@ -304,7 +304,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config.isEffective(this.getProjectId())) {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
             if (environmentConfig != null) {
-                String useEvnId = environmentConfig.getApiEnvironmentid();
+                String useEvnId = environmentConfig.getEnvironmentId();
                 if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().getAuthManager() != null) {
                     this.authManager = environmentConfig.getAuthManager().getAuthManager();
                 }
@@ -335,7 +335,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MSException.throwException(this.getName() + "接口，对应的环境无协议，请完善环境信息");
                 }
                 if (StringUtils.isEmpty(this.useEnvironment)) {
-                    this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+                    this.useEnvironment = config.getConfig().get(this.getProjectId()).getEnvironmentId();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 if (isUrl()) {

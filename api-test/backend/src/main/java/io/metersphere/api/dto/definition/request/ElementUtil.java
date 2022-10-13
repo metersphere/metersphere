@@ -448,7 +448,7 @@ public class ElementUtil {
                                 ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(finalEnvironmentMap.get(projectId));
                                 if (environment != null && environment.getConfig() != null) {
                                     EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                                    env.setApiEnvironmentid(environment.getId());
+                                    env.setEnvironmentId(environment.getId());
                                     envConfig.put(projectId, env);
                                 }
                             });

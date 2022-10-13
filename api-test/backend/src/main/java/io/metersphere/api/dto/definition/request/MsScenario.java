@@ -243,7 +243,7 @@ public class MsScenario extends MsTestElement {
                     ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(this.environmentMap.get(projectId));
                     if (environment != null && environment.getConfig() != null) {
                         EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                        env.setApiEnvironmentid(environment.getId());
+                        env.setEnvironmentId(environment.getId());
                         envConfig.put(projectId, env);
                         if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                             this.setMockEnvironment(true);
@@ -261,7 +261,7 @@ public class MsScenario extends MsTestElement {
             ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentMap.get(projectId));
             if (environment != null && StringUtils.isNotEmpty(environment.getConfig())) {
                 EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                env.setApiEnvironmentid(environment.getId());
+                env.setEnvironmentId(environment.getId());
                 envConfig.put(projectId, env);
                 if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                     this.setMockEnvironment(true);

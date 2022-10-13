@@ -179,7 +179,7 @@ public class ApiExecuteService {
                 ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(map.get(key));
                 if (environment != null) {
                     EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                    env.setApiEnvironmentid(environment.getId());
+                    env.setEnvironmentId(environment.getId());
                     envConfig.put(key, env);
                 }
             }
@@ -268,7 +268,7 @@ public class ApiExecuteService {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
-            environmentConfig.setApiEnvironmentid(environment.getId());
+            environmentConfig.setEnvironmentId(environment.getId());
             envConfig.put(testCaseWithBLOBs.getProjectId(), environmentConfig);
             parameterConfig.setConfig(envConfig);
         }

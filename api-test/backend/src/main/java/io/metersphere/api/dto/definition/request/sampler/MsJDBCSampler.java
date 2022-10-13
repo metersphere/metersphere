@@ -115,8 +115,8 @@ public class MsJDBCSampler extends MsTestElement {
             if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())
                     && isDataSource(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
                 EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
-                if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getApiEnvironmentid())) {
-                    this.environmentId = environmentConfig.getApiEnvironmentid();
+                if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getEnvironmentId())) {
+                    this.environmentId = environmentConfig.getEnvironmentId();
                 }
                 this.dataSource = null;
                 envConfig = this.initDataSource();
