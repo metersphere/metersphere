@@ -281,6 +281,12 @@ public class FileUtils {
         if (file.exists()) {
             file.delete();
         }
+        //删除临时目录中的文件
+        file = new File(BODY_FILE_DIR + File.separator + "tmp" + File.separator + requestId);
+        FileUtil.deleteContents(file);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     public static String uploadFile(MultipartFile uploadFile, String path, String name) {
@@ -378,7 +384,7 @@ public class FileUtils {
                         file.setName(arg.getPath());
                         if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                             FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
-                            if (fileMetadata != null && StringUtils.equalsAny(fileMetadata.getStorage(), StorageConstants.GIT.name(), StorageConstants.MINIO.name())) {
+                            if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                                 file.setStorage(fileMetadata.getStorage());
                                 file.setFileId(arg.getPropertyAsString("fileId"));
                                 file.setName(reportId + File.separator + fileMetadata.getName());
@@ -396,7 +402,7 @@ public class FileUtils {
                     file.setName(source.getPropertyAsString("filename"));
                     if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                         FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
-                        if (fileMetadata != null && StringUtils.equalsAny(fileMetadata.getStorage(), StorageConstants.GIT.name(), StorageConstants.MINIO.name())) {
+                        if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                             file.setStorage(fileMetadata.getStorage());
                             file.setFileId(source.getPropertyAsString("fileId"));
                             file.setName(reportId + File.separator + fileMetadata.getName());
@@ -488,7 +494,7 @@ public class FileUtils {
                     for (HTTPFileArg arg : source.getHTTPFiles()) {
                         if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                             FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
-                            if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                            if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                                 list.add(fileMetadata);
                                 arg.setPath(fileMetadata.getName());
                                 arg.setName(fileMetadata.getName());
@@ -501,7 +507,7 @@ public class FileUtils {
                 if (source != null && StringUtils.isNotEmpty(source.getPropertyAsString("filename"))) {
                     if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                         FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
-                        if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
+                        if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                             list.add(fileMetadata);
                             source.setFilename(fileMetadata.getName());
                         }
