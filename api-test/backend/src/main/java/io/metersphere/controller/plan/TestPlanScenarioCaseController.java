@@ -219,4 +219,10 @@ public class TestPlanScenarioCaseController {
     public List<ApiScenarioModuleDTO> getNodeByPlanId(@PathVariable String planId, @RequestBody List<String> projectIds) {
         return testPlanScenarioCaseService.getNodeByPlanId(projectIds, planId);
     }
+
+    @PostMapping("/build/response")
+    public List<TestPlanFailureScenarioDTO> buildResponse(@RequestBody List<TestPlanFailureScenarioDTO> cases) {
+        testPlanScenarioCaseService.buildScenarioResponse(cases);
+        return cases;
+    }
 }

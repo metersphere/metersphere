@@ -825,7 +825,7 @@ public class TestPlanScenarioCaseService {
                 apiAllCases = testPlanApiCaseService.getAllCases(planId);
                 report.setApiAllCases(apiAllCases);
                 if (saveResponse) {
-                    buildApiResponse(apiAllCases);
+                    testPlanApiCaseService.buildApiResponse(apiAllCases);
                 }
                 //场景
                 scenarioAllCases = getAllCases(planId);
@@ -846,55 +846,6 @@ public class TestPlanScenarioCaseService {
             cases.forEach((item) -> {
                 item.setResponse(apiScenarioReportService.get(item.getReportId(), true));
             });
-        }
-    }
-
-    public void buildApiResponse(List<TestPlanFailureApiDTO> cases) {
-        if (!CollectionUtils.isEmpty(cases)) {
-            List<String> reportIds = new ArrayList<>();
-            for (TestPlanFailureApiDTO apiCase : cases) {
-                if (StringUtils.isEmpty(apiCase.getReportId())) {
-                    ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(apiCase.getId(), "API_PLAN");
-                    if (result != null && StringUtils.isNotBlank(result.getContent())) {
-                        apiCase.setReportId(result.getId());
-                        String contentStr = result.getContent();
-                        try {
-                            Map content = JSON.parseMap(contentStr);
-                            if (StringUtils.isNotEmpty(contentStr)) {
-                                content.put("envName", apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
-                            }
-                            contentStr = JSON.toJSONString(content);
-                            apiCase.setResponse(contentStr);
-                        } catch (Exception e) {
-                            LogUtil.error("解析content失败!", e);
-                        }
-                    }
-                } else {
-                    reportIds.add(apiCase.getReportId());
-                }
-            }
-            if (CollectionUtils.isNotEmpty(reportIds)) {
-                ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
-                example.createCriteria().andIdIn(reportIds);
-                List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
-                // 格式化数据结果
-                Map<String, ApiDefinitionExecResultWithBLOBs> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
-                cases.forEach(item -> {
-                    if (resultMap.get(item.getReportId()) != null &&
-                            StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
-                        ApiDefinitionExecResultWithBLOBs execResult = resultMap.get(item.getReportId());
-                        Map responseObj = new LinkedHashMap();
-                        try {
-                            responseObj = JSON.parseMap(execResult.getContent());
-                        } catch (Exception e) {
-                        }
-                        if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
-                            responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
-                        }
-                        item.setResponse(responseObj.toString());
-                    }
-                });
-            }
         }
     }
 

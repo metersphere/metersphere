@@ -3,7 +3,6 @@ package io.metersphere.plan.service.remote.api;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
-import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.apache.commons.collections.CollectionUtils;
@@ -135,5 +134,9 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
 
     public List<ApiModuleDTO> getNodeByPlanId(List<String> projectIds, String planId, String protocol) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId + "/" + protocol, projectIds, ApiModuleDTO.class);
+    }
+
+    public List<TestPlanFailureApiDTO> buildResponse(List<TestPlanFailureApiDTO> apiAllCases) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", apiAllCases, TestPlanFailureApiDTO.class);
     }
 }

@@ -194,5 +194,9 @@ public class TestPlanLoadCaseController {
         return testPlanLoadCaseService.isExecuting(planId, projectId);
     }
 
-
+    @PostMapping("/build/response")
+    public List<TestPlanLoadCaseDTO> buildResponse(@RequestBody List<TestPlanLoadCaseDTO> cases) {
+        testPlanLoadCaseService.buildLoadResponse(cases);
+        return cases;
+    }
 }

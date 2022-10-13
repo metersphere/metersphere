@@ -1262,14 +1262,35 @@ public class TestPlanService {
 
     public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
-//        buildApiResponse(report.getApiAllCases());
-//        buildApiResponse(report.getApiFailureCases());
-//        buildScenarioResponse(report.getScenarioAllCases());
-//        buildScenarioResponse(report.getScenarioFailureCases());
-//        buildLoadResponse(report.getLoadAllCases());
-//        buildUiScenarioResponse(report.getUiAllCases());
-//        report.setLang(lang);
+        runReportWithExceptionHandle(report, r -> planTestPlanApiCaseService.buildResponse(r.getApiAllCases()),
+                (r, res) -> r.setApiAllCases((List<TestPlanFailureApiDTO>) res));
+        runReportWithExceptionHandle(report, r -> planTestPlanApiCaseService.buildResponse(r.getApiFailureCases()),
+                (r, res) -> r.setApiFailureCases((List<TestPlanFailureApiDTO>) res));
+
+        runReportWithExceptionHandle(report, r -> planTestPlanScenarioCaseService.buildResponse(r.getScenarioAllCases()),
+                (r, res) -> r.setScenarioAllCases((List<TestPlanFailureScenarioDTO>) res));
+        runReportWithExceptionHandle(report, r -> planTestPlanScenarioCaseService.buildResponse(r.getScenarioFailureCases()),
+                (r, res) -> r.setScenarioFailureCases((List<TestPlanFailureScenarioDTO>) res));
+
+        runReportWithExceptionHandle(report, r -> planTestPlanUiScenarioCaseService.buildResponse(r.getUiAllCases()),
+                (r, res) -> r.setUiAllCases((List<TestPlanUiScenarioDTO>) res));
+        runReportWithExceptionHandle(report, r -> planTestPlanUiScenarioCaseService.buildResponse(r.getUiFailureCases()),
+                (r, res) -> r.setUiFailureCases((List<TestPlanUiScenarioDTO>) res));
+
+        runReportWithExceptionHandle(report, r -> planTestPlanLoadCaseService.buildResponse(r.getLoadAllCases()),
+                (r, res) -> r.setLoadAllCases((List<TestPlanLoadCaseDTO>) res));
+        report.setLang(lang);
         render(report, response);
+    }
+
+    public void runReportWithExceptionHandle(TestPlanSimpleReportDTO report, Function<TestPlanSimpleReportDTO, Object> getCaseFunc,
+                                               BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
+        try {
+            // todo 服务调用失败
+            setReportCaseFunc.accept(report, getCaseFunc.apply(report));
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     public Boolean checkReportConfig(Map config, String key) {

@@ -181,4 +181,9 @@ public class TestPlanApiCaseController {
         testPlanApiCaseService.run(testId, reportId);
     }
 
+    @PostMapping("/build/response")
+    public List<TestPlanFailureApiDTO> buildResponse(@RequestBody List<TestPlanFailureApiDTO> cases) {
+        testPlanApiCaseService.buildApiResponse(cases);
+        return cases;
+    }
 }

@@ -116,4 +116,8 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
     public Boolean isCaseExecuting(String planId, String projectId) {
         return (Boolean) microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId + "/" + projectId);
     }
+
+    public List<TestPlanLoadCaseDTO> buildResponse(List<TestPlanLoadCaseDTO> loadCases) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class);
+    }
 }
