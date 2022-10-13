@@ -8,11 +8,7 @@ import io.metersphere.api.exec.generator.JSONSchemaGenerator;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.MockParamConditionEnums;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.JSONValidator;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.XMLUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -355,10 +351,16 @@ public class MockApiUtils {
         RequestMockParams returnParams = getGetParamMap(urlParams, apiPath, queryParamsObject, isPostRequest);
         if (paramJson != null) {
             if (paramJson instanceof JSONObject) {
-                if (((JSONObject) paramJson) != null) {
-                    List<Object> paramsArray = new LinkedList<>();
-                    paramsArray.add(paramJson);
-                    returnParams.setBodyParams(new JSONArray(paramsArray));
+                if (!((JSONObject) paramJson).keySet().isEmpty()) {
+                    JSONArray bodyParams = returnParams.getBodyParams();
+                    if (bodyParams == null) {
+                        List<Object> paramsArray = new LinkedList<>();
+                        paramsArray.add(paramJson);
+                        bodyParams = new JSONArray(paramsArray);
+                    } else {
+                        bodyParams.put(((JSONObject) paramJson));
+                    }
+                    returnParams.setBodyParams(bodyParams);
                 }
             } else if (paramJson instanceof JSONArray) {
                 JSONArray paramArray = (JSONArray) paramJson;
