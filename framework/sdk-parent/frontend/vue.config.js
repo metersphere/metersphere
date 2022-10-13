@@ -13,7 +13,7 @@ module.exports = {
       webSocketTransport: 'sockjs',
     },
     webSocketServer: 'sockjs',
-    disableHostCheck: true,
+    allowedHosts: 'all',
     proxy: {
       ['^((?!/login)(?!/document))']: {
         target: 'http://localhost:8000',

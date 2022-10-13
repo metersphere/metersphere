@@ -12,7 +12,7 @@ module.exports = {
     client: {
       webSocketTransport: 'sockjs',
     },
-    disableHostCheck: true,
+    allowedHosts: 'all',
     webSocketServer: 'sockjs',
     proxy: {
       ['^((?!/login)(?!/document))']: {
