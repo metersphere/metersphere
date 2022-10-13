@@ -63,8 +63,19 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiScenarioReportStructureService {
-    private static final List<String> REQUESTS = ElementConstants.REQUESTS;
-    private static final List<String> CONTROLS = Arrays.asList(ElementConstants.ASSERTIONS, ElementConstants.IF_CONTROLLER, ElementConstants.CONSTANT_TIMER);
+    private static final List<String> REQUESTS = Arrays.asList(
+            ElementConstants.HTTP_SAMPLER,
+            ElementConstants.DUBBO_SAMPLER,
+            ElementConstants.JDBC_SAMPLER,
+            ElementConstants.TCP_SAMPLER,
+            ElementConstants.JSR223,
+            ElementConstants.ABS_SAMPLER
+    );
+    private static final List<String> CONTROLS = Arrays.asList(
+            ElementConstants.ASSERTIONS,
+            ElementConstants.IF_CONTROLLER,
+            ElementConstants.CONSTANT_TIMER
+    );
     private static final String RESOURCE_ID = "resourceId";
     private static final String REFERENCED = "referenced";
     private static final String ERROR_CODE = "errorCode";

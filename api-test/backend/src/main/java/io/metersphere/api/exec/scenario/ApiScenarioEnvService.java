@@ -175,7 +175,7 @@ public class ApiScenarioEnvService {
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
         MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
         GenerateHashTreeUtil.parse(definition, scenario);
-        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString()) && StringUtils.isNotEmpty(environmentJson)) {
             scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
         } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
             Map<String, String> map = environmentGroupProjectService.getEnvMap(environmentGroupId);
