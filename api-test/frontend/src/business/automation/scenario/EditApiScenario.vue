@@ -1259,7 +1259,7 @@ export default {
       }
       this.customizeRequest = {};
       this.sort();
-      this.reload();
+      this.cancelBatchProcessing();
     },
     addScenario(arr) {
       if (arr && arr.length > 0) {
