@@ -630,4 +630,15 @@
             </include>
         </if>
     </sql>
+
+    <select id="selectBaseCaseByProjectId" resultType="io.metersphere.dto.BaseCase">
+        select load_test.id, load_test.name, load_test.project_id,'性能测试' as type, project_version.name as version_name
+        from load_test inner join project_version on project_version.project_id = load_test.project_id and
+        project_version.id = load_test.version_id
+        <where>
+            <if test="projectId!=null">
+                and load_test.project_id= #{projectId}
+            </if>
+        </where>
+    </select>
 </mapper>
