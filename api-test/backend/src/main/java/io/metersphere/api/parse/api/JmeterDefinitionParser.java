@@ -581,6 +581,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         msTCPSampler.setServer(tcpSampler.getServer());
         msTCPSampler.setPort(tcpSampler.getPort() + "");
         msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
+        msTCPSampler.setClassname(tcpSampler.getProperty(TCPSampler.CLASSNAME).getStringValue());
         msTCPSampler.setReUseConnection(tcpSampler.getProperty(TCPSampler.RE_USE_CONNECTION).getBooleanValue());
         msTCPSampler.setNodelay(tcpSampler.getProperty(TCPSampler.NODELAY).getBooleanValue());
         msTCPSampler.setCloseConnection(tcpSampler.isCloseConnection());
