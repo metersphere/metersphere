@@ -10,8 +10,11 @@ import io.metersphere.log.utils.diff.json.GsonDiff;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
+import org.apache.commons.beanutils.ConstructorUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -20,6 +23,17 @@ import java.util.stream.Collectors;
 public class ReflexObjectUtil {
     static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     static final String DIFF_ADD = "++";
+
+    static final String JSON_START = "{\"root\":";
+    static final String JSON_END = "}";
+    private static Class<? extends ApiDefinitionDiffUtil> apiDefinitionDiffUtil = null;
+
+    static {
+        Set<Class<? extends ApiDefinitionDiffUtil>> subTypes = new Reflections("io.metersphere.commons.utils").getSubTypesOf(ApiDefinitionDiffUtil.class);
+        if (CollectionUtils.isNotEmpty(subTypes)) {
+            apiDefinitionDiffUtil = subTypes.stream().findFirst().get();
+        }
+    }
 
     public static List<DetailColumn> getColumns(Object obj, Map<String, String> columns) {
         List<DetailColumn> columnList = new LinkedList<>();
@@ -159,32 +173,33 @@ public class ReflexObjectUtil {
                             if (originalValue != null && !StringUtils.equals("null", originalValue.toString())) {
                                 List<String> originalValueArray = JSON.parseArray(originalValue.toString(), String.class);
                                 Collections.sort(originalValueArray);
-//                                Object originalObject = JSON.toJSON(originalValueArray);
-//                                oldTags = ApiDefinitionDiffUtil.JSON_START + ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
+                                Object originalObject = JSON.toJSONString(originalValueArray);
+                                oldTags = StringUtils.join(StringUtils.join(JSON_START , ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\"")) , JSON_END);
                             }
                             List<String> newValueArray = JSON.parseArray(newValue.toString(), String.class);
                             Collections.sort(newValueArray);
-//                            Object newObject = JSON.toJSON(newValueArray);
-//                            String newTags = ApiDefinitionDiffUtil.JSON_START + ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\"") + ApiDefinitionDiffUtil.JSON_END;
-//                            String diffValue;
-//                            if (oldTags != null) {
-//                                String diffStr = diff.diff(oldTags, newTags);
-//                                diffValue = diff.apply(newTags, diffStr);
-//                            } else {
-//                                diffValue = reviverJson(newTags, "root", DIFF_ADD);
-//                            }
-//                            column.setDiffValue(diffValue);
+                            Object newObject = JSON.toJSONString(newValueArray);
+                            String newTags = StringUtils.join(StringUtils.join(JSON_START , ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\"")) , JSON_END);
+                            String diffValue;
+                            if (oldTags != null) {
+                                String diffStr = diff.diff(oldTags, newTags);
+                                diffValue = diff.apply(newTags, diffStr);
+                            } else {
+                                diffValue = reviverJson(newTags, "root", DIFF_ADD);
+                            }
+                            column.setDiffValue(diffValue);
                         }
                         // 深度对比
                         else if (StringUtils.equals(module, "API_DEFINITION")) {
+                            ApiDefinitionDiffUtil apiDefinitionDiffUtilClass = ConstructorUtils.invokeConstructor(apiDefinitionDiffUtil, null);
                             if (originalColumns.get(i).getColumnName().equals("request")) {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
-//                                column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
+                                column.setDiffValue(apiDefinitionDiffUtilClass.diff(newValue, oldValue));
                             } else if (originalColumns.get(i).getColumnName().equals("response")) {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
-//                                column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
+                                column.setDiffValue(apiDefinitionDiffUtilClass.diffResponse(newValue, oldValue));
                             }
                         }
                         // 环境全局前后置脚本深度对比
@@ -192,7 +207,7 @@ public class ReflexObjectUtil {
                             if (originalColumns.get(i).getColumnName().equals("config")) {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
-//                                column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
+                                // column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
                             }
                         } else {
                             String newValue = Objects.toString(column.getNewValue().toString(), "");
