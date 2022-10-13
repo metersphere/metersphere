@@ -42,7 +42,6 @@ import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
-import org.codehaus.jackson.JsonNode;
 import org.json.JSONObject;
 
 import java.net.URL;
@@ -306,17 +305,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
             if (environmentConfig != null) {
                 String useEvnId = environmentConfig.getApiEnvironmentid();
-                if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().has("authManager")) {
-                    try {
-                        JsonNode authObject = environmentConfig.getAuthManager().get("authManager");
-                        if (authObject != null) {
-                            if (authObject.has("verification") && !StringUtils.equalsIgnoreCase(authObject.get("verification").asText(), "No Auth")) {
-                                this.authManager = JSON.parseObject(authObject.toString(), MsAuthManager.class);
-                            }
-                        }
-                    } catch (Exception e) {
-                        LogUtil.error(e.getMessage(), e);
-                    }
+                if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().getAuthManager() != null) {
+                    this.authManager = environmentConfig.getAuthManager().getAuthManager();
                 }
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                     this.setEnvironmentId(useEvnId);
