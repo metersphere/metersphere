@@ -274,7 +274,7 @@ public class ProjectApplicationService {
 
         if (StringUtils.equals(type, ProjectApplicationType.MOCK_TCP_PORT.name())) {
             //检查Mock环境是否需要同步更新
-            microService.getForData(MicroServiceName.API_TEST, "/api/definition/getMockEnvironment/" + projectId);
+            microService.getForData(MicroServiceName.API_TEST, "/api/definition/mock-environment/" + projectId);
         } else if (StringUtils.equals(type, ProjectApplicationType.MOCK_TCP_OPEN.name())) {
             this.doHandleMockTcpStatus(projectId, value);
         }
