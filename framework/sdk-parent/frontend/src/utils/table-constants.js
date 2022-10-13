@@ -41,10 +41,10 @@ export function CUSTOM_FIELD_TYPE_FILTERS(_this) {
 export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
   {value: 'id', text: 'id'},
   {value: 'name', text: 'name'},
-  {value: 'className', text: 'class'},
-  {value: 'tagName', text: 'tag'},
+  {value: 'className', text: 'className'},
+  {value: 'tagName', text: 'tagName'},
   {value: 'linkText', text: 'linkText'},
-  {value: 'partialLinkText', text: 'plink'},
+  {value: 'partialLinkText', text: 'partialLinkText'},
   {value: 'css', text: 'css'},
   {value: 'xpath', text: 'xpath'},
   {value: 'label', text: 'label'},
