@@ -194,6 +194,8 @@ export default {
         case "body":
           if (laguanges === "python") {
             returnScript = 'param=vars["body.${param}"]';
+          } else {
+            returnScript = 'var param=vars.get("body.${param}")';
           }
           break;
         case "bodyRaw":
