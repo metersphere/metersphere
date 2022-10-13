@@ -85,6 +85,8 @@ public class JSONUtil {
                                 typeObj = Integer.class.getConstructor(int.class).newInstance(10);
                             } else if (StringUtils.containsIgnoreCase(typeClazz.getSimpleName(), "Map")) {
                                 typeObj = LinkedHashMap.class.getConstructor().newInstance();
+                            } else if (StringUtils.containsIgnoreCase(typeClazz.getSimpleName(), PropertyConstant.BOOLEAN)) {
+                                typeObj = Boolean.class.getConstructor(boolean.class).newInstance(false);
                             } else {
                                 typeObj = typeClazz.getDeclaredConstructor().newInstance();
                             }
