@@ -350,9 +350,9 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotEmpty(config)) {
             Map<String, Object> map = JSON.parseObject(config, Map.class);
             JSONObject commonConfig = new JSONObject(map).optJSONObject("commonConfig");
-            if (commonConfig!=null){
+            if (commonConfig != null) {
                 JSONArray variables = commonConfig.optJSONArray("variables");
-                if (variables!=null){
+                if (variables != null) {
                     List<ScenarioVariable> list = JSON.parseArray(variables.toString(), ScenarioVariable.class);
                     list.stream().filter(ScenarioVariable::isCSVValid).forEach(keyValue -> {
                         files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
@@ -420,12 +420,13 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     private TestEnvironmentDTO updateConfig(TestEnvironmentDTO request, boolean isMock) {
         if (StringUtils.isNotEmpty(request.getConfig())) {
             try {
-                JSONObject configObj = new JSONObject(JSON.parseObject(request.getConfig()));
+                Map<Object, Object> map = JSON.parseObject(request.getConfig(), Map.class);
+                JSONObject configObj = new JSONObject(map);
                 if (configObj.has("httpConfig")) {
                     JSONObject httpObj = configObj.getJSONObject("httpConfig");
                     httpObj.put("isMock", isMock);
                 }
-                request.setConfig(JSON.toJSONString(configObj));
+                request.setConfig(configObj.toString());
             } catch (Exception e) {
                 LogUtil.error("设置是否为mock环境出错!参数：" + request.getConfig(), e);
             }
@@ -626,7 +627,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                             ipStr = urlArr[0];
                         }
                         if (tcpConfigObj.has("server")) {
-                            if(!StringUtils.equals(tcpConfigObj.optString("server"), ipStr)){
+                            if (!StringUtils.equals(tcpConfigObj.optString("server"), ipStr)) {
                                 needUpdate = true;
                             }
                         } else {

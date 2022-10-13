@@ -392,7 +392,7 @@ export default {
           }
           return "";
         } else {
-          if (config.httpConfig.conditions.length === 1) {
+          if (config.httpConfig && config.httpConfig.conditions.length === 1) {
             if (config.tcpConfig && config.tcpConfig.server) {
               return "SHOW_INFO";
             }
@@ -400,7 +400,7 @@ export default {
             if (obj.protocol && obj.socket) {
               return obj.protocol + "://" + obj.socket;
             }
-          } else if (config.httpConfig.conditions.length > 1) {
+          } else if (config.httpConfig && config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
           } else if (config.tcpConfig && config.tcpConfig.server) {
             return config.tcpConfig.server;
