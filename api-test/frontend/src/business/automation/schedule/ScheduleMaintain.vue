@@ -97,17 +97,8 @@
 import {saveNotice} from "@/api/notice";
 import {apiScenarioEnv, createSchedule, updateSchedule} from "@/api/scenario";
 import {getScheduleByIdAndType, scheduleUpdate} from "@/api/schedule";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId
-} from "metersphere-frontend/src/utils/token";
-import {
-  listenGoBack,
-  objToStrMap,
-  removeGoBackListener,
-  strMapToObj
-} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {listenGoBack, objToStrMap, removeGoBackListener, strMapToObj} from "metersphere-frontend/src/utils";
 import Crontab from "metersphere-frontend/src/components/cron/Crontab";
 import CrontabResult from "metersphere-frontend/src/components/cron/CrontabResult";
 import {cronValidate} from "metersphere-frontend/src/utils/cron";
@@ -350,7 +341,9 @@ export default {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
           this.schedule.value = formCronValue;
-          this.saveSchedule();
+          setTimeout(() => {
+            this.saveSchedule();
+          }, 10);
 
         } else {
           return false;
