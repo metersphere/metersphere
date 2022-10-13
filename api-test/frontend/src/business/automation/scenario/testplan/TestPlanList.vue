@@ -4,8 +4,7 @@
       <ms-table-header :condition.sync="condition"
                        @search="initTableData"
                        :title="$t('test_track.plan.test_plan')"
-                       @create="testPlanCreate"
-                       :create-tip="$t('test_track.plan.create_plan')"
+                       :show-create="false"
       >
       </ms-table-header>
     </template>
