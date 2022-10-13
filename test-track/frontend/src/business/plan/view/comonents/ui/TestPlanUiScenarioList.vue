@@ -165,7 +165,7 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <micro-app :to="`/report/view/${reportId}`" service="ui"/>
+          <micro-app :to="`/ui/report/view/${reportId}`" service="ui"/>
         </el-drawer>
       </div>
     </el-card>

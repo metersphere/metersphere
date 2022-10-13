@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServletRequest;
         "/api/project",
         "/test/case/relevance/api",
         "/test/case/relevance/scenario",
-        "home"
+        "/share/api/definition",
+        "/home"
 })
 public class TrackApiTestController {
     @Resource

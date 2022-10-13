@@ -1,4 +1,4 @@
-export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, getTypeByFileName, strMapToObj} from "metersphere-frontend/src/utils";
+export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, getTypeByFileName, strMapToObj, getUUID, windowPrint} from "metersphere-frontend/src/utils";
 export {parseCustomFilesForList, getCustomFieldFilter, buildBatchParam} from "metersphere-frontend/src/utils/tableUtils";
 export {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUser} from "metersphere-frontend/src/utils/token";
 export {hasLicense, hasPermissions, hasPermission} from "metersphere-frontend/src/utils/permission";
