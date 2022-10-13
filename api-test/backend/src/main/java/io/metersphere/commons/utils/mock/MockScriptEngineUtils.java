@@ -113,6 +113,8 @@ public class MockScriptEngineUtils {
             for (Map.Entry<String, String> headEntry : headerMap.entrySet()) {
                 String headerKey = headEntry.getKey();
                 String headerValue = headEntry.getValue();
+                headerKey = StringUtils.replace(headerKey, "\\", "\\\\").replace("\"", "\\\"");
+                headerValue = StringUtils.replace(headerValue, "\\", "\\\\").replace("\"", "\\\"");
                 preScriptBuffer.append("vars.put(\"header." + headerKey + "\",\"" + headerValue + "\");\n");
             }
         }
@@ -127,6 +129,7 @@ public class MockScriptEngineUtils {
                         String value = String.valueOf(bodyParamObj.get(key));
                         value = StringUtils.replace(value, "\\", "\\\\");
                         value = StringUtils.replace(value, "\"", "\\\"");
+                        key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
                         preScriptBuffer.append("vars.put(\"body." + key + "\",\"" + value + "\");\n");
                         if (StringUtils.equalsIgnoreCase(key, "raw")) {
                             preScriptBuffer.append("vars.put(\"bodyRaw\",\"" + value + "\");\n");
@@ -137,7 +140,9 @@ public class MockScriptEngineUtils {
                     jsonBody = StringUtils.replace(jsonBody, "\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"body.json\",\"" + jsonBody + "\");\n");
                 } else {
-                    preScriptBuffer.append("vars.put(\"bodyRaw\",\"" + JSON.toJSONString(requestMockParams.getBodyParams()) + "\");\n");
+                    String bodyRowString = JSON.toJSONString(requestMockParams.getBodyParams());
+                    bodyRowString = StringUtils.replace(bodyRowString, "\\", "\\\\").replace("\"", "\\\"");
+                    preScriptBuffer.append("vars.put(\"bodyRaw\",\"" + bodyRowString + "\");\n");
                 }
 
             }
@@ -148,6 +153,7 @@ public class MockScriptEngineUtils {
                     String value = String.valueOf(queryParamsObj.get(key));
                     value = StringUtils.replace(value, "\\", "\\\\");
                     value = StringUtils.replace(value, "\"", "\\\"");
+                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"query." + key + "\",\"" + value + "\");\n");
                 }
             }
@@ -156,6 +162,9 @@ public class MockScriptEngineUtils {
                 JSONObject restParamsObj = requestMockParams.getRestParamsObj();
                 for (String key : restParamsObj.keySet()) {
                     String value = String.valueOf(restParamsObj.get(key));
+                    key = StringUtils.replace(key, "\"", "\\\"");
+                    value = StringUtils.replace(value, "\"", "\\\"");
+                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
                     preScriptBuffer.append("vars.put(\"rest." + key + "\",\"" + value + "\");\n");
                 }
             }
@@ -171,6 +180,8 @@ public class MockScriptEngineUtils {
         for (Map.Entry<String, String> headEntry : headerMap.entrySet()) {
             String headerKey = headEntry.getKey();
             String headerValue = headEntry.getValue();
+            headerKey = StringUtils.replace(headerKey, "\\", "\\\\").replace("\"", "\\\"");
+            headerValue = StringUtils.replace(headerValue, "\\", "\\\\").replace("\"", "\\\"");
             preScriptBuffer.append("vars[\"header." + headerKey + "\"]=\"" + headerValue + "\";\n");
         }
         //写入body参数
@@ -182,6 +193,7 @@ public class MockScriptEngineUtils {
                     String value = String.valueOf(bodyParamObj.get(key));
                     value = StringUtils.replace(value, "\\", "\\\\");
                     value = StringUtils.replace(value, "\"", "\\\"");
+                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
                     preScriptBuffer.append("vars[\"body." + key + "\"]=\"" + value + "\";\n");
                     if (StringUtils.equalsIgnoreCase(key, "raw")) {
                         preScriptBuffer.append("vars[\"bodyRaw\"]=\"" + value + "\";\n");
@@ -192,7 +204,8 @@ public class MockScriptEngineUtils {
                 jsonBody = StringUtils.replace(jsonBody, "\"", "\\\"");
                 preScriptBuffer.append("vars[\"body.json\"]=\"" + jsonBody + "\";\n");
             } else {
-                preScriptBuffer.append("vars[\"bodyRaw\"]=\"" + JSON.toJSONString(requestMockParams.getBodyParams()) + "\";\n");
+                String bodyRaw = StringUtils.replace(JSON.toJSONString(requestMockParams.getBodyParams()), "\\", "\\\\").replace("\"", "\\\"");
+                preScriptBuffer.append("vars[\"bodyRaw\"]=\"" + bodyRaw + "\";\n");
             }
 
         }
@@ -203,6 +216,7 @@ public class MockScriptEngineUtils {
                 String value = String.valueOf(queryParamsObj.get(key));
                 value = StringUtils.replace(value, "\\", "\\\\");
                 value = StringUtils.replace(value, "\"", "\\\"");
+                key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
                 preScriptBuffer.append("vars[\"query." + key + "\"]=\"" + value + "\";\n");
             }
         }
@@ -211,6 +225,8 @@ public class MockScriptEngineUtils {
             JSONObject restParamsObj = requestMockParams.getRestParamsObj();
             for (String key : restParamsObj.keySet()) {
                 String value = String.valueOf(restParamsObj.get(key));
+                key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
+                value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
                 preScriptBuffer.append("vars[\"rest." + key + "\"]=\"" + value + "\";\n");
             }
         }

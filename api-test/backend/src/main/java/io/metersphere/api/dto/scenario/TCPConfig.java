@@ -6,7 +6,7 @@ import lombok.Data;
 public class TCPConfig {
     private String classname = "";
     private String server = "";
-    private String port = "";
+    private int port = 0;
     private String ctimeout = "";
     private String timeout = "";
     private boolean reUseConnection = true;
