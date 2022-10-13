@@ -115,7 +115,7 @@ public class TestEnvironmentController {
     }
 
 
-    @GetMapping("/map/{groupId}")
+    @GetMapping("/group/map/{groupId}")
     public Map<String, String> getEnvMap(@PathVariable String groupId) {
         return baseEnvGroupProjectService.getEnvMap(groupId);
     }
