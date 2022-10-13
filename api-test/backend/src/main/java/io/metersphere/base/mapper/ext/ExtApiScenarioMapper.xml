@@ -1015,4 +1015,17 @@
             </include>
         </if>
     </sql>
+
+    <select id="selectBaseCaseByProjectId" resultType="io.metersphere.dto.BaseCase">
+        select api_scenario.id, api_scenario.name, api_scenario.project_id,'接口场景' as type, project_version.name as
+        version_name
+        from api_scenario inner join project_version on project_version.project_id = api_scenario.project_id and
+        project_version.id = api_scenario.version_id
+        <where>
+            <if test="projectId!=null">
+                and api_scenario.project_id= #{projectId}
+            </if>
+        </where>
+        and api_scenario.status!='Trash'
+    </select>
 </mapper>

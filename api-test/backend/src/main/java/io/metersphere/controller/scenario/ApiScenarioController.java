@@ -7,6 +7,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.parse.scenario.ScenarioImport;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.service.ext.ExtApiTaskService;
 import io.metersphere.base.domain.ApiScenario;
@@ -425,6 +426,12 @@ public class ApiScenarioController {
     @PostMapping("/count")
     public List<ApiCountChartResult> countScenarioCaseByRequest(@RequestBody ApiCountRequest request) {
         return apiAutomationService.countByRequest(request);
+    }
+
+    @GetMapping("/get-base-case/{projectId}")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
+        return apiAutomationService.getBaseCaseByProjectId(projectId);
     }
 }
 

@@ -32,6 +32,7 @@ import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.utils.mock.MockApiUtils;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
@@ -2174,4 +2175,9 @@ public class ApiScenarioService {
         }
         return new ArrayList<>();
     }
+
+    public List<BaseCase> getBaseCaseByProjectId(String projectId) {
+        return extApiScenarioMapper.selectBaseCaseByProjectId(projectId);
+    }
+
 }

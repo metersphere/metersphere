@@ -2889,4 +2889,8 @@ public class ApiDefinitionService {
             });
         }
     }
+
+    public List<BaseCase> getBaseCaseByProjectId(String projectId) {
+        return extApiTestCaseMapper.selectBaseCaseByProjectId(projectId);
+    }
 }

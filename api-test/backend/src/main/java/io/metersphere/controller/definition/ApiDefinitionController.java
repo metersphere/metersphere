@@ -16,6 +16,7 @@ import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.generator.JSONSchemaGenerator;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.definition.EsbApiParamService;
@@ -404,5 +405,11 @@ public class ApiDefinitionController {
     @PostMapping("/update/file")
     public void updateFileMetadataId(@RequestBody List<ReplaceFileIdRequest> requestList) {
         apiDefinitionService.updateFileMetadataId(requestList);
+    }
+
+    @GetMapping("/get-base-case/{projectId}")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
+        return apiDefinitionService.getBaseCaseByProjectId(projectId);
     }
 }
