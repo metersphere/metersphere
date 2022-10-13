@@ -1013,33 +1013,35 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                               Map<String, ApiDefinitionWithBLOBs> repeatDataMap, Map<String, ApiModule> moduleMap,
                               String versionId,
                               List<ApiTestCaseWithBLOBs> optionDataCases) {
-        if (nameModuleMap != null) {
-            Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionDatas.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
-            repeatDataMap.forEach((k, v) -> {
-                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
-                if (apiDefinitionWithBLOBs != null) {
-                    Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
-                    List<ApiTestCaseWithBLOBs> distinctNameCases = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
-                    String modulePath = apiDefinitionWithBLOBs.getModulePath();
-                    List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
-                    if (moduleDatas != null && moduleDatas.size() <= 1) {
-                        moduleMap.remove(modulePath);
-                        removeModulePath(moduleMap, moduleOptionData, modulePath);
-                        moduleDatas.remove(apiDefinitionWithBLOBs);
-                    }
-                    //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
-                    if (v.getVersionId().equals(versionId)) {
-                        optionDatas.remove(apiDefinitionWithBLOBs);
-                        if (CollectionUtils.isNotEmpty(distinctNameCases)) {
-                            distinctNameCases.forEach(optionDataCases::remove);
-                        }
-                    } else {
-                        //这里是为了标识当前数据是需要创建版本的，不是全新增的数据
-                        addNewVersionApi(apiDefinitionWithBLOBs, v, "new");
-                    }
-                }
-            });
+        if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
+            return;
         }
+        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionDatas.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+        repeatDataMap.forEach((k, v) -> {
+            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
+            if (apiDefinitionWithBLOBs == null){
+                return;
+            }
+            Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+            List<ApiTestCaseWithBLOBs> distinctNameCases = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
+            String modulePath = apiDefinitionWithBLOBs.getModulePath();
+            List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
+            if (moduleDatas != null && moduleDatas.size() <= 1) {
+                moduleMap.remove(modulePath);
+                removeModulePath(moduleMap, moduleOptionData, modulePath);
+                moduleDatas.remove(apiDefinitionWithBLOBs);
+            }
+            //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
+            if (v.getVersionId().equals(versionId)) {
+                optionDatas.remove(apiDefinitionWithBLOBs);
+                if (CollectionUtils.isNotEmpty(distinctNameCases)) {
+                    distinctNameCases.forEach(optionDataCases::remove);
+                }
+            } else {
+                //这里是为了标识当前数据是需要创建版本的，不是全新增的数据
+                addNewVersionApi(apiDefinitionWithBLOBs, v, "new");
+            }
+        });
     }
 
     private void addNewVersionApi(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs, ApiDefinitionWithBLOBs v, String version) {
