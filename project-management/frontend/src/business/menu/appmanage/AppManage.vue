@@ -392,7 +392,7 @@ export default {
     tcpMockSwitchChange(value, other) {
       if (value && this.config.mockTcpPort === 0) {
         genTcpMockPort(this.projectId).then(res => {
-          let port = res.data.data;
+          let port = res.data;
           this.config.mockTcpPort = port;
           this.$nextTick(() => {
             this.switchChange("MOCK_TCP_OPEN", value, ['MOCK_TCP_PORT', this.config.mockTcpPort]);
