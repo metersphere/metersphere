@@ -378,8 +378,8 @@ public class FileUtils {
                         file.setName(arg.getPath());
                         if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                             FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
-                            if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
-                                file.setStorage(StorageConstants.GIT.name());
+                            if (fileMetadata != null && StringUtils.equalsAny(fileMetadata.getStorage(), StorageConstants.GIT.name(), StorageConstants.MINIO.name())) {
+                                file.setStorage(fileMetadata.getStorage());
                                 file.setFileId(arg.getPropertyAsString("fileId"));
                                 file.setName(reportId + File.separator + fileMetadata.getName());
                                 arg.setPath(BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
@@ -396,8 +396,8 @@ public class FileUtils {
                     file.setName(source.getPropertyAsString("filename"));
                     if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
                         FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
-                        if (fileMetadata != null && StringUtils.equals(StorageConstants.GIT.name(), fileMetadata.getStorage())) {
-                            file.setStorage(StorageConstants.GIT.name());
+                        if (fileMetadata != null && StringUtils.equalsAny(fileMetadata.getStorage(), StorageConstants.GIT.name(), StorageConstants.MINIO.name())) {
+                            file.setStorage(fileMetadata.getStorage());
                             file.setFileId(source.getPropertyAsString("fileId"));
                             file.setName(reportId + File.separator + fileMetadata.getName());
                             ((CSVDataSet) key).setProperty("filename", BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
