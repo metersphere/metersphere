@@ -29,14 +29,14 @@ public class IssueProxyResourceService {
      * @param platform
      * @return
      */
-    public ResponseEntity<byte[]> getMdImageByUrl(String url, String platform) {
+    public ResponseEntity<byte[]> getMdImageByUrl(String url, String platform, String projectId, String workspaceId) {
         if (url.contains("md/get/url")) {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
         if (StringUtils.isNotBlank(platform)) {
             IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-            issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+            issuesRequest.setProjectId(projectId);
+            issuesRequest.setWorkspaceId(workspaceId);
             return IssueFactory.createPlatform(platform, issuesRequest)
                     .proxyForGet(url, byte[].class);
         }
