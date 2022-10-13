@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.ParamsDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -97,4 +98,6 @@ public interface ExtApiTestCaseMapper {
     List<ApiCountChartResult> countByRequest(ApiCountRequest request);
 
     List<ApiTestCaseDTO> relevanceApiList(@Param("request") ApiTestCaseRequest request);
+
+    List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
 }

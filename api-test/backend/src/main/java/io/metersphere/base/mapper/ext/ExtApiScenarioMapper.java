@@ -8,6 +8,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioExampleWithOperation;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
@@ -104,4 +105,6 @@ public interface ExtApiScenarioMapper {
     List<ApiCountChartResult> countByRequest(ApiCountRequest request);
 
     List<ApiScenarioDTO> relevanceScenarioList(@Param("request") ApiScenarioRequest request);
+
+    List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
 }
