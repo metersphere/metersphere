@@ -97,7 +97,7 @@
           <div style="margin-top: 10px">
             <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
           </div>
-          <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" ref="importAuth"/>
+          <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" :is-swagger="true" ref="importAuth"/>
         </el-col>
 
         <el-col :span="12"
