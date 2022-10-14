@@ -45,7 +45,7 @@ public class SessionFilter implements WebFilter {
             }
         }
 
-        // 有些url直接转到 /setting
+        // 有些url直接转到 sub-service
         for (String prefix : TO_SUB_SERVICE) {
             if (path.startsWith(prefix)) {
                 Optional<String> svc = discoveryClient.getServices().stream().filter(s -> !StringUtils.equals(serviceName, s)).findAny();
