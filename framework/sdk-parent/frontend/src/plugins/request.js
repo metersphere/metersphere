@@ -268,6 +268,14 @@ export const generateShareUrl = (name, shareUrl) => {
   }
 }
 
+export const generateModuleUrl = (url) => {
+  if (window.__POWERED_BY_QIANKUN__) {
+    return window.location.origin + '/' + packageJSON.name + url;
+  } else {
+    return window.location.origin + url;
+  }
+}
+
 export default {
   install(Vue) {
     Vue.prototype.$get = get;
