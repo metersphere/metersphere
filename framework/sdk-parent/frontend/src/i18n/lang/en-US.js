@@ -74,6 +74,7 @@ const message = {
     warning_module_add: "Tree modules are up to 8 levels deep",
     send_success: 'Send successfully',
     delete_success: 'Deleted successfully',
+    relate_success: 'Related successfully',
     unrelated_success: 'Unrelated successfully',
     modify_success: 'Modify Success',
     copy_success: 'Copy Success',
@@ -1072,6 +1073,7 @@ const message = {
     rename_report: 'Rename report'
   },
   load_test: {
+    exist_related_file: 'Existed Relate Files',
     id: 'Load Test ID',
     concurrency_thread_group: 'Concurrent read group',
     thread_group: 'ThreadGroup',
