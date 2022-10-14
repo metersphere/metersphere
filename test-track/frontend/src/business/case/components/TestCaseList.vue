@@ -525,12 +525,13 @@ export default {
   methods: {
     getTemplateField() {
       this.loading = true;
-      let p1 = getProjectMember((data) => {
-        this.members = data;
-        this.members.forEach(item => {
-          this.memberMap.set(item.id, item.name);
+      let p1 = getProjectMember()
+        .then((response) => {
+          this.members = response.data;
+          this.members.forEach(item => {
+            this.memberMap.set(item.id, item.name);
+          });
         });
-      });
       let p2 = getTestTemplate();
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
