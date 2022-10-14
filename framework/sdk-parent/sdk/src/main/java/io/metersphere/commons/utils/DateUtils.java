@@ -77,25 +77,18 @@ public class DateUtils {
     public static Map<String, Date> getWeedFirstTimeAndLastTime(Date date) {
         Map<String, Date> returnMap = new HashMap<>();
         Calendar calendar = Calendar.getInstance();
-
-        //Calendar默认一周的开始是周日。业务需求从周一开始算，所以要"+1"
-        int weekDayAdd = 1;
-
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
         try {
-            calendar.setTime(date);
-            calendar.set(Calendar.DAY_OF_WEEK, calendar.getActualMinimum(Calendar.DAY_OF_WEEK));
-            calendar.add(Calendar.DAY_OF_MONTH, weekDayAdd);
-
+            int dayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            if (dayWeek == 1) {
+                dayWeek = 8;
+            }
+            calendar.add(Calendar.DATE, calendar.getFirstDayOfWeek() - dayWeek);
             //第一天的时分秒是 00:00:00 这里直接取日期，默认就是零点零分
             Date thisWeekFirstTime = getDate(getDateString(calendar.getTime()));
 
-            calendar.clear();
-            calendar.setTime(date);
-            calendar.set(Calendar.DAY_OF_WEEK, calendar.getActualMaximum(Calendar.DAY_OF_WEEK));
-            calendar.add(Calendar.DAY_OF_MONTH, weekDayAdd);
-
-            //最后一天的时分秒应当是23:59:59。 处理方式是增加一天计算日期再-1
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            //计算七天过后的日期
+            calendar.add(Calendar.DATE, 7);
             Date nextWeekFirstDay = getDate(getDateString(calendar.getTime()));
             Date thisWeekLastTime = getTime(getTimeString(nextWeekFirstDay.getTime() - 1));
 
