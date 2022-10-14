@@ -134,6 +134,7 @@ import VersionSelect from "metersphere-frontend/src/components/version/MxVersion
 import {getTestCaseReviewRelevance, getTestCaseReviewsCasePage} from "@/api/test-review";
 import {testCaseNodeListReviewRelate} from "@/api/test-case-node";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {projectRelated} from "@/api/project";
 
 export default {
   name: "TestReviewRelevance",
