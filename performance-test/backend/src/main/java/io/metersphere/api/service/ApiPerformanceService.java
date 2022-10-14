@@ -1,9 +1,6 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.ApiLoadType;
-import io.metersphere.api.dto.ApiScenarioBatchRequest;
-import io.metersphere.api.dto.ApiScenarioExportJmxDTO;
-import io.metersphere.api.dto.ScenarioToPerformanceInfoDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiLoadTestMapper;
 import io.metersphere.base.mapper.LoadTestFileMapper;
@@ -52,6 +49,10 @@ public class ApiPerformanceService {
 
     public ScenarioToPerformanceInfoDTO exportJmx(Object request) {
         return microService.postForData(MicroServiceName.API_TEST, "/api/automation/export/jmx", request, ScenarioToPerformanceInfoDTO.class);
+    }
+
+    public List<JmxInfoDTO> exportApiCaseJmx(Object request) {
+        return microService.postForDataArray(MicroServiceName.API_TEST, "/api/testcase/export/jmx", request, JmxInfoDTO.class);
     }
 
     public Object list(int goPage, int pageSize, Object request) {
@@ -119,7 +120,7 @@ public class ApiPerformanceService {
                 .filter(i -> i.getType().equals(ApiLoadType.SCENARIO.name()))
                 .map(ApiLoadTest::getApiId)
                 .collect(Collectors.toList());
-        if (!org.apache.commons.collections4.CollectionUtils.isEmpty(scenarioIds)) {
+        if (!CollectionUtils.isEmpty(scenarioIds)) {
             ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
             scenarioRequest.setIds(scenarioIds);
             List<ApiScenarioExportJmxDTO> apiScenrioExportJmxes = this.exportJmx(scenarioRequest).getScenarioJmxList();
@@ -135,23 +136,22 @@ public class ApiPerformanceService {
     }
 
     public void syncApiCase(LoadTestWithBLOBs loadTest, List<ApiLoadTest> apiLoadTests) {
-        // todo
-//        List<String> caseIds = apiLoadTests.stream()
-//                .filter(i -> i.getType().equals(ApiLoadType.API_CASE.name()))
-//                .map(ApiLoadTest::getApiId)
-//                .collect(Collectors.toList());
-//        if (!org.apache.commons.collections4.CollectionUtils.isEmpty(caseIds)) {
-//            ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
-//            scenarioRequest.setIds(caseIds);
-//
-//            List<JmxInfoDTO> jmxInfoDTOS = apiTestCaseService.exportJmx(caseIds, apiLoadTests.get(0).getEnvId());
-//            deleteLoadTestFiles(loadTest.getId());
-//            jmxInfoDTOS.forEach(item -> {
-//                this.updateVersion(loadTest.getId(), item.getId(), item.getVersion());
-//                saveJmxFile(item.getXml(), item.getName(), loadTest.getProjectId(), loadTest.getId());
-//                saveBodyFile(item.getFileMetadataList(), loadTest.getId(), item.getId());
-//            });
-//        }
+        List<String> caseIds = apiLoadTests.stream()
+                .filter(i -> i.getType().equals(ApiLoadType.API_CASE.name()))
+                .map(ApiLoadTest::getApiId)
+                .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(caseIds)) {
+            ApiCaseExportJmxRequest request = new ApiCaseExportJmxRequest();
+            request.setCaseIds(caseIds);
+            request.setEnvId(apiLoadTests.get(0).getEnvId());
+            List<JmxInfoDTO> jmxInfoDTOS = this.exportApiCaseJmx(request);
+            deleteLoadTestFiles(loadTest.getId());
+            jmxInfoDTOS.forEach(item -> {
+                this.updateVersion(loadTest.getId(), item.getId(), item.getVersion());
+                saveJmxFile(item.getXml(), item.getName(), loadTest.getProjectId(), loadTest.getId());
+                saveBodyFile(item.getFileMetadataList(), loadTest.getId(), item.getId());
+            });
+        }
     }
 
 
