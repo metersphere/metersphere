@@ -68,6 +68,10 @@ export default {
       default: true,
     },
     isReadOnly: Boolean,
+    isSwagger:{
+      type: Boolean,
+      default: false,
+    }
   },
   watch: {
     request() {
@@ -75,11 +79,18 @@ export default {
     }
   },
   created() {
+    if (this.isSwagger) {
+      this.options = this.swaggerOptions;
+    }else {
+      this.options = this.originalOptions;
+    }
     this.initData();
   },
   data() {
     return {
-      options: [{name: "No Auth"}, {name: "Basic Auth"}, {name: "Digest Auth"}],
+      originalOptions: [{name: "No Auth"}, {name: "Basic Auth"}, {name: "Digest Auth"}],
+      swaggerOptions:[{name: "No Auth"}, {name: "Basic Auth"}],
+      options: [],
       encryptOptions: [{id: false, name: this.$t('commons.encrypted')}],
       activeName: "verified",
       rule: {},
