@@ -883,7 +883,7 @@ export default {
     },
     handleDeleteBatch() {
       if (this.trashEnable) {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -897,7 +897,7 @@ export default {
           }
         });
       } else {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {

@@ -304,12 +304,12 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "@/business/commons/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import MsApiCaseRunModeWithEnv from "./ApiCaseRunModeWithEnv";
+import {getUUID, operationConfirm} from "metersphere-frontend/src/utils";
 
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {getUUID} from "metersphere-frontend/src/utils";
 import {getBodyUploadFiles} from "@/business/definition/api-definition";
 import PriorityTableItem from "@/business/commons/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
@@ -1006,7 +1006,7 @@ export default {
           }
         }
 
-        this.$alert(alertMsg, '', {
+        operationConfirm(alertMsg, '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -1105,7 +1105,7 @@ export default {
           }
         }
 
-        this.$alert(alertMsg, '', {
+        operationConfirm(alertMsg, '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
