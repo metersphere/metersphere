@@ -1,8 +1,8 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="loading" ref="projectButton">
     <div class="mask" v-show="isShowSelect"></div>
     <el-popover placement="bottom-start" :width="popoverWidth" trigger="manual" v-model="isShowSelect"
-                @hide="popoverHide" v-click-outside="outsideClick">
+                @hide="popoverHide" @show="show">
       <el-input
         size="mini"
         prefix-icon="el-icon-search"
@@ -356,10 +356,20 @@ export default {
       this.popoverHide();
 
     },
+    show(){
+      document.addEventListener('click', this.hidePanel, false)
+    },
     //下拉框关闭执行
     popoverHide() {
       this.$emit('setSelectNodeIds', this.selectNodeIds);
       this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
+      document.removeEventListener('click', this.hidePanel, false)
+    },
+    hidePanel (e) {
+      if (!this.$refs.projectButton.contains(e.target)) {
+        this.isShowSelect = false
+        this.popoverHide()
+      }
     },
     // 多选，清空所有勾选
     clearSelectedNodes() {
