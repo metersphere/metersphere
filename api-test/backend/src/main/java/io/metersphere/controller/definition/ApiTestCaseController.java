@@ -261,7 +261,7 @@ public class ApiTestCaseController {
      * @param request
      * @return
      */
-    @PostMapping("/export/test/case/jmx")
+    @PostMapping("/export/jmx")
     public List<JmxInfoDTO> getScenarioCaseByIds(@RequestBody ApiCaseExportJmxRequest request) {
         return apiTestCaseService.exportJmx(request.getCaseIds(), request.getEnvId());
     }
