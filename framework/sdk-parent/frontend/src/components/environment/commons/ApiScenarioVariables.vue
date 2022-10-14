@@ -103,7 +103,7 @@ import MsTable from "../../table/MsTable";
 import MsTableColumn from "../../table/MsTableColumn";
 import ApiVariableSetting from "./ApiVariableSetting";
 import CsvFileUpload from "./variable/CsvFileUpload";
-import {downloadFile, getUUID} from "../../../utils";
+import {downloadFile, getUUID, operationConfirm} from "../../../utils";
 import VariableImport from "./variable/VariableImport";
 
 export default {
@@ -244,7 +244,7 @@ export default {
       });
     },
     handleDeleteBatch() {
-      this.$alert(this.$t('api_test.environment.variables_delete_info') + ' ' + " ？", '', {
+      operationConfirm(this.$t('api_test.environment.variables_delete_info') + ' ' + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {

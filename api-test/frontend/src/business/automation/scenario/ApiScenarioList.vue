@@ -349,7 +349,7 @@ import {
 import {getMaintainer, getProject} from "@/api/project";
 import {getProjectVersions, versionEnableByProjectId} from "@/api/xpack";
 import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {downloadFile, getUUID, objToStrMap, strMapToObj} from "metersphere-frontend/src/utils";
+import {downloadFile, getUUID, objToStrMap, strMapToObj, operationConfirm} from "metersphere-frontend/src/utils";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {API_SCENARIO_LIST} from "metersphere-frontend/src/utils/constants";
@@ -1090,8 +1090,7 @@ export default {
               alertMsg += this.$t('api_test.is_continue') + " ？";
             }
           }
-
-          this.$alert(alertMsg, '', {
+          operationConfirm(alertMsg, '', {
             confirmButtonText: this.$t('commons.confirm'),
             cancelButtonText: this.$t('commons.cancel'),
             callback: (action) => {
@@ -1266,7 +1265,7 @@ export default {
               // 删除提供列表删除和全部版本删除
               this.$refs.apiDeleteConfirm.open(row, alertMsg);
             } else {
-              this.$alert(alertMsg, '', {
+              operationConfirm(alertMsg, '', {
                 confirmButtonText: this.$t('commons.confirm'),
                 cancelButtonText: this.$t('commons.cancel'),
                 callback: (action) => {
