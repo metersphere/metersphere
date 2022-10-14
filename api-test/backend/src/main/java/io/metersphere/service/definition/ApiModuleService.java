@@ -669,7 +669,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
         } else {
             buildOptionMap(optionDatas, optionMap);
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getModulePath()), api -> api));
+            if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getModulePath()), api -> api));
+            }
         }
         Boolean fullCoverageApi = getFullCoverageApi(request);
         String updateVersionId = getUpdateVersionId(request);
@@ -1058,33 +1060,34 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                                          String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                                          Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         //覆盖但不覆盖模块
-        if (nameModuleMap != null) {
-            //导入文件没有新增接口无需创建接口模块
-            moduleMap = judgeModule(moduleMap, nameModuleMap, repeatDataMap);
-            repeatDataMap.forEach((k, v) -> {
-                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
-                if (apiDefinitionWithBLOBs != null) {
-                    //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
-                    if (!v.getVersionId().equals(updateVersionId)) {
-                        addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
-                        return;
-                    }
-                    Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
-                    //该接口的case
-                    Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
-                    updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
-                    //组合case
-                    if (MapUtils.isNotEmpty(caseNameMap)) {
-                        buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
-                    }
-                    apiDefinitionWithBLOBs.setId(v.getId());
-                    apiDefinitionWithBLOBs.setModuleId(v.getModuleId());
-                    apiDefinitionWithBLOBs.setModulePath(v.getModulePath());
-                    setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
-                    toUpdateList.add(v);
-                }
-            });
+        if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
+           return new HashMap<>();
         }
+        //导入文件没有新增接口无需创建接口模块
+        moduleMap = judgeModule(moduleMap, nameModuleMap, repeatDataMap);
+        repeatDataMap.forEach((k, v) -> {
+            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
+            if (apiDefinitionWithBLOBs != null) {
+                //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
+                if (!v.getVersionId().equals(updateVersionId)) {
+                    addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
+                    return;
+                }
+                Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+                //该接口的case
+                Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
+                updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
+                //组合case
+                if (MapUtils.isNotEmpty(caseNameMap)) {
+                    buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
+                }
+                apiDefinitionWithBLOBs.setId(v.getId());
+                apiDefinitionWithBLOBs.setModuleId(v.getModuleId());
+                apiDefinitionWithBLOBs.setModulePath(v.getModulePath());
+                setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
+                toUpdateList.add(v);
+            }
+        });
         return moduleMap;
     }
 
@@ -1119,29 +1122,30 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private void coverModule(List<ApiDefinitionWithBLOBs> toUpdateList, Map<String, ApiDefinitionWithBLOBs> nameModuleMap,
                              Map<String, ApiDefinitionWithBLOBs> repeatDataMap, String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                              Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
-        if (nameModuleMap != null) {
-            repeatDataMap.forEach((k, v) -> {
-                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
-                if (apiDefinitionWithBLOBs != null) {
-                    //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
-                    if (!v.getVersionId().equals(updateVersionId)) {
-                        addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
-                        return;
-                    }
-                    //该接口的case
-                    Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
-                    Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
-                    updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
-                    //组合case
-                    if (MapUtils.isNotEmpty(caseNameMap)) {
-                        buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
-                    }
-                    apiDefinitionWithBLOBs.setId(v.getId());
-                    setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
-                    toUpdateList.add(v);
-                }
-            });
+        if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
+           return;
         }
+        repeatDataMap.forEach((k, v) -> {
+            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
+            if (apiDefinitionWithBLOBs != null) {
+                //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
+                if (!v.getVersionId().equals(updateVersionId)) {
+                    addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
+                    return;
+                }
+                //该接口的case
+                Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+                Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
+                updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
+                //组合case
+                if (MapUtils.isNotEmpty(caseNameMap)) {
+                    buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
+                }
+                apiDefinitionWithBLOBs.setId(v.getId());
+                setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
+                toUpdateList.add(v);
+            }
+        });
     }
 
     private void removeRepeatOrigin(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, List<ApiDefinitionWithBLOBs> optionDatas) {
