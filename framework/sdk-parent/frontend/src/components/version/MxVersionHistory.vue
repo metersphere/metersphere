@@ -101,15 +101,13 @@ export default {
   },
   methods: {
     getVersionOptionList(callback) {
-      if (hasLicense()) {
-        getProjectVersions(this.currentProjectId)
-          .then(response => {
-            this.versionOptions = response.data.filter(v => v.status === 'open');
-            if (callback) {
-              callback(this.versionOptions);
-            }
-          });
-      }
+      getProjectVersions(this.currentProjectId)
+        .then(response => {
+          this.versionOptions = response.data.filter(v => v.status === 'open');
+          if (callback) {
+            callback(this.versionOptions);
+          }
+        });
     },
     updateUserDataByExternal() {
       if (this.testUsers && this.testUsers.length > 0) {
@@ -174,6 +172,9 @@ export default {
   },
   watch: {
     versionData() {
+      if (!hasLicense()) {
+        return;
+      }
       isProjectVersionEnable(this.currentProjectId)
         .then(response => {
           this.versionEnable = response.data;
