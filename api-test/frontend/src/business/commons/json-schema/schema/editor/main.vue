@@ -10,7 +10,7 @@
                @blur="onInputName" size="small"/>
 
         <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
-          <input type="checkbox" :disabled="disabled || (!isObject && !isArray)" class="ms-col-name-required"
+          <input type="checkbox" :disabled="disabled || (!isObject && !isArray(pickValue))" class="ms-col-name-required"
                  @change="onRootCheck"/>
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
@@ -40,7 +40,7 @@
         <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
-        <el-tooltip v-if="isObject || isArray" :content="$t('schema.add_child_node')" placement="top">
+        <el-tooltip v-if="isObject || isArray(pickValue)" :content="$t('schema.add_child_node')" placement="top">
           <i class="el-icon-plus" @click="addChild" style="margin-left: 10px"/>
         </el-tooltip>
         <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
@@ -49,7 +49,7 @@
       </el-col>
     </el-row>
 
-    <template v-if="!hidden&&pickValue.properties && !isArray && reloadItemOver">
+    <template v-if="!hidden&&pickValue.properties && !isArray(pickValue) && reloadItemOver">
       <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}"
                           :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
@@ -59,7 +59,7 @@
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"
                           @reloadItems="reloadItems"/>
     </template>
-    <template v-if="!hidden && isArray && reloadItemOver">
+    <template v-if="!hidden && isArray(pickValue) && reloadItemOver">
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue"
                           :key="index"
                           :deep="deep+1" :root="false" class="children"
@@ -112,7 +112,7 @@
 </template>
 <script>
 import {isNull} from './util'
-import {TYPE_NAME, TYPE, TYPES} from './type/type'
+import {TYPE, TYPE_NAME, TYPES} from './type/type'
 import MsMock from './mock/MockComplete'
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
 import {getUUID} from "metersphere-frontend/src/utils";
@@ -175,9 +175,6 @@ export default {
     isObject() {
       return this.pickValue.type === 'object'
     },
-    isArray() {
-      return this.pickValue.type === 'array'
-    },
     checked() {
       return this.parent && this.parent.required && this.parent.required.indexOf(this.pickKey) >= 0
     },
@@ -230,6 +227,17 @@ export default {
     }
   },
   methods: {
+    isArray(data) {
+      let isDataArray = data.type === 'array';
+      if (isDataArray) {
+        //如果item不是array类型，去掉。
+        let itemsIsArray = Array.isArray(data.items);
+        if (!itemsIsArray) {
+          data.items = [];
+        }
+      }
+      return isDataArray;
+    },
     onInputName(e) {
       const val = e.target.value
       const p = {};
@@ -251,13 +259,13 @@ export default {
         delete this.pickValue['items']
         delete this.pickValue['required']
         delete this.pickValue['mock']
-        if (this.isArray) {
+        if (this.isArray(this.pickValue)) {
           this.$set(this.pickValue, 'items', [{type: 'string', mock: {mock: ""}}]);
         }
       }
     },
     changeAllItemsType(changeType) {
-      if (this.isArray && this.pickValue.items && this.pickValue.items.length > 0) {
+      if (this.isArray(this.pickValue) && this.pickValue.items && this.pickValue.items.length > 0) {
         this.pickValue.items.forEach(item => {
           item.type = changeType;
           delete item['properties']
@@ -301,7 +309,7 @@ export default {
     },
     addChild() {
       const node = this.pickValue;
-      if (this.isArray) {
+      if (this.isArray(node)) {
         let childObj = {type: 'string', mock: {mock: ""}}
         if (node.items && node.items.length > 0) {
           childObj.type = node.items[0].type;
