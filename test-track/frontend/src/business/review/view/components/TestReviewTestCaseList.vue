@@ -204,13 +204,14 @@ import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
-import {getProjectConfig, getVersionFilters} from "@/api/project";
+import {getProjectConfig} from "@/api/project";
 import {
   batchDeleteTestReviewCase,
   batchEditTestReviewCaseStatus,
   deleteTestReviewCase, getTesReviewById
 } from "@/api/test-review";
 import {useStore} from "@/store";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -563,11 +564,7 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         getVersionFilters(getCurrentProjectID())
-          .then((response) => {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
-          })
+          .then(r => this.versionFilters = r.data);
       }
     },
   }

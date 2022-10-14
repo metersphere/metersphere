@@ -305,8 +305,7 @@ import {
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import {getTestPlanTestCase} from "@/api/testCase";
 import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/TestPlanCaseIssueItem";
-import {getProjectVersions} from "@/api/project";
-import {getCustomFieldValueForTrack, getProjectMemberOption} from "@/business/utils/sdk-utils";
+import {getCustomFieldValueForTrack, getProjectMemberOption, getProjectVersions} from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
   testPlanTestCaseBatchEdit,

@@ -14,13 +14,6 @@ export function getCurrentProject(callback) {
   return getProject(getCurrentProjectID(), callback);
 }
 
-export function getVersionFilters(projectId) {
-  if (projectId) {
-    return get('/project/version/get-project-versions/' + projectId);
-  }
-  return {};
-}
-
 
 export function getOwnerProjectIds() {
   let url = '/api/project/get/owner/ids';
@@ -32,9 +25,9 @@ export function getMaintainer() {
   return get(url);
 }
 
-export function getProjectVersions(projectId) {
-  return get('/project/version/get-project-versions/' + projectId);
-}
+// export function getProjectVersions(projectId) {
+//   return get('/project/version/get-project-versions/' + projectId);
+// }
 
 export function versionEnableByProjectId(projectId) {
   return get('/project/version/enable/' + projectId);

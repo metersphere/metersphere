@@ -165,14 +165,13 @@ import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpda
 import LoadCaseConfig from "@/business/plan/view/comonents/load/LoadCaseConfig";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {editTestPlanLoadCaseOrder, testPlanAutoCheck, testPlanLoadCaseEditStatus} from "@/api/remote/plan/test-plan";
-import {hasLicense} from "@/business/utils/sdk-utils";
+import {getProjectVersions, hasLicense} from "@/business/utils/sdk-utils";
 import {
   testPlanLoadCaseBatchDelete,
   testPlanLoadCaseDelete, testPlanLoadCaseReportExist, testPlanLoadCaseRun,
   testPlanLoadCaseRunBatch,
   testPlanLoadCaseSelectAllTableRows, testPlanLoadCaseUpdate, testPlanLoadList
 } from "@/api/remote/plan/test-plan-load-case";
-import {getProjectVersions} from "@/api/project";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 
 

@@ -81,7 +81,7 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import {TEST_CASE_RELEVANCE_LOAD_CASE} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getTestCaseRelevanceLoadList} from "@/api/testCase";
 
 export default {
@@ -172,9 +172,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

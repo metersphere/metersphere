@@ -109,7 +109,7 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import {_filter, buildBatchParam} from "metersphere-frontend/src/utils/tableUtils";
 import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "metersphere-frontend/src/components/search/search-components";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import MsPerformanceTestStatus from "@/business/performance/PerformanceTestStatus";
 import {testPlanLoadRelevance, testPlanLoadRelevanceList} from "@/api/remote/plan/test-plan-load-case";
@@ -288,9 +288,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

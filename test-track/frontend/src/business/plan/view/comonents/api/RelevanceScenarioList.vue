@@ -103,7 +103,7 @@ import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTa
 import TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getOwnerProjects} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
@@ -273,9 +273,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     filter(field) {
       this.condition.filters = field || null;

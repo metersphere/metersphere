@@ -15,7 +15,7 @@ export {deleteMarkDownImgByName} from "metersphere-frontend/src/api/img";
 export {getApiDefinitionById, getApiTestCasePages} from "metersphere-frontend/src/api/environment";
 export {getOwnerProjects, getProjectListAll} from "metersphere-frontend/src/api/project";
 export {deleteRelationshipEdge} from "metersphere-frontend/src/api/relationship-edge";
-export {isProjectVersionEnable} from "metersphere-frontend/src/api/version";
+export {isProjectVersionEnable, getProjectVersions, getVersionFilters} from "metersphere-frontend/src/api/version";
 
 
 import {
