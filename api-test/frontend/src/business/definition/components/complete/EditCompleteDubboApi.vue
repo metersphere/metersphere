@@ -78,7 +78,13 @@
 </template>
 
 <script>
-import {definitionFollow, delDefinitionByRefId, getDefinitionById, getDefinitionVersions} from "@/api/definition";
+import {
+  definitionFollow,
+  delDefinitionByRefId,
+  getDefinitionById,
+  getDefinitionByIdAndRefId,
+  getDefinitionVersions
+} from "@/api/definition";
 import MsBasisApi from "./BasisApi";
 import MsBasisParameters from "../request/dubbo/BasisParameters";
 import MsChangeHistory from "@/business/history/ApiHistory";

@@ -82,7 +82,7 @@
 import {
   definitionFollow,
   delDefinitionByRefId,
-  getDefinitionById,
+  getDefinitionById, getDefinitionByIdAndRefId,
   getDefinitionVersions,
   updateDefinitionFollows
 } from "@/api/definition";
