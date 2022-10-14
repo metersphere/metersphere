@@ -304,8 +304,14 @@ export default {
         let promise = this.form.id ? modifyProject(this.form) : saveProject(this.form);
         this.loading = promise.then(() => {
           this.createVisible = false;
-          this.reload();
           this.$success(this.$t('commons.save_success'));
+          if (!this.form.id) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 400);
+            return;
+          }
+          this.reload();
         });
       });
     },
