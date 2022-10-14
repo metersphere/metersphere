@@ -511,6 +511,8 @@ public class IssuesService {
             item.setCaseCount(caseIdSet.size());
         });
         buildCustomField(issues);
+        //处理MD图片链接内容
+        handleJiraIssueMdUrl(request.getWorkspaceId(), request.getProjectId(), issues);
         return issues;
     }
 
@@ -536,6 +538,32 @@ public class IssuesService {
             fields.add(customFieldDao);
         });
         data.setFields(fields);
+    }
+
+    private void handleJiraIssueMdUrl(String workPlaceId, String projectId, List<IssuesDao> issues) {
+        issues.forEach(issue -> {
+            if (StringUtils.isNotEmpty(issue.getDescription()) && issue.getDescription().contains("platform=Jira&")) {
+                issue.setDescription(replaceJiraMdUrlParam(issue.getDescription(), workPlaceId, projectId));
+            }
+            if (StringUtils.isNotEmpty(issue.getCustomFields()) && issue.getCustomFields().contains("platform=Jira&")) {
+                issue.setCustomFields(replaceJiraMdUrlParam(issue.getCustomFields(), workPlaceId, projectId));
+            }
+            if (CollectionUtils.isNotEmpty(issue.getFields())) {
+                issue.getFields().forEach(field -> {
+                    if (StringUtils.isNotEmpty(field.getTextValue()) && field.getTextValue().contains("platform=Jira&")) {
+                        field.setTextValue(replaceJiraMdUrlParam(field.getTextValue(), workPlaceId, projectId));
+                    }
+                    if (StringUtils.isNotEmpty(field.getValue()) && field.getValue().contains("platform=Jira&")) {
+                        field.setValue(replaceJiraMdUrlParam(field.getValue(), workPlaceId, projectId));
+                    }
+                });
+            }
+        });
+    }
+
+    private String replaceJiraMdUrlParam(String url, String workspaceId, String projectId) {
+        return url.replaceAll("platform=Jira&",
+                "platform=Jira&project_id=" + projectId + "&workspace_id=" + workspaceId + "&");
     }
 
     private Map<String, String> getPlanMap(List<IssuesDao> issues) {
