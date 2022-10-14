@@ -609,9 +609,7 @@ export default {
       this.initPlugins();
     });
 
-    if (hasLicense()) {
-      this.getVersionHistory();
-    }
+    this.getVersionHistory();
   },
   mounted() {
     this.$nextTick(() => {
@@ -2198,6 +2196,9 @@ export default {
       this.$refs.scenarioVariableAdvance.open();
     },
     getVersionHistory() {
+      if (!hasLicense()) {
+        return;
+      }
       getScenarioVersions(this.currentScenario.id).then(response => {
         if (this.currentScenario.copy) {
           this.versionData = response.data.filter(v => v.versionId === this.currentScenario.versionId);
