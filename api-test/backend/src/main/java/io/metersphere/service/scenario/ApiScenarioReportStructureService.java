@@ -185,7 +185,7 @@ public class ApiScenarioReportStructureService {
             StepTreeDTO dto = new StepTreeDTO(name, resourceId, element.optString(TYPE), resourceId, 1);
             dto.setAllIndex(null);
             if (element.has(HASH_TREE) && !REQUESTS.contains(dto.getType())) {
-                JSONArray elementJSONArray = element.getJSONArray(HASH_TREE);
+                JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
                 dataFormatting(elementJSONArray, dto, id, reportType);
             }
             return dto;
@@ -221,7 +221,7 @@ public class ApiScenarioReportStructureService {
                 }
                 dto.getChildren().add(children);
                 if (element.has(HASH_TREE) && !REQUESTS.contains(children.getType())) {
-                    JSONArray elementJSONArray = element.getJSONArray(HASH_TREE);
+                    JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
                     dataFormatting(elementJSONArray, children, id, reportType);
                 }
             }

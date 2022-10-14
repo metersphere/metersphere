@@ -116,7 +116,7 @@ public class MockApiUtils {
             } else if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM")) {
                 if (bodyObj.has("kvs")) {
                     JSONObject bodyParamArr = new JSONObject();
-                    JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                    JSONArray kvsArr = bodyObj.optJSONArray("kvs");
                     for (int i = 0; i < kvsArr.length(); i++) {
                         JSONObject kv = kvsArr.optJSONObject(i);
                         if (kv.has("name")) {
@@ -200,7 +200,7 @@ public class MockApiUtils {
                             } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                 Map<String, String> paramMap = new LinkedHashMap<>();
                                 if (bodyObj.has("kvs")) {
-                                    JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                                    JSONArray kvsArr = bodyObj.optJSONArray("kvs");
                                     for (int i = 0; i < kvsArr.length(); i++) {
                                         JSONObject kv = kvsArr.optJSONObject(i);
                                         if (kv.has("name")) {
@@ -223,7 +223,7 @@ public class MockApiUtils {
                         responseDTO.setReturnData(returnStr);
                     }
                     if (respObj.has("statusCode")) {
-                        JSONArray statusCodeArray = respObj.getJSONArray("statusCode");
+                        JSONArray statusCodeArray = respObj.optJSONArray("statusCode");
                         int code = 200;
                         if (statusCodeArray != null) {
                             for (int i = 0; i < statusCodeArray.length(); i++) {
@@ -241,7 +241,7 @@ public class MockApiUtils {
                         responseDTO.setReturnCode(code);
                     }
                     if (respObj.has("headers")) {
-                        JSONArray jsonArray = respObj.getJSONArray("headers");
+                        JSONArray jsonArray = respObj.optJSONArray("headers");
                         Map<String, String> headMap = new HashMap<>();
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject headObj = jsonArray.optJSONObject(i);

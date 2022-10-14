@@ -50,18 +50,20 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
     protected List<ApiDefinitionWithBLOBs> parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest, Boolean isCreateModule) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
-        testObject.keySet().forEach(tag -> {
+        if (testObject != null) {
+            testObject.keySet().forEach(tag -> {
 
-            List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
-            for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
-                ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
-                apiDefinition.setProjectId(this.projectId);
-                apiDefinition.setModulePath(tag);
-                apiDefinition.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
-                apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
-                results.add(apiDefinition);
-            }
-        });
+                List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
+                for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
+                    ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
+                    apiDefinition.setProjectId(this.projectId);
+                    apiDefinition.setModulePath(tag);
+                    apiDefinition.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
+                    apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
+                    results.add(apiDefinition);
+                }
+            });
+        }
         return results;
     }
 

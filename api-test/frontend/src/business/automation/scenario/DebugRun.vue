@@ -100,12 +100,9 @@ export default {
       this.$emit('runRefresh', {});
 
       let url = '/api/automation/run/debug';
-      if (this.runData.type === 'UiScenario') {
-        url = '/ui/automation/run/debug';
-      }
       saveScenario(url, reqObj, this.runData.hashTree, this, (response) => {
         if (response.data !== "SUCCESS") {
-          this.$error(response.message ? response.message : this.$t('commons.run_fail'));
+          this.$error(response.data ? response.data : this.$t('commons.run_fail'));
           this.$emit('errorRefresh');
         }
       });

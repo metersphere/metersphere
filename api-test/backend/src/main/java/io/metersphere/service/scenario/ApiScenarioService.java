@@ -406,7 +406,7 @@ public class ApiScenarioService {
             return;
         }
         JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
-        JSONArray hashTree = element.getJSONArray(ElementConstants.HASH_TREE);
+        JSONArray hashTree = element.optJSONArray(ElementConstants.HASH_TREE);
         ApiScenarioImportUtil.formatHashTree(hashTree);
         setReferenced(hashTree, scenario.getVersionId(), scenario.getProjectId(), apiTestCaseMapper, apiDefinitionMapper, true);
         scenario.setScenarioDefinition(element.toString());
@@ -731,8 +731,8 @@ public class ApiScenarioService {
                     for (int i = 0; i < valueArray.length(); i++) {
                         try {
                             JSONObject obj = (JSONObject) valueArray.get(i);
-                            JSONObject targetValue = jsonMerge(obj, (JSONObject) target.getJSONArray(key).get(i));
-                            target.getJSONArray(key).put(i, targetValue);
+                            JSONObject targetValue = jsonMerge(obj, (JSONObject) target.optJSONArray(key).get(i));
+                            target.optJSONArray(key).put(i, targetValue);
                         } catch (Exception e) {
                             LogUtil.error(e);
                         }
@@ -783,7 +783,7 @@ public class ApiScenarioService {
             ParameterConfig config = new ParameterConfig();
             apiScenarioEnvService.setEnvConfig(environmentMap, config);
             if (config.getConfig() != null && !config.getConfig().isEmpty()) {
-                ElementUtil.dataSetDomain(element.getJSONArray(ElementConstants.HASH_TREE), config);
+                ElementUtil.dataSetDomain(element.optJSONArray(ElementConstants.HASH_TREE), config);
             }
             return element.toString();
         } catch (Exception e) {
@@ -1490,7 +1490,7 @@ public class ApiScenarioService {
             }
             JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
             if (element != null) {
-                JSONArray hashTree = element.getJSONArray(ElementConstants.HASH_TREE);
+                JSONArray hashTree = element.optJSONArray(ElementConstants.HASH_TREE);
                 ApiScenarioImportUtil.formatHashTree(hashTree);
                 setHashTree(hashTree);
                 scenario.setScenarioDefinition(element.toString());
@@ -1511,19 +1511,19 @@ public class ApiScenarioService {
                         String refType = object.optString("refType");
                         if (StringUtils.isNotEmpty(refType)) {
                             if (refType.equals("CASE")) {
-                                if (object.getJSONArray(ElementConstants.HASH_TREE) == null || object.getJSONArray(ElementConstants.HASH_TREE).length() == 0) {
+                                if (object.optJSONArray(ElementConstants.HASH_TREE) == null || object.optJSONArray(ElementConstants.HASH_TREE).length() == 0) {
                                     ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(object.optString("id"));
                                     if (model != null) {
                                         JSONObject element = JSONUtil.parseObject(model.getRequest());
-                                        object.put(ElementConstants.HASH_TREE, element.getJSONArray(ElementConstants.HASH_TREE));
+                                        object.put(ElementConstants.HASH_TREE, element.optJSONArray(ElementConstants.HASH_TREE));
                                     }
                                 }
                             }
                         }
                     }
                     if (StringUtils.isNotEmpty(object.optString("refType"))) {
-                        if (object.getJSONArray(ElementConstants.HASH_TREE) != null) {
-                            setHashTree(object.getJSONArray(ElementConstants.HASH_TREE));
+                        if (object.optJSONArray(ElementConstants.HASH_TREE) != null) {
+                            setHashTree(object.optJSONArray(ElementConstants.HASH_TREE));
                         }
                     }
 
@@ -2099,12 +2099,12 @@ public class ApiScenarioService {
                     object.put("environmentMap", new HashMap<>());
                 }
                 if (StringUtils.isNotEmpty(object.optString("refType")) && object.optString("refType").equals("CASE")) {
-                    if (object.has(ElementConstants.HASH_TREE) && object.getJSONArray(ElementConstants.HASH_TREE) != null) {
-                        setReferenced(object.getJSONArray(ElementConstants.HASH_TREE), versionId, projectId, apiTestCaseMapper, apiDefinitionMapper, true);
+                    if (object.has(ElementConstants.HASH_TREE) && object.optJSONArray(ElementConstants.HASH_TREE) != null) {
+                        setReferenced(object.optJSONArray(ElementConstants.HASH_TREE), versionId, projectId, apiTestCaseMapper, apiDefinitionMapper, true);
                     }
                 } else {
-                    if (object.has(ElementConstants.HASH_TREE) && object.getJSONArray(ElementConstants.HASH_TREE) != null) {
-                        setReferenced(object.getJSONArray(ElementConstants.HASH_TREE), versionId, projectId, apiTestCaseMapper, apiDefinitionMapper, false);
+                    if (object.has(ElementConstants.HASH_TREE) && object.optJSONArray(ElementConstants.HASH_TREE) != null) {
+                        setReferenced(object.optJSONArray(ElementConstants.HASH_TREE), versionId, projectId, apiTestCaseMapper, apiDefinitionMapper, false);
                     }
                 }
 

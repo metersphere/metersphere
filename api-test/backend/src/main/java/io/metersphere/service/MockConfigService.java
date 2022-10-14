@@ -335,7 +335,7 @@ public class MockConfigService {
         JSONObject expectParamsObj = mockExpectRequestObj.optJSONObject("params");
         if (expectParamsObj.has("headers")) {
             //检测headers
-            JSONArray headerArr = expectParamsObj.getJSONArray("headers");
+            JSONArray headerArr = expectParamsObj.optJSONArray("headers");
             for (int i = 0; i < headerArr.length(); i++) {
                 JSONObject jsonObject = headerArr.optJSONObject(i);
                 if (jsonObject.has("name") && jsonObject.has("value")) {
@@ -359,7 +359,7 @@ public class MockConfigService {
                 paramsFilterType = expectBodyObject.optString("paramsFilterType");
             }
             if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM") && expectBodyObject.has("kvs")) {
-                JSONArray kvsArr = expectBodyObject.getJSONArray("kvs");
+                JSONArray kvsArr = expectBodyObject.optJSONArray("kvs");
                 List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(kvsArr);
                 if (CollectionUtils.isNotEmpty(mockConfigRequestParams)) {
                     if (!MockApiUtils.checkParamsCompliance(jsonArray, mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
@@ -386,7 +386,7 @@ public class MockConfigService {
         }
 
         if (expectParamsObj.has("arguments")) {
-            JSONArray argumentsArray = expectParamsObj.getJSONArray("arguments");
+            JSONArray argumentsArray = expectParamsObj.optJSONArray("arguments");
             List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(argumentsArray);
             if (!MockApiUtils.checkParamsCompliance(requestMockParams.getQueryParamsObj(), mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
                 return false;
@@ -398,7 +398,7 @@ public class MockConfigService {
             restFilterType = expectParamsObj.optString("restFilterType");
         }
         if (expectParamsObj.has("rest")) {
-            JSONArray restArray = expectParamsObj.getJSONArray("rest");
+            JSONArray restArray = expectParamsObj.optJSONArray("rest");
             List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(restArray);
             if (!MockApiUtils.checkParamsCompliance(requestMockParams.getRestParamsObj(), mockConfigRequestParams, StringUtils.equals(restFilterType, "And"))) {
                 return false;
@@ -424,7 +424,7 @@ public class MockConfigService {
                 mockExpectJson = mockExpectJsonItem;
             }
         } else {
-            JSONArray jsonArray = mockExpectRequestObj.getJSONArray("variables");
+            JSONArray jsonArray = mockExpectRequestObj.optJSONArray("variables");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.optJSONObject(i);
                 String name = "";
@@ -470,14 +470,14 @@ public class MockConfigService {
         if (requestObj.has("params")) {
             JSONObject paramsObj = requestObj.optJSONObject("params");
             if (paramsObj.has("headers")) {
-                JSONArray headArray = paramsObj.getJSONArray("headers");
+                JSONArray headArray = paramsObj.optJSONArray("headers");
                 boolean isHeadMatch = MockApiUtils.matchRequestHeader(headArray, requestHeaderMap);
                 if (!isHeadMatch) {
                     return null;
                 }
                 //判断rest为空
                 if (paramsObj.has("rest")) {
-                    JSONArray restArray = paramsObj.getJSONArray("rest");
+                    JSONArray restArray = paramsObj.optJSONArray("rest");
                     for (int i = 0; i < restArray.length(); i++) {
                         JSONObject restObj = restArray.optJSONObject(i);
                         if (restObj.has("name") && restObj.has("value")) {
@@ -487,7 +487,7 @@ public class MockConfigService {
                 }
                 //判断arguments为空
                 if (paramsObj.has("arguments")) {
-                    JSONArray argumentsArray = paramsObj.getJSONArray("arguments");
+                    JSONArray argumentsArray = paramsObj.optJSONArray("arguments");
                     for (int i = 0; i < argumentsArray.length(); i++) {
                         JSONObject argumentsObj = argumentsArray.optJSONObject(i);
                         if (argumentsObj.has("name") && argumentsObj.has("value")) {
@@ -513,7 +513,7 @@ public class MockConfigService {
                             }
                         } else if (StringUtils.equalsAnyIgnoreCase(type, "KeyValue", "Form Data", "WWW_FORM")) {
                             if (bodyObj.has("kvs")) {
-                                JSONArray kvsArray = bodyObj.getJSONArray("kvs");
+                                JSONArray kvsArray = bodyObj.optJSONArray("kvs");
                                 for (int i = 0; i < kvsArray.length(); i++) {
                                     JSONObject kvsObj = kvsArray.optJSONObject(i);
                                     if (kvsObj.has("name") && kvsObj.has("value")) {
@@ -547,7 +547,7 @@ public class MockConfigService {
             }
         } else {
             JSONObject mockExpectJson = new JSONObject();
-            JSONArray jsonArray = requestObj.getJSONArray("variables");
+            JSONArray jsonArray = requestObj.optJSONArray("variables");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.optJSONObject(i);
                 String name = "";
@@ -583,7 +583,7 @@ public class MockConfigService {
             if (responseObj.has("responseResult")) {
                 JSONObject responseJsonObj = responseObj.optJSONObject("responseResult");
                 if (responseJsonObj.has("headers")) {
-                    JSONArray jsonArray = responseJsonObj.getJSONArray("headers");
+                    JSONArray jsonArray = responseJsonObj.optJSONArray("headers");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject object = jsonArray.optJSONObject(i);
                         if (object.has("name") && object.has("value")) {
@@ -618,7 +618,7 @@ public class MockConfigService {
                     }
                 }
             } else {
-                JSONArray jsonArray = responseObj.getJSONArray("httpHeads");
+                JSONArray jsonArray = responseObj.optJSONArray("httpHeads");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.optJSONObject(i);
                     String name = null;
@@ -746,7 +746,7 @@ public class MockConfigService {
                     //url参数赋值
                     if (requestObj.has("arguments")) {
                         try {
-                            JSONArray headArr = requestObj.getJSONArray("arguments");
+                            JSONArray headArr = requestObj.optJSONArray("arguments");
                             for (int index = 0; index < headArr.length(); index++) {
 
                                 JSONObject headObj = headArr.optJSONObject(index);
@@ -759,7 +759,7 @@ public class MockConfigService {
                     }
                     if (requestObj.has("rest")) {
                         try {
-                            JSONArray headArr = requestObj.getJSONArray("rest");
+                            JSONArray headArr = requestObj.optJSONArray("rest");
                             for (int index = 0; index < headArr.length(); index++) {
                                 JSONObject headObj = headArr.optJSONObject(index);
                                 if (headObj.has("name") && !restParamList.contains(headObj.has("name"))) {
@@ -778,7 +778,7 @@ public class MockConfigService {
 
                                 if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                     if (bodyObj.has("kvs")) {
-                                        JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                                        JSONArray kvsArr = bodyObj.optJSONArray("kvs");
                                         for (int i = 0; i < kvsArr.length(); i++) {
                                             JSONObject kv = kvsArr.optJSONObject(i);
                                             if (kv.has("name") && !formDataList.contains(kv.has("name"))) {

@@ -690,7 +690,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }};
         Set<String> typeKeys = typeMap.keySet();
         for (String type : typeKeys) {
-            JSONArray params = request.getJSONArray(type);  //  获得请求参数列表
+            JSONArray params = request.optJSONArray(type);  //  获得请求参数列表
             if (params != null) {
                 for (int i = 0; i < params.length(); ++i) {
                     JSONObject param = params.optJSONObject(i); //  对于每个参数:
@@ -937,7 +937,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         JSONObject statusCodeInfo = new JSONObject();
         //  build 请求头
         JSONObject headers = new JSONObject();
-        JSONArray headValueList = response.getJSONArray("headers");
+        JSONArray headValueList = response.optJSONArray("headers");
         if (headValueList != null) {
             for (Object item : headValueList) {
                 if (item instanceof JSONObject && ((JSONObject) item).optString("name") != null) {
@@ -955,7 +955,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         statusCodeInfo.put("content", buildContent(response));
         statusCodeInfo.put("description", "");
         // 返回code
-        JSONArray statusCode = response.getJSONArray("statusCode");
+        JSONArray statusCode = response.optJSONArray("statusCode");
         responseBody.put(statusCode.toString(), statusCodeInfo);
         return responseBody;
     }
@@ -992,19 +992,19 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                             JSONObject jsonObject = JSONUtil.parseObject(jsonSchema);
                             JSONArray required = new JSONArray();
                             if (jsonObject != null) {
-                                required = jsonObject.getJSONArray(PropertyConstant.REQUIRED);
+                                required = jsonObject.optJSONArray(PropertyConstant.REQUIRED);
                             }
                             if (required == null) {
                                 JSONObject items = jsonObject.optJSONObject(PropertyConstant.ITEMS);
                                 if (items != null) {
-                                    required = items.getJSONArray(PropertyConstant.REQUIRED);
+                                    required = items.optJSONArray(PropertyConstant.REQUIRED);
                                 }
                             }
                             bodyInfo = buildJsonSchema(jsonObject, required);
                         }
                     } else {
                         try {    //  若请求体是一个 object
-                            bodyInfo = buildRequestBodyJsonInfo(body.getJSONArray("raw"));
+                            bodyInfo = buildRequestBodyJsonInfo(body.optJSONArray("raw"));
                         } catch (Exception e) {
                             bodyInfo = buildRequestBodyJsonInfo(body.optJSONObject("raw"));
                         }
@@ -1027,7 +1027,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 JSONObject xmlToJson = XMLUtil.XmlToJson(xmlText);
                 bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
             } else if (bodyType != null && (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY"))) {    //  key-value 类格式
-                JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
+                JSONObject formData = getformDataProperties(body.optJSONArray("kvs"));
                 bodyInfo = buildFormDataSchema(formData);
             }
         }

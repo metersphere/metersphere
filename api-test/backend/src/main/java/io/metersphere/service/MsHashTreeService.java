@@ -100,8 +100,8 @@ public class MsHashTreeService {
                     }
                 }
             }
-            if (object != null && object.getJSONArray(HASH_TREE) != null) {
-                setHashTree(object.getJSONArray(HASH_TREE));
+            if (object != null && object.optJSONArray(HASH_TREE) != null) {
+                setHashTree(object.optJSONArray(HASH_TREE));
             }
         }
     }
@@ -122,7 +122,7 @@ public class MsHashTreeService {
                 if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                     JSONObject refElement = JSONUtil.parseObject(apiTestCase.getRequest());
                     ElementUtil.dataFormatting(refElement);
-                    JSONArray array = refElement.getJSONArray(HASH_TREE);
+                    JSONArray array = refElement.optJSONArray(HASH_TREE);
                     ElementUtil.copyBean(element, refElement);
                     element.put(HEADERS, refElement.opt(HEADERS));
                     element.put(REST, refElement.opt(REST));
@@ -133,9 +133,9 @@ public class MsHashTreeService {
                     element.put(ARGUMENTS, refElement.opt(ARGUMENTS));
                     element.put(PROJECT_ID, apiTestCase.getProjectId());
                     if (array != null) {
-                        JSONArray sourceHashTree = element.getJSONArray(HASH_TREE);
+                        JSONArray sourceHashTree = element.optJSONArray(HASH_TREE);
                         Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
-                        Map<String, List<JSONObject>> targetGroupMap = ElementUtil.group(refElement.getJSONArray(HASH_TREE));
+                        Map<String, List<JSONObject>> targetGroupMap = ElementUtil.group(refElement.optJSONArray(HASH_TREE));
 
                         List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get("PRE"), targetGroupMap.get("PRE"));
                         List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get("POST"), targetGroupMap.get("POST"));
@@ -223,7 +223,7 @@ public class MsHashTreeService {
                 hashTree.put(i, element);
             }
             if (element.has(HASH_TREE)) {
-                JSONArray elementJSONArray = element.getJSONArray(HASH_TREE);
+                JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
                 dataFormatting(elementJSONArray);
             }
         }
@@ -236,7 +236,7 @@ public class MsHashTreeService {
             element = this.setRequest(element);
         }
         if (element != null && element.has(HASH_TREE)) {
-            JSONArray elementJSONArray = element.getJSONArray(HASH_TREE);
+            JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
             dataFormatting(elementJSONArray);
         }
     }

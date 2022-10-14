@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.log.utils.ApiDefinitionDiffUtil;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.utils.diff.json.JacksonDiff;
@@ -94,21 +95,21 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             Map<String, String> diffMap = new LinkedHashMap<>();
             diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
             JsonDiff jsonDiff = new JacksonDiff();
-            if (bloBsIsNew.getString(TYPE).equals("TCPSampler")) {
-                MsTCPSampler tcpSamplerNew = JSONUtil.parseObject(bloBsIsNew.toString(), MsTCPSampler.class);
-                MsTCPSampler tcpSamplerOld = JSONUtil.parseObject(bloBsIsOld.toString(), MsTCPSampler.class);
+            if (bloBsIsNew.getString(TYPE).equals(ElementConstants.TCP_SAMPLER)) {
+                MsTCPSampler tcpSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsTCPSampler.class);
+                MsTCPSampler tcpSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsTCPSampler.class);
                 diffTcp(tcpSamplerNew, tcpSamplerOld, jsonDiff, diffMap);
-            } else if (bloBsIsNew.getString(TYPE).equals("HTTPSamplerProxy")) {
-                MsHTTPSamplerProxy httpSamplerProxyNew = JSONUtil.parseObject(bloBsIsNew.toString(), MsHTTPSamplerProxy.class);
-                MsHTTPSamplerProxy httpSamplerProxyOld = JSONUtil.parseObject(bloBsIsOld.toString(), MsHTTPSamplerProxy.class);
+            } else if (bloBsIsNew.getString(TYPE).equals(ElementConstants.HTTP_SAMPLER)) {
+                MsHTTPSamplerProxy httpSamplerProxyNew = JSON.parseObject(bloBsIsNew.toString(), MsHTTPSamplerProxy.class);
+                MsHTTPSamplerProxy httpSamplerProxyOld = JSON.parseObject(bloBsIsOld.toString(), MsHTTPSamplerProxy.class);
                 diffHttp(httpSamplerProxyNew, httpSamplerProxyOld, jsonDiff, diffMap);
-            } else if (bloBsIsNew.getString(TYPE).equals("JDBCSampler")) {
-                MsJDBCSampler jdbcSamplerNew = JSONUtil.parseObject(bloBsIsNew.toString(), MsJDBCSampler.class);
-                MsJDBCSampler jdbcSamplerOld = JSONUtil.parseObject(bloBsIsOld.toString(), MsJDBCSampler.class);
+            } else if (bloBsIsNew.getString(TYPE).equals(ElementConstants.JDBC_SAMPLER)) {
+                MsJDBCSampler jdbcSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsJDBCSampler.class);
+                MsJDBCSampler jdbcSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsJDBCSampler.class);
                 diffJdbc(jdbcSamplerNew, jdbcSamplerOld, jsonDiff, diffMap);
             } else {
-                MsDubboSampler dubboSamplerNew = JSONUtil.parseObject(bloBsIsNew.toString(), MsDubboSampler.class);
-                MsDubboSampler dubboSamplerOld = JSONUtil.parseObject(bloBsIsOld.toString(), MsDubboSampler.class);
+                MsDubboSampler dubboSamplerNew = JSON.parseObject(bloBsIsNew.toString(), MsDubboSampler.class);
+                MsDubboSampler dubboSamplerOld = JSON.parseObject(bloBsIsOld.toString(), MsDubboSampler.class);
                 diffDubbo(dubboSamplerNew, dubboSamplerOld, jsonDiff, diffMap);
             }
             if (diffMap.size() > 1) {

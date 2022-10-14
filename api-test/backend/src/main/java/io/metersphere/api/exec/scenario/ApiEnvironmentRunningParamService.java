@@ -43,7 +43,7 @@ public class ApiEnvironmentRunningParamService {
             if (configObj.has("commonConfig")) {
                 JSONObject commonConfig = configObj.optJSONObject("commonConfig");
                 if (commonConfig.has("variables")) {
-                    JSONArray variables = commonConfig.getJSONArray("variables");
+                    JSONArray variables = commonConfig.optJSONArray("variables");
                     List<JSONObject> variableList = new LinkedList<>();
                     for (Map.Entry<String, String> entry : varMap.entrySet()) {
                         String key = entry.getKey();
