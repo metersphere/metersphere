@@ -2258,7 +2258,6 @@ public class TestCaseService {
     public List<TestCase> getTestCaseByProjectId(String projectId) {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
-        example.or().andProjectIdEqualTo(projectId).andStatusIsNull().andLatestEqualTo(true);
         return testCaseMapper.selectByExample(example);
     }
 

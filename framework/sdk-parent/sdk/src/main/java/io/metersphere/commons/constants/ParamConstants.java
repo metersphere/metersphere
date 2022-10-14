@@ -113,6 +113,7 @@ public interface ParamConstants {
     enum BASE implements ParamConstants {
         URL("base.url"),
         CONCURRENCY("base.concurrency"),
+        GRID_CONCURRENCY("base.grid.concurrency"),
         PROMETHEUS_HOST("base.prometheus.host"),
         SELENIUM_DOCKER_URL("base.selenium.docker.url");
 
