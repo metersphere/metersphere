@@ -9,6 +9,8 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.ElementUtil;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
+import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -1163,5 +1165,56 @@ public class ApiTestCaseService {
         List<ApiScenarioDTO> apiScenarioDTOS = extApiScenarioMapper.relevanceScenarioList(request);
         ServiceUtils.buildVersionInfo(apiScenarioDTOS);
         return apiScenarioDTOS;
+    }
+
+
+    public List<JmxInfoDTO> exportJmx(List<String> caseIds, String envId) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(caseIds);
+        List<ApiTestCaseWithBLOBs> apiTestCases = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        List<JmxInfoDTO> list = new ArrayList<>();
+        apiTestCases.forEach(item -> {
+            list.add(parse2Jmx(item, envId));
+        });
+        return list;
+    }
+
+    private JmxInfoDTO parse2Jmx(ApiTestCaseWithBLOBs apiTestCase, String envId) {
+        String request = apiTestCase.getRequest();
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSON.parseObject(request, MsHTTPSamplerProxy.class);
+        msHTTPSamplerProxy.setName(apiTestCase.getId());
+        msHTTPSamplerProxy.setUseEnvironment(envId);
+
+        LinkedList<MsTestElement> hashTree = new LinkedList<>();
+        hashTree.add(msHTTPSamplerProxy);
+        MsThreadGroup msThreadGroup = new MsThreadGroup();
+        msThreadGroup.setHashTree(hashTree);
+        msThreadGroup.setName("ThreadGroup");
+        msThreadGroup.setLabel("ThreadGroup");
+        msThreadGroup.setId(UUID.randomUUID().toString());
+
+        LinkedList<MsTestElement> planHashTree = new LinkedList<>();
+        planHashTree.add(msThreadGroup);
+        MsTestPlan msTestPlan = new MsTestPlan();
+        msTestPlan.setHashTree(planHashTree);
+        msTestPlan.setId(UUID.randomUUID().toString());
+        msTestPlan.setName("TestPlan");
+        msTestPlan.setLabel("TestPlan");
+
+        HashMap<String, String> envMap = new HashMap<>();
+        envMap.put(apiTestCase.getProjectId(), envId);
+
+        RunDefinitionRequest runRequest = new RunDefinitionRequest();
+        runRequest.setEnvironmentMap(envMap);
+        runRequest.setEnvironmentId(envId);
+        runRequest.setId(apiTestCase.getId());
+        runRequest.setTestElement(msTestPlan);
+        runRequest.setProjectId(apiTestCase.getProjectId());
+
+        JmxInfoDTO jmxInfoDTO = DataFormattingUtil.getJmxInfoDTO(runRequest, new ArrayList<>());
+        jmxInfoDTO.setId(apiTestCase.getId());
+        jmxInfoDTO.setVersion(apiTestCase.getVersion());
+        jmxInfoDTO.setName(apiTestCase.getName());
+        return jmxInfoDTO;
     }
 }

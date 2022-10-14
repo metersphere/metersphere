@@ -6,10 +6,8 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.service.definition.ApiDefinitionExecResultService;
-import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
+import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestEnvironment;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -22,6 +20,8 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.definition.ApiDefinitionExecResultService;
+import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -253,5 +253,16 @@ public class ApiTestCaseController {
     @PostMapping("/getScenarioCaseByIds")
     public List<ApiScenario> getScenarioCaseByIds(@RequestBody List<String> ids) {
         return apiScenarioService.getScenarioCaseByIds(ids);
+    }
+
+    /**
+     * 性能测试调用，同步接口用例的jmx
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/export/test/case/jmx")
+    public List<JmxInfoDTO> getScenarioCaseByIds(@RequestBody ApiCaseExportJmxRequest request) {
+        return apiTestCaseService.exportJmx(request.getCaseIds(), request.getEnvId());
     }
 }
