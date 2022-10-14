@@ -86,7 +86,7 @@ import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTab
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getTestCaseRelevanceScenarioList} from "@/api/testCase";
 
@@ -195,9 +195,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

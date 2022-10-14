@@ -114,7 +114,6 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
-import {getVersionFilters} from "@/api/project";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
@@ -122,6 +121,7 @@ import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCa
 import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getProjectApplicationConfig} from "@/api/project-application";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 export default {
   name: "FunctionalRelevance",
@@ -281,9 +281,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.page.condition.versionId = currentVersion || null;

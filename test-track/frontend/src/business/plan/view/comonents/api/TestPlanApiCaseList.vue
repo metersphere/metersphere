@@ -205,7 +205,6 @@ import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import {editTestPlanApiCaseOrder, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
-import {getProjectVersions} from "@/api/project";
 import {getProjectMemberUserFilter} from "@/api/user";
 import {apiTestCaseGet, apiTestCaseReduction} from "@/api/remote/api/api-case";
 import {
@@ -217,6 +216,7 @@ import {
 import {apiDefinitionPlanReportGetByCaseId} from "@/api/remote/api/api-definition-report";
 import {reportSocket, run} from "@/api/remote/plan/test-plan";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
+import {getProjectVersions} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestPlanApiCaseList",

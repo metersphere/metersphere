@@ -257,7 +257,8 @@ import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/M
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import {mapState} from "pinia";
 import {useStore} from "@/store"
-import {getProject, getProjectVersions} from "@/api/project";
+import {getProject} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
@@ -1062,12 +1063,8 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID())
-          .then(response => {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
-          });
+        getVersionFilters(getCurrentProjectID())
+          .then(r =>  this.versionFilters = r.data);
       }
     },
     generateColumnKey

@@ -212,7 +212,7 @@ import {
   testPlanUiScenarioCaseRun, testPlanUiScenarioCaseSelectAllTableRows, testPlanUiScenarioEnv,
   testPlanUiScenarioList
 } from "@/api/remote/ui/test-plan-ui-scenario-case";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {uiAutomationReduction, uiAutomationVerifySeleniumServer} from "@/api/remote/ui/api-scenario";
 import {environmentGroupGetProjectMapName} from "@/api/environment-group";
 import i18n from "@/i18n";
@@ -646,9 +646,7 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         getVersionFilters(getCurrentProjectID())
-          .then((data) => {
-            this.versionFilters = data;
-          });
+          .then(r => this.versionFilters = r.data);
       }
     },
   }
