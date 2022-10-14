@@ -10,27 +10,17 @@
                          :create-tip="$t('user.create')" :title="$t('commons.user')"/>
       </template>
 
-      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
-                @select-all="handleSelectAll"
-                @select="handleSelect"
-                @sort-change="sort"
-                :header-cell-class-name="handleHeadAddClass"
+      <ms-table border
+                class="adjust-table"
+                :condition="condition"
+                :total="total"
+                :data="tableData"
+                style="width: 100%"
+                :batch-operators="buttons"
                 :height="screenHeight"
+                enableSelection
+                @refresh="search"
                 ref="userTable">
-        <el-table-column type="selection" width="50"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        :table-data-count-in-page="tableData.length"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column v-if="!referenced" width="30" :resizable="false" align="center">
-          <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
-          </template>
-        </el-table-column>
-
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.name')" max-width="200"/>
 
@@ -72,7 +62,7 @@
             </div>
           </template>
         </el-table-column>
-      </el-table>
+      </ms-table>
 
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -114,6 +104,7 @@
 <script>
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
+import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
@@ -164,7 +155,8 @@ export default {
     UserImport,
     MsTableHeaderSelectPopover,
     UserCascader,
-    ShowMoreBtn
+    ShowMoreBtn,
+    MsTable
   },
   inject: [
     'reload'
@@ -482,7 +474,7 @@ export default {
       }
     },
     buildBatchParam(param) {
-      param.ids = Array.from(this.selectRows).map(row => row.id);
+      param.ids = this.$refs.userTable.selectIds;
       param.projectId = getCurrentProjectID();
       param.condition = this.condition;
       return param;
