@@ -363,7 +363,7 @@ export default {
     },
     list() {
       this.condition.workspaceId = getCurrentWorkspaceId();
-      getProjectPages(this.currentPage, this.pageSize, this.condition).then(res => {
+      this.loading = getProjectPages(this.currentPage, this.pageSize, this.condition).then(res => {
         let data = res.data;
         let {listObject, itemCount} = data;
         this.items = listObject;
