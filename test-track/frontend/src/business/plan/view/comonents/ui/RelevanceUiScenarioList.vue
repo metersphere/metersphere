@@ -81,8 +81,7 @@ import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTa
 import TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import {getVersionFilters} from "@/api/project";
-import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getOwnerProjects} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {testPlanUiScenarioRelevanceList} from "@/api/remote/ui/test-plan-ui-scenario-case";
@@ -232,9 +231,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     filter(field) {
       this.condition.filters = field || null;

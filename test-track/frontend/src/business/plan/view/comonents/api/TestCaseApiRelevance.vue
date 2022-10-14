@@ -64,13 +64,13 @@
 <script>
 
 import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
-import {getVersionFilters} from "@/api/project";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {apiDefinitionListBatch, apiDefinitionRelevance} from "@/api/remote/api/api-definition";
 import {apiTestCaseListBlobs, apiTestCaseRelevance} from "@/api/remote/api/api-case";
 import RelevanceApiList from "@/business/plan/view/comonents/api/RelevanceApiList";
 import RelevanceCaseList from "@/business/plan/view/comonents/api/RelevanceCaseList";
 import MsApiModule from "@/business/plan/view/comonents/api/module/ApiModule";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseApiRelevance",
@@ -227,9 +227,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion, type) {
       if (type == 'api') {

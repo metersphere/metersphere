@@ -232,10 +232,10 @@ import {
   testPlanScenarioList
 } from "@/api/remote/plan/test-plan-scenario";
 import {environmentGroupGetProjectMapName} from "@/api/environment-group";
-import {getProjectVersions} from "@/api/project";
 import {apiAutomationReduction} from "@/api/remote/api/api-automation";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -566,12 +566,8 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID())
-          .then(response => {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
-          });
+        getVersionFilters(getCurrentProjectID())
+          .then(r => this.versionFilters = r.data);
       }
     },
     openById(item) {

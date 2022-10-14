@@ -75,7 +75,7 @@ import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "metersphere-frontend/src/com
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getVersionFilters} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getTestCaseRelevanceApiList} from "@/api/testCase";
 
@@ -199,9 +199,7 @@ export default {
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
-        .then((data) => {
-          this.versionFilters = data;
-        });
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

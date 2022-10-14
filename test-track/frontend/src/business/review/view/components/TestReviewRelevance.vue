@@ -130,10 +130,10 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import TableSelectCountBar from "metersphere-frontend/src/components/table/TableSelectCountBar";
-import {getVersionFilters, projectRelated} from "@/api/project";
 import VersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getTestCaseReviewRelevance, getTestCaseReviewsCasePage} from "@/api/test-review";
 import {testCaseNodeListReviewRelate} from "@/api/test-case-node";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestReviewRelevance",
@@ -360,9 +360,8 @@ export default {
       this.selectNodeIds = [];
     },
     getVersionOptions() {
-      getVersionFilters(this.projectId, (data) => {
-        this.versionFilters = data;
-      });
+      getVersionFilters(this.projectId)
+        .then(r => this.versionFilters = r.data);
     },
     changeVersion(version) {
       this.condition.versionId = version || null;

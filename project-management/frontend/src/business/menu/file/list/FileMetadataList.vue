@@ -28,6 +28,7 @@
     <div v-if="showView === 'list'">
       <ms-table v-loading="data.loading"
                 class="basic-config"
+                :total="total"
                 :screen-height="height"
                 :batch-operators="buttons"
                 :data="metadataArr"

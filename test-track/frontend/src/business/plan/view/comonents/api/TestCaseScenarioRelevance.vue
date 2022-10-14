@@ -36,7 +36,7 @@ import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
 import RelevanceScenarioList from "./RelevanceScenarioList";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import {getCurrentProjectID, hasLicense, strMapToObj} from "@/business/utils/sdk-utils";
-import {getProjectVersions} from "@/api/project";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {testPlanAutoCheck} from "@/api/remote/plan/test-plan";
 import {scenarioRelevance} from "@/api/remote/plan/test-plan-scenario";
 import MsApiScenarioModule from "@/business/plan/view/comonents/api/module/ApiScenarioModule";
@@ -175,12 +175,8 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID())
-          .then(response => {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
-          });
+        getVersionFilters(getCurrentProjectID())
+          .then(r => this.versionFilters = r.data);
       }
     },
   }
