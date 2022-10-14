@@ -138,7 +138,7 @@ export default {
             this.$emit('openScenario', response.data);
           } else {
             let automationData = this.$router.resolve({
-              name: 'ApiAutomation',
+              name: 'ApiAutomationWithQuery',
               params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + response.data.id}
             });
             window.open(automationData.href, '_blank');
