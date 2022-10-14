@@ -499,7 +499,8 @@ export default {
     this.getEnv();
   },
   mounted() {
-    this.init();
+    // 从场景路由进编辑页面
+    this.initForwardData();
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.activeDom = 'middle';
@@ -799,19 +800,17 @@ export default {
     debug(id) {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
-    init() {
+    initForwardData() {
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
-      if (dataRange && typeof dataRange === 'string') {
+      if (dataRange && typeof dataRange === 'string' && dataType === 'api') {
         let selectParamArr = dataRange.split("edit:");
         if (selectParamArr.length === 2) {
           let scenarioId = selectParamArr[1];
-          if (dataType === 'api') {
-            getDefinitionById(scenarioId).then((response) => {
-              this.defaultProtocol = response.data.protocol;
-              this.editApi(response.data);
-            });
-          }
+          getDefinitionById(scenarioId).then((response) => {
+            this.defaultProtocol = response.data.protocol;
+            this.editApiModule(response.data);
+          });
         }
       }
     },

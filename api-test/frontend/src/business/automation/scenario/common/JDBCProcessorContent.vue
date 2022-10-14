@@ -157,7 +157,7 @@ export default {
     // 接口/用例 自身环境监听
     'request.environmentId': function () {
       if (!this.scenarioId) {
-        this.initDataSource(undefined, undefined, this.request.targetDataSourceName);
+        this.setStep(undefined, undefined, this.request.targetDataSourceName);
       }
     },
   },
@@ -197,7 +197,7 @@ export default {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       this.result = getEnvironmentByProjectId(id).then(response => {
         this.environments = response.data;
-        let targetDataSourceName = undefined;
+        let targetDataSourceName = this.request.targetDataSourceName;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
@@ -271,6 +271,21 @@ export default {
     },
     openEnvironmentConfig() {
       this.$refs.environmentConfig.open(getCurrentProjectID());
+    },
+    setStep(envId, currentEnvironment, targetDataSourceName) {
+      let envs = this.environments.filter(item => this.request && item.id === this.request.environmentId);
+      if (envs && envs.length === 0) {
+        let id = this.request.projectId ? this.request.projectId : this.projectId;
+        this.result = getEnvironmentByProjectId(id).then(response => {
+          this.environments = response.data;
+          this.environments.forEach(environment => {
+            parseEnvironment(environment);
+          })
+          this.initDataSource(envId, currentEnvironment, targetDataSourceName);
+        });
+      } else {
+        this.initDataSource(envId, currentEnvironment, targetDataSourceName);
+      }
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName) {
       this.databaseConfigsOptions = [];
