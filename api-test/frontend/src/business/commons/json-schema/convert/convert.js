@@ -181,11 +181,14 @@ class Convert {
         innerItemArr.push(innerArr);
       });
     } else if (innerIsObject) {
-      let item = this._value2object(element, `${$id}/items`, key + 'items');
-      // 判断第一项是否是对象,且对象属性不为空
-      // 新增的properties才合并进来
-      item = Object.assign(item, this._json2schema(element, `${$id}/items`));
-      innerItemArr.push(item);
+      //感谢github用户FeatherBlack的贡献
+      element.forEach(f => {
+        let item = this._value2object(f, `${$id}/items`, key + 'items');
+        // 判断第一项是否是对象,且对象属性不为空
+        // 新增的properties才合并进来
+        item = Object.assign(item, this._json2schema(f, `${$id}/items`));
+        innerItemArr.push(item);
+      })
     } else {
       element.forEach(f => {
         let innerItem = this._value2object(f, `${$id}/items`, key + 'items');
