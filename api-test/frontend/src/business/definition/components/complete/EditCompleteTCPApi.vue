@@ -96,7 +96,13 @@
 
 <script>
 import {createMockConfig, getTcpMockInfo} from "@/api/api-mock";
-import {definitionFollow, delDefinitionByRefId, getDefinitionById, getDefinitionVersions} from "@/api/definition";
+import {
+  definitionFollow,
+  delDefinitionByRefId,
+  getDefinitionById,
+  getDefinitionByIdAndRefId,
+  getDefinitionVersions
+} from "@/api/definition";
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "@/business/history/ApiHistory";

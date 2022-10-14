@@ -1543,8 +1543,6 @@ export default {
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
-          //检查场景是否需要先进行保存
-          this.checkDataIsCopy();
         });
       }
     },
@@ -1755,6 +1753,8 @@ export default {
                   break;
                 }
               }
+              //检查场景是否需要先进行保存
+              this.checkDataIsCopy();
             });
           }
           this.loading = false;
