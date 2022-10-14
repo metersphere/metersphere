@@ -45,6 +45,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
                         java -version
+                        mkdir -p .node/etc && npm config list > .node/etc/npmrc || env
                         ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
                     '''
                 }
