@@ -73,6 +73,7 @@ const message = {
     warning_module_add: "模块树深度最大为8层",
     send_success: '发送成功',
     delete_success: '删除成功',
+    relate_success: '关联成功',
     unrelated_success: '取消关联成功',
     copy_success: '复制成功',
     modify_success: '修改成功',
@@ -1080,6 +1081,7 @@ const message = {
     rename_report: '重命名报告'
   },
   load_test: {
+    exist_related_file: '已存在的关联文件',
     id: '测试ID',
     concurrency_thread_group: '并发读取组',
     thread_group: '线程组',

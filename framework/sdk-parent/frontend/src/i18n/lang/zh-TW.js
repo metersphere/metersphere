@@ -72,6 +72,7 @@ const message = {
     save_success: '保存成功',
     send_success: '發送成功',
     delete_success: '刪除成功',
+    relate_success: '關聯成功',
     unrelated_success: '取消關聯成功',
     copy_success: '復製成功',
     warning_module_add: "模塊樹深度最大為8層",
@@ -1077,6 +1078,7 @@ const message = {
     rename_report: '重命名報告'
   },
   load_test: {
+    exist_related_file: '已存在的關聯文件',
     id: '測試ID',
     concurrency_thread_group: '並發讀取組',
     thread_group: '線程組',
