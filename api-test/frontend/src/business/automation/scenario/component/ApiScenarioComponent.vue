@@ -263,7 +263,7 @@ export default {
           }
         }
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
-          this.recursive(arr[i].hashTree, arr[i].projectId);
+          this.recursive(arr[i].hashTree, arr[i].projectId, disabled);
         }
       }
     },

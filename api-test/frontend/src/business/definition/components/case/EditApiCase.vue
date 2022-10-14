@@ -252,7 +252,9 @@ export default {
       }
       this.visible = true;
       this.api = api;
-      this.currentApi = api;
+      if(this.currentApi && api) {
+        Object.assign(this.currentApi, api);
+      }
       this.addCase();
 
       //默认最大化
