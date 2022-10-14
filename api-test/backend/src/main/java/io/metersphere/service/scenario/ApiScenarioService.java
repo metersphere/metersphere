@@ -459,6 +459,7 @@ public class ApiScenarioService {
         scenario.setUpdateTime(System.currentTimeMillis());
         scenario.setDescription(request.getDescription());
         scenario.setCreateUser(SessionUtils.getUserId());
+        request.getScenarioDefinition().setId(scenario.getId());
         scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         Boolean isValidEnum = EnumUtils.isValidEnum(EnvironmentType.class, request.getEnvironmentType());
         if (BooleanUtils.isTrue(isValidEnum)) {
