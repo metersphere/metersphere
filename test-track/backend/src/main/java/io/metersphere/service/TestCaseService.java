@@ -48,6 +48,7 @@ import io.metersphere.xpack.track.dto.EditTestCaseRequest;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
+import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -74,6 +75,8 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static io.metersphere.service.ServiceUtils.buildVersionInfo;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -795,9 +798,9 @@ public class TestCaseService {
         request.setProjectId(null);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
-        ServiceUtils.buildVersionInfo(returnList);
         ServiceUtils.buildProjectInfo(returnList);
         buildUserInfo(returnList);
+        buildVersionInfo(returnList);
         buildPublicCustomField(request, returnList);
         return returnList;
     }
@@ -2842,6 +2845,16 @@ public class TestCaseService {
                 caseResult.setMaintainerName(userMap.get(caseResult.getMaintainer()));
             });
         }
+    }
+
+    public void buildVersionInfo(List<TestCaseDTO> testCases) {
+        List<String> versionIds = testCases.stream().map(TestCaseDTO::getVersionId).collect(Collectors.toList());
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        testCases.forEach(testCase -> {
+           testCase.setVersionName(projectVersionMap.get(testCase.getVersionId()));
+        });
     }
 
     public int getRelationshipCount(String id) {
