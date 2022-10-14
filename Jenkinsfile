@@ -39,7 +39,7 @@ pipeline {
         stage('POM') {
             when { environment name: 'BUILD_PARENT', value: 'true' }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.node/etc/npmrc')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
@@ -53,7 +53,7 @@ pipeline {
         stage('SDK') {
             when { environment name: 'BUILD_SDK', value: 'true' }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.node/etc/npmrc')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
@@ -73,7 +73,7 @@ pipeline {
                 }
             }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.node/etc/npmrc')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
