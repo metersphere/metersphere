@@ -38,7 +38,7 @@
 
 <script>
 // 测试计划报告导出的是时候需要引入
-import LoadCaseReportView from "../../../../../../../../../../performance-test/frontend/src/template/report/performance/share/LoadCaseReportView";
+// import LoadCaseReportView from "../../../../../../../../../../performance-test/frontend/src/template/report/performance/share/LoadCaseReportView";
 
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
@@ -56,7 +56,7 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     LoadFailureResult, StatusTableItem, MethodTableItem, TypeTableItem,
-    LoadCaseReportView,
+    // LoadCaseReportView,
     MicroApp
   },
   props: {
