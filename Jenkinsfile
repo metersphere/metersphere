@@ -29,6 +29,7 @@ pipeline {
                     if (params.buildParent) {
                         BUILD_PARENT = true
                     }
+                    env.FRONTEND_LINK = params.frontendLink
                     env.REVISION = "${REVISION}"
                     env.BUILD_SDK = "${BUILD_SDK}"
                     env.BUILD_PARENT = "${BUILD_PARENT}"
@@ -61,6 +62,11 @@ pipeline {
                         java -version
                         ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
                         ./mvnw clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface --settings ./settings.xml
+
+                        # 复制前端代码
+                        if [ -n ${FRONTEND_LINK} ]; then
+                            cp -r framework/sdk-parent/frontend ${FRONTEND_LINK}/frontend/.npm_tmp
+                        fi
                     '''
                 }
             }
