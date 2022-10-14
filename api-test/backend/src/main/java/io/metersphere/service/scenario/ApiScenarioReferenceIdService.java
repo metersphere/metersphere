@@ -111,7 +111,7 @@ public class ApiScenarioReferenceIdService {
             if (!jsonObject.has(MsHashTreeService.HASH_TREE)) {
                 return returnList;
             }
-            JSONArray hashTree = jsonObject.getJSONArray(MsHashTreeService.HASH_TREE);
+            JSONArray hashTree = jsonObject.optJSONArray(MsHashTreeService.HASH_TREE);
             for (int index = 0; index < hashTree.length(); index++) {
                 JSONObject item = hashTree.optJSONObject(index);
                 if (item == null) {
@@ -140,7 +140,7 @@ public class ApiScenarioReferenceIdService {
                     returnList.add(saveItem);
                 }
                 if (item.has(MsHashTreeService.HASH_TREE)) {
-                    returnList.addAll(this.deepElementRelation(scenario.getId(), item.getJSONArray(MsHashTreeService.HASH_TREE)));
+                    returnList.addAll(this.deepElementRelation(scenario.getId(), item.optJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
         }
@@ -191,7 +191,7 @@ public class ApiScenarioReferenceIdService {
                     deepRelations.add(saveItem);
                 }
                 if (item.has(MsHashTreeService.HASH_TREE)) {
-                    deepRelations.addAll(this.deepElementRelation(scenarioId, item.getJSONArray(MsHashTreeService.HASH_TREE)));
+                    deepRelations.addAll(this.deepElementRelation(scenarioId, item.optJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
         }

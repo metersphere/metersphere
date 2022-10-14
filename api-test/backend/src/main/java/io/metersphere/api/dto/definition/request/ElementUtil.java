@@ -381,7 +381,7 @@ public class ElementUtil {
                 }
             } else {
                 if (element.has(ElementConstants.HASH_TREE)) {
-                    JSONArray elementJSONArray = element.getJSONArray(ElementConstants.HASH_TREE);
+                    JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
                     relationships(elementJSONArray, referenceRelationships);
                 }
             }
@@ -399,7 +399,7 @@ public class ElementUtil {
                 element.put(ElementConstants.CLAZZ_NAME, clazzMap.get(element.optString(PropertyConstant.TYPE)));
             }
             if (element.has(ElementConstants.HASH_TREE)) {
-                JSONArray elementJSONArray = element.getJSONArray(ElementConstants.HASH_TREE);
+                JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
                 dataFormatting(elementJSONArray);
             }
         }
@@ -411,7 +411,7 @@ public class ElementUtil {
         }
         formatSampler(element);
         if (element != null && element.has(ElementConstants.HASH_TREE)) {
-            JSONArray elementJSONArray = element.getJSONArray(ElementConstants.HASH_TREE);
+            JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
             dataFormatting(elementJSONArray);
         }
     }
@@ -477,7 +477,7 @@ public class ElementUtil {
                     }
                 }
                 if (element.has(ElementConstants.HASH_TREE)) {
-                    JSONArray elementJSONArray = element.getJSONArray(ElementConstants.HASH_TREE);
+                    JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
                     if (isScenarioEnv) {
                         dataSetDomain(elementJSONArray, config);
                     } else {

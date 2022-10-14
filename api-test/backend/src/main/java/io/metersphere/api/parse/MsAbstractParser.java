@@ -1,9 +1,9 @@
 package io.metersphere.api.parse;
 
-import io.metersphere.api.parse.api.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.parse.api.ms.NodeTree;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,19 +19,21 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
     protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag, boolean isSetUrl) {
         JSONObject requests = testObject.optJSONObject(tag);
         List<MsHTTPSamplerProxy> msHTTPSamplerProxies = new ArrayList<>();
-        requests.keySet().forEach(requestName -> {
-            JSONObject requestObject = requests.optJSONObject(requestName);
-            String path = requestObject.optString("url");
-            String method = requestObject.optString("method");
-            MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
-            parseBody(requestObject, request.getBody());
-            parseHeader(requestObject, request.getHeaders());
-            parsePath(request);
-            if (isSetUrl) {
-                request.setUrl(path);
-            }
-            msHTTPSamplerProxies.add(request);
-        });
+        if (requests != null) {
+            requests.keySet().forEach(requestName -> {
+                JSONObject requestObject = requests.optJSONObject(requestName);
+                String path = requestObject.optString("url");
+                String method = requestObject.optString("method");
+                MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
+                parseBody(requestObject, request.getBody());
+                parseHeader(requestObject, request.getHeaders());
+                parsePath(request);
+                if (isSetUrl) {
+                    request.setUrl(path);
+                }
+                msHTTPSamplerProxies.add(request);
+            });
+        }
         return msHTTPSamplerProxies;
     }
 
@@ -64,7 +66,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
     }
 
     private void parseHeader(JSONObject requestObject, List<KeyValue> msHeaders) {
-        JSONArray headers = requestObject.getJSONArray("headers");
+        JSONArray headers = requestObject.optJSONArray("headers");
         if (headers != null) {
             for (int i = 0; i < headers.length(); i++) {
                 JSONObject header = headers.optJSONObject(i);
@@ -77,7 +79,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
         if (requestObject.has("body")) {
             Object body = requestObject.get("body");
             if (body instanceof JSONArray) {
-                JSONArray bodies = requestObject.getJSONArray("body");
+                JSONArray bodies = requestObject.optJSONArray("body");
                 if (bodies != null) {
                     StringBuilder bodyStr = new StringBuilder();
                     for (int i = 0; i < bodies.length(); i++) {

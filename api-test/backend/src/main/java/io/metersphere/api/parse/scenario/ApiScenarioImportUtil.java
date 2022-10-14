@@ -296,8 +296,8 @@ public class ApiScenarioImportUtil {
                 object.put("index", i + 1);
                 object.put("resourceId", UUID.randomUUID().toString());
                 hashTree.put(i, object);
-                if (object.has(ElementConstants.HASH_TREE) && object.getJSONArray(ElementConstants.HASH_TREE) != null) {
-                    formatHashTree(object.getJSONArray(ElementConstants.HASH_TREE));
+                if (object.has(ElementConstants.HASH_TREE) && object.optJSONArray(ElementConstants.HASH_TREE) != null) {
+                    formatHashTree(object.optJSONArray(ElementConstants.HASH_TREE));
                 }
             }
         }

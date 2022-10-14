@@ -47,7 +47,7 @@ public class XMLUtil {
                 jsonToXmlStr(jo, buffer, nowTab.append("\t"));
                 buffer.append(tab).append("</").append(en.getKey()).append(">\n");
             } else if (en.getValue() instanceof JSONArray) {
-                JSONArray array = jObj.getJSONArray(en.getKey());
+                JSONArray array = jObj.optJSONArray(en.getKey());
                 for (int i = 0; i < array.length(); i++) {
                     buffer.append(tab).append("<").append(en.getKey()).append(">\n");
                     if (StringUtils.isNotBlank(array.optString(i))) {

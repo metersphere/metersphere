@@ -190,7 +190,7 @@ public class MsScenario extends MsTestElement {
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                 JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
                 // 历史数据处理
-                ElementUtil.dataFormatting(element.getJSONArray(ElementConstants.HASH_TREE));
+                ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
                 this.setName(scenario.getName());
                 this.setProjectId(scenario.getProjectId());
                 LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.optString(ElementConstants.HASH_TREE), new TypeReference<LinkedList<MsTestElement>>() {

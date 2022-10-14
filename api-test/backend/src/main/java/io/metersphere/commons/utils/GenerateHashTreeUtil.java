@@ -55,7 +55,7 @@ public class GenerateHashTreeUtil {
             ElementUtil.dataFormatting(element);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                LinkedList<MsTestElement> elements = mapper.readValue(element.getJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
                 });
                 scenario.setHashTree(elements);
             }
@@ -76,7 +76,7 @@ public class GenerateHashTreeUtil {
         try {
             if (element != null && element.has(ElementConstants.HASH_TREE)) {
                 ElementUtil.dataFormatting(element);
-                return objectMapper.readValue(element.getJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
+                return objectMapper.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
                 });
             }
         } catch (JsonProcessingException e) {
