@@ -303,6 +303,8 @@ export default {
                 this.$success(this.$t('commons.save_success'));
                 this.dialogFormVisible = false;
                 this.$emit("refresh");
+              }).catch(() => {
+                this.loading = false;
               });
         } else {
           return false;
