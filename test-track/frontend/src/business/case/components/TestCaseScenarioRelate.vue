@@ -7,6 +7,7 @@
 
     <template v-slot:aside>
       <ms-api-scenario-module
+        :show-case-num="false"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"

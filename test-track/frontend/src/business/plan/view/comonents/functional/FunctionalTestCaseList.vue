@@ -781,7 +781,7 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         getProjectVersions(getCurrentProjectID())
-          .then(response => {
+          .then((response) => {
             this.versionOptions = response.data;
             this.versionFilters = response.data.map(u => {
               return {text: u.name, value: u.id};

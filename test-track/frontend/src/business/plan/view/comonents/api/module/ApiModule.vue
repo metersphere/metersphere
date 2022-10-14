@@ -122,6 +122,9 @@ export default {
       if (this.condition.protocol !== this.defaultProtocol) {
         this.condition.protocol = this.defaultProtocol;
       }
+    },
+    relevanceProjectId() {
+      this.list();
     }
   },
   methods: {

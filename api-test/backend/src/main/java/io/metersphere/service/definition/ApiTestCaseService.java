@@ -37,6 +37,7 @@ import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.service.scenario.ApiScenarioReferenceIdService;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiTestCaseSyncService;
+import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
@@ -1157,13 +1158,25 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> getRelevanceApiList(ApiTestCaseRequest request) {
         List<ApiTestCaseDTO> apiTestCaseDTOS = extApiTestCaseMapper.relevanceApiList(request);
-        ServiceUtils.buildVersionInfo(apiTestCaseDTOS);
+        List<String> versionIds = apiTestCaseDTOS.stream().map(ApiTestCaseDTO::getVersionId).collect(Collectors.toList());
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        apiTestCaseDTOS.forEach(apiTestCaseDTO -> {
+            apiTestCaseDTO.setVersionName(projectVersionMap.get(apiTestCaseDTO.getVersionId()));
+        });
         return apiTestCaseDTOS;
     }
 
     public List<ApiScenarioDTO> getRelevanceScenarioList(ApiScenarioRequest request) {
         List<ApiScenarioDTO> apiScenarioDTOS = extApiScenarioMapper.relevanceScenarioList(request);
-        ServiceUtils.buildVersionInfo(apiScenarioDTOS);
+        List<String> versionIds = apiScenarioDTOS.stream().map(ApiScenarioDTO::getVersionId).collect(Collectors.toList());
+        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        apiScenarioDTOS.forEach(apiTestCaseDTO -> {
+            apiTestCaseDTO.setVersionName(projectVersionMap.get(apiTestCaseDTO.getVersionId()));
+        });
         return apiScenarioDTOS;
     }
 

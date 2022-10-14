@@ -7,6 +7,7 @@
 
     <template v-slot:aside>
       <ms-api-module
+        :show-case-num="false"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
@@ -32,7 +33,7 @@
 <script>
 
 import TestCaseRelateApiList from "@/business/case/components/TestCaseRelateApiList";
-import MsApiModule from "@/business/plan/view/comonents/api/module/ApiModule";
+import MsApiModule from "metersphere-frontend/src/components/environment/snippet/ext/module/ApiModule";
 import TestCaseRelevanceBase from "@/business/plan/view/comonents/base/TestCaseRelevanceBase";
 import {saveCaseRelevanceApi} from "@/api/testCase";
 
@@ -87,7 +88,6 @@ export default {
     refresh(data) {
       this.$refs.apiCaseList.initTable(data);
     },
-
     nodeChange(node, nodeIds, pNodes) {
       this.selectNodeIds = nodeIds;
     },
