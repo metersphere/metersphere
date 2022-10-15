@@ -65,7 +65,7 @@ pipeline {
 
                         # 复制前端代码
                         if [ -n ${FRONTEND_LINK} ]; then
-                            cp -r framework/sdk-parent/frontend ${FRONTEND_LINK}/frontend/.npm_tmp
+                            cp -r framework/sdk-parent/frontend ${FRONTEND_LINK}/frontend/.tmp_npm
                         fi
                     '''
                 }
