@@ -65,7 +65,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         List<String>tapdUsers = new ArrayList<>(tapdIssues.size());
         for (Object tapdIssue : tapdIssues) {
             Map bug = (Map) ((Map) tapdIssue).get("Bug");
-            String currentOwner = bug.get("current_owner").toString();
+            String currentOwner = Optional.ofNullable(bug.get("current_owner")).orElse("").toString();
             tapdUsers.add(currentOwner);
         }
         return tapdUsers;
