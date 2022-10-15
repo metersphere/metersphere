@@ -8,6 +8,8 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.mock.MockApiHeaders;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
@@ -19,7 +21,12 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.environment.service.CommandService;
 import io.metersphere.environment.ssl.KeyStoreConfig;
 import io.metersphere.environment.ssl.KeyStoreFile;
@@ -306,16 +313,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (environmentConfig != null) {
                 String useEvnId = environmentConfig.getEnvironmentId();
                 if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().getAuthManager() != null) {
-                    this.authManager = environmentConfig.getAuthManager().getAuthManager();
+                    MsAuthManager authManager = new MsAuthManager();
+                    BeanUtils.copyBean(authManager, environmentConfig.getAuthManager().getAuthManager());
+                    this.authManager = authManager;
                 }
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                     this.setEnvironmentId(useEvnId);
                 }
                 HttpConfig httpConfig = config.matchConfig(this);
-                httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
-                httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
+                if (environmentConfig.getPreProcessor() != null) {
+                    MsJSR223PreProcessor msJSR223PreProcessor = new MsJSR223PreProcessor();
+                    BeanUtils.copyBean(msJSR223PreProcessor, environmentConfig.getPreProcessor());
+                    httpConfig.setPreProcessor(msJSR223PreProcessor);
+                }
+                if (environmentConfig.getPostProcessor() != null) {
+                    MsJSR223PostProcessor postProcessor = new MsJSR223PostProcessor();
+                    BeanUtils.copyBean(postProcessor, environmentConfig.getPostProcessor());
+                    httpConfig.setPostProcessor(postProcessor);
+                }
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
-                httpConfig.setAssertions(environmentConfig.getAssertions());
+                if (CollectionUtils.isNotEmpty(environmentConfig.getAssertions())) {
+                    httpConfig.setAssertions(ElementUtil.copyAssertion(environmentConfig.getAssertions()));
+                }
                 if (environmentConfig.isUseErrorCode()) {
                     httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId(), environmentConfig.isHigherThanSuccess(), environmentConfig.isHigherThanError()));
                 }

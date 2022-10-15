@@ -7,6 +7,7 @@ import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -33,7 +34,9 @@ public class JMeterScriptUtil {
 
     public static MsJSR223PreProcessor getPreScript(EnvironmentConfig envConfig) {
         if (envConfig != null && envConfig.getPreProcessor() != null && StringUtils.isNotEmpty(envConfig.getPreProcessor().getScript())) {
-            return envConfig.getPreProcessor();
+            MsJSR223PreProcessor preProcessor = new MsJSR223PreProcessor();
+            BeanUtils.copyBean(preProcessor,envConfig.getPreProcessor());
+            return preProcessor;
         } else {
             return null;
         }
@@ -41,7 +44,9 @@ public class JMeterScriptUtil {
 
     public static MsJSR223PostProcessor getPostScript(EnvironmentConfig envConfig) {
         if (envConfig != null && envConfig.getPostProcessor() != null && StringUtils.isNotEmpty(envConfig.getPostProcessor().getScript())) {
-            return envConfig.getPostProcessor();
+            MsJSR223PostProcessor post = new MsJSR223PostProcessor();
+            BeanUtils.copyBean(post,envConfig.getPostProcessor());
+            return post;
         } else {
             return null;
         }
