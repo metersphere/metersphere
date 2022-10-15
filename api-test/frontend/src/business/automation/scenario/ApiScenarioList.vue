@@ -1090,17 +1090,11 @@ export default {
               alertMsg += this.$t('api_test.is_continue') + " ？";
             }
           }
-          operationConfirm(alertMsg, '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                removeScenarioToGcByBatch(param).then(() => {
-                  this.$success(this.$t('commons.delete_success'));
-                  this.search();
-                });
-              }
-            }
+          operationConfirm(alertMsg, () => {
+            removeScenarioToGcByBatch(param).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.search();
+            });
           });
         });
       }
@@ -1265,14 +1259,8 @@ export default {
               // 删除提供列表删除和全部版本删除
               this.$refs.apiDeleteConfirm.open(row, alertMsg);
             } else {
-              operationConfirm(alertMsg, '', {
-                confirmButtonText: this.$t('commons.confirm'),
-                cancelButtonText: this.$t('commons.cancel'),
-                callback: (action) => {
-                  if (action === 'confirm') {
-                    this._handleDelete(row, false);
-                  }
-                }
+              operationConfirm(alertMsg, () => {
+                this._handleDelete(row, false);
               });
             }
           });

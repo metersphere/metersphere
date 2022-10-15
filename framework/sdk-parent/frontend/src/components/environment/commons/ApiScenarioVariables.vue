@@ -244,22 +244,17 @@ export default {
       });
     },
     handleDeleteBatch() {
-      operationConfirm(this.$t('api_test.environment.variables_delete_info') + ' ' + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let ids = this.$refs.variableTable.selectRows;
-            ids.forEach(row => {
-              if (row.name) {
-                const index = this.variables.findIndex(d => d.name === row.name);
-                this.variables.splice(index, 1);
-              }
-            });
-            this.sortParameters();
-            this.$refs.variableTable.cancelCurrentRow();
-            this.$refs.variableTable.clear();
+      operationConfirm(this.$t('api_test.environment.variables_delete_info') + " ？", () => {
+        let ids = this.$refs.variableTable.selectRows;
+        ids.forEach(row => {
+          if (row.name) {
+            const index = this.variables.findIndex(d => d.name === row.name);
+            this.variables.splice(index, 1);
           }
-        }
+        });
+        this.sortParameters();
+        this.$refs.variableTable.cancelCurrentRow();
+        this.$refs.variableTable.clear();
       });
     },
     filter() {

@@ -900,32 +900,22 @@ export default {
     },
     handleDeleteBatch() {
       if (this.trashEnable) {
-        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              deleteBatchByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
-                this.$refs.table.clear();
-                // this.initTable();
-                this.$emit("refreshTable");
-                this.$success(this.$t('commons.delete_success'));
-              });
-            }
-          }
+        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", () => {
+          deleteBatchByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
+            this.$refs.table.clear();
+            // this.initTable();
+            this.$emit("refreshTable");
+            this.$success(this.$t('commons.delete_success'));
+          });
         });
       } else {
-        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              removeToGcByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
-                this.$refs.table.clear();
-                this.$emit("refreshTable");
-                this.$success(this.$t('commons.delete_success'));
-                this.$refs.caseList.apiCaseClose();
-              });
-            }
-          }
+        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", () => {
+          removeToGcByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
+            this.$refs.table.clear();
+            this.$emit("refreshTable");
+            this.$success(this.$t('commons.delete_success'));
+            this.$refs.caseList.apiCaseClose();
+          });
         });
       }
     },
