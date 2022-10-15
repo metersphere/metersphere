@@ -156,7 +156,7 @@ export default {
         }
       }
     }
-    if (this.data.type.indexOf("member") < 0) {
+    if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
       return;
     }
     getProjectMemberOption()
