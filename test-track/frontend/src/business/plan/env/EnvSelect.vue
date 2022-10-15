@@ -193,7 +193,7 @@ export default {
 
 .env-confirm {
   margin-left: 20px;
-  width: 360px;
+  width: 90%;
   margin-top: 10px;
 }
 

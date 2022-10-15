@@ -113,12 +113,13 @@ export const EXTRACT_TYPE = {
   XPATH: "XPath"
 }
 
+
 export class BaseConfig {
 
   set(options, notUndefined) {
     options = this.initOptions(options)
     for (let name in options) {
-      if (options.hasOwnProperty(name)) {
+      if (Object.prototype.hasOwnProperty.call(options, name)) {
         if (!(this[name] instanceof Array)) {
           if (notUndefined === true) {
             this[name] = options[name] === undefined ? this[name] : options[name];
@@ -134,7 +135,7 @@ export class BaseConfig {
     options = this.initOptions(options)
     if (types) {
       for (let name in types) {
-        if (types.hasOwnProperty(name) && options.hasOwnProperty(name)) {
+        if (options[name] !== null && Object.prototype.hasOwnProperty.call(types, name) && Object.prototype.hasOwnProperty.call(options, name)) {
           options[name].forEach(o => {
             this[name].push(new types[name](o));
           })
