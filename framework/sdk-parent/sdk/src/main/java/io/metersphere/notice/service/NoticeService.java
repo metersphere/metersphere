@@ -153,6 +153,7 @@ public class NoticeService {
             messageDetail.setIdentification(m.getIdentification());
             messageDetail.setType(m.getType());
             messageDetail.setIsSet(m.getIsSet());
+            messageDetail.setTestId(m.getTestId());
             messageDetail.setCreateTime(m.getCreateTime());
             messageDetail.setTemplate(m.getTemplate());
         }
