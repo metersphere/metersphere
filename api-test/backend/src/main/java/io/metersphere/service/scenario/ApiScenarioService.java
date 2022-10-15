@@ -1376,6 +1376,9 @@ public class ApiScenarioService {
 
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
+            if (StringUtils.isBlank(item.getName())) {
+                MSException.throwException(Translator.get("scenario_name_is_null"));
+            }
             List<ApiScenarioWithBLOBs> sameList = needUpdateList.stream().filter(t -> t.getId().equals(item.getId())).collect(toList());
             if (StringUtils.isBlank(item.getCreateUser())) {
                 item.setCreateUser(SessionUtils.getUserId());
