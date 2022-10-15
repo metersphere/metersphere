@@ -125,4 +125,8 @@ export default {
   width: calc(100% - 260px);
   box-sizing: border-box;
 }
+
+.search-content>div{
+  width: 100%;
+}
 </style>
