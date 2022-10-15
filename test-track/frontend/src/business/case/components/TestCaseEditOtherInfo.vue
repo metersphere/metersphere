@@ -536,10 +536,10 @@ export default {
       this.result = {loading: true};
       this.demandLabel = '';
       issueDemandList(this.projectId)
-        .then(response => {
+        .then(r => {
           this.demandOptions = [];
-          if (response.data.data && response.data.data.length > 0) {
-            this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
+          if (r.data && r.data.length > 0) {
+            this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
           }
           this.addOtherOption();
         }).catch(() => {
