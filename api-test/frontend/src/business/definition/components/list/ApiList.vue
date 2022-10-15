@@ -51,7 +51,7 @@
             :fields-width="fieldsWidth"
             sortable>
 
-            <template slot-scope="scope">
+            <template slot-scope="scope" v-if="!trashEnable">
               <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
@@ -852,7 +852,7 @@ export default {
         } else {
           try {
             response = JSON.parse(row.response);
-          }catch (e){
+          } catch (e) {
             response = {};
           }
         }
