@@ -41,6 +41,8 @@
 
 <script>
 
+import {saveNoticeTemplate} from "../api/notice";
+
 export default {
   name: "MxNoticeTemplate",
   props: {
@@ -70,12 +72,12 @@ export default {
     saveTemplate() {
       if (this.currentRow.template == "undefined" || this.currentRow.template == "" || this.currentRow.template == null) {
         this.currentRow.template = "";
-        this.$post('/notice/template/save', this.currentRow, response => {
+        saveNoticeTemplate(this.currentRow).then(response => {
           this.$success(this.$t('commons.save_success'));
           this.dialogFormVisible = false;
         });
       } else {
-        this.$post('/notice/template/save', this.currentRow, response => {
+        saveNoticeTemplate(this.currentRow).then(response => {
           this.$success(this.$t('commons.save_success'));
           this.dialogFormVisible = false;
         });
