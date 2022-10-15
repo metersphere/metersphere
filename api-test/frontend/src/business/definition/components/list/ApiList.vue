@@ -735,11 +735,6 @@ export default {
 
             if (!item.request.rest) {
               item.request.rest = [];
-            } else if (item.request.rest.length === 1) {
-              let values = item.request.rest.filter(tab => tab.name !== '');
-              if (values.length > 0) {
-                item.request.rest.push(new KeyValue({enable: true}))
-              }
             }
             if (item.request.query && item.request.query.length === 1) {
               let values = item.request.query.filter(tab => tab.name !== '');

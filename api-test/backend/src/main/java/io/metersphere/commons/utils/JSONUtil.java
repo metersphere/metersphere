@@ -1,7 +1,11 @@
 package io.metersphere.commons.utils;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.metersphere.commons.constants.PropertyConstant;
@@ -16,30 +20,30 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // 自动检测所有类的全部属性
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
-    /**
-     * 接地json字符串到实例对象
-     *
-     * @param clazz 和JSON对应的类的Class，必须拥有setXxx()函数，其中xxx为属性
-     * @param json  被解析的JSON字符串
-     * @return 返回传入的Object对象实例
-     */
-    public static <T> T parseObject(String json, Class<T> clazz) {
+    public static <T> T parseObject(String content, Class<T> valueType) {
         try {
-            JSONObject jsonObject = new JSONObject(json);
-            return parseObject(clazz, jsonObject);
-        } catch (Exception e) {
-            MSException.throwException("当前数据非JSON格式");
+            return objectMapper.readValue(content, valueType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public static String toJSONString(Object value) {
@@ -224,4 +228,6 @@ public class JSONUtil {
     public static boolean isNotEmpty(JSONObject object) {
         return object != null && object.length() > 0;
     }
+
 }
+

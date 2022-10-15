@@ -5,5 +5,5 @@ import lombok.Data;
 
 @Data
 public class EnvAuthManager {
-    private MsAuthManager authManager;
+    private EnvAuthManager authManager;
 }

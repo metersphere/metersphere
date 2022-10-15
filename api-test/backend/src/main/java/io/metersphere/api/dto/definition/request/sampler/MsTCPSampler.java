@@ -168,7 +168,7 @@ public class MsTCPSampler extends MsTestElement {
             hashTree.forEach(el -> {
                 if (el instanceof MsAssertions && finalEnvConfig != null) {
                     //断言设置需要和全局断言、误报进行去重
-                    el = hashTreeUtil.duplicateRegexInAssertions(finalEnvConfig.getAssertions(), (MsAssertions) el);
+                    el = hashTreeUtil.duplicateRegexInAssertions(ElementUtil.copyAssertion(finalEnvConfig.getAssertions()), (MsAssertions) el);
                 }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });

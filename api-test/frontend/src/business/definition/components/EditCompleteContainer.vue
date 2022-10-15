@@ -273,7 +273,11 @@ export default {
     formatApi() {
       if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
         if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
-          this.currentApi.response = JSON.parse(this.currentApi.response);
+          try {
+            this.currentApi.response = JSON.parse(this.currentApi.response);
+          }catch (e){
+            this.currentApi.response = {};
+          }
         }
       }
       if (this.currentApi.request != null && this.currentApi.request != 'null' && this.currentApi.request != undefined) {
