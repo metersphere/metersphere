@@ -64,7 +64,7 @@ pipeline {
                         ./mvnw clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface --settings ./settings.xml
 
                         # 复制前端代码
-                        if [ -n ${FRONTEND_LINK} ]; then
+                        if [ -n "${FRONTEND_LINK}" ]; then
                             cp -r framework/sdk-parent/frontend ${FRONTEND_LINK}/frontend/.tmp_npm
                         fi
                     '''
