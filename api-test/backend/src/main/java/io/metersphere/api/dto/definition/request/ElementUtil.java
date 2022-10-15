@@ -23,6 +23,7 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.item.EnvAssertions;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
@@ -925,5 +926,19 @@ public class ElementUtil {
                 }
             }
         }
+    }
+
+    public static List<MsAssertions> copyAssertion(List<EnvAssertions> envAssertions) {
+        List<MsAssertions> assertions = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(envAssertions)) {
+            envAssertions.forEach(item -> {
+                if (item != null) {
+                    MsAssertions env = new MsAssertions();
+                    BeanUtils.copyBean(env, item);
+                    assertions.add(env);
+                }
+            });
+        }
+        return assertions;
     }
 }

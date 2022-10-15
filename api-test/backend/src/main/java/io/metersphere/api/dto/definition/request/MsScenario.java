@@ -10,27 +10,29 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mock.config.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.item.EnvJSR223Processor;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.JSONUtil;
-import org.json.JSONObject;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jorphan.collections.HashTree;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -163,7 +165,9 @@ public class MsScenario extends MsTestElement {
         if (config.getConfig() != null && (this.variableEnable == null || this.variableEnable)) {
             config.getConfig().forEach((k, environmentConfig) -> {
                 if (environmentConfig != null) {
-                    MsJSR223Processor processor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
+                    EnvJSR223Processor envProcessor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
+                    MsJSR223Processor processor = new MsJSR223Processor();
+                    BeanUtils.copyBean(processor, envProcessor);
                     if (processor != null && StringUtils.isNotEmpty(processor.getScript())) {
                         processor.setType(ElementConstants.JSR223);
                         processor.setClazzName(MsJSR223Processor.class.getCanonicalName());
