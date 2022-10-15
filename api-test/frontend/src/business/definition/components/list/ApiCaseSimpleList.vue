@@ -1005,19 +1005,13 @@ export default {
             alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
-
-        operationConfirm(alertMsg, '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delCaseToGcByParam(obj).then(() => {
-                this.$refs.caseTable.clearSelectRows();
-                this.initTable();
-                this.$success(this.$t('commons.delete_success'));
-                this.$emit('refreshTable');
-              });
-            }
-          }
+        operationConfirm(alertMsg, () => {
+          delCaseToGcByParam(obj).then(() => {
+            this.$refs.caseTable.clearSelectRows();
+            this.initTable();
+            this.$success(this.$t('commons.delete_success'));
+            this.$emit('refreshTable');
+          });
         });
       });
     },
@@ -1104,19 +1098,13 @@ export default {
             alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
-
-        operationConfirm(alertMsg, '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              deleteToGc(apiCase.id).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.initTable();
-                this.$emit("refreshTree");
-                this.$emit('refreshTable');
-              });
-            }
-          }
+        operationConfirm(alertMsg, () => {
+          deleteToGc(apiCase.id).then(() => {
+            this.$success(this.$t('commons.delete_success'));
+            this.initTable();
+            this.$emit("refreshTree");
+            this.$emit('refreshTable');
+          });
         });
       });
     },
