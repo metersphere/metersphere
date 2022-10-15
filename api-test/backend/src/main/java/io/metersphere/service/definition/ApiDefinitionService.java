@@ -1961,23 +1961,26 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+        this.deleteApiByIds(ids);
+    }
 
-        ids.forEach(id -> {
-            // 把所有版本的api移到回收站
-            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(id);
-            if (api == null) {
-                return;
-            }
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andRefIdEqualTo(api.getRefId());
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
-            //删除Api、ApiCase中resourceID被删除了的执行记录
-            apiExecutionInfoService.deleteByApiIdList(apiIds);
-            apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
-            apiTestCaseService.deleteBatchByDefinitionId(apiIds);
-            apiDefinitionMapper.deleteByExample(example);
-        });
+    private void deleteApiByIds(List<String> ids) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiDefinition> apiDefinitionList = apiDefinitionMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiDefinitionList)){
+            return;
+        }
+        List<String> refIds = apiDefinitionList.stream().map(ApiDefinition::getRefId).collect(Collectors.toList());
+        example = new ApiDefinitionExample();
+        example.createCriteria().andRefIdIn(refIds);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+        //删除Api、ApiCase中resourceID被删除了的执行记录
+        apiExecutionInfoService.deleteByApiIdList(apiIds);
+        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
+        apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+        apiDefinitionMapper.deleteByExample(example);
     }
 
     public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
