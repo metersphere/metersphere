@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -221,7 +222,7 @@ public class HashTreeUtil {
             }
         }
         if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {
-            for (MsAssertions assertion : envConfig.getAssertions()) {
+            for (MsAssertions assertion : ElementUtil.copyAssertion(envConfig.getAssertions())) {
                 assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
             }
         }
