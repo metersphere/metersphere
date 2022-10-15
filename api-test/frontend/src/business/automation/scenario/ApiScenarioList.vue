@@ -54,7 +54,7 @@
             sortable
             min-width="120px"
             v-if="item.id == 'num' && !customNum">
-            <template slot-scope="scope">
+            <template slot-scope="scope" v-if="!trashEnable">
               <el-tooltip :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
@@ -349,7 +349,7 @@ import {
 import {getMaintainer, getProject} from "@/api/project";
 import {getProjectVersions, versionEnableByProjectId} from "@/api/xpack";
 import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {downloadFile, getUUID, objToStrMap, strMapToObj, operationConfirm} from "metersphere-frontend/src/utils";
+import {downloadFile, getUUID, objToStrMap, operationConfirm, strMapToObj} from "metersphere-frontend/src/utils";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {API_SCENARIO_LIST} from "metersphere-frontend/src/utils/constants";

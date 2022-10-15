@@ -62,7 +62,7 @@
             :fields-width="fieldsWidth"
             min-width="80px"
             sortable>
-            <template slot-scope="scope">
+            <template slot-scope="scope" v-if="!trashEnable">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
               <el-tooltip v-else :content="$t('commons.edit')">
