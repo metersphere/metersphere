@@ -855,7 +855,11 @@ export default {
         if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
           response = row.response;
         } else {
-          response = JSON.parse(row.response);
+          try {
+            response = JSON.parse(row.response);
+          }catch (e){
+            response = {};
+          }
         }
       } else {
         response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
