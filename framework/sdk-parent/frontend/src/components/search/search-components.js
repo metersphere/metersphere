@@ -168,11 +168,12 @@ export const UI_REPORT_STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "Running", value: "Running"},
-    {label: "Error", value: "Error"},
-    {label: "Success", value: "Success"},
-    {label: 'Stopped', value: 'stop'},
-    {label: "NotExecute", value: "unexecute"},
+    {label: "Running", value: "RUNNING"},
+    {label: "Error", value: "ERROR"},
+    {label: "Success", value: "SUCCESS"},
+    {label: 'Stopped', value: 'STOPPED'},
+    {label: "Pending", value: "PENDING"},
+    {label: "Timeout", value: "Timeout"},
     // {label: "Saved", value: "Saved"},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
