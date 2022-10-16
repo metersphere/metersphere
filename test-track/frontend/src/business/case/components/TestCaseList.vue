@@ -105,7 +105,7 @@
           :label="$t('commons.create_user')"
           :filters="userFilter">
            <template v-slot:default="scope">
-            {{ scope.row.createName }}
+            {{ getCreateUserName(scope.row.createUser) }}
           </template>
         </ms-table-column>
 
@@ -443,13 +443,12 @@ export default {
     })
   },
   created: function () {
-    this.getTemplateField();
-    this.$emit('setCondition', this.condition);
-    this.initTableData();
     getProjectMemberUserFilter((data) => {
       this.userFilter = data;
     });
-
+    this.getTemplateField();
+    this.$emit('setCondition', this.condition);
+    this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
     // 切换tab之后版本查询
@@ -596,6 +595,10 @@ export default {
         }
       });
       useStore().testCaseDefaultValue = testCaseDefaultValue;
+    },
+    getCreateUserName(userId) {
+      let user = this.userFilter.filter(item => item.value === userId);
+      return user.length > 0 ? user[0].text : "";
     },
     getCustomFieldValue(row, field, defaultVal = '') {
       let value = getCustomFieldValueForTrack(row, field, this.members);
