@@ -173,8 +173,7 @@ export const UI_REPORT_STATUS = {
     {label: "Success", value: "SUCCESS"},
     {label: 'Stopped', value: 'STOPPED'},
     {label: "Pending", value: "PENDING"},
-    {label: "Timeout", value: "Timeout"},
-    // {label: "Saved", value: "Saved"},
+    {label: "Timeout", value: "TIMEOUT"},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
