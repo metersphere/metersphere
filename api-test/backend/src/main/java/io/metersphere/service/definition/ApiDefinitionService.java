@@ -13,6 +13,7 @@ import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
@@ -1442,7 +1443,9 @@ public class ApiDefinitionService {
 
     private boolean setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
-        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONUtil.parseObject(request, MsHTTPSamplerProxy.class);
+        JSONObject jsonObject = JSONUtil.parseObject(request);
+        ElementUtil.dataFormatting(jsonObject);
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONUtil.parseObject(jsonObject.toString(), MsHTTPSamplerProxy.class);
         boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
         if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
             createCase = true;
