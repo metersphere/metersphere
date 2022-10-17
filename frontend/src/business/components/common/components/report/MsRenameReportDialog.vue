@@ -8,7 +8,7 @@
     :before-close="close">
     <el-form>
       <el-form-item :label="$t('commons.name')">
-        <el-input v-model="data.name" maxlength="60" show-word-limit></el-input>
+        <el-input v-model="data.name" :maxlength="maxLength" show-word-limit></el-input>
       </el-form-item>
     </el-form>
 
@@ -27,6 +27,12 @@ export default {
       dialogVisible: false,
       data: {}
     };
+  },
+  props: {
+    maxLength: {
+      type: Number,
+      default: 60
+    },
   },
   methods: {
     open(data) {
