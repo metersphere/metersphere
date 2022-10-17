@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/share/test/plan/api/case")
+@RequestMapping("/share")
 public class ShareTestPlanApiReportController {
 
     @Resource

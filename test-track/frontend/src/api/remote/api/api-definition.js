@@ -25,7 +25,7 @@ export function apiDefinitionReportGet(id) {
 }
 
 export function apiDefinitionReportGetDb(id) {
-  return get(BASE_URL + `getReport/${id}`);
+  return get(BASE_URL + `report/getReport/${id}`);
 }
 
 export function apiDefinitionRunDebug(file, files, params) {
