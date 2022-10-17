@@ -13,7 +13,7 @@ export function testPlanUiScenarioRelevanceList(page, param) {
 }
 
 export function testPlanUiScenarioRelevanceListIds(param) {
-  return post(BASE_URL + 'relevance/ids', param);
+  return post(BASE_URL + 'relevance/list/ids', param);
 }
 
 export function testPlanUiScenarioEnv(param) {
