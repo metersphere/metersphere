@@ -356,6 +356,7 @@ public class TestCaseService {
         TestCaseExample.Criteria criteria = example.createCriteria();
         criteria.andCustomNumEqualTo(testCase.getCustomNum())
                 .andProjectIdEqualTo(testCase.getProjectId())
+                .andStatusNotEqualTo(CommonConstants.TrashStatus)
                 .andIdNotEqualTo(testCase.getId());
         if (testCaseWithBLOBs != null && StringUtils.isNotBlank(testCaseWithBLOBs.getRefId())) {
             criteria.andRefIdNotEqualTo(testCaseWithBLOBs.getRefId());
