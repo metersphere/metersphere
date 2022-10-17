@@ -119,11 +119,11 @@ public abstract class ZentaoClient extends BaseClient {
         if(StringUtils.equalsIgnoreCase(getIssueResponse.getStatus(),"fail")){
             GetIssueResponse.Issue issue = new GetIssueResponse.Issue();
             issue.setId(id);
-            issue.setSteps(" ");
-            issue.setTitle(" ");
+            issue.setSteps(StringUtils.SPACE);
+            issue.setTitle(StringUtils.SPACE);
             issue.setStatus("closed");
             issue.setDeleted("1");
-            issue.setOpenedBy(" ");
+            issue.setOpenedBy(StringUtils.SPACE);
             getIssueResponse.setData(JSON.toJSONString(issue).toString());
         }
         return JSON.parseMap(getIssueResponse.getData());

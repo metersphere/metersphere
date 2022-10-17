@@ -6,6 +6,7 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.code.snippet.util.FixedCapacityUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
@@ -14,9 +15,9 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
         try {
             if (!event.getLevel().levelStr.equals(LogUtil.DEBUG)) {
                 StringBuffer message = new StringBuffer();
-                message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(" ")
-                        .append(event.getLevel()).append(" ")
-                        .append(event.getThreadName()).append(" ")
+                message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(StringUtils.SPACE)
+                        .append(event.getLevel()).append(StringUtils.SPACE)
+                        .append(event.getThreadName()).append(StringUtils.SPACE)
                         .append(event.getFormattedMessage()).append("\n");
 
                 if (event.getThrowableProxy() != null) {

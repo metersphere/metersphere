@@ -1008,7 +1008,7 @@ public class ApiTestCaseService {
                             if (nameListStr.length() > 1) {
                                 nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
                             }
-                            String msg = deleteCaseName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
+                            String msg = deleteCaseName + StringUtils.SPACE + Translator.get("delete_check_reference_by") + ": " + nameListStr + StringUtils.SPACE;
                             checkMsgList.add(msg);
                         }
                     }

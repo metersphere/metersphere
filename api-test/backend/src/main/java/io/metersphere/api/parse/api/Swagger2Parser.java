@@ -50,8 +50,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
             JSONObject jsonObject = JSONUtil.parseObject(sourceStr);
-            if (jsonObject.opt("swagger") == null || jsonObject.opt("swagger") == "null" || jsonObject.opt("swagger") == " ") {
-                if (jsonObject.opt("openapi") == null || jsonObject.opt("openapi") == "null" || jsonObject.opt("openapi") == " ") {
+            if (jsonObject.opt("swagger") == null || jsonObject.opt("swagger") == "null" || jsonObject.opt("swagger") == StringUtils.SPACE) {
+                if (jsonObject.opt("openapi") == null || jsonObject.opt("openapi") == "null" || jsonObject.opt("openapi") == StringUtils.SPACE) {
                     MSException.throwException("wrong format");
                 }
             }

@@ -221,7 +221,7 @@ public class EngineFactory {
                     if (!(Boolean) prop.get("enable")) {
                         continue;
                     }
-                    dns.append(prop.get("ip")).append(" ").append(prop.get("domain")).append("\n");
+                    dns.append(prop.get("ip")).append(StringUtils.SPACE).append(prop.get("domain")).append("\n");
                 }
             }
         }

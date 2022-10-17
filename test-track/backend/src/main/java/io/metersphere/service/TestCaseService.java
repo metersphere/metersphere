@@ -2057,7 +2057,7 @@ public class TestCaseService {
                 caseName = caseName.append(testCase.getName()).append(",");
             }
             String str = caseName.substring(0, caseName.length() - 1);
-            MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + StringUtils.SPACE + str + StringUtils.SPACE + Translator.get("related_case_del_fail_suffix"));
         }
     }
 

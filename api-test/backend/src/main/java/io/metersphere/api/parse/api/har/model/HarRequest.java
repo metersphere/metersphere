@@ -21,6 +21,8 @@
 
 package io.metersphere.api.parse.api.har.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 public class HarRequest {
@@ -47,7 +49,7 @@ public class HarRequest {
 	
 	@Override
 	public String toString() {
-		return this.method + " " + this.url + " " + this.httpVersion;
+		return this.method + StringUtils.SPACE + this.url + StringUtils.SPACE + this.httpVersion;
 	}
 	
 }

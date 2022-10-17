@@ -109,7 +109,7 @@ public class XMLUtils {
         pattern = Pattern.compile(rgex);
         m = pattern.matcher(xml);
         xml = m.replaceAll(" </");
-        return Arrays.asList(xml.split(" "));
+        return Arrays.asList(xml.split(StringUtils.SPACE));
     }
 
     //  传入预处理的列表，返回转换成功的 json 对象

@@ -142,7 +142,7 @@ public class CommandService {
                                 arguments.add("-destkeypass");
                                 arguments.add("ms123...");
 
-                                LoggerUtil.info("证书合并命令：", String.join(" ", arguments));
+                                LoggerUtil.info("证书合并命令：", String.join(StringUtils.SPACE, arguments));
                                 SystemCommand nativeCommand = new SystemCommand(destFile.getParentFile(), (Map) null);
                                 int exitVal = nativeCommand.run(arguments);
                                 if (exitVal > 0) {

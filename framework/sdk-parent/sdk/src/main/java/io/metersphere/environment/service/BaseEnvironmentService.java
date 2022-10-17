@@ -398,7 +398,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                     criteria.andIdNotEqualTo(request.getId());
                 }
                 if (apiTestEnvironmentMapper.selectByExample(example).size() > 0) {
-                    existNames.append(" ").append(request.getName());
+                    existNames.append(StringUtils.SPACE).append(request.getName());
                     continue;
                 }
             }

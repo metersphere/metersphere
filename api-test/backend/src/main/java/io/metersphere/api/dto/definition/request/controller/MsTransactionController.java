@@ -66,7 +66,7 @@ public class MsTransactionController extends MsTestElement {
 
     public String getLabelName() {
         if (isValid()) {
-            return NAME_CN + " " + this.name;
+            return NAME_CN + StringUtils.SPACE + this.name;
         }
         return NAME_CN;
     }

@@ -212,11 +212,11 @@ public class ReflexObjectUtil {
                         } else {
                             String newValue = Objects.toString(column.getNewValue().toString(), "");
                             if (StringUtils.isNotEmpty(newValue)) {
-                                column.setNewValue(newValue.replaceAll("\\n", " "));
+                                column.setNewValue(newValue.replaceAll("\\n", StringUtils.SPACE));
                             }
-                            String oldValue = Objects.toString(column.getOriginalValue(), "");
+                            String oldValue = Objects.toString(column.getOriginalValue(), StringUtils.EMPTY);
                             if (StringUtils.isNotEmpty(oldValue)) {
-                                column.setOriginalValue(oldValue.replaceAll("\\n", " "));
+                                column.setOriginalValue(oldValue.replaceAll("\\n", StringUtils.SPACE));
                             }
                         }
                         comparedColumns.add(column);
