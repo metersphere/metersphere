@@ -324,7 +324,7 @@ public class ApiScenarioService {
         String id = request.getId();
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
         ApiScenarioExample.Criteria criteria = example.createCriteria();
-        criteria.andCustomNumEqualTo(request.getCustomNum()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(id);
+        criteria.andCustomNumEqualTo(request.getCustomNum()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(id).andStatusNotEqualTo(ApiTestDataStatus.TRASH.getValue());
         if (apiScenarioWithBLOBs != null && StringUtils.isNotBlank(apiScenarioWithBLOBs.getRefId())) {
             criteria.andRefIdNotEqualTo(apiScenarioWithBLOBs.getRefId());
         }
@@ -1256,6 +1256,7 @@ public class ApiScenarioService {
         if (BooleanUtils.isTrue(openCustomNum)) {
             ApiScenarioExample example = new ApiScenarioExample();
             ApiScenarioExample.Criteria criteria = example.createCriteria();
+            criteria.andStatusNotEqualTo(ApiTestDataStatus.TRASH.getValue());
             if (CollectionUtils.isEmpty(sameList)) {
                 criteria.andCustomNumEqualTo(scenarioWithBLOBs.getCustomNum()).andProjectIdEqualTo(scenarioWithBLOBs.getProjectId());
             } else {
