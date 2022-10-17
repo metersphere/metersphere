@@ -166,8 +166,8 @@ public class JSONSchemaToDocumentUtil {
             if (obj.isJsonArray()) {
                 JsonArray itemsObject = obj.getAsJsonArray();
                 List<DocumentElement> elements = new LinkedList<>();
-                array.add(new DocumentElement(propertyName, StringUtils.EMPTY, StringUtils.EMPTY, requiredList.contains("" + i + ""), elements));
-                analyzeArray("", itemsObject, elements, requiredList);
+                array.add(new DocumentElement(propertyName, StringUtils.EMPTY, StringUtils.EMPTY, requiredList.contains(StringUtils.EMPTY + i + StringUtils.EMPTY), elements));
+                analyzeArray(StringUtils.EMPTY, itemsObject, elements, requiredList);
             } else if (obj.isJsonObject()) {
                 List<String> requiredItems = new ArrayList<>();
                 if (obj.getAsJsonObject().get(PropertyConstant.REQUIRED) != null) {
@@ -179,7 +179,7 @@ public class JSONSchemaToDocumentUtil {
                 analyzeProperty(array, String.valueOf(i), obj.getAsJsonObject(), CollectionUtils.isNotEmpty(requiredItems) ? requiredItems : requiredList);
             } else {
                 JsonPrimitive primitive = (JsonPrimitive) obj;
-                array.add(new DocumentElement(propertyName, primitive.getAsString(), "", requiredList.contains(propertyName), null));
+                array.add(new DocumentElement(propertyName, primitive.getAsString(), StringUtils.EMPTY, requiredList.contains(propertyName), null));
             }
         }
     }

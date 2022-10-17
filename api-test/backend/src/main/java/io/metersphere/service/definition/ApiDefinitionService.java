@@ -215,7 +215,7 @@ public class ApiDefinitionService {
         resList.forEach(i -> {
             Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
             if (project == null) {
-                i.setProjectName("");
+                i.setProjectName(StringUtils.EMPTY);
                 i.setVersionEnable(false);
             } else {
                 i.setProjectName(project.getName());
@@ -582,7 +582,7 @@ public class ApiDefinitionService {
                     }
 
                     if (StringUtils.isEmpty(moduleId)) {
-                        moduleId = "";
+                        moduleId = StringUtils.EMPTY;
                     }
                     if (nodeMap.containsKey(moduleId)) {
                         nodeMap.get(moduleId).add(apiDefinition);
@@ -729,7 +729,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         }
         this.setModule(test);
 
@@ -884,7 +884,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         }
         if (apiDefinitionMapper.selectByPrimaryKey(test.getId()) == null) {
             apiDefinitionMapper.insert(test);
@@ -1016,7 +1016,7 @@ public class ApiDefinitionService {
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getPriority())) {
                 apiTestCaseWithBLOBs.setPriority("P0");
             }
-            apiTestCaseWithBLOBs.setStatus("");
+            apiTestCaseWithBLOBs.setStatus(StringUtils.EMPTY);
 
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 BeanUtils.copyBean(apiTestCaseDTO, apiTestCaseWithBLOBs);
@@ -1351,7 +1351,7 @@ public class ApiDefinitionService {
         }
 
         if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
-            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), "") && existApi.getTags() != null && Objects.equals(existApi.getTags(), "")) {
+            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), StringUtils.EMPTY) && existApi.getTags() != null && Objects.equals(existApi.getTags(), StringUtils.EMPTY)) {
                 return true;
             }
         }
@@ -1611,7 +1611,7 @@ public class ApiDefinitionService {
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
                 NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_SUCCESSFUL).build();
-                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
             }
             if (!StringUtils.equals(request.getType(), SCHEDULE) && CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
                 for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
@@ -1649,7 +1649,7 @@ public class ApiDefinitionService {
             paramMap.put("url", request.getSwaggerUrl());
             paramMap.put("projectId", request.getProjectId());
             NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_FAILED).build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
         }
     }
 

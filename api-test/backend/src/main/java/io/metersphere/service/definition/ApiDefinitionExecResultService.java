@@ -208,8 +208,8 @@ public class ApiDefinitionExecResultService {
 
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
-        String version = "";
-        String projectId = "";
+        String version = StringUtils.EMPTY;
+        String projectId = StringUtils.EMPTY;
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -291,7 +291,7 @@ public class ApiDefinitionExecResultService {
                         reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
                     }
                     String status = item.isSuccess() ? ApiReportStatus.SUCCESS.name() : ApiReportStatus.ERROR.name();
-                    String triggerMode = "";
+                    String triggerMode = StringUtils.EMPTY;
                     if (reportResult != null) {
                         status = reportResult.getStatus();
                         triggerMode = reportResult.getTriggerMode();

@@ -55,7 +55,7 @@ public class KeyValue {
     }
 
     public KeyValue(String name, String value, String description, boolean required) {
-        this(name, value, description, "", required);
+        this(name, value, description, StringUtils.EMPTY, required);
     }
 
     public boolean valueIsNotEmpty() {

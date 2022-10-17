@@ -448,7 +448,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
         if (PropertyConstant.ROOT.equals(rootNode.getId())) {
-            rootPath = "";
+            rootPath = StringUtils.EMPTY;
         }
         ApiModule apiDefinitionNode = new ApiModule();
         apiDefinitionNode.setId(rootNode.getId());
@@ -1149,7 +1149,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     private void removeRepeatOrigin(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, List<ApiDefinitionWithBLOBs> optionDatas) {
-        LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
+        LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? StringUtils.EMPTY : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
         if (fullCoverage) {
             methodPathMap.forEach((k, v) -> optionDatas.add(v.get(v.size() - 1)));
         } else {
@@ -1159,7 +1159,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private void removeHttpRepeat(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, boolean urlRepeat, List<ApiDefinitionWithBLOBs> optionDatas) {
         if (urlRepeat) {
-            LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
+            LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + (t.getModulePath() == null ? StringUtils.EMPTY : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
             if (fullCoverage) {
                 methodPathMap.forEach((k, v) -> optionDatas.add(v.get(v.size() - 1)));
             } else {

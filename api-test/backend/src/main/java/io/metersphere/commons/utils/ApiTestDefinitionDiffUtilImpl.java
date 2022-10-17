@@ -370,7 +370,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         OperatingLogDetails detailsOld = new OperatingLogDetails();
         detailsOld.setColumns(columnsOld);
 
-        List<DetailColumn> diffColumns = ReflexObjectUtil.compared(detailsOld, detailsNew, "");
+        List<DetailColumn> diffColumns = ReflexObjectUtil.compared(detailsOld, detailsNew, StringUtils.EMPTY);
         return diffColumns;
     }
 

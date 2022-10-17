@@ -24,7 +24,7 @@ public class SystemParameterService {
     public String getValue(String key) {
         SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
         if (param == null || StringUtils.isBlank(param.getParamValue())) {
-            return "";
+            return StringUtils.EMPTY;
         }
         return param.getParamValue();
     }

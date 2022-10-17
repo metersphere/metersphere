@@ -431,7 +431,7 @@ public class ApiTestCaseService {
             test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
             test.setVersionId(request.getVersionId());
             if (StringUtils.equals("[]", request.getTags())) {
-                test.setTags("");
+                test.setTags(StringUtils.EMPTY);
             } else {
                 test.setTags(request.getTags());
             }
@@ -474,7 +474,7 @@ public class ApiTestCaseService {
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
-        test.setStatus("");
+        test.setStatus(StringUtils.EMPTY);
         test.setCaseStatus(request.getCaseStatus());
         if (StringUtils.isEmpty(request.getCaseStatus())) {
             test.setCaseStatus(ApiTestDataStatus.UNDERWAY.getValue());
@@ -492,7 +492,7 @@ public class ApiTestCaseService {
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiTestCaseMapper::getLastOrder));
         test.setVersionId(request.getVersionId());
         if (StringUtils.equals("[]", request.getTags())) {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         } else {
             test.setTags(request.getTags());
         }

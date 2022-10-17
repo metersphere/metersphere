@@ -326,8 +326,8 @@ public class ApiHomeController {
                 dataDTO.setId(selectData.getId());
                 dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
             } else {
-                dataDTO.setCaseName("");
-                dataDTO.setTestPlan("");
+                dataDTO.setCaseName(StringUtils.EMPTY);
+                dataDTO.setTestPlan(StringUtils.EMPTY);
             }
             returnList.add(dataDTO);
         }

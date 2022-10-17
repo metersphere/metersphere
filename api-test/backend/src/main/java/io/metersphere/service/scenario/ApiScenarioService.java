@@ -211,7 +211,7 @@ public class ApiScenarioService {
         if (MapUtils.isNotEmpty(request.getFilters())
                 && request.getFilters().containsKey(ApiTestConstants.LAST_RESULT)) {
             if (request.getFilters().get(ApiTestConstants.LAST_RESULT) != null && request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiReportStatus.PENDING.name())) {
-                request.getFilters().get(ApiTestConstants.LAST_RESULT).add("");
+                request.getFilters().get(ApiTestConstants.LAST_RESULT).add(StringUtils.EMPTY);
             }
             if (request.getFilters().get(ApiTestConstants.LAST_RESULT) != null && request.getFilters().get(ApiTestConstants.LAST_RESULT).contains(ApiTestConstants.FAKE_ERROR)) {
                 request.getFilters().get(ApiTestConstants.LAST_RESULT).add(ApiReportStatus.FAKE_ERROR.name());
@@ -267,7 +267,7 @@ public class ApiScenarioService {
         checkScenarioNum(request);
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         scenario.setVersion(0);
-        scenario.setLastResult("");
+        scenario.setLastResult(StringUtils.EMPTY);
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setNum(nextNum);
         scenario.setOrder(ServiceUtils.getNextOrder(scenario.getProjectId(), extApiScenarioMapper::getLastOrder));
@@ -447,7 +447,7 @@ public class ApiScenarioService {
         scenario.setProjectId(request.getProjectId());
         scenario.setCustomNum(request.getCustomNum());
         if (StringUtils.equals(request.getTags(), "[]")) {
-            scenario.setTags("");
+            scenario.setTags(StringUtils.EMPTY);
         } else {
             scenario.setTags(request.getTags());
         }
@@ -644,7 +644,7 @@ public class ApiScenarioService {
                     checkNameExist(apiScenarioRequest, false);
                 }
                 if (StringUtils.isEmpty(moduleId)) {
-                    moduleId = "";
+                    moduleId = StringUtils.EMPTY;
                 }
                 if (nodeMap.containsKey(moduleId)) {
                     nodeMap.get(moduleId).add(api);
@@ -1037,7 +1037,7 @@ public class ApiScenarioService {
         ScenarioToPerformanceInfoDTO returnDTO = new ScenarioToPerformanceInfoDTO();
         List<String> ids = request.getIds();
         List<ApiScenarioDTO> apiScenarios = extApiScenarioMapper.selectIds(ids);
-        String id = "";
+        String id = StringUtils.EMPTY;
         if (!apiScenarios.isEmpty()) {
             id = apiScenarios.get(0).getId();
         }
@@ -1239,7 +1239,7 @@ public class ApiScenarioService {
             scenarioWithBLOBs.setUserId(request.getUserId());
         }
         scenarioWithBLOBs.setDescription(request.getDescription());
-        scenarioWithBLOBs.setLastResult("");
+        scenarioWithBLOBs.setLastResult(StringUtils.EMPTY);
 
         Boolean openCustomNum = apiTestImportRequest.getOpenCustomNum();
         List<ApiScenario> list = new ArrayList<>();

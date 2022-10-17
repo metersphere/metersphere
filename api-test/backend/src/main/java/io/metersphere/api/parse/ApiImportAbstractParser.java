@@ -194,7 +194,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value) {
-        addHeader(headers, key, value, "", StringUtils.EMPTY, true);
+        addHeader(headers, key, value, StringUtils.EMPTY, StringUtils.EMPTY, true);
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {

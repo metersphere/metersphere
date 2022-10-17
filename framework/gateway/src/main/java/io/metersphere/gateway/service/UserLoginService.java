@@ -233,7 +233,7 @@ public class UserLoginService {
                     user.setLastProjectId(projects.get(0).getId());
                 }
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         // 执行变更

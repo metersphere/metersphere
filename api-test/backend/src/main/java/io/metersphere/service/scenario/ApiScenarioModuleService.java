@@ -272,7 +272,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
         apiScenarios.forEach(apiScenario -> {
             String modulePath = apiScenario.getModulePath();
-            StringBuilder path = new StringBuilder(modulePath == null ? "" : modulePath);
+            StringBuilder path = new StringBuilder(modulePath == null ? StringUtils.EMPTY : modulePath);
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             if (pathLists.size() > request.getLevel()) {
                 pathLists.set(request.getLevel(), request.getName());
@@ -380,7 +380,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             MSException.throwException(Translator.get("node_deep_limit"));
         }
         if (PropertyConstant.ROOT.equals(rootNode.getId())) {
-            rootPath = "";
+            rootPath = StringUtils.EMPTY;
         }
         ApiScenarioModule apiScenarioModule = new ApiScenarioModule();
         apiScenarioModule.setId(rootNode.getId());
@@ -527,7 +527,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         List<ApiScenarioWithBLOBs> optionData = new ArrayList<>();
 
         //覆盖模式留重复的最后一个，不覆盖留第一个
-        LinkedHashMap<String, List<ApiScenarioWithBLOBs>> nameModuleMapList = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
+        LinkedHashMap<String, List<ApiScenarioWithBLOBs>> nameModuleMapList = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? StringUtils.EMPTY : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
         removeRepeatOrigin(fullCoverage, optionData, nameModuleMapList);
 
         //处理模块
@@ -550,7 +550,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 repeatDataMap = repeatApiScenarioWithBLOBs.stream().filter(t -> t.getApiScenarioModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
             }
         } else {
-            nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), scenario -> scenario));
+            nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? StringUtils.EMPTY : t.getModulePath()), scenario -> scenario));
             repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
         }
         //处理数据
