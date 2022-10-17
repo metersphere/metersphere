@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -58,8 +59,8 @@ public class ESBParser extends EsbAbstractParser {
             out = response.getOutputStream();
             response.reset();
             response.setContentType("application/vnd.ms-excel");
-            response.setCharacterEncoding("utf-8");
-            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8.name()) + ".xlsx");
             wb.write(out);
             wb.close();
         } catch (IOException e) {

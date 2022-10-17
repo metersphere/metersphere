@@ -73,6 +73,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -1377,9 +1378,9 @@ public class TestCaseService {
     public void testCaseXmindTemplateExport(String projectId, String importType, HttpServletResponse response) {
         try {
             response.setContentType("application/octet-stream");
-            response.setCharacterEncoding("utf-8");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             boolean isUseCustomId = trackProjectService.useCustomNum(projectId);
-            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", "UTF-8") + ".xmind");
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", StandardCharsets.UTF_8.name()) + ".xmind");
             String fileName = null;
             if (StringUtils.equals(importType, ExcelImportType.Update.name())) {
                 fileName = "xmind_update.xml";

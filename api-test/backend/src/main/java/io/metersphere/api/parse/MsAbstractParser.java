@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
@@ -52,7 +53,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
         if (split.length > 1) {
             try {
                 String queryParams = split[1];
-                queryParams = URLDecoder.decode(queryParams, "UTF-8");
+                queryParams = URLDecoder.decode(queryParams, StandardCharsets.UTF_8.name());
                 String[] params = queryParams.split("&");
                 for (String param : params) {
                     String[] kv = param.split("=");

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +47,7 @@ public class DataFormattingUtil {
             //获取要转化的文件
             List<String> attachmentFilePathList = new ArrayList<>();
             try {
-                Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(jmx.getBytes("utf-8")));
+                Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(jmx.getBytes(StandardCharsets.UTF_8.name())));
                 Element root = doc.getRootElement();
                 Element rootHashTreeElement = root.element(ElementConstants.HASH_TREE);
                 List<Element> innerHashTreeElementList = rootHashTreeElement.elements(ElementConstants.HASH_TREE);

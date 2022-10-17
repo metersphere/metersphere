@@ -51,6 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -504,7 +505,7 @@ public class UserService {
 
     /*修改当前用户用户密码*/
     private User updateCurrentUserPwd(EditPassWordRequest request) {
-        String oldPassword = CodingUtil.md5(request.getPassword(), "utf-8");
+        String oldPassword = CodingUtil.md5(request.getPassword(), StandardCharsets.UTF_8.name());
         String newPassword = request.getNewpassword();
         String newPasswordMd5 = CodingUtil.md5(newPassword);
         if (StringUtils.equals(oldPassword, newPasswordMd5)) {

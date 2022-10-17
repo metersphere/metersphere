@@ -417,7 +417,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         try {
             while (matcher.find()) {
                 String url = matcher.group(1);
-                result = URLDecoder.decode(url, "UTF-8");
+                result = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
             }
         } catch (Exception exception) {
             return targetStr;

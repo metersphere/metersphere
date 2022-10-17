@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,7 +86,7 @@ public class HarParser extends HarAbstractParser {
             }
 
             try {
-                url = URLDecoder.decode(url, "UTF-8");
+                url = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
                 if (url.contains("?")) {
                     url = url.split("\\?")[0];
                 }

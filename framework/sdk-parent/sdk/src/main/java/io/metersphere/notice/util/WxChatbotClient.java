@@ -13,6 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -29,7 +30,7 @@ public class WxChatbotClient {
         }
         HttpPost httppost = new HttpPost(webhook);
         httppost.addHeader("Content-Type", "application/json; charset=utf-8");
-        StringEntity se = new StringEntity(message.toJsonString(), "utf-8");
+        StringEntity se = new StringEntity(message.toJsonString(), StandardCharsets.UTF_8.name());
         httppost.setEntity(se);
 
         SendResult sendResult = new SendResult();

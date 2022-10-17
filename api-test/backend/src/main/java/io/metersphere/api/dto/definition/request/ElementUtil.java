@@ -63,6 +63,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -121,7 +122,7 @@ public class ElementUtil {
                     csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
                     csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
-                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
+                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
                     if (CollectionUtils.isEmpty(item.getFiles())) {
                         MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                     } else {
@@ -170,7 +171,7 @@ public class ElementUtil {
                     csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
                     csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
-                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
+                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
                     if (CollectionUtils.isEmpty(item.getFiles())) {
                         MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                     } else {

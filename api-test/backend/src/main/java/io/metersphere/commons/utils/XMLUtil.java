@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -160,7 +161,7 @@ public class XMLUtil {
 
     public static Document stringToDocument(String xml) {
         try {
-            return EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xml.getBytes("utf-8")));
+            return EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8.name())));
         } catch (Exception e) {
             LogUtil.error(e);
             return null;

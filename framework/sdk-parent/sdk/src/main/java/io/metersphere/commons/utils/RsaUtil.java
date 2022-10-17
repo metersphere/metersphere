@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -13,7 +14,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class RsaUtil {
 
-    public static final String CHARSET = "UTF-8";
+    public static final String CHARSET = StandardCharsets.UTF_8.name();
     public static final String RSA_ALGORITHM = "RSA";
 
     private static RsaKey rsaKey;

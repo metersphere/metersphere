@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -483,7 +484,7 @@ public class MockApiUtils {
             }
             outSteam.close();
             inputStream.close();
-            result = new String(outSteam.toByteArray(), "UTF-8");
+            result = new String(outSteam.toByteArray(), StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -504,10 +505,10 @@ public class MockApiUtils {
         byte buffer[] = getRequestPostBytes(request);
         String charEncoding = request.getCharacterEncoding();
         if (charEncoding == null) {
-            charEncoding = "UTF-8";
+            charEncoding = StandardCharsets.UTF_8.name();
         }
         if (buffer == null) {
-            return "";
+            return StringUtils.EMPTY;
         } else {
             return new String(buffer, charEncoding);
         }
@@ -520,7 +521,7 @@ public class MockApiUtils {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(
-                    request.getInputStream(), "UTF-8"));
+                    request.getInputStream(), StandardCharsets.UTF_8.name()));
             while ((inputLine = in.readLine()) != null) {
                 recieveData.append(inputLine);
             }

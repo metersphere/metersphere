@@ -64,6 +64,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1105,7 +1106,7 @@ public class MockConfigService {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             XMLUtil.setExpandEntityReferencesFalse(documentBuilderFactory);
             DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-            builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes("utf-8"))));
+            builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8.name()))));
             isXml = true;
         } catch (Exception e) {
             e.printStackTrace();

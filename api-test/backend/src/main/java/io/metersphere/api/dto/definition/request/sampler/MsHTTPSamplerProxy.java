@@ -54,6 +54,7 @@ import org.json.JSONObject;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
         sampler.setMethod(this.getMethod());
-        sampler.setContentEncoding("UTF-8");
+        sampler.setContentEncoding(StandardCharsets.UTF_8.name());
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
@@ -371,14 +372,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     }
                     try {
                         URL urlObject = new URL(url);
-                        sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
+                        sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                         if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                             sampler.setProperty("HTTPSampler.port", this.getPort());
                         } else if (urlObject.getPort() != -1) {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), "UTF-8"), "UTF-8"));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -396,7 +397,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             }
                             sampler.setPort(httpConfig.getPort());
                             if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
-                                sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), "UTF-8"));
+                                sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), StandardCharsets.UTF_8.name()));
                                 sampler.setProtocol(httpConfig.getProtocol());
                             } else {
                                 sampler.setDomain("");
@@ -406,13 +407,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         } else {
                             URL urlObject = new URL(this.path);
                             envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
+                            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                             sampler.setProtocol(urlObject.getProtocol());
                         }
                         if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
                             envPath = "/" + envPath;
                         }
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
                     }
                 }
                 String envPath = sampler.getPath();
@@ -441,7 +442,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MSException.throwException("请重新选择环境");
                 }
                 URL urlObject = new URL(url);
-                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
+                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
                 } else if (urlObject.getPort() != -1) {
@@ -451,11 +452,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                 sampler.setProperty("HTTPSampler.path", envPath);
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
+                    envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
                     sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setProperty("HTTPSampler.path", postQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
+                    sampler.setProperty("HTTPSampler.path", postQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name())));
                 }
             }
         } catch (Exception e) {

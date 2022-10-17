@@ -21,6 +21,7 @@ import org.dom4j.io.XMLWriter;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class TcpTreeTableDataParser {
             // 设置XML文档格式
             OutputFormat outputFormat = OutputFormat.createPrettyPrint();
             // 设置XML编码方式,即是用指定的编码方式保存XML文档到字符串(String),这里也可以指定为GBK或是ISO8859-1
-            outputFormat.setEncoding("UTF-8");
+            outputFormat.setEncoding(StandardCharsets.UTF_8.name());
             //outputFormat.setSuppressDeclaration(true); //是否生产xml头
             outputFormat.setIndent(true); //设置是否缩进
             outputFormat.setNewlines(true); //设置是否换行
