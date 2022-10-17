@@ -194,7 +194,7 @@ export default {
       if (repeatKey !== "") {
         this.$warning(this.$t('api_test.environment.common_config') + "【" + repeatKey + "】" + this.$t('load_test.param_is_duplicate'));
       }
-      if (isNeedCreate && !repeatKey) {
+      if (isNeedCreate) {
         this.variables.push(new KeyValue({enable: true, id: getUUID(), type: 'CONSTANT'}));
       }
       this.$emit('change', this.variables);
