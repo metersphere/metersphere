@@ -30,6 +30,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
+import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
@@ -176,9 +177,9 @@ public class TestCaseService {
     private CustomFieldTestCaseService customFieldTestCaseService;
     @Resource
     private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
-    //    @Lazy
-//    @Resource
-//    private TestPlanTestCaseService testPlanTestCaseService;
+    @Lazy
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
     @Lazy
     @Resource
     private TestReviewTestCaseService testReviewTestCaseService;
@@ -696,8 +697,7 @@ public class TestCaseService {
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
-        // todo check
-//        testPlanTestCaseService.deleteToGc(Arrays.asList(testCaseId));
+        testPlanTestCaseService.deleteToGc(Arrays.asList(testCaseId));
         testReviewTestCaseService.deleteToGc(Arrays.asList(testCaseId));
         return extTestCaseMapper.deleteToGc(request);
     }
@@ -726,8 +726,7 @@ public class TestCaseService {
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
         request.setIds(ids);
-        // todo check
-//        testPlanTestCaseService.deleteToGc(ids);
+        testPlanTestCaseService.deleteToGc(ids);
         testReviewTestCaseService.deleteToGc(ids);
         return extTestCaseMapper.deleteToGc(request);
     }
@@ -2475,8 +2474,7 @@ public class TestCaseService {
                 }
             }
             extTestCaseMapper.reduction(request.getIds());
-            // todo check
-//            testPlanTestCaseService.reduction(request.getIds());
+            testPlanTestCaseService.reduction(request.getIds());
             testReviewTestCaseService.reduction(request.getIds());
         }
     }

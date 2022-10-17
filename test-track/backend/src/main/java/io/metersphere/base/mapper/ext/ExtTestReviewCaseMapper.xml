@@ -82,12 +82,6 @@
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
-        <if test="${condition}.method != null">
-            and test_case.method
-            <include refid="condition">
-                <property name="object" value="${condition}.method"/>
-            </include>
-        </if>
         <if test="${condition}.creator != null">
             and test_case.maintainer
             <include refid="condition">
@@ -99,7 +93,7 @@
         select test_case_review_test_case.id as id, test_case_review_test_case.reviewer,
         test_case_review_test_case.update_time, test_case_review_test_case.review_id as reviewId,
         test_case.id as caseId, test_case.name, test_case.priority, test_case.test_id as testId,
-        test_case.type, test_case.node_path, test_case.method, test_case.num,
+        test_case.type, test_case.node_path, test_case.num,
         test_case.custom_num, test_case_review_test_case.status reviewStatus,
         test_case.remark as remark, test_case.maintainer, test_case.steps as steps, test_case.node_id as nodeId,
         test_case.project_id,
@@ -163,9 +157,6 @@
             <if test="request.reviewId != null">
                 and test_case_review_test_case.review_id = #{request.reviewId}
             </if>
-            <if test="request.method != null">
-                and test_case.method = #{request.method}
-            </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="test_case"/>
             </include>
@@ -186,12 +177,6 @@
                         </when>
                         <when test="key=='type'">
                             and test_case.type in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                        <when test="key=='method'">
-                            and test_case.method in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -226,70 +211,7 @@
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
         inner join project on project.id = test_case.project_id
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                </include>
-            </if>
-            <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.id != null">
-                and test_case.id = #{request.id}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.status != null">
-                and test_case_review_test_case.status = #{request.status}
-            </if>
-            <if test="request.reviewer != null">
-                and test_case_review_test_case.reviewer = #{request.reviewer}
-            </if>
-            <if test="request.reviewId != null">
-                and test_case_review_test_case.review_id = #{request.reviewId}
-            </if>
-            <if test="request.method != null">
-                and test_case.method = #{request.method}
-            </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='priority'">
-                                and test_case.priority in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='type'">
-                                and test_case.type in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='method'">
-                                and test_case.method in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='status'">
-                                and test_case.review_status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
-        </where>
+        <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -314,70 +236,7 @@
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
         inner join project on project.id = test_case.project_id
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                </include>
-            </if>
-            <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.id != null">
-                and test_case.id = #{request.id}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.status != null">
-                and test_case_review_test_case.status = #{request.status}
-            </if>
-            <if test="request.reviewer != null">
-                and test_case_review_test_case.reviewer = #{request.reviewer}
-            </if>
-            <if test="request.reviewId != null">
-                and test_case_review_test_case.review_id = #{request.reviewId}
-            </if>
-            <if test="request.method != null">
-                and test_case.method = #{request.method}
-            </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='priority'">
-                                and test_case.priority in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='type'">
-                                and test_case.type in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='method'">
-                                and test_case.method in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='status'">
-                                and test_case.review_status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
-        </where>
+        <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -422,7 +281,7 @@
         select tcrtc.id as id,
         tcrtc.review_id as reviewId,
                test_case.id as caseId, test_case.name, test_case.priority,
-               test_case.type, test_case.node_path, test_case.method, test_case.review_status,
+               test_case.type, test_case.node_path, test_case.review_status,
                test_case.remark as remark, test_case.maintainer, test_case.steps as steps,
                test_case.node_id as nodeId,
                test_case.prerequisite, test_case.step_description, test_case.expected_result, test_case.step_model
