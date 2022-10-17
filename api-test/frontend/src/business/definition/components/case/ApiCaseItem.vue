@@ -122,7 +122,7 @@
           :showScript="true"
           :headers="apiCase.request.headers "
           :response="apiCase.responseData"
-          :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+          :request="apiCase.request" :case-id="apiCase.apiDefinitionId" v-if="api.protocol==='HTTP'"/>
         <tcp-format-parameters
           :showScript="true"
           :show-pre-script="true"
@@ -215,18 +215,11 @@
 <script>
 import {citedScenarioCount, deleteToGc, editApiCase, editFollowsByParam, getApiCaseFollow} from "@/api/api-test-case";
 import {createDefinition} from "@/api/definition";
-import {relationGet} from "@/api/xpack";
-import {updateRuleRelation} from "@/api/xpack";
+import {relationGet, updateRuleRelation} from "@/api/xpack";
 import {getUUID} from "metersphere-frontend/src/utils";
-import {
-  getCurrentProjectID,
-  getCurrentUser
-} from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission
-} from "metersphere-frontend/src/utils/permission";
-import {_getBodyUploadFiles} from "@/business/definition/api-definition";
+import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import {_getBodyUploadFiles, mergeRequestDocumentData} from "@/business/definition/api-definition";
 import {API_METHOD_COLOUR, API_STATUS, PRIORITY} from "../../model/JsonData";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
@@ -244,7 +237,6 @@ import ShowMoreBtn from "@/business/commons/ShowMoreBtn";
 import MsChangeHistory from "@/business/history/ApiHistory";
 import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
 import ApiCaseHeader from "./ApiCaseHeader";
-import {mergeRequestDocumentData} from "@/business/definition/api-definition";
 import {deepClone} from "metersphere-frontend/src/utils/tableUtils";
 import {useApiStore} from "@/store";
 

@@ -163,7 +163,7 @@
           </span>
           <ms-jmx-step
             :request="request"
-            :apiId="request.id"
+            :apiId="caseId || request.id"
             :scenarioId="scenarioId"
             :response="response"
             @reload="reloadBody"
@@ -215,6 +215,7 @@ export default {
   props: {
     method: String,
     request: {},
+    caseId: String,
     response: {},
     definitionTest: {
       type: Boolean,

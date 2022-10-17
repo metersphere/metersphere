@@ -3,11 +3,11 @@ package io.metersphere.commons.utils;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.utils.DocumentUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import net.sf.json.util.JSONTokener;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.XML;
 
 import java.util.LinkedList;
@@ -71,6 +71,7 @@ public class JSONToDocumentUtil {
                 JSONArray array = JSONUtil.parseArray(json);
                 jsonDataFormatting(array, children);
             } else {
+                roots.add(new DocumentElement().newRoot(PropertyConstant.ARRAY, children));
                 JSONArray array = JSONUtil.parseArray(json);
                 jsonDataFormatting(array, roots);
             }
@@ -80,6 +81,7 @@ public class JSONToDocumentUtil {
                 JSONObject object = JSONUtil.parseObject(json);
                 jsonDataFormatting(object, children);
             } else {
+                roots.add(new DocumentElement().newRoot(PropertyConstant.OBJECT, children));
                 JSONObject object = JSONUtil.parseObject(json);
                 jsonDataFormatting(object, roots);
             }
