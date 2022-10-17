@@ -403,7 +403,7 @@ export default {
         name: '',
         projectId: row.id
       };
-      getProjectMemberPages(this.currentPage, this.pageSize, row.workspaceId, param).then(res => {
+      getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
         let data = res.data;
         let {listObject, itemCount} = data;
         this.memberLineData = listObject;
