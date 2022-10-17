@@ -367,7 +367,7 @@ export default {
         {text: this.$t('test_track.case.auto'), value: 'auto'}
       ],
       statusFilters: [
-        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+        {text: this.$t('api_test.home_page.detail_card.unexecute'), value: 'Prepare'},
         {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
         {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
         {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
