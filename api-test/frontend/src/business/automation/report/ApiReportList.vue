@@ -29,7 +29,7 @@
                   @select-all="handleSelectAll"
                   @select="handleSelect"
                   :height="screenHeight"
-                  @filter-change="filter" @row-click="handleView">
+                  @filter-change="filter" @row-click="handleView" v-if="loadIsOver">
           <el-table-column
             type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
@@ -227,7 +227,7 @@ export default {
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 160px)',
       trashActiveDom: 'left',
-      userFilters: []
+      userFilters: [],
     }
   },
   watch: {
@@ -274,12 +274,12 @@ export default {
       }
       if (this.trashActiveDom === 'left') {
         this.reportTypeFilters = this.reportScenarioFilters;
-        getReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
+        this.result = getReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
           this.setData(res);
         })
       } else {
         this.reportTypeFilters = this.reportCaseFilters;
-        getApiReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
+        this.result = getApiReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
           this.setData(res);
         })
       }
@@ -288,17 +288,12 @@ export default {
       let data = response.data;
       this.total = data.itemCount;
       this.tableData = data.listObject;
-      this.tableData.forEach(item => {
-        if (item.status === 'STOP') {
-          item.status = 'stopped'
-        }
-      })
       this.selectRows.clear();
       this.unSelection = data.listObject.map(s => s.id);
     },
     handleView(report) {
       this.reportId = report.id;
-      if (report.status === 'Running' || report.status === 'Rerunning') {
+      if (report.status === 'RUNNING' || report.status === 'RERUNNING') {
         this.$warning(this.$t('commons.run_warning'))
         return;
       }

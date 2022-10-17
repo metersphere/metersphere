@@ -227,4 +227,7 @@ export default {
 .report-name {
   border-bottom: 1px solid var(--primary_color);
 }
+.report-header{
+  min-width: 1000px;
+}
 </style>
