@@ -85,7 +85,9 @@
 
     <edit-project ref="editProject"/>
 
-    <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
+    <el-dialog
+      v-loading="memberTableLoading"
+      :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
                @close="close"
                class="dialog-css">
       <template v-slot:title>
@@ -121,9 +123,11 @@
       </div>
     </el-dialog>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
-               :destroy-on-close="true"
-               @close="handleClose">
+    <el-dialog
+      v-loading="memberDialogLoading"
+      :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
+      :destroy-on-close="true"
+      @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -233,6 +237,8 @@ export default {
       updateVisible: false,
       dialogMemberVisible: false,
       loading: false,
+      memberDialogLoading: false,
+      memberTableLoading: false,
       btnTips: this.$t('project.create'),
       title: this.$t('project.create'),
       condition: {components: PROJECT_CONFIGS},
@@ -403,7 +409,7 @@ export default {
         name: '',
         projectId: row.id
       };
-      getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
+      this.memberTableLoading = getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
         let data = res.data;
         let {listObject, itemCount} = data;
         this.memberLineData = listObject;
@@ -441,13 +447,14 @@ export default {
       let groupIds = this.form.groups.map(r => r.id);
       let param = {
         type: GROUP_PROJECT,
-        resourceId: getCurrentWorkspaceId()
+        resourceId: getCurrentWorkspaceId(),
+        projectId: this.currentProjectId
       };
-      this.loading = getUserGroupList(param).then(res => {
-        this.$set(this.form, "allgroups", res.data);
-      });
       // 编辑使填充角色信息
       this.$set(this.form, 'groupIds', groupIds);
+      this.memberDialogLoading = getUserGroupList(param).then(res => {
+        this.$set(this.form, "allgroups", res.data);
+      });
     },
     delMember(row) {
       this.$confirm(this.$t('member.remove_member').toString(), '', {
