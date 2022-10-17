@@ -1,16 +1,16 @@
 import {Assertions} from "@/business/definition/model/ApiTestModel";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {
-  ID,
-  NAME,
   API_METHOD,
   API_PATH,
-  TAGS,
-  UPDATE_TIME,
-  CREATE_TIME,
   API_PRINCIPAL,
+  CREATE_TIME,
   FOLLOW_PEOPLE,
-  OPERATORS
+  ID,
+  NAME,
+  OPERATORS,
+  TAGS,
+  UPDATE_TIME
 } from "metersphere-frontend/src/components/search/search-components";
 
 function _getModuleTree(options) {
@@ -32,6 +32,12 @@ export const API_MODULE_TREE = _getModuleTree({
   type: "GET",
   params: {}
 })
+
+export const API_MODULE_TRASH_TREE = _getModuleTree({
+  url: "/api/module/trash/list",
+  type: "GET",
+  params: {}
+})
 export const API_STATUS_TRASH = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -45,7 +51,7 @@ export const API_STATUS_TRASH = {
   }
 }
 
-export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE];
+export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TRASH_TREE, FOLLOW_PEOPLE];
 
 export function getProtocolFilter(protocolType) {
   if (protocolType === "HTTP") {
