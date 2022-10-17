@@ -1727,12 +1727,7 @@ public class TestCaseService {
                 if (StringUtils.isNotBlank(field.getValue())) {
                     Object value = JSON.parseObject(field.getValue());
                     Map<String, String> optionMap = customSelectValueMap.get(id);
-                    if (value instanceof String) {
-                        if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(value)) {
-                            value = optionMap.get(value);
-                        }
-                        map.put(customNameMap.get(id), value.toString());
-                    } else if (value instanceof List) {
+                    if (value instanceof List) {
                         List<String> results = new ArrayList<>();
                         List values = (List) value;
                         values.forEach(item -> {
@@ -1741,6 +1736,11 @@ public class TestCaseService {
                             }
                         });
                         map.put(customNameMap.get(id), results.toString());
+                    } else {
+                        if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(value)) {
+                            value = optionMap.get(value);
+                        }
+                        map.put(customNameMap.get(id), value.toString());
                     }
                 }
             }
