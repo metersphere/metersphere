@@ -354,9 +354,7 @@ public class MockApiUtils {
                 if (!((JSONObject) paramJson).keySet().isEmpty()) {
                     JSONArray bodyParams = returnParams.getBodyParams();
                     if (bodyParams == null) {
-                        List<Object> paramsArray = new LinkedList<>();
-                        paramsArray.add(paramJson);
-                        bodyParams = new JSONArray(paramsArray);
+                        bodyParams.put(paramJson);
                     } else {
                         bodyParams.put(((JSONObject) paramJson));
                     }
@@ -392,9 +390,9 @@ public class MockApiUtils {
         requestMockParams.setQueryParamsObj(queryParamsObject);
 
         if (isPostRequest) {
-            List<Object> jsonArray = new ArrayList<>();
-            jsonArray.add(queryParamsObject);
-            requestMockParams.setBodyParams(new JSONArray(jsonArray));
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.put(queryParamsObject);
+            requestMockParams.setBodyParams(jsonArray);
         }
         return requestMockParams;
     }

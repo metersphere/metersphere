@@ -150,7 +150,7 @@ public class MsHashTreeService {
                         if (CollectionUtils.isNotEmpty(rules)) {
                             step.addAll(rules);
                         }
-                        element.put(HASH_TREE, new JSONArray(step));
+                        element.put(HASH_TREE, step);
                     }
                     element.put(REFERENCED, REF);
                     element.put(DISABLED, true);
