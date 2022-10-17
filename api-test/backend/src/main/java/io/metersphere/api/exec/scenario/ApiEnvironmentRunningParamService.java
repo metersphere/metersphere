@@ -2,7 +2,6 @@ package io.metersphere.api.exec.scenario;
 
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.MapUtils;
@@ -26,6 +25,12 @@ import java.util.Map;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiEnvironmentRunningParamService {
+    public static final String COMMON_CONFIG = "commonConfig";
+    public static final String VARIABLES = "variables";
+    public static final String VALUE = "value";
+    public static final String ENABLE = "enable";
+    public static final String NAME = "name";
+    public static final String ENV_STR = "MS.ENV.";
     @Resource
     ApiTestEnvironmentMapper testEnvironmentMapper;
 
@@ -40,10 +45,10 @@ public class ApiEnvironmentRunningParamService {
         boolean envNeedUpdate = false;
         try {
             JSONObject configObj = JSONUtil.parseObject(environment.getConfig());
-            if (configObj.has("commonConfig")) {
-                JSONObject commonConfig = configObj.optJSONObject("commonConfig");
-                if (commonConfig.has("variables")) {
-                    JSONArray variables = commonConfig.optJSONArray("variables");
+            if (configObj.has(COMMON_CONFIG)) {
+                JSONObject commonConfig = configObj.optJSONObject(COMMON_CONFIG);
+                if (commonConfig.has(VARIABLES)) {
+                    JSONArray variables = commonConfig.optJSONArray(VARIABLES);
                     List<JSONObject> variableList = new LinkedList<>();
                     for (Map.Entry<String, String> entry : varMap.entrySet()) {
                         String key = entry.getKey();
@@ -52,64 +57,45 @@ public class ApiEnvironmentRunningParamService {
                         boolean contains = false;
                         for (int i = 0; i < variables.length(); i++) {
                             JSONObject jsonObj = variables.optJSONObject(i);
-                            if (jsonObj.has("name") && StringUtils.equals(jsonObj.optString("name"), key)) {
+                            if (jsonObj.has(NAME) && StringUtils.equals(jsonObj.optString(NAME), key)) {
                                 contains = true;
-                                if (jsonObj.has("value") && StringUtils.equals(jsonObj.optString("value"), value)) {
+                                if (jsonObj.has(VALUE) && StringUtils.equals(jsonObj.optString(VALUE), value)) {
                                     break;
                                 } else {
                                     envNeedUpdate = true;
-                                    jsonObj.put("value", value);
+                                    jsonObj.put(VALUE, value);
                                 }
-
                             }
                         }
                         if (!contains) {
                             envNeedUpdate = true;
                             JSONObject itemObj = new JSONObject();
-                            itemObj.put("name", key);
-                            itemObj.put("value", value);
-                            itemObj.put("enable", true);
+                            itemObj.put(NAME, key);
+                            itemObj.put(VALUE, value);
+                            itemObj.put(ENABLE, true);
                             if (variableList.size() == 0) {
                                 variableList.add(itemObj);
                             } else {
                                 variableList.add(variables.length() - 1, itemObj);
                             }
-                            commonConfig.put("variables", new JSONArray(variableList));
+                            commonConfig.put(VARIABLES, variableList);
                         }
                     }
                 } else {
-                    List<JSONObject> variables = new LinkedList<>();
-                    for (Map.Entry<String, String> entry : varMap.entrySet()) {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        JSONObject itemObj = new JSONObject();
-                        itemObj.put("name", key);
-                        itemObj.put("value", value);
-                        itemObj.put("enable", true);
-                        variables.add(itemObj);
-                    }
+                    List<JSONObject> variables = createArray(varMap);
                     JSONObject emptyObj = new JSONObject();
-                    emptyObj.put("enable", true);
+                    emptyObj.put(ENABLE, true);
                     variables.add(emptyObj);
-                    commonConfig.put("variables", new JSONArray(variables));
+                    commonConfig.put(VARIABLES, variables);
                 }
             } else {
                 JSONObject commonConfig = new JSONObject();
-                List<JSONObject> variables = new LinkedList<>();
-                for (Map.Entry<String, String> entry : varMap.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    JSONObject itemObj = new JSONObject();
-                    itemObj.put("name", key);
-                    itemObj.put("value", value);
-                    itemObj.put("enable", true);
-                    variables.add(itemObj);
-                }
+                List<JSONObject> variables = createArray(varMap);
                 JSONObject emptyObj = new JSONObject();
-                emptyObj.put("enable", true);
+                emptyObj.put(ENABLE, true);
                 variables.add(emptyObj);
-                commonConfig.put("variables", new JSONArray(variables));
-                configObj.put("commonConfig", commonConfig);
+                commonConfig.put(VARIABLES, variables);
+                configObj.put(COMMON_CONFIG, commonConfig);
             }
             if (envNeedUpdate) {
                 environment.setConfig(configObj.toString());
@@ -131,8 +117,8 @@ public class ApiEnvironmentRunningParamService {
                     continue;
                 }
                 String jmeterVarKey = envItem[0];
-                if (this.checkValidity(jmeterVarKey, "MS.ENV.")) {
-                    String[] envAndKeyArr = jmeterVarKey.substring("MS.ENV.".length()).split("\\.");
+                if (this.checkValidity(jmeterVarKey, ENV_STR)) {
+                    String[] envAndKeyArr = jmeterVarKey.substring(ENV_STR.length()).split("\\.");
                     if (ArrayUtils.isEmpty(envAndKeyArr)) {
                         continue;
                     }
@@ -170,6 +156,18 @@ public class ApiEnvironmentRunningParamService {
         } catch (Exception e) {
             LoggerUtil.error(e);
         }
+    }
+
+    private List<JSONObject> createArray(Map<String, String> varMap) {
+        List<JSONObject> variables = new LinkedList<>();
+        for (Map.Entry<String, String> entry : varMap.entrySet()) {
+            JSONObject itemObj = new JSONObject();
+            itemObj.put(NAME, entry.getKey());
+            itemObj.put(VALUE, entry.getValue());
+            itemObj.put(ENABLE, true);
+            variables.add(itemObj);
+        }
+        return variables;
     }
 
     public boolean checkValidity(String str, String regex) {
