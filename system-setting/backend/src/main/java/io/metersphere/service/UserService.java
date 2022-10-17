@@ -1255,6 +1255,10 @@ public class UserService {
             List<String> existGroupIds = this.getUserExistSourceGroup(userId, sourceId);
             toAddGroupIds.removeAll(existGroupIds);
             toAddGroupIds.retainAll(dbOptionalGroupIds);
+            if (CollectionUtils.isEmpty(toAddGroupIds)) {
+                LogUtil.warn("group ids not in db or not has permission, please check!");
+                continue;
+            }
             for (String groupId : toAddGroupIds) {
                 UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, groupId,
                         sourceId, System.currentTimeMillis(), System.currentTimeMillis());
@@ -1280,6 +1284,12 @@ public class UserService {
     private List<String> getGroupIdsByType(String type, String sourceId) {
         // 某项目/工作空间下能查看到的用户组
         List<String> scopeList = Arrays.asList("global", sourceId);
+        if (StringUtils.equals(type, "PROJECT")) {
+            Project project = projectMapper.selectByPrimaryKey(sourceId);
+            if (project != null) {
+                scopeList = Arrays.asList("global", sourceId, project.getWorkspaceId());
+            }
+        }
         GroupExample groupExample = new GroupExample();
         groupExample.createCriteria().andScopeIdIn(scopeList)
                 .andTypeEqualTo(type);
