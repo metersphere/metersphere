@@ -1,4 +1,5 @@
 import "./public-path"
+import "@/business/utils/track-table-header";
 import Vue from "vue"
 import "metersphere-frontend/src/styles/index.scss"
 import ElementUI from "element-ui";

@@ -194,9 +194,16 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinition> selectByIds(ApiDefinitionRequest request) {
-        if (request != null && CollectionUtils.isNotEmpty(request.getIds())) {
+        if (request != null) {
+           return selectByIds(request.getIds());
+        }
+        return new ArrayList<>();
+    }
+
+    public List<ApiDefinition> selectByIds(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(request.getIds());
+            example.createCriteria().andIdIn(ids);
             List<ApiDefinition> list = apiDefinitionMapper.selectByExample(example);
             return list;
         }

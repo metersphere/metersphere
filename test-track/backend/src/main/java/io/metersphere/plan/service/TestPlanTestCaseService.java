@@ -530,6 +530,7 @@ public class TestPlanTestCaseService {
                 boolean customNum = config.getCaseCustomNum();
                 item.setIsCustomNum(customNum);
                 item.setExecutorName(userNameMap.get(item.getExecutor()));
+                item.setMaintainerName(userNameMap.get(item.getMaintainer()));
             });
         }
 

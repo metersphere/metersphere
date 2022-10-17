@@ -4,6 +4,7 @@ export {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUser} from "meters
 export {hasLicense, hasPermissions, hasPermission} from "metersphere-frontend/src/utils/permission";
 export {get, post, downloadFile, fileDownloadGet, fileDownloadPost, fileUpload, generateShareUrl, generateModuleUrl} from "metersphere-frontend/src/plugins/request";
 export {CURRENT_LANGUAGE} from "metersphere-frontend/src/utils/constants";
+export {CUSTOM_TABLE_HEADER} from "metersphere-frontend/src/utils/default-table-header";
 
 
 export {generateColumnKey, getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";

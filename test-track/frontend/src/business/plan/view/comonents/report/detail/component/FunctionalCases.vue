@@ -37,6 +37,11 @@
         </el-table-column>
 
         <el-table-column
+          prop="maintainerName"
+          :label="$t('test_track.plan.plan_principal')">
+        </el-table-column>
+
+        <el-table-column
           prop="status"
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">

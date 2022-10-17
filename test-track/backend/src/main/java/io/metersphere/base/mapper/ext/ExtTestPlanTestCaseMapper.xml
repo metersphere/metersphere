@@ -89,10 +89,22 @@
                 <property name="object" value="${condition}.method"/>
             </include>
         </if>
-        <if test="${condition}.creator != null">
+        <if test="${condition}.maintainer != null">
             and test_case.maintainer
             <include refid="condition">
+                <property name="object" value="${condition}.maintainer"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and test_case.create_user
+            <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.principal != null">
+            and test_case.maintainer
+            <include refid="condition">
+                <property name="object" value="${condition}.principal"/>
             </include>
         </if>
         <if test="${condition}.executor != null">
@@ -208,7 +220,7 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='maintainer'">
+                        <when test="key=='maintainer' or key = 'maintainer_name'">
                             and test_case.maintainer in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
@@ -479,6 +491,7 @@
         tc.node_id, tc.tags, tptc.actual_result,
         tptc.update_time, tptc.create_time,
         tptc.issues_count, tptc.status,
+        tc.maintainer,
         tptc.plan_id, tptc.executor
         from test_plan_test_case tptc
         inner join test_case tc on tptc.case_id = tc.id
