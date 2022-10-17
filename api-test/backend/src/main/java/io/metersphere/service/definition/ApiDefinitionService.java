@@ -521,31 +521,32 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(apiIds)) {
             return;
         }
-        apiIds.forEach(apiId -> {
-            // 把所有版本的api移到回收站
-            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
-            if (api == null) {
-                return;
-            }
-            ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
-            example.createCriteria().andRefIdEqualTo(api.getRefId());
-            example.setOperator(SessionUtils.getUserId());
-            example.setOperationTime(System.currentTimeMillis());
-            extApiDefinitionMapper.removeToGcByExample(example);
+        ApiDefinitionExample  apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(apiIds);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        if (CollectionUtils.isEmpty(apiDefinitions)){
+            return;
+        }
+        List<String> refIds = apiDefinitions.stream().map(ApiDefinition::getRefId).collect(Collectors.toList());
+        ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
+        example.createCriteria().andRefIdIn(refIds);
+        example.setOperator(SessionUtils.getUserId());
+        example.setOperationTime(System.currentTimeMillis());
+        extApiDefinitionMapper.removeToGcByExample(example);
 
-            ApiDefinitionRequest request = new ApiDefinitionRequest();
-            request.setRefId(api.getRefId());
-            List<String> ids = extApiDefinitionMapper.selectIds(request);
+        apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andRefIdIn(refIds);
+        List<ApiDefinition> apiDefinitionList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        List<String> ids = apiDefinitionList.stream().map(ApiDefinition::getId).collect(Collectors.toList());
 
-            // 把所有版本的api case移到回收站
-            List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(ids);
-            if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
-                apiTestBatchRequest.setIds(apiCaseIds);
-                apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
-                apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
-            }
-        });
+        // 把所有版本的api case移到回收站
+        List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(ids);
+        if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+            ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+            apiTestBatchRequest.setIds(apiCaseIds);
+            apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
+            apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
+        }
     }
 
     public void reduction(ApiBatchRequest request) {
