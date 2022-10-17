@@ -87,12 +87,6 @@ public class TestReviewTestCaseService {
         return list;
     }
 
-    public List<String> selectIds(QueryCaseReviewRequest request) {
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<String> list = extTestReviewCaseMapper.selectIds(request);
-        return list;
-    }
-
     private List<String> getReviewUserIds(String reviewId) {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
@@ -148,13 +142,10 @@ public class TestReviewTestCaseService {
 
     public void deleteTestCaseBatch(TestReviewCaseBatchRequest request) {
         checkReviewer(request.getReviewId());
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestReviewCaseMapper.selectIds((QueryCaseReviewRequest) query));
+
         List<String> ids = request.getIds();
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            ids = this.selectIds(request.getCondition());
-            if (request.getCondition().getUnSelectIds() != null) {
-                ids.removeAll(request.getCondition().getUnSelectIds());
-            }
-        }
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andIdIn(ids);
         testCaseReviewTestCaseMapper.deleteByExample(example);
@@ -217,14 +208,10 @@ public class TestReviewTestCaseService {
 //    }
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestReviewCaseMapper.selectTestCaseIds((QueryCaseReviewRequest) query));
+
         List<String> ids = request.getIds();
-        request.getCondition().setOrder(null);
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
-            if (request.getCondition().getUnSelectIds() != null) {
-                ids.removeAll(request.getCondition().getUnSelectIds());
-            }
-        }
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
@@ -315,13 +302,9 @@ public class TestReviewTestCaseService {
     }
 
     public String batchLogDetails(TestReviewCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestReviewCaseMapper.selectTestCaseIds((QueryCaseReviewRequest) query));
         List<String> ids = request.getIds();
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
-            if (request.getCondition().getUnSelectIds() != null) {
-                ids.removeAll(request.getCondition().getUnSelectIds());
-            }
-        }
 
         // 更新状态
         if (StringUtils.isNotBlank(request.getStatus())) {
