@@ -149,7 +149,7 @@
       </el-card>
     </ms-main-container>
     <same-test-reports ref="compareReports"/>
-    <ms-rename-report-dialog ref="renameDialog" @submit="rename"></ms-rename-report-dialog>
+    <ms-rename-report-dialog ref="renameDialog" @submit="rename" :max-length="255"></ms-rename-report-dialog>
 
   </ms-container>
 </template>
