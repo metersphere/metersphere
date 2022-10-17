@@ -1,7 +1,6 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.exec.engine.EngineSourceParserFactory;
-import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -190,7 +189,7 @@ public class XMLUtil {
             if (list.size() == 1) {
                 result.put(node.getName(), list.get(0));
             } else {
-                result.put(node.getName(), new JSONArray(list));
+                result.put(node.getName(), list);
             }
         } else {
             if (!StringUtils.isAllBlank(node.getName(), node.getText())) {
