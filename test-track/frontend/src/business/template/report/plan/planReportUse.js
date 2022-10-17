@@ -11,8 +11,30 @@ import plugins from "metersphere-frontend/src/plugins";
 import mavonEditor from "mavon-editor";
 import {createPinia, PiniaVuePlugin} from 'pinia'
 import PersistedState from "pinia-plugin-persistedstate";
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
+import axios from 'axios';
 
 function planReportUse(id, template) {
+  // 获取gateway路由
+  let user = JSON.parse(localStorage.getItem(TokenKey));
+  axios({
+    method: 'get',
+    url: '/services',
+    headers: {
+      'CSRF-TOKEN': user.csrfToken,
+      'X-AUTH-TOKEN': user.sessionId
+    },
+  }).then((res)=>{
+    let modules = {}, microPorts = {};
+    res.data.data.forEach(svc => {
+      let name = svc.serviceId;
+      modules[name] = true;
+      microPorts[name] = svc.port;
+    })
+    sessionStorage.setItem("micro_apps", JSON.stringify(modules));
+    sessionStorage.setItem("micro_ports", JSON.stringify(microPorts));
+  })
+
   const pinia = createPinia()
   pinia.use(PersistedState)//开启缓存，存储在localstorage
 
