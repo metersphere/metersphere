@@ -20,7 +20,7 @@
     <properties>
         <revision>main</revision>
         <java.version>11</java.version>
-        <spring-cloud.version>2021.0.3</spring-cloud.version>
+        <spring-cloud.version>2021.0.4</spring-cloud.version>
         <dubbo.version>2.7.15</dubbo.version>
         <flyway.version>7.15.0</flyway.version>
         <shiro.version>1.9.1</shiro.version>
@@ -56,7 +56,7 @@
         <json-lib.version>2.4</json-lib.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <xz.version>1.9</xz.version>
-        <springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>1.6.11</springdoc-openapi-ui.version>
         <flatten.version>1.2.7</flatten.version>
         <jmeter.version>5.5</jmeter.version>
         <jython.version>2.7.3</jython.version>
