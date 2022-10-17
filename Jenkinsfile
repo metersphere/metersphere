@@ -29,7 +29,9 @@ pipeline {
                     if (params.buildParent) {
                         BUILD_PARENT = true
                     }
-                    env.FRONTEND_LINK = params.frontendLink
+                    if (params.frontendLink != null && !params.frontendLink.equals("")) {
+                        env.FRONTEND_LINK = params.frontendLink
+                    }
                     env.REVISION = "${REVISION}"
                     env.BUILD_SDK = "${BUILD_SDK}"
                     env.BUILD_PARENT = "${BUILD_PARENT}"
