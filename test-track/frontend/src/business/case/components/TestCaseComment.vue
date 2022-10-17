@@ -90,6 +90,7 @@ export default {
       this.result.loading = true;
       testCaseCommentAdd(comment)
         .then(() => {
+          this.result.loading = false;
           this.$success(this.$t('test_track.comment.send_success'));
           this.refresh(comment.caseId);
           this.from.description = '';
