@@ -5,16 +5,16 @@
         <el-row :gutter="18" type="flex" align="middle" class="info">
           <el-col class="ms-req-name-col" :span="18" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
-              <div class="method ms-req-name">
+              <span class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner"> {{ indexNumber }}</div>
                 </div>
                 <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
-                <el-link class="report-label-req" @click="isLink" v-if="redirect && resourceId">
+                <span class="report-label-req" @click="isLink" v-if="redirect && resourceId">
                   {{ request.name }}
-                </el-link>
+                </span>
                 <span v-else>{{ getName(request.name) }}</span>
-              </div>
+              </span>
             </el-tooltip>
           </el-col>
           <!-- 误报 / 异常状态显示 -->
