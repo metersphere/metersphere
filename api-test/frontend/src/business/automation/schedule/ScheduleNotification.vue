@@ -10,12 +10,14 @@
     </el-row>
     <el-row>
       <el-col :span="24">
-        <notification-table :table-data="scheduleTask"
-                            :event-options="scheduleEventOptions"
-                            :receive-type-options="receiveTypeOptions"
-                            @handleReceivers="handleReceivers"
-                            @handleTemplate="handleTemplate"
-                            @refresh="initForm"/>
+        <notification-table
+          v-loading="loading"
+          :table-data="scheduleTask"
+          :event-options="scheduleEventOptions"
+          :receive-type-options="receiveTypeOptions"
+          @handleReceivers="handleReceivers"
+          @handleTemplate="handleTemplate"
+          @refresh="initForm"/>
       </el-col>
     </el-row>
     <mx-notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
@@ -47,6 +49,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       modes: ['text', 'html'],
       robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
@@ -210,8 +213,11 @@ export default {
   },
   methods: {
     initForm() {
-      this.result = getMessageById(this.testId).then(response => {
+      this.loading = getMessageById(this.testId).then(response => {
         this.scheduleTask = response.data;
+        this.scheduleTask.forEach(task => {
+          this.handleReceivers(task);
+        });
       });
     },
     handleAddTaskModel() {
