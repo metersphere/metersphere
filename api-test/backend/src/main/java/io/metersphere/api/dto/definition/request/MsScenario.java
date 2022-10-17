@@ -167,7 +167,9 @@ public class MsScenario extends MsTestElement {
                 if (environmentConfig != null) {
                     EnvJSR223Processor envProcessor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
                     MsJSR223Processor processor = new MsJSR223Processor();
-                    BeanUtils.copyBean(processor, envProcessor);
+                    if (envProcessor != null) {
+                        BeanUtils.copyBean(processor, envProcessor);
+                    }
                     if (processor != null && StringUtils.isNotEmpty(processor.getScript())) {
                         processor.setType(ElementConstants.JSR223);
                         processor.setClazzName(MsJSR223Processor.class.getCanonicalName());

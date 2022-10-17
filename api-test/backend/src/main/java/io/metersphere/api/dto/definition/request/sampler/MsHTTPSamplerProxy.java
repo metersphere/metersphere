@@ -323,13 +323,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 HttpConfig httpConfig = config.matchConfig(this);
                 if (environmentConfig.getPreProcessor() != null) {
                     MsJSR223PreProcessor msJSR223PreProcessor = new MsJSR223PreProcessor();
-                    BeanUtils.copyBean(msJSR223PreProcessor, environmentConfig.getPreProcessor());
-                    httpConfig.setPreProcessor(msJSR223PreProcessor);
+                    if (environmentConfig.getPreProcessor() != null) {
+                        BeanUtils.copyBean(msJSR223PreProcessor, environmentConfig.getPreProcessor());
+                        httpConfig.setPreProcessor(msJSR223PreProcessor);
+                    }
                 }
                 if (environmentConfig.getPostProcessor() != null) {
                     MsJSR223PostProcessor postProcessor = new MsJSR223PostProcessor();
-                    BeanUtils.copyBean(postProcessor, environmentConfig.getPostProcessor());
-                    httpConfig.setPostProcessor(postProcessor);
+                    if (environmentConfig.getPostProcessor() != null) {
+                        BeanUtils.copyBean(postProcessor, environmentConfig.getPostProcessor());
+                        httpConfig.setPostProcessor(postProcessor);
+                    }
                 }
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 if (CollectionUtils.isNotEmpty(environmentConfig.getAssertions())) {

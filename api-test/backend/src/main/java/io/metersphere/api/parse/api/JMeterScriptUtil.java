@@ -35,7 +35,9 @@ public class JMeterScriptUtil {
     public static MsJSR223PreProcessor getPreScript(EnvironmentConfig envConfig) {
         if (envConfig != null && envConfig.getPreProcessor() != null && StringUtils.isNotEmpty(envConfig.getPreProcessor().getScript())) {
             MsJSR223PreProcessor preProcessor = new MsJSR223PreProcessor();
-            BeanUtils.copyBean(preProcessor,envConfig.getPreProcessor());
+            if (envConfig.getPreProcessor() != null) {
+                BeanUtils.copyBean(preProcessor, envConfig.getPreProcessor());
+            }
             return preProcessor;
         } else {
             return null;
@@ -45,7 +47,9 @@ public class JMeterScriptUtil {
     public static MsJSR223PostProcessor getPostScript(EnvironmentConfig envConfig) {
         if (envConfig != null && envConfig.getPostProcessor() != null && StringUtils.isNotEmpty(envConfig.getPostProcessor().getScript())) {
             MsJSR223PostProcessor post = new MsJSR223PostProcessor();
-            BeanUtils.copyBean(post,envConfig.getPostProcessor());
+            if (envConfig.getPostProcessor() != null) {
+                BeanUtils.copyBean(post, envConfig.getPostProcessor());
+            }
             return post;
         } else {
             return null;
