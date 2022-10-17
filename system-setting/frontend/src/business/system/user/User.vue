@@ -11,13 +11,12 @@
       </template>
 
       <ms-table border
-                class="adjust-table"
                 :condition="condition"
                 :total="total"
                 :data="tableData"
                 style="width: 100%"
                 :batch-operators="buttons"
-                :height="screenHeight"
+                :screen-height="screenHeight"
                 enableSelection
                 @refresh="search"
                 ref="userTable">
