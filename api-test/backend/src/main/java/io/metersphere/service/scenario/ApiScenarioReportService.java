@@ -297,10 +297,6 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
-        // UI 调试类型报告不记录更新状态
-        if (report.getExecuteType().equals(ExecuteType.Debug.name()) && report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
-            return report;
-        }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
     }

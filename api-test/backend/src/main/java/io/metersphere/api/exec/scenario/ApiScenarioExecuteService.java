@@ -158,7 +158,7 @@ public class ApiScenarioExecuteService {
             if (request.isRerun()) {
                 ApiScenarioReportWithBLOBs report = new ApiScenarioReportWithBLOBs();
                 report.setId(serialReportId);
-                report.setStatus(ApiReportStatus.RUNNING.name());
+                report.setStatus(ApiReportStatus.RERUNNING.name());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             } else {
                 LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);

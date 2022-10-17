@@ -8,7 +8,7 @@ import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -28,10 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,7 +76,8 @@ public class ApiScenarioRerunService {
         if (CollectionUtils.isNotEmpty(reportResults)) {
             List<String> resourceIds = reportResults.stream().map(ApiDefinitionExecResult::getResourceId).collect(Collectors.toList());
             // 执行资源
-            Map<String, ApiDefinitionExecResultWithBLOBs> map = reportResults.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getResourceId, api -> api));
+            LinkedHashMap<String, ApiDefinitionExecResultWithBLOBs> map = reportResults.stream().collect(
+                    Collectors.toMap(ApiDefinitionExecResultWithBLOBs::getResourceId, order -> order, (k1, k2) -> k1, LinkedHashMap::new));
 
             ApiCaseRunRequest request = new ApiCaseRunRequest();
             request.setRerun(true);
