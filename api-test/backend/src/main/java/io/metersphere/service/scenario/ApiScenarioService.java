@@ -424,14 +424,18 @@ public class ApiScenarioService {
      * @param scenario
      */
     public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario, ApiScenarioWithBLOBs oldScenario) {
-        Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
-        MsTestElement msTestElement = GenerateHashTreeUtil.parseScenarioDefinition(oldScenario.getScenarioDefinition());
-        List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
-        oldRequests.forEach(item -> {
-            if (item.isCustomizeReq() && !newRequestIds.contains(item.getId())) {
-                FileUtils.deleteBodyFiles(item.getId());
-            }
-        });
+        try {
+            Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
+            MsTestElement msTestElement = GenerateHashTreeUtil.parseScenarioDefinition(oldScenario.getScenarioDefinition());
+            List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
+            oldRequests.forEach(item -> {
+                if (item.isCustomizeReq() && !newRequestIds.contains(item.getId())) {
+                    FileUtils.deleteBodyFiles(item.getId());
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error("Historical data processing exception");
+        }
     }
 
     public Set<String> getRequestIds(String scenarioDefinition) {
@@ -707,6 +711,7 @@ public class ApiScenarioService {
         if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             hashTreeService.dataFormatting(element);
+            ElementUtil.dataFormatting(element);
             scenarioWithBLOBs.setScenarioDefinition(element.toString());
         }
         return scenarioWithBLOBs;
@@ -1376,6 +1381,8 @@ public class ApiScenarioService {
 
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
+            JSONObject jsonObject = JSONUtil.parseObject(JSON.toJSONString(item));
+            ElementUtil.dataFormatting(jsonObject);
             if (StringUtils.isBlank(item.getName())) {
                 MSException.throwException(Translator.get("scenario_name_is_null"));
             }
