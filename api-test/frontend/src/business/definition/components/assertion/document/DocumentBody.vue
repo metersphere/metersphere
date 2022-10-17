@@ -198,7 +198,7 @@ export default {
       if (this.document.type === "JSON") {
         this.document.data.json = this.originalData;
       } else if (this.document.type === "XML") {
-        this.document.data.xml = this.tableData;
+        this.document.data.xml = this.originalData;
       }
     },
     tableDataList(data) {
@@ -298,20 +298,19 @@ export default {
     changeData() {
       if (this.document.data) {
         this.tableData = [];
-        if (this.document.type === "JSON") {
+        if (this.document.type === 'JSON') {
           this.document.data.jsonFollowAPI = this.checked ? this.apiId : "";
           if (this.document.data.jsonFollowAPI) {
             this.getDocument();
           } else {
             this.tableDataList(this.document.data.json);
           }
-
-        } else if (this.document.type === "XML") {
+        } else if (this.document.type === 'XML') {
           this.document.data.xmlFollowAPI = this.checked ? this.apiId : "";
           if (this.document.data.xmlFollowAPI) {
             this.getDocument();
           } else {
-            this.tableData = this.document.data.xml;
+            this.tableDataList(this.document.data.xml);
           }
         }
         this.reload();

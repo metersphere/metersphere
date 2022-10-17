@@ -235,7 +235,11 @@ export function mergeRequestDocumentData(request) {
     if (index !== -1) {
       if (request.hashTree[index].document && request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
         mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData);
-        request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
+        if (request.hashTree[index].document.type === 'json') {
+          request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
+        } else {
+          request.hashTree[index].document.data.xml = request.hashTree[index].document.originalData;
+        }
       }
     }
   }
