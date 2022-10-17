@@ -79,7 +79,7 @@
 
 <script>
 
-import {generateShareInfoWithExpired,getShareRedirectUrl} from "../../../api/share";
+import {generateShareInfoWithExpired, getShareRedirectUrl} from "../../../api/share";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getProjectApplicationConfig} from "../../../api/project";
@@ -171,7 +171,9 @@ export default {
           this.$error(res.data);
         } else {
           this.$success(this.$t('api_test.automation.rerun_success'));
-          this.returnView();
+          if (this.$route.query && this.$route.query.list) {
+            this.returnView();
+          }
         }
       });
     },
@@ -227,7 +229,8 @@ export default {
 .report-name {
   border-bottom: 1px solid var(--primary_color);
 }
-.report-header{
+
+.report-header {
   min-width: 1000px;
 }
 </style>
