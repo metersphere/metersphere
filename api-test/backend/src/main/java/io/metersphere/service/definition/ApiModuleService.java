@@ -1617,7 +1617,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         int i = 0;
         Map<String, List<ApiModule>> idModuleMap = new HashMap<>();
         for (ApiModuleDTO apiModuleDTO : nodeTreeByProjectId) {
-            if (StringUtils.isBlank(apiModuleDTO.getParentId())) {
+            if (StringUtils.isBlank(apiModuleDTO.getParentId()) || StringUtils.equals(apiModuleDTO.getParentId(),"0")) {
                 apiModuleDTO.setParentId(PropertyConstant.ROOT);
             }
             String parentModulePath = parentModulePathMap.get(apiModuleDTO.getParentId());
