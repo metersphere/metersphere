@@ -147,7 +147,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
     }
 
     private void parseHeaderParameters(HarHeader harHeader, List<KeyValue> headers) {
-        addHeader(headers, harHeader.name, harHeader.value, harHeader.comment, "", false);
+        addHeader(headers, harHeader.name, harHeader.value, harHeader.comment, StringUtils.EMPTY, false);
     }
 
     private void addPreScript(MsHTTPSamplerProxy request, List<PostmanEvent> event) {
@@ -227,7 +227,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
         if (options != null) {
             JsonNode raw = options.get(PostmanRequestBodyMode.RAW.value());
             if (raw != null) {
-                String bodyType = "";
+                String bodyType = StringUtils.EMPTY;
                 switch (raw.get("language").textValue()) {
                     case "json":
                         bodyType = Body.JSON_STR;
@@ -244,7 +244,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
     }
 
     private String getDefaultStringValue(String val) {
-        return StringUtils.isBlank(val) ? "" : val;
+        return StringUtils.isBlank(val) ? StringUtils.EMPTY : val;
     }
 
     private String getBoundaryFromContentType(String contentType) {

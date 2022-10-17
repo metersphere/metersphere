@@ -119,9 +119,9 @@ public class XmindCaseParser {
                 process.add(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"), nodePath);
             }
-            String path = "";
+            String path = StringUtils.EMPTY;
             for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
                     process.add(Translator.get("module_not_null"), path);
                 } else if (nodes[i].trim().length() > 100) {
                     process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "100", path + nodes[i].trim());
@@ -150,7 +150,7 @@ public class XmindCaseParser {
         //用例名称判断
         if (StringUtils.isEmpty(data.getName())) {
             validatePass = false;
-            process.add("name" + Translator.get("cannot_be_null"), nodePath + "");
+            process.add("name" + Translator.get("cannot_be_null"), nodePath + StringUtils.EMPTY);
         } else {
             if (data.getName().length() > 200) {
                 validatePass = false;
@@ -170,7 +170,7 @@ public class XmindCaseParser {
                 }
             }
             for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
                     validatePass = false;
                     process.add(Translator.get("test_case") + Translator.get("module_not_null"), nodePath + data.getName());
                     if (!errorPath.contains(nodePath)) {
@@ -315,7 +315,7 @@ public class XmindCaseParser {
         }
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher result = pattern.matcher(str);
-        str = result.replaceAll("");
+        str = result.replaceAll(StringUtils.EMPTY);
         return str;
     }
 
@@ -339,8 +339,8 @@ public class XmindCaseParser {
             // 保持插入顺序，判断用例是否有相同的steps
             Map step = new LinkedHashMap();
             step.put("num", 1);
-            step.put("desc", "");
-            step.put("result", "");
+            step.put("desc", StringUtils.EMPTY);
+            step.put("result", StringUtils.EMPTY);
             jsonArray.add(step);
         }
         return JSON.toJSONString(jsonArray);
@@ -364,7 +364,7 @@ public class XmindCaseParser {
             return;
         }
         // 用例名称
-        String name = title.replace(tcArrs[0] + "：", "").replace(tcArrs[0] + ":", "");
+        String name = title.replace(tcArrs[0] + "：", StringUtils.EMPTY).replace(tcArrs[0] + ":", StringUtils.EMPTY);
         testCase.setName(name);
         testCase.setNodePath(nodePath.trim());
 

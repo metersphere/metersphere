@@ -20,11 +20,11 @@ public class JSONToDocumentUtil {
             Object value = array.get(i);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement("", PropertyConstant.OBJECT, "", childrenElements));
+                children.add(new DocumentElement(StringUtils.EMPTY, PropertyConstant.OBJECT, StringUtils.EMPTY, childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement("", PropertyConstant.ARRAY, "", childrenElements);
+                DocumentElement documentElement = new DocumentElement(StringUtils.EMPTY, PropertyConstant.ARRAY, StringUtils.EMPTY, childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
@@ -33,7 +33,7 @@ public class JSONToDocumentUtil {
                 if (value != null) {
                     type = DocumentUtils.getType(value);
                 }
-                children.add(new DocumentElement("", type, value, null));
+                children.add(new DocumentElement(StringUtils.EMPTY, type, value, null));
             }
         }
     }
@@ -43,11 +43,11 @@ public class JSONToDocumentUtil {
             Object value = object.get(key);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement(key, PropertyConstant.OBJECT, "", childrenElements));
+                children.add(new DocumentElement(key, PropertyConstant.OBJECT, StringUtils.EMPTY, childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement(key, PropertyConstant.ARRAY, "", childrenElements);
+                DocumentElement documentElement = new DocumentElement(key, PropertyConstant.ARRAY, StringUtils.EMPTY, childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);

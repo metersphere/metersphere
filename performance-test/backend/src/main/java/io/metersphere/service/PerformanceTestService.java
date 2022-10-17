@@ -1001,7 +1001,7 @@ public class PerformanceTestService {
         LoadTestFileExample example1 = new LoadTestFileExample();
         example1.createCriteria().andFileIdEqualTo(fileId);
         List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(example1);
-        String errorMessage = "";
+        String errorMessage = StringUtils.EMPTY;
         if (loadTestFiles.size() > 0) {
             List<String> testIds = loadTestFiles.stream().map(LoadTestFile::getTestId).distinct().collect(Collectors.toList());
             LoadTestExample example = new LoadTestExample();

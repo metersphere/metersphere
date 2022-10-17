@@ -67,7 +67,7 @@ public class XMLUtil {
         StringBuffer buffer = new StringBuffer();
         buffer.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         try {
-            jsonToXmlStr(jObj, buffer, new StringBuffer(""));
+            jsonToXmlStr(jObj, buffer, new StringBuffer(StringUtils.EMPTY));
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }

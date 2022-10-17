@@ -131,7 +131,7 @@ public class TestResult {
             result.setRequestResults(formatedResult);
 
             result.getRequestResults().forEach(item -> {
-                String itemAndScenarioName = "";
+                String itemAndScenarioName = StringUtils.EMPTY;
                 if (StringUtils.isNotEmpty(item.getScenario())) {
                     //第1个：当前场景， 第all_id_names个：最后一层场景
                     List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);

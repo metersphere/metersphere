@@ -32,8 +32,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
-        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod(),
-                requestDesc.getBody().get("jsonSchema") == null ? "" : requestDesc.getBody().get("jsonSchema").textValue());
+        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? StringUtils.EMPTY : url.getRaw(), requestDesc.getMethod(),
+                requestDesc.getBody().get("jsonSchema") == null ? StringUtils.EMPTY : requestDesc.getBody().get("jsonSchema").textValue());
         request.setRest(parseKeyValue(requestDesc.getUrl().getVariable()));
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
@@ -168,7 +168,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         if (options != null) {
             JsonNode raw = options.get(PostmanRequestBodyMode.RAW.value());
             if (raw != null) {
-                String bodyType = "";
+                String bodyType = StringUtils.EMPTY;
                 switch (raw.get("language").textValue()) {
                     case "json":
                         bodyType = Body.JSON_STR;

@@ -159,7 +159,7 @@ public class JmeterDocumentParser {
                     u += k + "=" + ScriptEngineUtils.buildFunctionCallString(v);
                     return u;
                 });
-                ele.setTextContent(url + ((params != null && !"?".equals(params)) ? params : ""));
+                ele.setTextContent(url + ((params != null && !"?".equals(params)) ? params : StringUtils.EMPTY));
                 break;
             case "Argument.value":
                 String textContent = ele.getTextContent();
@@ -214,7 +214,7 @@ public class JmeterDocumentParser {
             if (p.contains("=")) {
                 String[] param = p.split("=");
                 if (param.length == 1) {
-                    strUrlParas.put(param[0], "");
+                    strUrlParas.put(param[0], StringUtils.EMPTY);
                 } else {
 
                     String key = param[0];

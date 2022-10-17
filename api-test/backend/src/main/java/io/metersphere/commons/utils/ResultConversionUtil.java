@@ -37,8 +37,8 @@ public class ResultConversionUtil {
         String resourceId = result.getResourceId();
 
         ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
-        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
-        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
+        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + StringUtils.EMPTY));
+        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + StringUtils.EMPTY));
         String status = result.getError() == 0 ? ApiReportStatus.SUCCESS.name() : ApiReportStatus.ERROR.name();
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());

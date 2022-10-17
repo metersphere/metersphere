@@ -2688,7 +2688,7 @@ public class TestCaseService {
             fileContentExample.createCriteria().andFileIdIn(fileIds);
             List<FileContent> allCaseFileContents = fileContentMapper.selectByExample(fileContentExample);
             entry.getValue().stream().forEach(relation -> {
-                String filename = "";
+                String filename = StringUtils.EMPTY;
                 List<FileMetadata> fileMetadatas = allCaseFileMetadatas.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
                 List<FileContent> fileContents = allCaseFileContents.stream().filter(fileContent -> fileContent.getFileId().equals(relation.getAttachmentId()))
@@ -2699,7 +2699,7 @@ public class TestCaseService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(UUID.randomUUID().toString());
-                    fileAttachmentMetadata.setCreator("");
+                    fileAttachmentMetadata.setCreator(StringUtils.EMPTY);
                     fileAttachmentMetadata.setFilePath(uploadPath);
                     fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
                     AttachmentModuleRelation record = new AttachmentModuleRelation();
@@ -3066,7 +3066,7 @@ public class TestCaseService {
             return;
         }
         if (!StringUtils.equals(demandId, "other")) {
-            demandName = "";
+            demandName = StringUtils.EMPTY;
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
