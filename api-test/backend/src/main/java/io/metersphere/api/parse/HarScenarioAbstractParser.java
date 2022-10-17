@@ -1,6 +1,8 @@
 package io.metersphere.api.parse;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
@@ -189,18 +191,18 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
     }
 
     private void parseBody(Body body, PostmanRequest requestDesc) {
-        JSONObject postmanBody = requestDesc.getBody();
+        ObjectNode postmanBody = requestDesc.getBody();
         if (postmanBody == null) {
             return;
         }
-        String bodyMode = postmanBody.optString("mode");
+        String bodyMode = postmanBody.get("mode").textValue();
         if (StringUtils.isBlank(bodyMode)) {
             return;
         }
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             parseRawBody(body, postmanBody, bodyMode);
         } else if (StringUtils.equalsAny(bodyMode, PostmanRequestBodyMode.FORM_DATA.value(), PostmanRequestBodyMode.URLENCODED.value())) {
-            List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.optString(bodyMode), PostmanKeyValue.class);
+            List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(postmanBody.get(bodyMode).textValue(), PostmanKeyValue.class);
             body.setKvs(parseKeyValue(postmanKeyValues));
             if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value())) {
                 body.setType(Body.FORM_DATA);
@@ -218,15 +220,15 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
         return XMLUtil.jsonToXmlStr(object);
     }
 
-    private void parseRawBody(Body body, JSONObject postmanBody, String bodyMode) {
-        body.setRaw(postmanBody.optString(bodyMode));
+    private void parseRawBody(Body body, ObjectNode postmanBody, String bodyMode) {
+        body.setRaw(postmanBody.get(bodyMode).textValue());
         body.setType(MsRequestBodyType.RAW.value());
-        JSONObject options = postmanBody.optJSONObject("options");
+        JsonNode options = postmanBody.get("options");
         if (options != null) {
-            JSONObject raw = options.optJSONObject(PostmanRequestBodyMode.RAW.value());
+            JsonNode raw = options.get(PostmanRequestBodyMode.RAW.value());
             if (raw != null) {
                 String bodyType = "";
-                switch (raw.optString("language")) {
+                switch (raw.get("language").textValue()) {
                     case "json":
                         bodyType = Body.JSON_STR;
                         break;
