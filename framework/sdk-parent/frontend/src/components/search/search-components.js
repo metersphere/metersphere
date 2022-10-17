@@ -603,12 +603,11 @@ export const PLAN_CASE_STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "test_track.plan.plan_status_prepare", value: "Prepare"},
+    {label: "api_test.home_page.detail_card.unexecute", value: "Prepare"},
     {label: "test_track.plan_view.pass", value: "Pass"},
     {label: "test_track.plan_view.failure", value: "Failure"},
     {label: "test_track.plan_view.blocking", value: "Blocking"},
     {label: "test_track.plan_view.skip", value: "Skip"},
-    {label: "test_track.plan.plan_status_running", value: "Underway"},
   ],
   props: {
     multiple: true
