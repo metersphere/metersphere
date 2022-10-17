@@ -51,8 +51,8 @@ public class KubernetesTestEngine extends AbstractEngine {
             Pod pod = KubernetesApiExec.getExecPod(clientCredential, client);
 
             StringBuffer logMsg = new StringBuffer("当前报告：【" + runRequest.getReportId() + "】资源：【" + runRequest.getTestId() + "】")
-                    .append("\n").append("namespace：").append(clientCredential.getNamespace())
-                    .append("\n").append("Pod信息：【 ")
+                    .append(StringUtils.LF).append("namespace：").append(clientCredential.getNamespace())
+                    .append(StringUtils.LF).append("Pod信息：【 ")
                     .append(JSON.toJSONString(pod.getMetadata())).append(" 】");
             LoggerUtil.info(logMsg);
             // 拼接CURL执行命令

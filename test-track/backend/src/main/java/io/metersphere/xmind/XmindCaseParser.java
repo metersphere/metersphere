@@ -392,7 +392,7 @@ public class XmindCaseParser {
                     testCase.setPrerequisite(replace(item.getTitle(), PC_REGEX));
                 } else if (isAvailable(item.getTitle(), RC_REGEX)) {
                     rc.append(replace(item.getTitle(), RC_REGEX));
-                    rc.append("\n");
+                    rc.append(StringUtils.LF);
                 } else if (isAvailable(item.getTitle(), TAG_REGEX)) {
                     String tag = replace(item.getTitle(), TAG_REGEX);
                     if (StringUtils.isNotEmpty(tag)) {

@@ -354,7 +354,7 @@ public class EnterpriseTestReportService {
 
         for (EnterpriseReportContentStep step : stepList) {
             String title = "<div style=\"background-color: #783887;font-size: 16px;color: white;margin: 5px;width: 100%; line-height:30px\">\n" +
-                    "<span style=\"margin-left: 5px\">" + step.getName() + "\n" +
+                    "<span style=\"margin-left: 5px\">" + step.getName() + StringUtils.LF +
                     "</span>\n" +
                     "</div>";
             returnReportContentBuffer.append(title);

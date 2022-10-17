@@ -1311,7 +1311,7 @@ public class TestPlanService {
                 if (line.contains("\"#report\"")) {
                     line = line.replace("\"#report\"", new Gson().toJson(report));
                 }
-                line += "\n";
+                line += StringUtils.LF;
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
                 int start = 0;
                 while (start < lineBytes.length) {

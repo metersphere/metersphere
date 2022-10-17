@@ -561,7 +561,7 @@ public class BaseUserService {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
 
             StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(String.join(",", names)).append("\n");
+            nameBuilder.append(String.join(",", names)).append(StringUtils.LF);
             for (String userId : ids) {
                 UserGroupExample userGroupExample = new UserGroupExample();
                 userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);

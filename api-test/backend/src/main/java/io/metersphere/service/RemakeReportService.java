@@ -184,7 +184,7 @@ public class RemakeReportService {
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             String consoleMsg = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), true);
-            dto.setConsole(consoleMsg + "\n" + errorMsg);
+            dto.setConsole(consoleMsg + StringUtils.LF + errorMsg);
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
 

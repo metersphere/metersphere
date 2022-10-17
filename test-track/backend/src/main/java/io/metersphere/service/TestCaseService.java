@@ -2341,21 +2341,21 @@ public class TestCaseService {
                     List<ApiTestCase> testCases = relevanceApiCaseService.getApiCaseByIds(testCaseIds);
                     List<String> caseNames = testCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("接口用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("接口用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
                 if (CollectionUtils.isNotEmpty(performanceIds)) {
                     List<LoadTest> loadTests = relevanceLoadCaseService.getLoadCaseByIds(performanceIds);
                     List<String> caseNames = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("性能用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("性能用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
                 if (CollectionUtils.isNotEmpty(automationIds)) {
                     List<ApiScenario> scenarios = relevanceApiCaseService.getScenarioCaseByIds(automationIds);
                     List<String> caseNames = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("自动化用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("自动化用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
             }
@@ -2393,7 +2393,7 @@ public class TestCaseService {
             if (CollectionUtils.isNotEmpty(dtos)) {
                 names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
             }
-            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
             columns.add(detailColumn);
 
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
@@ -2412,7 +2412,7 @@ public class TestCaseService {
             List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(id);
             if (CollectionUtils.isNotEmpty(dtos)) {
                 List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
-                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
                 columns.add(detailColumn);
             }
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCaseWithBLOBs.getId()), testCaseWithBLOBs.getProjectId(), testCaseWithBLOBs.getName(), testCaseWithBLOBs.getCreateUser(), columns);

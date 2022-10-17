@@ -17,14 +17,14 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
                 message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(StringUtils.SPACE)
                         .append(event.getLevel()).append(StringUtils.SPACE)
                         .append(event.getThreadName()).append(StringUtils.SPACE)
-                        .append(event.getFormattedMessage()).append("\n");
+                        .append(event.getFormattedMessage()).append(StringUtils.LF);
 
                 if (event.getThrowableProxy() != null) {
-                    message.append(event.getThrowableProxy().getMessage()).append("\n");
-                    message.append(event.getThrowableProxy().getClassName()).append("\n");
+                    message.append(event.getThrowableProxy().getMessage()).append(StringUtils.LF);
+                    message.append(event.getThrowableProxy().getClassName()).append(StringUtils.LF);
                     if (event.getThrowableProxy().getStackTraceElementProxyArray() != null) {
                         for (StackTraceElementProxy stackTraceElementProxy : event.getThrowableProxy().getStackTraceElementProxyArray()) {
-                            message.append("   ").append(stackTraceElementProxy.getSTEAsString()).append("\n");
+                            message.append("   ").append(stackTraceElementProxy.getSTEAsString()).append(StringUtils.LF);
                         }
                     }
                 }

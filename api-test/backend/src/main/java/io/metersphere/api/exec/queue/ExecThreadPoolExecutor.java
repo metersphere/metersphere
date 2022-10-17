@@ -83,15 +83,15 @@ public class ExecThreadPoolExecutor {
 
     public void outApiThreadPoolExecutorLogger(String message) {
         ArrayBlockingQueue queue = (ArrayBlockingQueue) threadPool.getQueue();
-        StringBuffer buffer = new StringBuffer("\n" + message);
-        buffer.append("\n").append("线程池详情：").append("\n");
-        buffer.append(" 核心线程数：" + threadPool.getCorePoolSize()).append("\n");
-        buffer.append(" 活动线程数：" + threadPool.getActiveCount()).append(" (略有波动非精确数据)").append("\n");
-        buffer.append(" 最大线程数：" + threadPool.getMaximumPoolSize()).append("\n");
-        buffer.append(" 线程池活跃度：" + divide(threadPool.getActiveCount(), threadPool.getMaximumPoolSize())).append("\n");
-        buffer.append(" 最大队列数：" + (queue.size() + queue.remainingCapacity())).append("\n");
-        buffer.append(" 当前排队线程数：" + (msRejectedExecutionHandler.getBufferQueue().size() + queue.size())).append("\n");
-        buffer.append(" 执行中队列大小：" + PoolExecBlockingQueueUtil.queue.size()).append("\n");
+        StringBuffer buffer = new StringBuffer(org.apache.commons.lang3.StringUtils.LF + message);
+        buffer.append("\n").append("线程池详情：").append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 核心线程数：" + threadPool.getCorePoolSize()).append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 活动线程数：" + threadPool.getActiveCount()).append(" (略有波动非精确数据)").append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 最大线程数：" + threadPool.getMaximumPoolSize()).append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 线程池活跃度：" + divide(threadPool.getActiveCount(), threadPool.getMaximumPoolSize())).append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 最大队列数：" + (queue.size() + queue.remainingCapacity())).append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 当前排队线程数：" + (msRejectedExecutionHandler.getBufferQueue().size() + queue.size())).append(org.apache.commons.lang3.StringUtils.LF);
+        buffer.append(" 执行中队列大小：" + PoolExecBlockingQueueUtil.queue.size()).append(org.apache.commons.lang3.StringUtils.LF);
         buffer.append(" 队列使用度：" + divide(queue.size(), queue.size() + queue.remainingCapacity()));
 
         LoggerUtil.info(buffer.toString());
@@ -172,7 +172,7 @@ public class ExecThreadPoolExecutor {
         workerQueue.forEach(item -> {
             ExecTask task = (ExecTask) item;
             if (task.getRequest() != null) {
-                buffer.append("等待队列报告：【 " + task.getRequest().getReportId() + "】资源：【 " + task.getRequest().getTestId() + "】").append("\n");
+                buffer.append("等待队列报告：【 " + task.getRequest().getReportId() + "】资源：【 " + task.getRequest().getTestId() + "】").append(org.apache.commons.lang3.StringUtils.LF);
             }
         });
 

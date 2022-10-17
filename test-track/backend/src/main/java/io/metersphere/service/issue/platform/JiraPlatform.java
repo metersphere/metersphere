@@ -158,7 +158,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     private String appendMoreImage(String description, Map<String, String> fileContentMap) {
         for (String key: fileContentMap.keySet()) {
             // 同步jira上传的附件
-            description += "\n" + fileContentMap.get(key);
+            description += StringUtils.LF + fileContentMap.get(key);
         }
         return description;
     }

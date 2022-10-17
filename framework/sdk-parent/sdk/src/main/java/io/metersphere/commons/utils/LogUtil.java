@@ -1,5 +1,6 @@
 package io.metersphere.commons.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,9 +261,9 @@ public class LogUtil {
         StackTraceElement[] stackElements = e.getStackTrace();
         for (StackTraceElement stackTraceElement : stackElements) {
             sb.append(stackTraceElement.toString());
-            sb.append("\n");
+            sb.append(StringUtils.LF);
         }
-        sb.append("\n");
+        sb.append(StringUtils.LF);
         return sb.toString();
     }
 }

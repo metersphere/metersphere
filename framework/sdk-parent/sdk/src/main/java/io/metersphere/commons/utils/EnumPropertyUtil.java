@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.metersphere.commons.json.BasicConstant;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class EnumPropertyUtil {
             jsonStr = object.get(BasicConstant.ENUM).getAsString();
         }
         if (jsonStr != null && list.isEmpty()) {
-            String[] arrays = jsonStr.split("\n");
+            String[] arrays = jsonStr.split(StringUtils.LF);
             for (String str : arrays) {
                 list.add(str);
             }

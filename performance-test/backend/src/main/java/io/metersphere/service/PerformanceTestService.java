@@ -453,7 +453,7 @@ public class PerformanceTestService {
             reportDetail.setPart(1L);
             loadTestReportDetailMapper.insertSelective(reportDetail);
             // append \n
-            extLoadTestReportDetailMapper.appendLine(testReport.getId(), "\n");
+            extLoadTestReportDetailMapper.appendLine(testReport.getId(), StringUtils.LF);
             // 保存一个 reportStatus
             LoadTestReportResult reportResult = new LoadTestReportResult();
             reportResult.setId(UUID.randomUUID().toString());
@@ -1008,7 +1008,7 @@ public class PerformanceTestService {
             example.createCriteria().andIdIn(testIds);
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
             errorMessage += Translator.get("load_test") + ": " + StringUtils.join(loadTests.stream().map(LoadTest::getName).toArray(), ",");
-            errorMessage += "\n";
+            errorMessage += StringUtils.LF;
         }
         if (StringUtils.isNotBlank(errorMessage)) {
             MSException.throwException(errorMessage + Translator.get("project_file_in_use"));

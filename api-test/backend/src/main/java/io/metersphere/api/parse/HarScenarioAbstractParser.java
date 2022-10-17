@@ -163,7 +163,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
                     if (CollectionUtils.isNotEmpty(exec)) {
                         exec.forEach(col -> {
                             if (StringUtils.isNotEmpty(col)) {
-                                scriptStr.append(col + "\n");
+                                scriptStr.append(col + StringUtils.LF);
                             }
                         });
                     }

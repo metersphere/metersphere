@@ -240,7 +240,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         document.outputSettings(new Document.OutputSettings().prettyPrint(false));
         document.select("br").append("\\n");
         document.select("p").prepend("\\n\\n");
-        desc = document.html().replaceAll("\\\\n", "\n");
+        desc = document.html().replaceAll("\\\\n", StringUtils.LF);
         desc = Jsoup.clean(desc, "", Safelist.none(), new Document.OutputSettings().prettyPrint(false));
         return desc.replace("&nbsp;", "");
     }

@@ -4,6 +4,7 @@ import io.metersphere.log.utils.diff.json.jsonwrap.JzonArray;
 import io.metersphere.log.utils.diff.json.jsonwrap.JzonElement;
 import io.metersphere.log.utils.diff.json.jsonwrap.JzonObject;
 import io.metersphere.log.utils.diff.json.jsonwrap.Wrapper;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -378,7 +379,7 @@ class Leaf implements Comparable<Leaf> {
             bld.append("_ORPHAN");
         }
         bld.append(">");
-        bld.append("\n");
+        bld.append(StringUtils.LF);
 
         return bld.toString();
 

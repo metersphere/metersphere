@@ -108,7 +108,7 @@ public class ApiEnvironmentRunningParamService {
     }
 
     public void parseEvn(String envStr) {
-        String[] envStringArr = envStr.split("\n");
+        String[] envStringArr = envStr.split(StringUtils.LF);
         Map<String, Map<String, String>> envVarsMap = new HashMap<>();
         for (String env : envStringArr) {
             if (StringUtils.contains(env, "=")) {

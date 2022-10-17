@@ -644,7 +644,7 @@ public class ElementUtil {
         if (arguments != null) {
             for (int i = 0; i < arguments.getArguments().size(); ++i) {
                 String argValue = arguments.getArgument(i).getValue();
-                script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append("\n");
+                script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append(StringUtils.LF);
             }
             processor.setProperty("script", script.toString());
         }

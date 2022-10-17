@@ -950,7 +950,7 @@ public class UserService {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
 
             StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(String.join(",", names)).append("\n");
+            nameBuilder.append(String.join(",", names)).append(StringUtils.LF);
             for (String userId : ids) {
                 UserGroupExample userGroupExample = new UserGroupExample();
                 userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
@@ -1019,7 +1019,7 @@ public class UserService {
         List<User> users = userMapper.selectByExample(example);
         if (users != null) {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
-            String roles = "\n" + "成员角色：\n" + this.getRoles(users.get(0).getId());
+            String roles = StringUtils.LF + "成员角色：\n" + this.getRoles(users.get(0).getId());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names) + roles, null, new LinkedList<>());
             return JSON.toJSONString(details);
         }
