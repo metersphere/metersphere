@@ -2,7 +2,7 @@ package io.metersphere.request;
 
 import io.metersphere.commons.constants.StorageConstants;
 import lombok.Data;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class BodyFile {

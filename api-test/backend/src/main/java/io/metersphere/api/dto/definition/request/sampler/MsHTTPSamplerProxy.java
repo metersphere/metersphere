@@ -604,8 +604,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 try {
                     String value = keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
                     value = keyValue.isUrlEncode() ? "${__urlencode(" + value + ")}" : value;
-                    if (StringUtils.isNotEmpty(value) && value.contains("\r")) {
-                        value = value.replaceAll("\r", "");
+                    if (StringUtils.isNotEmpty(value) && value.contains(StringUtils.CR)) {
+                        value = value.replaceAll(StringUtils.CR, StringUtils.EMPTY);
                     }
                     stringBuffer.append("=").append(value);
                 } catch (Exception e) {

@@ -337,7 +337,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public void deleteByResourceId(String sourceId) {
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(sourceId)) {
+        if (StringUtils.isNotEmpty(sourceId)) {
             FileAssociationExample example = new FileAssociationExample();
             example.createCriteria().andSourceIdEqualTo(sourceId);
             fileAssociationMapper.deleteByExample(example);

@@ -3,7 +3,7 @@ package io.metersphere.api.dto.automation;
 import io.metersphere.base.domain.FileMetadata;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;

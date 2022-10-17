@@ -22,7 +22,7 @@ import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.CopyIssueTemplateRequest;
 import io.metersphere.request.UpdateIssueTemplateRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
