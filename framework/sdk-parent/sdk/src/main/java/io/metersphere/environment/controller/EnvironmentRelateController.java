@@ -25,7 +25,7 @@ public class EnvironmentRelateController {
 
     @PostMapping("/api/definition/list/batch")
     public Object listBatch(@RequestBody Object obj) {
-        return microService.postForData(MicroServiceName.API_TEST, "/api/definition/generator", obj);
+        return microService.postForData(MicroServiceName.API_TEST, "/api/definition/list/batch", obj);
     }
 
     @PostMapping("/api/testcase/list-blobs")
@@ -38,9 +38,9 @@ public class EnvironmentRelateController {
         return microService.postForData(MicroServiceName.API_TEST, "/api/definition/generator", obj);
     }
 
-    @GetMapping("/api/module/getUserDefaultApiType")
+    @GetMapping("/api/module/default-type")
     public Object getUserDefaultApiType() {
-        return microService.getForData(MicroServiceName.API_TEST, "/api/module/getUserDefaultApiType/");
+        return microService.getForData(MicroServiceName.API_TEST, "/api/module/default-type");
     }
 
     @PostMapping("/api/definition/list/{goPage}/{pageSize}")
