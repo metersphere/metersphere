@@ -320,9 +320,9 @@ export default {
           {text: 'P3', value: 'P3'}
         ],
         RESULT_FILTERS: [
-          {text: i18n.t('api_test.automation.fail'), value: 'Fail'},
-          {text: i18n.t('api_test.automation.success'), value: 'Success'},
-          {text: i18n.t('api_test.home_page.detail_card.unexecute'), value: 'unexecute'},
+          {text: i18n.t('Error'), value: 'ERROR'},
+          {text: i18n.t('Success'), value: 'SUCCESS'},
+          {text: i18n.t('Pending'), value: 'PENDING'},
         ]
       },
       versionFilters: [],
