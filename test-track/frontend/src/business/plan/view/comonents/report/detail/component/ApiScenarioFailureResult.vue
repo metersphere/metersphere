@@ -21,9 +21,9 @@
               :label="$t('commons.name')"
               prop="name">
             </ms-table-column>
-            <ms-table-column
-              :label="$t('test_track.report.list.creator')"
-              prop="creatorName"/>
+            <el-table-column
+              prop="principalName"
+              :label="$t('test_track.plan.plan_principal')"/>
             <ms-table-column
               :label="$t('test_track.case.priority')"
               :width="80">

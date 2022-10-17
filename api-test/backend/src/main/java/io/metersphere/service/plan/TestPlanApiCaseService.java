@@ -473,8 +473,25 @@ public class TestPlanApiCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
+        buildPrincipal(apiTestCases);
         buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    /**
+     * 从接口定义查询责任人
+     * 如果之后接口用例有独立的责任人，则不从接口定义查
+     * @param apiTestCases
+     */
+    private void buildPrincipal(List<TestPlanFailureApiDTO> apiTestCases) {
+        List<String> apiIds = apiTestCases.stream()
+                .map(TestPlanFailureApiDTO::getApiDefinitionId)
+                .collect(Collectors.toList());
+
+        Map<String, String> userIdMap = apiDefinitionService.selectByIds(apiIds)
+                .stream()
+                .collect(Collectors.toMap(ApiDefinition::getId, ApiDefinition::getUserId));
+        apiTestCases.forEach(item -> item.setUserId(userIdMap.get(item.getApiDefinitionId())));
     }
 
     public void initOrderField() {

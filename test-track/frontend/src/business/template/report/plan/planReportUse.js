@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import "@/business/utils/track-table-header";
 import ElementUI, {Button, Col, Form, FormItem, Input, Row, Main, Card, Table, TableColumn, Popover} from 'element-ui';
 import 'metersphere-frontend/src/assets/theme/index.css';
 import 'metersphere-frontend/src/styles/business/menu-header.css';
