@@ -249,8 +249,9 @@ export default {
 </script>
 
 <style scoped>
-:deep(.el-drawer__header) {
-  margin-bottom: 0px;
+
+:deep(.ms-select-all-fixed th:nth-child(2) .table-select-icon) {
+  top: -3px!important;
 }
 
 .env-popover {
