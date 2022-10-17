@@ -99,7 +99,7 @@ public class TestCaseCommentService {
         if (!sTime.equals("null")) {
             start = sdf.format(new Date(Long.parseLong(sTime)));
         }
-        String context = "";
+        String context = StringUtils.EMPTY;
         context = "测试评审任务通知：" + user.getName() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
         return context;
     }

@@ -61,7 +61,7 @@ public class EngineSourceParserFactory {
             List<Node> nodes = document.selectNodes("//text()[normalize-space(.)='']");
             nodes.forEach(node -> {
                 if (node.getText().contains("\n")) {
-                    node.setText("");
+                    node.setText(StringUtils.EMPTY);
                 }
             });
 

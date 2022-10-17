@@ -56,7 +56,7 @@ public abstract class AbstractCustomFieldValidator {
                         .replace("]", "\"]")
                         .replace(",", "\",\"")
                         .replace("，", "\"，\"")
-                        .replace(" ", "");
+                        .replace(" ", StringUtils.EMPTY);
             }
             return JSON.parseArray(value, String.class);
         } catch (Exception e) {

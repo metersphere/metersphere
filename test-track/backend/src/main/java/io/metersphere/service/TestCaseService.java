@@ -393,7 +393,7 @@ public class TestCaseService {
         addDemandHyperLink(testCase, "edit");
 
         if (StringUtils.isEmpty(testCase.getDemandId())) {
-            testCase.setDemandId("");
+            testCase.setDemandId(StringUtils.EMPTY);
         }
         createNewVersionOrNot(testCase, example);
 
@@ -572,13 +572,13 @@ public class TestCaseService {
 
             // 如果上边字段全部相同，去检查 remark 和 steps
             if (!CollectionUtils.isEmpty(caseList)) {
-                String caseRemark = testCase.getRemark() == null ? "" : testCase.getRemark();
-                String caseSteps = testCase.getSteps() == null ? "" : testCase.getSteps();
-                String casePrerequisite = testCase.getPrerequisite() == null ? "" : testCase.getPrerequisite();
+                String caseRemark = testCase.getRemark() == null ? StringUtils.EMPTY : testCase.getRemark();
+                String caseSteps = testCase.getSteps() == null ? StringUtils.EMPTY : testCase.getSteps();
+                String casePrerequisite = testCase.getPrerequisite() == null ? StringUtils.EMPTY : testCase.getPrerequisite();
                 for (TestCaseWithBLOBs tc : caseList) {
-                    String steps = tc.getSteps() == null ? "" : tc.getSteps();
-                    String remark = tc.getRemark() == null ? "" : tc.getRemark();
-                    String prerequisite = tc.getPrerequisite() == null ? "" : tc.getPrerequisite();
+                    String steps = tc.getSteps() == null ? StringUtils.EMPTY : tc.getSteps();
+                    String remark = tc.getRemark() == null ? StringUtils.EMPTY : tc.getRemark();
+                    String prerequisite = tc.getPrerequisite() == null ? StringUtils.EMPTY : tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                         //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
@@ -1402,7 +1402,7 @@ public class TestCaseService {
         for (int i = 1; i <= 4; i++) {
             path.append("/" + Translator.get("module") + i);
             TestCaseDTO testCaseDTO = new TestCaseDTO();
-            testCaseDTO.setCustomNum("");
+            testCaseDTO.setCustomNum(StringUtils.EMPTY);
             testCaseDTO.setName(Translator.get("test_case") + i);
             testCaseDTO.setNodePath(path.toString());
             testCaseDTO.setPriority("P" + i % 4);
@@ -1575,7 +1575,7 @@ public class TestCaseService {
                         value = otherFieldMaps.get(head);
                     }
                     if (value == null) {
-                        value = "";
+                        value = StringUtils.EMPTY;
                     }
                     fields.add(value);
                 }
@@ -1670,7 +1670,7 @@ public class TestCaseService {
             if (converter != null) {
                 otherFields.put(header.getName(), converter.parse(t));
             } else {
-                otherFields.put(header.getName(), "");
+                otherFields.put(header.getName(), StringUtils.EMPTY);
             }
         });
         data.setOtherFields(otherFields);
@@ -1681,7 +1681,7 @@ public class TestCaseService {
             data.setCustomNum(t.getCustomNum());
         } else {
             if (t.getNum() == null) {
-                data.setCustomNum("");
+                data.setCustomNum(StringUtils.EMPTY);
             } else {
                 data.setCustomNum(String.valueOf(t.getNum()));
             }
@@ -1777,8 +1777,8 @@ public class TestCaseService {
                 String stepDesc = item.get("desc").toString();
                 String stepResult = item.get("result").toString();
                 if (StringUtils.isNotBlank(stepDesc) || StringUtils.isNotBlank(stepResult)) {
-                    stepDescList.add(Optional.ofNullable(stepDesc).orElse(""));
-                    stepResultList.add(Optional.ofNullable(stepResult).orElse(""));
+                    stepDescList.add(Optional.ofNullable(stepDesc).orElse(StringUtils.EMPTY));
+                    stepResultList.add(Optional.ofNullable(stepResult).orElse(StringUtils.EMPTY));
                 }
             }
         }
@@ -2139,8 +2139,8 @@ public class TestCaseService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(record.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
                     fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 });
                 sqlSession.flushStatements();
@@ -2216,7 +2216,7 @@ public class TestCaseService {
 
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
-                    item.setNodeId("");
+                    item.setNodeId(StringUtils.EMPTY);
                 }
                 item.setProjectId(request.getProjectId());
                 if (item.getIsEdit()) {

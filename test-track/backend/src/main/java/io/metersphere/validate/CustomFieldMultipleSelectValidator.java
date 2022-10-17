@@ -30,7 +30,7 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
     @Override
     public Object parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         List<String> keyOrValues = parse2Array(keyOrValuesStr);
         Map<String, String> nameMap = optionTextMapCache.get(customField.getId());

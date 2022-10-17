@@ -131,7 +131,7 @@ public class TestReviewTestCaseService {
         List<String> userIds = testCaseReviewService.getTestCaseReviewerIds(reviewId);
         String currentId = SessionUtils.getUser().getId();
         TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        String creator = "";
+        String creator = StringUtils.EMPTY;
         if (caseReview != null) {
             creator = caseReview.getCreator();
         }

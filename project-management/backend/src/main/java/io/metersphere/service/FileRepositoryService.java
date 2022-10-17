@@ -135,7 +135,7 @@ public class FileRepositoryService {
                     if (StringUtils.equals(fileAssociation.getType(), FileAssociationType.API.name())) {
                         ApiDefinition apiDefinition = apiMap.get(fileAssociation.getSourceId());
                         if (apiDefinition != null) {
-                            caseId = apiDefinition.getNum() == null ? "" : apiDefinition.getNum().toString();
+                            caseId = apiDefinition.getNum() == null ? StringUtils.EMPTY : apiDefinition.getNum().toString();
                             caseName = apiDefinition.getName();
                         }
                     } else if (StringUtils.equals(fileAssociation.getType(), FileAssociationType.CASE.name())) {

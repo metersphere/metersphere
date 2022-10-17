@@ -27,7 +27,7 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
     @Override
     public Object parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         List<String> keyOrValues = parse2Array(keyOrValuesStr);
 

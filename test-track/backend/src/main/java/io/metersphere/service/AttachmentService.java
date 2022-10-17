@@ -19,7 +19,7 @@ import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.platform.IssueFactory;
 import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -190,7 +190,7 @@ public class AttachmentService {
         List<AttachmentModuleRelation> attachmentModuleRelations = attachmentModuleRelationMapper.selectByExample(example);
         Map<String, String> relationMap = attachmentModuleRelations.stream()
                 .collect(Collectors.toMap(AttachmentModuleRelation::getAttachmentId,
-                        relation -> relation.getFileMetadataRefId() == null ? "" : relation.getFileMetadataRefId()));
+                        relation -> relation.getFileMetadataRefId() == null ? StringUtils.EMPTY : relation.getFileMetadataRefId()));
         List<String> attachmentIds = attachmentModuleRelations.stream().map(AttachmentModuleRelation::getAttachmentId)
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.toList());
@@ -255,8 +255,8 @@ public class AttachmentService {
                 FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                 BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                 fileAttachmentMetadata.setId(record.getAttachmentId());
-                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
-                fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
+                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
                 fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 // 缺陷类型的附件, 关联时需单独同步第三方平台
                 if (AttachmentType.ISSUE.type().equals(request.getBelongType())) {
@@ -520,7 +520,7 @@ public class AttachmentService {
 
     private String getFileTypeWithoutEnum(String filename) {
         if (org.apache.commons.lang3.StringUtils.isEmpty(filename)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         int s = filename.lastIndexOf(".") + 1;
         String type = filename.substring(s);

@@ -1,6 +1,7 @@
 package io.metersphere.utils;
 
 import io.metersphere.commons.exception.MSException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
 import java.util.Iterator;
@@ -137,7 +138,7 @@ public class TypeUtils {
                 return null;
             }
             if (strVal.indexOf(',') != -1) {
-                strVal = strVal.replaceAll(",", "");
+                strVal = strVal.replaceAll(",", StringUtils.EMPTY);
             }
             return Float.parseFloat(strVal);
         }
@@ -165,7 +166,7 @@ public class TypeUtils {
                 return null;
             }
             if (strVal.indexOf(',') != -1) {
-                strVal = strVal.replaceAll(",", "");
+                strVal = strVal.replaceAll(",", StringUtils.EMPTY);
             }
             return Double.parseDouble(strVal);
         }
@@ -208,7 +209,7 @@ public class TypeUtils {
                 return null;
             }
             if (strVal.indexOf(',') != -1) {
-                strVal = strVal.replaceAll(",", "");
+                strVal = strVal.replaceAll(",", StringUtils.EMPTY);
             }
             try {
                 return Long.parseLong(strVal);
@@ -370,7 +371,7 @@ public class TypeUtils {
                 return null;
             }
             if (strVal.indexOf(',') != -1) {
-                strVal = strVal.replaceAll(",", "");
+                strVal = strVal.replaceAll(",", StringUtils.EMPTY);
             }
             return Integer.parseInt(strVal);
         }

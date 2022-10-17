@@ -254,7 +254,7 @@ public class MockConfigService {
         List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
         String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
         if (StringUtils.isEmpty(apiNum)) {
-            apiNum = "";
+            apiNum = StringUtils.EMPTY;
         } else {
             apiNum = apiNum + "_";
         }
@@ -427,8 +427,8 @@ public class MockConfigService {
             JSONArray jsonArray = mockExpectRequestObj.optJSONArray("variables");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.optJSONObject(i);
-                String name = "";
-                String value = "";
+                String name = StringUtils.EMPTY;
+                String value = StringUtils.EMPTY;
                 if (object.has("name")) {
                     name = String.valueOf(object.get("name")).trim();
                 }
@@ -550,8 +550,8 @@ public class MockConfigService {
             JSONArray jsonArray = requestObj.optJSONArray("variables");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.optJSONObject(i);
-                String name = "";
-                String value = "";
+                String name = StringUtils.EMPTY;
+                String value = StringUtils.EMPTY;
                 if (object.has("name")) {
                     name = String.valueOf(object.get("name")).trim();
                 }
@@ -570,7 +570,7 @@ public class MockConfigService {
     }
 
     public String updateHttpServletResponse(String projectId, MockExpectConfigResponse finalExpectConfig, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, HttpServletResponse response) {
-        String returnStr = "";
+        String returnStr = StringUtils.EMPTY;
         try {
             //设置响应头和响应码
             JSONObject responseObj = JSONUtil.parseObject(JSON.toJSONString(finalExpectConfig.getResponse()));
@@ -622,7 +622,7 @@ public class MockConfigService {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.optJSONObject(i);
                     String name = null;
-                    String value = "";
+                    String value = StringUtils.EMPTY;
                     if (object.has("name")) {
                         name = String.valueOf(object.get("name")).trim();
                     }
@@ -851,7 +851,7 @@ public class MockConfigService {
     }
 
     public String checkReturnWithMockExpectByBodyParam(String method, Map<String, String> requestHeaderMap, Project project, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = "";
+        String returnStr = StringUtils.EMPTY;
         boolean matchApi = false;
         String url = request.getRequestURL().toString();
         if (project != null) {
@@ -884,7 +884,7 @@ public class MockConfigService {
     }
 
     public String checkReturnWithMockExpectByUrlParam(String method, Map<String, String> requestHeaderMap, Project project, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = "";
+        String returnStr = StringUtils.EMPTY;
         boolean matchApi = false;
         String url = request.getRequestURL().toString();
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
@@ -1344,7 +1344,7 @@ public class MockConfigService {
     }
 
     public String getMockInfo(String projectId) {
-        String returnStr = "";
+        String returnStr = StringUtils.EMPTY;
         ApiTestEnvironmentWithBLOBs mockEnv = baseEnvironmentService.getMockEnvironmentByProjectId(projectId);
         if (mockEnv != null && mockEnv.getConfig() != null) {
             try {

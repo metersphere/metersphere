@@ -375,7 +375,7 @@ public class UserService {
                     user.setLastProjectId(projects.get(0).getId());
                 }
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         // 执行变更
@@ -454,7 +454,7 @@ public class UserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -489,10 +489,10 @@ public class UserService {
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
         if (StringUtils.equals("organization", sign)) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
         }
         if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
         }
 
         BeanUtils.copyProperties(user, newUser);
@@ -1075,7 +1075,7 @@ public class UserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(projectId, user.getLastProjectId())) {
-            user.setLastProjectId("");
+            user.setLastProjectId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -1115,7 +1115,7 @@ public class UserService {
 
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId())) {
-                user.setLastWorkspaceId("");
+                user.setLastWorkspaceId(StringUtils.EMPTY);
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }

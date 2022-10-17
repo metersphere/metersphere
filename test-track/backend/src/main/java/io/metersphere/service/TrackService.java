@@ -161,7 +161,7 @@ public class TrackService {
             return issueIds.size();
         }
         return (int) issueIds.stream()
-                .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, "").replaceAll("\"", ""), "closed"))
+                .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                 .count();
     }
 

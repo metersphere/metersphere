@@ -174,7 +174,7 @@ public class MsHashTreeService {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
             }
-            element.put(NUM, "");
+            element.put(NUM, StringUtils.EMPTY);
         }
         return element;
     }
@@ -207,7 +207,7 @@ public class MsHashTreeService {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
             }
-            element.put(NUM, "");
+            element.put(NUM, StringUtils.EMPTY);
         }
         return element;
     }

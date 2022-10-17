@@ -190,8 +190,8 @@ public class IssuesService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(relation.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
                     fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                     // 下载文件管理文件, 同步到第三方平台
                     File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
@@ -305,7 +305,7 @@ public class IssuesService {
             return;
         }
         for (IssuesDao issue : issues) {
-            issue.setStatus(statusMap.getOrDefault(issue.getId(), "").replaceAll("\"", ""));
+            issue.setStatus(statusMap.getOrDefault(issue.getId(), StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY));
         }
     }
 
@@ -928,7 +928,7 @@ public class IssuesService {
             if (StringUtils.isBlank(item.getStatusValue())) {
                 item.setStatusValue(IssuesStatus.NEW.toString());
             } else {
-                item.setStatusValue(item.getStatusValue().replace("\"", ""));
+                item.setStatusValue(item.getStatusValue().replace("\"", StringUtils.EMPTY));
             }
         });
         return countByStatus;
