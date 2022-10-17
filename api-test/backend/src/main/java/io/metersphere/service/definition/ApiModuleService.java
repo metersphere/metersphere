@@ -1061,7 +1061,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                                          Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         //覆盖但不覆盖模块
         if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
-           return new HashMap<>();
+           return moduleMap;
         }
         //导入文件没有新增接口无需创建接口模块
         moduleMap = judgeModule(moduleMap, nameModuleMap, repeatDataMap);
