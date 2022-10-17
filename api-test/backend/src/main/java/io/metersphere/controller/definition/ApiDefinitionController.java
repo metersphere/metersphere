@@ -16,11 +16,6 @@ import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.generator.JSONSchemaGenerator;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
-import io.metersphere.dto.BaseCase;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiTestCaseService;
-import io.metersphere.service.definition.EsbApiParamService;
-import io.metersphere.service.definition.EsbImportService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
@@ -28,15 +23,19 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.utils.JSONToDocumentUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.commons.utils.JSONToDocumentUtil;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.EsbApiParamService;
+import io.metersphere.service.definition.EsbImportService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -326,7 +325,7 @@ public class ApiDefinitionController {
         return apiDefinitionService.getRelationshipApi(id, relationshipType);
     }
 
-    @GetMapping("/relationship/count/{id}/")
+    @GetMapping("/relationship/count/{id}")
     public int getRelationshipApi(@PathVariable("id") String id) {
         return apiDefinitionService.getRelationshipCount(id);
     }
