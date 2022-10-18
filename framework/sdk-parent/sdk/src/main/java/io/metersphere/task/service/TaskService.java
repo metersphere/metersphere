@@ -85,13 +85,13 @@ public class TaskService {
         if (CollectionUtils.isNotEmpty(reportIds)) {
             // 任务中心单条停止/全部停止
             Map<String, TaskRequestDTO> taskRequestMap = reportIds.stream().collect(Collectors.toMap(TaskRequestDTO::getType, taskRequest -> taskRequest));
-            if (taskRequestMap.containsKey(API)) {
+            if (taskRequestMap.containsKey(API) || taskRequestMap.containsKey(SCENARIO)) {
                 microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
             }
             if (taskRequestMap.containsKey(PERF)) {
                 microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
             }
-            if(taskRequestMap.containsKey(UI) || taskRequestMap.containsKey(SCENARIO)) {
+            if(taskRequestMap.containsKey(UI)){
                 microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
             }
         }
