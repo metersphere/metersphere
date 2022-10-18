@@ -70,7 +70,7 @@ export default {
     }
     // 只有工作空间权限时跳转到项目列表
     if (wsPermissions && !sysPermissions) {
-      this.$router.push('/setting/project/:type');
+      window.location.href = '/#/setting/project/:type';
     }
   },
   mounted() {
