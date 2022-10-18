@@ -188,8 +188,7 @@ public class JMeterService {
 
 
     public void run(JmeterRunRequestDTO request) {
-        //UI 测试只走本地 ms，资源池交给 selenium-grid 本身实现
-        if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode()) && !request.getRunMode().startsWith("UI")) {
+        if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode())) {
             this.runNode(request);
         } else {
             //解析hashTree，是否含有文件库文件
