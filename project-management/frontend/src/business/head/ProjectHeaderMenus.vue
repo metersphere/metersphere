@@ -23,7 +23,54 @@
                         popper-class="submenu">
             {{ $t('project.file_manage') }}
           </el-menu-item>
-          <el-submenu index="2">
+          <el-menu-item
+            :index="'/project/errorreportlibrary'"
+            v-permission="['PROJECT_ERROR_REPORT_LIBRARY:READ']"
+            v-xpack
+            v-if="showMenu">
+            {{ $t("error_report_library.name") }}
+          </el-menu-item>
+          <el-menu-item
+            index="/project/template"
+            v-permission="['PROJECT_TEMPLATE:READ']"
+            v-if="showMenu">
+            {{ $t('workspace.template_manage') }}
+          </el-menu-item>
+          <el-menu-item
+            :index="'/project/messagesettings'"
+            v-permission="['PROJECT_MESSAGE:READ']"
+            v-if="showMenu">
+            {{ $t("organization.message_settings") }}
+          </el-menu-item>
+          <el-menu-item
+            :index="'/project/log'"
+            popper-class="submenu"
+            v-permission="['PROJECT_OPERATING_LOG:READ']"
+            v-if="showMenu">
+            {{ $t('project.log') }}
+          </el-menu-item>
+          <el-menu-item
+            v-xpack
+            :index="'/project/version'"
+            v-permission="['PROJECT_VERSION:READ']"
+            v-if="showMenu">
+            {{ $t('project.version_manage') }}
+          </el-menu-item>
+          <el-menu-item
+            :index="'/project/app'"
+            popper-class="submenu"
+            v-permission="['PROJECT_APP_MANAGER:READ+EDIT']"
+            v-if="showMenu">
+            {{ $t('project.app_manage') }}
+          </el-menu-item>
+          <el-menu-item
+            :index="'/project/code/segment'"
+            popper-class="submenu"
+            v-permission="['PROJECT_CUSTOM_CODE:READ']"
+            v-if="showMenu">
+            {{ $t('project.code_segment.code_segment') }}
+          </el-menu-item>
+          <el-submenu index="2" v-if="!showMenu">
             <template slot="title">{{ $t('commons.report_statistics.report_filter.more_options') }}</template>
             <el-menu-item :index="'/project/errorreportlibrary'" v-permission="['PROJECT_ERROR_REPORT_LIBRARY:READ']"
                           v-xpack>
@@ -68,6 +115,7 @@ import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitc
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsHeaderRightMenus from "metersphere-frontend/src/components/layout/HeaderRightMenus";
 import {PROJECT_NAME} from "metersphere-frontend/src/utils/constants";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "ProjectHeaderMenus",
@@ -76,7 +124,30 @@ export default {
     return {
       currentProject: sessionStorage.getItem(PROJECT_NAME),
       pathName: '',
+      showMenu: true
     };
+  },
+  mounted() {
+    let menuCount = 0;
+    let permissions = [
+      'PROJECT_APP_MANAGER:READ+EDIT',
+      'PROJECT_MESSAGE:READ',
+      'PROJECT_OPERATING_LOG:READ',
+      'PROJECT_CUSTOM_CODE:READ',
+      'PROJECT_TEMPLATE:READ',
+      'PROJECT_VERSION:READ',
+      'PROJECT_ERROR_REPORT_LIBRARY:READ',
+    ];
+    for (let permission of permissions) {
+      // 更多选项中菜单数量小于3个时，不显示更多选项
+      if (menuCount >= 3) {
+        this.showMenu = false;
+        break;
+      }
+      if (hasPermission(permission)) {
+        menuCount++;
+      }
+    }
   },
   watch: {
     '$route': {
