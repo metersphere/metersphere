@@ -1350,7 +1350,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
             if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-                if (apiSyncCaseRequest.getBody() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getBody()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
