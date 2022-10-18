@@ -1,13 +1,13 @@
 package io.metersphere.service;
 
 
+import io.metersphere.api.dto.definition.request.assertions.MsAssertionDuration;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
+import io.metersphere.api.dto.definition.request.assertions.document.MsAssertionDocument;
 import io.metersphere.base.domain.ErrorReportLibraryExample;
 import io.metersphere.base.domain.ErrorReportLibraryWithBLOBs;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ErrorReportLibraryUtil;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.xpack.fake.error.ErrorReportLibraryService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song.tianyang
@@ -33,7 +34,16 @@ public class ExtErrorReportLibraryService {
         bloBs.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getContent())) {
                 try {
-                    MsAssertions assertions = JSONUtil.parseObject(item.getContent(), MsAssertions.class);
+                    MsAssertions assertions = new MsAssertions();
+                    Map<String, Object> assertionMap = JSON.parseObject(item.getContent(), Map.class);
+                    if (assertionMap != null) {
+                        MsAssertionDuration duration = JSONUtil.parseObject(JSONUtil.toJSONString(assertionMap.get("duration")), MsAssertionDuration.class);
+                        List<MsAssertionRegex> regexList = JSON.parseArray(JSONUtil.toJSONString(assertionMap.get("regex")), MsAssertionRegex.class);
+                        MsAssertionDocument document = JSONUtil.parseObject(JSONUtil.toJSONString(assertionMap.get("document")), MsAssertionDocument.class);
+                        assertions.setDuration(duration);
+                        assertions.setRegex(regexList);
+                        assertions.setDocument(document);
+                    }
                     if (assertions != null && CollectionUtils.isNotEmpty(assertions.getRegex())) {
                         if (StringUtils.isEmpty(assertions.getRegex().get(0).getDescription())) {
                             String desc = assertions.getRegex().get(0).getSubject() + ":" + assertions.getRegex().get(0).getExpression()
