@@ -180,7 +180,7 @@ export default {
   },
   methods: {
     handleProjectChange() {
-      if (this.$route.name === 'planView') {
+      if (this.$route.path.indexOf("plan/view") > 0) {
         this.$router.push('/track/plan/all');
       }
     },
