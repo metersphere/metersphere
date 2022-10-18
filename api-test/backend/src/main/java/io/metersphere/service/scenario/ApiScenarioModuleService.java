@@ -2,11 +2,7 @@ package io.metersphere.service.scenario;
 
 
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
-import io.metersphere.api.dto.automation.UpdateScenarioModuleDTO;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioModuleExample;
@@ -38,17 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -925,7 +911,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         int i = 0;
         Map<String, List<ApiScenarioModule>> idModuleMap = new HashMap<>();
         for (ApiScenarioModuleDTO scenarioModuleDTO : nodeTreeByProjectId) {
-            if (StringUtils.isBlank(scenarioModuleDTO.getParentId())) {
+            if (StringUtils.isBlank(scenarioModuleDTO.getParentId()) || StringUtils.equals(scenarioModuleDTO.getParentId(), "0")) {
                 scenarioModuleDTO.setParentId(PropertyConstant.ROOT);
             }
             String parentModulePath = parentModulePathMap.get(scenarioModuleDTO.getParentId());
