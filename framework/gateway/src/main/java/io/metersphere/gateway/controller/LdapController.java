@@ -11,6 +11,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/ldap")
@@ -21,8 +22,8 @@ public class LdapController {
 
     @PostMapping(value = "/signin")
     @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.LOGIN, title = "LDAP")
-    public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session) {
-        return Mono.just(ldapService.login(request, session))
+    public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session, Locale locale) {
+        return Mono.just(ldapService.login(request, session, locale))
                 .map(ResultHolder::success);
     }
 

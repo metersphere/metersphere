@@ -30,10 +30,7 @@ import org.springframework.web.server.WebSession;
 
 import javax.annotation.Resource;
 import javax.naming.directory.DirContext;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -71,7 +68,7 @@ public class LdapService {
         return authenticate(dn, credentials, ldapTemplate);
     }
 
-    public Optional<SessionUser> login(LoginRequest request, WebSession session) {
+    public Optional<SessionUser> login(LoginRequest request, WebSession session, Locale locale) {
         String isOpen = service.getValue(ParamConstants.LDAP.OPEN.getValue());
         if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
             MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
@@ -118,7 +115,7 @@ public class LdapService {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(userId);
         loginRequest.setAuthenticate(UserSource.LDAP.name());
-        return userLoginService.login(loginRequest, session);
+        return userLoginService.login(loginRequest, session, locale);
     }
 
     private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) throws AuthenticationException {

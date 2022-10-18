@@ -25,6 +25,7 @@ import reactor.core.scheduler.Schedulers;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @RestController
@@ -64,8 +65,8 @@ public class LoginController {
     }
 
     @PostMapping(value = "/signin")
-    public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session) {
-        return Mono.defer(() -> userLoginService.login(request, session).map(Mono::just).orElseGet(Mono::empty))
+    public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session, Locale locale) {
+        return Mono.defer(() -> userLoginService.login(request, session, locale).map(Mono::just).orElseGet(Mono::empty))
                 .subscribeOn(Schedulers.boundedElastic())
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
                 .doOnNext(user -> session.getAttributes().put("user", user))

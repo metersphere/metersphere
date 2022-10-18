@@ -42,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,7 @@ public class SSOService {
     @Resource
     private UserLoginService userLoginService;
 
-    public void exchangeToken(String code, String authId, WebSession session) throws Exception {
+    public void exchangeToken(String code, String authId, WebSession session, Locale locale) throws Exception {
         AuthSource authSource = authSourceService.getAuthSource(authId);
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String tokenUrl = (String) config.get("tokenUrl");
@@ -90,7 +91,7 @@ public class SSOService {
             MSException.throwException(content);
         }
 
-        doOICDLogin(authSource, accessToken, session);
+        doOICDLogin(authSource, accessToken, session, locale);
     }
 
     private RestTemplate getRestTemplateIgnoreSSL() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
@@ -116,7 +117,7 @@ public class SSOService {
         return new RestTemplate(requestFactory);
     }
 
-    private void doOICDLogin(AuthSource authSource, String accessToken, WebSession session) throws Exception {
+    private void doOICDLogin(AuthSource authSource, String accessToken, WebSession session, Locale locale) throws Exception {
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String userInfoUrl = (String) config.get("userInfoUrl");
         HttpHeaders headers = new HttpHeaders();
@@ -151,7 +152,7 @@ public class SSOService {
                 MSException.throwException("email already exists!");
             }
         }
-        Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session);
+        Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("user", userOptional.get());
@@ -178,7 +179,7 @@ public class SSOService {
     /**
      * cas callback
      */
-    public void serviceValidate(String ticket, String authId, WebSession session) throws Exception {
+    public void serviceValidate(String ticket, String authId, WebSession session, Locale locale) throws Exception {
         AuthSource authSource = authSourceService.getAuthSource(authId);
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String redirectUrl = ((String) config.get("redirectUrl")).replace("${authId}", authId);
@@ -208,7 +209,7 @@ public class SSOService {
                 MSException.throwException("email already exists!");
             }
         }
-        Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session);
+        Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("user", userOptional.get());
