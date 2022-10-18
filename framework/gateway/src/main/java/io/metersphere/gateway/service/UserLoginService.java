@@ -17,6 +17,7 @@ import io.metersphere.request.LoginRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.WebSession;
 
@@ -37,8 +38,11 @@ public class UserLoginService {
     @Resource
     private ProjectMapper projectMapper;
 
-    public Optional<SessionUser> login(LoginRequest request, WebSession session) {
+    public Optional<SessionUser> login(LoginRequest request, WebSession session, Locale locale) {
         UserDTO userDTO;
+        if (locale != null) {
+            LocaleContextHolder.setLocale(locale, true);
+        }
         switch (request.getAuthenticate()) {
             case "OIDC":
             case "CAS":
