@@ -173,13 +173,6 @@ public class ApiDefinitionService {
     private static final String SCHEDULE = "schedule";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
-        // 来自工作台条件
-        if (BooleanUtils.isTrue(request.getToBeUpdated())) {
-            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
-            if (toBeUpdatedTime != null) {
-                request.setToBeUpdateTime(toBeUpdatedTime);
-            }
-        }
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
@@ -191,6 +184,20 @@ public class ApiDefinitionService {
         }
         buildCustomField(resList);
         return resList;
+    }
+
+    /**
+     * 工作台获取待应用管理设置的更新的条件
+     * @param request
+     */
+    public void getApplicationUpdateRule(ApiDefinitionRequest request){
+        // 来自工作台条件
+        if (BooleanUtils.isTrue(request.getToBeUpdated())) {
+            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
     }
 
     public List<ApiDefinition> selectByIds(ApiDefinitionRequest request) {

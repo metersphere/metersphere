@@ -36,6 +36,7 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.EsbApiParamService;
 import io.metersphere.service.definition.EsbImportService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,7 @@ public class ApiDefinitionController {
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         apiDefinitionService.checkFilterHasCoverage(request);
+        apiDefinitionService.getApplicationUpdateRule(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }

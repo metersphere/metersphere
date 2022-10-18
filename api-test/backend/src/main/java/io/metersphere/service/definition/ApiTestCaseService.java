@@ -144,8 +144,6 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
-        //工作台逻辑
-        initRequestBySearch(request);
         request = this.initRequest(request, true, true);
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
@@ -1117,6 +1115,10 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId);
     }
 
+    /**
+     * 工作台查询应用管理里设置的用例待更新条件
+     * @param request
+     */
     public void initRequestBySearch(ApiTestCaseRequest request) {
         if (!request.isToBeUpdated()) {
             return;
