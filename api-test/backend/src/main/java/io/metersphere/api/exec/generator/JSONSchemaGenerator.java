@@ -3,6 +3,7 @@ package io.metersphere.api.exec.generator;
 import com.google.gson.*;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.EnumPropertyUtil;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -215,7 +216,7 @@ public class JSONSchemaGenerator {
                                 array.add(0);
                             }
                         } else if (jsonObject.has(PropertyConstant.PROPERTIES)) {
-                            JSONObject propertyConcept = new JSONObject(true);
+                            JSONObject propertyConcept = JSONUtil.createJsonObject(true);
                             JsonObject propertiesObj = jsonObject.get(PropertyConstant.PROPERTIES).getAsJsonObject();
                             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                                 String propertyKey = entry.getKey();
@@ -225,7 +226,7 @@ public class JSONSchemaGenerator {
                             array.add(propertyConcept);
 
                         } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE) instanceof JsonPrimitive) {
-                            JSONObject newJsonObj = new JSONObject();
+                            JSONObject newJsonObj = JSONUtil.createJsonObject(true);
                             analyzeProperty(newJsonObj, propertyName + PropertyConstant.ITEM, jsonObject);
                             array.add(newJsonObj.get(propertyName + PropertyConstant.ITEM));
                         }
@@ -236,7 +237,7 @@ public class JSONSchemaGenerator {
                 }
                 concept.put(propertyName, array);
             } else if (propertyObjType.equals(PropertyConstant.OBJECT)) {
-                JSONObject obj = new JSONObject();
+                JSONObject obj = JSONUtil.createJsonObject(true);
                 concept.put(propertyName, obj);
                 analyzeObject(object, obj);
             } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
@@ -251,13 +252,13 @@ public class JSONSchemaGenerator {
         for (Entry<String, JsonElement> entry : definitionsObj.entrySet()) {
             String definitionKey = entry.getKey();
             JsonObject definitionObj = definitionsObj.get(definitionKey).getAsJsonObject();
-            JSONObject obj = new JSONObject();
+            JSONObject obj = JSONUtil.createJsonObject(true);
             analyzeRootSchemaElement(definitionObj, obj);
         }
     }
 
     private static String formerJson(String jsonSchema) {
-        JSONObject root = new JSONObject(true);
+        JSONObject root = JSONUtil.createJsonObject(true);
         generator(jsonSchema, root);
         // 格式化返回
         if (root.opt(PropertyConstant.MS_OBJECT) != null) {
