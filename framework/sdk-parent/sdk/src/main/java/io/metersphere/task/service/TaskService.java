@@ -36,7 +36,6 @@ public class TaskService {
     private static final String API = "API";
     private static final String SCENARIO = "SCENARIO";
     private static final String PERF = "PERFORMANCE";
-
     private static final String UI = "UI_SCENARIO";
 
     public List<String> getOwnerProjectIds(String userId) {
@@ -85,13 +84,13 @@ public class TaskService {
         if (CollectionUtils.isNotEmpty(reportIds)) {
             // 任务中心单条停止/全部停止
             Map<String, TaskRequestDTO> taskRequestMap = reportIds.stream().collect(Collectors.toMap(TaskRequestDTO::getType, taskRequest -> taskRequest));
-            if (taskRequestMap.containsKey(API) || taskRequestMap.containsKey(SCENARIO)) {
+            if (taskRequestMap.containsKey(API)) {
                 microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
             }
             if (taskRequestMap.containsKey(PERF)) {
-                microService.postForData(MicroServiceName.API_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+                microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
             }
-            if(taskRequestMap.containsKey(UI)){
+            if(taskRequestMap.containsKey(UI) || taskRequestMap.containsKey(SCENARIO)){
                 microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
             }
         }
