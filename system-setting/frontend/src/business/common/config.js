@@ -85,6 +85,7 @@ export function LOG_MODULE_MAP(_this) {
     ['PROJECT_ENVIRONMENT_SETTING', _this.$t('operating_log.project_environment_setting')],
     ['PROJECT_PROJECT_MANAGER', _this.$t('operating_log.project_project_manager')],
     ['PROJECT_FILE_MANAGEMENT', _this.$t('operating_log.project_file_management')],
+    ['PROJECT_TEMPLATE_MANAGEMENT', _this.$t('operating_log.project_template_settings_issue')],
     ['PROJECT_PROJECT_MEMBER', _this.$t('operating_log.project_project_member')],
     ['PERSONAL_INFORMATION_PERSONAL_SETTINGS', _this.$t('operating_log.personal_information_personal_settings')],
     ['PERSONAL_INFORMATION_APIKEYS', _this.$t('operating_log.personal_information_apikeys')],
@@ -270,6 +271,11 @@ export function SYSLIST() {
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'), 'PROJECT_FILE_MANAGEMENT'],
           leaf: true
         },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.template.name'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
+          leaf: true
+        },
       ]
     },
   ];
@@ -375,6 +381,11 @@ export function WORKSYSLIST() {
         {
           label: i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'),
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'), 'PROJECT_FILE_MANAGEMENT'],
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.template.name'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
           leaf: true
         },
       ]
@@ -483,6 +494,11 @@ export function PROJECTSYSLIST() {
         {
           label: i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'),
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'), 'PROJECT_FILE_MANAGEMENT'],
+          leaf: true
+        },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.template.name'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
           leaf: true
         },
       ]
