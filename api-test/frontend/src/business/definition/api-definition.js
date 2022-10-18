@@ -246,6 +246,11 @@ export function mergeRequestDocumentData(request) {
   //场景断言merge文档断言数据
   if (request && request.document && request.document.originalData && request.document.tableData.size && request.document.tableData.size !== 0) {
     mergeDocumentData(request.document.originalData, request.document.tableData);
+    if (request.document.type === 'json') {
+      request.document.data.json = request.document.originalData;
+    } else {
+      request.document.data.xml = request.document.originalData;
+    }
   }
 
 }
