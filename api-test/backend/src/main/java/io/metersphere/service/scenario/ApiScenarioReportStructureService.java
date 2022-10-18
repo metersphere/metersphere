@@ -1,41 +1,18 @@
 package io.metersphere.service.scenario;
 
-import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
-import io.metersphere.api.dto.ApiScenarioReportDTO;
-import io.metersphere.api.dto.RequestResultExpandDTO;
-import io.metersphere.api.dto.StepTreeDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
-import io.metersphere.api.dto.ApiDefinitionExecResultDTO;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.domain.ApiScenarioReportResult;
-import io.metersphere.base.domain.ApiScenarioReportResultExample;
-import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioReportStructureExample;
-import io.metersphere.base.domain.ApiScenarioReportStructureWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.UiScenarioWithBLOBs;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.ResultParseUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -48,15 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -293,6 +262,8 @@ public class ApiScenarioReportStructureService {
                     RequestResult result = new RequestResultExpandDTO(reportResult);
                     if (reportResult.getContent() != null) {
                         result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class);
+                        //针对响应头对响应内容做处理
+                        result = ResponseUtil.parseResponseBodyByHeader(result);
                     }
                     step.setValue(result);
                     step.setTotalStatus(reportResult.getStatus());
@@ -701,6 +672,8 @@ public class ApiScenarioReportStructureService {
         RequestResult result = new RequestResult();
         try {
             result = selectReportContent(stepId, RequestResult.class);
+            //针对响应头对响应内容做处理
+            result = ResponseUtil.parseResponseBodyByHeader(result);
         } catch (Exception ignore) {
         }
         return result;

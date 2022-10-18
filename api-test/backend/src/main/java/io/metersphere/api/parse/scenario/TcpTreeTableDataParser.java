@@ -5,11 +5,9 @@ import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.i18n.Translator;
 import io.metersphere.commons.utils.XMLUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import io.metersphere.commons.utils.mock.MockApiUtils;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -17,8 +15,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -41,11 +40,7 @@ public class TcpTreeTableDataParser {
             if (treeDataList == null || treeDataList.isEmpty()) {
                 return xmlString;
             }
-            // 创建解析器工厂
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            XMLUtil.setExpandEntityReferencesFalse(factory);
             Document document = DocumentHelper.createDocument();
-
             TcpTreeTableDataStruct dataStruct = null;
             if (treeDataList.size() > 1) {
                 dataStruct = new TcpTreeTableDataStruct();

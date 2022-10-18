@@ -283,7 +283,7 @@ public class ApiDefinitionExecResultService {
             for (RequestResult item : dto.getRequestResults()) {
                 LoggerUtil.info("执行结果【 " + item.getName() + " 】入库存储");
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
+                    //对响应内容进行进一步解析和处理。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
 
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);

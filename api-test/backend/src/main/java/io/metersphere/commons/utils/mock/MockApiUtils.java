@@ -325,7 +325,7 @@ public class MockApiUtils {
                     if (bodyObj.has("xmlHeader")) {
                         String xmlHeader = bodyObj.optString("xmlHeader");
                         if (!StringUtils.startsWith(xmlHeader, "<?") && !StringUtils.endsWith(xmlHeader, "?>")) {
-                            returnStr = "<?" + xmlHeader + "?>\r\n";
+                            returnStr = "<?xml " + xmlHeader + "?>\r\n";
                         } else {
                             returnStr = xmlHeader;
                         }
@@ -355,6 +355,7 @@ public class MockApiUtils {
                 if (!((JSONObject) paramJson).keySet().isEmpty()) {
                     JSONArray bodyParams = returnParams.getBodyParams();
                     if (bodyParams == null) {
+                        bodyParams = new JSONArray();
                         bodyParams.put(paramJson);
                     } else {
                         bodyParams.put(((JSONObject) paramJson));
@@ -390,7 +391,7 @@ public class MockApiUtils {
         requestMockParams.setRestParamsObj(urlParamsObject);
         requestMockParams.setQueryParamsObj(queryParamsObject);
 
-        if (isPostRequest) {
+        if (isPostRequest && !queryParamsObject.keySet().isEmpty()) {
             JSONArray jsonArray = new JSONArray();
             jsonArray.put(queryParamsObject);
             requestMockParams.setBodyParams(jsonArray);

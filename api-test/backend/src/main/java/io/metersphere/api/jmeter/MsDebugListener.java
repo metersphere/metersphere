@@ -21,15 +21,11 @@ import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.ResponseUtil;
-import io.metersphere.commons.utils.ResultParseUtil;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.WebSocketUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
-import io.metersphere.utils.*;
+import io.metersphere.utils.JMeterVars;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.util.NoThreadClone;
@@ -159,14 +155,14 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);
-                        //解析误报内容
+                        //对响应内容进行进一步解析和处理。
                         RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
                         dto.setContent("result_" + JSON.toJSONString(expandDTO));
                         WebSocketUtil.sendMessageSingle(dto);
                     });
                 } else {
                     requestResult.getResponseResult().setConsole(console);
-                    //解析误报内容
+                    //对响应内容进行进一步解析和处理。
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
                     dto.setContent("result_" + JSON.toJSONString(expandDTO));
                     WebSocketUtil.sendMessageSingle(dto);
