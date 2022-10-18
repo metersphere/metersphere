@@ -14,7 +14,7 @@
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
           <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
           <el-menu-item index="api" v-modules="['api']">{{ $t('test_track.api_test_case') }}</el-menu-item>
-          <el-menu-item index="ui" v-modules="['ui']">{{ $t('test_track.ui_test_case') }}</el-menu-item>
+          <el-menu-item index="ui" v-modules="['ui']" v-if="hasLicense()">{{ $t('test_track.ui_test_case') }}</el-menu-item>
           <el-menu-item index="load" v-modules="['performance']">{{
               $t('test_track.performance_test_case')
             }}
@@ -258,6 +258,9 @@ export default {
           });
       }
     },
+    hasLicense(){
+      return hasLicense();
+    }
   },
 };
 </script>
