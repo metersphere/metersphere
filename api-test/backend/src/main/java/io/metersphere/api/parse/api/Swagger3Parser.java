@@ -615,12 +615,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         result.setOpenapi("3.0.1");
         SwaggerInfo swaggerInfo = new SwaggerInfo();
-        swaggerInfo.setVersion("1.0.1");
+        swaggerInfo.setVersion("1.0");
         swaggerInfo.setTitle("ms-" + project.getName());
         swaggerInfo.setDescription("");
         swaggerInfo.setTermsOfService("");
         result.setInfo(swaggerInfo);
-        result.setInfo(new SwaggerInfo());
         result.setServers(new ArrayList<>());
         result.setTags(new ArrayList<>());
         result.setComponents(JSONUtil.createObj());
