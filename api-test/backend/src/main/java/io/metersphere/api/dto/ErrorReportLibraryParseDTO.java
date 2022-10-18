@@ -25,7 +25,7 @@ public class ErrorReportLibraryParseDTO {
             String errorCodeStr = StringUtils.join(this.errorCodeList,";");
             return errorCodeStr;
         }else {
-            return "";
+            return StringUtils.EMPTY;
         }
 
     }

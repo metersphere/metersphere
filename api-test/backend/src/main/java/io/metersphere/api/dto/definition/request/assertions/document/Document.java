@@ -176,7 +176,7 @@ public class Document {
         assertion.setExpectNull(false);
         assertion.setInvert(false);
 
-        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "DocumentAssertion") + (delimiter + item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
+        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "DocumentAssertion") + (delimiter + item.getJsonPath() + StringUtils.SPACE + getConditionStr(item, elementCondition)));
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
         assertion.setJsonPath(item.getJsonPath());
@@ -195,7 +195,7 @@ public class Document {
     private XMLAssertion newXMLAssertion(DocumentElement item, ElementCondition elementCondition) {
         XMLAssertion assertion = new XMLAssertion();
         assertion.setEnabled(true);
-        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "XMLAssertion") + delimiter + (item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
+        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "XMLAssertion") + delimiter + (item.getJsonPath() + StringUtils.SPACE + getConditionStr(item, elementCondition)));
         assertion.setProperty(TestElement.TEST_CLASS, XMLAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XMLAssertionGui"));
         assertion.setProperty(PropertyConstant.XML_PATH, item.getJsonPath());

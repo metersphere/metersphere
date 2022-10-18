@@ -522,7 +522,7 @@ public class PerformanceReportService {
         if (testResourcePool != null) {
             return testResourcePool.getType();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public List<LoadTestExportJmx> getJmxContent(String reportId) {

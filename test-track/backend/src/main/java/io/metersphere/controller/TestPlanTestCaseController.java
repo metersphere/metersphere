@@ -15,6 +15,7 @@ import io.metersphere.plan.reuest.function.TestPlanFuncCaseBatchRequest;
 import io.metersphere.plan.reuest.function.TestPlanFuncCaseEditRequest;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.ResetOrderRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -70,7 +71,7 @@ public class TestPlanTestCaseController {
 
     @GetMapping("/list/node/all/{planId}/{nodePaths}")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePaths(@PathVariable String planId, @PathVariable String nodePaths) {
-        String nodePath = nodePaths.replace("f", "");
+        String nodePath = nodePaths.replace("f", StringUtils.EMPTY);
         String[] array = nodePath.split(",");
         List<String> list = Arrays.asList(array);
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();

@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -228,7 +229,7 @@ public class BaseUserService {
                     user.setLastProjectId(projects.get(0).getId());
                 }
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         // 执行变更
@@ -250,7 +251,7 @@ public class BaseUserService {
             if (projects.size() > 0) {
                 user.setLastProjectId(projects.get(0).getId());
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         BeanUtils.copyProperties(user, newUser);
@@ -302,7 +303,7 @@ public class BaseUserService {
 
     /*修改当前用户用户密码*/
     private User updateCurrentUserPwd(EditPassWordRequest request) {
-        String oldPassword = CodingUtil.md5(request.getPassword(), "utf-8");
+        String oldPassword = CodingUtil.md5(request.getPassword(), StandardCharsets.UTF_8.name());
         String newPassword = request.getNewpassword();
         String newPasswordMd5 = CodingUtil.md5(newPassword);
         if (StringUtils.equals(oldPassword, newPasswordMd5)) {
@@ -348,7 +349,7 @@ public class BaseUserService {
     public ResultHolder login(LoginRequest request) {
         String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
         String username = StringUtils.trim(request.getUsername());
-        String password = "";
+        String password = StringUtils.EMPTY;
         if (!StringUtils.equals(login, UserSource.LDAP.name())) {
             password = StringUtils.trim(request.getPassword());
             if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
@@ -419,8 +420,8 @@ public class BaseUserService {
                 switchUserResource("workspace", wsId, user);
             } else {
                 // 用户登录之后没有项目和工作空间的权限就把值清空
-                user.setLastWorkspaceId("");
-                user.setLastProjectId("");
+                user.setLastWorkspaceId(StringUtils.EMPTY);
+                user.setLastProjectId(StringUtils.EMPTY);
                 updateUser(user);
             }
         } else {
@@ -561,7 +562,7 @@ public class BaseUserService {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
 
             StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(String.join(",", names)).append("\n");
+            nameBuilder.append(String.join(",", names)).append(StringUtils.LF);
             for (String userId : ids) {
                 UserGroupExample userGroupExample = new UserGroupExample();
                 userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
@@ -613,7 +614,7 @@ public class BaseUserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(projectId, user.getLastProjectId())) {
-            user.setLastProjectId("");
+            user.setLastProjectId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -713,7 +714,7 @@ public class BaseUserService {
         if (!CollectionUtils.isEmpty(users)) {
             User user = users.get(0);
             String seleniumServer = request.getSeleniumServer();
-            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? "" : seleniumServer.trim());
+            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? StringUtils.EMPTY : seleniumServer.trim());
             user.setUpdateTime(System.currentTimeMillis());
             //更新session seleniumServer 信息
             SessionUser sessionUser = SessionUtils.getUser();

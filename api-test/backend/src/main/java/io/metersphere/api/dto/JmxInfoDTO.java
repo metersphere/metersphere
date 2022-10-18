@@ -26,13 +26,13 @@ public class JmxInfoDTO {
     private List<FileMetadata> fileMetadataList;
 
     public JmxInfoDTO(String name, String xml, Map<String, String> attachFiles) {
-        this.name = StringUtils.replace(name, "/", "");
+        this.name = StringUtils.replace(name, "/", StringUtils.EMPTY);
         this.xml = xml;
         this.attachFiles = attachFiles;
     }
 
     public void setName(String name) {
-        this.name = StringUtils.replace(name, "/", "");
+        this.name = StringUtils.replace(name, "/", StringUtils.EMPTY);
     }
 
     public void addFileMetadataLists(List<FileMetadata> list) {

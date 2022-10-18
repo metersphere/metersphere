@@ -296,7 +296,7 @@ public class SystemProjectService {
     public void checkProjectTcpPort(AddProjectRequest project) {
         //判断端口是否重复
         if (project.getMockTcpPort() != null && project.getMockTcpPort() != 0) {
-            String projectId = StringUtils.isEmpty(project.getId()) ? "" : project.getId();
+            String projectId = StringUtils.isEmpty(project.getId()) ? StringUtils.EMPTY : project.getId();
             ProjectApplicationExample example = new ProjectApplicationExample();
             example.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name()).andTypeValueEqualTo(String.valueOf(project.getMockTcpPort())).andProjectIdNotEqualTo(projectId);
             if (projectApplicationMapper.countByExample(example) > 0) {

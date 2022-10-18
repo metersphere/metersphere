@@ -225,8 +225,8 @@ public class MsTCPSampler extends MsTestElement {
         if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             if (!isCustomizeReq() && config != null) {
                 this.server = config.getTcpConfig().getServer();
-                this.port = config.getTcpConfig().getPort() + "";
-                if (StringUtils.equals(this.eolByte, " ")) {
+                this.port = config.getTcpConfig().getPort() + StringUtils.EMPTY;
+                if (StringUtils.equals(this.eolByte, StringUtils.SPACE)) {
                     this.eolByte = "";
                 } else {
                     if (StringUtils.isEmpty(this.eolByte)) {

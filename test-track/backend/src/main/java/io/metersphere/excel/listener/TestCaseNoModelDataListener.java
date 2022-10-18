@@ -202,8 +202,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             }
             ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
                     Translator.get("number")
-                            .concat(" ")
-                            .concat(String.valueOf(errorRowIndex + 1)).concat(" ")
+                            .concat(StringUtils.SPACE)
+                            .concat(String.valueOf(errorRowIndex + 1)).concat(StringUtils.SPACE)
                             .concat(Translator.get("row"))
                             .concat(Translator.get("error"))
                             .concat("：")
@@ -439,7 +439,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             }
             //模块名不能为空
             for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
                     stringBuilder.append(Translator.get("module_not_null"))
                             .append(ERROR_MSG_SEPARATOR);
                     break;
@@ -670,8 +670,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             for (int i = 0; i < data.getMergeStepDesc().size(); i++) {
                 Map<String, Object> step = new LinkedHashMap<>();
                 step.put("num", i + 1);
-                step.put("desc", Optional.ofNullable(data.getMergeStepDesc().get(i)).orElse(""));
-                step.put("result", Optional.ofNullable(data.getMergeStepResult().get(i)).orElse(""));
+                step.put("desc", Optional.ofNullable(data.getMergeStepDesc().get(i)).orElse(StringUtils.EMPTY));
+                step.put("result", Optional.ofNullable(data.getMergeStepResult().get(i)).orElse(StringUtils.EMPTY));
                 jsonArray.add(step);
             }
             return JSON.toJSONString(jsonArray);
@@ -691,7 +691,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 rowNums.add(rowIndex++);
             }
         } else {
-            stepDescList.add("");
+            stepDescList.add(StringUtils.EMPTY);
         }
 
         if (data.getStepResult() != null) {
@@ -704,7 +704,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 lastStepIndex++;
             }
         } else {
-            stepResList.add("");
+            stepResList.add(StringUtils.EMPTY);
         }
 
         int index = stepDescList.size() > stepResList.size() ? stepDescList.size() : stepResList.size();
@@ -717,13 +717,13 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (i < stepDescList.size()) {
                 step.put("desc", stepDescList.get(i));
             } else {
-                step.put("desc", "");
+                step.put("desc", StringUtils.EMPTY);
             }
 
             if (i < stepResList.size()) {
                 step.put("result", stepResList.get(i));
             } else {
-                step.put("result", "");
+                step.put("result", StringUtils.EMPTY);
             }
 
             jsonArray.add(step);
@@ -764,7 +764,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
         rowInfo.index = index;
         if (rowMessage == null) {
-            rowMessage = "";
+            rowMessage = StringUtils.EMPTY;
         }
         rowInfo.rowInfo = rowMessage;
         return rowInfo;
@@ -796,7 +796,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         for (Map.Entry<Integer, String> headEntry : headMap.entrySet()) {
             Integer index = headEntry.getKey();
             String field = headEntry.getValue();
-            String value = StringUtils.isEmpty(row.get(index)) ? "" : row.get(index);
+            String value = StringUtils.isEmpty(row.get(index)) ? StringUtils.EMPTY : row.get(index);
 
             if (excelHeadToFieldNameDic.containsKey(field)) {
                 field = excelHeadToFieldNameDic.get(field);

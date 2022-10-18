@@ -150,7 +150,7 @@ public class MsHashTreeService {
                         if (CollectionUtils.isNotEmpty(rules)) {
                             step.addAll(rules);
                         }
-                        element.put(HASH_TREE, new JSONArray(step));
+                        element.put(HASH_TREE, step);
                     }
                     element.put(REFERENCED, REF);
                     element.put(DISABLED, true);
@@ -174,7 +174,7 @@ public class MsHashTreeService {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
             }
-            element.put(NUM, "");
+            element.put(NUM, StringUtils.EMPTY);
         }
         return element;
     }
@@ -207,7 +207,7 @@ public class MsHashTreeService {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
             }
-            element.put(NUM, "");
+            element.put(NUM, StringUtils.EMPTY);
         }
         return element;
     }

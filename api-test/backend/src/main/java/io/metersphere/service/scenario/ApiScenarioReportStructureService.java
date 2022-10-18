@@ -216,7 +216,7 @@ public class ApiScenarioReportStructureService {
                     children.setAllIndex(dto.getAllIndex() + "_" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 } else {
-                    children.setAllIndex("" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
+                    children.setAllIndex(StringUtils.EMPTY + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 }
                 dto.getChildren().add(children);

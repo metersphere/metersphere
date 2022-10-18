@@ -43,7 +43,7 @@ public class ApiKeySessionHandler {
 
                 for (i$ = 0; i$ < len$; ++i$) {
                     String s = arr$[i$];
-                    if (s != null && !"".equals(s)) {
+                    if (s != null && !StringUtils.EMPTY.equals(s)) {
                         remainSessionIdSet.add(s.toLowerCase());
                     }
                 }

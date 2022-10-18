@@ -3,6 +3,7 @@ package io.metersphere.api.tcp;
 import io.metersphere.api.tcp.server.TCPServer;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class TCPPool {
     private TCPPool(){}
 
     public static String createTcp(int port){
-        String returnString = "";
+        String returnString = StringUtils.EMPTY;
         if(port > 0){
             TCPServer tcpServer = null;
             if(serverSockedMap.containsKey(port)){

@@ -57,6 +57,12 @@ instance.interceptors.request.use(
   }
 )
 
+let language = localStorage.getItem('language');
+if (!language) {
+  language = navigator.language || navigator.browserLanguage;
+}
+instance.defaults.headers.common['Accept-Language'] = language;
+
 function clearLocalStorage() {
   localStorage.removeItem(TokenKey);
   sessionStorage.removeItem(WORKSPACE_ID);

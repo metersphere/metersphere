@@ -579,14 +579,14 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         msTCPSampler.setName(tcpSampler.getName());
         msTCPSampler.setType("TCPSampler");
         msTCPSampler.setServer(tcpSampler.getServer());
-        msTCPSampler.setPort(tcpSampler.getPort() + "");
-        msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
+        msTCPSampler.setPort(tcpSampler.getPort() + StringUtils.EMPTY);
+        msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + StringUtils.EMPTY);
         msTCPSampler.setClassname(tcpSampler.getProperty(TCPSampler.CLASSNAME).getStringValue());
         msTCPSampler.setReUseConnection(tcpSampler.getProperty(TCPSampler.RE_USE_CONNECTION).getBooleanValue());
         msTCPSampler.setNodelay(tcpSampler.getProperty(TCPSampler.NODELAY).getBooleanValue());
         msTCPSampler.setCloseConnection(tcpSampler.isCloseConnection());
-        msTCPSampler.setSoLinger(tcpSampler.getSoLinger() + "");
-        msTCPSampler.setEolByte(tcpSampler.getEolByte() + "");
+        msTCPSampler.setSoLinger(tcpSampler.getSoLinger() + StringUtils.EMPTY);
+        msTCPSampler.setEolByte(tcpSampler.getEolByte() + StringUtils.EMPTY);
         msTCPSampler.setRequest(tcpSampler.getRequestData());
         msTCPSampler.setUsername(tcpSampler.getProperty(ConfigTestElement.USERNAME).getStringValue());
         msTCPSampler.setPassword(tcpSampler.getProperty(ConfigTestElement.PASSWORD).getStringValue());
@@ -738,8 +738,8 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestTypeConstants.HTTP);
-            samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
-            samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
+            samplerProxy.setConnectTimeout(source.getConnectTimeout() + StringUtils.EMPTY);
+            samplerProxy.setResponseTimeout(source.getResponseTimeout() + StringUtils.EMPTY);
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {

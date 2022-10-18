@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -161,7 +162,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
     public JavaMailSenderImpl getMailSender(Map<String, String> paramMap) {
         Properties props = new Properties();
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setDefaultEncoding("UTF-8");
+        javaMailSender.setDefaultEncoding(StandardCharsets.UTF_8.name());
         javaMailSender.setProtocol("smtp");
         javaMailSender.setHost(paramMap.get(ParamConstants.MAIL.SERVER.getValue()));
         javaMailSender.setPort(Integer.parseInt(paramMap.get(ParamConstants.MAIL.PORT.getValue())));

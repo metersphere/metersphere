@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,7 +81,7 @@ public class MockApiUtils {
                     }
                 }
 
-                String jsonString = "";
+                String jsonString = StringUtils.EMPTY;
                 if (isJsonSchema) {
                     if (bodyObj.has("jsonSchema")) {
                         String bodyRetunStr = bodyObj.optJSONObject("jsonSchema").toString();
@@ -122,7 +123,7 @@ public class MockApiUtils {
                         if (kv.has("name")) {
                             String values = kv.optString("value");
                             if (StringUtils.isEmpty(values)) {
-                                values = "";
+                                values = StringUtils.EMPTY;
                             } else {
                                 try {
                                     values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
@@ -169,7 +170,7 @@ public class MockApiUtils {
                 JSONObject respObj = JSONUtil.parseObject(response);
                 if (respObj != null) {
                     if (respObj.has("body")) {
-                        String returnStr = "";
+                        String returnStr = StringUtils.EMPTY;
                         JSONObject bodyObj = respObj.optJSONObject("body");
                         if (bodyObj.has(PropertyConstant.TYPE)) {
                             String type = bodyObj.optString(PropertyConstant.TYPE);
@@ -206,7 +207,7 @@ public class MockApiUtils {
                                         if (kv.has("name")) {
                                             String values = kv.optString("value");
                                             if (StringUtils.isEmpty(values)) {
-                                                values = "";
+                                                values = StringUtils.EMPTY;
                                             } else {
                                                 try {
                                                     values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
@@ -291,9 +292,9 @@ public class MockApiUtils {
             requestMockParams = new RequestMockParams();
         }
         if (bodyObj == null && bodyObj == null) {
-            return "";
+            return StringUtils.EMPTY;
         } else {
-            String returnStr = "";
+            String returnStr = StringUtils.EMPTY;
             if (bodyObj.has(PropertyConstant.TYPE)) {
                 String type = bodyObj.optString(PropertyConstant.TYPE);
                 if (StringUtils.equals(type, "JSON")) {
@@ -354,9 +355,7 @@ public class MockApiUtils {
                 if (!((JSONObject) paramJson).keySet().isEmpty()) {
                     JSONArray bodyParams = returnParams.getBodyParams();
                     if (bodyParams == null) {
-                        List<Object> paramsArray = new LinkedList<>();
-                        paramsArray.add(paramJson);
-                        bodyParams = new JSONArray(paramsArray);
+                        bodyParams.put(paramJson);
                     } else {
                         bodyParams.put(((JSONObject) paramJson));
                     }
@@ -392,9 +391,9 @@ public class MockApiUtils {
         requestMockParams.setQueryParamsObj(queryParamsObject);
 
         if (isPostRequest) {
-            List<Object> jsonArray = new ArrayList<>();
-            jsonArray.add(queryParamsObject);
-            requestMockParams.setBodyParams(new JSONArray(jsonArray));
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.put(queryParamsObject);
+            requestMockParams.setBodyParams(jsonArray);
         }
         return requestMockParams;
     }
@@ -461,7 +460,7 @@ public class MockApiUtils {
                 String param = pathArr[i];
                 if (param.startsWith("{") && param.endsWith("}")) {
                     param = param.substring(1, param.length() - 1);
-                    String value = "";
+                    String value = StringUtils.EMPTY;
                     if (sendParamArr.length > i) {
                         value = sendParamArr[i];
                     }
@@ -474,7 +473,7 @@ public class MockApiUtils {
     }
 
     private static String readBody(HttpServletRequest request) {
-        String result = "";
+        String result = StringUtils.EMPTY;
         try {
             InputStream inputStream = request.getInputStream();
             ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
@@ -485,7 +484,7 @@ public class MockApiUtils {
             }
             outSteam.close();
             inputStream.close();
-            result = new String(outSteam.toByteArray(), "UTF-8");
+            result = new String(outSteam.toByteArray(), StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -506,10 +505,10 @@ public class MockApiUtils {
         byte buffer[] = getRequestPostBytes(request);
         String charEncoding = request.getCharacterEncoding();
         if (charEncoding == null) {
-            charEncoding = "UTF-8";
+            charEncoding = StandardCharsets.UTF_8.name();
         }
         if (buffer == null) {
-            return "";
+            return StringUtils.EMPTY;
         } else {
             return new String(buffer, charEncoding);
         }
@@ -522,7 +521,7 @@ public class MockApiUtils {
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(
-                    request.getInputStream(), "UTF-8"));
+                    request.getInputStream(), StandardCharsets.UTF_8.name()));
             while ((inputLine = in.readLine()) != null) {
                 recieveData.append(inputLine);
             }

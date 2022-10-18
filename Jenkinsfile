@@ -29,7 +29,9 @@ pipeline {
                     if (params.buildParent) {
                         BUILD_PARENT = true
                     }
-                    env.FRONTEND_LINK = params.frontendLink
+                    if (params.frontendLink != null && !params.frontendLink.equals("")) {
+                        env.FRONTEND_LINK = params.frontendLink
+                    }
                     env.REVISION = "${REVISION}"
                     env.BUILD_SDK = "${BUILD_SDK}"
                     env.BUILD_PARENT = "${BUILD_PARENT}"
@@ -40,7 +42,7 @@ pipeline {
         stage('POM') {
             when { environment name: 'BUILD_PARENT', value: 'true' }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.npmrc')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
@@ -54,7 +56,7 @@ pipeline {
         stage('SDK') {
             when { environment name: 'BUILD_SDK', value: 'true' }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.npmrc')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
@@ -79,7 +81,7 @@ pipeline {
                 }
             }
             steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
+                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml'), configFile(fileId: 'metersphere-npmrc', targetLocation: '.npmrc')]) {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH

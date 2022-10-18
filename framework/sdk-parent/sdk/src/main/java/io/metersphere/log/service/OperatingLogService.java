@@ -36,14 +36,14 @@ public class OperatingLogService {
     private SqlSessionFactory sqlSessionFactory;
 
     public void create(OperatingLogWithBLOBs log, String sourceIds) {
-        log.setSourceId("");
+        log.setSourceId(StringUtils.EMPTY);
         operatingLogMapper.insert(log);
         if (StringUtils.isNotEmpty(sourceIds)) {
             List<String> ids = new ArrayList<>();
             if (sourceIds.startsWith("[")) {
                 ids = JSON.parseArray(sourceIds, String.class);
             } else {
-                ids.add(sourceIds.replace("\"", ""));
+                ids.add(sourceIds.replace("\"", StringUtils.EMPTY));
             }
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             OperatingLogResourceMapper batchMapper = sqlSession.getMapper(OperatingLogResourceMapper.class);
@@ -78,14 +78,14 @@ public class OperatingLogService {
                 List<OperatingLogDTO> logDtoArr = baseOperatingLogMapper.findSourceIdByLogIds(logIds);
                 // 如果重复是批量操作，置空sourceID
                 sourceMap = logDtoArr.stream()
-                        .collect(Collectors.toMap(OperatingLogDTO::getOperatingLogId, OperatingLogDTO::getSourceId, (val1, val2) -> ""));
+                        .collect(Collectors.toMap(OperatingLogDTO::getOperatingLogId, OperatingLogDTO::getSourceId, (val1, val2) -> StringUtils.EMPTY));
             }
             Map<String, String> userNameMap = ServiceUtils.getUserNameMap(userIds);
             Map<String, String> workspaceNameMap = ServiceUtils.getWorkspaceNameByProjectIds(projectIds);
             for (OperatingLogDTO dto : list) {
-                dto.setUserName(userNameMap.getOrDefault(dto.getOperUser(), ""));
-                dto.setWorkspaceName(workspaceNameMap.getOrDefault(dto.getProjectId(), ""));
-                dto.setSourceId(sourceMap.getOrDefault(dto.getId(), ""));
+                dto.setUserName(userNameMap.getOrDefault(dto.getOperUser(), StringUtils.EMPTY));
+                dto.setWorkspaceName(workspaceNameMap.getOrDefault(dto.getProjectId(), StringUtils.EMPTY));
+                dto.setSourceId(sourceMap.getOrDefault(dto.getId(), StringUtils.EMPTY));
             }
         }
         return list;

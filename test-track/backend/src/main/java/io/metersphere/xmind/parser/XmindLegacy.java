@@ -14,6 +14,7 @@ import org.json.XML;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +31,8 @@ public class XmindLegacy {
      */
     public static List<String> getContent(String xmlContent, String xmlComments) throws IOException, DocumentException {
         // 删除content.xml里面不能识别的字符串
-        xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", "");
-        xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", "");
+        xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", StringUtils.EMPTY);
+        xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", StringUtils.EMPTY);
 
         try {
             xmlContent = removeTopicsFromString(xmlContent);
@@ -40,16 +41,16 @@ public class XmindLegacy {
         }
         // 去除title中svg:width属性
         xmlContent = xmlContent.replaceAll("<title svg:width=\"[0-9]*\">", "<title>");
-        Document document = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes("utf-8")));// 读取XML文件,获得document对象
+        Document document = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8.name())));// 读取XML文件,获得document对象
         Element root = document.getRootElement();
         List<Node> topics = root.selectNodes("//topic");
 
         if (xmlComments != null) {
             // 删除comments.xml里面不能识别的字符串
-            xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", "");
+            xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", StringUtils.EMPTY);
 
             // 添加评论到content中
-            Document commentDocument = XmlUtils.getDocument(new ByteArrayInputStream(xmlComments.getBytes("utf-8")));
+            Document commentDocument = XmlUtils.getDocument(new ByteArrayInputStream(xmlComments.getBytes(StandardCharsets.UTF_8.name())));
             List<Node> commentsList = commentDocument.selectNodes("//comment");
 
             for (Node topic : topics) {
@@ -102,7 +103,7 @@ public class XmindLegacy {
      * @throws Exception
      */
     private static String removeTopicsFromString(String xmlContent) throws Exception {
-        Document doc = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes("utf-8")));
+        Document doc = XmlUtils.getDocument(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8.name())));
         if (doc != null) {
             Element root = doc.getRootElement();
             List<Element> childrenElement = root.elements();

@@ -38,7 +38,7 @@ public class MockTestDataUtil {
             if(length > 1){
                 return RandomStringUtils.randomAlphanumeric(length-1);
             }else {
-                return "";
+                return StringUtils.EMPTY;
             }
         } else if (StringUtils.equals(MockApiUtils.parseCondition(request.getCondition()), MockParamConditionEnums.REGULAR_MATCH.name())) {
             if (StringUtils.isNotEmpty(request.getValue())) {
@@ -46,10 +46,10 @@ public class MockTestDataUtil {
                 String randomStr = generex.random();
                 return randomStr;
             }else {
-                return "";
+                return StringUtils.EMPTY;
             }
         } else {
-            return "";
+            return StringUtils.EMPTY;
         }
     }
 
@@ -69,7 +69,7 @@ public class MockTestDataUtil {
             if(length > 1){
                 return RandomStringUtils.randomAlphanumeric(length);
             }else {
-                return "";
+                return StringUtils.EMPTY;
             }
         } else if (StringUtils.equals(MockApiUtils.parseCondition(condition.getCondition()), MockParamConditionEnums.REGULAR_MATCH.name())) {
             if (StringUtils.isNotEmpty(condition.getValue())) {
@@ -77,10 +77,10 @@ public class MockTestDataUtil {
                 String randomStr = generex.random();
                 return randomStr;
             }else {
-                return "";
+                return StringUtils.EMPTY;
             }
         } else {
-            return "";
+            return StringUtils.EMPTY;
         }
     }
 

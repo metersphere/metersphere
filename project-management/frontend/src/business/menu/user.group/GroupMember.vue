@@ -40,10 +40,9 @@
           <template v-slot:default="scope">
             <div>
               <ms-table-operator :tip2="$t('commons.remove')"
-                                 :show-edit="showTypeLabel"
+                                 :show-edit="false"
                                  :delete-permission="deletePermission"
                                  :edit-permission="editPermission"
-                                 @editClick="editMemberBtn(scope.row)"
                                  @deleteClick="removeMember(scope.row)"/>
             </div>
           </template>

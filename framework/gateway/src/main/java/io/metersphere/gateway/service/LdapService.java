@@ -269,12 +269,12 @@ public class LdapService {
 
         String mapAttr = (String) jsonObject.get(attr);
         if (StringUtils.isBlank(mapAttr)) {
-            MSException.throwException(Translator.get("check_ldap_mapping") + " " + attr);
+            MSException.throwException(Translator.get("check_ldap_mapping") + StringUtils.SPACE + attr);
         }
 
         String result = dirContext.getStringAttribute(mapAttr);
         if (StringUtils.isBlank(result)) {
-            MSException.throwException(Translator.get("ldap_mapping_value_null") + " " + mapAttr);
+            MSException.throwException(Translator.get("ldap_mapping_value_null") + StringUtils.SPACE + mapAttr);
         }
 
         return result;

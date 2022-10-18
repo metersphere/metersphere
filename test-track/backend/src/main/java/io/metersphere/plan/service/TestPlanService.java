@@ -697,7 +697,7 @@ public class TestPlanService {
 
         List<Project> projects = projectMapper.selectByExample(projectExample);
         StringBuilder stringBuilder = new StringBuilder();
-        String projectName = "";
+        String projectName = StringUtils.EMPTY;
 
         if (projects.size() > 0) {
             for (Project project : projects) {
@@ -796,7 +796,7 @@ public class TestPlanService {
         //测试计划准备执行，取消测试计划的实际结束时间
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
 
-        LoggerUtil.info("预生成测试计划报告【" + reportInfoDTO.getTestPlanReport() != null ? reportInfoDTO.getTestPlanReport().getName() : "" + "】计划报告ID[" + planReportId + "]");
+        LoggerUtil.info("预生成测试计划报告【" + reportInfoDTO.getTestPlanReport() != null ? reportInfoDTO.getTestPlanReport().getName() : StringUtils.EMPTY + "】计划报告ID[" + planReportId + "]");
 
         Map<String, String> apiCaseReportMap = null;
         Map<String, String> scenarioReportMap = null;
@@ -1311,7 +1311,7 @@ public class TestPlanService {
                 if (line.contains("\"#report\"")) {
                     line = line.replace("\"#report\"", new Gson().toJson(report));
                 }
-                line += "\n";
+                line += StringUtils.LF;
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
                 int start = 0;
                 while (start < lineBytes.length) {

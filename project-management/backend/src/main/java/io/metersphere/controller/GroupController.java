@@ -59,7 +59,7 @@ public class GroupController {
     }
 
     @PostMapping("/get")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.SYSTEM_USER_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
         return groupService.getGroupByType(request);
     }

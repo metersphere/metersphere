@@ -32,59 +32,64 @@ public class EsbDataStruct {
     private boolean required;
     private String description;
     private List<EsbDataStruct> children;
-    private String status = "";
+    private String status = StringUtils.EMPTY;
 
-    public void init(){
+    public void init() {
         this.uuid = UUID.randomUUID().toString();
-        this.systemName = "";
-        this.description = "";
-        this.value="";
+        this.systemName = StringUtils.EMPTY;
+        this.description = StringUtils.EMPTY;
+        this.value = StringUtils.EMPTY;
         this.required = true;
-        this.contentType = "";
-        this.type = "";
+        this.contentType = StringUtils.EMPTY;
+        this.type = StringUtils.EMPTY;
         this.children = new ArrayList<>();
     }
 
-    public boolean initDefaultData(String name, String typeLength,String chineseName,String desc){
+    public boolean initDefaultData(String name, String typeLength, String chineseName, String desc) {
         this.init();
-        if(StringUtils.isEmpty(name)){return  false; }
-        if(typeLength == null){
-            typeLength = "";
-        }else{
+        if (StringUtils.isEmpty(name)) {
+            return false;
+        }
+        if (typeLength == null) {
+            typeLength = StringUtils.EMPTY;
+        } else {
             typeLength = typeLength.trim();
             typeLength = typeLength.toLowerCase();
         }
 
         this.name = name;
 
-        if(typeLength.startsWith(PropertyConstant.STRING)){
+        if (typeLength.startsWith(PropertyConstant.STRING)) {
             this.type = PropertyConstant.STRING;
             String lengthStr = typeLength.substring(6);
-            if(lengthStr.startsWith("(") && lengthStr.endsWith(")")){
+            if (lengthStr.startsWith("(") && lengthStr.endsWith(")")) {
                 try {
-                    int length = Integer.parseInt(lengthStr.substring(1,lengthStr.length()-1));
+                    int length = Integer.parseInt(lengthStr.substring(1, lengthStr.length() - 1));
                     this.contentType = String.valueOf(length);
-                }catch (Exception e){ }
+                } catch (Exception e) {
+                }
 
             }
-        }else if(typeLength.startsWith(PropertyConstant.ARRAY)){
+        } else if (typeLength.startsWith(PropertyConstant.ARRAY)) {
             this.type = PropertyConstant.ARRAY;
-        }else{
+        } else {
             this.type = PropertyConstant.OBJECT;
         }
 
-        if(StringUtils.isEmpty(desc)){desc = "";}
-        if(StringUtils.isNotEmpty(chineseName)){
-            this.description = chineseName+":"+desc;
-        }else{
-            this.description =desc;
+        if (StringUtils.isEmpty(desc)) {
+            desc = StringUtils.EMPTY;
+        }
+        if (StringUtils.isNotEmpty(chineseName)) {
+            this.description = chineseName + ":" + desc;
+        } else {
+            this.description = desc;
         }
 
-        if(this.description.endsWith(":")){
-            this.description = this.description.substring(0,this.description.length()-1);
+        if (this.description.endsWith(":")) {
+            this.description = this.description.substring(0, this.description.length() - 1);
         }
 
-        return  true;
+        return true;
     }
 
     public EsbDataStruct copy(boolean copyChildren) {
@@ -115,7 +120,7 @@ public class EsbDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, PropertyConstant.STRING, PropertyConstant.ARRAY)) {
-                String attrString = "";
+                String attrString = StringUtils.EMPTY;
                 if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.STRING)) {
                     attrString = "s," + contentType;
                 } else if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.ARRAY)) {
@@ -129,8 +134,8 @@ public class EsbDataStruct {
 
         if (element != null) {
             if (this.children == null || this.children.isEmpty()) {
-                if(this.value == null ){
-                    this.value = "";
+                if (this.value == null) {
+                    this.value = StringUtils.EMPTY;
                 }
                 element.addText(this.value);
             } else {
@@ -153,7 +158,7 @@ public class EsbDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, PropertyConstant.STRING, PropertyConstant.ARRAY)) {
-                String attrString = "";
+                String attrString = StringUtils.EMPTY;
                 if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.STRING)) {
                     attrString = "s," + contentType;
                 } else if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.ARRAY)) {
@@ -179,14 +184,14 @@ public class EsbDataStruct {
 
     public List<String> getNameDeep() {
         List<String> returnList = new ArrayList<>();
-        if(StringUtils.isNotEmpty(this.name)){
+        if (StringUtils.isNotEmpty(this.name)) {
             returnList.add(this.name);
         }
-        if(CollectionUtils.isNotEmpty(this.children)){
-            for (EsbDataStruct child :this.children) {
+        if (CollectionUtils.isNotEmpty(this.children)) {
+            for (EsbDataStruct child : this.children) {
                 List<String> itemNameList = child.getNameDeep();
-                for (String itemName :itemNameList) {
-                    if(!returnList.contains(itemName)){
+                for (String itemName : itemNameList) {
+                    if (!returnList.contains(itemName)) {
                         returnList.add(itemName);
                     }
                 }

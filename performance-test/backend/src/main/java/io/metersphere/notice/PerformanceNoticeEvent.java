@@ -42,8 +42,8 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
 
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String reportUrl = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
-        String subject = "";
-        String event = "";
+        String subject = StringUtils.EMPTY;
+        String event = StringUtils.EMPTY;
         String successContext = "${operator}执行性能测试成功: ${name}, 报告: ${reportUrl}";
         String failedContext = "${operator}执行性能测试失败: ${name}, 报告: ${reportUrl}";
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())) {

@@ -57,7 +57,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     }
 
     protected String getBodyType(String contentType) {
-        String bodyType = "";
+        String bodyType = StringUtils.EMPTY;
         if (StringUtils.isBlank(contentType)) {
             return bodyType;
         }
@@ -85,7 +85,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     }
 
     protected void addBodyHeader(MsHTTPSamplerProxy request) {
-        String contentType = "";
+        String contentType = StringUtils.EMPTY;
         if (request.getBody() != null && StringUtils.isNotBlank(request.getBody().getType())) {
             switch (request.getBody().getType()) {
                 case Body.WWW_FROM:
@@ -176,7 +176,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value) {
-        addCookie(headers, key, value, "", true);
+        addCookie(headers, key, value, StringUtils.EMPTY, true);
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value, String description, boolean required) {
@@ -184,17 +184,17 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase("Cookie", header.getName())) {
                 hasCookie = true;
-                String cookies = Optional.ofNullable(header.getValue()).orElse("");
+                String cookies = Optional.ofNullable(header.getValue()).orElse(StringUtils.EMPTY);
                 header.setValue(cookies + key + "=" + value + ";");
             }
         }
         if (!hasCookie) {
-            addHeader(headers, "Cookie", key + "=" + value + ";", description, "", required);
+            addHeader(headers, "Cookie", key + "=" + value + ";", description, StringUtils.EMPTY, required);
         }
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value) {
-        addHeader(headers, key, value, "", "", true);
+        addHeader(headers, key, value, StringUtils.EMPTY, StringUtils.EMPTY, true);
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {

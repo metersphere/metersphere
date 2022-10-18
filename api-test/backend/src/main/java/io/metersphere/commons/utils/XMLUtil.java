@@ -1,7 +1,6 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.exec.engine.EngineSourceParserFactory;
-import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -10,6 +9,7 @@ import org.json.JSONObject;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,7 +67,7 @@ public class XMLUtil {
         StringBuffer buffer = new StringBuffer();
         buffer.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
         try {
-            jsonToXmlStr(jObj, buffer, new StringBuffer(""));
+            jsonToXmlStr(jObj, buffer, new StringBuffer(StringUtils.EMPTY));
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
@@ -105,7 +105,7 @@ public class XMLUtil {
         pattern = Pattern.compile(rgex);
         m = pattern.matcher(xml);
         xml = m.replaceAll(" </");
-        return Arrays.asList(xml.split(" "));
+        return Arrays.asList(xml.split(StringUtils.SPACE));
     }
 
     //  传入预处理的列表，返回转换成功的 json 对象
@@ -161,7 +161,7 @@ public class XMLUtil {
 
     public static Document stringToDocument(String xml) {
         try {
-            return EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xml.getBytes("utf-8")));
+            return EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8.name())));
         } catch (Exception e) {
             LogUtil.error(e);
             return null;
@@ -190,7 +190,7 @@ public class XMLUtil {
             if (list.size() == 1) {
                 result.put(node.getName(), list.get(0));
             } else {
-                result.put(node.getName(), new JSONArray(list));
+                result.put(node.getName(), list);
             }
         } else {
             if (!StringUtils.isAllBlank(node.getName(), node.getText())) {

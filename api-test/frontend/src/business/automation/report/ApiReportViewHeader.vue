@@ -79,7 +79,7 @@
 
 <script>
 
-import {generateShareInfoWithExpired,getShareRedirectUrl} from "../../../api/share";
+import {generateShareInfoWithExpired, getShareRedirectUrl} from "../../../api/share";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getProjectApplicationConfig} from "../../../api/project";
@@ -151,15 +151,12 @@ export default {
       $event.target.blur();
     },
     redirect() {
+      let uuid = getUUID().substring(1, 5);
+      let projectId = getCurrentProjectID();
+      let workspaceId = getCurrentWorkspaceId();
+      let path = `/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${this.scenarioId}`;
       let data = this.$router.resolve({
-        name: 'ApiAutomation',
-        query: {
-          redirectID: getUUID(),
-          dataType: "scenario",
-          projectId: getCurrentProjectID(),
-          workspaceId: getCurrentWorkspaceId(),
-          resourceId: this.scenarioId
-        }
+        path: path
       });
       window.open(data.href, '_blank');
     },
@@ -171,7 +168,9 @@ export default {
           this.$error(res.data);
         } else {
           this.$success(this.$t('api_test.automation.rerun_success'));
-          this.returnView();
+          if (this.$route.query && this.$route.query.list) {
+            this.returnView();
+          }
         }
       });
     },
@@ -226,5 +225,9 @@ export default {
 
 .report-name {
   border-bottom: 1px solid var(--primary_color);
+}
+
+.report-header {
+  min-width: 1000px;
 }
 </style>

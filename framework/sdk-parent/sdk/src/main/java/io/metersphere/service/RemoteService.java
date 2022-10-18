@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,7 +26,7 @@ public class RemoteService {
      */
     public Object get(String url) {
         // 返回null，前端会报错
-        return Optional.ofNullable(microService.getForData(serviceName, url)).orElse("");
+        return Optional.ofNullable(microService.getForData(serviceName, url)).orElse(StringUtils.EMPTY);
     }
 
     /**
@@ -34,6 +35,6 @@ public class RemoteService {
      * @return
      */
     public Object post(String url, Object param) {
-        return Optional.ofNullable(microService.postForData(serviceName, url, param)).orElse("");
+        return Optional.ofNullable(microService.postForData(serviceName, url, param)).orElse(StringUtils.EMPTY);
     }
 }

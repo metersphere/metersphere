@@ -3,11 +3,11 @@ package io.metersphere.commons.utils;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.utils.DocumentUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import net.sf.json.util.JSONTokener;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.XML;
 
 import java.util.LinkedList;
@@ -20,11 +20,11 @@ public class JSONToDocumentUtil {
             Object value = array.get(i);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement("", PropertyConstant.OBJECT, "", childrenElements));
+                children.add(new DocumentElement(StringUtils.EMPTY, PropertyConstant.OBJECT, StringUtils.EMPTY, childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement("", PropertyConstant.ARRAY, "", childrenElements);
+                DocumentElement documentElement = new DocumentElement(StringUtils.EMPTY, PropertyConstant.ARRAY, StringUtils.EMPTY, childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
@@ -33,7 +33,7 @@ public class JSONToDocumentUtil {
                 if (value != null) {
                     type = DocumentUtils.getType(value);
                 }
-                children.add(new DocumentElement("", type, value, null));
+                children.add(new DocumentElement(StringUtils.EMPTY, type, value, null));
             }
         }
     }
@@ -43,11 +43,11 @@ public class JSONToDocumentUtil {
             Object value = object.get(key);
             if (value instanceof JSONObject) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                children.add(new DocumentElement(key, PropertyConstant.OBJECT, "", childrenElements));
+                children.add(new DocumentElement(key, PropertyConstant.OBJECT, StringUtils.EMPTY, childrenElements));
                 jsonDataFormatting((JSONObject) value, childrenElements);
             } else if (value instanceof JSONArray) {
                 List<DocumentElement> childrenElements = new LinkedList<>();
-                DocumentElement documentElement = new DocumentElement(key, PropertyConstant.ARRAY, "", childrenElements);
+                DocumentElement documentElement = new DocumentElement(key, PropertyConstant.ARRAY, StringUtils.EMPTY, childrenElements);
                 documentElement.setArrayVerification(true);
                 children.add(documentElement);
                 jsonDataFormatting((JSONArray) value, childrenElements);
@@ -71,6 +71,7 @@ public class JSONToDocumentUtil {
                 JSONArray array = JSONUtil.parseArray(json);
                 jsonDataFormatting(array, children);
             } else {
+                roots.add(new DocumentElement().newRoot(PropertyConstant.ARRAY, children));
                 JSONArray array = JSONUtil.parseArray(json);
                 jsonDataFormatting(array, roots);
             }
@@ -80,6 +81,7 @@ public class JSONToDocumentUtil {
                 JSONObject object = JSONUtil.parseObject(json);
                 jsonDataFormatting(object, children);
             } else {
+                roots.add(new DocumentElement().newRoot(PropertyConstant.OBJECT, children));
                 JSONObject object = JSONUtil.parseObject(json);
                 jsonDataFormatting(object, roots);
             }

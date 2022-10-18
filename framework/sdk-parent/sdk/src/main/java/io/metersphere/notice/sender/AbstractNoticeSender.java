@@ -63,7 +63,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
         // 处理 WeCom Ding context
-        String context = "";
+        String context = StringUtils.EMPTY;
         switch (messageDetail.getEvent()) {
             case NoticeConstants.Event.EXECUTE_FAILED:
                 context = noticeModel.getFailedContext();
@@ -86,7 +86,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         // 处理 null
         context.forEach((k, v) -> {
             if (v == null) {
-                context.put(k, "");
+                context.put(k, StringUtils.EMPTY);
             }
         });
         // 处理时间格式的数据

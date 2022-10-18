@@ -4,7 +4,7 @@ import io.metersphere.base.domain.FileMetadata;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class ApiScenarioExportJmxDTO {
     private Map<String, List<String>> projectEnvMap;
 
     public ApiScenarioExportJmxDTO(String name, String jmx) {
-        this.name = StringUtils.replace(name, "/", "");
+        this.name = StringUtils.replace(name, "/", StringUtils.EMPTY);
         this.jmx = jmx;
     }
 }

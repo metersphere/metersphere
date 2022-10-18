@@ -174,9 +174,9 @@ public abstract class AbstractEngine implements Engine {
 
         Map<String, String> env = new HashMap<>();
         env.put("RATIO", StringUtils.join(ratios, ","));
-        env.put("RESOURCE_INDEX", "" + resourceIndex);
+        env.put("RESOURCE_INDEX", StringUtils.EMPTY + resourceIndex);
         env.put("METERSPHERE_URL", metersphereUrl);
-        env.put("START_TIME", "" + System.currentTimeMillis());
+        env.put("START_TIME", StringUtils.EMPTY + System.currentTimeMillis());
         env.put("TEST_ID", this.loadTestReport.getTestId());
         env.put("REPORT_ID", this.loadTestReport.getId());
         env.put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
@@ -200,7 +200,7 @@ public abstract class AbstractEngine implements Engine {
         completeCount.setId(UUID.randomUUID().toString());
         completeCount.setReportId(loadTestReport.getId());
         completeCount.setReportKey(ReportKeys.ReportCompleteCount.name());
-        completeCount.setReportValue("" + ratios.length); // 初始化一个 completeCount, 这个值用在data-streaming中
+        completeCount.setReportValue(StringUtils.EMPTY + ratios.length); // 初始化一个 completeCount, 这个值用在data-streaming中
         LoadTestReportResultMapper loadTestReportResultMapper = CommonBeanFactory.getBean(LoadTestReportResultMapper.class);
         loadTestReportResultMapper.insertSelective(completeCount);
     }

@@ -354,7 +354,7 @@ public class EnterpriseTestReportService {
 
         for (EnterpriseReportContentStep step : stepList) {
             String title = "<div style=\"background-color: #783887;font-size: 16px;color: white;margin: 5px;width: 100%; line-height:30px\">\n" +
-                    "<span style=\"margin-left: 5px\">" + step.getName() + "\n" +
+                    "<span style=\"margin-left: 5px\">" + step.getName() + StringUtils.LF +
                     "</span>\n" +
                     "</div>";
             returnReportContentBuffer.append(title);
@@ -364,7 +364,7 @@ public class EnterpriseTestReportService {
                 previweContent = StringUtils.replace(previweContent, "class=\"hljs-right\"", "style=\"text-align: right\"");
                 previweContent = StringUtils.replace(previweContent, "class=\"hljs-left\"", "style=\"text-align: left\"");
                 if (StringUtils.contains(previweContent, "<img src=\"/resource/md/get") && StringUtils.contains(previweContent, "\" alt=\"")) {
-                    String[] previewContentArr = StringUtils.splitByWholeSeparator(" " + previweContent, "<img src=\"/resource/md/get");
+                    String[] previewContentArr = StringUtils.splitByWholeSeparator(StringUtils.SPACE + previweContent, "<img src=\"/resource/md/get");
                     if (previewContentArr.length > 1) {
                         for (int i = 1; i < previewContentArr.length; i++) {
                             String itemStr = previewContentArr[i];

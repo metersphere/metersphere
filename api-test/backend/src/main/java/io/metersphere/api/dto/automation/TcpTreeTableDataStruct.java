@@ -33,16 +33,16 @@ public class TcpTreeTableDataStruct {
     private boolean required;
     private String description;
     private List<TcpTreeTableDataStruct> children;
-    private String status = "";
+    private String status = StringUtils.EMPTY;
 
-    public void init(){
+    public void init() {
         this.uuid = UUID.randomUUID().toString();
-        this.systemName = "";
-        this.description = "";
-        this.value="";
+        this.systemName = StringUtils.EMPTY;
+        this.description = StringUtils.EMPTY;
+        this.value = StringUtils.EMPTY;
         this.required = true;
-        this.contentType = "";
-        this.type = "";
+        this.contentType = StringUtils.EMPTY;
+        this.type = StringUtils.EMPTY;
         this.children = new ArrayList<>();
     }
 
@@ -74,7 +74,7 @@ public class TcpTreeTableDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, PropertyConstant.STRING, PropertyConstant.ARRAY)) {
-                String attrString = "";
+                String attrString = StringUtils.EMPTY;
                 if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.STRING)) {
                     attrString = "s," + contentType;
                 } else if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.ARRAY)) {
@@ -88,8 +88,8 @@ public class TcpTreeTableDataStruct {
 
         if (element != null) {
             if (this.children == null || this.children.isEmpty()) {
-                if(this.value == null ){
-                    this.value = "";
+                if (this.value == null) {
+                    this.value = StringUtils.EMPTY;
                 }
                 element.addText(this.value);
             } else {
@@ -112,7 +112,7 @@ public class TcpTreeTableDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, PropertyConstant.STRING, PropertyConstant.ARRAY)) {
-                String attrString = "";
+                String attrString = StringUtils.EMPTY;
                 if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.STRING)) {
                     attrString = "s," + contentType;
                 } else if (StringUtils.equalsIgnoreCase(this.type, PropertyConstant.ARRAY)) {
@@ -126,9 +126,9 @@ public class TcpTreeTableDataStruct {
 
         if (element != null) {
             if (this.children == null || this.children.isEmpty()) {
-                if(this.value == null){
-                    element.addText("");
-                }else {
+                if (this.value == null) {
+                    element.addText(StringUtils.EMPTY);
+                } else {
                     element.addText(this.value);
                 }
             } else {
@@ -142,14 +142,14 @@ public class TcpTreeTableDataStruct {
 
     public List<String> getNameDeep() {
         List<String> returnList = new ArrayList<>();
-        if(StringUtils.isNotEmpty(this.name)){
+        if (StringUtils.isNotEmpty(this.name)) {
             returnList.add(this.name);
         }
-        if(CollectionUtils.isNotEmpty(this.children)){
-            for (TcpTreeTableDataStruct child :this.children) {
+        if (CollectionUtils.isNotEmpty(this.children)) {
+            for (TcpTreeTableDataStruct child : this.children) {
                 List<String> itemNameList = child.getNameDeep();
-                for (String itemName :itemNameList) {
-                    if(!returnList.contains(itemName)){
+                for (String itemName : itemNameList) {
+                    if (!returnList.contains(itemName)) {
                         returnList.add(itemName);
                     }
                 }

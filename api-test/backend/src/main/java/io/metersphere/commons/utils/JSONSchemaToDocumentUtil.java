@@ -78,7 +78,7 @@ public class JSONSchemaToDocumentUtil {
             Object value = null;
             boolean required = requiredList.contains(propertyName);
             if (object.has(PropertyConstant.DEFAULT)) {
-                value = object.get(PropertyConstant.DEFAULT) != null ? object.get(PropertyConstant.DEFAULT).getAsString() : "";
+                value = object.get(PropertyConstant.DEFAULT) != null ? object.get(PropertyConstant.DEFAULT).getAsString() : StringUtils.EMPTY;
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (object.has(PropertyConstant.ENUM)) {
                 try {
@@ -102,7 +102,7 @@ public class JSONSchemaToDocumentUtil {
             } else if (propertyObjType.equals(PropertyConstant.STRING)) {
                 // 先设置空值
                 if (object.has(PropertyConstant.DEFAULT)) {
-                    value = object.get(PropertyConstant.DEFAULT) != null ? object.get(PropertyConstant.DEFAULT).getAsString() : "";
+                    value = object.get(PropertyConstant.DEFAULT) != null ? object.get(PropertyConstant.DEFAULT).getAsString() : StringUtils.EMPTY;
                 }
                 if (object.has(PropertyConstant.MOCK) && object.get(PropertyConstant.MOCK).getAsJsonObject() != null
                         && StringUtils.isNotEmpty(object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString())) {
@@ -149,12 +149,12 @@ public class JSONSchemaToDocumentUtil {
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
             } else if (propertyObjType.equals(PropertyConstant.ARRAY)) {
                 List<DocumentElement> elements = new LinkedList<>();
-                concept.add(new DocumentElement(propertyName, propertyObjType, "", requiredList.contains(propertyName), true, elements));
+                concept.add(new DocumentElement(propertyName, propertyObjType, StringUtils.EMPTY, requiredList.contains(propertyName), true, elements));
                 JsonArray jsonArray = object.get(PropertyConstant.ITEMS).getAsJsonArray();
                 analyzeArray(propertyName, jsonArray, elements, requiredList);
             } else if (propertyObjType.equals(PropertyConstant.OBJECT)) {
                 List<DocumentElement> list = new LinkedList<>();
-                concept.add(new DocumentElement(propertyName, propertyObjType, "", list));
+                concept.add(new DocumentElement(propertyName, propertyObjType, StringUtils.EMPTY, list));
                 analyzeObject(object, list);
             }
         }
@@ -166,8 +166,8 @@ public class JSONSchemaToDocumentUtil {
             if (obj.isJsonArray()) {
                 JsonArray itemsObject = obj.getAsJsonArray();
                 List<DocumentElement> elements = new LinkedList<>();
-                array.add(new DocumentElement(propertyName, "", "", requiredList.contains("" + i + ""), elements));
-                analyzeArray("", itemsObject, elements, requiredList);
+                array.add(new DocumentElement(propertyName, StringUtils.EMPTY, StringUtils.EMPTY, requiredList.contains(StringUtils.EMPTY + i + StringUtils.EMPTY), elements));
+                analyzeArray(StringUtils.EMPTY, itemsObject, elements, requiredList);
             } else if (obj.isJsonObject()) {
                 List<String> requiredItems = new ArrayList<>();
                 if (obj.getAsJsonObject().get(PropertyConstant.REQUIRED) != null) {
@@ -179,7 +179,7 @@ public class JSONSchemaToDocumentUtil {
                 analyzeProperty(array, String.valueOf(i), obj.getAsJsonObject(), CollectionUtils.isNotEmpty(requiredItems) ? requiredItems : requiredList);
             } else {
                 JsonPrimitive primitive = (JsonPrimitive) obj;
-                array.add(new DocumentElement(propertyName, primitive.getAsString(), "", requiredList.contains(propertyName), null));
+                array.add(new DocumentElement(propertyName, primitive.getAsString(), StringUtils.EMPTY, requiredList.contains(propertyName), null));
             }
         }
     }

@@ -55,3 +55,11 @@ export function deleteApiFieldTemplateById(id) {
 export function getFieldTemplateApiOption(projectId) {
   return get(`/field/template/api/option/${projectId}`);
 }
+
+export function getIssueTemplateCopyProject(userId, workspaceId) {
+  return get(`/field/template/issue/get/copy/project/` + userId + `/` + workspaceId);
+}
+
+export function copyIssueTemplate(param) {
+  return post(`/field/template/issue/copy`, param);
+}

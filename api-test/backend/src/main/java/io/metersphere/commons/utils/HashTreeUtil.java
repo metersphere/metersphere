@@ -69,7 +69,7 @@ public class HashTreeUtil {
                             for (String param : params) {
                                 String value = envHeadMap.get(param);
                                 if (value == null) {
-                                    value = "";
+                                    value = StringUtils.EMPTY;
                                 }
                                 if (returnMap.containsKey(envId)) {
                                     returnMap.get(envId).put(param, value);
@@ -94,7 +94,7 @@ public class HashTreeUtil {
             for (Object hashTreeKey : hashTree.keySet()) {
                 HashTree itemTree = hashTree.get(hashTreeKey);
 
-                String scriptValue = "";
+                String scriptValue = StringUtils.EMPTY;
                 try {
                     if (hashTreeKey instanceof JSR223PostProcessor) {
                         JSR223PostProcessor postProcessor = (JSR223PostProcessor) hashTreeKey;

@@ -14,6 +14,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,7 +110,7 @@ public class XMLUtils {
         pattern = Pattern.compile(rgex);
         m = pattern.matcher(xml);
         xml = m.replaceAll(" </");
-        return Arrays.asList(xml.split(" "));
+        return Arrays.asList(xml.split(StringUtils.SPACE));
     }
 
     //  传入预处理的列表，返回转换成功的 json 对象
@@ -179,7 +180,7 @@ public class XMLUtils {
 
     public static Document stringToDocument(String xml) {
         try {
-            return getDocument(new ByteArrayInputStream(xml.getBytes("utf-8")));
+            return getDocument(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8.name())));
         } catch (Exception e) {
             LogUtil.error(e);
             return null;

@@ -13,6 +13,7 @@ import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
@@ -172,13 +173,6 @@ public class ApiDefinitionService {
     private static final String SCHEDULE = "schedule";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
-        // 来自工作台条件
-        if (BooleanUtils.isTrue(request.getToBeUpdated())) {
-            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
-            if (toBeUpdatedTime != null) {
-                request.setToBeUpdateTime(toBeUpdatedTime);
-            }
-        }
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
@@ -192,10 +186,31 @@ public class ApiDefinitionService {
         return resList;
     }
 
+    /**
+     * 工作台获取待应用管理设置的更新的条件
+     * @param request
+     */
+    public void getApplicationUpdateRule(ApiDefinitionRequest request){
+        // 来自工作台条件
+        if (BooleanUtils.isTrue(request.getToBeUpdated())) {
+            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
+    }
+
     public List<ApiDefinition> selectByIds(ApiDefinitionRequest request) {
-        if (request != null && CollectionUtils.isNotEmpty(request.getIds())) {
+        if (request != null) {
+           return selectByIds(request.getIds());
+        }
+        return new ArrayList<>();
+    }
+
+    public List<ApiDefinition> selectByIds(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(request.getIds());
+            example.createCriteria().andIdIn(ids);
             List<ApiDefinition> list = apiDefinitionMapper.selectByExample(example);
             return list;
         }
@@ -215,7 +230,7 @@ public class ApiDefinitionService {
         resList.forEach(i -> {
             Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
             if (project == null) {
-                i.setProjectName("");
+                i.setProjectName(StringUtils.EMPTY);
                 i.setVersionEnable(false);
             } else {
                 i.setProjectName(project.getName());
@@ -521,31 +536,32 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(apiIds)) {
             return;
         }
-        apiIds.forEach(apiId -> {
-            // 把所有版本的api移到回收站
-            ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
-            if (api == null) {
-                return;
-            }
-            ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
-            example.createCriteria().andRefIdEqualTo(api.getRefId());
-            example.setOperator(SessionUtils.getUserId());
-            example.setOperationTime(System.currentTimeMillis());
-            extApiDefinitionMapper.removeToGcByExample(example);
+        ApiDefinitionExample  apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andIdIn(apiIds);
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        if (CollectionUtils.isEmpty(apiDefinitions)){
+            return;
+        }
+        List<String> refIds = apiDefinitions.stream().map(ApiDefinition::getRefId).collect(Collectors.toList());
+        ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
+        example.createCriteria().andRefIdIn(refIds);
+        example.setOperator(SessionUtils.getUserId());
+        example.setOperationTime(System.currentTimeMillis());
+        extApiDefinitionMapper.removeToGcByExample(example);
 
-            ApiDefinitionRequest request = new ApiDefinitionRequest();
-            request.setRefId(api.getRefId());
-            List<String> ids = extApiDefinitionMapper.selectIds(request);
+        apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andRefIdIn(refIds);
+        List<ApiDefinition> apiDefinitionList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        List<String> ids = apiDefinitionList.stream().map(ApiDefinition::getId).collect(Collectors.toList());
 
-            // 把所有版本的api case移到回收站
-            List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(ids);
-            if (CollectionUtils.isNotEmpty(apiCaseIds)) {
-                ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
-                apiTestBatchRequest.setIds(apiCaseIds);
-                apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
-                apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
-            }
-        });
+        // 把所有版本的api case移到回收站
+        List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(ids);
+        if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+            ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+            apiTestBatchRequest.setIds(apiCaseIds);
+            apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
+            apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
+        }
     }
 
     public void reduction(ApiBatchRequest request) {
@@ -582,7 +598,7 @@ public class ApiDefinitionService {
                     }
 
                     if (StringUtils.isEmpty(moduleId)) {
-                        moduleId = "";
+                        moduleId = StringUtils.EMPTY;
                     }
                     if (nodeMap.containsKey(moduleId)) {
                         nodeMap.get(moduleId).add(apiDefinition);
@@ -729,7 +745,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         }
         this.setModule(test);
 
@@ -884,7 +900,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         }
         if (apiDefinitionMapper.selectByPrimaryKey(test.getId()) == null) {
             apiDefinitionMapper.insert(test);
@@ -1016,7 +1032,7 @@ public class ApiDefinitionService {
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getPriority())) {
                 apiTestCaseWithBLOBs.setPriority("P0");
             }
-            apiTestCaseWithBLOBs.setStatus("");
+            apiTestCaseWithBLOBs.setStatus(StringUtils.EMPTY);
 
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 BeanUtils.copyBean(apiTestCaseDTO, apiTestCaseWithBLOBs);
@@ -1351,7 +1367,7 @@ public class ApiDefinitionService {
         }
 
         if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
-            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), "") && existApi.getTags() != null && Objects.equals(existApi.getTags(), "")) {
+            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), StringUtils.EMPTY) && existApi.getTags() != null && Objects.equals(existApi.getTags(), StringUtils.EMPTY)) {
                 return true;
             }
         }
@@ -1442,7 +1458,9 @@ public class ApiDefinitionService {
 
     private boolean setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
-        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONUtil.parseObject(request, MsHTTPSamplerProxy.class);
+        JSONObject jsonObject = JSONUtil.parseObject(request);
+        ElementUtil.dataFormatting(jsonObject);
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONUtil.parseObject(jsonObject.toString(), MsHTTPSamplerProxy.class);
         boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
         if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
             createCase = true;
@@ -1611,7 +1629,7 @@ public class ApiDefinitionService {
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
                 NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_SUCCESSFUL).build();
-                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+                noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
             }
             if (!StringUtils.equals(request.getType(), SCHEDULE) && CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
                 for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
@@ -1649,7 +1667,7 @@ public class ApiDefinitionService {
             paramMap.put("url", request.getSwaggerUrl());
             paramMap.put("projectId", request.getProjectId());
             NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_FAILED).build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
         }
     }
 
@@ -2166,7 +2184,7 @@ public class ApiDefinitionService {
             criteria.andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
         }
         List<SwaggerUrlProject> list = swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
-        String resourceId = "";
+        String resourceId = StringUtils.EMPTY;
         if (list.size() == 1) {
             resourceId = list.get(0).getId();
         }
@@ -2248,7 +2266,7 @@ public class ApiDefinitionService {
             }
             String[] urlParams = urlSuffix.split("/");
             if (urlSuffixEndEmpty) {
-                urlParams[urlParams.length - 1] = "";
+                urlParams[urlParams.length - 1] = StringUtils.EMPTY;
             }
             for (ApiDefinition api : apiList) {
                 if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {

@@ -241,7 +241,7 @@ public class BaseScheduleService {
         if (list.size() > 0) {
             return list.get(0).getKey();
         } else {
-            return "";
+            return StringUtils.EMPTY;
         }
 
     }

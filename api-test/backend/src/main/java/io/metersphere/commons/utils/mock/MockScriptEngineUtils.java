@@ -85,7 +85,7 @@ public class MockScriptEngineUtils {
             if (StringUtils.isEmpty(scriptLanguage)) {
                 return null;
             }
-            String preScript = "";
+            String preScript = StringUtils.EMPTY;
             if (StringUtils.equalsIgnoreCase(scriptLanguage, "beanshell")) {
                 ScriptEngineManager scriptEngineFactory = new ScriptEngineManager();
                 engine = scriptEngineFactory.getEngineByName("beanshell");

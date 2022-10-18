@@ -403,7 +403,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 }
             }
             if (!hasNode) {
-                createNodeByPath(itemIterator, rootNodeName, null, projectId, 1, "", pathMap);
+                createNodeByPath(itemIterator, rootNodeName, null, projectId, 1, StringUtils.EMPTY, pathMap);
             }
         }
         return pathMap;

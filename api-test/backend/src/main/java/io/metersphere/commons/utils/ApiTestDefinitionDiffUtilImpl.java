@@ -207,7 +207,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                     authColumns.forEach(item -> {
                         Object value = item.getOriginalValue();
                         item.setNewValue(value);
-                        item.setOriginalValue("");
+                        item.setOriginalValue(StringUtils.EMPTY);
                     });
                     diffMap.put("body_auth", JSON.toJSONString(authColumns));
                 }
@@ -370,7 +370,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         OperatingLogDetails detailsOld = new OperatingLogDetails();
         detailsOld.setColumns(columnsOld);
 
-        List<DetailColumn> diffColumns = ReflexObjectUtil.compared(detailsOld, detailsNew, "");
+        List<DetailColumn> diffColumns = ReflexObjectUtil.compared(detailsOld, detailsNew, StringUtils.EMPTY);
         return diffColumns;
     }
 

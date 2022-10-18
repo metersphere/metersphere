@@ -130,6 +130,27 @@
         AND t.status IN ("running","starting","waiting")
         )
         UNION ALL
+        (SELECT t.id,'SCENARIO' AS executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS
+        executor,t.create_time AS executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+        FROM ui_scenario_report t LEFT JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+        t.actuator = t2.id
+        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+        !='Marge' AND t.project_id IN
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        <if test="request.triggerMode != null and request.triggerMode != ''">
+            AND t.trigger_mode = #{request.triggerMode}
+        </if>
+        <if test="request.executionStatus != null and request.executionStatus != ''">
+            AND t.status = #{request.executionStatus}
+        </if>
+        <if test="request.executor != null and request.executor != ''">
+            AND t.user_id = #{request.executor}
+        </if>
+        AND t.status IN ("running","starting","waiting")
+        )
+        UNION ALL
         (SELECT t.id,'API' AS executionModule, t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS
         executor,t.create_time AS executionTime, ifnull(t.trigger_mode,'MANUAL') AS triggerMode
         ,ifnull(t.status,'Saved') AS executionStatus
@@ -197,7 +218,7 @@
     </select>
 
     <update id="stopScenario">
-        UPDATE api_scenario_report SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        UPDATE api_scenario_report SET status ='STOPPED' WHERE status IN ("running","starting","waiting") AND
         project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
@@ -206,7 +227,7 @@
 
 
     <update id="stopApi">
-        UPDATE api_definition_exec_result SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        UPDATE api_definition_exec_result SET status ='STOPPED' WHERE status IN ("running","starting","waiting") AND
         project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}

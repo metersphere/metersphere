@@ -30,6 +30,8 @@ package io.metersphere.log.utils.diff.json;
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Represents a difference, as used in <code>Diff</code>. A difference consists of two pairs of starting and ending
  * points, each pair representing either the "from" or the "to" collection passed to <code>Diff</code>. If an ending
@@ -148,7 +150,7 @@ public class IncavaEntry {
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("del: [" + delStart + ", " + delEnd + "]");
-        buf.append(" ");
+        buf.append(StringUtils.SPACE);
         buf.append("add: [" + addStart + ", " + addEnd + "]");
         return buf.toString();
     }

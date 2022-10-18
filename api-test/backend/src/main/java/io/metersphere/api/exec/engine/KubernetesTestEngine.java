@@ -12,6 +12,7 @@ import io.metersphere.xpack.resourcepool.engine.provider.ClientCredential;
 import io.metersphere.xpack.resourcepool.engine.provider.KubernetesProvider;
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 
 import java.util.Set;
@@ -50,17 +51,17 @@ public class KubernetesTestEngine extends AbstractEngine {
             Pod pod = KubernetesApiExec.getExecPod(clientCredential, client);
 
             StringBuffer logMsg = new StringBuffer("当前报告：【" + runRequest.getReportId() + "】资源：【" + runRequest.getTestId() + "】")
-                    .append("\n").append("namespace：").append(clientCredential.getNamespace())
-                    .append("\n").append("Pod信息：【 ")
+                    .append(StringUtils.LF).append("namespace：").append(clientCredential.getNamespace())
+                    .append(StringUtils.LF).append("Pod信息：【 ")
                     .append(JSON.toJSONString(pod.getMetadata())).append(" 】");
             LoggerUtil.info(logMsg);
             // 拼接CURL执行命令
-            StringBuffer command = new StringBuffer("curl -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d").append(" ");
+            StringBuffer command = new StringBuffer("curl -H \"Accept: application/json\" -H \"Content-type: application/json\" -X POST -d").append(StringUtils.SPACE);
             command.append("'").append(JSON.toJSONString(runRequest)).append("'"); // 请求参数
-            command.append(" ").append("--connect-timeout 30");  // 设置连接超时时间为30S
-            command.append(" ").append("--max-time 120");  // 设置请求超时时间为120S
-            command.append(" ").append("--retry 3");  // 设置重试次数3次
-            command.append(" ").append("http://127.0.0.1:8082/jmeter/api/start");
+            command.append(StringUtils.SPACE).append("--connect-timeout 30");  // 设置连接超时时间为30S
+            command.append(StringUtils.SPACE).append("--max-time 120");  // 设置请求超时时间为120S
+            command.append(StringUtils.SPACE).append("--retry 3");  // 设置重试次数3次
+            command.append(StringUtils.SPACE).append("http://127.0.0.1:8082/jmeter/api/start");
             KubernetesApiExec.newExecWatch(client, clientCredential.getNamespace(), pod.getMetadata().getName(), command.toString());
         } catch (Exception e) {
             LoggerUtil.error("当前报告：【" + runRequest.getReportId() + "】资源：【" + runRequest.getTestId() + "】CURL失败：", e);

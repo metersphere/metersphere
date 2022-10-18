@@ -135,25 +135,25 @@ public class FileRepositoryService {
                     if (StringUtils.equals(fileAssociation.getType(), FileAssociationType.API.name())) {
                         ApiDefinition apiDefinition = apiMap.get(fileAssociation.getSourceId());
                         if (apiDefinition != null) {
-                            caseId = apiDefinition.getNum() == null ? "" : apiDefinition.getNum().toString();
+                            caseId = apiDefinition.getNum() == null ? StringUtils.EMPTY : apiDefinition.getNum().toString();
                             caseName = apiDefinition.getName();
                         }
                     } else if (StringUtils.equals(fileAssociation.getType(), FileAssociationType.CASE.name())) {
                         ApiTestCase testCase = apiCaseMap.get(fileAssociation.getSourceId());
                         if (testCase != null) {
-                            caseId = testCase.getNum() == null ? "" : testCase.getNum().toString();
+                            caseId = testCase.getNum() == null ? StringUtils.EMPTY : testCase.getNum().toString();
                             caseName = testCase.getName();
                         }
                     } else if (StringUtils.equals(fileAssociation.getType(), FileAssociationType.SCENARIO.name())) {
                         ApiScenario testCase = scenarioMap.get(fileAssociation.getSourceId());
                         if (testCase != null) {
-                            caseId = testCase.getNum() == null ? "" : testCase.getNum().toString();
+                            caseId = testCase.getNum() == null ? StringUtils.EMPTY : testCase.getNum().toString();
                             caseName = testCase.getName();
                         }
                     } else if (StringUtils.equals(fileAssociation.getType(), "TEST_CASE")) {
                         TestCase testCase = testCaseMap.get(fileAssociation.getSourceId());
                         if (testCase != null) {
-                            caseId = testCase.getNum() == null ? "" : testCase.getNum().toString();
+                            caseId = testCase.getNum() == null ? StringUtils.EMPTY : testCase.getNum().toString();
                             caseName = testCase.getName();
                         }
                     }
@@ -166,7 +166,7 @@ public class FileRepositoryService {
                 for (LoadTestFileDTO loadTestFile : loadTestFileList) {
                     LoadTest loadTest = loadTestFile.getLoadTest();
                     if (loadTest != null) {
-                        FileRelevanceCaseDTO dto = new FileRelevanceCaseDTO(loadTestFile.getFileId(), loadTest.getNum() + "", loadTest.getName(), "LOAD_CASE"
+                        FileRelevanceCaseDTO dto = new FileRelevanceCaseDTO(loadTestFile.getFileId(), loadTest.getNum() + StringUtils.EMPTY, loadTest.getName(), "LOAD_CASE"
                                 , fileCommitIdMap.get(loadTestFile.getFileId()));
                         list.add(dto);
                     }

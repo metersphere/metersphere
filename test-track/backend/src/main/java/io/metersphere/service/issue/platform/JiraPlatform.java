@@ -158,7 +158,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     private String appendMoreImage(String description, Map<String, String> fileContentMap) {
         for (String key: fileContentMap.keySet()) {
             // 同步jira上传的附件
-            description += "\n" + fileContentMap.get(key);
+            description += StringUtils.LF + fileContentMap.get(key);
         }
         return description;
     }
@@ -417,7 +417,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         try {
             while (matcher.find()) {
                 String url = matcher.group(1);
-                result = URLDecoder.decode(url, "UTF-8");
+                result = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
             }
         } catch (Exception exception) {
             return targetStr;
@@ -915,6 +915,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             && !msAttachmentsName.contains(filename)) {
                         try {
                             byte[] content = jiraClientV2.getAttachmentContent(attachment.get("content").toString());
+                            if (content == null) {
+                                continue;
+                            }
                             FileAttachmentMetadata fileAttachmentMetadata = attachmentService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
                             AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
                             attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());

@@ -67,7 +67,7 @@ public class JSONSchemaGenerator {
 
     private static void analyzeProperty(JSONObject concept, String propertyName, JsonObject object) {
         if (object.has(PropertyConstant.TYPE)) {
-            String propertyObjType = "";
+            String propertyObjType = StringUtils.EMPTY;
             if (object.get(PropertyConstant.TYPE) instanceof JsonPrimitive) {
                 propertyObjType = object.get(PropertyConstant.TYPE).getAsString();
             } else if (object.get(PropertyConstant.TYPE) instanceof JsonArray) {
@@ -94,11 +94,11 @@ public class JSONSchemaGenerator {
                         }
                     }
                 } catch (Exception e) {
-                    concept.put(propertyName, "");
+                    concept.put(propertyName, StringUtils.EMPTY);
                 }
             } else if (propertyObjType.equals(PropertyConstant.STRING)) {
                 // 先设置空值
-                concept.put(propertyName, "");
+                concept.put(propertyName, StringUtils.EMPTY);
                 if (object.has("format")) {
                     String propertyFormat = object.get("format").getAsString();
                     if (propertyFormat.equals("date-time")) {
@@ -158,7 +158,7 @@ public class JSONSchemaGenerator {
                     try {
                         if (StringUtils.isNotEmpty(value)) {
                             if (value.indexOf("\"") != -1) {
-                                value = value.replaceAll("\"", "");
+                                value = value.replaceAll("\"", StringUtils.EMPTY);
                             }
                             concept.put(propertyName, Boolean.valueOf(value));
                         }
@@ -203,7 +203,7 @@ public class JSONSchemaGenerator {
                                 String value = ScriptEngineUtils.buildFunctionCallString(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
                                 array.add(value);
                             } else {
-                                array.add("");
+                                array.add(StringUtils.EMPTY);
                             }
                         } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.NUMBER)) {
                             if (jsonObject.has(PropertyConstant.DEFAULT)) {
@@ -240,7 +240,7 @@ public class JSONSchemaGenerator {
                 concept.put(propertyName, obj);
                 analyzeObject(object, obj);
             } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
-                concept.put(propertyName, "");
+                concept.put(propertyName, StringUtils.EMPTY);
             }
         }
     }

@@ -483,7 +483,7 @@ public class TestCaseReviewService {
         Map<String, String> userMap = baseUserService.getProjectMemberList(queryMemberRequest)
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
         StringBuilder stringBuilder = new StringBuilder();
-        String name = "";
+        String name = StringUtils.EMPTY;
 
         if (userIds.size() > 0) {
             for (String id : userIds) {
@@ -519,11 +519,11 @@ public class TestCaseReviewService {
         } else {
             start = "未设置";
         }
-        String context = "";
+        String context = StringUtils.EMPTY;
         if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
         } else if (StringUtils.equals(NoticeConstants.Event.UPDATE, type)) {
-            String status = "";
+            String status = StringUtils.EMPTY;
             if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
                 status = "进行中";
             } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {

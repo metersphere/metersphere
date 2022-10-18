@@ -77,13 +77,13 @@ public class ApiAppStartListener implements ApplicationRunner {
         LogUtil.info("starting quartz");
         StringBuffer buffer = new StringBuffer("定时任务相关设置：");
         buffer.append("quartz.acquireTriggersWithinLock :")
-                .append(acquireTriggersWithinLock).append("\n")
+                .append(acquireTriggersWithinLock).append(StringUtils.LF)
                 .append("quartz.enabled ")
-                .append(quartzEnable).append("\n")
+                .append(quartzEnable).append(StringUtils.LF)
                 .append("quartz.scheduler-name ")
-                .append(quartzScheduleName).append("\n")
+                .append(quartzScheduleName).append(StringUtils.LF)
                 .append("quartz.thread-count ")
-                .append(quartzThreadCount).append("\n");
+                .append(quartzThreadCount).append(StringUtils.LF);
 
         LogUtil.info(buffer.toString());
         scheduleService.startEnableSchedules(ScheduleGroup.API_SCENARIO_TEST);

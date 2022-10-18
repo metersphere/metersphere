@@ -61,7 +61,7 @@ export default {
       workspaceTemplate: getMenus('workspaceTemplate'),
       systemPermission: [
         'SYSTEM_USER:READ', 'SYSTEM_ORGANIZATION:READ', 'SYSTEM_GROUP:READ',
-        'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_TEST_POOL:READ',
+        'SYSTEM_WORKSPACE:READ', 'SYSTEM_TEST_POOL:READ',
         'SYSTEM_SETTING:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_AUTH:READ'
       ],
       workspacePermission: ['WORKSPACE_USER:READ', 'WORKSPACE_SERVICE:READ',

@@ -12,6 +12,7 @@ import io.metersphere.reportstatistics.service.remote.track.TestCaseRemoteServic
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.service.BaseProjectService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +67,7 @@ public class TestAnalysisService {
             List<TestAnalysisChartResult> createResults = testCaseRemoteService.countCaseByTypeAndRequest("create", request);
             // 获取修改的用例统计报表
             List<TestAnalysisChartResult> updateResults = testCaseRemoteService.countCaseByTypeAndRequest("update", request);
-            formatXaxisSeries(xAxis, seriesList, "", dto, createResults, updateResults);
+            formatXaxisSeries(xAxis, seriesList, StringUtils.EMPTY, dto, createResults, updateResults);
             formatTable(dtos, createResults, updateResults);
         } else {
             List<String> users = request.getUsers();

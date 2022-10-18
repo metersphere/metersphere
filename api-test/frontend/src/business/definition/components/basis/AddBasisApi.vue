@@ -217,10 +217,12 @@ export default {
     },
     open(currentModule) {
       this.httpForm = {method: REQ_METHOD[0].id, userId: getCurrentUser().id};
-      if (this.httpForm.moduleId === undefined) {
-        this.httpForm.moduleId = this.moduleOptions[0].id;
-      }
       this.currentModule = currentModule;
+      if (this.httpForm.moduleId === undefined && !currentModule.id) {
+        this.httpForm.moduleId = this.moduleOptions[0].id;
+      } else if (currentModule.id) {
+        this.httpForm.moduleId = currentModule.id;
+      }
       this.getMaintainerOptions();
       this.httpVisible = true;
     },

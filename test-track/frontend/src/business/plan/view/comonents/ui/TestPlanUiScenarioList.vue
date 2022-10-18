@@ -147,7 +147,7 @@
                            :filters="apiscenariofilters.RESULT_FILTERS"
                            :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
-              <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult==='PENDING'">
+              <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult==='PENDING' || row.lastResult==='UnExecute'">
                 <ms-test-plan-api-status :status="row.lastResult"/>
               </el-link>
             </template>
@@ -320,9 +320,9 @@ export default {
           {text: 'P3', value: 'P3'}
         ],
         RESULT_FILTERS: [
-          {text: i18n.t('api_test.automation.fail'), value: 'Fail'},
-          {text: i18n.t('api_test.automation.success'), value: 'Success'},
-          {text: i18n.t('api_test.home_page.detail_card.unexecute'), value: 'unexecute'},
+          {text: i18n.t('Error'), value: 'ERROR'},
+          {text: i18n.t('Success'), value: 'SUCCESS'},
+          {text: i18n.t('Pending'), value: 'PENDING'},
         ]
       },
       versionFilters: [],

@@ -183,7 +183,7 @@ public class ShareInfoService extends BaseShareInfoService {
                     apiInfoDTO.setCreateUser(userIdMap.get(apiModel.getCreateUser()) == null ? apiModel.getCreateUser() : userIdMap.get(apiModel.getCreateUser()).getName());
                     apiInfoDTO.setDesc(apiModel.getDescription());
                     if (MapUtils.isNotEmpty(moduleMap)) {
-                        apiInfoDTO.setModules(moduleMap.containsKey(apiModel.getModuleId()) ? moduleMap.get(apiModel.getModuleId()) : "");
+                        apiInfoDTO.setModules(moduleMap.containsKey(apiModel.getModuleId()) ? moduleMap.get(apiModel.getModuleId()) : StringUtils.EMPTY);
                     } else {
                         ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
                         apiInfoDTO.setModules(apiModuleService.getModuleNameById(apiModel.getModuleId()));
@@ -290,7 +290,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                                 for (int i = 0; i < kvsArr.size(); i++) {
                                                     JsonNode kv = kvsArr.get(i);
                                                     if (this.isObjectHasKey(kv, "name")) {
-                                                        String value = "";
+                                                        String value = StringUtils.EMPTY;
                                                         if (kv.has("value")) {
                                                             value = String.valueOf(kv.get("value"));
                                                         }
@@ -312,7 +312,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                                         Map<String, String> bodyMap = new HashMap<>();
                                                         String name = kv.get("description").asText();
                                                         ArrayNode fileArr = kv.withArray("files");
-                                                        String value = "";
+                                                        String value = StringUtils.EMPTY;
                                                         for (int j = 0; j < fileArr.size(); j++) {
                                                             JsonNode fileObj = fileArr.get(j);
                                                             if (this.isObjectHasKey(fileObj, "name")) {
@@ -413,7 +413,7 @@ public class ShareInfoService extends BaseShareInfoService {
 
                                                     String name = kv.get("description").asText();
                                                     ArrayNode fileArr = kv.withArray("files");
-                                                    String value = "";
+                                                    String value = StringUtils.EMPTY;
                                                     for (int j = 0; j < fileArr.size(); j++) {
                                                         JsonNode fileObj = fileArr.get(j);
                                                         if (this.isObjectHasKey(fileObj, "name")) {

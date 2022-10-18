@@ -459,9 +459,9 @@ public class TestPlanReportService {
 
     private String getPrincipalName(String planId) {
         if (StringUtils.isBlank(planId)) {
-            return "";
+            return StringUtils.EMPTY;
         }
-        String principalName = "";
+        String principalName = StringUtils.EMPTY;
         TestPlanPrincipalExample example = new TestPlanPrincipalExample();
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanPrincipal> principals = testPlanPrincipalMapper.selectByExample(example);

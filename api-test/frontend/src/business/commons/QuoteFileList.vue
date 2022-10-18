@@ -17,24 +17,26 @@
         <ms-table-column
           prop="name"
           show-overflow-tooltip
-          :width="100"
+          :min-width="150"
           :label="$t('load_test.file_name')">
         </ms-table-column>
         <ms-table-column
           sortable
           prop="type"
+          :min-width="150"
           :filters="typeFilters"
           :label="$t('load_test.file_type')">
         </ms-table-column>
 
         <ms-table-column
           prop="description"
+          :min-width="100"
           :label="$t('group.description')">
         </ms-table-column>
 
         <ms-table-column
           prop="tags"
-          min-width="60px"
+          width="100px"
           :show-overflow-tooltip=false
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
@@ -56,17 +58,21 @@
         <ms-table-column
           sortable
           prop="createUser"
+          :min-width="100"
           :label="$t('commons.create_user')">
         </ms-table-column>
         <ms-table-column
           sortable
           prop="updateUser"
+          :min-width="100"
           :label="$t('ui.update_user')">
         </ms-table-column>
 
         <ms-table-column
           sortable
           :label="$t('commons.update_time')"
+          :min-width="150"
+          fixed="right"
           prop="updateTime">
           <template v-slot="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
@@ -89,7 +95,7 @@ import {getFileMetadataList, getMetadataTypes} from "metersphere-frontend/src/ap
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsTableHeader from "./FileHeader";
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";

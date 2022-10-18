@@ -2,6 +2,7 @@ package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -28,8 +29,8 @@ public class WebSocketUtil {
 
     // 单用户推送
     public static void sendMessageSingle(MsgDTO dto) {
-        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getReportId()).orElse("")), dto.getContent());
-        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getToReport()).orElse("")), dto.getContent());
+        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getReportId()).orElse(StringUtils.EMPTY)), dto.getContent());
+        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getToReport()).orElse(StringUtils.EMPTY)), dto.getContent());
     }
 
     // 全用户推送

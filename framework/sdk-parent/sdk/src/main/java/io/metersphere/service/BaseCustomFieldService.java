@@ -74,7 +74,7 @@ public class BaseCustomFieldService {
         resource.setFieldId(dto.getId());
         if (StringUtils.isNotBlank(dto.getType()) &&
                 StringUtils.equalsAny(dto.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
-            resource.setTextValue(dto.getValue() == null ? "" : dto.getValue().toString());
+            resource.setTextValue(dto.getValue() == null ? StringUtils.EMPTY : dto.getValue().toString());
         } else {
             resource.setValue(JSON.toJSONString(dto.getValue()));
         }

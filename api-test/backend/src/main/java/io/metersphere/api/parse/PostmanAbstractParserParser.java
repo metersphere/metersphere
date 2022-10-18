@@ -1,6 +1,8 @@
 package io.metersphere.api.parse;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
@@ -30,7 +32,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
-        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod(), Optional.ofNullable(requestDesc.getBody()).orElse(new JSONObject()).optString("jsonSchema"));
+        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? StringUtils.EMPTY : url.getRaw(), requestDesc.getMethod(),
+                requestDesc.getBody().get("jsonSchema") == null ? StringUtils.EMPTY : requestDesc.getBody().get("jsonSchema").textValue());
         request.setRest(parseKeyValue(requestDesc.getUrl().getVariable()));
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
@@ -132,18 +135,20 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
     }
 
     private void parseBody(Body body, PostmanRequest requestDesc) {
-        JSONObject postmanBody = requestDesc.getBody();
+        ObjectNode postmanBody = requestDesc.getBody();
         if (postmanBody == null) {
             return;
         }
-        String bodyMode = postmanBody.optString("mode");
+        String bodyMode = postmanBody.get("mode").textValue();
         if (StringUtils.isBlank(bodyMode)) {
             return;
         }
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             parseRawBody(body, postmanBody, bodyMode);
         } else if (StringUtils.equalsAny(bodyMode, PostmanRequestBodyMode.FORM_DATA.value(), PostmanRequestBodyMode.URLENCODED.value())) {
-            List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(parseVariable(postmanBody.optString(bodyMode)), PostmanKeyValue.class);
+            String s1 = postmanBody.get(bodyMode).toString();
+            String s = parseVariable(s1);
+            List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(s, PostmanKeyValue.class);
             body.setKvs(parseKeyValue(postmanKeyValues));
             if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.FORM_DATA.value())) {
                 body.setType(Body.FORM_DATA);
@@ -156,15 +161,15 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
     }
 
-    private void parseRawBody(Body body, JSONObject postmanBody, String bodyMode) {
-        body.setRaw(parseVariable(postmanBody.optString(bodyMode)));
+    private void parseRawBody(Body body, ObjectNode postmanBody, String bodyMode) {
+        body.setRaw(parseVariable(postmanBody.get(bodyMode).textValue()));
         body.setType(MsRequestBodyType.RAW.value());
-        JSONObject options = postmanBody.optJSONObject("options");
+        JsonNode options = postmanBody.get("options");
         if (options != null) {
-            JSONObject raw = options.optJSONObject(PostmanRequestBodyMode.RAW.value());
+            JsonNode raw = options.get(PostmanRequestBodyMode.RAW.value());
             if (raw != null) {
-                String bodyType = "";
-                switch (raw.optString("language")) {
+                String bodyType = StringUtils.EMPTY;
+                switch (raw.get("language").textValue()) {
                     case "json":
                         bodyType = Body.JSON_STR;
                         break;

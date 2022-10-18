@@ -4,6 +4,7 @@ package io.metersphere.controller.handler;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -49,13 +50,13 @@ public class WebLogAspect {
 
         StringBuilder sb = new StringBuilder()
                 .append(h.getMethod()).append(": ")
-                .append(h.getUrl()).append(" ")
+                .append(h.getUrl()).append(StringUtils.SPACE)
                 .append("TIME: ")
                 .append((System.currentTimeMillis() - h.getStartTime())).append("ms ");
 
         if (LogUtil.getLogger().isDebugEnabled()) {
             sb.append("ARGS: ")
-                    .append(Arrays.toString(h.getArgs())).append(" ")
+                    .append(Arrays.toString(h.getArgs())).append(StringUtils.SPACE)
                     .append("RETURN: ")
                     .append(ret);
             LogUtil.debug(sb.toString());

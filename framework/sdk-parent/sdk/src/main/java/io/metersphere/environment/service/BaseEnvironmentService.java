@@ -12,6 +12,10 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.environment.dto.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.request.variable.ScenarioVariable;
@@ -72,6 +76,16 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
 
     public BaseEnvironmentService() {
         super(ApiModuleDTO.class);
+    }
+
+    public String getLogDetails(String id) {
+        ApiTestEnvironmentWithBLOBs bloBs = apiTestEnvironmentMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, SystemReference.environmentColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloBs.getId()), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 
     public EnvironmentGroup add(EnvironmentGroupRequest request) {
@@ -337,7 +351,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public void deleteByResourceId(String sourceId) {
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(sourceId)) {
+        if (StringUtils.isNotEmpty(sourceId)) {
             FileAssociationExample example = new FileAssociationExample();
             example.createCriteria().andSourceIdEqualTo(sourceId);
             fileAssociationMapper.deleteByExample(example);
@@ -398,7 +412,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                     criteria.andIdNotEqualTo(request.getId());
                 }
                 if (apiTestEnvironmentMapper.selectByExample(example).size() > 0) {
-                    existNames.append(" ").append(request.getName());
+                    existNames.append(StringUtils.SPACE).append(request.getName());
                     continue;
                 }
             }

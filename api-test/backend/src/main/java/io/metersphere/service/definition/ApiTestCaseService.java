@@ -144,8 +144,6 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
-        //工作台逻辑
-        initRequestBySearch(request);
         request = this.initRequest(request, true, true);
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
@@ -431,7 +429,7 @@ public class ApiTestCaseService {
             test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
             test.setVersionId(request.getVersionId());
             if (StringUtils.equals("[]", request.getTags())) {
-                test.setTags("");
+                test.setTags(StringUtils.EMPTY);
             } else {
                 test.setTags(request.getTags());
             }
@@ -474,7 +472,7 @@ public class ApiTestCaseService {
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
-        test.setStatus("");
+        test.setStatus(StringUtils.EMPTY);
         test.setCaseStatus(request.getCaseStatus());
         if (StringUtils.isEmpty(request.getCaseStatus())) {
             test.setCaseStatus(ApiTestDataStatus.UNDERWAY.getValue());
@@ -492,7 +490,7 @@ public class ApiTestCaseService {
         test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiTestCaseMapper::getLastOrder));
         test.setVersionId(request.getVersionId());
         if (StringUtils.equals("[]", request.getTags())) {
-            test.setTags("");
+            test.setTags(StringUtils.EMPTY);
         } else {
             test.setTags(request.getTags());
         }
@@ -1008,7 +1006,7 @@ public class ApiTestCaseService {
                             if (nameListStr.length() > 1) {
                                 nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
                             }
-                            String msg = deleteCaseName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
+                            String msg = deleteCaseName + StringUtils.SPACE + Translator.get("delete_check_reference_by") + ": " + nameListStr + StringUtils.SPACE;
                             checkMsgList.add(msg);
                         }
                     }
@@ -1024,7 +1022,8 @@ public class ApiTestCaseService {
     public List<ApiTestCase> getApiCaseByIds(List<String> apiCaseIds) {
         if (CollectionUtils.isNotEmpty(apiCaseIds)) {
             ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andIdIn(apiCaseIds).andStatusNotEqualTo(CommonConstants.TrashStatus);
+            example.createCriteria().andIdIn(apiCaseIds);
+            example.or().andStatusNotEqualTo(CommonConstants.TrashStatus).andStatusIsNull();
             return apiTestCaseMapper.selectByExample(example);
         }
         return new ArrayList<>();
@@ -1116,6 +1115,10 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId);
     }
 
+    /**
+     * 工作台查询应用管理里设置的用例待更新条件
+     * @param request
+     */
     public void initRequestBySearch(ApiTestCaseRequest request) {
         if (!request.isToBeUpdated()) {
             return;

@@ -6,6 +6,7 @@ import io.metersphere.commons.utils.NamedThreadFactory;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -65,19 +66,19 @@ public class MsKafkaListener {
 
     public void outKafkaPoolLogger() {
         StringBuffer buffer = new StringBuffer()
-                .append("\n")
+                .append(StringUtils.LF)
                 .append("KAFKA Consume 线程池详情：")
-                .append("\n")
+                .append(StringUtils.LF)
                 .append(" KAFKA Consume 核心线程数：" + threadPool.getCorePoolSize())
-                .append("\n")
+                .append(StringUtils.LF)
                 .append(" KAFKA Consume 活动线程数：" + threadPool.getActiveCount())
-                .append("\n")
+                .append(StringUtils.LF)
                 .append(" KAFKA Consume 最大线程数：" + threadPool.getMaximumPoolSize())
-                .append("\n")
+                .append(StringUtils.LF)
                 .append(" KAFKA Consume 最大队列数：" + (threadPool.getQueue().size() + threadPool.getQueue().remainingCapacity()))
-                .append("\n")
+                .append(StringUtils.LF)
                 .append(" KAFKA Consume 当前排队线程数：" + (threadPool.getQueue().size()))
-                .append("\n");
+                .append(StringUtils.LF);
         LoggerUtil.info(buffer.toString());
     }
 

@@ -184,7 +184,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         if (variables != null && CollectionUtils.isNotEmpty(variables.entrySet())) {
             StringBuilder builder = new StringBuilder();
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
-                builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
+                builder.append(entry.getKey()).append("：").append(entry.getValue()).append(StringUtils.LF);
             }
             if (StringUtils.isNotEmpty(builder)) {
                 result.setExtVars(builder.toString());

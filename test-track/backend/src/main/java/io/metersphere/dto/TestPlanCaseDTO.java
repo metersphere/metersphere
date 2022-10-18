@@ -26,6 +26,7 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private Boolean isCustomNum;
     private int issuesCount;
     private String versionName;
+    private String creatorName;
 
     private List<io.metersphere.dto.TestCaseTestDTO> list;
     private List<IssuesDao> issueList;

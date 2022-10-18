@@ -1,9 +1,11 @@
-export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, getTypeByFileName, strMapToObj, getUUID, windowPrint} from "metersphere-frontend/src/utils";
+export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, resizeTextarea,
+  getTypeByFileName, strMapToObj, getUUID, windowPrint} from "metersphere-frontend/src/utils";
 export {parseCustomFilesForList, getCustomFieldFilter, buildBatchParam} from "metersphere-frontend/src/utils/tableUtils";
 export {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUser} from "metersphere-frontend/src/utils/token";
 export {hasLicense, hasPermissions, hasPermission} from "metersphere-frontend/src/utils/permission";
 export {get, post, downloadFile, fileDownloadGet, fileDownloadPost, fileUpload, generateShareUrl, generateModuleUrl} from "metersphere-frontend/src/plugins/request";
 export {CURRENT_LANGUAGE} from "metersphere-frontend/src/utils/constants";
+export {CUSTOM_TABLE_HEADER} from "metersphere-frontend/src/utils/default-table-header";
 
 
 export {generateColumnKey, getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";

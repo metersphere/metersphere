@@ -22,7 +22,7 @@ import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.CopyIssueTemplateRequest;
 import io.metersphere.request.UpdateIssueTemplateRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -407,7 +407,7 @@ public class IssueTemplateService extends TemplateBaseService {
                                 options.removeIf(sourceOption -> StringUtils.contains(tarCustomField.getOptions(), sourceOption.getText().toString()));
                                 if (CollectionUtils.isNotEmpty(options)) {
                                     optionsStr = JSON.toJSONString(options);
-                                    optionsStr = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(optionsStr, "[", "");
+                                    optionsStr = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(optionsStr, "[", StringUtils.EMPTY);
                                 } else {
                                     optionsStr = tarCustomField.getOptions();
                                 }
@@ -434,7 +434,7 @@ public class IssueTemplateService extends TemplateBaseService {
                 if (sourceCustomFieldTemplate.getDefaultValue() != null && tarCustomField.getOptions().contains(sourceCustomFieldTemplate.getDefaultValue())) {
                     defaultValue = sourceCustomFieldTemplate.getDefaultValue();
                 } else {
-                    defaultValue = "";
+                    defaultValue = StringUtils.EMPTY;
                 }
                 tarCustomFieldTemplate.setDefaultValue(defaultValue);
                 customFieldTemplateRecords.add(tarCustomFieldTemplate);

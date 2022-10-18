@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +38,9 @@ public class XmindExportUtil {
         IWorkbook workBook = this.createXmindByTestCase(rootXmind);
 
         response.setContentType("application/octet-stream");
-        response.setCharacterEncoding("utf-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         try {
-            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("TestCaseExport", "UTF-8") + ".xmind");
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("TestCaseExport", StandardCharsets.UTF_8.name()) + ".xmind");
             workBook.save(response.getOutputStream());
 //            EasyExcel.write(response.getOutputStream(), this.clazz).registerWriteHandler(horizontalCellStyleStrategy).sheet(sheetName).doWrite(data);
         } catch (UnsupportedEncodingException e) {
@@ -234,7 +235,7 @@ public class XmindExportUtil {
                 if (dto.getTags() != null) {
                     try {
                         List<String> arr = JSON.parseArray(dto.getTags());
-                        String tagStr = "";
+                        String tagStr = StringUtils.EMPTY;
                         for (int i = 0; i < arr.size(); i++) {
                             tagStr = tagStr + arr.get(i) + ",";
                         }

@@ -40,10 +40,10 @@ public class TrackStatisticsDTO {
      */
     private long p3CaseCountNumber = 0;
 
-    private String p0CountStr = "";
-    private String p1CountStr = "";
-    private String p2CountStr = "";
-    private String p3CountStr = "";
+    private String p0CountStr = StringUtils.EMPTY;
+    private String p1CountStr = StringUtils.EMPTY;
+    private String p2CountStr = StringUtils.EMPTY;
+    private String p3CountStr = StringUtils.EMPTY;
 
     /**
      * 关联用例数量统计
@@ -66,9 +66,9 @@ public class TrackStatisticsDTO {
     private long performanceCaseCount = 0;
 
 
-    private String apiCaseCountStr = "";
-    private String scenarioCaseStr = "";
-    private String performanceCaseCountStr = "";
+    private String apiCaseCountStr = StringUtils.EMPTY;
+    private String scenarioCaseStr = StringUtils.EMPTY;
+    private String performanceCaseCountStr = StringUtils.EMPTY;
 
     /**
      * 本周新增数量

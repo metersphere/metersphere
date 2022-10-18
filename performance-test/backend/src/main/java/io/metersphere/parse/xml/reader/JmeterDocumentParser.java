@@ -253,7 +253,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (content == null) {
             return;
         }
-        StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
+        StringTokenizer tokenizer = new StringTokenizer(new String(content), StringUtils.LF);
         if (!tokenizer.hasMoreTokens()) {
             return;
         }
@@ -266,7 +266,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         boolean csvHasHeader = (Boolean) ((Map) (config)).get("csvHasHeader");
         if (csvHasHeader) {
             String header = tokenizer.nextToken();
-            csv.append(header).append("\n");
+            csv.append(header).append(StringUtils.LF);
         }
         int count = tokenizer.countTokens();
 
@@ -287,7 +287,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         while (tokenizer.hasMoreTokens()) {
             if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
                 String line = tokenizer.nextToken();
-                csv.append(line).append("\n");
+                csv.append(line).append(StringUtils.LF);
             } else {
                 if (index <= offset) {
                     tokenizer.nextToken();
@@ -298,7 +298,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
                     break;
                 }
                 String line = tokenizer.nextToken();
-                csv.append(line).append("\n");
+                csv.append(line).append(StringUtils.LF);
             }
             index++;
         }

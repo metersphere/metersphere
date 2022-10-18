@@ -152,11 +152,11 @@ public class TestResultService {
         if (scenarioRunModes.contains(dto.getRunMode())) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
-                String environment = "";
+                String environment = StringUtils.EMPTY;
                 //执行人
-                String userName = "";
+                String userName = StringUtils.EMPTY;
                 //负责人
-                String principal = "";
+                String principal = StringUtils.EMPTY;
 
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                 if (apiScenario != null) {
@@ -211,8 +211,8 @@ public class TestResultService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
 
-        String subject = "";
-        String event = "";
+        String subject = StringUtils.EMPTY;
+        String event = StringUtils.EMPTY;
         String successContext = "${operator}执行接口自动化成功: ${name}" + ", 报告: ${reportUrl}";
         String failedContext = "${operator}执行接口自动化失败: ${name}" + ", 报告: ${reportUrl}";
 

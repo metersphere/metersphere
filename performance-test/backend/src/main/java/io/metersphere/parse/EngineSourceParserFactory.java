@@ -60,8 +60,8 @@ public class EngineSourceParserFactory {
             // 删除空白的行
             List<Node> nodes = document.selectNodes("//text()[normalize-space(.)='']");
             nodes.forEach(node -> {
-                if (node.getText().contains("\n")) {
-                    node.setText("");
+                if (node.getText().contains(StringUtils.LF)) {
+                    node.setText(StringUtils.EMPTY);
                 }
             });
 

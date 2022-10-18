@@ -122,13 +122,13 @@ public class EsbApiParamService {
             returnObj = JSONUtil.parseObject(requestString);
             JSONArray esbDataArray = JSONUtil.parseArray(esbParamBlobs.getDataStruct());
             if (esbDataArray == null) {
-                returnObj.put("esbDataStruct", "");
+                returnObj.put("esbDataStruct", StringUtils.EMPTY);
             } else {
                 returnObj.put("esbDataStruct", esbDataArray);
             }
             JSONArray responseDataArray = JSONUtil.parseArray(esbParamBlobs.getResponseDataStruct());
             if (responseDataArray == null) {
-                returnObj.put("backEsbDataStruct", "");
+                returnObj.put("backEsbDataStruct", StringUtils.EMPTY);
             } else {
                 returnObj.put("backEsbDataStruct", responseDataArray);
             }
@@ -297,7 +297,7 @@ public class EsbApiParamService {
 
     //通过报文模版中的变量参数，解析报文数据结构，生成对应的xml数据
     private String genValueFromEsbDataStructByParam(List<EsbDataStruct> dataStructRequestList, String param) {
-        String returnValue = "";
+        String returnValue = StringUtils.EMPTY;
         if (StringUtils.isNotEmpty(param)) {
             //多层结构使用"."来表示。aaa.bb.cc 代表的是dataStructRequestList中，aaa节点下，bb节点下的cc节点数据
             String[] paramArr = param.split("\\.");

@@ -245,7 +245,7 @@ public class TestPlanScenarioCaseService {
                 ScenarioEnv scenarioEnv = apiAutomationService.getApiScenarioProjectId(id);
                 list = new ArrayList<>(scenarioEnv.getProjectIds());
             }
-            list.forEach(l -> newEnvMap.put(l, envMap == null ? "" : envMap.getOrDefault(l, "")));
+            list.forEach(l -> newEnvMap.put(l, envMap == null ? StringUtils.EMPTY : envMap.getOrDefault(l, StringUtils.EMPTY)));
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
             testPlanApiScenario.setCreateUser(SessionUtils.getUserId());

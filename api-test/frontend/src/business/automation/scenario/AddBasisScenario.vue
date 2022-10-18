@@ -153,8 +153,10 @@ export default {
     open(currentModule) {
       this.scenarioForm = {principal: getCurrentUser().id};
       this.currentModule = currentModule;
-      if (this.scenarioForm.apiScenarioModuleId === undefined) {
+      if (this.scenarioForm.apiScenarioModuleId === undefined && !currentModule.id) {
         this.scenarioForm.apiScenarioModuleId = this.moduleOptions[0].id;
+      } else if (currentModule.id) {
+        this.scenarioForm.apiScenarioModuleId = currentModule.id;
       }
       this.getMaintainerOptions();
       this.visible = true;

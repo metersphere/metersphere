@@ -257,7 +257,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.caseFieldColumns);
             columns.forEach(item -> {
                 if (item.getColumnName().equals("steps") && item.getOriginalValue().toString().equals("[{\"num\":1,\"desc\":\"\",\"result\":\"\"}]")) {
-                    item.setOriginalValue("");
+                    item.setOriginalValue(StringUtils.EMPTY);
                 }
             });
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);

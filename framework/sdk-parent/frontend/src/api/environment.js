@@ -137,9 +137,9 @@ export function jsonGenerator(params) {
 
 export function getUserDefaultApiType() {
   if (currentModuleName === 'api') {
-    return get('/api/module/getUserDefaultApiType');
+    return get('/api/module/default-type');
   }
-  return get('/environment/relate/api/module/getUserDefaultApiType');
+  return get('/environment/relate/api/module/default-type');
 }
 
 export function getModuleByUrl(url) {

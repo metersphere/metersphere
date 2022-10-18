@@ -2,7 +2,7 @@ package io.metersphere.api.dto;
 
 import io.metersphere.dto.RequestResult;
 import lombok.Data;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;

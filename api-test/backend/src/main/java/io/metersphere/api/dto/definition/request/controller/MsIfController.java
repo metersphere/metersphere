@@ -70,9 +70,9 @@ public class MsIfController extends MsTestElement {
 
     public String getLabelName() {
         if (isValid()) {
-            String label = "条件控制器：" + variable + " " + operator;
+            String label = "条件控制器：" + variable + StringUtils.SPACE + operator;
             if (StringUtils.isNotBlank(value)) {
-                label += " " + this.value;
+                label += StringUtils.SPACE + this.value;
             }
             return label;
         }

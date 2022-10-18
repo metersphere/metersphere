@@ -445,7 +445,7 @@
         </if>
         <if test="request.redirectFilter == 'unexecuteCount' ">
             and (t3.status IS NULL or t3.status = '' or t3.status = 'Prepare' or t3.status = 'Underway' or t3.status =
-            'stop')
+            'STOPPED')
         </if>
         <if test="request.redirectFilter == 'executionPassCount' ">
             and t3.status = 'success'

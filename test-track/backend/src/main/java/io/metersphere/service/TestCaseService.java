@@ -30,6 +30,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
+import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
@@ -72,6 +73,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -176,9 +178,9 @@ public class TestCaseService {
     private CustomFieldTestCaseService customFieldTestCaseService;
     @Resource
     private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
-    //    @Lazy
-//    @Resource
-//    private TestPlanTestCaseService testPlanTestCaseService;
+    @Lazy
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
     @Lazy
     @Resource
     private TestReviewTestCaseService testReviewTestCaseService;
@@ -356,6 +358,7 @@ public class TestCaseService {
         TestCaseExample.Criteria criteria = example.createCriteria();
         criteria.andCustomNumEqualTo(testCase.getCustomNum())
                 .andProjectIdEqualTo(testCase.getProjectId())
+                .andStatusNotEqualTo(CommonConstants.TrashStatus)
                 .andIdNotEqualTo(testCase.getId());
         if (testCaseWithBLOBs != null && StringUtils.isNotBlank(testCaseWithBLOBs.getRefId())) {
             criteria.andRefIdNotEqualTo(testCaseWithBLOBs.getRefId());
@@ -391,7 +394,7 @@ public class TestCaseService {
         addDemandHyperLink(testCase, "edit");
 
         if (StringUtils.isEmpty(testCase.getDemandId())) {
-            testCase.setDemandId("");
+            testCase.setDemandId(StringUtils.EMPTY);
         }
         createNewVersionOrNot(testCase, example);
 
@@ -570,13 +573,13 @@ public class TestCaseService {
 
             // 如果上边字段全部相同，去检查 remark 和 steps
             if (!CollectionUtils.isEmpty(caseList)) {
-                String caseRemark = testCase.getRemark() == null ? "" : testCase.getRemark();
-                String caseSteps = testCase.getSteps() == null ? "" : testCase.getSteps();
-                String casePrerequisite = testCase.getPrerequisite() == null ? "" : testCase.getPrerequisite();
+                String caseRemark = testCase.getRemark() == null ? StringUtils.EMPTY : testCase.getRemark();
+                String caseSteps = testCase.getSteps() == null ? StringUtils.EMPTY : testCase.getSteps();
+                String casePrerequisite = testCase.getPrerequisite() == null ? StringUtils.EMPTY : testCase.getPrerequisite();
                 for (TestCaseWithBLOBs tc : caseList) {
-                    String steps = tc.getSteps() == null ? "" : tc.getSteps();
-                    String remark = tc.getRemark() == null ? "" : tc.getRemark();
-                    String prerequisite = tc.getPrerequisite() == null ? "" : tc.getPrerequisite();
+                    String steps = tc.getSteps() == null ? StringUtils.EMPTY : tc.getSteps();
+                    String remark = tc.getRemark() == null ? StringUtils.EMPTY : tc.getRemark();
+                    String prerequisite = tc.getPrerequisite() == null ? StringUtils.EMPTY : tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                         //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
@@ -695,8 +698,7 @@ public class TestCaseService {
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
-        // todo check
-//        testPlanTestCaseService.deleteToGc(Arrays.asList(testCaseId));
+        testPlanTestCaseService.deleteToGc(Arrays.asList(testCaseId));
         testReviewTestCaseService.deleteToGc(Arrays.asList(testCaseId));
         return extTestCaseMapper.deleteToGc(request);
     }
@@ -725,8 +727,7 @@ public class TestCaseService {
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
         request.setIds(ids);
-        // todo check
-//        testPlanTestCaseService.deleteToGc(ids);
+        testPlanTestCaseService.deleteToGc(ids);
         testReviewTestCaseService.deleteToGc(ids);
         return extTestCaseMapper.deleteToGc(request);
     }
@@ -1361,7 +1362,7 @@ public class TestCaseService {
         // 发送给客户端的数据
         byte[] buff = new byte[1024];
         try (OutputStream outputStream = res.getOutputStream();
-             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getResourceAsStream("/io/metersphere/xmind/template/" + fileName));) {
+             BufferedInputStream bis = new BufferedInputStream(TestCaseService.class.getClassLoader().getResourceAsStream("xmind/" + fileName));) {
             int i = bis.read(buff);
             while (i != -1) {
                 outputStream.write(buff, 0, buff.length);
@@ -1377,9 +1378,9 @@ public class TestCaseService {
     public void testCaseXmindTemplateExport(String projectId, String importType, HttpServletResponse response) {
         try {
             response.setContentType("application/octet-stream");
-            response.setCharacterEncoding("utf-8");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             boolean isUseCustomId = trackProjectService.useCustomNum(projectId);
-            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", "UTF-8") + ".xmind");
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("思维导图用例模版", StandardCharsets.UTF_8.name()) + ".xmind");
             String fileName = null;
             if (StringUtils.equals(importType, ExcelImportType.Update.name())) {
                 fileName = "xmind_update.xml";
@@ -1402,7 +1403,7 @@ public class TestCaseService {
         for (int i = 1; i <= 4; i++) {
             path.append("/" + Translator.get("module") + i);
             TestCaseDTO testCaseDTO = new TestCaseDTO();
-            testCaseDTO.setCustomNum("");
+            testCaseDTO.setCustomNum(StringUtils.EMPTY);
             testCaseDTO.setName(Translator.get("test_case") + i);
             testCaseDTO.setNodePath(path.toString());
             testCaseDTO.setPriority("P" + i % 4);
@@ -1575,7 +1576,7 @@ public class TestCaseService {
                         value = otherFieldMaps.get(head);
                     }
                     if (value == null) {
-                        value = "";
+                        value = StringUtils.EMPTY;
                     }
                     fields.add(value);
                 }
@@ -1670,7 +1671,7 @@ public class TestCaseService {
             if (converter != null) {
                 otherFields.put(header.getName(), converter.parse(t));
             } else {
-                otherFields.put(header.getName(), "");
+                otherFields.put(header.getName(), StringUtils.EMPTY);
             }
         });
         data.setOtherFields(otherFields);
@@ -1681,7 +1682,7 @@ public class TestCaseService {
             data.setCustomNum(t.getCustomNum());
         } else {
             if (t.getNum() == null) {
-                data.setCustomNum("");
+                data.setCustomNum(StringUtils.EMPTY);
             } else {
                 data.setCustomNum(String.valueOf(t.getNum()));
             }
@@ -1727,12 +1728,7 @@ public class TestCaseService {
                 if (StringUtils.isNotBlank(field.getValue())) {
                     Object value = JSON.parseObject(field.getValue());
                     Map<String, String> optionMap = customSelectValueMap.get(id);
-                    if (value instanceof String) {
-                        if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(value)) {
-                            value = optionMap.get(value);
-                        }
-                        map.put(customNameMap.get(id), value.toString());
-                    } else if (value instanceof List) {
+                    if (value instanceof List) {
                         List<String> results = new ArrayList<>();
                         List values = (List) value;
                         values.forEach(item -> {
@@ -1741,6 +1737,11 @@ public class TestCaseService {
                             }
                         });
                         map.put(customNameMap.get(id), results.toString());
+                    } else {
+                        if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(value)) {
+                            value = optionMap.get(value);
+                        }
+                        map.put(customNameMap.get(id), value.toString());
                     }
                 }
             }
@@ -1777,8 +1778,8 @@ public class TestCaseService {
                 String stepDesc = item.get("desc").toString();
                 String stepResult = item.get("result").toString();
                 if (StringUtils.isNotBlank(stepDesc) || StringUtils.isNotBlank(stepResult)) {
-                    stepDescList.add(Optional.ofNullable(stepDesc).orElse(""));
-                    stepResultList.add(Optional.ofNullable(stepResult).orElse(""));
+                    stepDescList.add(Optional.ofNullable(stepDesc).orElse(StringUtils.EMPTY));
+                    stepResultList.add(Optional.ofNullable(stepResult).orElse(StringUtils.EMPTY));
                 }
             }
         }
@@ -2057,7 +2058,7 @@ public class TestCaseService {
                 caseName = caseName.append(testCase.getName()).append(",");
             }
             String str = caseName.substring(0, caseName.length() - 1);
-            MSException.throwException(Translator.get("related_case_del_fail_prefix") + " " + str + " " + Translator.get("related_case_del_fail_suffix"));
+            MSException.throwException(Translator.get("related_case_del_fail_prefix") + StringUtils.SPACE + str + StringUtils.SPACE + Translator.get("related_case_del_fail_suffix"));
         }
     }
 
@@ -2139,8 +2140,8 @@ public class TestCaseService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(record.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? "" : fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? "" : fileMetadata.getPath());
+                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
                     fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 });
                 sqlSession.flushStatements();
@@ -2216,7 +2217,7 @@ public class TestCaseService {
 
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
-                    item.setNodeId("");
+                    item.setNodeId(StringUtils.EMPTY);
                 }
                 item.setProjectId(request.getProjectId());
                 if (item.getIsEdit()) {
@@ -2341,21 +2342,21 @@ public class TestCaseService {
                     List<ApiTestCase> testCases = relevanceApiCaseService.getApiCaseByIds(testCaseIds);
                     List<String> caseNames = testCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("接口用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("接口用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
                 if (CollectionUtils.isNotEmpty(performanceIds)) {
                     List<LoadTest> loadTests = relevanceLoadCaseService.getLoadCaseByIds(performanceIds);
                     List<String> caseNames = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("性能用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("性能用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
                 if (CollectionUtils.isNotEmpty(automationIds)) {
                     List<ApiScenario> scenarios = relevanceApiCaseService.getScenarioCaseByIds(automationIds);
                     List<String> caseNames = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
                     if (CollectionUtils.isNotEmpty(caseNames)) {
-                        nameBuilder.append("自动化用例：").append("\n").append(caseNames).append("\n");
+                        nameBuilder.append("自动化用例：").append(StringUtils.LF).append(caseNames).append(StringUtils.LF);
                     }
                 }
             }
@@ -2393,7 +2394,7 @@ public class TestCaseService {
             if (CollectionUtils.isNotEmpty(dtos)) {
                 names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
             }
-            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
             columns.add(detailColumn);
 
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
@@ -2412,7 +2413,7 @@ public class TestCaseService {
             List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(id);
             if (CollectionUtils.isNotEmpty(dtos)) {
                 List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
-                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
                 columns.add(detailColumn);
             }
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCaseWithBLOBs.getId()), testCaseWithBLOBs.getProjectId(), testCaseWithBLOBs.getName(), testCaseWithBLOBs.getCreateUser(), columns);
@@ -2474,8 +2475,7 @@ public class TestCaseService {
                 }
             }
             extTestCaseMapper.reduction(request.getIds());
-            // todo check
-//            testPlanTestCaseService.reduction(request.getIds());
+            testPlanTestCaseService.reduction(request.getIds());
             testReviewTestCaseService.reduction(request.getIds());
         }
     }
@@ -2688,7 +2688,7 @@ public class TestCaseService {
             fileContentExample.createCriteria().andFileIdIn(fileIds);
             List<FileContent> allCaseFileContents = fileContentMapper.selectByExample(fileContentExample);
             entry.getValue().stream().forEach(relation -> {
-                String filename = "";
+                String filename = StringUtils.EMPTY;
                 List<FileMetadata> fileMetadatas = allCaseFileMetadatas.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
                 List<FileContent> fileContents = allCaseFileContents.stream().filter(fileContent -> fileContent.getFileId().equals(relation.getAttachmentId()))
@@ -2699,7 +2699,7 @@ public class TestCaseService {
                     FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                     BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                     fileAttachmentMetadata.setId(UUID.randomUUID().toString());
-                    fileAttachmentMetadata.setCreator("");
+                    fileAttachmentMetadata.setCreator(StringUtils.EMPTY);
                     fileAttachmentMetadata.setFilePath(uploadPath);
                     fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
                     AttachmentModuleRelation record = new AttachmentModuleRelation();
@@ -3066,7 +3066,7 @@ public class TestCaseService {
             return;
         }
         if (!StringUtils.equals(demandId, "other")) {
-            demandName = "";
+            demandName = StringUtils.EMPTY;
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);

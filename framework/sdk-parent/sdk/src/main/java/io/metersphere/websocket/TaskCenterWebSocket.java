@@ -3,6 +3,7 @@ package io.metersphere.websocket;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.service.TaskService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -97,7 +98,7 @@ public class TaskCenterWebSocket {
                 if (!session.isOpen()) {
                     return;
                 }
-                session.getBasicRemote().sendText(taskTotal + "");
+                session.getBasicRemote().sendText(taskTotal + StringUtils.EMPTY);
                 if (taskTotal == 0) {
                     session.close();
                 }

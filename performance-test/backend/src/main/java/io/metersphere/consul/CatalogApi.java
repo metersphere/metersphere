@@ -3,6 +3,7 @@ package io.metersphere.consul;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +51,7 @@ public class CatalogApi {
         int index = RandomUtils.nextInt(1000, 20000);
         responseHeaders.set("X-Consul-Default-Acl-Policy", "allow");
         responseHeaders.set("X-Consul-Effective-Consistency", "leader");
-        responseHeaders.set("X-Consul-Index", index + "");
+        responseHeaders.set("X-Consul-Index", index + StringUtils.EMPTY);
         responseHeaders.set("X-Consul-Knownleader", "true");
         responseHeaders.set("X-Consul-Lastcontact", "0");
 
@@ -67,7 +68,7 @@ public class CatalogApi {
         int index = RandomUtils.nextInt(1000, 20000);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("X-Consul-Default-Acl-Policy", "allow");
-        responseHeaders.set("X-Consul-Index", index + "");
+        responseHeaders.set("X-Consul-Index", index + StringUtils.EMPTY);
         responseHeaders.set("X-Consul-Knownleader", "true");
         responseHeaders.set("X-Consul-Lastcontact", "0");
 

@@ -51,6 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -375,7 +376,7 @@ public class UserService {
                     user.setLastProjectId(projects.get(0).getId());
                 }
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         // 执行变更
@@ -454,7 +455,7 @@ public class UserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -489,10 +490,10 @@ public class UserService {
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
         if (StringUtils.equals("organization", sign)) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
         }
         if (StringUtils.equals("workspace", sign) && StringUtils.equals(sourceId, user.getLastWorkspaceId())) {
-            user.setLastWorkspaceId("");
+            user.setLastWorkspaceId(StringUtils.EMPTY);
         }
 
         BeanUtils.copyProperties(user, newUser);
@@ -504,7 +505,7 @@ public class UserService {
 
     /*修改当前用户用户密码*/
     private User updateCurrentUserPwd(EditPassWordRequest request) {
-        String oldPassword = CodingUtil.md5(request.getPassword(), "utf-8");
+        String oldPassword = CodingUtil.md5(request.getPassword(), StandardCharsets.UTF_8.name());
         String newPassword = request.getNewpassword();
         String newPasswordMd5 = CodingUtil.md5(newPassword);
         if (StringUtils.equals(oldPassword, newPasswordMd5)) {
@@ -950,7 +951,7 @@ public class UserService {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
 
             StringBuilder nameBuilder = new StringBuilder();
-            nameBuilder.append(String.join(",", names)).append("\n");
+            nameBuilder.append(String.join(",", names)).append(StringUtils.LF);
             for (String userId : ids) {
                 UserGroupExample userGroupExample = new UserGroupExample();
                 userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
@@ -1019,7 +1020,7 @@ public class UserService {
         List<User> users = userMapper.selectByExample(example);
         if (users != null) {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
-            String roles = "\n" + "成员角色：\n" + this.getRoles(users.get(0).getId());
+            String roles = StringUtils.LF + "成员角色：\n" + this.getRoles(users.get(0).getId());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names) + roles, null, new LinkedList<>());
             return JSON.toJSONString(details);
         }
@@ -1075,7 +1076,7 @@ public class UserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(projectId, user.getLastProjectId())) {
-            user.setLastProjectId("");
+            user.setLastProjectId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -1115,7 +1116,7 @@ public class UserService {
 
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId())) {
-                user.setLastWorkspaceId("");
+                user.setLastWorkspaceId(StringUtils.EMPTY);
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }
@@ -1254,6 +1255,10 @@ public class UserService {
             List<String> existGroupIds = this.getUserExistSourceGroup(userId, sourceId);
             toAddGroupIds.removeAll(existGroupIds);
             toAddGroupIds.retainAll(dbOptionalGroupIds);
+            if (CollectionUtils.isEmpty(toAddGroupIds)) {
+                LogUtil.warn("group ids not in db or not has permission, please check!");
+                continue;
+            }
             for (String groupId : toAddGroupIds) {
                 UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, groupId,
                         sourceId, System.currentTimeMillis(), System.currentTimeMillis());
@@ -1279,6 +1284,12 @@ public class UserService {
     private List<String> getGroupIdsByType(String type, String sourceId) {
         // 某项目/工作空间下能查看到的用户组
         List<String> scopeList = Arrays.asList("global", sourceId);
+        if (StringUtils.equals(type, "PROJECT")) {
+            Project project = projectMapper.selectByPrimaryKey(sourceId);
+            if (project != null) {
+                scopeList = Arrays.asList("global", sourceId, project.getWorkspaceId());
+            }
+        }
         GroupExample groupExample = new GroupExample();
         groupExample.createCriteria().andScopeIdIn(scopeList)
                 .andTypeEqualTo(type);

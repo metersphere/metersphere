@@ -1,5 +1,7 @@
 package io.metersphere.commons.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,7 +52,7 @@ public class FixedCapacityUtil {
 
             return logMessage;
         } catch (Exception e) {
-            return "";
+            return StringUtils.EMPTY;
         } finally {
             if (isClear && FixedCapacityUtil.jmeterLogTask.containsKey(reportId)) {
                 FixedCapacityUtil.jmeterLogTask.remove(reportId);

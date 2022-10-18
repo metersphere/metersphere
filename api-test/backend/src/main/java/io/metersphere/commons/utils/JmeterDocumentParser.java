@@ -255,7 +255,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (content == null) {
             return;
         }
-        StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
+        StringTokenizer tokenizer = new StringTokenizer(new String(content), StringUtils.LF);
         if (!tokenizer.hasMoreTokens()) {
             return;
         }
@@ -268,7 +268,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         boolean csvHasHeader = ((JSONObject) (config)).getBoolean("csvHasHeader");
         if (csvHasHeader) {
             String header = tokenizer.nextToken();
-            csv.append(header).append("\n");
+            csv.append(header).append(StringUtils.LF);
         }
         int count = tokenizer.countTokens();
 
@@ -289,7 +289,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         while (tokenizer.hasMoreTokens()) {
             if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
                 String line = tokenizer.nextToken();
-                csv.append(line).append("\n");
+                csv.append(line).append(StringUtils.LF);
             } else {
                 if (index <= offset) {
                     tokenizer.nextToken();
@@ -300,7 +300,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
                     break;
                 }
                 String line = tokenizer.nextToken();
-                csv.append(line).append("\n");
+                csv.append(line).append(StringUtils.LF);
             }
             index++;
         }
@@ -339,7 +339,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
                 collectionProp.addAttribute("name", "Asserion.test_strings");
                 //
 
-                appendStringProp(item, "Assertion.custom_message", "");
+                appendStringProp(item, "Assertion.custom_message", StringUtils.EMPTY);
                 appendStringProp(item, "Assertion.test_field", "Assertion.response_code");
                 appendBoolProp(item, "Assertion.assume_success", true);
                 appendIntProp(item, "Assertion.test_type", 40);
@@ -368,7 +368,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         Element collectionProp = responseAssertion.addElement(COLLECTION_PROP);
         collectionProp.addAttribute("name", "Asserion.test_strings");
         //
-        appendStringProp(responseAssertion, "Assertion.custom_message", "");
+        appendStringProp(responseAssertion, "Assertion.custom_message", StringUtils.EMPTY);
         appendStringProp(responseAssertion, "Assertion.test_field", "Assertion.response_code");
         appendBoolProp(responseAssertion, "Assertion.assume_success", true);
         appendIntProp(responseAssertion, "Assertion.test_type", 40);
@@ -462,14 +462,14 @@ public class JmeterDocumentParser implements EngineSourceParser {
         collectionProp.addAttribute("name", "Arguments.arguments");
 
 
-        appendStringProp(element, "HTTPSampler.domain", "");
-        appendStringProp(element, "HTTPSampler.port", "");
-        appendStringProp(element, "HTTPSampler.protocol", "");
-        appendStringProp(element, "HTTPSampler.contentEncoding", "");
-        appendStringProp(element, "HTTPSampler.path", "");
+        appendStringProp(element, "HTTPSampler.domain", StringUtils.EMPTY);
+        appendStringProp(element, "HTTPSampler.port", StringUtils.EMPTY);
+        appendStringProp(element, "HTTPSampler.protocol", StringUtils.EMPTY);
+        appendStringProp(element, "HTTPSampler.contentEncoding", StringUtils.EMPTY);
+        appendStringProp(element, "HTTPSampler.path", StringUtils.EMPTY);
         appendStringProp(element, "HTTPSampler.concurrentPool", "6");
         appendStringProp(element, "HTTPSampler.connect_timeout", "60000");
-        appendStringProp(element, "HTTPSampler.response_timeout", "");
+        appendStringProp(element, "HTTPSampler.response_timeout", StringUtils.EMPTY);
 
         // 空的 hashTree
         hashTree.addElement(HASH_TREE_ELEMENT);
@@ -878,7 +878,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         appendStringProp(threadGroup, "RampUp", rampUp);
         appendStringProp(threadGroup, "Steps", step);
         appendStringProp(threadGroup, "Hold", hold);
-        appendStringProp(threadGroup, "LogFilename", "");
+        appendStringProp(threadGroup, "LogFilename", StringUtils.EMPTY);
         // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
 //        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         appendStringProp(threadGroup, "Unit", "S");

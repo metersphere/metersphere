@@ -1,16 +1,16 @@
 import {Assertions} from "@/business/definition/model/ApiTestModel";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {
-  ID,
-  NAME,
   API_METHOD,
   API_PATH,
-  TAGS,
-  UPDATE_TIME,
-  CREATE_TIME,
   API_PRINCIPAL,
+  CREATE_TIME,
   FOLLOW_PEOPLE,
-  OPERATORS
+  ID,
+  NAME,
+  OPERATORS,
+  TAGS,
+  UPDATE_TIME
 } from "metersphere-frontend/src/components/search/search-components";
 
 function _getModuleTree(options) {
@@ -32,6 +32,12 @@ export const API_MODULE_TREE = _getModuleTree({
   type: "GET",
   params: {}
 })
+
+export const API_MODULE_TRASH_TREE = _getModuleTree({
+  url: "/api/module/trash/list",
+  type: "GET",
+  params: {}
+})
 export const API_STATUS_TRASH = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -45,7 +51,7 @@ export const API_STATUS_TRASH = {
   }
 }
 
-export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE];
+export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TRASH_TREE, FOLLOW_PEOPLE];
 
 export function getProtocolFilter(protocolType) {
   if (protocolType === "HTTP") {
@@ -229,13 +235,22 @@ export function mergeRequestDocumentData(request) {
     if (index !== -1) {
       if (request.hashTree[index].document && request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
         mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData);
-        request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
+        if (request.hashTree[index].document.type === 'json') {
+          request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
+        } else {
+          request.hashTree[index].document.data.xml = request.hashTree[index].document.originalData;
+        }
       }
     }
   }
   //场景断言merge文档断言数据
   if (request && request.document && request.document.originalData && request.document.tableData.size && request.document.tableData.size !== 0) {
     mergeDocumentData(request.document.originalData, request.document.tableData);
+    if (request.document.type === 'json') {
+      request.document.data.json = request.document.originalData;
+    } else {
+      request.document.data.xml = request.document.originalData;
+    }
   }
 
 }

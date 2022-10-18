@@ -6,6 +6,7 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.FixedCapacityUtil;
+import org.apache.commons.lang3.StringUtils;
 
 public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     @Override
@@ -13,17 +14,17 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
         try {
             if (!event.getLevel().levelStr.equals(LogUtil.DEBUG)) {
                 StringBuffer message = new StringBuffer();
-                message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(" ")
-                        .append(event.getLevel()).append(" ")
-                        .append(event.getThreadName()).append(" ")
-                        .append(event.getFormattedMessage()).append("\n");
+                message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(StringUtils.SPACE)
+                        .append(event.getLevel()).append(StringUtils.SPACE)
+                        .append(event.getThreadName()).append(StringUtils.SPACE)
+                        .append(event.getFormattedMessage()).append(StringUtils.LF);
 
                 if (event.getThrowableProxy() != null) {
-                    message.append(event.getThrowableProxy().getMessage()).append("\n");
-                    message.append(event.getThrowableProxy().getClassName()).append("\n");
+                    message.append(event.getThrowableProxy().getMessage()).append(StringUtils.LF);
+                    message.append(event.getThrowableProxy().getClassName()).append(StringUtils.LF);
                     if (event.getThrowableProxy().getStackTraceElementProxyArray() != null) {
                         for (StackTraceElementProxy stackTraceElementProxy : event.getThrowableProxy().getStackTraceElementProxyArray()) {
-                            message.append("   ").append(stackTraceElementProxy.getSTEAsString()).append("\n");
+                            message.append("   ").append(stackTraceElementProxy.getSTEAsString()).append(StringUtils.LF);
                         }
                     }
                 }

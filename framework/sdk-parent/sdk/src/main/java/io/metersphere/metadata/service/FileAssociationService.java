@@ -9,7 +9,7 @@ import io.metersphere.base.domain.FileAssociationExample;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.commons.constants.FileAssociationType;
 import io.metersphere.plugin.core.MsTestElement;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;

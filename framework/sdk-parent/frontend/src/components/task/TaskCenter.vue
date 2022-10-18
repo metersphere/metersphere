@@ -171,6 +171,7 @@ export default {
         {id: 'STARTING', label: 'Starting'},
         {id: 'PENDING', label: 'Pending'},
         {id: 'RUNNING', label: 'Running'},
+        {id: 'RERUNNING', label: 'Rerunning'},
         {id: 'REPORTING', label: 'Reporting'},
         {id: 'SUCCESS', label: 'Success'},
         {id: "FAKE_ERROR", label: 'FakeError'},

@@ -4,15 +4,18 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.EnvironmentGroup;
+import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.environment.dto.*;
+import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.environment.service.CommandService;
-import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.ssl.KeyStoreEntry;
 import io.metersphere.environment.utils.TcpTreeTableDataParser;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.EnvironmentRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -77,6 +80,7 @@ public class TestEnvironmentController {
     }
 
     @PostMapping(value = "/update")
+    @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = BaseEnvironmentService.class)
     public void update(@RequestPart("request") TestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironment);
         baseEnvironmentService.update(apiTestEnvironment, sslFiles, variableFile);
@@ -84,7 +88,7 @@ public class TestEnvironmentController {
 
     private void checkParams(TestEnvironmentDTO apiTestEnvironment) {
         try {
-           Map<Object,Object> map = JSON.parseObject(apiTestEnvironment.getConfig(),Map.class);
+            Map<Object, Object> map = JSON.parseObject(apiTestEnvironment.getConfig(), Map.class);
             JSONObject json = new JSONObject(map);
             JSONObject commonConfig = json.getJSONObject("commonConfig");
             JSONArray databaseConfigs = json.getJSONArray("databaseConfigs");

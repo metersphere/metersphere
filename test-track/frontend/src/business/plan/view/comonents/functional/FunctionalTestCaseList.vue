@@ -150,7 +150,7 @@
 
         <ms-table-column
           prop="executor"
-          :filters="executorFilters"
+          :filters="userFilters"
           min-width="100px"
           :field="item"
           :fields-width="fieldsWidth"
@@ -163,11 +163,11 @@
         <!-- 责任人(创建该用例时所关联的责任人) -->
         <ms-table-column
           prop="maintainerName"
-          :filters="maintainerFilters"
+          :filters="userFilters"
           min-width="100px"
           :field="item"
           :fields-width="fieldsWidth"
-          :label="$t('api_test.definition.request.responsible')"/>
+          :label="$t('test_track.plan.plan_principal')"/>
 
         <ms-table-column
           prop="status"
@@ -373,8 +373,7 @@ export default {
         {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
         {text: this.$t('test_track.plan_view.skip'), value: 'Skip'}
       ],
-      executorFilters: [],
-      maintainerFilters: [],
+      userFilters: [],
       showMore: false,
       typeArr: [
         {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
@@ -770,11 +769,8 @@ export default {
       getProjectMemberOption()
         .then(response => {
           this.valueArr.executor = response.data;
-          this.executorFilters = response.data.map(u => {
+          this.userFilters = response.data.map(u => {
             return {text: u.name, value: u.id};
-          });
-          this.maintainerFilters = response.data.map(u => {
-            return {text: u.id + '(' + u.name + ')', value: u.id};
           });
         });
     },

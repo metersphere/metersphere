@@ -18,7 +18,7 @@ public interface TestCaseExportConverter {
         if (StringUtils.isNotBlank(key)) {
             return map.get(key);
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     default String getFromMapOfNullableWithTranslate(Map<String, String> map, String key) {

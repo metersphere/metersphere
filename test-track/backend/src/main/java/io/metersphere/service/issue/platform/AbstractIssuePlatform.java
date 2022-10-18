@@ -34,6 +34,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -240,7 +241,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         document.outputSettings(new Document.OutputSettings().prettyPrint(false));
         document.select("br").append("\\n");
         document.select("p").prepend("\\n\\n");
-        desc = document.html().replaceAll("\\\\n", "\n");
+        desc = document.html().replaceAll("\\\\n", StringUtils.LF);
         desc = Jsoup.clean(desc, "", Safelist.none(), new Document.OutputSettings().prettyPrint(false));
         return desc.replace("&nbsp;", "");
     }
@@ -363,7 +364,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                         files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
                     } else if (path.contains("/resource/md/get")) { // 新数据走这里
                         String name = path.substring(path.indexOf("/resource/md/get") + 26);
-                        files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, "UTF-8")));
+                        files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, StandardCharsets.UTF_8.name())));
                     }
                 }
             } catch (Exception e) {

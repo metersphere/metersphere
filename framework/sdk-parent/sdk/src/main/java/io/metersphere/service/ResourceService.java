@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
@@ -67,7 +68,7 @@ public class ResourceService {
 
     public String encodeFileName(String fileName) {
         try {
-            return URLEncoder.encode(fileName, "UTF-8");
+            return URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             LogUtil.error(e);
             return fileName;
@@ -76,7 +77,7 @@ public class ResourceService {
 
     public String decodeFileName(String fileName) {
         try {
-            return URLDecoder.decode(fileName, "UTF-8");
+            return URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             LogUtil.error(e);
             return fileName;

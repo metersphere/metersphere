@@ -121,7 +121,7 @@ export default {
   },
   watch: {
     message() {
-      if (this.message === 'stop') {
+      if (this.message === 'STOPPED') {
         this.scenario.run = false;
       }
       this.reload();

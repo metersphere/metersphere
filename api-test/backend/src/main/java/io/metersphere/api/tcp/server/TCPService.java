@@ -6,6 +6,7 @@ import io.metersphere.service.MockConfigService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.JSONUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -25,8 +26,8 @@ public class TCPService {
 
     public void run() {
         byte[] b = new byte[1024];
-        String returnMsg = "";
-        String message = "";
+        String returnMsg = StringUtils.EMPTY;
+        String message = StringUtils.EMPTY;
         try {
             is = s.getInputStream();
             os = s.getOutputStream();
@@ -45,7 +46,7 @@ public class TCPService {
         LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         MockExpectConfigDTO matchdMockExpectDTO = mockConfigService.matchTcpMockExpect(message, this.port);
-        String returnMsg = "";
+        String returnMsg = StringUtils.EMPTY;
         if (matchdMockExpectDTO != null && matchdMockExpectDTO.getMockExpectConfig() != null) {
             String response = matchdMockExpectDTO.getMockExpectConfig().getResponse();
             JSONObject responseObj = JSONUtil.parseObject(response);
@@ -65,7 +66,7 @@ public class TCPService {
                     if (respResultObj.has("usePostScript")) {
                         useScript = respResultObj.getBoolean("usePostScript");
                     }
-                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), "", null, null, useScript);
+                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), StringUtils.EMPTY, null, null, useScript);
                 }
                 try {
                     if (respResultObj.has("delayed")) {

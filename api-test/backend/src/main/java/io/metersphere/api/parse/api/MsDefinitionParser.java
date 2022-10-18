@@ -111,7 +111,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                     requestObj.put("path", path);
                 }
             }
-            requestObj.put("url", "");
+            requestObj.put("url", StringUtils.EMPTY);
             apiDefinition.setRequest(requestObj.toString());
         }
         apiDefinition.setCreateUser(SessionUtils.getUserId());
@@ -152,8 +152,8 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 return null;
             }
             JSONObject requestObj = JSONUtil.parseObject(request);
-            requestObj.put("useEnvironment", "");
-            requestObj.put("environmentId", "");
+            requestObj.put("useEnvironment", StringUtils.EMPTY);
+            requestObj.put("environmentId", StringUtils.EMPTY);
             requestObj.put("projectId", projectId);
             return requestObj;
         } catch (Exception e) {

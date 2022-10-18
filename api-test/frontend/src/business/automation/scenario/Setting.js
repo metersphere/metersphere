@@ -1,15 +1,15 @@
 import {
-  ID,
-  NAME,
-  PRIORITY,
-  TAGS,
   API_SCENARIO_RESULT,
-  UPDATE_TIME,
   CREATE_TIME,
   CREATOR,
   FOLLOW_PEOPLE,
+  ID,
+  NAME,
+  OPERATORS,
+  PRIORITY,
   STEP_COUNT,
-  OPERATORS
+  TAGS,
+  UPDATE_TIME
 } from "metersphere-frontend/src/components/search/search-components";
 
 export function STEP() {
@@ -152,6 +152,12 @@ export const SCENARIO_MODULE_TREE = _getModuleTree({
   params: {}
 })
 
+export const SCENARIO_MODULE_TRASH_TREE = _getModuleTree({
+  url: "/api/automation/module/trash/list",
+  type: "GET",
+  params: {}
+})
+
 export const API_STATUS_TRASH = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -165,5 +171,5 @@ export const API_STATUS_TRASH = {
   }
 }
 
-export const API_SCENARIO_CONFIGS_TRASH = [ID, NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, STEP_COUNT, SCENARIO_MODULE_TREE, API_STATUS_TRASH];
+export const API_SCENARIO_CONFIGS_TRASH = [ID, NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, STEP_COUNT, SCENARIO_MODULE_TRASH_TREE, API_STATUS_TRASH];
 
