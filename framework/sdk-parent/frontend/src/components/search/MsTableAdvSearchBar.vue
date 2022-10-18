@@ -181,8 +181,14 @@ export default {
         this.isInit = true;
         this.init();
       } else {
+        // 切换项目时模块组件参数替换
+        this.setModulesParam();
         this.refreshComponentOption();
       }
+    },
+    setModulesParam() {
+      let comps = this.optional.components.filter(c => c.key === 'moduleIds');
+      comps.forEach(comp => comp.options.params = {"projectId": this.condition.projectId});
     },
     refreshComponentOption() {
       // 当前已存在的搜索子组件中是否有需要进行刷新数据选项的
