@@ -250,11 +250,11 @@ export function getPlanUiScenarioAllCase(planId, param) {
 }
 
 export function updatePlanSchedule(param) {
-  return post(BASE_URL + 'schedule/updateEnableByPrimyKey/disable', param);
+  return post(BASE_URL + 'schedule/update/disable', param);
 }
 
 export function updateScheduleEnableByPrimyKey(param) {
-  return post(BASE_URL + 'schedule/updateEnableByPrimyKey', param);
+  return post(BASE_URL + 'schedule/update/enable', param);
 }
 
 
