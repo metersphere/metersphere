@@ -252,7 +252,7 @@ export default {
       }
       this.visible = true;
       this.api = api;
-      if(this.currentApi && api) {
+      if (this.currentApi && api) {
         Object.assign(this.currentApi, api);
       }
       this.addCase();
@@ -575,7 +575,7 @@ export default {
     },
     singleRun(row) {
       let methods = ["SQL", "DUBBO", "dubbo://", "TCP"];
-      if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && this.environment === undefined) {
+      if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && (!this.environment || this.environment === undefined)) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
