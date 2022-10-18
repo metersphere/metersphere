@@ -151,15 +151,12 @@ export default {
       $event.target.blur();
     },
     redirect() {
+      let uuid = getUUID().substring(1, 5);
+      let projectId = getCurrentProjectID();
+      let workspaceId = getCurrentWorkspaceId();
+      let path = `/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${this.scenarioId}`;
       let data = this.$router.resolve({
-        name: 'ApiAutomation',
-        query: {
-          redirectID: getUUID(),
-          dataType: "scenario",
-          projectId: getCurrentProjectID(),
-          workspaceId: getCurrentWorkspaceId(),
-          resourceId: this.scenarioId
-        }
+        path: path
       });
       window.open(data.href, '_blank');
     },

@@ -89,7 +89,7 @@ public class TaskService {
                 microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
             }
             if (taskRequestMap.containsKey(PERF)) {
-                microService.postForData(MicroServiceName.API_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+                microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
             }
             if(taskRequestMap.containsKey(UI)){
                 microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
@@ -100,7 +100,7 @@ public class TaskService {
     public void stopPerf(List<TaskRequestDTO> reportIds) {
         if (CollectionUtils.isNotEmpty(reportIds)) {
             Map<String, TaskRequestDTO> taskRequestMap = reportIds.stream().collect(Collectors.toMap(TaskRequestDTO::getType, taskRequest -> taskRequest));
-            microService.postForData(MicroServiceName.API_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+            microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
         }
     }
 
