@@ -33,7 +33,7 @@
       </div>
       <div>
         2. {{ $t('organization.integration.use_tip_two') }}
-        <router-link to="/setting/project/all" style="margin-left: 5px">
+        <router-link to="/setting/project/all" style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer">
           {{ $t('organization.integration.link_the_project_now') }}
         </router-link>
       </div>
