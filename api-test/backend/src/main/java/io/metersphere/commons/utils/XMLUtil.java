@@ -4,17 +4,35 @@ import io.metersphere.api.exec.engine.EngineSourceParserFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class XMLUtil {
+    public static String formatXmlString(String xmlString) throws Exception {
+        xmlString = StringUtils.replace(xmlString, StringUtils.LF, StringUtils.EMPTY);
+        Document document = getDom4jDocumentByXmlString(xmlString);
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setEncoding(document.getXMLEncoding());
+        StringWriter stringWriter = new StringWriter();
+        XMLWriter writer = new XMLWriter(stringWriter, format);
+        writer.write(document);
+        writer.close();
+        return stringWriter.toString();
+    }
+
+    public static Document getDom4jDocumentByXmlString(String xmlString) throws Exception {
+        return EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8.name())));
+    }
 
     public static void setExpandEntityReferencesFalse(DocumentBuilderFactory documentBuilderFactory) {
         try {
@@ -83,7 +101,6 @@ public class XMLUtil {
             result = (JSONObject) XmlTagToJsonObject(list);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-//            MSException.throwException(Translator.get("illegal_xml_format"));
         }
         return result;
     }

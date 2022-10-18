@@ -2,14 +2,12 @@ package io.metersphere.api.parse.scenario;
 
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.XMLUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -27,9 +25,6 @@ public class EsbDataParser {
             if (esbDataList == null || esbDataList.isEmpty()) {
                 return xmlString;
             }
-            // 创建解析器工厂
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            XMLUtil.setExpandEntityReferencesFalse(factory);
             Document document = DocumentHelper.createDocument();
             EsbDataStruct dataStruct = selectEsbDataStructByNameStruct(esbDataList, paramArr, 0);
             if (dataStruct != null) {
