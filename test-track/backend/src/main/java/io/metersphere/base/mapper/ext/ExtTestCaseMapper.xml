@@ -341,7 +341,7 @@
     </select>
 
     <select id="listByTestCaseIds" resultType="io.metersphere.dto.TestCaseDTO">
-        select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case left join api_test on
+        select test_case.*, api_test.name as apiName, load_test.name AS performName from test_case left join api_test on
         test_case.test_id=api_test.id left join load_test on test_case.test_id=load_test.id
         <where>
             <if test="request.ids!=null and request.ids.size() > 0">
@@ -354,10 +354,10 @@
                 and test_case.project_id=#{request.projectId}
             </if>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
+        <if test="request.condition.orders != null and request.condition.orders.size() > 0">
             order by
-            <foreach collection="request.orders" separator="," item="order">
-                `${order.name}` ${order.type}
+            <foreach collection="request.condition.orders" separator="," item="order">
+                test_case.`${order.name}` ${order.type}
             </foreach>
         </if>
     </select>
