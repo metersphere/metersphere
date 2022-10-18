@@ -21,16 +21,13 @@ import java.util.Map;
 public class ResponseUtil {
 
     public static RequestResultExpandDTO parseByRequestResult(RequestResult baseResult) {
-
         //根据responseheader的信息来处理返回数据
         baseResult = ResponseUtil.parseResponseBodyByHeader(baseResult);
-
         //解析是否含有误报库信息
         ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
         RequestResult requestResult = errorCodeDTO.getResult();
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
-
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             Map<String, String> expandMap = new HashMap<>();
             expandMap.put(ApiReportStatus.FAKE_ERROR.name(), errorCodeDTO.getErrorCodeStr());

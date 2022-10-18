@@ -2,7 +2,6 @@ package io.metersphere.commons.utils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -20,11 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -52,6 +47,22 @@ public class JSONUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static JSONObject createJsonObject(boolean isOrderliness) {
+        JSONObject returnObj = new JSONObject();
+        if (isOrderliness) {
+            try {
+                Class jsonObjectClass = returnObj.getClass();//获取Class对象
+                Field field = jsonObjectClass.getDeclaredField("map");
+                field.setAccessible(true);
+                field.set(returnObj, new LinkedHashMap<>());
+                field.setAccessible(false);
+            } catch (Exception e) {
+                LogUtil.error("生成有序JSONObject失败！", e);
+            }
+        }
+        return returnObj;
     }
 
     /**
