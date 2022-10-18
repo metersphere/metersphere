@@ -192,7 +192,7 @@ public abstract class JiraAbstractClient extends BaseClient {
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(getBaseUrl() + "/myself", HttpMethod.GET, getAuthHttpEntity(), String.class);
-            if (StringUtils.isNotBlank(response.getBody()) && !response.getBody().startsWith("{\"self\"")) {
+            if (StringUtils.isBlank(response.getBody()) || (StringUtils.isNotBlank(response.getBody()) && !response.getBody().startsWith("{\"self\""))) {
                 MSException.throwException(Translator.get("jira_auth_url_error"));
             }
         } catch (HttpClientErrorException e) {

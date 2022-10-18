@@ -98,6 +98,6 @@ public class BaseIntegrationService {
     }
 
     public void authServiceIntegration(String workspaceId, String platform) {
-        microService.getForResultHolder(MicroServiceName.TEST_TRACK, String.format("/issues/auth/%s/%s", workspaceId, platform));
+        microService.getForData(MicroServiceName.TEST_TRACK, String.format("/issues/auth/%s/%s", workspaceId, platform));
     }
 }
