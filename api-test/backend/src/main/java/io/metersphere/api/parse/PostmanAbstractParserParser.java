@@ -2,6 +2,7 @@ package io.metersphere.api.parse;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
@@ -146,7 +147,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         if (StringUtils.equals(bodyMode, PostmanRequestBodyMode.RAW.value())) {
             parseRawBody(body, postmanBody, bodyMode);
         } else if (StringUtils.equalsAny(bodyMode, PostmanRequestBodyMode.FORM_DATA.value(), PostmanRequestBodyMode.URLENCODED.value())) {
-            String s1 = postmanBody.get(bodyMode).toString();
+            String s1 = Optional.ofNullable(postmanBody.get(bodyMode)).orElse(NullNode.getInstance()).toString();
             String s = parseVariable(s1);
             List<PostmanKeyValue> postmanKeyValues = JSON.parseArray(s, PostmanKeyValue.class);
             body.setKvs(parseKeyValue(postmanKeyValues));
