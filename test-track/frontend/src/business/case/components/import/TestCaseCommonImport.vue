@@ -157,7 +157,7 @@ export default {
     downloadXmindTemplate() {
       let uri = '/test/case/export/template/';
       if (this.isXmind) {
-        uri = '/test/case/export/xmindTemplate/';
+        uri = '/test/case/export/xmind/template/';
       }
       this.$fileDownload(uri + getCurrentProjectID() + '/' + this.importType);
     },

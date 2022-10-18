@@ -248,7 +248,7 @@ public class TestCaseController {
         testCaseService.testCaseTemplateExport(projectId, importType, response);
     }
 
-    @GetMapping("/export/xmindTemplate/{projectId}/{importType}")
+    @GetMapping("/export/xmind/template/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     public void xmindTemplate(@PathVariable String projectId, @PathVariable String importType, HttpServletResponse response) {
         testCaseService.testCaseXmindTemplateExport(projectId, importType, response);
