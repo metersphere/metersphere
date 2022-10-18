@@ -292,7 +292,7 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.comment = this.testCase.comment;
-      param.status = this.testCase.status;
+      param.status = this.testCase.reviewStatus;
       editTestReviewTestCase(param)
         .then(() => {
           this.$success(this.$t('commons.save_success'));
@@ -302,7 +302,7 @@ export default {
           // 修改当前用例在整个用例列表的状态
           this.testCases[this.index].status = this.testCase.status;
           // 切换状态后需要修改旧的状态
-          this.oldReviewStatus = this.testCase.status;
+          this.oldReviewStatus = this.testCase.reviewStatus;
 
           if (this.testCase.comment) {
             this.$refs.comment.getComments();

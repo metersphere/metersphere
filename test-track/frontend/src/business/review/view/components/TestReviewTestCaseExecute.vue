@@ -2,13 +2,13 @@
   <el-card class="executeCard">
     <div class="status-bnt">
       <el-button type="success" size="mini"
-                 :disabled="isReadOnly" :icon="testCase.status === 'Pass' ? 'el-icon-check' : ''"
+                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''"
                  @click="changeStatus('Pass')">
         {{ $t('test_track.review.pass') }}
       </el-button>
       <el-button type="danger" size="mini"
                  :disabled="isReadOnly"
-                 :icon="testCase.status === 'UnPass' ? 'el-icon-check' : ''"
+                 :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''"
                  @click="changeStatus('UnPass')">
         {{ $t('test_track.review.un_pass') }}
       </el-button>
@@ -43,14 +43,14 @@ export default {
   methods: {
     saveCase() {
       // 从其他状态改成失败才需要写评论
-      if (this.testCase.status === 'UnPass' && this.originStatus !== 'UnPass' && !this.testCase.comment) {
+      if (this.testCase.reviewStatus === 'UnPass' && this.originStatus !== 'UnPass' && !this.testCase.comment) {
         this.$refs.comment.inputLight();
       } else {
         this.$emit('saveCase');
       }
     },
     changeStatus(status) {
-      this.testCase.status = status;
+      this.testCase.reviewStatus = status;
     }
   }
 }
