@@ -66,6 +66,7 @@ public class ApiDefinitionController {
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         apiDefinitionService.checkFilterHasCoverage(request);
+        apiDefinitionService.getApplicationUpdateRule(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
