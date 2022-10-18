@@ -171,6 +171,12 @@ public class ApiDefinitionService {
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
     private static final String COPY = "Copy";
     private static final String SCHEDULE = "schedule";
+    public static final String HEADERS = "headers";
+    public static final String ARGUMENTS = "arguments";
+    public static final String REST = "rest";
+    public static final String BODY = "body";
+    public static final String JSONSCHEMA = "jsonSchema";
+    public static final String PROPERTIES = "properties";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -1257,20 +1263,9 @@ public class ApiDefinitionService {
 
     public Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
 
-        ApiDefinition exApi;
-        ApiDefinition api;
-        exApi = existApi;
-        api = apiDefinition;
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        String exApiString = null;
-        String apiString = null;
-        try {
-            exApiString = objectMapper.writeValueAsString(exApi);
-            apiString = objectMapper.writeValueAsString(api);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+
         ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
         Boolean toUpdate = false;
         ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
@@ -1280,31 +1275,18 @@ public class ApiDefinitionService {
         }
         //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
         // put the data into the to-be-synchronized
-        if (!StringUtils.equals(exApiString, apiString)) {
-            if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getMethod()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
-            }
-            if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getProtocol()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
-            }
+        Boolean diffBasicInfo = delBasicInfo(existApi, apiDefinition, apiSyncCaseRequest, toUpdate);
+        if (diffBasicInfo != null) return diffBasicInfo;
 
-            if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getPath()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
-            }
-        }
+        Boolean diffApiRequest = delRequest(existApi, apiDefinition, objectMapper, apiSyncCaseRequest, toUpdate);
+        if (diffApiRequest != null) return diffApiRequest;
 
+        Boolean diffResponse = delResponse(existApi, apiDefinition, objectMapper);
+        if (diffResponse != null) return diffResponse;
+        return false;
+    }
+
+    private Boolean delRequest(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition, ObjectMapper objectMapper, ApiSyncCaseRequest apiSyncCaseRequest, Boolean toUpdate) {
         JsonNode exApiRequest = null;
         JsonNode apiRequest = null;
         try {
@@ -1318,46 +1300,150 @@ public class ApiDefinitionService {
             return exApiRequest != null || apiRequest != null;
         }
 
-        if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
-            if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getHeaders()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+        List<String>compareProList = Arrays.asList(HEADERS,ARGUMENTS,REST);
+
+        Map<String,Boolean> applicationMap = new HashMap<>(4);
+        applicationMap.put(HEADERS, apiSyncCaseRequest.getHeaders());
+        applicationMap.put(ARGUMENTS, apiSyncCaseRequest.getQuery());
+        applicationMap.put(REST, apiSyncCaseRequest.getRest());
+        applicationMap.put(BODY, apiSyncCaseRequest.getBody());
+
+        boolean diffByNodes = false;
+        for (String property : compareProList) {
+            JsonNode exApiJsonNode = exApiRequest.get(property);
+            JsonNode apiJsonNode = apiRequest.get(property);
+            if ( exApiJsonNode != null &&  apiJsonNode!= null) {
+                diffByNodes = getDiffByArrayNodes(apiRequest, exApiRequest, objectMapper, property);
+                if (diffByNodes){
+                    if (toUpdate && applicationMap.get(property)){
+                        apiDefinition.setToBeUpdated(true);
+                        apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                    }
+                    break;
                 }
+            }
+        }
+        if (diffByNodes){
+            return true;
+        }
+        return delBody(apiDefinition, objectMapper, toUpdate, exApiRequest, apiRequest, applicationMap);
+    }
+
+    private Boolean delBody(ApiDefinitionWithBLOBs apiDefinition, ObjectMapper objectMapper, Boolean toUpdate, JsonNode exApiRequest, JsonNode apiRequest, Map<String, Boolean> applicationMap) {
+        JsonNode exBodyNode = exApiRequest.get(BODY);
+        JsonNode bodyNode = apiRequest.get(BODY);
+        if (exBodyNode != null && bodyNode != null) {
+            JsonNode exRowNode = exBodyNode.get("raw");
+            JsonNode rowNode = bodyNode.get("raw");
+            if (exRowNode != null &&  rowNode!= null){
+                if (!StringUtils.equals(exRowNode.asText(),rowNode.asText())) {
+                    if (applicationMap.get(BODY)){
+                        apiDefinition.setToBeUpdated(true);
+                        apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                    }
+                    return true;
+                }
+            }
+
+            boolean diffByNodes = getDiffByArrayNodes(bodyNode, exBodyNode, objectMapper, "kvs");
+            if (diffByNodes && toUpdate && applicationMap.get(BODY)){
+                apiDefinition.setToBeUpdated(true);
+                apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+            }
+            if (diffByNodes){
+                return true;
+            }
+            JsonNode exApiJsonSchema = exBodyNode.get(JSONSCHEMA);
+            JsonNode apiJsonSchema = bodyNode.get(JSONSCHEMA);
+            if (exApiJsonSchema == null || apiJsonSchema==null) {
+                return false;
+            }
+
+            JsonNode exApiProperties = exApiJsonSchema.get(PROPERTIES);
+            JsonNode apiProperties = apiJsonSchema.get(PROPERTIES);
+            if (exApiProperties == null || apiProperties==null) {
+                return false;
+            }
+            boolean diffJsonschema = replenishCaseProperties(exApiProperties, apiProperties);
+            if (diffJsonschema && toUpdate && applicationMap.get(BODY)) {
+                apiDefinition.setToBeUpdated(true);
+                apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+            }
+            return diffJsonschema;
+        }
+        return null;
+    }
+
+    private boolean replenishCaseProperties(JsonNode exApiProperties, JsonNode apiProperties) {
+
+        Iterator<Map.Entry<String, JsonNode>> apiFields = apiProperties.fields();
+        Iterator<Map.Entry<String, JsonNode>> exApiFields = exApiProperties.fields();
+        boolean diffProp = false;
+        while (apiFields.hasNext()){
+            Map.Entry<String, JsonNode> apiNode = apiFields.next();
+            if (diffProp){
+                break;
+            }
+            if (exApiFields.hasNext()){
+                Map.Entry<String, JsonNode> exChildNode =null;
+                while (true){
+                    Map.Entry<String, JsonNode> exNode = exApiFields.next();
+                    if (StringUtils.equalsIgnoreCase(apiNode.getKey(), exNode.getKey())) {
+                        exChildNode =exNode;
+                    } else {
+                        diffProp = true;
+                    }
+                    break;
+                }
+                if (exChildNode == null) {
+                    continue;
+                }
+                JsonNode value = apiNode.getValue();
+                JsonNode value1 = exChildNode.getValue();
+                JsonNode apiPropertiesNode = value.get(PROPERTIES);
+                JsonNode exApiPropertiesNode = value1.get(PROPERTIES);
+                if (apiPropertiesNode == null || exApiPropertiesNode == null) {
+                    continue;
+                }
+                replenishCaseProperties(exApiPropertiesNode,apiPropertiesNode);
+            }else {
                 return true;
             }
         }
+        return false;
+    }
 
-        if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
-            if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getQuery()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
+    /**
+     * 比较导入的与系统中重复的两个api的基础信息
+     * @param existApi
+     * @param apiDefinition
+     * @param apiSyncCaseRequest
+     * @param toUpdate
+     * @return
+     */
+    private static Boolean delBasicInfo(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition, ApiSyncCaseRequest apiSyncCaseRequest, Boolean toUpdate) {
+        if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
+            if (apiSyncCaseRequest.getMethod() && toUpdate) {
+                apiDefinition.setToBeUpdated(true);
+                apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
+            return true;
+        }
+        if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
+            if (apiSyncCaseRequest.getProtocol() && toUpdate) {
+                apiDefinition.setToBeUpdated(true);
+                apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+            }
+            return true;
         }
 
-        if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
-            if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getRest()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
+        if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
+            if (apiSyncCaseRequest.getPath() && toUpdate) {
+                apiDefinition.setToBeUpdated(true);
+                apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
+            return true;
         }
-
-        if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
-            if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getBody()) && toUpdate) {
-                    apiDefinition.setToBeUpdated(true);
-                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
-                }
-                return true;
-            }
-        }
-
         if (!StringUtils.equals(apiDefinition.getCreateUser(), existApi.getCreateUser())) {
             return true;
         }
@@ -1379,7 +1465,18 @@ public class ApiDefinitionService {
         if (!StringUtils.equals(existApi.getDescription(), apiDefinition.getDescription()) && StringUtils.isNotBlank(existApi.getDescription()) && StringUtils.isNotBlank(apiDefinition.getDescription())) {
             return true;
         }
+        return null;
+    }
 
+
+    /**
+     * 比较导入的与系统中重复的两个api的响应体信息
+     * @param existApi
+     * @param apiDefinition
+     * @param objectMapper
+     * @return
+     */
+    private static Boolean delResponse(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition, ObjectMapper objectMapper) {
         JsonNode exApiResponse = null;
         JsonNode apiResponse = null;
 
@@ -1398,8 +1495,8 @@ public class ApiDefinitionService {
             return exApiResponse != null || apiResponse != null;
         }
 
-        if (exApiResponse.get("headers") != null && apiResponse.get("headers") != null) {
-            if (!StringUtils.equals(exApiResponse.get("headers").toString(), apiResponse.get("headers").toString())) {
+        if (exApiResponse.get(HEADERS) != null && apiResponse.get(HEADERS) != null) {
+            if (!StringUtils.equals(exApiResponse.get(HEADERS).toString(), apiResponse.get(HEADERS).toString())) {
                 return true;
             }
         }
@@ -1416,8 +1513,8 @@ public class ApiDefinitionService {
             }
         }
 
-        if (exApiResponse.get("body") != null && apiResponse.get("body") != null) {
-            if (!StringUtils.equals(exApiResponse.get("body").toString(), apiResponse.get("body").toString())) {
+        if (exApiResponse.get(BODY) != null && apiResponse.get(BODY) != null) {
+            if (!StringUtils.equals(exApiResponse.get(BODY).toString(), apiResponse.get(BODY).toString())) {
                 return true;
             }
         }
@@ -1431,7 +1528,50 @@ public class ApiDefinitionService {
         if (exApiResponse.get("enable") != null && apiResponse.get("enable") != null) {
             return !StringUtils.equals(exApiResponse.get("enable").toString(), apiResponse.get("enable").toString());
         }
+        return null;
+    }
+
+    private boolean getDiffByArrayNodes(JsonNode apiRequest, JsonNode exApiRequest, ObjectMapper objectMapper, String name){
+        JsonNode apiNameNode = apiRequest.get(name);
+        JsonNode caseNameNode = exApiRequest.get(name);
+        if(apiNameNode==null || caseNameNode==null){
+            return false;
+        }
+        Map<String, String> apiMap = new HashMap<>();
+        getKeyNameMap(apiNameNode, objectMapper, apiMap,"name");
+        Map<String, String> exApiMap = new HashMap<>();
+        getKeyNameMap(caseNameNode, objectMapper, exApiMap,"name");
+        if (apiMap.size() != exApiMap.size()) {
+            return true;
+        }
+        Set<String> apiKey = apiMap.keySet();
+        Set<String> exApiKey = exApiMap.keySet();
+        List<String> collect = apiKey.stream().filter(exApiKey::contains).collect(Collectors.toList());
+        if (collect.size() != apiKey.size()) {
+            return true;
+        }
         return false;
+    }
+
+    public void getKeyNameMap(JsonNode apiNameNode, ObjectMapper objectMapper, Map<String, String> nameMap,String nodeKey) {
+        for (int i = 0; i < apiNameNode.size(); i++) {
+            JsonNode apiName = apiNameNode.get(i);
+            if (apiName.has(nodeKey)) {
+                String keyName = null;
+                try {
+                    keyName = objectMapper.writeValueAsString(apiName.get(nodeKey));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+                if (StringUtils.isNotBlank(keyName) && !StringUtils.equals(keyName, "\"\"") && !StringUtils.equals(keyName, "null")) {
+                    try {
+                        nameMap.put(apiName.get(nodeKey).toString(), objectMapper.writeValueAsString(apiName));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
     }
 
     private void reSetImportMocksApiId(List<MockConfigImportDTO> mocks, String originId, String newId, int apiNum) {
@@ -2146,8 +2286,8 @@ public class ApiDefinitionService {
     public String setAuthParams(ScheduleRequest request) {
         // list 数组转化成 json 字符串
         JSONObject configObj = new JSONObject();
-        configObj.put("headers", request.getHeaders());
-        configObj.put("arguments", request.getArguments());
+        configObj.put(HEADERS, request.getHeaders());
+        configObj.put(ARGUMENTS, request.getArguments());
         // 设置 BaseAuth 参数
         if (request.getAuthManager() != null && StringUtils.isNotBlank(request.getAuthManager().getUsername()) && StringUtils.isNotBlank(request.getAuthManager().getPassword())) {
             configObj.put("authManager", request.getAuthManager());
@@ -2548,7 +2688,7 @@ public class ApiDefinitionService {
         List<DocumentElement> elements = new LinkedList<>();
         if (bloBs != null && StringUtils.isNotEmpty(bloBs.getResponse())) {
             JSONObject object = JSONUtil.parseObject(bloBs.getResponse());
-            JSONObject body = (JSONObject) object.get("body");
+            JSONObject body = (JSONObject) object.get(BODY);
             if (body != null) {
                 String raw = body.optString("raw");
                 String dataType = body.optString(PropertyConstant.TYPE);
