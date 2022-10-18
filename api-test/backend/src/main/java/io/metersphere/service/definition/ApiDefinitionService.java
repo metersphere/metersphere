@@ -1282,14 +1282,14 @@ public class ApiDefinitionService {
         // put the data into the to-be-synchronized
         if (!StringUtils.equals(exApiString, apiString)) {
             if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
-                if (apiSyncCaseRequest.getMethod() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getMethod()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
                 return true;
             }
             if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
-                if (apiSyncCaseRequest.getProtocol() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getProtocol()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1297,7 +1297,7 @@ public class ApiDefinitionService {
             }
 
             if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
-                if (apiSyncCaseRequest.getPath() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getPath()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1320,7 +1320,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
             if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-                if (apiSyncCaseRequest.getHeaders() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getHeaders()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1330,7 +1330,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
             if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-                if (apiSyncCaseRequest.getQuery() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getQuery()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1340,7 +1340,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
             if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-                if (apiSyncCaseRequest.getRest() && toUpdate) {
+                if (BooleanUtils.toBoolean(apiSyncCaseRequest.getRest()) && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
