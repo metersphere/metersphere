@@ -52,7 +52,7 @@ export default {
       this.$refs.testCaseRelationshipList.openRelevance();
     },
     handleDelete(sourceId, targetId) {
-      deleteRelationshipEdge(sourceId, targetId, () => {
+      deleteRelationshipEdge(sourceId, targetId).then(() => {
         this.getTableData();
         this.$success(this.$t('commons.delete_success'));
       });
