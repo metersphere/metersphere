@@ -218,7 +218,7 @@
     </select>
 
     <update id="stopScenario">
-        UPDATE api_scenario_report SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        UPDATE api_scenario_report SET status ='STOPPED' WHERE status IN ("running","starting","waiting") AND
         project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
@@ -227,7 +227,7 @@
 
 
     <update id="stopApi">
-        UPDATE api_definition_exec_result SET status ='STOP' WHERE status IN ("running","starting","waiting") AND
+        UPDATE api_definition_exec_result SET status ='STOPPED' WHERE status IN ("running","starting","waiting") AND
         project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}

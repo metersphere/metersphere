@@ -67,6 +67,6 @@ public class KeyValue {
     }
 
     public boolean isFile() {
-        return (CollectionUtils.isNotEmpty(files)) && StringUtils.equalsIgnoreCase(type, "file");
+        return (CollectionUtils.isNotEmpty(files)) && (StringUtils.isEmpty(type) || StringUtils.equalsIgnoreCase(type, "file"));
     }
 }
