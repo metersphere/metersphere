@@ -466,16 +466,18 @@ export function getCustomFieldValue(row, field, members) {
           }
         } else if (field.type === 'multipleMember') {
           let values = '';
-          item.value.forEach(v => {
-            for (let j = 0; j < members.length; j++) {
-              let member = members[j];
-              if (member.id === v) {
-                values += member.name;
-                values += " ";
-                break;
+          if (item.value.length > 0) {
+            item.value.forEach(v => {
+              for (let j = 0; j < members.length; j++) {
+                let member = members[j];
+                if (member.id === v) {
+                  values += member.name;
+                  values += " ";
+                  break;
+                }
               }
-            }
-          });
+            });
+          }
           return values;
         } else if (['radio', 'select'].indexOf(field.type) > -1) {
           if (field.options) {
