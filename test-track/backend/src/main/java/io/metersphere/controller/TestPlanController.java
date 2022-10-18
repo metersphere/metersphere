@@ -251,20 +251,20 @@ public class TestPlanController {
         testPlanService.editReport(testPlanWithBLOBs);
     }
 
-    @PostMapping(value = "/schedule/updateEnableByPrimyKey")
+    @PostMapping(value = "/schedule/update/enable")
     public Schedule updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = baseScheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
-        planApiAutomationService.updateSchedule(schedule);
+        testPlanService.updateSchedule(schedule);
         return schedule;
     }
 
-    @PostMapping(value = "/schedule/updateEnableByPrimyKey/disable")
+    @PostMapping(value = "/schedule/update/disable")
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, subject = "测试跟踪通知")
     public Schedule disableSchedule(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = baseScheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(false);
-        planApiAutomationService.updateSchedule(schedule);
+        testPlanService.updateSchedule(schedule);
         return schedule;
     }
 

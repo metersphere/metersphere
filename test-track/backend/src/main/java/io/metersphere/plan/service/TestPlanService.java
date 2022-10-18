@@ -1578,7 +1578,7 @@ public class TestPlanService {
         for (String id : scheduleIds) {
             Schedule schedule = baseScheduleService.getSchedule(id);
             schedule.setEnable(request.isEnable());
-            planApiAutomationService.updateSchedule(schedule);
+            updateSchedule(schedule);
         }
     }
 
