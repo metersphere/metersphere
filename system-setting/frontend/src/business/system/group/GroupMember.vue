@@ -375,7 +375,7 @@ export default {
       this.handleResourceOption(queryString ? this.sourceDataCopy.filter(this.createFilter(queryString)) : this.sourceDataCopy);
     },
     createFilter(queryString) {
-      return item => (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+      return item => (item.name && item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
     },
     resetUserOption(val) {
       if (val) {
