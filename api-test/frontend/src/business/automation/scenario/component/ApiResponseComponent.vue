@@ -71,6 +71,8 @@ export default {
             }
           }
         });
+      } else {
+        this.response = null;
       }
     },
     active() {
