@@ -915,6 +915,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             && !msAttachmentsName.contains(filename)) {
                         try {
                             byte[] content = jiraClientV2.getAttachmentContent(attachment.get("content").toString());
+                            if (content == null) {
+                                continue;
+                            }
                             FileAttachmentMetadata fileAttachmentMetadata = attachmentService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
                             AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
                             attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
