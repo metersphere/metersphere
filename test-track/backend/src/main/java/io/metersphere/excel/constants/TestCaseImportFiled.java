@@ -55,7 +55,7 @@ public enum TestCaseImportFiled {
     }
 
     private static String parseTags(TestCaseExcelData excelData) {
-        String tags = "";
+        String tags = StringUtils.EMPTY;
         try {
             if (excelData.getTags() != null) {
                 List arr = JSON.parseArray(excelData.getTags());

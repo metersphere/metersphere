@@ -47,7 +47,7 @@ public class LogUtil {
             }
         } else {
             if (logger != null && logger.isErrorEnabled()) {
-                logger.error("");
+                logger.error(StringUtils.EMPTY);
             }
         }
     }

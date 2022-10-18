@@ -48,7 +48,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
-        String sourceStr = "";
+        String sourceStr = StringUtils.EMPTY;
         if (StringUtils.isBlank(request.getSwaggerUrl())) {
             sourceStr = getApiTestStr(source);
         }
@@ -193,7 +193,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
-        String name = "";
+        String name = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
         } else {
@@ -230,7 +230,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private String getDefaultStringValue(String val) {
-        return StringUtils.isBlank(val) ? "" : val;
+        return StringUtils.isBlank(val) ? StringUtils.EMPTY : val;
     }
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
@@ -240,7 +240,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), String.valueOf(headerParameter.getExample()), getDefaultStringValue(headerParameter.getDescription()), "", parameter.getRequired());
+        addHeader(headers, headerParameter.getName(), String.valueOf(headerParameter.getExample()), getDefaultStringValue(headerParameter.getDescription()), StringUtils.EMPTY, parameter.getRequired());
     }
 
     private HttpResponse parseResponse(ApiResponses responses) {
@@ -448,7 +448,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private void parseKvBodyItem(Object schemaObject, Body body, String name, Map<String, Schema> infoMap) {
         Schema schema = (Schema) schemaObject;
         if (schema == null) return;
-        KeyValue kv = new KeyValue(name, String.valueOf(schema.getExample() == null ? "" : schema.getExample()), schema.getDescription());
+        KeyValue kv = new KeyValue(name, String.valueOf(schema.getExample() == null ? StringUtils.EMPTY : schema.getExample()), schema.getDescription());
         Schema schemaInfo = infoMap.get(name);
         if (schemaInfo != null) {
             if (schemaInfo instanceof BinarySchema) {
@@ -481,7 +481,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return null;
         }
         if (ref.split("/").length > 3) {
-            ref = ref.replace("#/components/schemas/", "");
+            ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
         }
         if (this.components.getSchemas() != null) return this.components.getSchemas().get(ref);
         return null;
@@ -525,7 +525,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (schema.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, schema.getExample());
         } else {
-            item.getMock().put(PropertyConstant.MOCK, "");
+            item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
         }
         item.setDescription(schema.getDescription());
         item.setPattern(schema.getPattern());
@@ -562,7 +562,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
         } else if (value instanceof StringSchema || StringUtils.equals(PropertyConstant.STRING, value.getType())) {
-            return example == null ? "" : example;
+            return example == null ? StringUtils.EMPTY : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
         }
@@ -617,8 +617,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         SwaggerInfo swaggerInfo = new SwaggerInfo();
         swaggerInfo.setVersion("1.0.1");
         swaggerInfo.setTitle("ms-" + project.getName());
-        swaggerInfo.setDescription("");
-        swaggerInfo.setTermsOfService("");
+        swaggerInfo.setDescription(StringUtils.EMPTY);
+        swaggerInfo.setTermsOfService(StringUtils.EMPTY);
         result.setInfo(swaggerInfo);
         result.setInfo(new SwaggerInfo());
         result.setServers(new ArrayList<>());
@@ -850,7 +850,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JSONObject parsedParam = new JSONObject();
             if (param instanceof String) {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.STRING);
-                parsedParam.put("example", param == null ? "" : param);
+                parsedParam.put("example", param == null ? StringUtils.EMPTY : param);
             } else if (param instanceof Integer) {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.INTEGER);
                 parsedParam.put("format", "int64");
@@ -958,7 +958,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         statusCodeInfo.put("headers", headers);
 
         statusCodeInfo.put("content", buildContent(response));
-        statusCodeInfo.put("description", "");
+        statusCodeInfo.put("description", StringUtils.EMPTY);
         // 返回code
         JSONArray statusCode = response.optJSONArray("statusCode");
         responseBody.put(statusCode.toString(), statusCodeInfo);

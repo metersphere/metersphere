@@ -122,7 +122,7 @@ public class TestPlanMessageService {
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
-        String subject = "";
+        String subject = StringUtils.EMPTY;
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";

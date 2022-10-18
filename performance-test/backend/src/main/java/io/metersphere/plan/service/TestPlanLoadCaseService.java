@@ -194,7 +194,7 @@ public class TestPlanLoadCaseService {
         if (CollectionUtils.isEmpty(loadTestReports)) {
             TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
             testPlanLoadCase.setId(testPlanLoadCaseId);
-            testPlanLoadCase.setLoadReportId("");
+            testPlanLoadCase.setLoadReportId(StringUtils.EMPTY);
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
             return false;
         }
@@ -402,25 +402,25 @@ public class TestPlanLoadCaseService {
 
     public String getPlanLoadCaseConfig(String loadCaseId) {
         if (StringUtils.isBlank(loadCaseId)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
         if (testPlanLoadCase != null) {
             return testPlanLoadCase.getLoadConfiguration();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
 
     public String getAdvancedConfiguration(String loadCaseId) {
         if (StringUtils.isBlank(loadCaseId)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         TestPlanLoadCaseWithBLOBs testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
         if (testPlanLoadCase != null) {
             return testPlanLoadCase.getAdvancedConfiguration();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public TestPlanLoadCase getTestPlanLoadCase(String loadCaseId) {

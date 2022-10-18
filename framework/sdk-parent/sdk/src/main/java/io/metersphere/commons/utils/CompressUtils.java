@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +46,7 @@ public class CompressUtils {
     public static File getFile(String fileName) throws IOException {
         // 创建文件对象
         File file;
-        if (ZIP_PATH != null && !ZIP_PATH.equals("")) {
+        if (ZIP_PATH != null && !ZIP_PATH.equals(StringUtils.EMPTY)) {
             file = new File(ZIP_PATH, fileName);
         } else {
             file = new File(fileName);

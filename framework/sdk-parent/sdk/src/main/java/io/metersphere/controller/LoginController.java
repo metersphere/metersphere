@@ -85,7 +85,7 @@ public class LoginController {
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
     public ResultHolder logout() throws Exception {
         SecurityUtils.getSubject().logout();
-        return ResultHolder.success("");
+        return ResultHolder.success(StringUtils.EMPTY);
     }
 
     /*Get default language*/

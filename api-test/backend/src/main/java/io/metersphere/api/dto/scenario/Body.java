@@ -82,7 +82,7 @@ public class Body {
         } else {
             if (StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema() != null) {
                 parseJonBodyMock();
-                KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
+                KeyValue keyValue = new KeyValue(StringUtils.EMPTY, "JSON-SCHEMA", this.getRaw(), true, true);
                 sampler.setPostBodyRaw(true);
                 keyValue.setEnable(true);
                 keyValue.setUrlEncode(false);
@@ -166,7 +166,7 @@ public class Body {
                 if (StringUtils.isBlank(mimetype)) {
                     mimetype = ContentType.APPLICATION_OCTET_STREAM.getMimeType();
                 }
-                HTTPFileArg fileArg = new HTTPFileArg(path, isBinary ? "" : paramName, mimetype);
+                HTTPFileArg fileArg = new HTTPFileArg(path, isBinary ? StringUtils.EMPTY : paramName, mimetype);
                 fileArg.setProperty("isRef", isRef);
                 fileArg.setProperty("fileId", fileId);
                 list.add(fileArg);
@@ -187,9 +187,9 @@ public class Body {
     }
 
     public void init() {
-        this.type = "";
-        this.raw = "";
-        this.format = "";
+        this.type = StringUtils.EMPTY;
+        this.raw = StringUtils.EMPTY;
+        this.format = StringUtils.EMPTY;
     }
 
     public void initKvs() {

@@ -373,7 +373,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
 
     public String insertNode(String nodeName, String pId, String projectId, Integer level, String path) {
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public void updatePos(String id, Double pos) {

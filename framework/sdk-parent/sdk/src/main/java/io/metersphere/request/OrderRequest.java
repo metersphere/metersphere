@@ -31,7 +31,7 @@ public class OrderRequest {
 
     public String getPrefix() {
         if (checkSqlInjection(prefix)) {
-            return "";
+            return StringUtils.EMPTY;
         }
         return prefix;
     }

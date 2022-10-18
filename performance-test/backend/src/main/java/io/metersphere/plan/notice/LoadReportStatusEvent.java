@@ -24,7 +24,7 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
         String reportId = loadTestReport.getId();
         String status = loadTestReport.getStatus();
         if (StringUtils.isNotBlank(reportId)) {
-            String result = "";
+            String result = StringUtils.EMPTY;
             if (StringUtils.equals(PerformanceTestStatus.Error.name(), status)) {
                 result = TestPlanLoadCaseStatus.error.name();
             }

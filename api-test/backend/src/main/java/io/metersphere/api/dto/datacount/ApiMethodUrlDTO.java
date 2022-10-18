@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.datacount;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Objects;
 
 /**
@@ -11,8 +13,8 @@ public class ApiMethodUrlDTO {
     public String method;
 
     public ApiMethodUrlDTO(String url, String method) {
-        this.url = url == null ? "" : url;
-        this.method = method == null ? "" : method;
+        this.url = url == null ? StringUtils.EMPTY : url;
+        this.method = method == null ? StringUtils.EMPTY : method;
     }
 
     @Override

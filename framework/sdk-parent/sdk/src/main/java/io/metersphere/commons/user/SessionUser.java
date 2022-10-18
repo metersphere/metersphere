@@ -29,7 +29,7 @@ public class SessionUser extends UserDTO implements Serializable {
         SessionUser sessionUser = new SessionUser();
         BeanUtils.copyProperties(user, sessionUser);
 
-        List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.randomAlphabetic(6), sessionId, "" + System.currentTimeMillis());
+        List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.randomAlphabetic(6), sessionId, StringUtils.EMPTY + System.currentTimeMillis());
         sessionUser.csrfToken = CodingUtil.aesEncrypt(StringUtils.join(infos, "|"), secret, iv);
         sessionUser.sessionId = sessionId;
         return sessionUser;

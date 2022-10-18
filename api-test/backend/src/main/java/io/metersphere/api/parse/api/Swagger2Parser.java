@@ -36,7 +36,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger = null;
-        String sourceStr = "";
+        String sourceStr = StringUtils.EMPTY;
         List<AuthorizationValue> auths = setAuths(request);
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             try {
@@ -164,7 +164,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private String getModulePath(List<String> tagTree, StringBuilder modulePath) {
         if (tagTree == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
         for (String s : tagTree) {
             if (s.contains("/")) {
@@ -182,7 +182,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
     private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
-        String name = "";
+        String name = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
         } else if (StringUtils.isNotBlank(operation.getOperationId())) {
@@ -194,7 +194,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
-        String name = "";
+        String name = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
         } else {
@@ -262,11 +262,11 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (parameter.getDefault() != null) {
             return getDefaultStringValue(parameter.getDefault().toString());
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     private String getDefaultStringValue(String val) {
-        return StringUtils.isBlank(val) ? "" : val;
+        return StringUtils.isBlank(val) ? StringUtils.EMPTY : val;
     }
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
@@ -277,7 +277,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
         addHeader(headers, headerParameter.getName(), getDefaultValue(headerParameter), getDefaultStringValue(headerParameter.getDescription()),
-                "", parameter.getRequired());
+                StringUtils.EMPTY, parameter.getRequired());
     }
 
     private HttpResponse parseResponse(Operation operation, Map<String, Response> responses) {
@@ -391,7 +391,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (property.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, property.getExample());
         } else {
-            item.getMock().put(PropertyConstant.MOCK, "");
+            item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
         }
         return item;
     }
@@ -400,7 +400,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Map<String, Property> headers = response.getHeaders();
         if (headers != null) {
             headers.forEach((k, v) -> {
-                msHeaders.add(new KeyValue(k, "", v.getDescription()));
+                msHeaders.add(new KeyValue(k, StringUtils.EMPTY, v.getDescription()));
             });
         }
     }
@@ -460,7 +460,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (schema.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, schema.getExample());
         } else {
-            item.getMock().put(PropertyConstant.MOCK, "");
+            item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
         }
         return item;
     }
@@ -470,7 +470,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         RefModel refModel = (RefModel) schema;
         String originalRef = refModel.getOriginalRef();
         if (refModel.getOriginalRef().split("/").length > 3) {
-            simpleRef = originalRef.replace("#/definitions/", "");
+            simpleRef = originalRef.replace("#/definitions/", StringUtils.EMPTY);
         } else {
             simpleRef = refModel.getSimpleRef();
         }
@@ -502,7 +502,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             if (value.getExample() != null) {
                 item.getMock().put(PropertyConstant.MOCK, value.getExample());
             } else {
-                item.getMock().put(PropertyConstant.MOCK, "");
+                item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
             }
             JsonSchemaProperties.put(key, item);
         });
@@ -602,7 +602,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 return bodyParameters.toString();
             }
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     private JSONObject getBodyParameters(Map<String, Property> properties, HashSet<String> refSet) {

@@ -180,7 +180,7 @@ public class JSONSchemaRunTest {
                 if (object.has("items")) {
                     if (isMock(itemsObject)) {
                         try {
-                            String type = "";
+                            String type = StringUtils.EMPTY;
                             if (itemsObject.has(BasicConstant.TYPE)) {
                                 type = itemsObject.get(BasicConstant.TYPE).getAsString();
                             }
@@ -251,7 +251,7 @@ public class JSONSchemaRunTest {
         } catch (Exception e) {
             return object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK);
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     private static void analyzeDefinitions(JsonObject object, Map<String, String> map) {

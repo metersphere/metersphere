@@ -229,7 +229,7 @@ public class BaseUserService {
                     user.setLastProjectId(projects.get(0).getId());
                 }
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         // 执行变更
@@ -251,7 +251,7 @@ public class BaseUserService {
             if (projects.size() > 0) {
                 user.setLastProjectId(projects.get(0).getId());
             } else {
-                user.setLastProjectId("");
+                user.setLastProjectId(StringUtils.EMPTY);
             }
         }
         BeanUtils.copyProperties(user, newUser);
@@ -349,7 +349,7 @@ public class BaseUserService {
     public ResultHolder login(LoginRequest request) {
         String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
         String username = StringUtils.trim(request.getUsername());
-        String password = "";
+        String password = StringUtils.EMPTY;
         if (!StringUtils.equals(login, UserSource.LDAP.name())) {
             password = StringUtils.trim(request.getPassword());
             if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
@@ -420,8 +420,8 @@ public class BaseUserService {
                 switchUserResource("workspace", wsId, user);
             } else {
                 // 用户登录之后没有项目和工作空间的权限就把值清空
-                user.setLastWorkspaceId("");
-                user.setLastProjectId("");
+                user.setLastWorkspaceId(StringUtils.EMPTY);
+                user.setLastProjectId(StringUtils.EMPTY);
                 updateUser(user);
             }
         } else {
@@ -614,7 +614,7 @@ public class BaseUserService {
                 .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(projectId, user.getLastProjectId())) {
-            user.setLastProjectId("");
+            user.setLastProjectId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
@@ -714,7 +714,7 @@ public class BaseUserService {
         if (!CollectionUtils.isEmpty(users)) {
             User user = users.get(0);
             String seleniumServer = request.getSeleniumServer();
-            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? "" : seleniumServer.trim());
+            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? StringUtils.EMPTY : seleniumServer.trim());
             user.setUpdateTime(System.currentTimeMillis());
             //更新session seleniumServer 信息
             SessionUser sessionUser = SessionUtils.getUser();

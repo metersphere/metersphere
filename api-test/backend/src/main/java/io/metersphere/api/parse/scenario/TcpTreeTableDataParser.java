@@ -36,7 +36,7 @@ public class TcpTreeTableDataParser {
     public static final String DATA_TYPE_OBJECT = PropertyConstant.OBJECT;
 
     public static String treeTableData2Xml(List<TcpTreeTableDataStruct> treeDataList) {
-        String xmlString = "";
+        String xmlString = StringUtils.EMPTY;
         try {
             if (treeDataList == null || treeDataList.isEmpty()) {
                 return xmlString;
@@ -85,9 +85,9 @@ public class TcpTreeTableDataParser {
             LogUtil.error(e);
         }
         if (StringUtils.isEmpty(xmlString)) {
-            xmlString = "";
+            xmlString = StringUtils.EMPTY;
         } else {
-            xmlString = xmlString.replaceAll("  ", "");
+            xmlString = xmlString.replaceAll("  ", StringUtils.EMPTY);
         }
         return xmlString;
     }

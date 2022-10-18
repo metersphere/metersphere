@@ -55,7 +55,7 @@ public class AfterReturningNoticeSendService {
      * 有些默认的值，避免通知里出现 ${key}
      */
     private void handleDefaultValues(Map paramMap) {
-        paramMap.put("planShareUrl", ""); // 占位符
+        paramMap.put("planShareUrl", StringUtils.EMPTY); // 占位符
     }
 
     private String getContext(SendNotice sendNotice, Map<String, Object> paramMap) {

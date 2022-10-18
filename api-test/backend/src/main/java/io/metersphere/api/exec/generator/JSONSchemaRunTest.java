@@ -154,7 +154,7 @@ public class JSONSchemaRunTest {
                     String value = ScriptEngineUtils.buildFunctionCallString(object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).toString());
                     if (StringUtils.isNotEmpty(value)) {
                         if (value.indexOf("\"") != -1) {
-                            value = value.replaceAll("\"", "");
+                            value = value.replaceAll("\"", StringUtils.EMPTY);
                         }
                         if (isBoolean(value)) {
                             concept.put(propertyName, Boolean.valueOf(value));
@@ -184,7 +184,7 @@ public class JSONSchemaRunTest {
                 if (object.has(PropertyConstant.ITEMS)) {
                     if (isMock(itemsObject)) {
                         try {
-                            String type = "";
+                            String type = StringUtils.EMPTY;
                             if (itemsObject.has(PropertyConstant.TYPE)) {
                                 type = itemsObject.get(PropertyConstant.TYPE).getAsString();
                             }
@@ -242,7 +242,7 @@ public class JSONSchemaRunTest {
             concept.put(propertyName, obj);
             analyzeObject(object, obj, map);
         } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
-            concept.put(propertyName, "");
+            concept.put(propertyName, StringUtils.EMPTY);
         }
     }
 
@@ -261,7 +261,7 @@ public class JSONSchemaRunTest {
         } catch (Exception e) {
             return object.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK);
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     private static void analyzeDefinitions(JsonObject object, Map<String, String> map) {

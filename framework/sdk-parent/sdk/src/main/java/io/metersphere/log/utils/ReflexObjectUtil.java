@@ -57,7 +57,7 @@ public class ReflexObjectUtil {
                         if (StatusReference.statusMap.containsKey(String.valueOf(val))) {
                             val = StatusReference.statusMap.get(String.valueOf(val));
                         }
-                        DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, "");
+                        DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, StringUtils.EMPTY);
                         if (dffColumns.contains(f.getName())) {
                             column.setDepthDff(true);
                             column.setOriginalValue(formatJson(val));
@@ -111,7 +111,7 @@ public class ReflexObjectUtil {
                 f.setAccessible(true);
                 try {
                     Object val = f.get(obj);
-                    DetailColumn column = new DetailColumn(f.getName(), f.getName(), val, "");
+                    DetailColumn column = new DetailColumn(f.getName(), f.getName(), val, StringUtils.EMPTY);
                     columnList.add(column);
                 } catch (Exception e) {
                     LogUtil.error(e);

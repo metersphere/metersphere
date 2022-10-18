@@ -81,7 +81,7 @@ public class MockApiUtils {
                     }
                 }
 
-                String jsonString = "";
+                String jsonString = StringUtils.EMPTY;
                 if (isJsonSchema) {
                     if (bodyObj.has("jsonSchema")) {
                         String bodyRetunStr = bodyObj.optJSONObject("jsonSchema").toString();
@@ -123,7 +123,7 @@ public class MockApiUtils {
                         if (kv.has("name")) {
                             String values = kv.optString("value");
                             if (StringUtils.isEmpty(values)) {
-                                values = "";
+                                values = StringUtils.EMPTY;
                             } else {
                                 try {
                                     values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
@@ -170,7 +170,7 @@ public class MockApiUtils {
                 JSONObject respObj = JSONUtil.parseObject(response);
                 if (respObj != null) {
                     if (respObj.has("body")) {
-                        String returnStr = "";
+                        String returnStr = StringUtils.EMPTY;
                         JSONObject bodyObj = respObj.optJSONObject("body");
                         if (bodyObj.has(PropertyConstant.TYPE)) {
                             String type = bodyObj.optString(PropertyConstant.TYPE);
@@ -207,7 +207,7 @@ public class MockApiUtils {
                                         if (kv.has("name")) {
                                             String values = kv.optString("value");
                                             if (StringUtils.isEmpty(values)) {
-                                                values = "";
+                                                values = StringUtils.EMPTY;
                                             } else {
                                                 try {
                                                     values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
@@ -292,9 +292,9 @@ public class MockApiUtils {
             requestMockParams = new RequestMockParams();
         }
         if (bodyObj == null && bodyObj == null) {
-            return "";
+            return StringUtils.EMPTY;
         } else {
-            String returnStr = "";
+            String returnStr = StringUtils.EMPTY;
             if (bodyObj.has(PropertyConstant.TYPE)) {
                 String type = bodyObj.optString(PropertyConstant.TYPE);
                 if (StringUtils.equals(type, "JSON")) {
@@ -460,7 +460,7 @@ public class MockApiUtils {
                 String param = pathArr[i];
                 if (param.startsWith("{") && param.endsWith("}")) {
                     param = param.substring(1, param.length() - 1);
-                    String value = "";
+                    String value = StringUtils.EMPTY;
                     if (sendParamArr.length > i) {
                         value = sendParamArr[i];
                     }
@@ -473,7 +473,7 @@ public class MockApiUtils {
     }
 
     private static String readBody(HttpServletRequest request) {
-        String result = "";
+        String result = StringUtils.EMPTY;
         try {
             InputStream inputStream = request.getInputStream();
             ByteArrayOutputStream outSteam = new ByteArrayOutputStream();

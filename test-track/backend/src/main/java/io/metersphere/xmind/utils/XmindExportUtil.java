@@ -235,7 +235,7 @@ public class XmindExportUtil {
                 if (dto.getTags() != null) {
                     try {
                         List<String> arr = JSON.parseArray(dto.getTags());
-                        String tagStr = "";
+                        String tagStr = StringUtils.EMPTY;
                         for (int i = 0; i < arr.size(); i++) {
                             tagStr = tagStr + arr.get(i) + ",";
                         }

@@ -260,8 +260,8 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestTypeConstants.HTTP);
-            samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
-            samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
+            samplerProxy.setConnectTimeout(source.getConnectTimeout() + StringUtils.EMPTY);
+            samplerProxy.setResponseTimeout(source.getResponseTimeout() + StringUtils.EMPTY);
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
             samplerProxy.setDomain(source.getDomain());
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
@@ -342,12 +342,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         msTCPSampler.setType(ElementConstants.TCP_SAMPLER);
         msTCPSampler.setServer(tcpSampler.getServer());
         msTCPSampler.setPort(tcpSampler.getPropertyAsString(TCPSampler.PORT));
-        msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
+        msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + StringUtils.EMPTY);
         msTCPSampler.setReUseConnection(tcpSampler.getProperty(TCPSampler.RE_USE_CONNECTION).getBooleanValue());
         msTCPSampler.setNodelay(tcpSampler.getProperty(TCPSampler.NODELAY).getBooleanValue());
         msTCPSampler.setCloseConnection(tcpSampler.isCloseConnection());
-        msTCPSampler.setSoLinger(tcpSampler.getSoLinger() + "");
-        msTCPSampler.setEolByte(tcpSampler.getEolByte() + "");
+        msTCPSampler.setSoLinger(tcpSampler.getSoLinger() + StringUtils.EMPTY);
+        msTCPSampler.setEolByte(tcpSampler.getEolByte() + StringUtils.EMPTY);
         msTCPSampler.setRequest(tcpSampler.getRequestData());
         msTCPSampler.setUsername(tcpSampler.getProperty(ConfigTestElement.USERNAME).getStringValue());
         msTCPSampler.setPassword(tcpSampler.getProperty(ConfigTestElement.PASSWORD).getStringValue());
@@ -828,7 +828,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             elementNode.setEnable(((TestElement) key).isEnabled());
             elementNode.setResourceId(UUID.randomUUID().toString());
             elementNode.setId(UUID.randomUUID().toString());
-            elementNode.setIndex(scenario.getHashTree().size() + 1 + "");
+            elementNode.setIndex(scenario.getHashTree().size() + 1 + StringUtils.EMPTY);
             // 提取参数
             if (elementNode instanceof MsExtract) {
                 if (CollectionUtils.isNotEmpty(((MsExtract) elementNode).getJson()) || CollectionUtils.isNotEmpty(((MsExtract) elementNode).getRegex()) || CollectionUtils.isNotEmpty(((MsExtract) elementNode).getXpath())) {

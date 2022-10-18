@@ -24,7 +24,7 @@ public class ApiScenarioExportJmxDTO {
     private Map<String, List<String>> projectEnvMap;
 
     public ApiScenarioExportJmxDTO(String name, String jmx) {
-        this.name = StringUtils.replace(name, "/", "");
+        this.name = StringUtils.replace(name, "/", StringUtils.EMPTY);
         this.jmx = jmx;
     }
 }

@@ -95,7 +95,7 @@ public class HarParser extends HarAbstractParser {
             }
 
             //默认取路径的最后一块
-            String reqName = "";
+            String reqName = StringUtils.EMPTY;
             if (harRequest.url != null) {
                 String[] nameArr = url.split("/");
                 reqName = nameArr[nameArr.length - 1];
@@ -110,17 +110,6 @@ public class HarParser extends HarAbstractParser {
                 addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(entry.response)));
-                /*if (selectModule == null) {
-                    apiDefinition.setModuleId("default-module");
-
-                } else {
-                    apiDefinition.setModuleId(selectModule.getId());
-                }
-                if (StringUtils.isNotBlank(selectModulePath)) {
-                    apiDefinition.setModulePath(selectModulePath);
-                } else {
-                    apiDefinition.setModulePath("/未规划接口");
-                }*/
                 results.add(apiDefinition);
             }
         }
@@ -145,7 +134,7 @@ public class HarParser extends HarAbstractParser {
 
 
     private String getDefaultStringValue(String val) {
-        return StringUtils.isBlank(val) ? "" : val;
+        return StringUtils.isBlank(val) ? StringUtils.EMPTY : val;
     }
 
     private void parseCookieParameters(HarCookie harCookie, List<KeyValue> headers) {
@@ -153,7 +142,7 @@ public class HarParser extends HarAbstractParser {
     }
 
     private void parseHeaderParameters(HarHeader harHeader, List<KeyValue> headers) {
-        addHeader(headers, harHeader.name, harHeader.value, harHeader.comment, "", false);
+        addHeader(headers, harHeader.name, harHeader.value, harHeader.comment, StringUtils.EMPTY, false);
     }
 
     private HttpResponse parseResponse(HarResponse response) {

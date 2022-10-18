@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class EsbDataParser {
     public static String esbData2XmlByParamStruct(List<EsbDataStruct> esbDataList, String[] paramArr) {
-        String xmlString = "";
+        String xmlString = StringUtils.EMPTY;
         try {
             if (esbDataList == null || esbDataList.isEmpty()) {
                 return xmlString;
@@ -63,9 +63,9 @@ public class EsbDataParser {
             LogUtil.error(e);
         }
         if (StringUtils.isEmpty(xmlString)) {
-            xmlString = "";
+            xmlString = StringUtils.EMPTY;
         } else {
-            xmlString = xmlString.replaceAll("  ", "");
+            xmlString = xmlString.replaceAll("  ", StringUtils.EMPTY);
         }
         return xmlString;
     }

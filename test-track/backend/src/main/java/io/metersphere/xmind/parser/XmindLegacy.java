@@ -31,8 +31,8 @@ public class XmindLegacy {
      */
     public static List<String> getContent(String xmlContent, String xmlComments) throws IOException, DocumentException {
         // 删除content.xml里面不能识别的字符串
-        xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", "");
-        xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", "");
+        xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", StringUtils.EMPTY);
+        xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", StringUtils.EMPTY);
 
         try {
             xmlContent = removeTopicsFromString(xmlContent);
@@ -47,7 +47,7 @@ public class XmindLegacy {
 
         if (xmlComments != null) {
             // 删除comments.xml里面不能识别的字符串
-            xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", "");
+            xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", StringUtils.EMPTY);
 
             // 添加评论到content中
             Document commentDocument = XmlUtils.getDocument(new ByteArrayInputStream(xmlComments.getBytes(StandardCharsets.UTF_8.name())));

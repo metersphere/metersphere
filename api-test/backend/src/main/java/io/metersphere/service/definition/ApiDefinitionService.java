@@ -2177,7 +2177,7 @@ public class ApiDefinitionService {
             criteria.andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
         }
         List<SwaggerUrlProject> list = swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
-        String resourceId = "";
+        String resourceId = StringUtils.EMPTY;
         if (list.size() == 1) {
             resourceId = list.get(0).getId();
         }
@@ -2259,7 +2259,7 @@ public class ApiDefinitionService {
             }
             String[] urlParams = urlSuffix.split("/");
             if (urlSuffixEndEmpty) {
-                urlParams[urlParams.length - 1] = "";
+                urlParams[urlParams.length - 1] = StringUtils.EMPTY;
             }
             for (ApiDefinition api : apiList) {
                 if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {

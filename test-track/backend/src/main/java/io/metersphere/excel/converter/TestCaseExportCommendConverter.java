@@ -43,7 +43,7 @@ public class TestCaseExportCommendConverter implements TestCaseExportConverter {
         caseComments.forEach(comment -> {
             String authorName = comment.getAuthorName();
             String type = getFromMapOfNullableWithTranslate(commendTypeMap, comment.getType());
-            String status = "";
+            String status = StringUtils.EMPTY;
             if (StringUtils.equals(comment.getType(), TestCaseCommentType.PLAN.name())) {
                 status = getFromMapOfNullableWithTranslate(planCaseStatusMap, comment.getStatus());
                 status = "[".concat(status).concat("]");

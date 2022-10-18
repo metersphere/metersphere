@@ -180,8 +180,8 @@ public class ApiScenarioImportUtil {
                         object.put("id", sameCase.getId());
                         object.put("resourceId", sameCase.getId());
                         object.put("projectId", projectId);
-                        object.put("useEnvironment", "");
-                        object.put("environmentId", "");
+                        object.put("useEnvironment", StringUtils.EMPTY);
+                        object.put("environmentId", StringUtils.EMPTY);
                     }
                 }
             } else {
@@ -238,9 +238,9 @@ public class ApiScenarioImportUtil {
         object.put("id", test.getId());
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment", "");
-        object.put("environmentId", "");
-        object.put("url", "");
+        object.put("useEnvironment", StringUtils.EMPTY);
+        object.put("environmentId", StringUtils.EMPTY);
+        object.put("url", StringUtils.EMPTY);
         JSONObject objectNew = JSONUtil.parseObject(object.toString());
         objectNew.remove("refType");
         objectNew.remove("referenced");
@@ -293,8 +293,8 @@ public class ApiScenarioImportUtil {
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment", "");
-        object.put("environmentId", "");
+        object.put("useEnvironment", StringUtils.EMPTY);
+        object.put("environmentId", StringUtils.EMPTY);
         JSONObject objectNew = JSONUtil.parseObject(object.toString());
         objectNew.remove("refType");
         objectNew.remove("referenced");

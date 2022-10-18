@@ -78,7 +78,7 @@ public class ExecThreadPoolExecutor {
      * 保留两位小数
      */
     private String divide(int num1, int num2) {
-        return String.format("%1.2f%%", Double.parseDouble(num1 + "") / Double.parseDouble(num2 + "") * 100);
+        return String.format("%1.2f%%", Double.parseDouble(num1 + StringUtils.EMPTY) / Double.parseDouble(num2 + StringUtils.EMPTY) * 100);
     }
 
     public void outApiThreadPoolExecutorLogger(String message) {
