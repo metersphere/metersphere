@@ -437,6 +437,9 @@ export default {
         }
         this.config = res.data;
         this.config.shareReport = true;
+        if (!this.config.apiQuickMenu) {
+          this.config.apiQuickMenu = "debug";
+        }
         if (!this.config.uiQuickMenu) {
           this.config.uiQuickMenu = "server";
         }
