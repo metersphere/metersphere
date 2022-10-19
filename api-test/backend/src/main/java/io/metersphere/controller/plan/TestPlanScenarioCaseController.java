@@ -225,4 +225,9 @@ public class TestPlanScenarioCaseController {
         testPlanScenarioCaseService.buildScenarioResponse(cases);
         return cases;
     }
+
+    @PostMapping("/get/plan/env/map")
+    public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
+        return testPlanScenarioCaseService.getPlanProjectEnvMap(resourceIds);
+    }
 }

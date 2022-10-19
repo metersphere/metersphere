@@ -136,9 +136,9 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.selectStatusForPlanReport(planId);
     }
 
-    @PostMapping("/get/plan/env/map/{resourceType}")
-    public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds, @PathVariable("resourceType") String resourceType) {
-        return testPlanApiCaseService.getPlanProjectEnvMap(resourceIds, resourceType);
+    @PostMapping("/get/plan/env/map")
+    public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
+        return testPlanApiCaseService.getPlanProjectEnvMap(resourceIds);
     }
 
     @PostMapping("/set/env/{planId}")

@@ -1,13 +1,22 @@
 package io.metersphere.controller;
 
-import org.springframework.stereotype.Controller;
+import io.metersphere.controller.handler.annotation.NoResultHolder;
+import io.metersphere.plan.service.TestPlanService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import javax.annotation.Resource;
+
+@RestController
 public class ShareReportController {
 
-    @GetMapping(value = "/sharePlanReport")
+    @Resource
+    TestPlanService testPlanService;
+
+
+    @NoResultHolder
+    @GetMapping(value = "/share-plan-report")
     public String shareRedirect() {
-        return "share-plan-report.html";
+        return testPlanService.getShareReport();
     }
 }

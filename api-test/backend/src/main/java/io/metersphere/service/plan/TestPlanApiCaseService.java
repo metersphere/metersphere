@@ -25,7 +25,6 @@ import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
@@ -521,26 +520,21 @@ public class TestPlanApiCaseService {
         return extTestPlanApiCaseMapper.selectForPlanReport(planId);
     }
 
-    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds, String resourceType) {
+    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
         Map<String, List<String>> result = new LinkedHashMap<>();
         if (!CollectionUtils.isEmpty(resourceIds)) {
-            if (StringUtils.equalsIgnoreCase("ApiCase", resourceType)) {
-                List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
-                execResults.forEach(item -> {
-                    String envConf = item.getEnvConfig();
-                    String projectId = item.getProjectId();
-                    Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectId, envConf);
-                    this.setProjectEnvMap(result, projectEnvMap);
-                });
-            } else if (StringUtils.equalsIgnoreCase(ElementConstants.SCENARIO, resourceType)) {
-                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectEnvMapByTestPlanScenarioIds(resourceIds);
+            List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
+            execResults.forEach(item -> {
+                String envConf = item.getEnvConfig();
+                String projectId = item.getProjectId();
+                Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectId, envConf);
                 this.setProjectEnvMap(result, projectEnvMap);
-            }
+            });
         }
         return result;
     }
 
-    private void setProjectEnvMap(Map<String, List<String>> result, Map<String, List<String>> projectEnvMap) {
+    public void setProjectEnvMap(Map<String, List<String>> result, Map<String, List<String>> projectEnvMap) {
         if (MapUtils.isNotEmpty(projectEnvMap)) {
             for (Map.Entry<String, List<String>> entry : projectEnvMap.entrySet()) {
                 String projectName = entry.getKey();

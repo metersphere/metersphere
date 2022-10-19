@@ -10,4 +10,18 @@
 <body>
 <div id="sharePlanReport"></div>
 </body>
+<script type="text/javascript">
+  // 后端获取服务列表替换
+  let microService = "#microService";
+  let modules = {}, microPorts = {};
+  microService.forEach(svc => {
+    let name = svc.serviceId;
+    modules[name] = true;
+    microPorts[name] = svc.port;
+  });
+
+  sessionStorage.setItem("micro_apps", JSON.stringify(modules));
+  sessionStorage.setItem("micro_ports", JSON.stringify(microPorts));
+</script>
 </html>
+
