@@ -19,6 +19,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/resource/ui/get/**", "anon");
         filterChainDefinitionMap.put("/attachment/preview/**", "anon");
         filterChainDefinitionMap.put("/*.worker.js", "anon");
+        filterChainDefinitionMap.put("/*.html", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
         filterChainDefinitionMap.put("/ldap/signin", "anon");
         filterChainDefinitionMap.put("/ldap/open", "anon");
