@@ -24,9 +24,7 @@
 import MsDrawer from "metersphere-frontend/src/components/MsDrawer";
 import {DEFAULT_LANGUAGE, EN_US, ZH_CN} from "metersphere-frontend/src/utils/constants";
 import {getCurrentUser} from "metersphere-frontend/src/utils/token";
-// import {useStore} from "@/store";
 
-// const store = useStore();
 export default {
   name: "TestPlanReportNavigationBar",
   components: {MsDrawer},
@@ -96,11 +94,6 @@ export default {
     uiEnable() {
       this.setData();
     },
-    // 'store.appFixed'(newVal){
-    //   if (this.needMoveBar) {
-    //     this.toggleMoveBarClass(newVal);
-    //   }
-    // },
   },
   computed: {
     navBtnClass() {
@@ -119,10 +112,20 @@ export default {
     },
   },
   mounted() {
+    let isFixed = localStorage.getItem('app-fixed') === 'true' || false;
+    if (this.$EventBus) {
+      // 导出的报告不走这里
+      this.$EventBus.$on("appFixedChange", this.toggleMoveBarClass);
+    }
     this.setData();
-    // if (this.needMoveBar) {
-    //   this.toggleMoveBarClass(store.appFixed);
-    // }
+    if (this.needMoveBar) {
+      this.toggleMoveBarClass(isFixed);
+    }
+  },
+  destroyed() {
+    if (this.$EventBus) {
+      this.$EventBus.$off("appFixedChange", this.toggleMoveBarClass);
+    }
   },
   methods: {
     setData() {
@@ -142,7 +145,9 @@ export default {
       });
     },
     toggleMoveBarClass(val) {
-      this.moveBarClass = val ? 'fixed-move-bar' : 'move-bar';
+      if (this.needMoveBar) {
+        this.moveBarClass = val ? 'fixed-move-bar' : 'move-bar';
+      }
     }
   }
 }
