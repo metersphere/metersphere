@@ -256,8 +256,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         issue.setPlatform(key);
         try {
-            issue.setCreateTime(DateUtils.getTimestamp((String) bug.get("created")));
-            issue.setUpdateTime(DateUtils.getTimestamp((String) bug.get("modified")));
+            issue.setCreateTime(DateUtils.getTime((String) bug.get("created")).getTime());
+            issue.setUpdateTime(DateUtils.getTime((String) bug.get("modified")).getTime());
         } catch (Exception e) {
             LogUtil.error(e);
         }
