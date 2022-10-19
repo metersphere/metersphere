@@ -102,9 +102,11 @@ export default {
               // 固定环境列表渲染顺序
               let temp = this.data.find(dt => dt.id === id);
               temp.envs = envs;
-              let envId = this.envMap.get(id);
-              // 选中环境是否存在
-              temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
+              if (this.envMap && this.envMap.size > 0) {
+                let envId = this.envMap.get(id);
+                // 选中环境是否存在
+                temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
+              }
             });
         }
       });
