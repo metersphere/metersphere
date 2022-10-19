@@ -73,6 +73,11 @@ module.exports = {
       }
     },
   },
+  css: {
+    extract: {
+      ignoreOrder: true,
+    }
+  },
   chainWebpack: config => {
     // svg rule loader
     config.module
