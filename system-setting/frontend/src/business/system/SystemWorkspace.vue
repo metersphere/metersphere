@@ -330,6 +330,7 @@ export default {
     cellClick(row) {
       this.currentWorkspaceRow = row;
       this.dialogWsMemberVisible = true;
+      this.groupScopeId = row.id;
       let param = {name: '', workspaceId: row.id};
       this._getWorkspaceMemberListSpecial(param);
       listenGoBack(this.closeWsMemberDialog);
@@ -396,11 +397,11 @@ export default {
     editMember(row) {
       this.dialogWsMemberUpdateVisible = true;
       this.memberForm = Object.assign({}, row);
-      this.loading = getUserGroupList({type: GROUP_TYPE.WORKSPACE, resourceId: this.groupScopeId})
+      this.$set(this.memberForm, 'groupIds', this.memberForm.groups.map(r => r.id));
+      this.workspaceMemberUpdateLoading = getUserGroupList({type: GROUP_TYPE.WORKSPACE, resourceId: this.groupScopeId})
         .then(res => {
           this.$set(this.memberForm, "workspaceGroups", res.data);
         })
-      this.$set(this.memberForm, 'groupIds', this.memberForm.groups.map(r => r.id));
       listenGoBack(this.handleClose);
     },
     handleDelete(workspace) {
