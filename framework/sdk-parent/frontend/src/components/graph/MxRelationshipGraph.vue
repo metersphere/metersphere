@@ -18,7 +18,8 @@ export default {
       default() {
         return 'calc(100vh - 48px)';
       }
-    },},
+    },
+  },
   data() {
     return {
       visible: false,
@@ -41,7 +42,7 @@ export default {
           {
             left: '50',
             top: '20',
-            data:  [this.$t('commons.relationship.selected'), this.$t('commons.relationship.direct'), this.$t('commons.relationship.indirect')],
+            data: [this.$t('commons.relationship.selected'), this.$t('commons.relationship.direct'), this.$t('commons.relationship.indirect')],
           }
         ],
         series: [
@@ -53,14 +54,14 @@ export default {
             categories: [
               {
                 name: this.$t('commons.relationship.selected'),
-                itemStyle:{color: '#9E74AB'}
+                itemStyle: {color: '#9E74AB'}
               },
               {
                 name: this.$t('commons.relationship.direct'),
-                itemStyle:{color: '#7EBEDB'}
-              },{
+                itemStyle: {color: '#7EBEDB'}
+              }, {
                 name: this.$t('commons.relationship.indirect'),
-                itemStyle:{color: '#9CD375'}
+                itemStyle: {color: '#9CD375'}
               }
             ],
             label: {
@@ -139,6 +140,7 @@ export default {
       this.$refs.msChart.exportCharts(name, type);
     },
     reload() {
+      this.options.backgroundColor = "#ffffff";
       this.options.series[0].data = this.data;
       this.options.series[0].links = this.links;
       let x = 0;
