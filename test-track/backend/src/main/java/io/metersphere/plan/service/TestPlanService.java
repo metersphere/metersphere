@@ -33,6 +33,7 @@ import io.metersphere.plan.reuest.ui.RunUiScenarioRequest;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
+import io.metersphere.plan.service.remote.gateway.GatewayService;
 import io.metersphere.plan.service.remote.performance.PerfExecService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
 import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
@@ -139,6 +140,8 @@ public class TestPlanService {
     private TestPlanExecutionQueueService testPlanExecutionQueueService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
+    @Resource
+    private GatewayService gatewayService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1072,6 +1075,36 @@ public class TestPlanService {
         }
     }
 
+    public String getShareReport() {
+        Object microServices = gatewayService.getMicroServices();
+        return replaceSharReport(microServices);
+    }
+
+
+    /**
+     * 获取微服务信息，替换前端变量
+     * 实现跨服务访问报告
+     */
+    public String replaceSharReport(Object microServices) {
+        try (InputStreamReader isr = new InputStreamReader(getClass().getResourceAsStream("/public/share-plan-report.html"), StandardCharsets.UTF_8);) {
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            StringBuilder reportStr = new StringBuilder();
+            String line;
+            while (null != (line = bufferedReader.readLine())) {
+                if (line.contains("\"#microService\"")) {
+                    line = line.replace("\"#microService\"", new Gson().toJson(microServices));
+                }
+                line += StringUtils.LF;
+                reportStr.append(line);
+            }
+            return reportStr.toString();
+        } catch (Throwable e) {
+            LogUtil.error(e);
+            MSException.throwException(e);
+        }
+        return null;
+    }
+
     public Map<String, List<String>> getApiCaseEnv(List<String> planApiCaseIds) {
         return planTestPlanApiCaseService.getApiCaseEnv(planApiCaseIds);
     }
@@ -1327,6 +1360,15 @@ public class TestPlanService {
         } catch (Throwable e) {
             LogUtil.error(e);
             MSException.throwException(e);
+        }
+    }
+
+    public TestPlanSimpleReportDTO getShareReport(ShareInfo shareInfo, String planId) {
+        HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
+        try {
+            return getReport(planId, null);
+        } finally {
+            HttpHeaderUtils.clearUser();
         }
     }
 
