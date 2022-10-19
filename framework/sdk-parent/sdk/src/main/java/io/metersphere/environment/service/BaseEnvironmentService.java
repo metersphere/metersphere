@@ -24,6 +24,7 @@ import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -807,4 +808,24 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
+    public LinkedHashMap<String, List<String>> selectProjectNameAndEnvName(Map<String, List<String>> projectEnvIdMap) {
+        LinkedHashMap<String, List<String>> returnMap = new LinkedHashMap<>();
+        if (MapUtils.isNotEmpty(projectEnvIdMap)) {
+            for (Map.Entry<String, List<String>> entry : projectEnvIdMap.entrySet()) {
+                String projectId = entry.getKey();
+                List<String> envIdList = entry.getValue();
+                Project project = baseProjectService.getProjectById(projectId);
+                if (project != null) {
+                    String projectName = project.getName();
+                    List<String> envNameList = this.selectNameByIds(envIdList);
+                    if (CollectionUtils.isNotEmpty(envNameList) && StringUtils.isNotEmpty(projectName)) {
+                        returnMap.put(projectName, new ArrayList<>() {{
+                            this.addAll(envNameList);
+                        }});
+                    }
+                }
+            }
+        }
+        return returnMap;
+    }
 }

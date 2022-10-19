@@ -3,6 +3,14 @@
     <el-card id="testOverview">
       <template v-slot:header>
         <span class="title">{{ $t('report.test_overview') }}</span>
+        <span v-if="projectEnvMap && Object.keys(projectEnvMap).length > 0">
+          <span> {{ $t('commons.environment') + ':' }} </span>
+          <span v-for="(values,key) in projectEnvMap" :key="key" style="margin-right: 10px">
+            {{ key + ":" }}
+            <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item"
+                    style="margin-left: 2px"/>
+          </span>
+        </span>
       </template>
       <ms-report-test-overview :report="report" :export="true" ref="testOverview"/>
     </el-card>
@@ -43,6 +51,7 @@ import MsReportTitle from "metersphere-frontend/src/components/report/MsReportTi
 import MsReportExportTemplate from "metersphere-frontend/src/components/report/MsReportExportTemplate";
 import MsReportTestDetails from "./components/TestDetails";
 import MonitorCard from "./components/MonitorCard";
+import MsTag from "metersphere-frontend/src/components/MsTag";
 
 
 export default {
@@ -55,8 +64,9 @@ export default {
     MsReportTestDetails,
     MsReportRequestStatistics,
     MsReportTestOverview,
+    MsTag,
   },
-  props: ['report', 'title']
+  props: ['report', 'title', 'projectEnvMap']
 }
 </script>
 
