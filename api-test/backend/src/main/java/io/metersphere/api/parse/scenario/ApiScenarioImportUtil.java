@@ -22,6 +22,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
+import io.metersphere.service.scenario.dto.ApiScenarioParamDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -160,7 +161,10 @@ public class ApiScenarioImportUtil {
         }
     }
 
-    public static void checkCase(JSONObject object, String versionId, String projectId, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap,Map<String, Set<String>> apiIdCaseNameMap) {
+    public static void checkCase(JSONObject object, String versionId, String projectId, ApiScenarioParamDto apiScenarioParamDto) {
+        Map<String, ApiDefinition> definitionMap = apiScenarioParamDto.getDefinitionMap();
+        ApiTestCaseMapper apiTestCaseMapper = apiScenarioParamDto.getApiTestCaseMapper();
+        Map<String, Set<String>> apiIdCaseNameMap = apiScenarioParamDto.getApiIdCaseNameMap();
         ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.optString("id"));
@@ -185,7 +189,7 @@ public class ApiScenarioImportUtil {
                     }
                 }
             } else {
-                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(apiDefinitionService, object, versionId, projectId, apiDefinitionMapper, definitionMap);
+                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(apiDefinitionService, object, versionId, projectId, apiScenarioParamDto.getApiDefinitionMapper(), definitionMap);
                 structureCaseByJson(object, testCaseService, apiDefinitionResult, apiTestCaseMapper,apiIdCaseNameMap);
             }
         }
