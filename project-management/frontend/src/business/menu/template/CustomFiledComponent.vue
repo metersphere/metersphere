@@ -176,9 +176,7 @@ export default {
       return item.system ? this.$t(item.text) : item.text;
     },
     handleChange() {
-      if (this.form) {
-        this.$set(this.form, this.data.name, this.data[this.prop]);
-      }
+      this.$forceUpdate();
     },
   }
 };
