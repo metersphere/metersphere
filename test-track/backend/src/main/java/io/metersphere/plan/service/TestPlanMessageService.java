@@ -243,6 +243,7 @@ public class TestPlanMessageService {
         result.put("uiScenarioAllCount", 0L);
         //
         result.put("loadCaseAllCount", 0L);
+        result.put("caseCount", report.getCaseCount());
 
 
         List<TestPlanCaseDTO> functionAllCases = report.getFunctionAllCases();
