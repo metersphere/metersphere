@@ -23,7 +23,7 @@
         <spring-cloud.version>2021.0.4</spring-cloud.version>
         <dubbo.version>2.7.15</dubbo.version>
         <flyway.version>7.15.0</flyway.version>
-        <shiro.version>1.9.1</shiro.version>
+        <shiro.version>1.10.0</shiro.version>
         <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
         <postgresql.version>42.3.2</postgresql.version>
         <java-websocket.version>1.5.3</java-websocket.version>
