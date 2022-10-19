@@ -115,7 +115,6 @@ public class ApiCaseExecuteService {
             resourcePoolId = request.getConfig().getResourcePoolId();
         }
         if (!request.isRerun()) {
-            Map<String, String> planProjects = new HashMap<>();
             for (TestPlanApiCase testPlanApiCase : planApiCases) {
                 //处理环境配置为空时的情况
                 RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
@@ -129,16 +128,6 @@ public class ApiCaseExecuteService {
                     }
                 }
                 ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, runModeConfigDTO, testPlanApiCase, status, caseMap, resourcePoolId);
-                // todo check
-//                if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
-//                    report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
-//                } else {
-//                    TestPlan plan = CommonBeanFactory.getBean(TestPlanMapper.class).selectByPrimaryKey(testPlanApiCase.getTestPlanId());
-//                    if (plan != null) {
-//                        planProjects.put(plan.getId(), plan.getProjectId());
-//                        report.setProjectId(plan.getProjectId());
-//                    }
-//                }
                 executeQueue.put(testPlanApiCase.getId(), report);
                 responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
                 LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());

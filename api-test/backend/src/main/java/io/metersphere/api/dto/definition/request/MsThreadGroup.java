@@ -21,7 +21,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 
 public class MsThreadGroup extends MsTestElement {
-    private String type = ElementConstants.TREAD_GROUP;
+    private String type = ElementConstants.THREAD_GROUP;
     private String clazzName = MsThreadGroup.class.getCanonicalName();
 
     private boolean enableCookieShare;

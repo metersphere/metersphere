@@ -22,6 +22,7 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -145,6 +146,12 @@ public class ApiExecuteService {
     }
 
     public MsExecResponseDTO debug(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        // 补充线程组ID
+        if (request.getTestElement() != null
+                && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())
+                && StringUtils.equalsIgnoreCase(request.getTestElement().getHashTree().get(0).getType(), ElementConstants.THREAD_GROUP)) {
+            request.getTestElement().getHashTree().get(0).setName(request.getId());
+        }
         JmeterRunRequestDTO runRequest = this.initRunRequest(request, bodyFiles);
         // 开始执行
         jMeterService.run(runRequest);
@@ -191,7 +198,7 @@ public class ApiExecuteService {
             // 单接口调试生成tmp临时目录
             requests.forEach(item -> {
                 Body body = item.getBody();
-                String tmpFilePath = "tmp/" + request.getReportId();
+                String tmpFilePath = "tmp/" + request.getId();
                 body.setTmpFilePath(tmpFilePath);
                 FileUtils.copyBdyFile(item.getId(), tmpFilePath);
                 FileUtils.createBodyFiles(tmpFilePath, bodyFiles);

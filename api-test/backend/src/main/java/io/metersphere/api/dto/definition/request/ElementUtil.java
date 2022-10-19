@@ -338,7 +338,7 @@ public class ElementUtil {
             put(ElementConstants.EXTRACT, MsExtract.class.getCanonicalName());
             put(ElementConstants.JMETER_ELE, MsJmeterElement.class.getCanonicalName());
             put(ElementConstants.TEST_PLAN, MsTestPlan.class.getCanonicalName());
-            put(ElementConstants.TREAD_GROUP, MsThreadGroup.class.getCanonicalName());
+            put(ElementConstants.THREAD_GROUP, MsThreadGroup.class.getCanonicalName());
             put(ElementConstants.DNS_CACHE, MsDNSCacheManager.class.getCanonicalName());
             put(ElementConstants.DEBUG_SAMPLER, MsDebugSampler.class.getCanonicalName());
             put(ElementConstants.AUTH_MANAGER, MsAuthManager.class.getCanonicalName());

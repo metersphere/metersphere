@@ -246,14 +246,8 @@ public class ApiExecutionQueueService {
             // 清除队列
             executionQueueDetailMapper.deleteByExample(example);
             queueMapper.deleteByPrimaryKey(executionQueue.getId());
-
-            if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                String reportId = dto.getReportId();
-                if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                    reportId = dto.getTestPlanReportId();
-                }
-                apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
-            }
+            // 集合报告合并
+            this.margeReport(dto);
             return false;
         }
         return true;
@@ -319,13 +313,8 @@ public class ApiExecutionQueueService {
             long count = executionQueueDetailMapper.countByExample(queueDetailExample);
             if (count == 0) {
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
-                if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                    String reportId = dto.getReportId();
-                    if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                        reportId = dto.getTestPlanReportId();
-                    }
-                    apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
-                }
+                // 集合报告合并
+                this.margeReport(dto);
             }
             return;
         }
@@ -356,13 +345,8 @@ public class ApiExecutionQueueService {
                     }
                 }
             } else {
-                if (StringUtils.equalsIgnoreCase(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                    String reportId = dto.getReportId();
-                    if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                        reportId = dto.getTestPlanReportId();
-                    }
-                    apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
-                }
+                // 集合报告合并
+                this.margeReport(dto);
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
                 LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
             }
@@ -372,6 +356,16 @@ public class ApiExecutionQueueService {
             executionQueueDetailMapper.deleteByExample(example);
         }
         LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
+    }
+
+    private void margeReport(ResultDTO dto) {
+        if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+            String reportId = dto.getReportId();
+            if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                reportId = dto.getTestPlanReportId();
+            }
+            apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
+        }
     }
 
     public void defendQueue() {
