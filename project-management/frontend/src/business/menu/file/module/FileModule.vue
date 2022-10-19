@@ -13,6 +13,7 @@
       :show-case-num="showCaseNum"
       :operation_type_add="treeOperationType"
       :operation_type_edit="treeOperationType"
+      @add="add"
       @edit="edit"
       @drag="drag"
       @remove="remove"
@@ -22,7 +23,6 @@
       @addOperation="fileTreeModuleAdd"
       @editOperation="fileTreeModuleEdit"
       ref="nodeTree">
-
       <template v-slot:header>
         <ms-search-bar
           :show-operator="showOperator"
