@@ -81,7 +81,7 @@ const Setting = {
     {
       path: 'license',
       component: () => import('../../business/system/license/MxLicense'),
-      meta: {system: true, valid: true, title: 'license.title',}
+      meta: {system: true, valid: true, title: 'license.title', permissions: ['SYSTEM_AUTH:READ']}
     },
     {
       path: 'project/:type',
