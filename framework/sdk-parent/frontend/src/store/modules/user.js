@@ -83,6 +83,10 @@ export default {
             resolve(res)
           })
           .catch((res) => {
+            // 防止快速刷新页面时，请求中止导致的掉线问题
+            if (res && res.code === 'ECONNABORTED') {
+              return;
+            }
             clearSessionStorage()
             reject(res)
           })
