@@ -273,7 +273,7 @@ import {
   initCondition
 } from "metersphere-frontend/src/utils/tableUtils";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
-import {Body, KeyValue} from "@/business/definition/model/ApiTestModel";
+import {Body} from "@/business/definition/model/ApiTestModel";
 import {getGraphByCondition} from "@/api/graph";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
@@ -718,11 +718,6 @@ export default {
             }
             if (!item.request.headers) {
               item.request.headers = [];
-            } else if (item.request.headers.length === 1) {
-              let values = item.request.headers.filter(tab => tab.name !== '');
-              if (values.length > 0) {
-                item.request.headers.push(new KeyValue({enable: true}))
-              }
             }
             if (!item.request.body.kvs) {
               item.request.body.kvs = [];
@@ -735,12 +730,6 @@ export default {
 
             if (!item.request.rest) {
               item.request.rest = [];
-            }
-            if (item.request.query && item.request.query.length === 1) {
-              let values = item.request.query.filter(tab => tab.name !== '');
-              if (values.length > 0) {
-                item.request.query.push(new KeyValue({enable: true}))
-              }
             }
             if (!item.request.arguments) {
               item.request.arguments = [{
