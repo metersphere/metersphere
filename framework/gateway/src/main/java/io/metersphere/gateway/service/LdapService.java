@@ -98,7 +98,7 @@ public class LdapService {
             }
 
             user.setSource(UserSource.LDAP.name());
-            userLoginService.addLdapUser(user);
+            u = userLoginService.addLdapUser(user);
         } else {
             // 更新
             u.setName(name);
