@@ -19,7 +19,7 @@ public class ElementConstants {
     public static final String JDBC_POST = "JDBCPostProcessor";
     public static final String JMETER_ELE = "JmeterElement";
     public static final String TEST_PLAN = "TestPlan";
-    public static final String TREAD_GROUP = "ThreadGroup";
+    public static final String THREAD_GROUP = "ThreadGroup";
     public static final String DNS_CACHE = "DNSCacheManager";
     public static final String DEBUG_SAMPLER = "DebugSampler";
     public static final String AUTH_MANAGER = "AuthManager";
@@ -43,7 +43,7 @@ public class ElementConstants {
         this.add(ElementConstants.JDBC_POST);
         this.add(ElementConstants.JMETER_ELE);
         this.add(ElementConstants.TEST_PLAN);
-        this.add(ElementConstants.TREAD_GROUP);
+        this.add(ElementConstants.THREAD_GROUP);
         this.add(ElementConstants.DNS_CACHE);
         this.add(ElementConstants.DEBUG_SAMPLER);
         this.add(ElementConstants.AUTH_MANAGER);

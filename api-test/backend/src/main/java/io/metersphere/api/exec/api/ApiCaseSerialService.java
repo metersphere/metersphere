@@ -15,6 +15,8 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
@@ -28,19 +30,11 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.commons.utils.RequestParamsUtil;
 import io.metersphere.xpack.api.service.ApiRetryOnFailureService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -155,6 +149,11 @@ public class ApiCaseSerialService {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(runRequest.getReportId());
+                // 接口用例集成报告
+                if (StringUtils.isNotEmpty(runRequest.getTestPlanReportId())
+                        && StringUtils.equals(runRequest.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                    group.setName(runRequest.getTestPlanReportId());
+                }
                 group.setProjectId(caseWithBLOBs.getProjectId());
                 MsTestElement testElement;
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {

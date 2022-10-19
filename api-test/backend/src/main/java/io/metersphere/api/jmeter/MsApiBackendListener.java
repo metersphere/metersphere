@@ -4,7 +4,10 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.FixedCapacityUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
@@ -19,9 +22,7 @@ import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,18 +61,15 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 RetryResultUtil.mergeRetryResults(dto.getRequestResults());
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
             }
-
-            String console = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
-            if (FileUtils.isFolderExists(dto.getReportId())) {
-                console += "\r\n" + DateUtils.getTimeString(new Date()) + " INFO " +
-                        "Tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getReportId() + " has deleted.";
+            String reportId = dto.getReportId();
+            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())
+                    && !FixedCapacityUtil.containsKey(dto.getTestPlanReportId())
+                    && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                reportId = dto.getTestPlanReportId();
             }
-            if (FileUtils.isFolderExists("tmp" + File.separator + dto.getReportId())) {
-                console += "\r\n" + DateUtils.getTimeString(new Date()) + " INFO " +
-                        "Tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + "tmp" + File.separator + dto.getReportId() + " has deleted.";
+            if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                dto.setConsole(FixedCapacityUtil.getJmeterLogger(reportId, true));
             }
-            dto.setConsole(console);
-
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");

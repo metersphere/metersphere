@@ -101,15 +101,15 @@ public class JMeterService {
 
     private void runLocal(JmeterRunRequestDTO request) {
         init();
-        if (!FixedCapacityUtil.jmeterLogTask.containsKey(request.getReportId())) {
-            FixedCapacityUtil.jmeterLogTask.put(request.getReportId(), System.currentTimeMillis());
-        }
+        // 接口用例集成报告/测试计划报告日志记录
         if (StringUtils.isNotEmpty(request.getTestPlanReportId())
-                && !FixedCapacityUtil.jmeterLogTask.containsKey(request.getTestPlanReportId())
                 && StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            FixedCapacityUtil.jmeterLogTask.put(request.getTestPlanReportId(), System.currentTimeMillis());
+            FixedCapacityUtil.put(request.getTestPlanReportId(), new StringBuffer(""));
+        } else {
+            // 报告日志记录
+            FixedCapacityUtil.put(request.getReportId(), new StringBuffer(""));
         }
-        LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtil.jmeterLogTask.size());
+        LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtil.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());

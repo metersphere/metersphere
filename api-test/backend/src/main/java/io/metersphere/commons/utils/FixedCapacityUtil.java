@@ -2,22 +2,36 @@ package io.metersphere.commons.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class FixedCapacityUtil {
-    public static Map<Long, StringBuffer> fixedCapacityCache = Collections.synchronizedMap(new LRUHashMap<>());
-    public final static Map<String, Long> jmeterLogTask = new HashMap<>();
+    private static Map<String, StringBuffer> fixedCapacityCache = Collections.synchronizedMap(new LRUHashMap<>());
 
-    public static StringBuffer get(Long key) {
+    public static StringBuffer get(String key) {
         return fixedCapacityCache.get(key);
     }
 
-    public static void put(Long key, StringBuffer value) {
-        fixedCapacityCache.put(key, value);
+    public static boolean containsKey(String key) {
+        if (StringUtils.isEmpty(key)) {
+            return false;
+        }
+        return fixedCapacityCache.containsKey(key);
+    }
+
+    public static void put(String key, StringBuffer value) {
+        if (!fixedCapacityCache.containsKey(key)) {
+            fixedCapacityCache.put(key, value);
+        }
+    }
+
+    public static void remove(String key) {
+        if (fixedCapacityCache.containsKey(key)) {
+            fixedCapacityCache.remove(key);
+        }
     }
 
     public static int size() {
@@ -26,7 +40,7 @@ public class FixedCapacityUtil {
 
 
     static class LRUHashMap<K, V> extends LinkedHashMap<K, V> {
-        private int capacity = 100;
+        private int capacity = 3000;
 
         @Override
         protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
@@ -34,28 +48,36 @@ public class FixedCapacityUtil {
         }
     }
 
-
     public static String getJmeterLogger(String reportId, boolean isClear) {
         try {
-            Long startTime = FixedCapacityUtil.jmeterLogTask.get(reportId);
-            if (startTime == null) {
-                startTime = FixedCapacityUtil.jmeterLogTask.get("[" + reportId + "]");
+            StringBuffer console = fixedCapacityCache.get(reportId);
+            if (FileUtils.isFolderExists(reportId)) {
+                console.append(StringUtils.LF)
+                        .append(DateUtils.getTimeString(new Date()))
+                        .append(" INFO ").append("Tmp folder  ")
+                        .append(FileUtils.BODY_FILE_DIR)
+                        .append(File.separator)
+                        .append(reportId)
+                        .append(" has deleted.");
             }
-            if (startTime == null) {
-                startTime = System.currentTimeMillis();
+            if (FileUtils.isFolderExists("tmp" + File.separator + reportId)) {
+                console.append(StringUtils.LF)
+                        .append(DateUtils.getTimeString(new Date()))
+                        .append(" INFO ")
+                        .append("Tmp folder  ")
+                        .append(FileUtils.BODY_FILE_DIR)
+                        .append(File.separator)
+                        .append("tmp")
+                        .append(File.separator)
+                        .append(reportId)
+                        .append(" has deleted.");
             }
-            Long endTime = System.currentTimeMillis();
-            Long finalStartTime = startTime;
-            String logMessage = FixedCapacityUtil.fixedCapacityCache.entrySet().stream()
-                    .filter(map -> map.getKey() > finalStartTime && map.getKey() <= endTime)
-                    .map(map -> map.getValue()).collect(Collectors.joining());
-
-            return logMessage;
+            return console.toString();
         } catch (Exception e) {
             return StringUtils.EMPTY;
         } finally {
-            if (isClear && FixedCapacityUtil.jmeterLogTask.containsKey(reportId)) {
-                FixedCapacityUtil.jmeterLogTask.remove(reportId);
+            if (isClear && fixedCapacityCache.containsKey(reportId)) {
+                fixedCapacityCache.remove(reportId);
             }
         }
     }
