@@ -22,10 +22,18 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <ms-search-bar
+        <api-module-header
           :show-operator="showOperator"
           :condition="condition"
-          :commands="null"/>
+          :current-module="currentModule"
+          :is-read-only="isReadOnly"
+          :moduleOptions="data"
+          :options="options"
+          :total="total"
+          :select-project-id="projectId"
+          @refreshTable="$emit('refreshTable')"
+          @schedule="$emit('schedule')"
+          @refresh="refresh"/>
       </template>
 
     </ms-node-tree>
@@ -42,12 +50,14 @@ import {apiModuleGetUserDefaultApiType, apiModuleProjectList} from "@/api/remote
 import MsSearchBar from "metersphere-frontend/src/components/search/MsSearchBar";
 import {getCurrentProjectID} from "@/business/utils/sdk-utils";
 import {apiCaseModulePlanList} from "@/api/remote/plan/test-plan-api-case";
+import ApiModuleHeader from "./ApiModuleHeader";
 
 export default {
   name: 'MsApiModule',
   components: {
     MsNodeTree,
-    MsSearchBar
+    MsSearchBar,
+    ApiModuleHeader
   },
   data() {
     return {
@@ -91,6 +101,12 @@ export default {
       default() {
         return OPTIONS;
       }
+    },
+    selectProjectId: {
+      type: String,
+      default() {
+        return getCurrentProjectID();
+      }
     }
   },
   mounted() {
@@ -102,6 +118,13 @@ export default {
     },
     isRelevanceModel() {
       return !!this.relevanceProjectId;
+    },
+    projectId() {
+      if (this.selectProjectId) {
+        return this.selectProjectId;
+      } else {
+        return getCurrentProjectID();
+      }
     }
   },
   watch: {
