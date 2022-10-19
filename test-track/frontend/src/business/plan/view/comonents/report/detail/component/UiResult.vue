@@ -16,23 +16,13 @@
 import MsPieChart from "metersphere-frontend/src/components/MsPieChart";
 import MsDoughnutPieChart from "metersphere-frontend/src/components/MsDoughnutPieChart";
 import ApiScenarioCharResult from "@/business/plan/view/comonents/report/detail/component/ApiScenarioCharResult";
+import {REPORT_STATUS_MAP} from "@/business/utils/constants";
 export default {
   name: "UiResult",
   components: {ApiScenarioCharResult, MsDoughnutPieChart, MsPieChart},
   data() {
     return {
-      caseDataMap: new Map([
-        ["success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
-        ["Success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
-        ["Pass", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
-        ["error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["Error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["Fail", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["Prepare", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
-        ["Underway", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
-        ["errorReportResult", {name: this.$t('error_report_library.option.name'), itemStyle: {color: '#F6972A'}}],
-      ]),
+      caseDataMap: REPORT_STATUS_MAP,
       caseCharData: [],
       scenarioCharData: [],
       stepCharData: [],

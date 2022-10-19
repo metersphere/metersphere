@@ -53,7 +53,6 @@ public class TestPlanStatusCalculator {
         addToReportStatusResultList(resultMap, statusResult, "Fail");
         addToReportStatusResultList(resultMap, statusResult, "success");
         addToReportStatusResultList(resultMap, statusResult, "Success");
-        addToReportStatusResultList(resultMap, statusResult, "SUCCESS");
         addToReportStatusResultList(resultMap, statusResult, "STOP");
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
         addToReportStatusResultList(resultMap, statusResult, ExecuteResult.ERROR_REPORT_RESULT.toString());
@@ -76,7 +75,7 @@ public class TestPlanStatusCalculator {
                     ExecuteResult.UN_EXECUTE.getValue(), ExecuteResult.STOP.getValue(), ApiReportStatus.PENDING.name(), ApiReportStatus.STOPPED.name())) {
                 // 计算执行过的数量
                 report.setExecuteCount(report.getExecuteCount() + 1);
-                if (StringUtils.equals(successStatus, status)) {
+                if (StringUtils.equalsIgnoreCase(successStatus, status)) {
                     // 计算执行成功的数量
                     report.setPassCount(report.getPassCount() + 1);
                 }
