@@ -15,6 +15,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
 import io.metersphere.engine.EngineFactory;
+import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -27,6 +28,7 @@ import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
 import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -81,6 +83,8 @@ public class PerformanceReportService {
     private LoadTestReportFileMapper loadTestReportFileMapper;
     @Resource
     private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
+    @Resource
+    private BaseEnvironmentService baseEnvironmentService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -349,19 +353,19 @@ public class PerformanceReportService {
     }
 
     private void parseRunEnvironment(LoadTestReportInfoDTO loadTestReportInfoDTO) {
-        // todo
-//        if (loadTestReportInfoDTO != null && StringUtils.isNotEmpty(loadTestReportInfoDTO.getEnvInfo())) {
-//            Map<String, List<String>> projectEnvIdMap = new HashMap<>();
-//            try {
-//                projectEnvIdMap = JSONObject.parseObject(loadTestReportInfoDTO.getEnvInfo(), Map.class);
-//                LinkedHashMap<String, List<String>> projectEnvNameMap = apiScenarioEnvService.selectProjectNameAndEnvName(projectEnvIdMap);
-//                if (MapUtils.isNotEmpty(projectEnvNameMap)) {
-//                    loadTestReportInfoDTO.setProjectEnvMap(projectEnvNameMap);
-//                }
-//            } catch (Exception e) {
-//                LogUtil.error("性能测试报告解析运行环境信息失败!解析参数:" + loadTestReportInfoDTO.getEnvInfo(), e);
-//            }
-//        }
+        if (loadTestReportInfoDTO != null && StringUtils.isNotEmpty(loadTestReportInfoDTO.getEnvInfo())) {
+            Map<String, List<String>> projectEnvIdMap = new HashMap<>();
+            try {
+                projectEnvIdMap = JSON.parseObject(loadTestReportInfoDTO.getEnvInfo(), Map.class);
+
+                LinkedHashMap<String, List<String>> projectEnvNameMap = baseEnvironmentService.selectProjectNameAndEnvName(projectEnvIdMap);
+                if (MapUtils.isNotEmpty(projectEnvNameMap)) {
+                    loadTestReportInfoDTO.setProjectEnvMap(projectEnvNameMap);
+                }
+            } catch (Exception e) {
+                LogUtil.error("性能测试报告解析运行环境信息失败!解析参数:" + loadTestReportInfoDTO.getEnvInfo(), e);
+            }
+        }
     }
 
     public List<LogDetailDTO> getReportLogResource(String reportId) {
