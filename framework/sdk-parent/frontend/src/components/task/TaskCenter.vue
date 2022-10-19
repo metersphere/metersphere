@@ -238,6 +238,7 @@ export default {
         array.push({type: 'API', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
         array.push({type: 'SCENARIO', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
         array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        array.push({type: 'UI_SCENARIO', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
         stopBatchTask(array).then(response => {
           this.$success(this.$t('report.test_stop_success'));
           this.init();
