@@ -46,7 +46,7 @@ public class ApiExecutionQueueService {
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
@@ -319,9 +319,10 @@ public class ApiExecutionQueueService {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
                     // 防止重复执行
-                    boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), executionQueue.getQueue().getQueueId());
+                    String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", executionQueue.getQueue().getReportId());
+                    boolean isNext = redisTemplateService.setIfAbsent(key, executionQueue.getQueue().getQueueId());
                     if (isNext) {
-                        redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), 60, TimeUnit.MINUTES);
+                        redisTemplateService.expire(key);
                         if (StringUtils.startsWith(executionQueue.getRunMode(), "UI")) {
                             uiScenarioSerialServiceProxy.serial(executionQueue, executionQueue.getQueue());
                         } else {
@@ -396,7 +397,8 @@ public class ApiExecutionQueueService {
                     dto.setTestId(item.getTestId());
                     if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
                         // 删除串行资源锁
-                        redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+                        String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
+                        redisTemplateService.delete(key);
 
                         LoggerUtil.info("超时处理报告处理，进入下一个执行", report.getId());
                         dto.setTestPlanReportId(queue.getReportId());

@@ -58,7 +58,7 @@ public class TestResultService {
     @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -161,7 +161,8 @@ public class TestResultService {
     public void testEnded(ResultDTO dto) {
         // 删除串行资源锁
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
-            redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+            String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
+            redisTemplateService.delete(key);
         }
         if (dto.getRequestResults() == null) {
             dto.setRequestResults(new LinkedList<>());
