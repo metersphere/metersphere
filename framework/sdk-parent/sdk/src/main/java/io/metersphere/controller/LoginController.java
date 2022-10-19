@@ -15,6 +15,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.LoginRequest;
 import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.BaseUserService;
+import io.metersphere.service.SSOLogoutService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -37,6 +38,8 @@ public class LoginController {
     private BaseUserService baseUserService;
     @Resource
     private BaseDisplayService baseDisplayService;
+    @Resource
+    private SSOLogoutService ssoLogoutService;
     @Value("${spring.application.name}")
     private String serviceId;
     @Value("${server.port}")
@@ -84,6 +87,7 @@ public class LoginController {
     @GetMapping(value = "/signout")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
     public ResultHolder logout() throws Exception {
+        ssoLogoutService.logout();
         SecurityUtils.getSubject().logout();
         return ResultHolder.success(StringUtils.EMPTY);
     }
