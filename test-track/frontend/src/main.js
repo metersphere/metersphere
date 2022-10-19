@@ -21,7 +21,7 @@ import 'mavon-editor/dist/css/index.css';
 import vueMinderEditor from 'vue-minder-editor-plus'
 import VueClipboard from 'vue-clipboard2'
 import VueFab from 'vue-float-action-button';
-
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
 Vue.config.productionTip = false
 
@@ -46,6 +46,7 @@ Vue.use(PiniaVuePlugin);
 Vue.use(mavonEditor);
 Vue.use(VueFab);
 Vue.use(VueClipboard);
+Vue.use(CKEditor);
 
 let instance = null;
 
