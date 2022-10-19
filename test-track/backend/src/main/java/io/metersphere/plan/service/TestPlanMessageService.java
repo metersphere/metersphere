@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.notice.sender.NoticeModel;
@@ -122,7 +123,7 @@ public class TestPlanMessageService {
         assert noticeSendService != null;
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
-        String subject = StringUtils.EMPTY;
+        String subject;
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";
@@ -134,12 +135,15 @@ public class TestPlanMessageService {
         // 计算通过率
         TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
         testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
-        // 计算各种属性
-        TestPlanSimpleReportDTO report = testPlanReportService.getReport(testPlanReport.getId());
-        Map<String, Long> caseCountMap = calculateCaseCount(report);
-
         String creator = testPlanReport.getCreator();
         UserDTO userDTO = baseUserService.getUserDTO(creator);
+        // 计算各种属性
+        HttpHeaderUtils.runAsUser(userDTO);
+        TestPlanSimpleReportDTO report = testPlanReportService.getReport(testPlanReport.getId());
+        HttpHeaderUtils.clearUser();
+
+        Map<String, Long> caseCountMap = calculateCaseCount(report);
+
 
         Map paramMap = new HashMap();
         paramMap.put("type", "testPlan");
@@ -149,6 +153,15 @@ public class TestPlanMessageService {
             paramMap.put("operator", userDTO.getName());
             paramMap.put("executor", userDTO.getId());
         }
+
+        // 执行率 通过率 两位小数
+        if (report.getPassRate() != null && !report.getPassRate().isNaN()) {
+            paramMap.put("passRate", String.format("%.2f", report.getPassRate() * 100));
+        }
+        if (report.getExecuteRate() != null && !report.getExecuteRate().isNaN()) {
+            paramMap.put("executeRate", String.format("%.2f", report.getExecuteRate() * 100));
+        }
+
         paramMap.putAll(caseCountMap);
         paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
