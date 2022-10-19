@@ -121,7 +121,12 @@ import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID, windowPrint} from "metersphere-frontend/src/utils";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {getScenarioReport, getScenarioReportDetail, getShareScenarioReport, reportReName} from "../../../api/scenario-report";
+import {
+  getScenarioReport,
+  getScenarioReportDetail,
+  getShareScenarioReport,
+  reportReName
+} from "../../../api/scenario-report";
 import {STEP} from "../../automation/scenario/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 
@@ -730,7 +735,7 @@ export default {
       return "/api/test/edit?id=" + this.report.testId;
     },
     isNotRunning() {
-      return "Running" !== this.report.status;
+      return "RUNNING" !== this.report.status;
     },
     projectId() {
       return getCurrentProjectID();
