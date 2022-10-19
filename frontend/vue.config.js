@@ -73,6 +73,11 @@ module.exports = {
       }
     },
   },
+  css: {
+    extract: {
+      ignoreOrder: true,
+    }
+  },
   chainWebpack: config => {
     // 报告模板打包成一个html
     config.plugin('html-planReport')
