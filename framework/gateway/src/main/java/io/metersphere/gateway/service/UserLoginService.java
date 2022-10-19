@@ -332,12 +332,13 @@ public class UserLoginService {
         userMapper.insertSelective(user);
     }
 
-    public void addLdapUser(User user) {
+    public User addLdapUser(User user) {
         user.setCreateTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());
         user.setStatus(UserStatus.NORMAL);
         checkEmailIsExist(user.getEmail());
         userMapper.insertSelective(user);
+        return user;
     }
 
     private void checkEmailIsExist(String email) {
