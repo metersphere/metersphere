@@ -218,7 +218,7 @@
         </ms-table-column>
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
-                         :filters="field.name === '用例等级' ? priorityFilters : null"
+                         :filters="getCustomFieldFilter(field)"
                          :field="item"
                          column-key="priority"
                          :fields-width="fieldsWidth"
@@ -290,6 +290,7 @@ import {
   getLastTableSortField,
   getTableHeaderWithCustomFields,
   initCondition,
+  getCustomFieldFilter
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -502,12 +503,12 @@ export default {
     this.pageCount = Math.ceil(this.total / this.pageSize);
   },
   mounted() {
+    this.getTemplateField();
     this.$emit('setCondition', this.condition);
     this.$EventBus.$on("openFailureTestCase", this.handleOpenFailureTestCase);
     this.refreshTableAndPlan();
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.getMaintainerOptions();
-    this.getTemplateField();
     this.getVersionOptions();
   },
   destroyed() {
@@ -542,22 +543,44 @@ export default {
     },
     getTemplateField() {
       this.result.loading = true;
-      let p1 = getProjectMember((data) => {
-        this.members = data;
-      });
+      let p1 = getProjectMember()
+        .then((response) => {
+          this.members = response.data;
+        });
       let p2 = getTestTemplate();
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
-        if (this.$refs.table) {
-          this.$refs.table.resetHeader();
-        }
-        this.result.loading = false;
+        this.$nextTick(() => {
+          if (this.$refs.table) {
+            this.$refs.table.resetHeader();
+          }
+          this.result.loading = false;
+        });
       });
     },
-    getCustomFieldValue(row, field) {
-      return getCustomFieldValueForTrack(row, field, this.members);
+    getCustomFieldFilter(field) {
+      if (field.name === '用例状态') {
+        let option = [];
+        field.options.forEach((item) => {
+          option.push({
+            text: this.$t(item.text),
+            value: item.value
+          })
+        });
+        return option;
+      }
+      return getCustomFieldFilter(field, this.userFilters);
+    },
+    getCustomFieldValue(row, field, defaultVal = '') {
+      let value = getCustomFieldValueForTrack(row, field, this.members);
+      if (field.name === '用例等级') {
+        return row.priority;
+      } else if (field.name === '责任人') {
+        return row.maintainerName;
+      }
+      return value ? value : defaultVal;
     },
     initTableData(callback) {
       initCondition(this.condition, this.condition.selectAll);
