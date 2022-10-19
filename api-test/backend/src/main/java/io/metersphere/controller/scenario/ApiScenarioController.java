@@ -7,9 +7,6 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.parse.scenario.ScenarioImport;
-import io.metersphere.dto.BaseCase;
-import io.metersphere.service.scenario.ApiScenarioService;
-import io.metersphere.service.ext.ExtApiTaskService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
@@ -17,12 +14,15 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.WebSocketUtil;
+import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.ext.ExtApiTaskService;
+import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.task.dto.TaskRequestDTO;
-import io.metersphere.commons.utils.WebSocketUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -152,14 +152,14 @@ public class ApiScenarioController {
 
     @PostMapping("/move-gc-ids")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getApiScenarios(#ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
     }
 
     @PostMapping("/move-gc-batch")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getApiScenarios(#request.ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
     public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.removeToGcByBatch(request);
     }
