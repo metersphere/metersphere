@@ -25,7 +25,7 @@ public class XmindZen {
             transferNotes(rootTopic);
             Map children = rootTopic.get("children");
             recursionChildren(children);
-            contents.add(jsonObject.toString());
+            contents.add(JSON.toJSONString(jsonObject));
         }
         return contents;
     }
