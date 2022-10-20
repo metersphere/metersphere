@@ -88,8 +88,8 @@
     <el-dialog
       v-loading="memberTableLoading"
       :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
-               @close="close"
-               class="dialog-css">
+      @close="close"
+      class="dialog-css">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
                          :create-permission="['WORKSPACE_PROJECT_MANAGER:READ+ADD_USER']"
@@ -275,8 +275,10 @@ export default {
   mounted() {
     if (this.$route.path.split('/')[2] === 'project' &&
       this.$route.path.split('/')[3] === 'create') {
-      this.create();
       this.$router.replace('/setting/project/all');
+      setTimeout(() => {
+        this.create();
+      }, 200)
     }
     this.list();
     this.getMaintainerOptions();
