@@ -6,23 +6,10 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
-import io.metersphere.service.scenario.ApiScenarioReportService;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiExecutionQueue;
-import io.metersphere.base.domain.ApiExecutionQueueDetail;
-import io.metersphere.base.domain.ApiExecutionQueueDetailExample;
-import io.metersphere.base.domain.ApiExecutionQueueExample;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.domain.ApiScenarioReportResultExample;
-import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
-import io.metersphere.base.mapper.ApiExecutionQueueMapper;
-import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.KafkaTopicConstants;
@@ -34,26 +21,19 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +43,7 @@ public class ApiExecutionQueueService {
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
@@ -333,12 +313,18 @@ public class ApiExecutionQueueService {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getDetail()));
                     // 防止重复执行
-                    boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getDetail().getReportId(), executionQueue.getDetail().getQueueId());
+                    String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", executionQueue.getDetail().getReportId());
+                    boolean isNext = redisTemplateService.setIfAbsent(key, executionQueue.getDetail().getQueueId());
                     if (!isNext) {
                         return;
                     }
-                    redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getDetail().getReportId(), 60, TimeUnit.MINUTES);
-                    if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                    redisTemplateService.expire(key);
+                    if (StringUtils.equalsAny(executionQueue.getRunMode(),
+                            ApiRunMode.SCENARIO.name(),
+                            ApiRunMode.SCENARIO_PLAN.name(),
+                            ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                            ApiRunMode.SCHEDULE_SCENARIO.name(),
+                            ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                         apiScenarioSerialService.serial(executionQueue);
                     } else {
                         apiCaseSerialService.serial(executionQueue);
@@ -409,7 +395,8 @@ public class ApiExecutionQueueService {
                     LoggerUtil.info("超时处理报告：" + report.getId());
                     if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
                         // 删除串行资源锁
-                        redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+                        String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
+                        redisTemplateService.delete(key);
 
                         LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
                         dto.setTestPlanReportId(queue.getReportId());
