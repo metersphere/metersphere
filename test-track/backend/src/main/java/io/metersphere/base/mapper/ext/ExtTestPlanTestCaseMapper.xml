@@ -220,7 +220,7 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='maintainer' or key = 'maintainer_name'">
+                        <when test="key=='maintainer' or key == 'maintainer_name'">
                             and test_case.maintainer in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
