@@ -6,7 +6,7 @@
     :with-footer="false"
     append-to-body
     :close-on-click-modal="true">
-    <ms-api-variable-advance v-if="editData.type=='CONSTANT'" ref="variableAdvance" :current-item="editData"
+    <ms-env-variable-advance v-if="editData.type=='CONSTANT'" ref="variableAdvance" :current-item="editData"
                              @advancedRefresh="reload"/>
     <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
     <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
@@ -30,7 +30,7 @@ import MsEditCounter from "./variable/EditCounter";
 import MsEditRandom from "./variable/EditRandom";
 import MsEditListValue from "./variable/EditListValue";
 import MsEditCsv from "./variable/EditCsv";
-import MsApiVariableAdvance from "./ApiVariableAdvance";
+import MsEnvVariableAdvance from "./EnvVariableAdvance";
 import MsDialogFooter from "../../MsDialogFooter";
 
 export default {
@@ -42,7 +42,7 @@ export default {
     MsEditRandom,
     MsEditListValue,
     MsEditCsv,
-    MsApiVariableAdvance,
+    MsEnvVariableAdvance,
     MsDialogFooter
   },
   data() {
