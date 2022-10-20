@@ -28,7 +28,6 @@ import io.metersphere.service.scenario.ApiScenarioService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,7 @@ public class TestResultService {
     @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
     @Resource
     private ApiScenarioExecutionInfoService scenarioExecutionInfoService;
     @Resource
@@ -148,7 +147,8 @@ public class TestResultService {
     public void testEnded(ResultDTO dto) {
         // 删除串行资源锁
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
-            redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+            String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
+            redisTemplateService.delete(key);
         }
         if (dto.getRequestResults() == null) {
             dto.setRequestResults(new LinkedList<>());
