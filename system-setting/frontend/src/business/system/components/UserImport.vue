@@ -109,7 +109,7 @@ export default {
       this.isLoading = false;
       this.fileList.push(file.file);
       this.loading = userImport(file.file, null, {}).then(response => {
-        let res = response.data;
+        let res = response.data.data;
         if (res.success) {
           this.$success(this.$t('commons.import_success'));
           this.dialogVisible = false;
