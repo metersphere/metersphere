@@ -29,7 +29,7 @@
               :label-width="formLabelWidth"
               prop="addressee">
               <ms-input-tag :currentScenario="form" prop="addressee"
-                            :error-infor="$t('commons.report_statistics.alert.mail_is_exist')"
+                            :error-info="$t('commons.report_statistics.alert.mail_is_exist')"
                             :placeholder="$t('mail.enter_mail_addressee')"
                             @onblur="validateForm">
               </ms-input-tag>
@@ -72,7 +72,7 @@
               :label-width="formLabelWidth"
               prop="duplicated">
               <ms-input-tag :currentScenario="form" prop="duplicated"
-                            :error-infor="$t('commons.report_statistics.alert.mail_is_exist')"
+                            :error-info="$t('commons.report_statistics.alert.mail_is_exist')"
                             :placeholder="$t('mail.enter_mail_duplicate')"
                             @onblur="validateForm"/>
             </el-form-item>
@@ -126,7 +126,7 @@
           </el-popover>
 
         </ms-form-divider>
-        <email-compnent :read-only="false" :data.sync="form.reportContent" ref="emailCompnent"/>
+        <email-component :read-only="false" :data.sync="form.reportContent" ref="emailComponent"/>
       </el-form>
 
       <template v-slot:footer>
@@ -168,7 +168,7 @@ import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/
 import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
 import MsInputTag from "@/business/compnent/form/MsInputTag";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import EmailCompnent from "@/business/enterprisereport/components/container/EmailComponent";
+import EmailComponent from "@/business/enterprisereport/components/container/EmailComponent";
 import ReportStatisticsDialog from "@/business/enterprisereport/components/dialog/SelectReportStatisticsDialog";
 import EmailPreviewDialog from "@/business/enterprisereport/components/dialog/EmailPreviewDialog";
 import {getUesrGroup} from "@/api/user";
@@ -177,7 +177,7 @@ import {createEnterpriseReport, updateEnterpriseReport} from "@/api/enterprise-r
 
 export default {
   name: "ProjectReportEditDialog",
-  components: {MsFormDivider, MsInputTag, EmailCompnent, ReportStatisticsDialog, EmailPreviewDialog},
+  components: {MsFormDivider, MsInputTag, EmailComponent, ReportStatisticsDialog, EmailPreviewDialog},
   data() {
     var checkEmail = (rule, value, callback) => {
       if (value.length === 0) {
@@ -371,8 +371,8 @@ export default {
       //检查是否符合邮件规范
       this.$refs['planFrom'].validate((valid) => {
         if (valid) {
-          if (this.$refs.emailCompnent) {
-            this.$refs.emailCompnent.initDatas();
+          if (this.$refs.emailComponent) {
+            this.$refs.emailComponent.initData();
           }
 
           let param = JSON.parse(JSON.stringify(this.form));
@@ -440,8 +440,8 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.baseForm));
     },
     previewReport() {
-      if (this.$refs.emailCompnent) {
-        this.$refs.emailCompnent.initDatas();
+      if (this.$refs.emailComponent) {
+        this.$refs.emailComponent.initData();
       }
       this.$refs.emailPreviewDialog.open(this.form)
     },

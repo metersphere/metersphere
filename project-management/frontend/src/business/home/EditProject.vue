@@ -313,7 +313,7 @@ export default {
       this.$refs.deleteConfirm.open(project);
     },
     _handleDelete(project) {
-      operationConfirm(this.$t('project.delete_tip'), () => {
+      operationConfirm(this, this.$t('project.delete_tip'), () => {
         deleteProjectById(project.id).then(() => {
           if (project.id === getCurrentProjectID()) {
             localStorage.removeItem(PROJECT_ID);

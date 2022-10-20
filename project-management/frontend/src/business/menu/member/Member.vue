@@ -168,7 +168,7 @@ export default {
       this.$set(this.form, 'groupIds', groupIds);
     },
     del(row) {
-      operationConfirm(this.$t('member.remove_member'), () => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         this.cardLoading = deleteProjectMember(this.projectId, encodeURIComponent(row.id)).then(() => {
           this.$success(this.$t('commons.remove_success'));
           this.initTableData();

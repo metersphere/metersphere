@@ -3,8 +3,8 @@ package io.metersphere.reportstatistics.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.EnterpriseTestReportMapper;
 import io.metersphere.base.mapper.EnterpriseTestReportSendRecordMapper;
-import io.metersphere.base.mapper.ext.ExtEnterpriseTestReportMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtEnterpriseTestReportMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleStatus;
 import io.metersphere.commons.constants.ScheduleType;
@@ -408,7 +408,8 @@ public class EnterpriseTestReportService {
                     StringBuffer tableBuffer = new StringBuffer();
                     tableBuffer.append("<table cellspacing=\"0\" cellpadding=\"0\" style=\"width: 100%;border: 1px\">");
                     try {
-                        TestCaseCountTableDataDTO showTable = JSON.parseObject(step.getReportRecordData().get("showTable"), TestCaseCountTableDataDTO.class);
+                        String showTableJsonStr = JSON.toJSONString(step.getReportRecordData().get("showTable"));
+                        TestCaseCountTableDataDTO showTable = JSON.parseObject(showTableJsonStr, TestCaseCountTableDataDTO.class);
                         tableBuffer.append("<tr style=\"font-size: 14px;font-weight: 700;color: #909399;text-align: left;\">");
                         for (TestCaseCountTableItemDataDTO itemData : showTable.getHeads()) {
                             String tableHeadValue = itemData.getValue();
@@ -454,6 +455,7 @@ public class EnterpriseTestReportService {
 
                         }
                     } catch (Exception e) {
+                        LogUtil.error("解析表格数据出错!", e);
                     }
                     tableBuffer.append("</table>");
                     returnReportContentBuffer.append(tableBuffer);

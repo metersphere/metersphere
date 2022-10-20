@@ -88,8 +88,8 @@
     <el-dialog
       v-loading="memberTableLoading"
       :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
-               @close="close"
-               class="dialog-css">
+      @close="close"
+      class="dialog-css">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
                          :create-permission="['WORKSPACE_PROJECT_MANAGER:READ+ADD_USER']"
@@ -207,6 +207,9 @@ import {getProjectMemberGroup, getUserGroupList} from "../../../api/user-group";
 import {operationConfirm} from "metersphere-frontend/src/utils";
 import EditProject from "./EditProject";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
+import {switchProject} from "metersphere-frontend/src/api/project";
+import {fullScreenLoading, stopFullScreenLoading} from "metersphere-frontend/src/utils";
+
 
 export default {
   name: "MsProject",
@@ -275,8 +278,10 @@ export default {
   mounted() {
     if (this.$route.path.split('/')[2] === 'project' &&
       this.$route.path.split('/')[3] === 'create') {
-      this.create();
       this.$router.replace('/setting/project/all');
+      setTimeout(() => {
+        this.create();
+      }, 200)
     }
     this.list();
     this.getMaintainerOptions();
@@ -307,10 +312,15 @@ export default {
           this.$warning(this.$t("commons.project_permission"));
           return;
         }
-        window.sessionStorage.setItem(PROJECT_ID, row.id);
-        this.$router.push('/track/home').then(() => {
-          this.reloadTopMenus();
-        });
+        // 跳转的时候更新用户的last_project_id
+        sessionStorage.setItem(PROJECT_ID, row.id);
+        const loading = fullScreenLoading(this);
+        switchProject({id: getCurrentUserId(), lastProjectId: row.id}).then(() => {
+          this.$router.push('/track/home').then(() => {
+            location.reload();
+            stopFullScreenLoading(loading);
+          });
+        })
       });
     },
     getMaintainerOptions() {
@@ -344,7 +354,7 @@ export default {
       this.$refs.deleteConfirm.open(project);
     },
     _handleDelete(project) {
-      operationConfirm(this.$t('project.delete_tip'), () => {
+      operationConfirm(this, this.$t('project.delete_tip'), () => {
         delProjectById(project.id).then(() => {
           if (project.id === getCurrentProjectID()) {
             localStorage.removeItem(PROJECT_ID);

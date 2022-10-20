@@ -793,7 +793,7 @@ export default {
         });
     },
     handleDelete(testCase) {
-      operationConfirm(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
+      operationConfirm(this, this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
         this._handleDelete(testCase);
       });
     },
@@ -815,7 +815,7 @@ export default {
             // 删除提供列表删除和全部版本删除
             this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
           } else {
-            operationConfirm(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
+            operationConfirm(this, this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
               this._handleDeleteVersion(testCase, false);
             });
           }
@@ -831,7 +831,7 @@ export default {
         });
     },
     handleDeleteBatch() {
-      operationConfirm(this.$t('test_track.case.delete_confirm'), () => {
+      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
         let param = buildBatchParam(this, this.$refs.table.selectIds);
         testCaseBatchDelete(param)
           .then(() => {
@@ -854,7 +854,7 @@ export default {
         });
     },
     handleDeleteBatchToGc() {
-      operationConfirm(this.$t('test_track.case.delete_confirm'), () => {
+      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
         let param = buildBatchParam(this, this.$refs.table.selectIds);
         testCaseBatchDeleteToGc(param)
           .then(() => {

@@ -250,7 +250,7 @@ export default {
       }
     },
     deleteIssue(row) {
-      operationConfirm(this.$t('test_track.issue.delete_warning'), () => {
+      operationConfirm(this, this.$t('test_track.issue.delete_warning'), () => {
         this.page.result.loading = true;
         deleteIssueRelate({
           id: row.id,

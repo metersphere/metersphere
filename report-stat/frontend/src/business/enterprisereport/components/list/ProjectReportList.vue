@@ -203,7 +203,7 @@ export default {
       let param = {id: row.scheduleId, enable: row.scheduleIsOpen};
       row.scheduleIsOpen = !row.scheduleIsOpen;
 
-      operationConfirm(titles, () => {
+      operationConfirm(this, titles, () => {
         row.scheduleIsOpen = !row.scheduleIsOpen;
         this.updateTask(param);
       });

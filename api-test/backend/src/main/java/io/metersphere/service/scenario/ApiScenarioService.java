@@ -2126,6 +2126,7 @@ public class ApiScenarioService {
                     object.put("referenced", "Copy");
                 }
             } else {
+                //将复制的或者类型不是引用case的步骤赋予当前项目id，目的是为了运行的时候可以配置运行环境
                 object.put("projectId", projectId);
                 if (StringUtils.isEmpty(object.optString("url"))) {
                     object.put("isRefEnvironment", true);

@@ -232,6 +232,6 @@ export default {
 }
 
 .time-style {
-  font-size: 10px;
+  font-size: 12px;
 }
 </style>

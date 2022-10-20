@@ -59,11 +59,12 @@
         </el-card>
 
         <!-- 创建、编辑、复制环境时的对话框 -->
-        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px">
+        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px"
+                   :fullscreen="isFullScreen">
           <template #title>
             <ms-dialog-header :title="dialogTitle" :hide-button="true"
                               @cancel="dialogVisible = false"
-                              @confirm="save"/>
+                              @confirm="save" @fullScreen="fullScreen"/>
           </template>
           <environment-edit
             :if-create="ifCreate"
@@ -77,7 +78,8 @@
             @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
-        <environment-import :project-list="projectList" :to-import-project-id="currentProjectId" @refresh="refresh" ref="envImport"></environment-import>
+        <environment-import :project-list="projectList" :to-import-project-id="currentProjectId" @refresh="refresh"
+                            ref="envImport"></environment-import>
 
         <el-dialog title="域名列表" :visible.sync="domainVisible">
           <el-table :data="conditions">
@@ -139,7 +141,7 @@ import EnvironmentEdit from "metersphere-frontend/src/components/environment/Env
 import MsAsideItem from "metersphere-frontend/src/components/MsAsideItem";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitch";
-import {downloadFile} from "metersphere-frontend/src/utils";
+import {downloadFile, operationConfirm} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import EnvironmentImport from "./EnvironmentImport";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
@@ -147,7 +149,6 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import {listAllProject} from "../../../api/project";
 import {delEnvironmentById, getEnvironmentPages} from "../../../api/environment";
-import {operationConfirm} from "metersphere-frontend/src/utils";
 
 export default {
   name: "EnvironmentList",
@@ -191,6 +192,7 @@ export default {
       projectFilters: [],
       screenHeight: 'calc(100vh - 155px)',
       ifCreate: false, //是否是创建环境
+      isFullScreen: false //是否全屏
     }
   },
   created() {
@@ -201,6 +203,9 @@ export default {
   },
 
   methods: {
+    fullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+    },
     showInfo(row) {
       const config = JSON.parse(row.config);
       this.conditions = config.httpConfig.conditions;
@@ -317,7 +322,7 @@ export default {
     },
     deleteEnv(environment) {
       if (environment.id) {
-        operationConfirm(this.$t('commons.confirm_delete') + environment.name, () => {
+        operationConfirm(this, this.$t('commons.confirm_delete') + environment.name, () => {
           this.loading = delEnvironmentById(environment.id).then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.list();

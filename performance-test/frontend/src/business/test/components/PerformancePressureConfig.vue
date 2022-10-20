@@ -394,7 +394,7 @@ export default {
         .then(response => {
           this.resourcePools = response.data;
           // 如果当前的资源池无效 设置 null
-          if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
+          if (response.data.filter(p => p.id === this.resourcePool && p.performance).length === 0) {
             this.resourcePool = null;
             // 标记因资源池无效而将资源池ID置为null
             this.setPoolNull = true;

@@ -87,7 +87,7 @@ export default {
         message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
       }
       row.enable = !row.enable;
-      operationConfirm(message, () => {
+      operationConfirm(this, message, () => {
         row.enable = !row.enable
         this.updateTask(row);
       });

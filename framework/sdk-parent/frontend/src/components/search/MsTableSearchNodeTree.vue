@@ -86,11 +86,7 @@ export default {
       let options = cloneDeep(this.component.options);
       let {url, params, type} = options;
       if (!url) return;
-      if (params.projectId) {
-        url += '/' + params.projectId;
-      } else {
-        url += '/' + getCurrentProjectID();
-      }
+      url += '/' + getCurrentProjectID();
       if (type === "POST") {
         this.loading = post(url, params || {}).then(response => {
           this.handleTreeNodes(response.data);

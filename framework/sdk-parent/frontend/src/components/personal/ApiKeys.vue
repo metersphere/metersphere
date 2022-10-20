@@ -104,7 +104,7 @@ export default {
         )
     },
     deleteApiKey(row) {
-      operationConfirm(this.$t('user.apikey_delete_confirm'), () => {
+      operationConfirm(this, this.$t('user.apikey_delete_confirm'), () => {
         this.result = deleteUserKey(row.id)
           .then(response => {
             this.$success(this.$t('commons.delete_success'));

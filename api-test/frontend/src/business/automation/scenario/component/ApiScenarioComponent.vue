@@ -85,7 +85,7 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/s
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import {STEP} from "@/business/automation/scenario/Setting";
 import {getOwnerProjectIds, getProject} from "@/api/project";
-import {checkScenarioEnv, setScenarioDomain} from "@/api/scenario";
+import {checkScenarioEnv, getScenarioById, setScenarioDomain} from "@/api/scenario";
 
 export default {
   name: "ApiScenarioComponent",
@@ -288,19 +288,23 @@ export default {
     clickResource(resource) {
       let workspaceId = getCurrentWorkspaceId();
       let isTurnSpace = true
-      if (resource.projectId !== getCurrentProjectID()) {
-        isTurnSpace = false;
-        getProject(resource.projectId).then(response => {
-          if (response.data) {
-            workspaceId = response.data.workspaceId;
-            isTurnSpace = true;
+      getScenarioById(resource.id).then(res => {
+        if (res.data) {
+          resource.projectId = res.data.projectId;
+          if (resource.projectId !== getCurrentProjectID()) {
+            isTurnSpace = false;
+            getProject(resource.projectId).then(response => {
+              if (response.data) {
+                workspaceId = response.data.workspaceId;
+                isTurnSpace = true;
+                this.checkPermission(resource, workspaceId, isTurnSpace);
+              }
+            });
+          } else {
             this.checkPermission(resource, workspaceId, isTurnSpace);
           }
-        });
-      } else {
-        this.checkPermission(resource, workspaceId, isTurnSpace);
-      }
-
+        }
+      })
     },
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({

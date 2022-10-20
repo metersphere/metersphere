@@ -14,7 +14,7 @@
                                  :chart-width="chartWidth" :load-option="loadOption" :pie-option="pieOption"/>
         </div>
         <div class="ms-row" v-if="!isHide">
-          <test-case-count-table :group-name="getGroupNameStr(options.xaxis)" :show-coloums="options.yaxis"
+          <test-case-count-table :group-name="getGroupNameStr(options.xaxis)" :show-columns="options.yaxis"
                                  :tableData="tableData"/>
         </div>
       </el-main>

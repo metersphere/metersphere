@@ -140,7 +140,8 @@
                            :label="$t('test_track.plan.execute_result')" min-width="150" align="center">
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
-              <el-link @click="getReportResult(scope.row)" :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
+              <el-link @click="getReportResult(scope.row)"
+                       :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
                 <ms-test-plan-api-status :status="scope.row.execResult"/>
               </el-link>
                 <div v-if="scope.row.id" style="color: #999999;font-size: 12px">
@@ -185,7 +186,7 @@ import BatchEdit from "@/business/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "metersphere-frontend/src/model/JsonData";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {strMapToObj, getUUID} from "metersphere-frontend/src/utils";
+import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
@@ -204,17 +205,18 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import {editTestPlanApiCaseOrder, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
+import {editTestPlanApiCaseOrder, reportSocket, run, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
 import {getProjectMemberUserFilter} from "@/api/user";
 import {apiTestCaseGet, apiTestCaseReduction} from "@/api/remote/api/api-case";
 import {
-  testPlanApiCaseBatchDelete, testPlanApiCaseBatchUpdateEnv,
+  testPlanApiCaseBatchDelete,
+  testPlanApiCaseBatchUpdateEnv,
   testPlanApiCaseDelete,
-  testPlanApiCaseList, testPlanApiCaseRun,
+  testPlanApiCaseList,
+  testPlanApiCaseRun,
   testPlanApiCaseSelectAllTableRows
 } from "@/api/remote/plan/test-plan-api-case";
 import {apiDefinitionPlanReportGetByCaseId} from "@/api/remote/api/api-definition-report";
-import {reportSocket, run} from "@/api/remote/plan/test-plan";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import {getProjectVersions} from "@/business/utils/sdk-utils";
 
@@ -323,7 +325,7 @@ export default {
       projectIds: [],
       projectList: [],
       versionFilters: [],
-      execResultFilters:[
+      execResultFilters: [
         {text: 'Pending', value: 'PENDING'},
         {text: 'Success', value: 'SUCCESS'},
         {text: 'Error', value: 'ERROR'},
@@ -676,17 +678,7 @@ export default {
       }
     },
     openApiById(item) {
-      let definitionData = this.$router.resolve({
-        name: 'ApiDefinitionWithQuery',
-        params: {
-          redirectID: getUUID(),
-          dataType: "apiTestCase",
-          dataSelectRange: 'single:' + item.caseId,
-          projectId: getCurrentProjectID(),
-          type: item.protocol,
-          workspaceId: getCurrentWorkspaceId(),
-        }
-      });
+      let definitionData = this.$router.resolve('/api/definition/' + getUUID() + "/apiTestCase/single:" + item.caseId + "/" + getCurrentProjectID() + "/" + item.protocol + "/" + getCurrentWorkspaceId());
       window.open(definitionData.href, '_blank');
     },
   },

@@ -64,11 +64,12 @@
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%"
+               :fullscreen="isFullScreen">
       <template #title>
         <ms-dialog-header :title="dialogTitle"
                           @cancel="dialogVisible = false"
-                          @confirm="save"/>
+                          @confirm="save" @fullScreen="fullScreen"/>
       </template>
       <environment-edit
         :if-create="ifCreate"
@@ -136,7 +137,7 @@ import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOp
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import {Environment, parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
 import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitch";
-import {downloadFile, strMapToObj} from "metersphere-frontend/src/utils";
+import {downloadFile, operationConfirm, strMapToObj} from "metersphere-frontend/src/utils";
 import EnvironmentImport from "./EnvironmentImport";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import {
@@ -150,7 +151,6 @@ import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import EnvironmentEdit from "metersphere-frontend/src/components/environment/EnvironmentEdit"
 import {listAllProject} from "../../../api/project";
 import {batchAddEnvGroup, delEnvironmentById, getEnvironmentPages} from "../../../api/environment";
-import {operationConfirm} from "metersphere-frontend/src/utils";
 
 
 export default {
@@ -204,6 +204,7 @@ export default {
         },
       ],
       ifCreate: false, //是否是创建环境
+      isFullScreen: false //是否全屏
     };
   },
   created() {
@@ -228,6 +229,9 @@ export default {
   },
 
   methods: {
+    fullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+    },
     showInfo(row) {
       const config = JSON.parse(row.config);
       this.conditions = config.httpConfig.conditions;
@@ -344,7 +348,7 @@ export default {
     },
     deleteEnv(environment) {
       if (environment.id) {
-        operationConfirm(this.$t('commons.confirm_delete') + environment.name, () => {
+        operationConfirm(this, this.$t('commons.confirm_delete') + environment.name, () => {
           this.loading = delEnvironmentById(environment.id).then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.list();
@@ -427,7 +431,7 @@ export default {
             if (obj.protocol && obj.socket) {
               return obj.protocol + "://" + obj.socket;
             }
-          } else if (config.httpConfig &&  config.httpConfig.conditions.length > 1) {
+          } else if (config.httpConfig && config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";
           } else if (config.tcpConfig && config.tcpConfig.server) {
             return config.tcpConfig.server;

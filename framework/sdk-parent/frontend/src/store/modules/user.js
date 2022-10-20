@@ -79,6 +79,7 @@ export default {
         isLogin()
           .then((res) => {
             this.$patch(res.data)
+            setLanguage(res.data.language)
             saveSessionStorage(res)
             resolve(res)
           })

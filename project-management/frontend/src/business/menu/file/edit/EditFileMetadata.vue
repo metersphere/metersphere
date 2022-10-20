@@ -263,7 +263,7 @@ export default {
       this.$emit("download", this.data);
     },
     deleteData() {
-      operationConfirm(this.$t('project.file_delete_tip', [this.data.name]), () => {
+      operationConfirm(this, this.$t('project.file_delete_tip', [this.data.name]), () => {
         this.close();
         this.data.confirm = true;
         this.$emit("delete", this.data);
