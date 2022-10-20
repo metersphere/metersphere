@@ -170,6 +170,7 @@ export default {
       //api页面跳转
       //传入UUID是为了进行页面重新加载判断
       let uuid = getUUID();
+      let home;
       switch (page) {
         case "testCase":
           this.$router.push({
@@ -180,17 +181,14 @@ export default {
           this.$router.push('/track/plan/view/' + selectType)
           break;
         case "scenarioWithQuery":
-          this.$router.push({
-            name: 'ApiAutomationWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
-          });
+          home = this.$router.resolve('/api/automation/' + uuid + "/" + dataType + "/" + selectType);
           break;
         case "api":
-          this.$router.push({
-            name: 'ApiDefinitionWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
-          });
+          home = this.$router.resolve('/api/definition/' + uuid + "/" + dataType + "/" + selectType);
           break;
+      }
+      if (home) {
+        window.open(home.href, '_blank');
       }
     }
   }
