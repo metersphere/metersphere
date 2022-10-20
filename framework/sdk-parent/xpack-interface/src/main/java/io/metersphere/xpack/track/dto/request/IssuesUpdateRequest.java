@@ -43,6 +43,7 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * azure devops bug同步fields
      */
     private String devopsFields;
+    private String azureDevopsCreateTime;
 
     private PlatformStatusDTO transitions;
 

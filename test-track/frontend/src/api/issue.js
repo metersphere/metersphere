@@ -132,33 +132,33 @@ export function getRelateIssues(page) {
     });
 }
 
-export function syncIssues() {
-  let url = 'issues/sync/';
+export function syncIssues(param) {
+  let url = 'issues/sync';
   if (hasLicense()) {
-    url = 'xpack/issue/sync/';
+    url = 'xpack/issue/sync';
   }
   // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
-  url = url + getCurrentProjectID() + "?stamp=" + getUUID();
-  return get(url);
+  url = url + "?stamp=" + getUUID();
+  return post(url, param);
 }
 
 // 轮询同步状态
-export function checkSyncIssues(result, isNotFirst) {
+export function checkSyncIssues(loading, isNotFirst) {
   let url = 'issues/sync/check/' + getCurrentProjectID() + "?stamp=" + getUUID();
   return get(url)
     .then((response) => {
       if (response.data === false) {
-        if (result.loading === true) {
+        if (loading === true) {
           if (!isNotFirst) {
             // 第一次才提示
             $warning(i18n.t('test_track.issue.issue_sync_tip'));
           }
-          setTimeout(() => checkSyncIssues(result, true), 1000);
+          setTimeout(() => checkSyncIssues(loading, true), 1000);
         }
       } else {
-        if (result.loading === true) {
+        if (loading === true) {
           $success(i18n.t('test_track.issue.sync_complete'));
-          result.loading = false;
+          loading = false;
         }
       }
     });

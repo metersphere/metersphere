@@ -136,9 +136,9 @@ public class IssuesController {
         return issuesService.getZentaoBuilds(request);
     }
 
-    @GetMapping("/sync/{projectId}")
-    public boolean getPlatformIssue(@PathVariable String projectId) {
-        return issuesService.syncThirdPartyIssues(projectId);
+    @PostMapping("/sync")
+    public boolean getPlatformIssue(@RequestBody IssueSyncRequest request) {
+        return issuesService.syncThirdPartyIssues(request);
     }
 
     @GetMapping("/sync/check/{projectId}")
