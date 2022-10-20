@@ -1220,6 +1220,7 @@ export default {
       api_agreement: "协议/方法",
       api_path: "路径",
       api_definition_path: "API路径",
+      json_format_error: "JSON格式错误",
       api_case_path: "用例路径",
       api_principal: "责任人",
       api_last_time: "最后更新时间",
