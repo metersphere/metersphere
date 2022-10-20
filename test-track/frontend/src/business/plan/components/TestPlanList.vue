@@ -707,7 +707,7 @@ export default {
         message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
       }
 
-      operationConfirm(message, () => {
+      operationConfirm(this, message, () => {
         this.cardLoading = true;
         testPlanUpdateScheduleEnable(param)
           .then(response => {

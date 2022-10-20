@@ -474,7 +474,7 @@ export default {
       this.infoList = resources;
     },
     del(row) {
-      operationConfirm(this.$t('test_resource_pool.delete_prompt'), () => {
+      operationConfirm(this, this.$t('test_resource_pool.delete_prompt'), () => {
         this.loading = delResourcePoolById(row.id).then(() => {
           this.initTableData();
           this.$success(this.$t('commons.delete_success'));

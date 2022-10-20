@@ -389,7 +389,7 @@ export default {
     },
 
     handleDeleteBatch() {
-      operationConfirm(this.$t('project.file_delete_tip', [this.$refs.table.selectIds.length + " 条 "]), () => {
+      operationConfirm(this, this.$t('project.file_delete_tip', [this.$refs.table.selectIds.length + " 条 "]), () => {
         batchDeleteMetaData(this.$refs.table.selectIds).then(() => {
           this.$refs.table.clear();
           this.$success(this.$t('commons.delete_success'));
@@ -407,7 +407,7 @@ export default {
         });
         return;
       }
-      operationConfirm(this.$t('project.file_delete_tip', [row.name]), () => {
+      operationConfirm(this, this.$t('project.file_delete_tip', [row.name]), () => {
         deleteFileMetaById(row.id).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.getProjectFiles();

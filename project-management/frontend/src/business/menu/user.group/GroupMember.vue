@@ -262,7 +262,7 @@ export default {
       })
     },
     removeMember(row) {
-      operationConfirm(this.$t('member.remove_member'), () => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         if (this.initUserUrl === 'user/ws/current/member/list') {
           if (row.id === getCurrentUserId()) {
             this.$warning(this.$t('group.unable_to_remove_current_member'));

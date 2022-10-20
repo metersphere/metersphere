@@ -382,7 +382,7 @@ export default {
       });
     },
     removeExpect(row) {
-      operationConfirm(this.$t('api_test.mock.delete_mock_expect'), () => {
+      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
         let mockInfoId = row.mockConfigId;
         delMock(row.id).then(response => {
           this.refreshMockInfo(mockInfoId);

@@ -1006,7 +1006,7 @@ export default {
             alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
-        operationConfirm(alertMsg, () => {
+        operationConfirm(this, alertMsg, () => {
           delCaseToGcByParam(obj).then(() => {
             this.$refs.caseTable.clearSelectRows();
             this.initTable();
@@ -1099,7 +1099,7 @@ export default {
             alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
-        operationConfirm(alertMsg, () => {
+        operationConfirm(this, alertMsg, () => {
           deleteToGc(apiCase.id).then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.initTable();
