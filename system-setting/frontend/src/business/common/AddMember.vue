@@ -176,7 +176,10 @@ export default {
       this.handleUserOption(queryString ? this.userListCopy.filter(this.createFilter(queryString)) : this.userListCopy);
     },
     createFilter(queryString) {
-      return item => (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+      return item => {
+        return (item.id.toLowerCase().indexOf(queryString.toLowerCase()) !== -1
+          || (item.name && item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1));
+      };
     },
     resetUserOption(val) {
       if (val) {
