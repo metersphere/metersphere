@@ -1,7 +1,7 @@
 import Vue from "vue"
 import Router from "vue-router"
 import Layout from "../business/app-layout"
-import {getCurrentUser, getCurrentUserId} from "../utils/token";
+import {getCurrentUserId} from "../utils/token";
 import {hasPermissions} from "../utils/permission";
 import {SECOND_LEVEL_ROUTE_PERMISSION_MAP} from "../utils/constants";
 
@@ -66,7 +66,14 @@ router.beforeEach(async (to, from, next) => {
     const {useUserStore} = await import('@/store');
     store = useUserStore()
   }
-  const user = store.currentUser
+  let user = store.currentUser
+  if (to.path.split('/')[1] !== from.path.split('/')[1]) {
+    try {
+      user = await store.getIsLogin();
+    } catch (e) {
+      // console.error(e);
+    }
+  }
   if (user && user.id) {
     redirectLoginPath(to.fullPath, next);
   } else {

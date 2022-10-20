@@ -106,8 +106,6 @@ export default {
       .then(response => {
         this.$setLang(response.data.language);
 
-        // MeterSphereX.showHome(this);
-
         if (window.location.href.endsWith('/#/login')) {
           window.location.replace("/#/setting/personsetting");
         }
