@@ -121,7 +121,8 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="120px"
-            :label="$t('test_track.plan_view.execute_result')">
+            :label="$t('test_track.plan_view.execute_result')"
+            v-if="!trashEnable">
             <template v-slot:default="scope">
               <el-link @click="getExecResult(scope.row)"
                        :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
@@ -320,7 +321,7 @@ import ThreadGroup from "@/business/definition/components/jmeter/components/thre
 import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import {API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {API_CASE_CONFIGS, API_CASE_CONFIGS_TRASH} from "metersphere-frontend/src/components/search/search-components";
 import {
   _filter,
   _sort,
@@ -382,7 +383,7 @@ export default {
       fields: getCustomTableHeader('API_CASE', undefined),
       fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
-        components: API_CASE_CONFIGS
+        components: this.trashEnable ? API_CASE_CONFIGS_TRASH : API_CASE_CONFIGS
       },
       selectCase: {},
       result: false,

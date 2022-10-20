@@ -114,13 +114,24 @@
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
-
+                <if test="${object}.value.contains(''.toString()) or ${object}.value.contains('PENDING'.toString())">
+                    or t1.status is null or t1.status = ''
+                </if>
+                <if test="${condition}.exec_result != null">
+                    )
+                </if>
             </when>
             <when test='${object}.operator == "not in"'>
                 not in
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
+                <if test="${condition}.exec_result != null and (${object}.value.contains(''.toString()) or ${object}.value.contains('PENDING'.toString()))">
+                    and t1.status is not null and t1.status != ''
+                </if>
+                <if test="${condition}.exec_result != null and !${object}.value.contains('PENDING'.toString())">
+                    or t1.status is null or t1.status = ''
+                </if>
                 <if test="${condition}.exec_result != null">
                     )
                 </if>
@@ -228,14 +239,10 @@
             </include>
         </if>
         <if test="${condition}.exec_result != null">
-            and (t3.status
+            and (t1.status
             <include refid="condition">
                 <property name="object" value="${condition}.exec_result"/>
             </include>
-            <if test="${condition}.exec_result.value.contains(''.toString()) or ${condition}.exec_result.value.contains('PENDING'.toString())">
-                or t3.status is null or t3.status = ''
-            </if>
-            )
         </if>
     </sql>
 
@@ -318,10 +325,10 @@
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
         SELECT
         t1.*,
-        t2.STATUS AS execResult,
+        t2.status AS execResult,
         t2.create_time AS execTime,
-        u2.NAME AS createUser,
-        u1.NAME AS updateUser,
+        u2.name AS createUser,
+        u1.name AS updateUser,
         a.method AS apiMethod
         FROM
         api_test_case t1
@@ -382,12 +389,11 @@
         a.path,
         a.protocol,
         t1.tags,
-        t1.status,
-        t3.status AS execResult,
+        t1.status AS execResult,
         t1.last_result_id AS lastResultId,
         project.NAME AS project_name,
         t1.delete_time,
-        deleteUser.NAME AS deleteUser,
+        deleteUser.name AS deleteUser,
         project_version.NAME AS version_name
         FROM
         api_test_case t1

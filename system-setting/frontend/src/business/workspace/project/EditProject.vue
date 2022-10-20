@@ -110,8 +110,6 @@ import TemplateSelect from "./TemplateSelect";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsDeleteConfirm from "metersphere-frontend/src/components/MsDeleteConfirm";
-import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
@@ -136,8 +134,6 @@ export default {
     MsTableButton,
     MsTableOperatorButton,
     MsDeleteConfirm,
-    MsMainContainer,
-    MsContainer,
     MsTableOperator,
     MsTablePagination,
     MsTableHeader,

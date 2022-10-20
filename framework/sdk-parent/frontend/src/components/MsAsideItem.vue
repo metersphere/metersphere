@@ -3,7 +3,7 @@
     <div class="title-bar" :style="{'height': titleBarHeight + 'px'}">
       <slot name="title">
         <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-left">
-          {{title}}
+          {{ title }}
         </span>
         <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-right">
           <i class="el-icon-plus" @click="addFuc" v-permission="envAddPermission"/>
@@ -29,124 +29,123 @@
 </template>
 
 <script>
-  import MsAsideContainer from "./MsAsideContainer";
 
-  export default {
-    name: "MsAsideItem",
-    components: {MsAsideContainer},
-    data() {
-      return {
-        selectIndex: -1
+export default {
+  name: "MsAsideItem",
+  components: {},
+  data() {
+    return {
+      selectIndex: -1
+    }
+  },
+  props: {
+    width: {
+      type: Number,
+      default: 200
+    },
+    titleBarHeight: {
+      type: Number,
+      default: 40
+    },
+    itemBarHeight: {
+      type: Number,
+      default: 35
+    },
+    title: String,
+    data: Array,
+    deleteFuc: Function,
+    addFuc: Function,
+    itemOperators: {
+      type: Array,
+      default() {
+        return [
+          {
+            icon: 'el-icon-delete',
+            func: this.deleteFuc,
+            permissions: []
+          }
+        ];
       }
     },
-    props: {
-      width: {
-        type: Number,
-        default: 200
-      },
-      titleBarHeight: {
-        type: Number,
-        default: 40
-      },
-      itemBarHeight: {
-        type: Number,
-        default: 35
-      },
-      title: String,
-      data: Array,
-      deleteFuc: Function,
-      addFuc: Function,
-      itemOperators: {
-        type: Array,
-        default() {
-          return [
-            {
-              icon: 'el-icon-delete',
-              func: this.deleteFuc,
-              permissions: []
-            }
-          ];
-        }
-      },
-      enableAsideHidden: {
-        type: Boolean,
-        default: true
-      },
-      envAddPermission: {
-        type: Array,
-        default() {
-          return [];
-        }
-      }
+    enableAsideHidden: {
+      type: Boolean,
+      default: true
     },
-    methods: {
-      itemSelected(index, item) {
-        this.selectIndex = index;
-        this.$emit('itemSelected', item);
+    envAddPermission: {
+      type: Array,
+      default() {
+        return [];
       }
     }
+  },
+  methods: {
+    itemSelected(index, item) {
+      this.selectIndex = index;
+      this.$emit('itemSelected', item);
+    }
   }
+}
 </script>
 
 <style scoped>
 
-  .ms-aside-container {
-    padding: 0;
-  }
+.ms-aside-container {
+  padding: 0;
+}
 
-  .title-bar {
-    width: 100%;
-    background: #e9ebef;
-    padding: 5px 10px;
-    box-sizing: border-box;
-  }
+.title-bar {
+  width: 100%;
+  background: #e9ebef;
+  padding: 5px 10px;
+  box-sizing: border-box;
+}
 
-  .item-bar {
-    width: 100%;
-    background: #F9F9F9;
-    padding: 5px 10px;
-    box-sizing: border-box;
-    border: solid 1px #e6e6e6;
-  }
+.item-bar {
+  width: 100%;
+  background: #F9F9F9;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  border: solid 1px #e6e6e6;
+}
 
-  .item-bar:hover .item-right {
-    visibility: visible;
-  }
+.item-bar:hover .item-right {
+  visibility: visible;
+}
 
-  .title-right, .item-right {
-    float: right;
-  }
+.title-right, .item-right {
+  float: right;
+}
 
-  .item-right {
-    visibility: hidden;
-  }
+.item-right {
+  visibility: hidden;
+}
 
-  .item-right i {
-    margin: 5px;
-  }
+.item-right i {
+  margin: 5px;
+}
 
-  i:hover {
-    color: #409EFF;
-    font-size: large;
-  }
+i:hover {
+  color: #409EFF;
+  font-size: large;
+}
 
-  .item-selected {
-    background: #ECF5FF;
-    border-left: solid #409EFF 5px;
-  }
+.item-selected {
+  background: #ECF5FF;
+  border-left: solid #409EFF 5px;
+}
 
-  .item-selected .item-right {
-    visibility: visible;
-  }
+.item-selected .item-right {
+  visibility: visible;
+}
 
-  .item-input {
-    border: hidden;
-    display: inline;
-    background-color: rgba(0, 0, 0, 0);
-  }
+.item-input {
+  border: hidden;
+  display: inline;
+  background-color: rgba(0, 0, 0, 0);
+}
 
-  .item-input:focus {
-    outline: none;
-  }
+.item-input:focus {
+  outline: none;
+}
 
 </style>

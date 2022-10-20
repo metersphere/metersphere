@@ -117,7 +117,12 @@
         where project_id = #{projectId} and platform = #{platform} and (platform_status != 'delete' or platform_status is null);
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.plan.dto.PlanReportIssueDTO">
-        select id,status,platform_status,platform from issues where resource_id = #{planId} and ( platform_status != 'delete' or platform_status is null);
+        select i.id, i.status, i.platform_status, i.platform
+        from issues i
+        inner join test_case_issues tci
+            on i.id = tci.issues_id and tci.ref_type = 'PLAN_FUNCTIONAL' and ( i.platform_status != 'delete' or i.platform_status is null)
+        inner join test_plan_test_case tptc
+            on tci.resource_id = tptc.id and tptc.plan_id = #{planId}
     </select>
     <select id="selectIdNotInUuIds" resultType="java.lang.String">
         select id from issues
