@@ -14,6 +14,9 @@ const message = {
       desc: "Description",
       type: "Type",
       default_value: "Default value"
+    },
+    body: {
+      json_format_error: "JSON format error"
     }
   },
   home:{
