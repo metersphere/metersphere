@@ -897,7 +897,7 @@ public class IssuesService {
         String templateId = project.getIssueTemplateId();
         if (StringUtils.isNotBlank(templateId)) {
             // 模版对于同一个系统字段应该只关联一次
-            CustomField customField = baseCustomFieldService.getCustomFieldByName(templateId, SystemCustomField.ISSUE_STATUS);
+            CustomField customField = baseCustomFieldService.getCustomFieldByName(issue.getProjectId(), SystemCustomField.ISSUE_STATUS);
             if (customField != null) {
                 String fieldId = customField.getId();
                 CustomFieldResourceDTO resource = new CustomFieldResourceDTO();
