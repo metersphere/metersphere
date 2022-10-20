@@ -45,7 +45,7 @@
       </el-table-column>
       <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip sortable="custom"
                        min-width="100px"/>
-      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180" sortable="custom">
+      <el-table-column prop="updateTime" :label="$t('commons.update_time')" width="180" sortable="custom">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
@@ -81,8 +81,7 @@ import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTa
 import TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import {getVersionFilters} from "@/business/utils/sdk-utils";
-import {getOwnerProjects} from "@/business/utils/sdk-utils";
+import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {testPlanUiScenarioRelevanceList} from "@/api/remote/ui/test-plan-ui-scenario-case";
 
@@ -251,7 +250,7 @@ export default {
 <style scoped>
 
 :deep(.ms-select-all-fixed th:nth-child(2) .table-select-icon) {
-  top: -3px!important;
+  top: -3px !important;
 }
 
 .env-popover {

@@ -187,7 +187,7 @@
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
-            :label="$t('api_test.automation.update_time')"
+            :label="$t('commons.update_time')"
             sortable
             prop="updateTime"
             min-width="180px">

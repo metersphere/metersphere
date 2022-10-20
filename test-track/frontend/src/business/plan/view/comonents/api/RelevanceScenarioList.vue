@@ -1,15 +1,15 @@
 <template>
   <div v-loading="result.loading">
     <env-group-popover :env-map="projectEnvMap"
-                 :project-ids="projectIds"
-                 @setProjectEnvMap="setProjectEnvMap"
-                 :environment-type.sync="environmentType"
-                 :group-id="envGroupId"
-                 :is-scenario="false"
-                 @setEnvGroup="setEnvGroup"
-                 :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                 :project-list="projectList"
-                 ref="envPopover" class="env-popover"/>
+                       :project-ids="projectIds"
+                       @setProjectEnvMap="setProjectEnvMap"
+                       :environment-type.sync="environmentType"
+                       :group-id="envGroupId"
+                       :is-scenario="false"
+                       @setEnvGroup="setEnvGroup"
+                       :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                       :project-list="projectList"
+                       ref="envPopover" class="env-popover"/>
 
 
     <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="filterSearch"
@@ -68,7 +68,7 @@
       </el-table-column>
       <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip sortable="custom"
                        min-width="100px"/>
-      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180" sortable="custom">
+      <el-table-column prop="updateTime" :label="$t('commons.update_time')" width="180" sortable="custom">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
@@ -103,9 +103,8 @@ import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTa
 import TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import {getOwnerProjects} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
 import {scenarioRelevanceList} from "@/api/remote/plan/test-plan-scenario";
