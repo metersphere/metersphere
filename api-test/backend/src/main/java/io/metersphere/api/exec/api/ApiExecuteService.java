@@ -32,6 +32,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
@@ -105,6 +106,10 @@ public class ApiExecuteService {
     }
 
     public MsExecResponseDTO exec(RunCaseRequest request) {
+        return exec(request, null);
+    }
+
+    public MsExecResponseDTO exec(RunCaseRequest request, Map<String, Object> extendedParameters) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
@@ -123,6 +128,9 @@ public class ApiExecuteService {
                 }
                 // 调用执行方法
                 JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), jmeterHashTree);
+                if (MapUtils.isNotEmpty(extendedParameters)) {
+                    runRequest.setExtendedParameters(extendedParameters);
+                }
                 jMeterService.run(runRequest);
             } catch (Exception ex) {
                 ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());

@@ -783,6 +783,8 @@ public class TestPlanApiCaseService {
         request.setEnvironmentId(testPlanApiCase.getEnvironmentId());
         request.setBloBs(apiCase);
         request.setReportId(reportId);
-        apiExecuteService.exec(request);
+        Map<String, Object> extendedParameters = new HashMap<>();
+        extendedParameters.put("SYN_RES", true);
+        apiExecuteService.exec(request, extendedParameters);
     }
 }
