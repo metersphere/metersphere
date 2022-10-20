@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import {getCaseById} from "@/api/api-test-case";
+import {getApiCaseById, getCaseById} from "@/api/api-test-case";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {getUrl} from "@/business/automation/scenario/component/urlhelper";
@@ -176,6 +176,7 @@ import {getCurrentByResourceId} from "@/api/user";
 import {getOwnerProjectIds, getProject} from "@/api/project";
 import {execStop} from "@/api/scenario";
 import {useApiStore} from "@/store";
+import {getDefinitionById} from "@/api/definition";
 
 const store = useApiStore();
 export default {
@@ -599,18 +600,23 @@ export default {
     clickResource(resource) {
       let workspaceId = getCurrentWorkspaceId();
       let isTurnSpace = true
-      if (resource.projectId !== getCurrentProjectID()) {
-        isTurnSpace = false;
-        getProject(resource.projectId).then(response => {
-          if (response.data) {
-            workspaceId = response.data.workspaceId;
-            isTurnSpace = true;
-            this.checkPermission(resource, workspaceId, isTurnSpace);
-          }
-        });
-      } else {
-        this.checkPermission(resource, workspaceId, isTurnSpace);
+      if (resource.num) {
+        if (resource.refType === 'API') {
+          getDefinitionById(resource.id).then(res => {
+            if (res.data) {
+              this.getWorkspaceId(resource, res.data, isTurnSpace, workspaceId);
+            }
+          })
+        } else {
+          getApiCaseById(resource.id).then(res => {
+            if (res.data) {
+              this.getWorkspaceId(resource, res.data, isTurnSpace, workspaceId);
+            }
+          })
+        }
       }
+
+
     },
     clickCase(resource) {
       let uri = getUrl(resource);
@@ -685,6 +691,21 @@ export default {
         }
 
       })
+    },
+    getWorkspaceId(resource, data, isTurnSpace, workspaceId) {
+      resource.projectId = data.projectId;
+      if (data.projectId !== getCurrentProjectID()) {
+        isTurnSpace = false;
+        getProject(data.projectId).then(response => {
+          if (response.data) {
+            workspaceId = response.data.workspaceId;
+            isTurnSpace = true;
+            this.checkPermission(resource, workspaceId, isTurnSpace);
+          }
+        });
+      } else {
+        this.checkPermission(resource, workspaceId, isTurnSpace);
+      }
     }
   }
 }
