@@ -28,7 +28,7 @@
       v-loading="loading"
       ref="table">
 
-      <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
+      <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230" fixed="left">
         <template slot-scope="scope">
           <el-input
             v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)"

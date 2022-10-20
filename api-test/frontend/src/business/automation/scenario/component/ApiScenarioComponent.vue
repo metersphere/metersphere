@@ -233,7 +233,7 @@ export default {
         }
       }
       if (this.scenario && this.scenario.hashTree && this.node.expanded) {
-        this.recursive(this.scenario.hashTree, this.scenario.projectId, false);
+        this.recursive(this.scenario.hashTree, this.scenario.projectId, (this.scenario.id && this.scenario.referenced === 'REF'));
       }
       this.reload();
     },
