@@ -12,6 +12,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.plan.service.TestPlanTestCaseService;
+import io.metersphere.utils.DistinctKeyUtil;
 import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.constants.SystemCustomField;
@@ -270,7 +271,7 @@ public class IssuesService {
         issueRequest.setRefType(refType);
         List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
         handleCustomFieldStatus(issues);
-        return disconnectIssue(issues);
+        return DistinctKeyUtil.distinctByKey(issues, IssuesDao::getId);
     }
 
     private void handleCustomFieldStatus(List<IssuesDao> issues) {
@@ -816,6 +817,7 @@ public class IssuesService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportIssueDTO> planReportIssueDTOS = extIssuesMapper.selectForPlanReport(planId);
+        planReportIssueDTOS = DistinctKeyUtil.distinctByKey(planReportIssueDTOS, PlanReportIssueDTO::getId);
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
@@ -849,8 +851,7 @@ public class IssuesService {
         buildCustomField(planIssues);
 
         replaceStatus(planIssues, planId);
-
-        return disconnectIssue(planIssues);
+        return DistinctKeyUtil.distinctByKey(planIssues, IssuesDao::getId);
     }
 
     private void replaceStatus(List<IssuesDao> planIssues, String planId) {
@@ -880,19 +881,6 @@ public class IssuesService {
                 }
             }
         });
-    }
-
-    public List<IssuesDao> disconnectIssue(List<IssuesDao> issues) {
-        Set<String> ids = new HashSet<>(issues.size());
-        Iterator<IssuesDao> iterator = issues.iterator();
-        while (iterator.hasNext()) {
-            IssuesDao next = iterator.next();
-            if (ids.contains(next.getId())) {
-                iterator.remove();
-            }
-            ids.add(next.getId());
-        }
-        return issues;
     }
 
     public void changeStatus(IssuesRequest request) {
