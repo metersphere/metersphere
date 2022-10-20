@@ -87,7 +87,7 @@ public class ESBParser extends EsbAbstractParser {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFFont font = workbook.createFont();
         font.setFontHeightInPoints((short) 9);
-        Map<String, XSSFCellStyle> cellStyleMap = createCellStle(workbook);
+        Map<String, XSSFCellStyle> cellStyleMap = createCellStyle(workbook);
         XSSFSheet headSheet = workbook.createSheet("公共报文头");
         generateSheet(headSheet, font, cellStyleMap);
         XSSFSheet bodySheet = workbook.createSheet("接口报文信息");
@@ -95,7 +95,7 @@ public class ESBParser extends EsbAbstractParser {
         return workbook;
     }
 
-    private static Map<String, XSSFCellStyle> createCellStle(XSSFWorkbook workbook) {
+    private static Map<String, XSSFCellStyle> createCellStyle(XSSFWorkbook workbook) {
         Map<String, XSSFCellStyle> cellStype = new HashMap<>();
         short[] colorIndexArr = {IndexedColors.LIGHT_GREEN.getIndex(), IndexedColors.ORCHID.getIndex(), IndexedColors.YELLOW.getIndex()};
         for (short colorIndex : colorIndexArr) {

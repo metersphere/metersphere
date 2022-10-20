@@ -160,7 +160,7 @@ public class EsbApiParamService {
 
     public SaveApiDefinitionRequest updateEsbRequest(SaveApiDefinitionRequest request) {
         try {
-            //修改reqeust.parameters
+            //修改request.parameters
             //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
             //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
             //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
@@ -180,7 +180,7 @@ public class EsbApiParamService {
 
     public SaveApiDefinitionRequest handleEsbRequest(SaveApiDefinitionRequest request) {
         try {
-            //修改reqeust.parameters
+            //修改request.parameters
             //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
             //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
             //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
@@ -200,7 +200,7 @@ public class EsbApiParamService {
 
 //    public RunDefinitionRequest handleEsbRequest(RunDefinitionRequest request) {
 //        try {
-//            //修改reqeust.parameters
+//            //修改request.parameters
 //            //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
 //            //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
 //            //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
@@ -309,7 +309,7 @@ public class EsbApiParamService {
 
     public SaveApiTestCaseRequest handleEsbRequest(SaveApiTestCaseRequest request) {
         try {
-            //修改reqeust.parameters, 将树结构类型数据转化为表格类型数据，供执行时参数的提取
+            //修改request.parameters, 将树结构类型数据转化为表格类型数据，供执行时参数的提取
             if (StringUtils.isNotEmpty(request.getEsbDataStruct())) {
                 MsTCPSampler tcpSampler = (MsTCPSampler) request.getRequest();
                 List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, request.getEsbDataStruct());
@@ -325,7 +325,7 @@ public class EsbApiParamService {
 
     public void handleEsbRequest(MsTCPSampler tcpSampler) {
         try {
-            //修改reqeust.parameters, 将树结构类型数据转化为表格类型数据，供执行时参数的提取
+            //修改request.parameters, 将树结构类型数据转化为表格类型数据，供执行时参数的提取
             if (tcpSampler.getEsbDataStruct() != null) {
                 List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, tcpSampler.getEsbDataStruct());
                 tcpSampler.setParameters(keyValueList);

@@ -57,7 +57,7 @@ export function updateExecuteInfo(params) {
   return post('/api/testcase/updateExecuteInfo', params);
 }
 
-export function checkDeleteDatas(params) {
+export function checkDeleteData(params) {
   return post('/api/testcase/get-del-reference', params);
 }
 

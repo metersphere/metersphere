@@ -136,7 +136,6 @@ export default {
       default: true
     },
     suggestions: Array,
-    withMorSetting: Boolean,
     disableVariableTip: Boolean
   },
   data() {

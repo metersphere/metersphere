@@ -6,9 +6,9 @@
       </span>
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" height="300px">
-      <el-table-column prop="sortIndex" :label="$t('api_test.home_page.failed_case_list.table_coloum.index')"
+      <el-table-column prop="sortIndex" :label="$t('home.case.index')"
                        width="100" show-overflow-tooltip/>
-      <el-table-column prop="caseName" :label="$t('api_test.home_page.failed_case_list.table_coloum.case_name')"
+      <el-table-column prop="caseName" :label="$t('home.case.case_name')"
                        width="150">
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row.caseType,row.id)">
@@ -19,7 +19,7 @@
       <el-table-column
         prop="caseType"
         column-key="caseType"
-        :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')"
+        :label="$t('home.case.case_type')"
         width="150"
         show-overflow-tooltip>
         <template v-slot:default="scope">
@@ -33,7 +33,7 @@
                   :content="$t('api_test.home_page.failed_case_list.table_value.case_type.functional')"/>
         </template>
       </el-table-column>
-      <el-table-column prop="testPlan" :label="$t('api_test.home_page.failed_case_list.table_coloum.test_plan')">
+      <el-table-column prop="testPlan" :label="$t('home.case.test_plan')">
         <template v-slot:default="{row}">
           <div>
             <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)">
@@ -42,7 +42,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="failureTimes" :label="$t('api_test.home_page.failed_case_list.table_coloum.failure_times')"
+      <el-table-column prop="failureTimes" :label="$t('home.case.failure_times')"
                        width="110" show-overflow-tooltip/>
     </el-table>
   </el-card>

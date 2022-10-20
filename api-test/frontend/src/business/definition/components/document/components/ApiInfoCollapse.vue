@@ -20,7 +20,7 @@
         </el-row>
         <el-collapse-transition>
           <div v-show="active">
-            <div v-if="!showSlotCompnent">
+            <div v-if="!showSlotComponent">
               <div v-if="isText">
                 <div class="showDataDiv">
                   <br/>
@@ -38,7 +38,7 @@
               <div v-else>
                 <el-table border :show-header="true" row-key="id" :row-class-name="getRowClassName"
                           :data="tableData" :class="getTableClass()" ref="expandTable">
-                  <el-table-column v-for="item in tableColoumArr" :key="item.id"
+                  <el-table-column v-for="item in tableColumnArr" :key="item.id"
                                    :prop="item.prop"
                                    :label="item.label"
                                    show-overflow-tooltip>
@@ -86,17 +86,17 @@ export default {
       tableData: [],
       tableExpandButtonId: "docTableExpandBtn" + getUUID(),
       expandTitle: this.$t("commons.expand_all"),
-      tableColoumArr: [
-        {id: 1, prop: "name", label: this.$t('api_test.definition.document.table_coloum.name')},
-        {id: 2, prop: "isRequired", label: this.$t('api_test.definition.document.table_coloum.is_required')},
-        {id: 3, prop: "value", label: this.$t('api_test.definition.document.table_coloum.value')},
-        {id: 4, prop: "description", label: this.$t('api_test.definition.document.table_coloum.desc')},
+      tableColumnArr: [
+        {id: 1, prop: "name", label: this.$t('api_definition.document.name')},
+        {id: 2, prop: "isRequired", label: this.$t('api_definition.document.is_required')},
+        {id: 3, prop: "value", label: this.$t('api_definition.document.value')},
+        {id: 4, prop: "description", label: this.$t('api_definition.document.desc')},
       ],
     };
   },
   props: {
     title: String,
-    tableColoumType: String,
+    tableColumnType: String,
     remarks: String,
     isRequest: Boolean,
     isResponse: Boolean,
@@ -139,7 +139,7 @@ export default {
     this.tableData = this.getJsonArr(this.stringData);
   },
   computed: {
-    showSlotCompnent() {
+    showSlotComponent() {
       return this.isRequest || this.isResponse;
     }
   },

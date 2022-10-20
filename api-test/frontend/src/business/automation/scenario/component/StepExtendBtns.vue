@@ -42,7 +42,7 @@
       :title="$t('commons.reference_settings')"
       :visible.sync="dialogVisible" width="400px">
       <ul>
-        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if='showEnableScence'>
+        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if='showEnableScenario'>
           <el-checkbox v-model="data.environmentEnable" @change="checkEnv" :disabled="data.disabled">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
@@ -74,7 +74,7 @@ export default {
         return false;
       }
     },
-    showEnableScence: {
+    showEnableScenario: {
       type: Boolean,
       default() {
         return true;

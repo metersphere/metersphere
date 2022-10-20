@@ -37,7 +37,7 @@ public class HarRequest {
 	
 	public List<HarHeader> headers;
 
-	public List<HarQueryParm> queryString;
+	public List<HarQueryParam> queryString;
 	
 	public HarPostData postData;
 	

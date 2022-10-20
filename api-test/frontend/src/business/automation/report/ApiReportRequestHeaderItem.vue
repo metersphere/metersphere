@@ -11,7 +11,7 @@
 
 <script>
     export default {
-      name: "ApiReportReqestHeaderItem",
+      name: "ApiReportRequestHeaderItem",
       props: {title: String}
     }
 </script>

@@ -611,7 +611,7 @@ export default {
     },
     // 自定义变量
     filter() {
-      let datas = [];
+      let data = [];
       this.variables.forEach(item => {
         if (this.searchType && this.searchType != "" && this.defineVariable && this.defineVariable != "") {
           if ((item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) || (item.name && item.name.toLowerCase().indexOf(this.defineVariable.toLowerCase()) == -1)) {
@@ -634,9 +634,9 @@ export default {
         } else {
           item.hidden = undefined;
         }
-        datas.push(item);
+        data.push(item);
       });
-      this.variables = datas;
+      this.variables = data;
     },
     tableRowClassName(row) {
       if (row.row.hidden) {

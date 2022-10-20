@@ -1,7 +1,7 @@
 <template>
   <div class="table-card" v-loading="result" body-style="padding:10px;">
     <el-table border :data="tableData" class="adjust-table table-content" height="260px">
-      <el-table-column prop="num" :label="$t('api_test.home_page.new_case_list.table_coloum.index')" width="100"
+      <el-table-column prop="num" :label="$t('home.new_case.index')" width="100"
                        show-overflow-tooltip>
         <template v-slot:default="{row}">
           <span type="num" @click="redirect(row.apiType,row.id)">
@@ -9,7 +9,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.home_page.new_case_list.table_coloum.api_name')"
+      <el-table-column prop="name" :label="$t('home.new_case.api_name')"
                        show-overflow-tooltip width="170">
         <template v-slot:default="{row}">
           <span type="name" @click="redirect(row.apiType,row.id)">
@@ -17,23 +17,23 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="path" :label="$t('api_test.home_page.new_case_list.table_coloum.path')" width="170"
+      <el-table-column prop="path" :label="$t('home.new_case.path')" width="170"
                        show-overflow-tooltip>
 
       </el-table-column>
-      <el-table-column prop="status" :label="$t('api_test.home_page.new_case_list.table_coloum.api_status')">
+      <el-table-column prop="status" :label="$t('home.new_case.api_status')">
         <template v-slot:default="scope">
           <span class="el-dropdown-link">
             <api-status :value="scope.row.status"/>
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('api_test.home_page.new_case_list.table_coloum.update_time')" width="170">
+      <el-table-column :label="$t('home.new_case.update_time')" width="170">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="caseTotal" :label="$t('api_test.home_page.new_case_list.table_coloum.relation_case')"
+      <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')"
                        width="100">
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row.caseType,row.id)">
@@ -42,7 +42,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="scenarioTotal"
-                       :label="$t('api_test.home_page.new_case_list.table_coloum.relation_scenario')"
+                       :label="$t('home.new_case.relation_scenario')"
                        width="100">
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row.scenarioType,row.ids)">
@@ -141,48 +141,6 @@ export default {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });
-      }
-    },
-    genProtocalFilter(protocalType) {
-      if (protocalType === "HTTP") {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-        ];
-      } else if (protocalType === "TCP") {
-        this.methodFilters = [
-          {text: 'TCP', value: 'TCP'},
-        ];
-      } else if (protocalType === "SQL") {
-        this.methodFilters = [
-          {text: 'SQL', value: 'SQL'},
-        ];
-      } else if (protocalType === "DUBBO") {
-        this.methodFilters = [
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-        ];
-      } else {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-          {text: 'SQL', value: 'SQL'},
-          {text: 'TCP', value: 'TCP'},
-        ];
       }
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数

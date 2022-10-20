@@ -76,7 +76,7 @@ export default {
       }
     },
     editorInit: function (editor) {
-      require('brace/ext/language_tools') //language extension prerequsite...
+      require('brace/ext/language_tools') //language extension prerequisite...
       this.modes.forEach(mode => {
         require('brace/mode/' + mode); //language
       });

@@ -586,11 +586,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
                     String modulePath = apiScenarioWithBLOBs.getModulePath();
-                    List<ApiScenarioWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
-                    if (moduleDatas != null && moduleDatas.size() <= 1) {
+                    List<ApiScenarioWithBLOBs> moduleData = moduleOptionData.get(modulePath);
+                    if (moduleData != null && moduleData.size() <= 1) {
                         moduleMap.remove(modulePath);
                         removeModulePath(moduleMap, moduleOptionData, modulePath);
-                        moduleDatas.remove(apiScenarioWithBLOBs);
+                        moduleData.remove(apiScenarioWithBLOBs);
                     }
                     //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
                     if (v.getVersionId().equals(versionId)) {

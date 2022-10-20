@@ -75,8 +75,8 @@ public class MockApiUtils {
                 //判断是否是JsonSchema
                 boolean isJsonSchema = false;
                 if (bodyObj.has("format")) {
-                    String foramtValue = String.valueOf(bodyObj.get("format"));
-                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                    String formatValue = String.valueOf(bodyObj.get("format"));
+                    if (StringUtils.equals("JSON-SCHEMA", formatValue)) {
                         isJsonSchema = true;
                     }
                 }
@@ -84,8 +84,8 @@ public class MockApiUtils {
                 String jsonString = StringUtils.EMPTY;
                 if (isJsonSchema) {
                     if (bodyObj.has("jsonSchema")) {
-                        String bodyRetunStr = bodyObj.optJSONObject("jsonSchema").toString();
-                        jsonString = JSONSchemaGenerator.getJson(bodyRetunStr);
+                        String bodyReturnStr = bodyObj.optJSONObject("jsonSchema").toString();
+                        jsonString = JSONSchemaGenerator.getJson(bodyReturnStr);
                     }
                 } else {
                     if (bodyObj.has("raw")) {
@@ -178,8 +178,8 @@ public class MockApiUtils {
                                 //判断是否是JsonSchema
                                 boolean isJsonSchema = false;
                                 if (bodyObj.has("format")) {
-                                    String foramtValue = String.valueOf(bodyObj.get("format"));
-                                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                                    String formatValue = String.valueOf(bodyObj.get("format"));
+                                    if (StringUtils.equals("JSON-SCHEMA", formatValue)) {
                                         isJsonSchema = true;
                                     }
                                 }
@@ -301,8 +301,8 @@ public class MockApiUtils {
                     //判断是否是JsonSchema
                     boolean isJsonSchema = false;
                     if (bodyObj.has("format")) {
-                        String foramtValue = String.valueOf(bodyObj.get("format"));
-                        if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                        String formatValue = String.valueOf(bodyObj.get("format"));
+                        if (StringUtils.equals("JSON-SCHEMA", formatValue)) {
                             isJsonSchema = true;
                         }
                     }
@@ -518,13 +518,13 @@ public class MockApiUtils {
     private static String readXml(HttpServletRequest request) {
         String inputLine = null;
         // 接收到的数据
-        StringBuffer recieveData = new StringBuffer();
+        StringBuffer receiveData = new StringBuffer();
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(
                     request.getInputStream(), StandardCharsets.UTF_8.name()));
             while ((inputLine = in.readLine()) != null) {
-                recieveData.append(inputLine);
+                receiveData.append(inputLine);
             }
         } catch (IOException e) {
         } finally {
@@ -536,7 +536,7 @@ public class MockApiUtils {
             }
         }
 
-        return recieveData.toString();
+        return receiveData.toString();
     }
 
     /**

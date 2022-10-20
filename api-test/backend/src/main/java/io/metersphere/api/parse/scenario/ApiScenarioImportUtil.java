@@ -198,8 +198,8 @@ public class ApiScenarioImportUtil {
     public static ApiDefinitionResult structureApiDefinitionByJson(ApiDefinitionService apiDefinitionService, JSONObject object, String versionId, String projectId, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
         ApiDefinitionResult test = new ApiDefinitionResult();
         apiDefinitionService.checkQuota(projectId);
-        String protocal = object.optString("protocal");
-        if (StringUtils.equals(protocal, "DUBBO")) {
+        String protocol = object.optString("protocol");
+        if (StringUtils.equals(protocol, "DUBBO")) {
             test.setMethod("dubbo://");
         } else {
             test.setMethod(object.optString("method"));

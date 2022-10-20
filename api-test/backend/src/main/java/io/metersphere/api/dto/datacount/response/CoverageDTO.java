@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class CoverageDTO {
     public String rateOfCoverage = "0%";
-    public long coverate = 0;
-    public long notCoverate = 0;
+    public long coverage = 0;
+    public long notCoverage = 0;
 }

@@ -139,7 +139,7 @@ export default {
             path: "/performance/test/create"
           });
         }
-      }, erro => {
+      }, error => {
         this.$emit('runRefresh', {});
       });
     }

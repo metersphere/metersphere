@@ -84,7 +84,7 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
         if (samplerProxy.getBody() != null) {
             List<KeyValue> keyValueList = new ArrayList<>();
             if (!ObjectUtils.isEmpty(request.queryString)) {
-                for (HarQueryParm model : request.queryString) {
+                for (HarQueryParam model : request.queryString) {
                     KeyValue keyValue = new KeyValue(model.name, model.value);
                     keyValueList.add(keyValue);
                 }

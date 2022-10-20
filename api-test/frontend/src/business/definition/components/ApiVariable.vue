@@ -66,7 +66,7 @@
           </el-input>
         </el-col>
 
-        <el-col v-if="withMorSetting" class="item kv-setting">
+        <el-col v-if="withMoreSetting" class="item kv-setting">
           <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">
             <i class="el-icon-setting" @click="openApiVariableSetting(item)"/>
           </el-tooltip>
@@ -143,7 +143,7 @@ export default {
       default: true
     },
     suggestions: Array,
-    withMorSetting: Boolean,
+    withMoreSetting: Boolean,
     scenarioDefinition: Array,
   },
   data() {

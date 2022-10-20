@@ -181,8 +181,8 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/get-del-reference")
-    public DeleteCheckResult checkDeleteDatas(@RequestBody ApiTestBatchRequest request) {
-        return apiTestCaseService.checkDeleteDatas(request);
+    public DeleteCheckResult checkDeleteData(@RequestBody ApiTestBatchRequest request) {
+        return apiTestCaseService.checkDeleteData(request);
     }
 
     @PostMapping("/relevance")

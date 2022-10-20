@@ -23,7 +23,6 @@
         <mock-api-variable ref="mockApiVariableComp"
                            :append-dialog-to-body="true"
                            :suggestions="suggestions"
-                           :with-mor-setting="true"
                            :is-read-only="isReadOnly"
                            :isShowEnable="isShowEnable"
                            :disable-variable-tip="disableVariableTip"
@@ -87,9 +86,9 @@ export default {
     initFilterDiv() {
       if (this.parameters && this.parameters.length > 1) {
         this.lineDivHeight = 0;
-        let itemHeigh = 32 + 10;
+        let itemHeight = 32 + 10;
 
-        let optionTypeHeight = this.parameters.length * itemHeigh;
+        let optionTypeHeight = this.parameters.length * itemHeight;
         let firstHeight = 32;
         let endHeight = 32;
 

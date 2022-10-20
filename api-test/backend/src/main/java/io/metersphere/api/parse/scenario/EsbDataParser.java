@@ -70,22 +70,22 @@ public class EsbDataParser {
         EsbDataStruct returnData = null;
         if (paramArr.length > index) {
             String param = paramArr[index];
-            for (EsbDataStruct dataStuct : esbDataList) {
-                if (StringUtils.equals(dataStuct.getName(), param)) {
+            for (EsbDataStruct dataStruct : esbDataList) {
+                if (StringUtils.equals(dataStruct.getName(), param)) {
                     int newIndex = index + 1;
-                    if (paramArr.length > newIndex && dataStuct.getChildren() != null) {
-                        EsbDataStruct childElement = selectEsbDataStructByNameStruct(dataStuct.getChildren(), paramArr, newIndex);
+                    if (paramArr.length > newIndex && dataStruct.getChildren() != null) {
+                        EsbDataStruct childElement = selectEsbDataStructByNameStruct(dataStruct.getChildren(), paramArr, newIndex);
                         if (childElement != null) {
-                            returnData = dataStuct.copy(false);
+                            returnData = dataStruct.copy(false);
                             returnData.getChildren().add(childElement);
                         }
                     } else {
-                        returnData = dataStuct.copy(true);
+                        returnData = dataStruct.copy(true);
                     }
                 } else if (index == 0) {
                     //如果是第一个节点不符合，则遍历子节点是否有符合的。
                     int newIndex = index;
-                    EsbDataStruct itemData = selectEsbDataStructByNameStruct(dataStuct.getChildren(), paramArr, newIndex);
+                    EsbDataStruct itemData = selectEsbDataStructByNameStruct(dataStruct.getChildren(), paramArr, newIndex);
                     if (itemData != null) {
                         returnData = itemData;
                     }

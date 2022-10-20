@@ -22,7 +22,7 @@
     <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">
       {{ $t('workspace.env_group.confirm') }}
     </el-button>
-    <el-dialog :visible="visble" append-to-body :title="$t('workspace.env_group.name')" @close="visble = false"
+    <el-dialog :visible="visible" append-to-body :title="$t('workspace.env_group.name')" @close="visible = false"
                style="height: 800px;">
       <template>
         <environment-group style="overflow-y: auto;"
@@ -45,7 +45,7 @@ export default {
     return {
       groups: [],
       envGroupId: this.groupId,
-      visble: false,
+      visible: false,
       disabledGroups: [],
       notDisabledGroups: [],
       result: false
@@ -88,7 +88,7 @@ export default {
       })
     },
     viewGroup() {
-      this.visble = true;
+      this.visible = true;
     },
     async handleConfirm() {
       const sign = await this.checkEnv();

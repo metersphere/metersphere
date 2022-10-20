@@ -42,15 +42,15 @@
     </el-row>
     <!--api请求头-->
     <api-info-collapse :table-can-expand="false" v-if="isArrayHasData(apiInfo.requestHead)"
-                       table-coloum-type="nameAndValue"
+                       table-column-type="nameAndValue"
                        :title="$t('api_test.definition.document.request_head')"
                        :string-data="apiInfo.requestHead"/>
     <!--QUERY参数-->
-    <api-info-collapse v-if="isArrayHasData(apiInfo.urlParams)" table-coloum-type="simple"
+    <api-info-collapse v-if="isArrayHasData(apiInfo.urlParams)" table-column-type="simple"
                        :title="'QUERY'+$t('api_test.definition.document.request_param')"
                        :string-data="apiInfo.urlParams"/>
     <!--REST参数-->
-    <api-info-collapse v-if="isArrayHasData(apiInfo.restParams)" table-coloum-type="simple"
+    <api-info-collapse v-if="isArrayHasData(apiInfo.restParams)" table-column-type="simple"
                        :title="'REST'+$t('api_test.definition.document.request_param')"
                        :string-data="apiInfo.restParams"/>
     <!--api请求体 以及表格-->
@@ -61,7 +61,7 @@
 
     <!--响应头-->
     <api-info-collapse :table-can-expand="false" v-if="isArrayHasData(apiInfo.responseHead)"
-                       table-coloum-type="nameAndValue"
+                       table-column-type="nameAndValue"
                        :title="$t('api_test.definition.document.response_head')"
                        :string-data="apiInfo.responseHead"/>
     <!--响应体-->
@@ -128,7 +128,6 @@ export default {
         restParams: "无",
         requestBodyParamType: "无",
         requestBodyFormData: '[]',
-        requestBodyStrutureData: "",
         sharePopoverVisible: false,
         jsonSchemaBody: {},
         JsonSchemaResponseBody: {},
@@ -136,13 +135,13 @@ export default {
         responseBody: "",
         responseBodyParamType: "无",
         responseBodyFormData: "无",
-        responseBodyStrutureData: "无",
+        requestBodyStructureData: "无",
         responseCode: "无",
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
-      maxCompnentSize: 5, //浏览器最多渲染的api信息体数量
+      maxComponentSize: 5, //浏览器最多渲染的api信息体数量
       apiShowArray: [],//浏览器要渲染的api信息集合
-      needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
+      needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxComponentSize时为true
       currentApiIndexInApiShowArray: 0,//当前主要展示的api信息在apiShowArray的索引
       clickStepFlag: false,
     };
@@ -186,7 +185,7 @@ export default {
           if (apiInfo.jsonSchemaBody && apiInfo.jsonSchemaBody !== '' && apiInfo.jsonSchemaBody !== '[]') {
             hasParams = true;
           }
-        } else if (apiInfo.requestBodyStrutureData && apiInfo.requestBodyStrutureData !== '') {
+        } else if (apiInfo.requestBodyStructureData && apiInfo.requestBodyStructureData !== '') {
           hasParams = true;
         }
       }
@@ -210,9 +209,9 @@ export default {
           if (apiInfo.jsonSchemaResponseBody && apiInfo.jsonSchemaResponseBody !== '' && apiInfo.jsonSchemaResponseBody !== '[]') {
             hasParams = true;
           }
-        } else if (apiInfo.responseBodyStrutureData && apiInfo.responseBodyStrutureData !== '') {
+        } else if (apiInfo.requestBodyStructureData && apiInfo.requestBodyStructureData !== '') {
           try {
-            JSON.parse(apiInfo.responseBodyStrutureData);
+            JSON.parse(apiInfo.requestBodyStructureData);
             hasParams = true;
           } catch (e) {
             hasParams = true;
