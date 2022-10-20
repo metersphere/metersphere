@@ -221,15 +221,20 @@ export default {
       });
     },
     formatChange() {
-      const MsConvert = new Convert();
 
+      const MsConvert = new Convert();
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
-          if (!this.body.jsonSchema) {
-            this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-          } else {
-            let data = MsConvert.format(JSON.parse(this.body.raw));
-            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+          try {
+            if (!this.body.jsonSchema) {
+              this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+            } else {
+              let data = MsConvert.format(JSON.parse(this.body.raw));
+              this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+            }
+          } catch (e) {
+            this.body.format = 'JSON';
+            this.$message.error(this.$t('api_definition.body.json_format_error'));
           }
         }
       } else {

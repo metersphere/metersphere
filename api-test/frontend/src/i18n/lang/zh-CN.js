@@ -15,6 +15,9 @@ const message = {
       type: "类型",
       default_value: "默认值",
     },
+    body: {
+      json_format_error: "JSON格式错误",
+    }
   },
   home: {
     table: {
