@@ -755,11 +755,10 @@ public class ApiTestCaseService {
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
             bloBs.forEach(apiTestCase -> {
-                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
+                JSONObject element = JSONUtil.parseObject(apiTestCase.getRequest());
+                ElementUtil.dataFormatting(element);
+                MsHTTPSamplerProxy req = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
                 try {
-                    JSONObject element = JSONUtil.parseObject(apiTestCase.getRequest());
-                    ElementUtil.dataFormatting(element);
-
                     if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
                         LinkedList<MsTestElement> elements = mapper.readValue(element.optString(ElementConstants.HASH_TREE), new TypeReference<LinkedList<MsTestElement>>() {
                         });
@@ -1117,6 +1116,7 @@ public class ApiTestCaseService {
 
     /**
      * 工作台查询应用管理里设置的用例待更新条件
+     *
      * @param request
      */
     public void initRequestBySearch(ApiTestCaseRequest request) {
