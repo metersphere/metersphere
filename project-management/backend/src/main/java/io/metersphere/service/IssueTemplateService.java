@@ -420,7 +420,7 @@ public class IssueTemplateService extends TemplateBaseService {
                         } else {
                             // 非系统字段, 则追加_copy
                             tarCustomField.setId(UUID.randomUUID().toString());
-                            tarCustomField.setName(tarCustomField.getName().concat("_copy"));
+                            tarCustomField.setName(tarCustomField.getName().concat("_copy").concat(UUID.randomUUID().toString().substring(0, 8)));
                             tarCustomField.setOptions(sourceCustomField.getOptions());
                             customFieldRecords.add(tarCustomField);
                         }
