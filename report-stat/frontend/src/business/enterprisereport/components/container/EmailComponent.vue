@@ -32,7 +32,7 @@ export default {
     }
   },
   methods: {
-    initDatas() {
+    initData() {
       if (this.$refs.reportItemPic && this.$refs.reportItemPic.length > 0) {
         this.$refs.reportItemPic.forEach(item => {
           item.initData();

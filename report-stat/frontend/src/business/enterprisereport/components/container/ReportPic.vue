@@ -14,7 +14,7 @@
                     ref="analysisChart" :load-option="loadOption" :pie-option="pieOption"/>
     </div>
     <div class="ms-row">
-      <report-table :full-screen="false" :group-name="options.xaxis" :show-coloums="options.yaxis"
+      <report-table :full-screen="false" :group-name="options.xaxis" :show-columns="options.yaxis"
                     :tableData="tableData"/>
     </div>
   </div>
@@ -71,7 +71,7 @@ export default {
     deleteDetail() {
       this.$emit("deleteDetail", this.reportDetail);
     },
-    editAttachDataName(comman) {
+    editAttachDataName(common) {
       this.reportDetail.nameIsEdit = !this.reportDetail.nameIsEdit;
     },
     initPic() {

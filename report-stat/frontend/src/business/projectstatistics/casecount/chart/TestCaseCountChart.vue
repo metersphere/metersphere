@@ -163,16 +163,16 @@ export default {
       if (command === 'jpg') {
         imageType = 'image/jpg';
       }
-      let returnImageDatas = "";
+      let returnImageData = "";
       if (document.getElementById('picChart')) {
         let chartsCanvas = document.getElementById('picChart').querySelectorAll('canvas')[0];
         if (chartsCanvas) {
           // toDataURL()是canvas对象的一种方法，用于将canvas对象转换为base64位编码
-          returnImageDatas = chartsCanvas && chartsCanvas.toDataURL(imageType);
+          returnImageData = chartsCanvas && chartsCanvas.toDataURL(imageType);
         }
       }
-      this.$emit("getImage", returnImageDatas);
-      return returnImageDatas;
+      this.$emit("getImage", returnImageData);
+      return returnImageData;
     },
     exportCommand(command) {
       let fileName = 'report_pic.' + command;

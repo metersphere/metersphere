@@ -11,10 +11,8 @@ public class EnterpriseReportContentStep implements Serializable {
     private String type;
     //type为report
     private String reportRecordId;
-    //    @JsonProperty("reportRecordData")
-    private Map<String, String> reportRecordData;
+    private Map<String, Object> reportRecordData;
     private String recordImageContent;
-    //    @JsonProperty("tableData")
     private Map<String, String> tableData;
     //type为txt
     private String previewContext;
