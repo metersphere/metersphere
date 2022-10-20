@@ -19,4 +19,9 @@ public class ValidQuotaResourcePoolController {
     public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return validQuotaResourcePoolService.listValidQuotaResourcePools();
     }
+
+    @GetMapping("list/all/valid")
+    public List<TestResourcePoolDTO> listValidResourcePools() {
+        return validQuotaResourcePoolService.listValidResourcePools();
+    }
 }
