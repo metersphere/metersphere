@@ -249,8 +249,8 @@ export default {
         this.appendDataWithDeepForeach(this.tableData, rowId, dataRow);
       }
     },
-    appendDataWithDeepForeach(datas, rowId, appendData) {
-      datas.forEach(row => {
+    appendDataWithDeepForeach(data, rowId, appendData) {
+      data.forEach(row => {
         if (row.uuid === rowId) {
           if (row.children == null) {
             row.children = [];

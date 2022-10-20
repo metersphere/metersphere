@@ -166,7 +166,8 @@ public class TestPlanMessageService {
         paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
         String testPlanShareUrl = getTestPlanShareUrl(testPlanReport.getId(), creator);
-        paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/share-plan-report" + testPlanShareUrl);
+        // 分享经过网关需要带上前缀
+        paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/track/share-plan-report" + testPlanShareUrl);
 
         /**
          * 测试计划的消息通知配置包括 完成、成功、失败

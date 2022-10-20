@@ -7,7 +7,7 @@
       :data="tableData"
       @refresh="search"
       screen-height="300px">
-      <el-table-column prop="index" :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80"
+      <el-table-column prop="index" :label="$t('home.table.index')" width="80"
                        show-overflow-tooltip/>
       <el-table-column prop="name" :label="$t('commons.name')" width="200">
         <template v-slot:default="{row}">
@@ -23,7 +23,7 @@
       <ms-table-column
         prop="taskType"
         :filters="typeFilters"
-        :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120">
+        :label="$t('home.table.task_type')" width="120">
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.taskGroup == 'API_SCENARIO_TEST'" type="success" effect="plain"
                   :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
@@ -33,9 +33,9 @@
                   :content="$t('api_test.home_page.running_task_list.swagger_schedule')"/>
         </template>
       </ms-table-column>
-      <el-table-column prop="rule" :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120"
+      <el-table-column prop="rule" :label="$t('home.table.run_rule')" width="120"
                        show-overflow-tooltip/>
-      <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
+      <el-table-column width="100" :label="$t('home.table.task_status')">
         <template v-slot:default="scope">
           <div>
             <el-switch
@@ -49,14 +49,14 @@
 
 
       </el-table-column>
-      <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.next_execution_time')">
+      <el-table-column width="170" :label="$t('home.table.next_execution_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="creator" :label="$t('api_test.home_page.running_task_list.table_coloum.create_user')"
+      <el-table-column prop="creator" :label="$t('home.table.create_user')"
                        width="100" show-overflow-tooltip/>
-      <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.update_time')">
+      <el-table-column width="170" :label="$t('home.table.update_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>

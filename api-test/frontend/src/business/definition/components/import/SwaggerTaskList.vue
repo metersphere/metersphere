@@ -8,7 +8,7 @@
             height="300px">
     <el-table-column prop="index"
                      width="60"
-                     :label="$t('api_test.home_page.running_task_list.table_coloum.index')"
+                     :label="$t('home.table.index')"
                      show-overflow-tooltip/>
     <el-table-column
       prop="swaggerUrl"
@@ -21,7 +21,7 @@
     <el-table-column prop="rule" label="同步规则"
                      min-width="140"
                      show-overflow-tooltip/>
-    <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
+    <el-table-column width="100" :label="$t('home.table.task_status')">
       <template v-slot:default="scope">
         <div>
           <el-switch
@@ -32,7 +32,7 @@
         </div>
       </template>
     </el-table-column>
-    <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.next_execution_time')">
+    <el-table-column width="170" :label="$t('home.table.next_execution_time')">
       <template v-slot:default="scope">
         <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
       </template>

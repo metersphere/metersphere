@@ -644,11 +644,11 @@ export default {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
-        case 'notCoverate':
+        case 'notCoverage':
           this.condition.apiCoverage = 'uncoverage';
           this.condition.scenarioCoverage = null;
           break;
-        case 'coverate':
+        case 'coverage':
           this.condition.apiCoverage = 'coverage';
           this.condition.scenarioCoverage = null;
           break;

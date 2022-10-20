@@ -28,7 +28,7 @@ public interface ExtApiDefinitionExecResultMapper {
 
     long countByTestCaseIDInProject(String projectId);
 
-    List<ExecutedCaseInfoResult> findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("selectFunctionCase") boolean selectFunctionCase, @Param("startTimestamp") long startTimestamp);
+    List<ExecutedCaseInfoResult> findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("selectFunctionCase") boolean selectFunctionCase, @Param("startTimestamp") long startTimestamp);
 
     String selectExecResult(String resourceId);
 

@@ -21,7 +21,7 @@
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
-              <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
+              <div v-if="linkData.indexOf(detail.columnName)!== -1">
                 <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{
                     $t('operating_log.info')
                   }}
@@ -38,7 +38,7 @@
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
-              <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
+              <div v-if="linkData.indexOf(detail.columnName)!== -1">
                 <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{
                     $t('operating_log.info')
                   }}
@@ -83,7 +83,7 @@ export default {
       infoVisible: false,
       loading: false,
       details: [],
-      linkDatas: ["prerequisite", "steps", "remark", "request", "config",
+      linkData: ["prerequisite", "steps", "remark", "request", "config",
         "response", "scenarioDefinition", "tags", "loadConfiguration", "advancedConfiguration"],
       showChangeField: true,
       pageSize: 10,

@@ -273,15 +273,15 @@ export default {
       countScenarioCoverageByProjectId(selectProjectId).then(response => {
         let respData = response.data;
         this.scenarioCoverage.rateOfCoverage = respData.rateOfCoverage;
-        this.scenarioCoverage.coverate = respData.coverate;
-        this.scenarioCoverage.notCoverate = respData.notCoverate;
+        this.scenarioCoverage.coverage = respData.coverage;
+        this.scenarioCoverage.notCoverage = respData.notCoverage;
       });
 
       countApiCoverageByProjectId(selectProjectId).then(response => {
         let respData = response.data;
         this.apiCoverage.rateOfCoverage = respData.rateOfCoverage;
-        this.apiCoverage.coverate = respData.coverate;
-        this.apiCoverage.notCoverate = respData.notCoverate;
+        this.apiCoverage.coverage = respData.coverage;
+        this.apiCoverage.notCoverage = respData.notCoverage;
       });
 
       apiCaseCountByProjectId(selectProjectId).then(response => {

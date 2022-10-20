@@ -1919,11 +1919,11 @@ public class ApiDefinitionService {
             for (EsbApiParamsWithBLOBs model : apiImport.getEsbApiParamsMap().values()) {
                 EsbApiParamsExample example = new EsbApiParamsExample();
                 example.createCriteria().andResourceIdEqualTo(model.getResourceId());
-                List<EsbApiParamsWithBLOBs> exiteModelList = esbApiParamsMapper.selectByExampleWithBLOBs(example);
-                if (exiteModelList.isEmpty()) {
+                List<EsbApiParamsWithBLOBs> exitModelList = esbApiParamsMapper.selectByExampleWithBLOBs(example);
+                if (exitModelList.isEmpty()) {
                     esbApiParamsMapper.insert(model);
                 } else {
-                    model.setId(exiteModelList.get(0).getId());
+                    model.setId(exitModelList.get(0).getId());
                     esbApiParamsMapper.updateByPrimaryKeyWithBLOBs(model);
                 }
             }

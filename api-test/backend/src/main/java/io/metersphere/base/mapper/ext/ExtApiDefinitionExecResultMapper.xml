@@ -65,7 +65,7 @@
         WHERE integrated_report_id = #{0}
     </select>
 
-    <select id="findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
+    <select id="findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
             resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
         SELECT *
         FROM (

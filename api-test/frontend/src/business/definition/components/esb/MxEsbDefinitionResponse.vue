@@ -13,7 +13,7 @@
               <div v-if="isActive">
                 <el-divider></el-divider>
                 <esb-response-result :show-options-button="showOptionsButton"
-                                     :is-api-compnent="false" :show-metric="false" :response="response"
+                                     :is-api-component="false" :show-metric="false" :response="response"
                                      :request="request"/>
               </div>
             </el-collapse-transition>

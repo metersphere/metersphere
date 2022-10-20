@@ -171,16 +171,16 @@
           <el-col :span="12">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.uncoverage') }}
-               <el-link type="info" class="rows-count-number" @click="redirectPage('notCoverate')" target="_blank">
-                 <b>{{ scenarioCoverage.notCoverate }}</b>
+               <el-link type="info" class="rows-count-number" @click="redirectPage('notCoverage')" target="_blank">
+                 <b>{{ scenarioCoverage.notCoverage }}</b>
                 </el-link>
             </span>
           </el-col>
           <el-col :span="12">
               <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.coverage') }}
-                <el-link class="rows-count-number" @click="redirectPage('coverate')" target="_blank">
-                  <b>{{ scenarioCoverage.coverate }}</b>
+                <el-link class="rows-count-number" @click="redirectPage('coverage')" target="_blank">
+                  <b>{{ scenarioCoverage.coverage }}</b>
                 </el-link>
               </span>
           </el-col>
@@ -214,9 +214,9 @@ export default {
   },
   methods: {
     redirectPage(clickType) {
-      if (clickType === "coverate") {
+      if (clickType === "coverage") {
         this.$emit("redirectPage", "api", "api", "coverageScenario");
-      } else if (clickType === "notCoverate") {
+      } else if (clickType === "notCoverage") {
         this.$emit("redirectPage", "api", "api", "unCoverageScenario");
       } else {
         this.$emit("redirectPage", "scenario", "scenario", clickType);

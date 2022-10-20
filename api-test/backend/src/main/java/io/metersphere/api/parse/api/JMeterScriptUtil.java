@@ -20,13 +20,13 @@ public class JMeterScriptUtil {
     /**
      * 判断脚本是否被过滤
      *
-     * @param filterProtocals 要过滤掉的请求类型
-     * @param protocal        当前请求类型
+     * @param filterProtocols 要过滤掉的请求类型
+     * @param protocol        当前请求类型
      * @return
      */
-    public static boolean isScriptFilter(List<String> filterProtocals, String protocal) {
-        if (!CollectionUtils.isEmpty(filterProtocals)) {
-            return filterProtocals.contains(protocal);
+    public static boolean isScriptFilter(List<String> filterProtocols, String protocol) {
+        if (!CollectionUtils.isEmpty(filterProtocols)) {
+            return filterProtocols.contains(protocol);
         } else {
             return false;
         }
@@ -62,26 +62,26 @@ public class JMeterScriptUtil {
      * @param envConfig            环境配置信息
      * @param samplerHashTree      sampler的hashtree
      * @param isAfterPrivateScript 是否将脚本放置在sampler的私有脚本之后
-     * @param protocal             请求类型
+     * @param protocol             请求类型
      * @param environmentId        环境ID
      * @param config               参数配置
      */
-    public static void setScriptByEnvironmentConfig(EnvironmentConfig envConfig, HashTree samplerHashTree, String protocal, String environmentId, ParameterConfig config, boolean isAfterPrivateScript) {
+    public static void setScriptByEnvironmentConfig(EnvironmentConfig envConfig, HashTree samplerHashTree, String protocol, String environmentId, ParameterConfig config, boolean isAfterPrivateScript) {
         GlobalScriptConfig globalScriptConfig = envConfig != null ? envConfig.getGlobalScriptConfig() : null;
         MsJSR223PreProcessor preProcessor = JMeterScriptUtil.getPreScript(envConfig);
         MsJSR223PostProcessor postProcessor = JMeterScriptUtil.getPostScript(envConfig);
-        setScript(globalScriptConfig, protocal, isAfterPrivateScript, environmentId, config, samplerHashTree, preProcessor, postProcessor);
+        setScript(globalScriptConfig, protocol, isAfterPrivateScript, environmentId, config, samplerHashTree, preProcessor, postProcessor);
 
     }
 
-    public static void setScript(GlobalScriptConfig globalScriptConfig, String protocal, boolean isAfterPrivateScript, String environmentId, ParameterConfig config,
+    public static void setScript(GlobalScriptConfig globalScriptConfig, String protocol, boolean isAfterPrivateScript, String environmentId, ParameterConfig config,
                                  HashTree samplerHashTree, MsJSR223PreProcessor preProcessor, MsJSR223PostProcessor postProcessor) {
         boolean isPreScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPreScriptExecAfterPrivateScript();
         boolean isPostScriptExecAfterPrivateScript = globalScriptConfig == null ? false : globalScriptConfig.isPostScriptExecAfterPrivateScript();
-        List<String> preFilterProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
-        List<String> postFilterProtocal = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
-        boolean globalPreScriptIsFilter = JMeterScriptUtil.isScriptFilter(preFilterProtocal, protocal);
-        boolean globalPostScriptIsFilter = JMeterScriptUtil.isScriptFilter(postFilterProtocal, protocal);
+        List<String> preFilterProtocol = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPreScript();
+        List<String> postFilterProtocol = globalScriptConfig == null ? null : globalScriptConfig.getFilterRequestPostScript();
+        boolean globalPreScriptIsFilter = JMeterScriptUtil.isScriptFilter(preFilterProtocol, protocol);
+        boolean globalPostScriptIsFilter = JMeterScriptUtil.isScriptFilter(postFilterProtocol, protocol);
         if (isAfterPrivateScript) {
             if (isPreScriptExecAfterPrivateScript && !globalPreScriptIsFilter && preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
                 addItemHashTree(preProcessor, samplerHashTree, config, environmentId);

@@ -257,7 +257,7 @@ export default {
       this.customing = false
     },
     _joinName() {
-      return `feild_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
     },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);

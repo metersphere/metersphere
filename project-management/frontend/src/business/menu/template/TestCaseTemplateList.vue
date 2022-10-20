@@ -33,7 +33,7 @@
       </ms-table-column>
 
       <ms-table-column
-        :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')"
+        :label="$t('home.case.case_type')"
         :fields="fields"
         :filters="caseTypeFilters"
         prop="type">

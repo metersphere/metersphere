@@ -357,7 +357,7 @@ export default {
       this.parentReloadItems();
     },
     _joinName() {
-      return `feild_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
     },
     onSetting() {
       this.modalVisible = true;

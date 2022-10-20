@@ -211,12 +211,12 @@ public class ApiTestCaseService {
      * 初始化部分参数
      *
      * @param request
-     * @param setDefultOrders
+     * @param setDefaultOrders
      * @param checkThisWeekData
      * @return
      */
-    private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
-        if (setDefultOrders) {
+    private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefaultOrders, boolean checkThisWeekData) {
+        if (setDefaultOrders) {
             List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
             orders.forEach(i -> {
                 if (i.getName().equals("path")) {
@@ -967,7 +967,7 @@ public class ApiTestCaseService {
         }
     }
 
-    public DeleteCheckResult checkDeleteDatas(ApiTestBatchRequest request) {
+    public DeleteCheckResult checkDeleteData(ApiTestBatchRequest request) {
         List<String> deleteIds = request.getIds();
         if (request.isSelectAll()) {
             deleteIds = this.getAllApiCaseIdsByFrontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId(), request.getCombine());

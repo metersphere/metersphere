@@ -124,11 +124,11 @@ public class ApiDataCountDTO {
     private String interfaceCoverage = " 0%";
 
     /**
-     * 对Protocal视角对查询结果进行统计
+     * 对Protocol视角对查询结果进行统计
      *
      * @param countResultList 查询参数
      */
-    public void countProtocal(List<ApiDataCountResult> countResultList) {
+    public void countProtocol(List<ApiDataCountResult> countResultList) {
         for (ApiDataCountResult countResult :
                 countResultList) {
             switch (countResult.getGroupField().toUpperCase()) {

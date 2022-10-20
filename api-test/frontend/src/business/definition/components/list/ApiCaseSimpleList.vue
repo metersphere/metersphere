@@ -274,7 +274,7 @@
 
 import {
   apiTestCasePage,
-  checkDeleteDatas,
+  checkDeleteData,
   delApiTestCase,
   delCaseBatchByParam,
   delCaseToGcByParam,
@@ -992,7 +992,7 @@ export default {
       obj.unSelectIds = this.unSelection;
       obj = Object.assign(obj, this.condition);
       obj.ids = Array.from(this.selectRows).map(row => row.id);
-      checkDeleteDatas(obj).then(response => {
+      checkDeleteData(obj).then(response => {
         let checkResult = response.data;
         let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + " ？";
         if (!checkResult.deleteFlag) {
@@ -1085,7 +1085,7 @@ export default {
       obj.selectAllDate = false;
       obj.ids = [apiCase.id];
       obj = Object.assign(obj, this.condition);
-      checkDeleteDatas(obj).then(response => {
+      checkDeleteData(obj).then(response => {
         let checkResult = response.data;
         let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
         if (!checkResult.deleteFlag) {
@@ -1322,7 +1322,7 @@ export default {
             path: "/performance/test/create"
           });
         }
-      }).catch(erro => {
+      }).catch(error => {
         this.$emit('runRefresh', {});
       });
     },
