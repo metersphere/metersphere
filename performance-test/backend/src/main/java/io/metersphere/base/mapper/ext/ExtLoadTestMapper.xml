@@ -495,7 +495,7 @@
         count(id) AS countNum
         FROM load_test
         <where>
-            project_id = #{projectId}
+            project_id = #{projectId} AND latest = 1
             <if test="startTime > 0">
                 AND (create_time &gt;= #{startTime})
             </if>

@@ -1164,4 +1164,60 @@
             </if>
         </where>
     </select>
+    <select id="countByRequest" resultType="io.metersphere.api.dto.ApiCountChartResult">
+        select
+        <if test="testCaseGroupColumn != null and testCaseGroupColumn != ''">
+            ${apiCaseGroupColumn} AS groupName,
+        </if>
+        count(id) AS countNum
+        FROM api_test_case
+        <where>
+            project_id = #{projectId}
+            AND( `status` != 'Trash' OR `status` IS NULL)
+            AND api_definition_id IN (SELECT id FROM api_definition WHERE `status` != 'Trash' AND latest = 1)
+            <if test="startTime > 0">
+                AND (create_time &gt;= #{startTime})
+            </if>
+            <if test="endTime > 0">
+                AND ( create_time &lt;=  #{endTime})
+            </if>
+            <if test="apiFilterSearchList != null and apiFilterSearchList.size() > 0">
+                AND
+                <trim prefix="(" prefixOverrides="AND|OR" suffix=")">
+                    <foreach collection="apiFilterSearchList.entrySet()" index="key" item="values">
+                        <if test="values != null and values.size() > 0">
+                            <choose>
+                                <when test="key=='caselevel'">
+                                    ${filterType} priority in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                                <when test="key=='creator'">
+                                    ${filterType} create_user_id in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                </when>
+                                <when test="key=='casestatus'">
+                                    ${filterType}
+                                    (UPPER(status) in
+                                    <foreach collection="values" item="value" separator="," open="(" close=")">
+                                        #{value}
+                                    </foreach>
+                                    <if test="values.contains('RUNNING')">
+                                        OR status IS NULL
+                                    </if>
+                                    )
+                                </when>
+                            </choose>
+                        </if>
+                    </foreach>
+                </trim>
+            </if>
+        </where>
+        <if test="testCaseGroupColumn != null and testCaseGroupColumn != ''">
+            GROUP BY ${apiCaseGroupColumn}
+        </if>
+    </select>
 </mapper>

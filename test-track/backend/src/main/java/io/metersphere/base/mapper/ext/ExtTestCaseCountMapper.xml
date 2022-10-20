@@ -12,6 +12,7 @@
         <where>
             project_id = #{projectId}
             AND `status` != 'Trash'
+            AND latest = 1
             <if test="startTime > 0">
                 AND create_time &gt;= #{startTime}
             </if>
