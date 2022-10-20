@@ -139,6 +139,10 @@
                             and c.create_user_id in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key == 'create_user'">
+                            and c.create_user_id in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
                         <when test="key == 'version_id'">
                             and a.version_id in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
