@@ -616,6 +616,7 @@ const message = {
     system_template: '系統模板',
     option_check: '請添加選項值',
     option_value_check: '請填寫完整選項值',
+    sync_issue_tips: '注：系統在每天00:00:00會自動同步一次',
   },
   workspace: {
     id: '工作空間ID',

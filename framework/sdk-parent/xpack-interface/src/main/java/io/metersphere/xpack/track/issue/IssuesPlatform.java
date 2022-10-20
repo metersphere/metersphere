@@ -70,7 +70,7 @@ public interface IssuesPlatform {
      * 同步缺陷全量的缺陷
      * @param project
      */
-    void syncAllIssues(Project project);
+    void syncAllIssues(Project project, IssueSyncRequest syncRequest);
 
     /**
      * 获取第三方平台缺陷模板

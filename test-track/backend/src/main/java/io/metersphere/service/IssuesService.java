@@ -14,10 +14,10 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.utils.DistinctKeyUtil;
 import io.metersphere.xpack.track.dto.AttachmentSyncType;
+import io.metersphere.xpack.track.dto.*;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.CustomFieldDao;
-import io.metersphere.xpack.track.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -34,19 +34,15 @@ import io.metersphere.request.issues.JiraIssueTypeRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
-import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.service.issue.domain.jira.JiraIssueType;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.request.attachment.AttachmentRequest;
-import io.metersphere.xpack.track.dto.DemandDTO;
-import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.platform.*;
 import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
-import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -655,7 +651,9 @@ public class IssuesService {
         List<String> projectIds = trackProjectService.getThirdPartProjectIds();
         projectIds.forEach(id -> {
             try {
-                syncThirdPartyIssues(id);
+                IssueSyncRequest request = new IssueSyncRequest();
+                request.setProjectId(id);
+                syncThirdPartyIssues(request);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -698,29 +696,32 @@ public class IssuesService {
         stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
     }
 
-    public boolean syncThirdPartyIssues(String projectId) {
-        if (StringUtils.isNotBlank(projectId)) {
-            String syncValue = getSyncKey(projectId);
+    public boolean syncThirdPartyIssues(IssueSyncRequest syncRequest) {
+        if (StringUtils.isNotBlank(syncRequest.getProjectId())) {
+            String syncValue = getSyncKey(syncRequest.getProjectId());
             if (StringUtils.isNotEmpty(syncValue)) {
                 return false;
             }
 
-            setSyncKey(projectId);
+            setSyncKey(syncRequest.getProjectId());
 
-            Project project = baseProjectService.getProjectById(projectId);
-            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId, project.getPlatform());
+            Project project = baseProjectService.getProjectById(syncRequest.getProjectId());
+            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(syncRequest.getProjectId(), project.getPlatform());
+            if (syncRequest.getCreateTime() != null) {
+                issues = filterSyncIssuesByCreated(issues, syncRequest);
+            }
 
             if (CollectionUtils.isEmpty(issues)) {
                 return true;
             }
 
             IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(projectId);
+            issuesRequest.setProjectId(syncRequest.getProjectId());
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
 
             try {
                 if (!trackProjectService.isThirdPartTemplate(project)) {
-                    String defaultCustomFields = getDefaultCustomFields(projectId);
+                    String defaultCustomFields = getDefaultCustomFields(syncRequest.getProjectId());
                     issuesRequest.setDefaultCustomFields(defaultCustomFields);
                 }
                 IssuesPlatform platform = IssueFactory.createPlatform(project.getPlatform(), issuesRequest);
@@ -728,7 +729,7 @@ public class IssuesService {
             } catch (Exception e) {
                 throw e;
             } finally {
-                deleteSyncKey(projectId);
+                deleteSyncKey(syncRequest.getProjectId());
             }
         }
         return true;
@@ -817,7 +818,6 @@ public class IssuesService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportIssueDTO> planReportIssueDTOS = extIssuesMapper.selectForPlanReport(planId);
-        planReportIssueDTOS = DistinctKeyUtil.distinctByKey(planReportIssueDTOS, PlanReportIssueDTO::getId);
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
@@ -1086,5 +1086,16 @@ public class IssuesService {
         if (BooleanUtils.isFalse(exist)) {
             MSException.throwException(Translator.get("issue_project_not_exist"));
         }
+    }
+
+    private List<IssuesDao> filterSyncIssuesByCreated(List<IssuesDao> issues, IssueSyncRequest syncRequest) {
+        List<IssuesDao> filterIssues = issues.stream().filter(issue -> {
+            if (syncRequest.isPre()) {
+                return issue.getCreateTime() <= syncRequest.getCreateTime();
+            } else {
+                return issue.getCreateTime() >= syncRequest.getCreateTime();
+            }
+        }).collect(Collectors.toList());
+        return filterIssues;
     }
 }

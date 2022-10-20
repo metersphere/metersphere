@@ -17,7 +17,7 @@
         </template>
 
         <ms-table
-          v-loading="page.result.loading"
+          v-loading="page.result.loading || loading"
           :data="page.data"
           :enableSelection="false"
           :condition="page.condition"
@@ -165,6 +165,7 @@
                              :total="page.total"/>
 
         <issue-edit @refresh="getIssues" ref="issueEdit"/>
+        <issue-sync-select @syncConfirm="syncConfirm" ref="issueSyncSelect" />
       </el-card>
     </ms-main-container>
   </ms-container>
@@ -185,6 +186,7 @@ import {
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/issue/IssueEdit";
+import IssueSyncSelect from "@/business/issue/IssueSyncSelect";
 import {
   checkSyncIssues,
   getIssuePartTemplateWithProject,
@@ -218,6 +220,7 @@ export default {
     MsContainer,
     IssueEdit,
     IssueDescriptionTableItem,
+    IssueSyncSelect,
     MsTableHeader,
     MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable
   },
@@ -251,6 +254,7 @@ export default {
       userFilter: [],
       isThirdPart: false,
       creatorFilters: [],
+      loading: false
     };
   },
   watch: {
@@ -406,14 +410,22 @@ export default {
       return false;
     },
     syncIssues() {
-      this.page.result.loading = true;
-      syncIssues()
+      this.$refs.issueSyncSelect.open();
+    },
+    syncConfirm(data) {
+      this.loading = true;
+      let param = {
+        "projectId": getCurrentProjectID(),
+        "createTime": data.createTime.getTime(),
+        "pre": data.preValue
+      }
+      syncIssues(param)
         .then((response) => {
           if (response.data === false) {
-            checkSyncIssues(this.page.result);
+            checkSyncIssues(this.loading);
           } else {
             this.$success(this.$t('test_track.issue.sync_complete'));
-            this.page.result.loading = false;
+            this.loading = false;
             this.getIssues();
           }
         });

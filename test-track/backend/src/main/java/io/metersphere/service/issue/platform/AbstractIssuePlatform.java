@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.xpack.track.dto.IssueSyncRequest;
 import io.metersphere.xpack.track.dto.IssueTemplateDao;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.dto.UserDTO;
@@ -486,7 +487,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     @Override
-    public void syncAllIssues(Project project) {}
+    public void syncAllIssues(Project project, IssueSyncRequest syncRequest) {}
 
     @Override
     public IssueTemplateDao getThirdPartTemplate() {return null;}
