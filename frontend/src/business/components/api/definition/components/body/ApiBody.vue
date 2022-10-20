@@ -223,11 +223,16 @@ export default {
 
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
-          if (!this.body.jsonSchema) {
-            this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-          } else {
-            let data = MsConvert.format(JSON.parse(this.body.raw));
-            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+          try {
+            if (!this.body.jsonSchema) {
+              this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+            } else {
+              let data = MsConvert.format(JSON.parse(this.body.raw));
+              this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+            }
+          } catch (e) {
+            this.body.format = 'JSON';
+            this.$error(this.$t('api_definition.json_format_error'));
           }
         }
       } else {

@@ -1214,6 +1214,7 @@ export default {
       api_agreement: "Method",
       api_path: "Api Path",
       api_definition_path: "API Path",
+      json_format_error: "JSON format error",
       api_case_path: "Case Path",
       api_principal: "Api Principal",
       api_last_time: "Last Update Time",
