@@ -804,7 +804,7 @@ export default {
     },
     gotoApiMessage() {
       let apiResolve = this.$router.resolve({
-        name: 'MessageSettings'
+        path: '/project/messagesettings'
       });
       window.open(apiResolve.href, '_blank');
     },

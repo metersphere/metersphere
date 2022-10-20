@@ -39,7 +39,7 @@ public class ShareController {
     @GetMapping("/test/plan/report/{shareId}/{planId}")
     public TestPlanSimpleReportDTO getReport(@PathVariable String shareId, @PathVariable String planId) {
         baseShareInfoService.validate(shareId, planId);
-        return testPlanService.getReport(planId, null);
+        return testPlanService.getShareReport(baseShareInfoService.get(shareId), planId);
     }
 
     @GetMapping("/report/export/{shareId}/{planId}/{lang}")
@@ -59,6 +59,6 @@ public class ShareController {
     @GetMapping("/test/plan/report/db/{shareId}/{reportId}")
     public TestPlanSimpleReportDTO getTestPlanDbReport(@PathVariable String shareId, @PathVariable String reportId) {
         baseShareInfoService.validate(shareId, reportId);
-        return testPlanReportService.getReport(reportId);
+        return testPlanReportService.getShareDbReport(baseShareInfoService.get(shareId), reportId);
     }
 }

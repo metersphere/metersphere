@@ -1,6 +1,6 @@
 <template>
   <ms-container :is-show-warning="isShowWarning && isSystemGroup">
-    <ms-aside-container>
+    <ms-aside-container :enable-aside-hidden="enableAsideHidden" :width="enableAsideHidden ? '300px' : '0px'">
       <ms-setting-menu/>
     </ms-aside-container>
     <ms-main-container>
@@ -23,6 +23,7 @@ import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer
 import {getCurrentUser} from "metersphere-frontend/src/utils/token";
 import {GROUP_SYSTEM} from "metersphere-frontend/src/utils/constants";
 import MsHeaderRightMenus from "metersphere-frontend/src/components/layout/HeaderRightMenus";
+import {hasPermissions} from "metersphere-frontend/src/utils/permission";
 
 
 export default {
@@ -30,7 +31,6 @@ export default {
   components: {MsMainContainer, MsContainer, MsAsideContainer, MsSettingMenu, MsCurrentUser, MsHeaderRightMenus},
   computed: {
     isShowWarning() {
-      // return this.$store.state.showLicenseCountWarning;
       return false;
     },
     isSystemGroup() {
@@ -40,6 +40,27 @@ export default {
         return group.length > 0;
       }
       return false;
+    },
+    enableAsideHidden() {
+      let systemPermission = [
+        'SYSTEM_USER:READ',
+        'SYSTEM_ORGANIZATION:READ',
+        'SYSTEM_GROUP:READ',
+        'SYSTEM_WORKSPACE:READ',
+        'SYSTEM_TEST_POOL:READ',
+        'SYSTEM_SETTING:READ',
+        'SYSTEM_QUOTA:READ',
+        'SYSTEM_AUTH:READ'
+      ];
+      let workspacePermission = [
+        'WORKSPACE_USER:READ',
+        'WORKSPACE_SERVICE:READ',
+        'WORKSPACE_PROJECT_MANAGER:READ',
+        'WORKSPACE_PROJECT_ENVIRONMENT:READ',
+        'WORKSPACE_OPERATING_LOG:READ'
+      ];
+      return hasPermissions(...systemPermission)
+        || hasPermissions(...workspacePermission);
     }
   }
 };

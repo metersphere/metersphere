@@ -5,6 +5,7 @@ import io.metersphere.base.domain.UserKey;
 import io.metersphere.commons.constants.ApiKeyConstants;
 import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.service.BaseUserService;
 import io.metersphere.service.UserKeyService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,11 @@ public class HttpHeaderUtils {
         } else {
             sessionUserThreadLocal.remove();
         }
+    }
+
+    public static void runAsUser(String userId) {
+        BaseUserService baseUserService = CommonBeanFactory.getBean(BaseUserService.class);
+        runAsUser(baseUserService.getUserDTO(userId));
     }
 
     public static void clearUser() {

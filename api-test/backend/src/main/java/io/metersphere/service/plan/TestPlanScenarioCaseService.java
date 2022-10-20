@@ -6,51 +6,17 @@ import io.metersphere.api.dto.ApiCaseRelevanceRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.RelevanceScenarioRequest;
 import io.metersphere.api.dto.ScenarioEnv;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioReportResult;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.dto.automation.RunTestPlanScenarioRequest;
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
-import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
-import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
-import io.metersphere.api.dto.plan.ApiPlanReportDTO;
-import io.metersphere.api.dto.plan.ApiPlanReportRequest;
-import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
-import io.metersphere.api.dto.plan.TestPlanApiReportInfoDTO;
-import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
-import io.metersphere.api.dto.plan.TestPlanEnvInfoDTO;
-import io.metersphere.api.dto.plan.TestPlanExecuteReportDTO;
-import io.metersphere.api.dto.plan.TestPlanReportRunInfoDTO;
-import io.metersphere.api.dto.plan.TestPlanScenarioCaseBatchRequest;
-import io.metersphere.api.dto.plan.TestPlanScenarioStepCountDTO;
-import io.metersphere.api.dto.plan.TestPlanScenarioStepCountSimpleDTO;
-import io.metersphere.service.scenario.ApiScenarioService;
-import io.metersphere.service.definition.ApiDefinitionExecResultService;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.scenario.ApiScenarioModuleService;
-import io.metersphere.service.scenario.ApiScenarioReportService;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioExample;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.EnvironmentGroup;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestPlanApiScenario;
-import io.metersphere.base.domain.TestPlanApiScenarioExample;
-import io.metersphere.base.domain.TestPlanReport;
-import io.metersphere.base.domain.User;
+import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.plan.*;
+import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
@@ -59,11 +25,7 @@ import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.ProjectConfig;
@@ -77,6 +39,10 @@ import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.definition.ApiDefinitionExecResultService;
+import io.metersphere.service.scenario.ApiScenarioModuleService;
+import io.metersphere.service.scenario.ApiScenarioReportService;
+import io.metersphere.service.scenario.ApiScenarioService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -89,19 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -139,7 +93,7 @@ public class TestPlanScenarioCaseService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
+    private ApiScenarioEnvService apiScenarioEnvService;
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
     @Resource
@@ -1199,6 +1153,14 @@ public class TestPlanScenarioCaseService {
         return extTestPlanScenarioCaseMapper.selectForPlanReport(planId);
     }
 
+    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        if (!com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(resourceIds)) {
+            Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectEnvMapByTestPlanScenarioIds(resourceIds);
+            testPlanApiCaseService.setProjectEnvMap(result, projectEnvMap);
+        }
+        return result;
+    }
 
     public List<ApiScenarioModuleDTO> getNodeByPlanId(List<String> projectIds, String planId) {
         List<ApiScenarioModuleDTO> list = new ArrayList<>();

@@ -46,10 +46,10 @@ public class TestCaseExportCommendConverter implements TestCaseExportConverter {
             String status = StringUtils.EMPTY;
             if (StringUtils.equals(comment.getType(), TestCaseCommentType.PLAN.name())) {
                 status = getFromMapOfNullableWithTranslate(planCaseStatusMap, comment.getStatus());
-                status = "[".concat(status).concat("]");
+                status = StringUtils.isBlank(status) ? StringUtils.EMPTY : "[".concat(status).concat("]");
             } else if (StringUtils.equals(comment.getType(), TestCaseCommentType.REVIEW.name())) {
                 status = getFromMapOfNullableWithTranslate(reviewCaseStatusMap, comment.getStatus());
-                status = "[".concat(status).concat("]");
+                status = StringUtils.isBlank(status) ? StringUtils.EMPTY : "[".concat(status).concat("]");
             }
             String updateTime = DateUtils.getTimeString(comment.getUpdateTime());
             String description = comment.getDescription();

@@ -42,11 +42,7 @@ import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.ReportTriggerMode;
-import io.metersphere.commons.constants.ReportTypeConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -151,7 +147,7 @@ public class ApiScenarioReportService {
     public ApiScenarioReport testEnded(ResultDTO dto) {
         if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息
-            apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole());
+            apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole(), false);
         }
         // 优化当前执行携带结果作为状态判断依据
         ApiScenarioReport scenarioReport;
@@ -435,6 +431,7 @@ public class ApiScenarioReportService {
 
     public void margeReport(String reportId, String runMode, String console) {
         // 更新场景状态
+        boolean isActuator = false;
         if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
             ApiDefinitionExecResultWithBLOBs result = definitionExecResultMapper.selectByPrimaryKey(reportId);
             if (!StringUtils.equalsAnyIgnoreCase(result.getStatus(), ApiReportStatus.RERUNNING.name())) {
@@ -443,6 +440,7 @@ public class ApiScenarioReportService {
             List<String> statusList = extApiDefinitionExecResultMapper.selectDistinctStatusByReportId(reportId);
             result.setStatus(this.getIntegrationReportStatus(statusList));
             definitionExecResultMapper.updateByPrimaryKeySelective(result);
+            isActuator = !StringUtils.equals(result.getActuator(), StorageConstants.LOCAL.name());
         } else {
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
             if (report != null) {
@@ -455,17 +453,16 @@ public class ApiScenarioReportService {
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 //场景集合报告，按照集合报告的结果作为场景的最后执行结果
                 scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode());
+                isActuator = !StringUtils.equals(report.getActuator(), StorageConstants.LOCAL.name());
             }
         }
 
         console = StringUtils.isNotEmpty(console) ? console : FixedCapacityUtil.getJmeterLogger(reportId, true);
-        if (StringUtils.isNotEmpty(console)) {
-            apiScenarioReportStructureService.update(reportId, console);
+        if (StringUtils.isNotEmpty(console) && !isActuator) {
+            apiScenarioReportStructureService.update(reportId, console, false);
         }
         // 更新控制台信息
-        if (FixedCapacityUtil.jmeterLogTask.containsKey(reportId)) {
-            FixedCapacityUtil.jmeterLogTask.remove(reportId);
-        }
+        FixedCapacityUtil.remove(reportId);
     }
 
     public ApiScenarioReport updateScenario(ResultDTO dto) {

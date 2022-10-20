@@ -162,6 +162,7 @@ export default {
       }
       localStorage.removeItem('app-fixed');
       localStorage.setItem('app-fixed', this.isFixed);
+      this.$EventBus.$emit('appFixedChange', this.isFixed);
     },
     collapseOpen() {
       this.isCollapse = false;

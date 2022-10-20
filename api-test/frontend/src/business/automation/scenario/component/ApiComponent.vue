@@ -17,7 +17,7 @@
       :if-from-variable-advance="ifFromVariableAdvance">
 
       <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')">
-        <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
+        <span v-if="request.num" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
           <el-tooltip class="ms-num" effect="dark"
                       :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')"

@@ -52,6 +52,6 @@ export function getShareId() {
 }
 
 export function getShareRedirectUrl(data) {
-  let name = '/sharePlanReport';
+  let name = '/share-plan-report';
   return generateShareUrl(name, data.shareUrl);
 }

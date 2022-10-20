@@ -6,8 +6,12 @@
                        @change="change"
                        @search="getProjectFiles" title="">
         <template v-slot:button>
+          <ms-table-button icon="el-icon-upload2" v-if="moduleType==='repository'"
+                           :content="$t('variables.add_file')"
+                           @click="addRepositoryFile"
+                           v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
           <el-upload
-            v-if="moduleType==='module'"
+            v-else
             action=""
             multiple
             :show-file-list="false"
@@ -18,10 +22,6 @@
                              :content="$t('variables.add_file')"
                              v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
           </el-upload>
-          <ms-table-button icon="el-icon-upload2" v-else-if="moduleType==='repository'"
-                           :content="$t('variables.add_file')"
-                           @click="addRepositoryFile"
-                           v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
         </template>
       </ms-table-header>
     </template>

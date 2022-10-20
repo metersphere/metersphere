@@ -71,7 +71,7 @@ import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import EnvPopover from "@/business/automation/scenario/EnvPopover";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import CustomFiledComponent from "@/business/commons/CustomFiledComponent";
+import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import MsInputTag from "@/business/automation/scenario/MsInputTag";
 import {getScenarioByProjectId} from "../../api/scenario";
 import {getOwnerProjects} from "../../api/project";

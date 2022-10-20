@@ -2,6 +2,7 @@ package io.metersphere.gateway.service;
 
 import io.metersphere.base.domain.AuthSource;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
@@ -157,24 +158,6 @@ public class SSOService {
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("user", userOptional.get());
     }
-
-    /**
-     * oidc logout
-     */
-//    public void logout() throws Exception {
-//        String authId = (String) SecurityUtils.getSubject().getSession().getAttribute("authId");
-//        AuthSource authSource = authSourceService.getAuthSource(authId);
-//        if (authSource != null) {
-//            Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
-//            if (StringUtils.equals(UserSource.OIDC.name(), authSource.getType())) {
-//                String idToken = (String) SecurityUtils.getSubject().getSession().getAttribute("idToken");
-//                String logoutUrl = (String) config.get("logoutUrl");
-//
-//                RestTemplate restTemplate = getRestTemplateIgnoreSSL();
-//                restTemplate.getForEntity(logoutUrl + "?id_token_hint=" + idToken, String.class);
-//            }
-//        }
-//    }
 
     /**
      * cas callback

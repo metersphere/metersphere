@@ -2,10 +2,6 @@ package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
-import io.metersphere.service.definition.ApiDefinitionExecResultService;
-import io.metersphere.service.scenario.ApiScenarioService;
-import io.metersphere.service.scenario.ApiScenarioExecutionInfoService;
-import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiScenarioReport;
@@ -22,9 +18,13 @@ import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.ResultDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.definition.ApiDefinitionExecResultService;
+import io.metersphere.service.scenario.ApiScenarioExecutionInfoService;
+import io.metersphere.service.scenario.ApiScenarioReportService;
+import io.metersphere.service.scenario.ApiScenarioReportStructureService;
+import io.metersphere.service.scenario.ApiScenarioService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,11 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -58,6 +54,8 @@ public class TestResultService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private ApiScenarioExecutionInfoService scenarioExecutionInfoService;
+    @Resource
+    private ApiScenarioReportStructureService apiScenarioReportStructureService;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -111,16 +109,14 @@ public class TestResultService {
     }
 
     /**
-     * 批量存储执行结果
-     *
-     * @param resultDtoMap
+     * 批量存储来自NODE/K8s的执行结果
      */
     public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {
         // 处理环境
         List<String> environmentList = new LinkedList<>();
         for (String key : resultDtoMap.keySet()) {
-            List<ResultDTO> dtos = resultDtoMap.get(key);
-            for (ResultDTO dto : dtos) {
+            List<ResultDTO> resultDTOS = resultDtoMap.get(key);
+            for (ResultDTO dto : resultDTOS) {
                 if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
                     environmentList = (List<String>) dto.getArbitraryData().get("ENV");
                 }
@@ -128,14 +124,22 @@ public class TestResultService {
                 if (CollectionUtils.isNotEmpty(environmentList)) {
                     apiEnvironmentRunningParamService.parseEnvironment(environmentList);
                 }
+                // 处理集合报告的console日志
+                if (StringUtils.isNotEmpty(dto.getConsole()) && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                    String reportId = dto.getReportId();
+                    if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                        reportId = dto.getTestPlanReportId();
+                    }
+                    apiScenarioReportStructureService.update(reportId, dto.getConsole(), true);
+                }
             }
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
             if (StringUtils.equals(key, "schedule-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(dtos, true);
+                apiDefinitionExecResultService.batchSaveApiResult(resultDTOS, true);
             } else if (StringUtils.equals(key, "api-test-case-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(dtos, false);
+                apiDefinitionExecResultService.batchSaveApiResult(resultDTOS, false);
             } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
-                apiScenarioReportService.batchSaveResult(dtos);
+                apiScenarioReportService.batchSaveResult(resultDTOS);
             }
 
         }

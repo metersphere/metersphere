@@ -116,12 +116,16 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public void update(String reportId, String console) {
+    public void update(String reportId, String console, boolean isActuator) {
         ApiScenarioReportStructureExample example = new ApiScenarioReportStructureExample();
         example.createCriteria().andReportIdEqualTo(reportId);
         List<ApiScenarioReportStructureWithBLOBs> structures = mapper.selectByExampleWithBLOBs(example);
         for (ApiScenarioReportStructureWithBLOBs structure : structures) {
-            structure.setConsole(console);
+            if (isActuator) {
+                structure.setConsole(StringUtils.join(structure.getConsole(), StringUtils.LF, console));
+            } else {
+                structure.setConsole(console);
+            }
             mapper.updateByPrimaryKeyWithBLOBs(structure);
         }
     }

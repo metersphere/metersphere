@@ -36,7 +36,7 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
             calculatePlanReport(report, planReportCaseDTOS);
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
-            report.setProjectEnvMap(getPlanProjectEnvMap(idList, "ApiCase"));
+            report.setProjectEnvMap(getPlanProjectEnvMap(idList));
         } catch (MSException e) {
             LogUtil.error(e);
         }
@@ -76,8 +76,8 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }
 
-    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds, String resourceType) {
-        return (Map<String, List<String>>) microService.postForData(serviceName, BASE_UEL + "/get/plan/env/map/" + resourceType, resourceIds);
+    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
+        return (Map<String, List<String>>) microService.postForData(serviceName, BASE_UEL + "/get/plan/env/map", resourceIds);
     }
 
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {

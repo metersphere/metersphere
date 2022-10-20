@@ -54,7 +54,8 @@
                          @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
-              <el-button type="warning" plain size="mini" :disabled="isReadOnly || report.status !== 'Completed' || testDeleted"
+              <el-button type="warning" plain size="mini"
+                         :disabled="isReadOnly || report.status !== 'Completed' || testDeleted"
                          @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
@@ -142,6 +143,7 @@
         </div>
 
         <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+                                      :project-env-map="allProjectEnvMap"
                                       :report="report"/>
 
       </el-card>
@@ -181,7 +183,16 @@ import MonitorCard from "./components/MonitorCard";
 import MsTestConfiguration from "./components/TestConfiguration";
 import {generateShareInfoWithExpired, getShareRedirectUrl} from "@/api/share";
 import ProjectEnvironmentDialog from "./components/ProjectEnvironmentDialog";
-import {downloadJtl, downloadZip, getProjectApplication, getReport, getReportTime, getTestProInfo, initReportSocket, stopTest} from "@/api/report";
+import {
+  downloadJtl,
+  downloadZip,
+  getProjectApplication,
+  getReport,
+  getReportTime,
+  getTestProInfo,
+  initReportSocket,
+  stopTest
+} from "@/api/report";
 import {getTest, runTest} from "@/api/performance";
 
 

@@ -89,7 +89,15 @@
               <el-form-item label="Validate URL" :rules="requiredRules">
                 <el-input v-model="form.configuration.validateUrl" placeholder="eg: http://<casurl>/serviceValidate"/>
               </el-form-item>
-              <el-form-item label="Redirect URL" :rules="requiredRules">
+              <el-form-item :rules="requiredRules">
+                <template v-slot:label>
+                  Redirect URL
+                  <el-tooltip content="Logout redirect URL: http://<metersphere-endpoint>/sso/callback/cas/logout"
+                              effect="light"
+                              trigger="hover">
+                    <i class="el-icon-info"></i>
+                  </el-tooltip>
+                </template>
                 <el-input v-model="form.configuration.redirectUrl"
                           placeholder="eg: http://<metersphere-endpoint>/sso/callback/cas/${authId}"/>
               </el-form-item>
@@ -126,8 +134,16 @@
           </el-row>
           <el-row>
             <el-col>
-              <el-form-item label="Logout Endpoint"
+              <el-form-item
                             :rules="requiredRules">
+                <template v-slot:label>
+                  Logout Endpoint
+                  <el-tooltip content="Logout redirect URL: http://<metersphere-endpoint>/sso/callback/logout"
+                              effect="light"
+                              trigger="hover">
+                    <i class="el-icon-info"></i>
+                  </el-tooltip>
+                </template>
                 <el-input v-model="form.configuration.logoutUrl"
                           placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/logout"/>
               </el-form-item>

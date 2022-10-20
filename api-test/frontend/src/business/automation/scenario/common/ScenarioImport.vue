@@ -310,6 +310,7 @@ export default {
         swaggerUrl: '',
         modeId: this.formData.modeId,
         moduleId: '',
+        coverModule: false
       };
       this.fileList = [];
       removeGoBackListener(this.close);
