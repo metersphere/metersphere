@@ -24,6 +24,7 @@ import io.metersphere.service.BaseTestResourceService;
 import io.metersphere.service.PerformanceTestService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -71,6 +72,9 @@ public abstract class AbstractEngine implements Engine {
         }
         if (!StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.VALID.name())) {
             MSException.throwException("Resource Pool Status is not VALID");
+        }
+        if (!BooleanUtils.toBoolean(resourcePool.getPerformance())) {
+            MSException.throwException("Resource Pool performance not supported");
         }
         // image
         String image = resourcePool.getImage();
