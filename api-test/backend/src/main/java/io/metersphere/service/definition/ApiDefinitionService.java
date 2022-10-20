@@ -194,9 +194,10 @@ public class ApiDefinitionService {
 
     /**
      * 工作台获取待应用管理设置的更新的条件
+     *
      * @param request
      */
-    public void getApplicationUpdateRule(ApiDefinitionRequest request){
+    public void getApplicationUpdateRule(ApiDefinitionRequest request) {
         // 来自工作台条件
         if (BooleanUtils.isTrue(request.getToBeUpdated())) {
             Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
@@ -208,7 +209,7 @@ public class ApiDefinitionService {
 
     public List<ApiDefinition> selectByIds(ApiDefinitionRequest request) {
         if (request != null) {
-           return selectByIds(request.getIds());
+            return selectByIds(request.getIds());
         }
         return new ArrayList<>();
     }
@@ -542,10 +543,10 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(apiIds)) {
             return;
         }
-        ApiDefinitionExample  apiDefinitionExample = new ApiDefinitionExample();
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(apiIds);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        if (CollectionUtils.isEmpty(apiDefinitions)){
+        if (CollectionUtils.isEmpty(apiDefinitions)) {
             return;
         }
         List<String> refIds = apiDefinitions.stream().map(ApiDefinition::getRefId).collect(Collectors.toList());
@@ -1300,9 +1301,9 @@ public class ApiDefinitionService {
             return exApiRequest != null || apiRequest != null;
         }
 
-        List<String>compareProList = Arrays.asList(HEADERS,ARGUMENTS,REST);
+        List<String> compareProList = Arrays.asList(HEADERS, ARGUMENTS, REST);
 
-        Map<String,Boolean> applicationMap = new HashMap<>(4);
+        Map<String, Boolean> applicationMap = new HashMap<>(4);
         applicationMap.put(HEADERS, apiSyncCaseRequest.getHeaders());
         applicationMap.put(ARGUMENTS, apiSyncCaseRequest.getQuery());
         applicationMap.put(REST, apiSyncCaseRequest.getRest());
@@ -1312,10 +1313,10 @@ public class ApiDefinitionService {
         for (String property : compareProList) {
             JsonNode exApiJsonNode = exApiRequest.get(property);
             JsonNode apiJsonNode = apiRequest.get(property);
-            if ( exApiJsonNode != null &&  apiJsonNode!= null) {
+            if (exApiJsonNode != null && apiJsonNode != null) {
                 diffByNodes = getDiffByArrayNodes(apiRequest, exApiRequest, objectMapper, property);
-                if (diffByNodes){
-                    if (toUpdate && applicationMap.get(property)){
+                if (diffByNodes) {
+                    if (toUpdate && applicationMap.get(property)) {
                         apiDefinition.setToBeUpdated(true);
                         apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                     }
@@ -1323,7 +1324,7 @@ public class ApiDefinitionService {
                 }
             }
         }
-        if (diffByNodes){
+        if (diffByNodes) {
             return true;
         }
         return delBody(apiDefinition, objectMapper, toUpdate, exApiRequest, apiRequest, applicationMap);
@@ -1335,9 +1336,9 @@ public class ApiDefinitionService {
         if (exBodyNode != null && bodyNode != null) {
             JsonNode exRowNode = exBodyNode.get("raw");
             JsonNode rowNode = bodyNode.get("raw");
-            if (exRowNode != null &&  rowNode!= null){
-                if (!StringUtils.equals(exRowNode.asText(),rowNode.asText())) {
-                    if (applicationMap.get(BODY)){
+            if (exRowNode != null && rowNode != null) {
+                if (!StringUtils.equals(exRowNode.asText(), rowNode.asText())) {
+                    if (applicationMap.get(BODY)) {
                         apiDefinition.setToBeUpdated(true);
                         apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                     }
@@ -1346,22 +1347,22 @@ public class ApiDefinitionService {
             }
 
             boolean diffByNodes = getDiffByArrayNodes(bodyNode, exBodyNode, objectMapper, "kvs");
-            if (diffByNodes && toUpdate && applicationMap.get(BODY)){
+            if (diffByNodes && toUpdate && applicationMap.get(BODY)) {
                 apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
-            if (diffByNodes){
+            if (diffByNodes) {
                 return true;
             }
             JsonNode exApiJsonSchema = exBodyNode.get(JSONSCHEMA);
             JsonNode apiJsonSchema = bodyNode.get(JSONSCHEMA);
-            if (exApiJsonSchema == null || apiJsonSchema==null) {
+            if (exApiJsonSchema == null || apiJsonSchema == null) {
                 return false;
             }
 
             JsonNode exApiProperties = exApiJsonSchema.get(PROPERTIES);
             JsonNode apiProperties = apiJsonSchema.get(PROPERTIES);
-            if (exApiProperties == null || apiProperties==null) {
+            if (exApiProperties == null || apiProperties == null) {
                 return false;
             }
             boolean diffJsonschema = replenishCaseProperties(exApiProperties, apiProperties);
@@ -1379,17 +1380,17 @@ public class ApiDefinitionService {
         Iterator<Map.Entry<String, JsonNode>> apiFields = apiProperties.fields();
         Iterator<Map.Entry<String, JsonNode>> exApiFields = exApiProperties.fields();
         boolean diffProp = false;
-        while (apiFields.hasNext()){
+        while (apiFields.hasNext()) {
             Map.Entry<String, JsonNode> apiNode = apiFields.next();
-            if (diffProp){
+            if (diffProp) {
                 break;
             }
-            if (exApiFields.hasNext()){
-                Map.Entry<String, JsonNode> exChildNode =null;
-                while (true){
+            if (exApiFields.hasNext()) {
+                Map.Entry<String, JsonNode> exChildNode = null;
+                while (true) {
                     Map.Entry<String, JsonNode> exNode = exApiFields.next();
                     if (StringUtils.equalsIgnoreCase(apiNode.getKey(), exNode.getKey())) {
-                        exChildNode =exNode;
+                        exChildNode = exNode;
                     } else {
                         diffProp = true;
                     }
@@ -1405,8 +1406,8 @@ public class ApiDefinitionService {
                 if (apiPropertiesNode == null || exApiPropertiesNode == null) {
                     continue;
                 }
-                replenishCaseProperties(exApiPropertiesNode,apiPropertiesNode);
-            }else {
+                replenishCaseProperties(exApiPropertiesNode, apiPropertiesNode);
+            } else {
                 return true;
             }
         }
@@ -1415,6 +1416,7 @@ public class ApiDefinitionService {
 
     /**
      * 比较导入的与系统中重复的两个api的基础信息
+     *
      * @param existApi
      * @param apiDefinition
      * @param apiSyncCaseRequest
@@ -1471,6 +1473,7 @@ public class ApiDefinitionService {
 
     /**
      * 比较导入的与系统中重复的两个api的响应体信息
+     *
      * @param existApi
      * @param apiDefinition
      * @param objectMapper
@@ -1531,16 +1534,16 @@ public class ApiDefinitionService {
         return null;
     }
 
-    private boolean getDiffByArrayNodes(JsonNode apiRequest, JsonNode exApiRequest, ObjectMapper objectMapper, String name){
+    private boolean getDiffByArrayNodes(JsonNode apiRequest, JsonNode exApiRequest, ObjectMapper objectMapper, String name) {
         JsonNode apiNameNode = apiRequest.get(name);
         JsonNode caseNameNode = exApiRequest.get(name);
-        if(apiNameNode==null || caseNameNode==null){
+        if (apiNameNode == null || caseNameNode == null) {
             return false;
         }
         Map<String, String> apiMap = new HashMap<>();
-        getKeyNameMap(apiNameNode, objectMapper, apiMap,"name");
+        getKeyNameMap(apiNameNode, objectMapper, apiMap, "name");
         Map<String, String> exApiMap = new HashMap<>();
-        getKeyNameMap(caseNameNode, objectMapper, exApiMap,"name");
+        getKeyNameMap(caseNameNode, objectMapper, exApiMap, "name");
         if (apiMap.size() != exApiMap.size()) {
             return true;
         }
@@ -1553,7 +1556,7 @@ public class ApiDefinitionService {
         return false;
     }
 
-    public void getKeyNameMap(JsonNode apiNameNode, ObjectMapper objectMapper, Map<String, String> nameMap,String nodeKey) {
+    public void getKeyNameMap(JsonNode apiNameNode, ObjectMapper objectMapper, Map<String, String> nameMap, String nodeKey) {
         for (int i = 0; i < apiNameNode.size(); i++) {
             JsonNode apiName = apiNameNode.get(i);
             if (apiName.has(nodeKey)) {
@@ -2126,7 +2129,7 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitionList = apiDefinitionMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(apiDefinitionList)){
+        if (CollectionUtils.isEmpty(apiDefinitionList)) {
             return;
         }
         List<String> refIds = apiDefinitionList.stream().map(ApiDefinition::getRefId).collect(Collectors.toList());
