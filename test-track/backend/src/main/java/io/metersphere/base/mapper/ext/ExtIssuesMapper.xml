@@ -112,7 +112,7 @@
         group by issues.id
     </select>
     <select id="getIssueForSync" resultType="io.metersphere.xpack.track.dto.IssuesDao">
-        select id,platform, platform_id
+        select id, platform, platform_id, create_time
         from issues
         where project_id = #{projectId} and platform = #{platform} and (platform_status != 'delete' or platform_status is null);
     </select>

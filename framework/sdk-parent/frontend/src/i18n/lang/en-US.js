@@ -613,6 +613,7 @@ const message = {
     system_template: 'System Template',
     option_check: 'Please add option values',
     option_value_check: 'Please fill in the full option values',
+    sync_issue_tips: 'Note: The system will automatically synchronize at 00:00:00 every day',
   },
   workspace: {
     id: 'Workspace ID',
