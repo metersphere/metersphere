@@ -208,10 +208,10 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsTableMoreBtn from "metersphere-frontend/src/components/table/TableMoreBtn";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
-  initCondition,
   buildBatchParam,
   getCustomTableHeader,
-  getCustomTableWidth
+  getCustomTableWidth,
+  initCondition
 } from "metersphere-frontend/src/utils/tableUtils";
 import {ENV_TYPE, TEST_PLAN_SCENARIO_CASE} from "metersphere-frontend/src/utils/constants";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
@@ -226,8 +226,11 @@ import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpda
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import {editTestPlanScenarioCaseOrder} from "@/api/remote/plan/test-plan";
 import {
-  testPlanScenarioCaseBatchDelete, testPlanScenarioCaseBatchUpdateEnv,
-  testPlanScenarioCaseDelete, testPlanScenarioCaseRun, testPlanScenarioCaseSelectAllTableRows,
+  testPlanScenarioCaseBatchDelete,
+  testPlanScenarioCaseBatchUpdateEnv,
+  testPlanScenarioCaseDelete,
+  testPlanScenarioCaseRun,
+  testPlanScenarioCaseSelectAllTableRows,
   testPlanScenarioEnv,
   testPlanScenarioList
 } from "@/api/remote/plan/test-plan-scenario";
@@ -571,16 +574,7 @@ export default {
       }
     },
     openById(item) {
-      let automationData = this.$router.resolve({
-        name: 'ApiAutomationWithQuery',
-        params: {
-          redirectID: getUUID(),
-          dataType: "scenario",
-          dataSelectRange: 'edit:' + item.caseId,
-          projectId: item.projectId,
-          workspaceId: getCurrentWorkspaceId()
-        }
-      });
+      let automationData = this.$router.resolve('/api/automation/' + getUUID() + "/scenario/edit:" + item.caseId + "/" + item.projectId + "/" + getCurrentWorkspaceId());
       window.open(automationData.href, '_blank');
     },
   }
