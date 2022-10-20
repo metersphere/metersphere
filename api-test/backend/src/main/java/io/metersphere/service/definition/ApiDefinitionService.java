@@ -1221,7 +1221,7 @@ public class ApiDefinitionService {
 
 
     public void sendImportApiCreateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
-        String context = SessionUtils.getUserId().concat(Translator.get("create_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        String context = SessionUtils.getUserId().concat("新建了接口定义").concat(":").concat(apiDefinitionWithBLOBs.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
         paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
@@ -1230,7 +1230,7 @@ public class ApiDefinitionService {
     }
 
     public void sendImportApiUpdateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
-        String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        String context = SessionUtils.getUserId().concat("更新了接口定义").concat(":").concat(apiDefinitionWithBLOBs.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
         paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
@@ -1239,7 +1239,7 @@ public class ApiDefinitionService {
     }
 
     public void sendImportCaseUpdateNotice(ApiTestCase apiTestCase) {
-        String context = SessionUtils.getUserId().concat(Translator.get("update_api_case")).concat(":").concat(apiTestCase.getName());
+        String context = SessionUtils.getUserId().concat("更新了接口用例").concat(":").concat(apiTestCase.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
         NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(apiTestCase.getId()).subject(Translator.get("api_case_update_notice")).paramMap(paramMap).excludeSelf(true).event(NoticeConstants.Event.CASE_UPDATE).build();
@@ -1247,7 +1247,7 @@ public class ApiDefinitionService {
     }
 
     public void sendImportCaseCreateNotice(ApiTestCase apiTestCase) {
-        String context = SessionUtils.getUserId().concat(Translator.get("create_api_case")).concat(":").concat(apiTestCase.getName());
+        String context = SessionUtils.getUserId().concat("新建了接口用例").concat(":").concat(apiTestCase.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
         NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(apiTestCase.getId()).subject(Translator.get("api_case_create_notice")).paramMap(paramMap).excludeSelf(true).event(NoticeConstants.Event.CASE_CREATE).build();
