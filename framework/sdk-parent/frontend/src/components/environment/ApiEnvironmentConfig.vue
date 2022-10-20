@@ -35,9 +35,6 @@
 
 <script>
 import draggable from 'vuedraggable';
-import MsContainer from "../../components/MsContainer";
-import MsAsideContainer from "../../components/MsAsideContainer";
-import MsMainContainer from "../../components/MsMainContainer";
 import MsAsideItem from "../../components/MsAsideItem";
 import EnvironmentEdit from "../../components/environment/EnvironmentEdit";
 import {listenGoBack, removeGoBackListener, getUUID} from "../../utils";
@@ -55,9 +52,6 @@ export default {
     MsAsideItem,
     EnvironmentGlobalScript,
     GlobalAssertions,
-    MsMainContainer,
-    MsAsideContainer,
-    MsContainer,
     draggable,
     MsDialogHeader
   },

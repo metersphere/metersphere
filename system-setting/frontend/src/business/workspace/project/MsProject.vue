@@ -186,8 +186,6 @@ import {
   getCurrentUserId,
   getCurrentWorkspaceId
 } from "metersphere-frontend/src/utils/token";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
-import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MsDeleteConfirm from "metersphere-frontend/src/components/MsDeleteConfirm";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import {GROUP_PROJECT, PROJECT_ID} from "metersphere-frontend/src/utils/constants";
@@ -217,10 +215,8 @@ export default {
     MsTableButton,
     MsTableOperatorButton,
     MsDeleteConfirm,
-    MsMainContainer,
     MsRolesTag,
     EditProject,
-    MsContainer,
     MsTableOperator,
     MsTablePagination,
     MsTableHeader,
