@@ -70,8 +70,11 @@ router.beforeEach(async (to, from, next) => {
   if (to.path.split('/')[1] !== from.path.split('/')[1]) {
     try {
       user = await store.getIsLogin();
+      if (window.location.href.endsWith('/#/login')) {
+        window.location.replace("/#/setting/personsetting");
+      }
     } catch (e) {
-      // console.error(e);
+      // console.error(e)
     }
   }
   if (user && user.id) {

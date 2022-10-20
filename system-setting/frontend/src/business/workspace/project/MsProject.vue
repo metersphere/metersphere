@@ -207,6 +207,9 @@ import {getProjectMemberGroup, getUserGroupList} from "../../../api/user-group";
 import {operationConfirm} from "metersphere-frontend/src/utils";
 import EditProject from "./EditProject";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
+import {switchProject} from "metersphere-frontend/src/api/project";
+import {fullScreenLoading, stopFullScreenLoading} from "metersphere-frontend/src/utils";
+
 
 export default {
   name: "MsProject",
@@ -309,10 +312,15 @@ export default {
           this.$warning(this.$t("commons.project_permission"));
           return;
         }
-        window.sessionStorage.setItem(PROJECT_ID, row.id);
-        this.$router.push('/track/home').then(() => {
-          this.reloadTopMenus();
-        });
+        // 跳转的时候更新用户的last_project_id
+        sessionStorage.setItem(PROJECT_ID, row.id);
+        const loading = fullScreenLoading(this);
+        switchProject({id: getCurrentUserId(), lastProjectId: row.id}).then(() => {
+          this.$router.push('/track/home').then(() => {
+            location.reload();
+            stopFullScreenLoading(loading);
+          });
+        })
       });
     },
     getMaintainerOptions() {

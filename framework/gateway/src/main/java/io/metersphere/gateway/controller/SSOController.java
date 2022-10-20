@@ -2,7 +2,6 @@ package io.metersphere.gateway.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.gateway.service.SSOService;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -49,15 +48,19 @@ public class SSOController {
      * oidc 登出 callback
      */
     @PostMapping("/callback/logout")
-    public void logoutCallback(@RequestParam("logout_token") String logoutToken) {
+    public Rendering logoutCallback(@RequestParam("logout_token") String logoutToken) {
         ssoService.kickOutUser(logoutToken);
+        return Rendering.redirectTo("/#/login")
+                .build();
     }
 
     /**
      * cas 登出 callback
      */
     @PostMapping("/callback/cas/logout")
-    public void logoutCasCallback(@RequestParam("logoutRequest") String logoutRequest) {
+    public Rendering logoutCasCallback(@RequestParam("logoutRequest") String logoutRequest) {
         ssoService.kickOutCasUser(logoutRequest);
+        return Rendering.redirectTo("/#/login")
+                .build();
     }
 }

@@ -49,7 +49,7 @@ import MsView from "../../components/layout/View";
 import MxLicenseMessage from "../../components/MxLicenseMessage";
 import MxTheme from "../../components/MxTheme";
 import {hasLicense} from "../../utils/permission";
-import {setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "../../utils";
+import {checkMicroMode, setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "../../utils";
 import {ORIGIN_COLOR} from "../../utils/constants";
 import {getDisplayInfo, getSystemTheme, isLogin} from "../../api/user";
 import {useUserStore} from "@/store";
@@ -101,11 +101,12 @@ export default {
     this.isCollapse = this.isFixed === true ? false : true;
   },
   beforeCreate() {
-    const userStore = useUserStore()
+    if (checkMicroMode()) {
+      return;
+    }
+    const userStore = useUserStore();
     userStore.getIsLogin()
       .then(response => {
-        this.$setLang(response.data.language);
-
         if (window.location.href.endsWith('/#/login')) {
           window.location.replace("/#/setting/personsetting");
         }
