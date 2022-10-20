@@ -79,6 +79,8 @@ export default {
     this.init();
     // 高级搜索框再次打开时调用 component.init() 函数
     this.component.init = this.reload;
+    //重置模块树
+    this.component.reset = this.init;
   },
   methods: {
     init() {
