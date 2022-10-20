@@ -360,6 +360,7 @@ public class IssueTemplateService extends TemplateBaseService {
             issueTemplateRecord.setUpdateTime(System.currentTimeMillis());
             issueTemplateRecord.setCreateUser(SessionUtils.getUserId());
             issueTemplateRecord.setProjectId(targetProjectId);
+            issueTemplateRecord.setGlobal(false);
             issueTemplateRecords.add(issueTemplateRecord);
             // 根据复制模式设置自定义字段
             sourceCustomFieldTemplates.forEach(sourceCustomFieldTemplate -> {
@@ -430,13 +431,6 @@ public class IssueTemplateService extends TemplateBaseService {
                 tarCustomFieldTemplate.setId(UUID.randomUUID().toString());
                 tarCustomFieldTemplate.setFieldId(tarCustomField.getId());
                 tarCustomFieldTemplate.setTemplateId(issueTemplateRecord.getId());
-                String defaultValue;
-                if (sourceCustomFieldTemplate.getDefaultValue() != null && tarCustomField.getOptions().contains(sourceCustomFieldTemplate.getDefaultValue())) {
-                    defaultValue = sourceCustomFieldTemplate.getDefaultValue();
-                } else {
-                    defaultValue = StringUtils.EMPTY;
-                }
-                tarCustomFieldTemplate.setDefaultValue(defaultValue);
                 customFieldTemplateRecords.add(tarCustomFieldTemplate);
             });
         });
