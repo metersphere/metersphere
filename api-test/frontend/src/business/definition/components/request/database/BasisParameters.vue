@@ -344,6 +344,10 @@ export default {
         this.environments = response.data;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
+          //如果没有选择环境，不展示自身的环境
+          if (!envId) {
+            this.request.environmentId = '';
+          }
           // 找到原始环境和数据源名称
           if (environment.id === this.request.environmentId && environment.id !== envId) {
             if (environment.config && environment.config.databaseConfigs) {
