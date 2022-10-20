@@ -12,6 +12,10 @@ export function delPluginById(pluginId) {
   return get(`/plugin/delete/${pluginId}`);
 }
 
+export function getPluginById(pluginId) {
+  return get(`/plugin/get/${pluginId}`);
+}
+
 export function addPlugin(file) {
   let formData = new FormData();
   if (file) {
