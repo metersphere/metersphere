@@ -214,6 +214,10 @@ export default {
           return;
         }
       }
+      if (selectIds.length < 1) {
+        this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        return;
+      }
       param.planId = this.planId;
       param.selectIds = selectIds;
       param.environmentId = environmentId;
