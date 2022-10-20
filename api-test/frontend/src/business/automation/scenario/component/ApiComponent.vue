@@ -75,7 +75,7 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend style="width: 100%;">
+        <legend style="width: 100%;display:table-column">
           <div v-if="!ifFromVariableAdvance">
             <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
