@@ -151,6 +151,10 @@ export default {
       selectRows.forEach(row => {
         selectIds.push(row.id);
       })
+      if (selectIds.length < 1) {
+        this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        return;
+      }
 
       let param = {};
       param.planId = this.planId;

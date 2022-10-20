@@ -137,6 +137,10 @@ export default {
       let map = this.$refs.apiScenarioList.map;
       let envGroupId = this.$refs.apiScenarioList.envGroupId;
 
+      if (selectRows.size < 1) {
+        this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        return;
+      }
       selectRows.forEach(row => {
         selectIds.push(row.id);
       })

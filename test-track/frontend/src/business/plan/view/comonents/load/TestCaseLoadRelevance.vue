@@ -194,6 +194,10 @@ export default {
     },
     saveCaseRelevance() {
       let selectRows = this.$refs.table.selectRows;
+      if (selectRows.size < 1) {
+        this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        return;
+      }
       let param = buildBatchParam(this, undefined, this.projectId);
       param.ids = Array.from(selectRows).map(row => row.id);
       if (this.planId) {
