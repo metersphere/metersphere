@@ -4,6 +4,7 @@ package io.metersphere.api.parse;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.RequestTypeConstants;
@@ -219,5 +220,14 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
         return scenarioWithBLOBs;
+    }
+
+    public static HttpResponse getDefaultHttpResponse() {
+        HttpResponse msResponse = new HttpResponse();
+        msResponse.setHeaders(new ArrayList<>());
+        msResponse.setType(RequestTypeConstants.HTTP);
+        msResponse.setBody(new Body());
+        msResponse.setStatusCode(new ArrayList<>());
+        return msResponse;
     }
 }
