@@ -198,13 +198,11 @@ export function exportPdf(name, canvasList) {
 
 }
 
-let confirm = MessageBox.confirm;
-
-export function operationConfirm(tip, success, cancel) {
+export function operationConfirm(v, tip, success, cancel) {
   if (tip[tip.length - 1] !== '?' && tip[tip.length - 1] !== '？') {
     tip += '?';
   }
-  return confirm(tip, '', {
+  return v.$confirm(tip, '', {
     confirmButtonText: i18n.t('commons.confirm'),
     cancelButtonText: i18n.t('commons.cancel'),
     type: 'warning',

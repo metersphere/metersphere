@@ -290,7 +290,7 @@ export default {
       listenGoBack(this.handleClose);
     },
     del(row) {
-      operationConfirm(this.$t('user.delete_confirm'), () => {
+      operationConfirm(this, this.$t('user.delete_confirm'), () => {
         this.loading = specialDeleteUserById(encodeURIComponent(row.id)).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.search();

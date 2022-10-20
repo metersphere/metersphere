@@ -408,7 +408,7 @@ export default {
       this.$refs.deleteConfirm.open(workspace);
     },
     _handleDelete(workspace) {
-      operationConfirm(this.$t('workspace.delete_confirm'), () => {
+      operationConfirm(this, this.$t('workspace.delete_confirm'), () => {
         this.loading = delWorkspaceSpecial(workspace.id).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.list();

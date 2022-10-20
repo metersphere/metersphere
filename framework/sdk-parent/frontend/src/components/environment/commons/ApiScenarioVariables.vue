@@ -244,7 +244,7 @@ export default {
       });
     },
     handleDeleteBatch() {
-      operationConfirm(this.$t('api_test.environment.variables_delete_info') + " ？", () => {
+      operationConfirm(this, this.$t('api_test.environment.variables_delete_info') + " ？", () => {
         let ids = this.$refs.variableTable.selectRows;
         ids.forEach(row => {
           if (row.name) {

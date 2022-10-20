@@ -888,7 +888,7 @@ export default {
     },
     handleDeleteBatch() {
       if (this.trashEnable) {
-        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", () => {
+        operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + "？", () => {
           deleteBatchByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
             this.$refs.table.clear();
             // this.initTable();
@@ -897,7 +897,7 @@ export default {
           });
         });
       } else {
-        operationConfirm(this.$t('api_test.definition.request.delete_confirm') + "？", () => {
+        operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + "？", () => {
           removeToGcByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
             this.$refs.table.clear();
             this.$emit("refreshTable");
@@ -973,7 +973,7 @@ export default {
           // 删除提供列表删除和全部版本删除
           this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
         } else {
-          operationConfirm(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name, () => {
+          operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name, () => {
             this._handleDelete(api, false);
           });
         }

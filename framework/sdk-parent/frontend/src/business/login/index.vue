@@ -300,7 +300,7 @@ export default {
           return;
         }
       }
-      operationConfirm(this.$t('commons.auth_redirect_tip'), () => {
+      operationConfirm(this, this.$t('commons.auth_redirect_tip'), () => {
         let config = JSON.parse(source.configuration);
         let redirectUrl = eval('`' + config.redirectUrl + '`');
         let url;
