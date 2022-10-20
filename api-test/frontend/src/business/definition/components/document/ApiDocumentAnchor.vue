@@ -156,7 +156,7 @@ export default {
         urlParams: "无",
         requestBodyParamType: "无",
         requestBodyFormData: '[]',
-        requestBodyStrutureData: "",
+        requestBodyStructureData: "",
         sharePopoverVisible: false,
         jsonSchemaBody: {},
         JsonSchemaResponseBody: {},
@@ -164,13 +164,12 @@ export default {
         responseBody: "",
         responseBodyParamType: "无",
         responseBodyFormData: "无",
-        responseBodyStrutureData: "无",
         responseCode: "无",
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
       clientHeight: '',//浏览器高度,
-      maxCompnentSize: 10, //浏览器最多渲染的api信息体数量
-      needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
+      maxComponentSize: 10, //浏览器最多渲染的api信息体数量
+      needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxComponentSize时为true
       currentApiIndexInApiShowArray: 0,//当前主要展示的api信息在apiShowArray的索引
       clickStepFlag: false,
       pageSize: 10,
@@ -272,7 +271,7 @@ export default {
       selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then(response => {
         this.apiInfoArray = response.data.listObject;
         this.total = response.data.itemCount;
-        if (response.data.length > this.maxCompnentSize) {
+        if (response.data.length > this.maxComponentSize) {
           this.needAsyncSelect = true;
         } else {
           this.needAsyncSelect = false;
@@ -351,13 +350,13 @@ export default {
         let mainDivHeight = this.$refs.apiDocInfoDiv.clientHeight;
 
         let apiDocDivScrollTop = scrollTopCount;
-        let screenHight = mainDivHeight;
+        let screenHeight = mainDivHeight;
         for (let index = 0; index < this.apiInfoArray.length; index++) {
           let itemHeight = this.$refs.apiDocInfoDivItem[index].getHeight() + 3;
           if (apiDocDivScrollTop > itemHeight) {
             this.changeApiStepNodeClass(apiNodeDoms[index], false);
           } else {
-            if (screenHight + apiDocDivScrollTop > 0) {
+            if (screenHeight + apiDocDivScrollTop > 0) {
               this.changeApiStepNodeClass(apiNodeDoms[index], true);
             } else {
               this.changeApiStepNodeClass(apiNodeDoms[index], false);

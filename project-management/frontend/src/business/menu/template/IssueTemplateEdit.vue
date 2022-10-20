@@ -15,7 +15,7 @@
         <el-select
           :disabled="isSystem"
           filterable v-model="form.platform"
-          :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')">
+          :placeholder="$t('home.case.case_type')">
           <el-option
             v-for="item in platformOption"
             :key="item.value"

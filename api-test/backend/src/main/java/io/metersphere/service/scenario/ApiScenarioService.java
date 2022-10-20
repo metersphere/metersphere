@@ -1744,8 +1744,8 @@ public class ApiScenarioService {
             return coverage;
         }
         int urlContainsCount = this.getApiIdInScenario(projectId, scenarioUrlMap, apiList).size();
-        coverage.setCoverate(urlContainsCount);
-        coverage.setNotCoverate(apiList.size() - urlContainsCount);
+        coverage.setCoverage(urlContainsCount);
+        coverage.setNotCoverage(apiList.size() - urlContainsCount);
         float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
         DecimalFormat df = new DecimalFormat("0.0");
         coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");

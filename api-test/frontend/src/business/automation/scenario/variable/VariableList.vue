@@ -403,14 +403,14 @@ export default {
     updateParameters(v) {
       this.editData = JSON.parse(JSON.stringify(v));
       this.updateFiles();
-      let datas = [];
+      let data = [];
       this.variables.forEach(item => {
         if (item.id === v.id) {
           item = v;
         }
-        datas.push(item);
+        data.push(item);
       });
-      this.variables = datas;
+      this.variables = data;
     },
     select(selection) {
       this.selection = selection.map(s => s.id);
@@ -572,7 +572,7 @@ export default {
       });
     },
     filter() {
-      let datas = [];
+      let data = [];
       this.variables.forEach(item => {
         if (this.searchType && this.searchType != "" && this.selectVariable && this.selectVariable != "") {
           if ((item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1 && this.searchType != 'ALL')
@@ -599,9 +599,9 @@ export default {
         if (this.searchType === 'ALL' && !((this.selectVariable && this.selectVariable != ""))) {
           item.hidden = undefined;
         }
-        datas.push(item);
+        data.push(item);
       });
-      this.variables = datas;
+      this.variables = data;
     },
     createFilter(queryString) {
       return item => {

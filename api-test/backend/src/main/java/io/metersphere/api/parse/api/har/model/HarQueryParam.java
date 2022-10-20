@@ -21,7 +21,7 @@
 
 package io.metersphere.api.parse.api.har.model;
 
-public class HarQueryParm {
+public class HarQueryParam {
 	
 	public String name;
 	
@@ -45,7 +45,7 @@ public class HarQueryParm {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(!(obj instanceof HarQueryParm)) {
+		if(!(obj instanceof HarQueryParam)) {
 			return false;
 		}
 		
@@ -53,8 +53,8 @@ public class HarQueryParm {
 			return false;
 		}
 		
-		HarQueryParm harQueryParm = (HarQueryParm) obj;
-		return this.name.equals(harQueryParm.name);
+		HarQueryParam harQueryParam = (HarQueryParam) obj;
+		return this.name.equals(harQueryParam.name);
 	}
 	
 }

@@ -39,8 +39,8 @@
         if (!this.body) {
           return;
         }
-        let rowArry = this.body.split("\n");
-        this.getTableData(rowArry);
+        let rowArray = this.body.split("\n");
+        this.getTableData(rowArray);
         if (this.tables.length > 1) {
           for (let i = 0; i < this.tables.length; i++) {
             if (this.tables[i].titles.length === 1 && i < this.tables.length - 1) {
@@ -64,20 +64,20 @@
         }
       },
       methods: {
-        getTableData(rowArry) {
+        getTableData(rowArray) {
           let titles;
           let result = [];
-          for (let i = 0; i < rowArry.length; i++) {
-            let colArray = rowArry[i].split("\t");
+          for (let i = 0; i < rowArray.length; i++) {
+            let colArray = rowArray[i].split("\t");
             if (i === 0) {
               titles = colArray;
             } else {
               if (colArray.length != titles.length) {
                 // 创建新的表
                 if (colArray.length === 1 && colArray[0] === '') {
-                  this.getTableData(rowArry.slice(i + 1));
+                  this.getTableData(rowArray.slice(i + 1));
                 } else {
-                  this.getTableData(rowArry.slice(i));
+                  this.getTableData(rowArray.slice(i));
                 }
                 break;
               } else {

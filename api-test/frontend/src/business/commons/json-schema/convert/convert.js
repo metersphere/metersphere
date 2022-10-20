@@ -81,7 +81,7 @@ class Convert {
   }
 
   /**
-   * 递归函数，转换object对象为json schmea 格式
+   * 递归函数，转换object对象为json schema 格式
    * @param {*} object 需要转换对象
    * @param {*} name $id值
    */

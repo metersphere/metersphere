@@ -29,7 +29,7 @@ public class ApiDocumentInfoDTO {
     private String restParams;
     private String requestBodyParamType;
     private String requestBodyFormData;
-    private String requestBodyStrutureData;
+    private String requestBodyStructureData;
     private Object requestPreviewData;
     private JSONSchemaBodyDTO jsonSchemaBody;
 
@@ -38,7 +38,7 @@ public class ApiDocumentInfoDTO {
     private Object jsonSchemaResponseBody;
     private String responseBodyParamType;
     private String responseBodyFormData;
-    private String responseBodyStrutureData;
+    private String responseBodyStructureData;
 
     private String responseCode;
     private boolean sharePopoverVisible = false;

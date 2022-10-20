@@ -118,9 +118,9 @@ public class HarParser extends HarAbstractParser {
     }
 
     private void parseParameters(HarRequest harRequest, MsHTTPSamplerProxy request) {
-        List<HarQueryParm> queryStringList = harRequest.queryString;
-        queryStringList.forEach(harQueryParm -> {
-            parseQueryParameters(harQueryParm, request.getArguments());
+        List<HarQueryParam> queryStringList = harRequest.queryString;
+        queryStringList.forEach(harQueryParam -> {
+            parseQueryParameters(harQueryParam, request.getArguments());
         });
         List<HarHeader> harHeaderList = harRequest.headers;
         harHeaderList.forEach(harHeader -> {
@@ -278,7 +278,7 @@ public class HarParser extends HarAbstractParser {
         return XMLUtil.jsonToXmlStr(object);
     }
 
-    private void parseQueryParameters(HarQueryParm harQueryParm, List<KeyValue> arguments) {
-        arguments.add(new KeyValue(harQueryParm.name, harQueryParm.value, harQueryParm.comment, false));
+    private void parseQueryParameters(HarQueryParam harQueryParam, List<KeyValue> arguments) {
+        arguments.add(new KeyValue(harQueryParam.name, harQueryParam.value, harQueryParam.comment, false));
     }
 }

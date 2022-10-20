@@ -30,7 +30,7 @@
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>
       <ms-api-variable
-        :with-mor-setting="true"
+        :with-more-setting="true"
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
         :urlEncode="body.type == 'WWW_FORM'"

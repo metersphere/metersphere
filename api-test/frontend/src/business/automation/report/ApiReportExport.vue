@@ -21,39 +21,39 @@
             </div>
             <el-divider/>
             <div class="request-middle">
-              <api-report-reqest-header-item :title="$t('api_test.request.method')">
+              <api-report-request-header-item :title="$t('api_test.request.method')">
                 <span class="method"> {{ request.method }}</span>
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.response_time')">
+              <api-report-request-header-item :title="$t('api_report.response_time')">
                 {{ request.responseResult.responseTime }} ms
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.latency')">
+              <api-report-request-header-item :title="$t('api_report.latency')">
                 {{ request.responseResult.latency }} ms
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.request_size')">
+              <api-report-request-header-item :title="$t('api_report.request_size')">
                 {{ request.requestSize }} bytes
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.response_size')">
+              <api-report-request-header-item :title="$t('api_report.response_size')">
                 {{ request.responseResult.responseSize }} bytes
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.error')">
+              <api-report-request-header-item :title="$t('api_report.error')">
                 {{ request.error }}
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.assertions')">
+              <api-report-request-header-item :title="$t('api_report.assertions')">
                 {{ request.passAssertions + " / " + request.totalAssertions }}
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.response_code')">
+              <api-report-request-header-item :title="$t('api_report.response_code')">
                 {{ request.responseResult.responseCode }}
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
 
-              <api-report-reqest-header-item :title="$t('api_report.result')">
+              <api-report-request-header-item :title="$t('api_report.result')">
                 <el-tag v-if="request.unexecute">{{
                     $t('api_test.home_page.detail_card.unexecute')
                   }}
@@ -71,7 +71,7 @@
                 <el-tag size="mini" type="danger" v-else>
                   {{ $t('api_report.fail') }}
                 </el-tag>
-              </api-report-reqest-header-item>
+              </api-report-request-header-item>
             </div>
           </div>
         </el-card>
@@ -83,7 +83,7 @@
 <script>
 import MsScenarioResult from "./components/ScenarioResult";
 import MsRequestResultTail from "./components/RequestResultTail";
-import ApiReportReqestHeaderItem from "./ApiReportReqestHeaderItem";
+import ApiReportRequestHeaderItem from "./ApiReportRequestHeaderItem";
 import MsMetricChart from "./components/MetricChart";
 import MsReportTitle from "metersphere-frontend/src/components/report/MsReportTitle";
 import MsReportExportTemplate from "metersphere-frontend/src/components/report/MsReportExportTemplate";
@@ -93,7 +93,7 @@ export default {
   name: "MsApiReportExport",
   components: {
     MsReportExportTemplate,
-    MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult, MsAssertionResults
+    MsReportTitle, MsMetricChart, ApiReportRequestHeaderItem, MsRequestResultTail, MsScenarioResult, MsAssertionResults
   },
   props: {
     report: Object,

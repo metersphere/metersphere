@@ -68,7 +68,7 @@ public class ApiHomeController {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
 
         List<ApiDataCountResult> countResultByProtocolList = apiDefinitionService.countProtocolByProjectID(projectId);
-        apiCountResult.countProtocal(countResultByProtocolList);
+        apiCountResult.countProtocol(countResultByProtocolList);
 
         long dateCountByCreateInThisWeek = apiDefinitionService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
@@ -79,9 +79,9 @@ public class ApiHomeController {
         long allCount = apiCountResult.getFinishedCount() + apiCountResult.getRunningCount() + apiCountResult.getNotStartedCount();
 
         if (allCount != 0) {
-            float complateRageNumber = (float) apiCountResult.getFinishedCount() * 100 / allCount;
+            float completeRageNumber = (float) apiCountResult.getFinishedCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCompletionRage(df.format(complateRageNumber) + "%");
+            apiCountResult.setCompletionRage(df.format(completeRageNumber) + "%");
         }
 
         apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getHttpApiDataCountNumber());
@@ -117,12 +117,12 @@ public class ApiHomeController {
 
         try {
             if (effectiveApiCount == 0) {
-                coverage.setCoverate(0);
-                coverage.setNotCoverate(0);
+                coverage.setCoverage(0);
+                coverage.setNotCoverage(0);
             } else {
                 long quotedApiCount = apiHasCase + apiInScenario;
-                coverage.setCoverate(quotedApiCount);
-                coverage.setNotCoverate(effectiveApiCount - quotedApiCount);
+                coverage.setCoverage(quotedApiCount);
+                coverage.setNotCoverage(effectiveApiCount - quotedApiCount);
                 float coverageRageNumber = (float) quotedApiCount * 100 / effectiveApiCount;
                 DecimalFormat df = new DecimalFormat("0.0");
                 coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
@@ -160,7 +160,7 @@ public class ApiHomeController {
     public ApiDataCountDTO testCaseInfoCount(@PathVariable String projectId) {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId);
-        apiCountResult.countProtocal(countResultList);
+        apiCountResult.countProtocol(countResultList);
         long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
         long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId);

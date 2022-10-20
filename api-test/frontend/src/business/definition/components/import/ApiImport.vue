@@ -91,7 +91,7 @@
           <div style="margin-top: 10px">
             <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
           </div>
-          <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+          <ms-api-variable :with-more-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
                            :parameters="queryArguments"/>
           <!--认证配置-->
           <div style="margin-top: 10px">

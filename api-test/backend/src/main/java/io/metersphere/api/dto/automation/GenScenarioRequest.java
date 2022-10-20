@@ -38,7 +38,7 @@ public class GenScenarioRequest extends ApiScenarioWithBLOBs {
     private RunModeConfigDTO config;
 
     private boolean isTestPlanScheduleJob = false;
-    //生成测试报告：当isTestPlanScheduleJob为ture时使用
+    //生成测试报告：当isTestPlanScheduleJob为true时使用
     private String testPlanReportId;
 
     private String requestOriginator;

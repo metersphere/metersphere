@@ -6,24 +6,24 @@
                   :row-class-name="getRowClassName"
                   :data="tableData" :class="getTableClass()" ref="expandTable">
           <el-table-column prop="name"
-                           :label="$t('api_test.definition.document.table_coloum.name')"
+                           :label="$t('api_definition.document.name')"
                            min-width="120px"
                            show-overflow-tooltip/>
           <el-table-column prop="contentType"
-                           :label="$t('api_test.definition.document.table_coloum.type')"
+                           :label="$t('api_definition.document.type')"
                            min-width="120px"
                            show-overflow-tooltip/>
           <el-table-column prop="description"
-                           :label="$t('api_test.definition.document.table_coloum.desc')"
+                           :label="$t('api_definition.document.desc')"
                            min-width="280px"
                            show-overflow-tooltip/>
           <el-table-column prop="required"
-                           :label="$t('api_test.definition.document.table_coloum.is_required')"
+                           :label="$t('api_definition.document.is_required')"
                            :formatter="formatBoolean"
                            min-width="80px"
                            show-overflow-tooltip/>
           <el-table-column prop="value"
-                           :label="$t('api_test.definition.document.table_coloum.default_value')"
+                           :label="$t('api_definition.document.default_value')"
                            min-width="120px"
                            show-overflow-tooltip/>
           <el-table-column type="expand" :label="getCollapseOption()" width="80px">
@@ -47,7 +47,7 @@
         <div v-else class="showDataDiv">
           <br/>
           <p style="margin: 0px 20px;"
-             v-html="formatRowData(apiInfo.requestBodyParamType,apiInfo.requestBodyStrutureData)">
+             v-html="formatRowData(apiInfo.requestBodyParamType,apiInfo.requestBodyStructureData)">
           </p>
           <br/>
         </div>
@@ -235,18 +235,18 @@ export default {
       return returnJsonArr;
     },
     formatRowDataToJsonSchema(api, jsonType) {
-      if (jsonType === 'request' && api.requestBodyStrutureData) {
+      if (jsonType === 'request' && api.requestBodyStructureData) {
         try {
-          let bodyStructData = JSON.parse(api.requestBodyStrutureData);
+          let bodyStructData = JSON.parse(api.requestBodyStructureData);
           api.requestJsonSchema = {'raw': bodyStructData};
           return true;
         } catch (e) {
           return false;
         }
-      } else if (jsonType === 'response' && api.responseBodyStrutureData) {
+      } else if (jsonType === 'response' && api.requestBodyStructureData) {
         try {
-          JSON.parse(api.responseBodyStrutureData);
-          api.responseJsonSchema = {'raw': api.responseBodyStrutureData};
+          JSON.parse(api.requestBodyStructureData);
+          api.responseJsonSchema = {'raw': api.requestBodyStructureData};
           return true;
         } catch (e) {
           return false;

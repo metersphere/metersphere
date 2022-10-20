@@ -9,7 +9,6 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
@@ -139,16 +138,6 @@ public class ApiDefinitionExecResultService {
                             sendNotice(result, user);
                         }
                     }
-                }
-                if (isSchedule) {
-                    // 这个方法得优化大批量跑有问题
-                    Map<String, String> apiIdResultMap = new HashMap<>();
-                    long errorSize = dto.getRequestResults().stream().filter(requestResult -> requestResult.getError() > 0).count();
-                    String status = errorSize > 0 || dto.getRequestResults().isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
-                    if (StringUtils.isNotEmpty(dto.getReportId())) {
-                        apiIdResultMap.put(dto.getReportId(), status);
-                    }
-                    LoggerUtil.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] API CASE OVER. API CASE STATUS:" + JSON.toJSONString(apiIdResultMap));
                 }
             }
         }
@@ -346,7 +335,7 @@ public class ApiDefinitionExecResultService {
 
     }
 
-    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, boolean selectFuntionCase, int limitNumber) {
+    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, boolean selectFunctionCase, int limitNumber) {
 
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
@@ -361,7 +350,7 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFuntionCase, startTime.getTime());
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFunctionCase, startTime.getTime());
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 

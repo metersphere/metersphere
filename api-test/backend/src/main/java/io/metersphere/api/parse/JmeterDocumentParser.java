@@ -190,9 +190,9 @@ public class JmeterDocumentParser {
 
 //		解析访问地址
         if (url.contains("?")) {
-            String[] strUrlPatten = url.split("\\?");
-            strUrl = strUrlPatten[0];
-            strUrlParams = strUrlPatten[1];
+            String[] strUrlPattern = url.split("\\?");
+            strUrl = strUrlPattern[0];
+            strUrlParams = strUrlPattern[1];
 
         } else {
             strUrl = url;

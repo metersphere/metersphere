@@ -126,9 +126,9 @@
           <el-col :span="12">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.uncoverage') }}
-              <el-link class="rows-count-number" type="info" @click="redirectPage('notCoverate')" target="_blank">
+              <el-link class="rows-count-number" type="info" @click="redirectPage('notCoverage')" target="_blank">
                 <b>
-                {{ apiCoverage.notCoverate }}
+                {{ apiCoverage.notCoverage }}
                 </b>
               </el-link>
             </span>
@@ -136,9 +136,9 @@
           <el-col :span="12">
               <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.coverage') }}
-                <el-link class="rows-count-number" @click="redirectPage('coverate')" target="_blank">
+                <el-link class="rows-count-number" @click="redirectPage('coverage')" target="_blank">
                   <b>
-                  {{ apiCoverage.coverate }}
+                  {{ apiCoverage.coverage }}
                   </b>
                 </el-link>
               </span>
