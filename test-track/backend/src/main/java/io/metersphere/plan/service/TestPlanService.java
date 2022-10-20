@@ -4,9 +4,13 @@ package io.metersphere.plan.service;
 import com.google.gson.Gson;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
@@ -1760,10 +1764,12 @@ public class TestPlanService {
 
     private void runByMode(TestPlanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, List<TestPlanExecutionQueue> planExecutionQueues) {
         if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
+            User user = SessionUtils.getUser();
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Thread.currentThread().setName("TEST_PLAN_BATCH：" + System.currentTimeMillis());
+                    HttpHeaderUtils.runAsUser(user);
                     if (StringUtils.equalsIgnoreCase(request.getMode(), RunModeConstants.SERIAL.name())) {
                         TestPlanExecutionQueue planExecutionQueue = planExecutionQueues.get(0);
                         TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
