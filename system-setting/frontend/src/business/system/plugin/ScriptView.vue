@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading">
-    <el-dialog :title="$t('plugin.script_view')" :visible.sync="dialogVisible" @close="close">
+    <el-dialog :title="$t('plugin.script_view')" :visible.sync="dialogVisible" @close="close" v-loading="dialogLoading">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane :label="$t('commons.form_config')" name="formOption">
           <ms-code-edit
@@ -26,6 +26,7 @@
 
 <script>
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
+import {getPluginById} from "@/api/plugin";
 
 export default {
   name: "ScriptView",
@@ -39,19 +40,20 @@ export default {
       modes: ['text', 'json', 'xml', 'html'],
       plugin: {},
       loading: false,
+      dialogLoading: false
     }
   },
   methods: {
     getPlugin(id) {
       if (id) {
-        this.$get('/plugin/get/' + id, response => {
+        this.dialogLoading = getPluginById(id).then(response => {
           if (response.data) {
             this.plugin = response.data;
             this.reload();
           } else {
             this.$warning(this.$t('plugin.warning_tip'));
           }
-        });
+        })
       }
     },
     open(id) {
