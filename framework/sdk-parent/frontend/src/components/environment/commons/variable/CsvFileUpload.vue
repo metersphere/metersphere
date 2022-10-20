@@ -261,7 +261,7 @@ export default {
 
 .api-body-upload :deep(.el-upload-list__item) {
   height: 30px;
-  width: auto;
+  width: 100%;
   padding: 2px 5px;
   margin-bottom: 0px;
 }
