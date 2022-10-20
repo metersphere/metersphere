@@ -11,12 +11,12 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.parse.postman.*;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,11 +61,11 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
     protected HttpResponse parsePostmanResponse(PostmanItem requestItem) {
         List<PostmanResponse> requestList = requestItem.getResponse();
         if (CollectionUtils.isEmpty(requestList)) {
-            return new HttpResponse();
+            return getDefaultHttpResponse();
         }
         PostmanResponse requestDesc = requestItem.getResponse().get(0);
         if (requestDesc == null) {
-            return null;
+            return getDefaultHttpResponse();
         }
         PostmanUrl url = requestDesc.getOriginalRequest().getUrl();
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), null, null, requestDesc.getJsonSchema());

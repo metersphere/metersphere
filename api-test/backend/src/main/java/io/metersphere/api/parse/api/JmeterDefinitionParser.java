@@ -28,6 +28,7 @@ import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndServ
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -138,6 +139,8 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                         element.getHashTree().clear();
                     }
                     apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
+                    HttpResponse defaultHttpResponse = getDefaultHttpResponse();
+                    apiDefinitionWithBLOBs.setResponse(JSON.toJSONString(defaultHttpResponse));
                     definitions.add(apiDefinitionWithBLOBs);
                 }
             }
@@ -343,6 +346,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         }
         return apiDefinition;
     }
+
 
     private HashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
