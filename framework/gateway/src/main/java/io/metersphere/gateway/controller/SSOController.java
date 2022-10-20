@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.util.Locale;
@@ -23,7 +24,7 @@ public class SSOController {
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering callbackWithAuthId(@RequestParam("code") String code, @PathVariable("authId") String authId, WebSession session, Locale locale) throws Exception {
         ssoService.exchangeToken(code, authId, session, locale);
-        return Rendering.redirectTo("/?_token=" + CodingUtil.base64Encoding(session.getId()))
+        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()))
                 .build();
     }
 
@@ -31,7 +32,7 @@ public class SSOController {
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering callback(@RequestParam("code") String code, @RequestParam("state") String authId, WebSession session, Locale locale) throws Exception {
         ssoService.exchangeToken(code, authId, session, locale);
-        return Rendering.redirectTo("/?_token=" + CodingUtil.base64Encoding(session.getId()))
+        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()))
                 .build();
     }
 
@@ -39,28 +40,26 @@ public class SSOController {
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering casCallback(@RequestParam("ticket") String ticket, @PathVariable("authId") String authId, WebSession session, Locale locale) throws Exception {
         ssoService.serviceValidate(ticket, authId, session, locale);
-        return Rendering.redirectTo("/?_token=" + CodingUtil.base64Encoding(session.getId()))
+        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()))
                 .build();
     }
 
 
-    /**
-     * oidc 登出 callback
-     */
-    @PostMapping("/callback/logout")
-    public Rendering logoutCallback(@RequestParam("logout_token") String logoutToken) {
-        ssoService.kickOutUser(logoutToken);
-        return Rendering.redirectTo("/#/login")
-                .build();
-    }
-
-    /**
-     * cas 登出 callback
-     */
-    @PostMapping("/callback/cas/logout")
-    public Rendering logoutCasCallback(@RequestParam("logoutRequest") String logoutRequest) {
-        ssoService.kickOutCasUser(logoutRequest);
-        return Rendering.redirectTo("/#/login")
-                .build();
-    }
+//    /**
+//     * oidc 登出 callback
+//     */
+//    @PostMapping("/callback/logout")
+//    public Mono<Void> logoutCallback(@RequestParam("logout_token") String logoutToken) {
+//        ssoService.kickOutUser(logoutToken);
+//        return Mono.empty();
+//    }
+//
+//    /**
+//     * cas 登出 callback
+//     */
+//    @PostMapping("/callback/cas/logout")
+//    public Mono<Void> logoutCasCallback(@RequestParam("logoutRequest") String logoutRequest) {
+//        ssoService.kickOutCasUser(logoutRequest);
+//        return Mono.empty();
+//    }
 }

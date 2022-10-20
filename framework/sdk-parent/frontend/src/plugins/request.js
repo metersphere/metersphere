@@ -39,9 +39,8 @@ instance.interceptors.request.use(
     }
     // sso callback 过来的会有sessionId在url上
     if (!config.headers['X-AUTH-TOKEN']) {
-      const paramsStr = window.location.search
-      const params = new URLSearchParams(paramsStr)
-      let sessionId = params.get('_token');
+      const paramsStr = window.location.href
+      let sessionId = paramsStr.split('_token=')[1]
       if (sessionId) {
         config.headers['X-AUTH-TOKEN'] = Base64.decode(sessionId);
       }

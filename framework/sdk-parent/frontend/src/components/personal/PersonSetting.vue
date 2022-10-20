@@ -189,6 +189,7 @@ export default {
 
   activated() {
     this.initTableData();
+    this.$router.replace({query: null})
   },
   methods: {
     currentUser: () => {
