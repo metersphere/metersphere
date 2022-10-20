@@ -121,6 +121,7 @@ export default {
       this.resetOptions();
       if (barData) {
         this.formatData(barData);
+        this.loadOption.backgroundColor = "#FFFFFF";
         this.loadOption.legend = barData.legend;
         this.loadOption.xAxis = barData.xaxis;
         this.loadOption.xaxis = barData.xaxis;
@@ -136,6 +137,7 @@ export default {
       }
       if (pieData) {
         this.formatData(pieData);
+        this.pieOption.backgroundColor = "#FFFFFF";
         this.pieOption.legend = pieData.legend;
         this.pieOption.series = pieData.series;
         this.pieOption.title = pieData.title;
