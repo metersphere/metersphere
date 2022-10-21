@@ -5,7 +5,7 @@
         <el-col :span="10" v-if="!isProject">
           <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
             <el-select @change="handleProjectChange" v-model="environment.currentProjectId" filterable clearable
-                       size="small">
+                       size="small" :disabled="!ifCreate">
               <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
