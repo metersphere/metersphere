@@ -46,10 +46,12 @@ public class LoginController {
     private ReactiveRedisSessionRepository reactiveRedisSessionRepository;
 
     @GetMapping(value = "/is-login")
-    public Mono<ResultHolder> isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId) throws Exception {
+    public Mono<ResultHolder> isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId,
+                                      @RequestHeader(name = SessionConstants.CSRF_TOKEN, required = false) String csrfToken) throws Exception {
         RsaKey rsaKey = RsaUtil.getRsaKey();
 
-        if (StringUtils.isNotBlank(sessionId)) {
+        if (StringUtils.isNotBlank(sessionId) && StringUtils.isNotBlank(csrfToken)) {
+            userLoginService.validateCsrfToken(sessionId, csrfToken);
             return reactiveRedisSessionRepository.getSessionRedisOperations().opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user")
                     .switchIfEmpty(Mono.just(rsaKey))
                     .map(r -> {
