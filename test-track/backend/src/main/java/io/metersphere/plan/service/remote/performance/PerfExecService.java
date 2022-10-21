@@ -1,7 +1,7 @@
 package io.metersphere.plan.service.remote.performance;
 
 import io.metersphere.dto.RunModeConfigDTO;
-import io.metersphere.plan.reuest.performance.PlanPerformanceExecRequest;
+import io.metersphere.plan.request.performance.PlanPerformanceExecRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

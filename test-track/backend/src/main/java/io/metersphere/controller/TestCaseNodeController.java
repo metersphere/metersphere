@@ -7,7 +7,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.testcase.DragNodeRequest;
 import io.metersphere.request.testcase.QueryNodeRequest;
 import io.metersphere.request.testcase.QueryTestCaseRequest;
-import io.metersphere.plan.reuest.function.QueryTestPlanCaseRequest;
+import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.service.BaseCheckPermissionService;

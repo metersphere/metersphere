@@ -1,4 +1,4 @@
-package io.metersphere.plan.reuest.function;
+package io.metersphere.plan.request.function;
 
 import lombok.Getter;
 import lombok.Setter;

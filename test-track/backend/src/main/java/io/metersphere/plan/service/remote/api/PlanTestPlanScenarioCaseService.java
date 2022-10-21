@@ -6,7 +6,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;

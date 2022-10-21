@@ -3,7 +3,7 @@
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
         <ms-container v-loading="loading" style="overflow: auto">
-          <ms-aside-container :height="pageHight">
+          <ms-aside-container :height="pageHeight">
             <test-case-base-info
               :form="form"
               :is-form-alive="isFormAlive"
@@ -20,7 +20,7 @@
               ref="testCaseBaseInfo"
             />
           </ms-aside-container>
-          <ms-main-container :style="{height: pageHight + 'px'}">
+          <ms-main-container :style="{height: pageHeight + 'px'}">
             <el-form :model="form" :rules="rules" ref="caseFrom" class="case-form">
 
               <!--操作按钮-->
@@ -225,7 +225,7 @@ export default {
       isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
-      pageHight: document.documentElement.clientHeight - 150 + '',
+      pageHeight: document.documentElement.clientHeight - 150 + '',
       projectList: [],
       comments: [],
       loading: false,
@@ -479,7 +479,7 @@ export default {
       return getCurrentUser();
     },
     resizeContainer() {
-      this.pageHight = document.documentElement.clientHeight - 150 + '';
+      this.pageHeight = document.documentElement.clientHeight - 150 + '';
     },
     openHis() {
       this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);

@@ -14,7 +14,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.dto.TestPlanReportDTO;
 import io.metersphere.dto.TestPlanScheduleReportInfoDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
-import io.metersphere.plan.reuest.TestPlanReportSaveRequest;
+import io.metersphere.plan.request.TestPlanReportSaveRequest;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
 import io.metersphere.plan.service.TestPlanReportService;
 import org.springframework.web.bind.annotation.*;

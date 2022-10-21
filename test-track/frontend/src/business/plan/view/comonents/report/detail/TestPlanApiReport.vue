@@ -198,9 +198,9 @@ export default {
           }
         });
     },
-    format(cases, datas) {
-      if (this.report && datas) {
-        datas.forEach(item => {
+    format(cases, data) {
+      if (this.report && data) {
+        data.forEach(item => {
           if (item) {
             let obj = {id: item.id, reportId: item.reportId, userId: item.createUser};
             cases.push(obj);

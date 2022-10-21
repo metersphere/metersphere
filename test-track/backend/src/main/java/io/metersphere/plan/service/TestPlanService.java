@@ -22,17 +22,17 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
-import io.metersphere.plan.reuest.AddTestPlanRequest;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
-import io.metersphere.plan.reuest.ScheduleInfoRequest;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
-import io.metersphere.plan.reuest.api.RunScenarioRequest;
-import io.metersphere.plan.reuest.api.SchedulePlanScenarioExecuteRequest;
-import io.metersphere.plan.reuest.api.TestPlanRunRequest;
-import io.metersphere.plan.reuest.function.PlanCaseRelevanceRequest;
-import io.metersphere.plan.reuest.function.QueryTestPlanCaseRequest;
-import io.metersphere.plan.reuest.performance.LoadPlanReportDTO;
-import io.metersphere.plan.reuest.ui.RunUiScenarioRequest;
+import io.metersphere.plan.request.AddTestPlanRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.ScheduleInfoRequest;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.RunScenarioRequest;
+import io.metersphere.plan.request.api.SchedulePlanScenarioExecuteRequest;
+import io.metersphere.plan.request.api.TestPlanRunRequest;
+import io.metersphere.plan.request.function.PlanCaseRelevanceRequest;
+import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
+import io.metersphere.plan.request.performance.LoadPlanReportDTO;
+import io.metersphere.plan.request.ui.RunUiScenarioRequest;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
@@ -581,9 +581,9 @@ public class TestPlanService {
             return;
         }
         List<TestCaseTest> list;
-        TestCaseTestExample exam = new TestCaseTestExample();
-        exam.createCriteria().andTestCaseIdIn(testCaseIds);
-        list = testCaseTestMapper.selectByExample(exam);
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria().andTestCaseIdIn(testCaseIds);
+        list = testCaseTestMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
@@ -1648,7 +1648,7 @@ public class TestPlanService {
         if (!CronExpression.isValidExpression(cron)) {
             return 0;
         }
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Caclulate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();
         Date time1 = trigger.getFireTimeAfter(time0);
         return time1 == null ? 0 : time1.getTime();

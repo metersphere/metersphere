@@ -622,7 +622,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (CollectionUtils.isNotEmpty(transitions)) {
             transitions.forEach(item -> {
                 PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
-                platformStatusDTO.setLable(item.getTo().getName());
+                platformStatusDTO.setLabel(item.getTo().getName());
                 platformStatusDTO.setValue(item.getTo().getName());
                 platformStatusDTOS.add(platformStatusDTO);
             });

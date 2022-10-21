@@ -1,6 +1,6 @@
-package io.metersphere.plan.reuest.api;
+package io.metersphere.plan.request.api;
 
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
 import lombok.Getter;
 import lombok.Setter;
 

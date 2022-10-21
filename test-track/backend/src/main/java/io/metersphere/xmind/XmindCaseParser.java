@@ -48,7 +48,7 @@ public class XmindCaseParser {
     /**
      * 案例详情重写了hashCode方法去重用
      */
-    private List<TestCaseExcelData> compartDatas;
+    private List<TestCaseExcelData> compartData;
     /**
      * 记录没有用例的目录
      */
@@ -65,7 +65,7 @@ public class XmindCaseParser {
         this.request = request;
         testCases = new LinkedList<>();
         updateTestCases = new LinkedList<>();
-        compartDatas = new ArrayList<>();
+        compartData = new ArrayList<>();
         process = new DetailUtil();
         nodePaths = new ArrayList<>();
         continueValidatedCase = new ArrayList<>();
@@ -79,7 +79,7 @@ public class XmindCaseParser {
     private static final String TAG_REGEX = "(?:tag:|tag：)";
 
     public void clear() {
-        compartDatas.clear();
+        compartData.clear();
         testCases.clear();
         updateTestCases.clear();
         request.getTestCaseNames().clear();
@@ -204,13 +204,13 @@ public class XmindCaseParser {
         }
 
         // 重复用例校验
-        TestCaseExcelData compartData = new TestCaseExcelData();
+        TestCaseExcelData dataItem = new TestCaseExcelData();
         BeanUtils.copyBean(compartData, data);
-        if (compartDatas.contains(compartData)) {
+        if (compartData.contains(dataItem)) {
             validatePass = false;
-            process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
+            process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + dataItem.getName());
         }
-        compartDatas.add(compartData);
+        compartData.add(dataItem);
 
 
         String importType = request.getImportType();
@@ -220,11 +220,11 @@ public class XmindCaseParser {
         //自定义ID判断
         if (StringUtils.isEmpty(data.getCustomNum())) {
             if (StringUtils.equals(importType, ExcelImportType.Update.name())) {
-                process.add(Translator.get("id_required"), nodePath + "/" + compartData.getName());
+                process.add(Translator.get("id_required"), nodePath + "/" + dataItem.getName());
                 return false;
             } else {
                 if (isUseCustomId) {
-                    process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                    process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + dataItem.getName());
                     return false;
                 }
             }
@@ -247,7 +247,7 @@ public class XmindCaseParser {
                 data.setId(checkResult);
                 updateTestCases.add(data);
             } else {
-                process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + dataItem.getName());
                 validatePass = false;
             }
         }
@@ -259,7 +259,7 @@ public class XmindCaseParser {
             if (isUseCustomId) {
                 checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), projectId);
                 if (null != checkResult) {  //该ID在当前项目中存在
-                    process.add(Translator.get("custom_num_is_exist"), nodePath + "/" + compartData.getName());
+                    process.add(Translator.get("custom_num_is_exist"), nodePath + "/" + dataItem.getName());
                     return false;
                 }
             }

@@ -51,7 +51,6 @@ export default {
   data() {
     return {
       result: {},
-      loadCommenItem: true,
       labelWidth: '120px',
       showEditor: true,
       isReadOnly: false,

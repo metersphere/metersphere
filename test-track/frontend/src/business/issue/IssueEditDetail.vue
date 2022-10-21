@@ -43,7 +43,7 @@
                           prop="platformStatus">
               <el-select v-model="form.platformStatus" filterable
                          :placeholder="$t('test_track.issue.please_choose_platform_status')">
-                <el-option v-for="(transition, index) in platformTransitions" :key="index" :label="transition.lable"
+                <el-option v-for="(transition, index) in platformTransitions" :key="index" :label="transition.label"
                            :value="transition.value"/>
               </el-select>
             </el-form-item>

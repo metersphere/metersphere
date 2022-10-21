@@ -7,5 +7,5 @@ import lombok.Setter;
 @Getter
 public class PlatformStatusDTO {
     protected String value;
-    protected String lable;
+    protected String label;
 }

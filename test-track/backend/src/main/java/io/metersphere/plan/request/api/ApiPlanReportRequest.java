@@ -1,4 +1,4 @@
-package io.metersphere.plan.reuest.api;
+package io.metersphere.plan.request.api;
 
 
 import io.metersphere.dto.TestPlanExecuteReportDTO;

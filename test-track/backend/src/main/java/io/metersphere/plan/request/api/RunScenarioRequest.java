@@ -1,4 +1,4 @@
-package io.metersphere.plan.reuest.api;
+package io.metersphere.plan.request.api;
 
 import io.metersphere.dto.RunModeConfigDTO;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public class RunScenarioRequest {
 
     private boolean isTestPlanScheduleJob = false;
 
-    //生成测试报告：当isTestPlanScheduleJob为ture时使用
+    //生成测试报告：当isTestPlanScheduleJob为true时使用
     private String testPlanReportId;
 
     private String requestOriginator;

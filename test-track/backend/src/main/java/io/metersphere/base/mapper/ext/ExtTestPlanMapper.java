@@ -5,7 +5,7 @@ import io.metersphere.base.domain.TestPlan;
 import io.metersphere.dto.ParamsDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.plan.dto.TestPlanDTO;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 

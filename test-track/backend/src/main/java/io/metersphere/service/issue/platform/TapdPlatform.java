@@ -206,8 +206,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
         while (index < ids.size()) {
             List<String> subIds = ids.subList(index, (index + limit) > ids.size() ? ids.size() : (index + limit));
             TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), 1, limit, subIds);
-            List<Map> datas = result.getData();
-            datas.forEach(issue -> {
+            List<Map> data = result.getData();
+            data.forEach(issue -> {
                 Map bug = (Map) issue.get("Bug");
                 String platformId = bug.get("id").toString();
                 String id = idMap.get(platformId);
@@ -322,7 +322,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         for (String key : statusMap.keySet()) {
             PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
             platformStatusDTO.setValue(key);
-            platformStatusDTO.setLable(statusMap.get(key));
+            platformStatusDTO.setLabel(statusMap.get(key));
             platformStatusDTOS.add(platformStatusDTO);
         }
 
