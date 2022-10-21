@@ -21,7 +21,7 @@ import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.plan.reuest.function.*;
+import io.metersphere.plan.request.function.*;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanApiTestCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;

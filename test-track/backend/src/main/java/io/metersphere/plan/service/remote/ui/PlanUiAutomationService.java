@@ -1,7 +1,7 @@
 package io.metersphere.plan.service.remote.ui;
 
 import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.plan.reuest.api.RunScenarioRequest;
+import io.metersphere.plan.request.api.RunScenarioRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,7 +1,7 @@
-package io.metersphere.plan.reuest.ui;
+package io.metersphere.plan.request.ui;
 
 import io.metersphere.dto.RunModeConfigDTO;
-import io.metersphere.plan.reuest.api.RunScenarioRequest;
+import io.metersphere.plan.request.api.RunScenarioRequest;
 import lombok.Data;
 
 import java.util.List;

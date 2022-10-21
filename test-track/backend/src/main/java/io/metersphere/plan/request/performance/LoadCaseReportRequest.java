@@ -1,4 +1,4 @@
-package io.metersphere.plan.reuest.performance;
+package io.metersphere.plan.request.performance;
 
 import lombok.Getter;
 import lombok.Setter;

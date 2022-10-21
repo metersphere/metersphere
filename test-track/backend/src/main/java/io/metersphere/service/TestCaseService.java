@@ -438,7 +438,7 @@ public class TestCaseService {
     }
 
     /**
-     * 根据前后端 verionId 判定是编辑旧数据还是创建新版本
+     * 根据前后端 versionId 判定是编辑旧数据还是创建新版本
      *
      * @param testCase
      * @param example
@@ -589,7 +589,7 @@ public class TestCaseService {
     }
 
     /**
-     * 根据id和pojectId查询id是否在数据库中存在。
+     * 根据id和projectId查询id是否在数据库中存在。
      * 在数据库中单id的话是可重复的,id与projectId的组合是唯一的
      */
     public String checkIdExist(Integer id, String projectId) {
@@ -747,7 +747,7 @@ public class TestCaseService {
             if (StringUtils.isNotBlank(request.getProjectId())) {
                 buildProjectInfo(request.getProjectId(), list);
             } else {
-                buildProjectInfoWidthoutProject(list);
+                buildProjectInfoWithoutProject(list);
             }
             buildCustomField(list);
         }
@@ -778,7 +778,7 @@ public class TestCaseService {
         data.setFields(fields);
     }
 
-    private void buildProjectInfoWidthoutProject(List<TestCaseDTO> resList) {
+    private void buildProjectInfoWithoutProject(List<TestCaseDTO> resList) {
         resList.forEach(i -> {
             Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
             i.setProjectName(project.getName());
@@ -2619,19 +2619,19 @@ public class TestCaseService {
             projectVersions = projectVersionMapper.selectByExample(versionExample);
         }
 
-        Map<String, String> verisonNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        Map<String, String> versionNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
         apiCases.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiScenarios.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiLoadTests.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         return testCaseTestList;
@@ -2782,13 +2782,13 @@ public class TestCaseService {
 
             Map<String, String> userNameMap = ServiceUtils.getUserNameMap(testCaseList.stream().map(TestCaseWithBLOBs::getCreateUser).collect(Collectors.toList()));
 
-            Map<String, String> verionNameMap = new HashMap<>();
+            Map<String, String> versionNameMap = new HashMap<>();
             List<String> versionIds = testCaseList.stream().map(TestCase::getVersionId).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(versionIds)) {
                 ProjectVersionRequest pvr = new ProjectVersionRequest();
                 pvr.setProjectId(testCaseList.get(0).getProjectId());
                 List<ProjectVersionDTO> projectVersions = baseProjectVersionMapper.selectProjectVersionList(pvr);
-                verionNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersionDTO::getId, ProjectVersionDTO::getName));
+                versionNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersionDTO::getId, ProjectVersionDTO::getName));
             }
             Map<String, TestCase> caseMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
@@ -2809,7 +2809,7 @@ public class TestCaseService {
                 relationshipEdgeDTO.setTargetNum(testCase.getNum());
                 relationshipEdgeDTO.setTargetCustomNum(testCase.getCustomNum());
                 relationshipEdgeDTO.setStatus(testCase.getStatus());
-                relationshipEdgeDTO.setVersionName(verionNameMap.get(testCase.getVersionId()));
+                relationshipEdgeDTO.setVersionName(versionNameMap.get(testCase.getVersionId()));
                 results.add(relationshipEdgeDTO);
             }
             return results;

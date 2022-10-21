@@ -1,6 +1,6 @@
-package io.metersphere.plan.reuest;
+package io.metersphere.plan.request;
 
-import io.metersphere.plan.reuest.performance.LoadCaseRequest;
+import io.metersphere.plan.request.performance.LoadCaseRequest;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -4,7 +4,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanProjectMapper;
-import io.metersphere.plan.reuest.function.TestCaseRelevanceRequest;
+import io.metersphere.plan.request.function.TestCaseRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

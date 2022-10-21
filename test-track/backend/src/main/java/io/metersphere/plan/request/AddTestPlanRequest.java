@@ -1,4 +1,4 @@
-package io.metersphere.plan.reuest;
+package io.metersphere.plan.request;
 
 import io.metersphere.base.domain.TestPlanWithBLOBs;
 import lombok.Getter;

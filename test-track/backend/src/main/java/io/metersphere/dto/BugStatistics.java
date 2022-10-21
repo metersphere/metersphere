@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class BugStatustics {
+public class BugStatistics {
 
     private long bugTotalSize;
     private String rage;

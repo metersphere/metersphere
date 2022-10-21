@@ -2,7 +2,7 @@ package io.metersphere.plan.service.remote.api;
 
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.plan.reuest.api.RunScenarioRequest;
+import io.metersphere.plan.request.api.RunScenarioRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 

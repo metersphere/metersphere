@@ -14,9 +14,9 @@ import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
-import io.metersphere.plan.reuest.TestPlanReportSaveRequest;
-import io.metersphere.plan.reuest.api.TestPlanRunRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.TestPlanReportSaveRequest;
+import io.metersphere.plan.request.api.TestPlanRunRequest;
 import io.metersphere.plan.service.remote.api.*;
 import io.metersphere.plan.service.remote.performance.PlanLoadTestReportService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
@@ -1301,7 +1301,7 @@ public class TestPlanReportService {
                         }
                     }
                 } catch (Exception e) {
-                    LogUtil.error("Parse test plan report cenario case error!", e);
+                    LogUtil.error("Parse test plan report scenario case error!", e);
                 }
             }
 

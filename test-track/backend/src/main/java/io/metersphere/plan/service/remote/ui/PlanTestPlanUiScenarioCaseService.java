@@ -9,7 +9,7 @@ import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanScenarioStepCountSimpleDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.dto.UiPlanReportDTO;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
