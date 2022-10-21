@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer">
+    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer" class="ms-drawer-case-header">
       <template v-slot:header>
         <api-case-header
           :api="api"
@@ -639,5 +639,7 @@ export default {
 .ms-drawer :deep(.ms-drawer-body) {
   margin-top: 40px;
 }
-
+.ms-drawer-case-header :deep(.ms-drawer-header){
+  margin-left: 0px;
+}
 </style>
