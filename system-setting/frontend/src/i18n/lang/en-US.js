@@ -7,7 +7,8 @@ const message = {
     search_get_more_tip: 'Search for other options'
   },
   system: {
-    environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})"
+    environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})",
+    search_by_environment_name: "search by environment name",
   },
   display: {
     title: 'Theme',
