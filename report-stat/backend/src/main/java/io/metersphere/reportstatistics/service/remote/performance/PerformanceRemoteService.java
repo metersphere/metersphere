@@ -1,4 +1,4 @@
-package io.metersphere.reportstatistics.service.remote.performancetest;
+package io.metersphere.reportstatistics.service.remote.performance;
 
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.reportstatistics.dto.TestCaseCountChartResult;

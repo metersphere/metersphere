@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestAnalysisMapper">
 
-    <select id="getCraeteCaseReport" resultType="io.metersphere.dto.TestAnalysisChartResult">
+    <select id="getCreateCaseReport" resultType="io.metersphere.dto.TestAnalysisChartResult">
         select dateStr, ifnull(tt.num,0) countNum
         from
         (

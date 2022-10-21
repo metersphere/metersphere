@@ -9,6 +9,6 @@ export function getCountReport(param) {
 }
 
 export function initCountData(param) {
-  return post("/report/test/case/count/initDatas", param)
+  return post("/report/test/case/count/initData", param)
 }
 

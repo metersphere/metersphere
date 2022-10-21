@@ -13,7 +13,7 @@ public class ScheduleUtil {
         if (!CronExpression.isValidExpression(cron)) {
             return 0;
         }
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Caclulate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();
         Date time1 = trigger.getFireTimeAfter(time0);
         return time1 == null ? 0 : time1.getTime();

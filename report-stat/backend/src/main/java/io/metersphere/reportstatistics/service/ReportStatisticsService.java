@@ -84,7 +84,7 @@ public class ReportStatisticsService {
         boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
         if (isReportNeedUpdate) {
             TestCaseCountRequest countRequest = JSON.parseObject(blob.getSelectOption(), TestCaseCountRequest.class);
-            Map<String, Object> returnDataOption = this.reloadDatas(countRequest, JSON.toJSONString(dataOption.get("chartType")));
+            Map<String, Object> returnDataOption = this.reloadData(countRequest, JSON.toJSONString(dataOption.get("chartType")));
             if (returnDataOption != null) {
                 dataOption = returnDataOption;
             }
@@ -104,7 +104,7 @@ public class ReportStatisticsService {
         return blob;
     }
 
-    private Map<String, Object> reloadDatas(TestCaseCountRequest request, String chartType) {
+    private Map<String, Object> reloadData(TestCaseCountRequest request, String chartType) {
         if (StringUtils.isEmpty(chartType)) {
             chartType = "bar";
         }
@@ -117,7 +117,7 @@ public class ReportStatisticsService {
             loadOptionObject.put("xaxis", JSON.toJSONString(testCaseCountResponse.getBarChartDTO().getXAxis()));
             loadOptionObject.put("yAxis", JSON.toJSONString(testCaseCountResponse.getBarChartDTO().getYAxis()));
             loadOptionObject.put("tooltip", "{}");
-            loadOptionObject.put("lable", "{}");
+            loadOptionObject.put("label", "{}");
             if (!CollectionUtils.isEmpty(testCaseCountResponse.getBarChartDTO().getSeries())) {
                 List<Series> list = testCaseCountResponse.getBarChartDTO().getSeries();
                 for (Series model : list) {

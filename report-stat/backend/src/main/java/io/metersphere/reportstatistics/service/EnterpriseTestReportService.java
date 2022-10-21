@@ -152,7 +152,7 @@ public class EnterpriseTestReportService {
         request.setCreateTime(time);
         request.setUpdateTime(time);
 
-        boolean sendSucess = false;
+        boolean sendSuccess = false;
         if (StringUtils.isEmpty(request.getStatus())) {
             request.setStatus(EnterpriseReportStatus.NEW.name());
         } else if (StringUtils.equalsIgnoreCase(request.getStatus(), "send")) {
@@ -160,14 +160,14 @@ public class EnterpriseTestReportService {
             try {
                 this.sendEmail(request, false);
                 request.setLastSendTime(time);
-                sendSucess = true;
+                sendSuccess = true;
             } catch (Exception e) {
-                request.setStatus(EnterpriseReportStatus.SEND_FAILD.name());
+                request.setStatus(EnterpriseReportStatus.SEND_FAILED.name());
                 LogUtil.error(e);
             }
         }
         enterpriseTestReportMapper.insert(request);
-        if (sendSucess) {
+        if (sendSuccess) {
             this.insertEnterpriseSendRecord(request);
         }
         return request;
@@ -175,20 +175,20 @@ public class EnterpriseTestReportService {
 
     public EnterpriseTestReport send(EnterpriseTestReportWithBLOBs param) {
         EnterpriseTestReportWithBLOBs bloBs = enterpriseTestReportMapper.selectByPrimaryKey(param.getId());
-        boolean sendSucess = false;
+        boolean sendSuccess = false;
         if (bloBs != null) {
             try {
                 this.sendEmail(bloBs, true);
                 bloBs.setStatus(EnterpriseReportStatus.SENDED.name());
                 bloBs.setLastSendTime(System.currentTimeMillis());
-                sendSucess = true;
+                sendSuccess = true;
             } catch (Exception e) {
-                bloBs.setStatus(EnterpriseReportStatus.SEND_FAILD.name());
+                bloBs.setStatus(EnterpriseReportStatus.SEND_FAILED.name());
                 LogUtil.error("Send email error!", e);
                 MSException.throwException("Send email error!");
             }
             enterpriseTestReportMapper.updateByPrimaryKeySelective(bloBs);
-            if (sendSucess) {
+            if (sendSuccess) {
                 this.insertEnterpriseSendRecord(bloBs);
             }
         }
@@ -205,20 +205,20 @@ public class EnterpriseTestReportService {
         long time = System.currentTimeMillis();
         request.setUpdateTime(time);
 
-        boolean sendSucess = false;
+        boolean sendSuccess = false;
         if (StringUtils.equalsIgnoreCase(request.getStatus(), "send")) {
             request.setStatus(EnterpriseReportStatus.SENDED.name());
             try {
                 this.sendEmail(request, false);
                 request.setLastSendTime(time);
-                sendSucess = true;
+                sendSuccess = true;
             } catch (Exception e) {
-                request.setStatus(EnterpriseReportStatus.SEND_FAILD.name());
+                request.setStatus(EnterpriseReportStatus.SEND_FAILED.name());
                 LogUtil.error(e);
             }
         }
         enterpriseTestReportMapper.updateByPrimaryKeySelective(request);
-        if (sendSucess) {
+        if (sendSuccess) {
             this.insertEnterpriseSendRecord(request);
         }
         return request;
@@ -499,7 +499,6 @@ public class EnterpriseTestReportService {
         // 读取图片字节数组
         try {
             InputStream in = fileSystemResource.getInputStream();
-            System.out.println("文件大小（字节）=" + in.available());
             data = new byte[in.available()];
             in.read(data);
             in.close();
@@ -538,13 +537,13 @@ public class EnterpriseTestReportService {
         return returnList;
     }
 
-    public List<EnterpriseTestReportDTO> parseDTO(List<EnterpriseTestReport> modleList) {
-        if (CollectionUtils.isEmpty(modleList)) {
+    public List<EnterpriseTestReportDTO> parseDTO(List<EnterpriseTestReport> modelList) {
+        if (CollectionUtils.isEmpty(modelList)) {
             return new ArrayList<>(0);
         } else {
             List<String> userIdList = new ArrayList<>();
             List<String> idList = new ArrayList<>();
-            modleList.forEach(item -> {
+            modelList.forEach(item -> {
                 idList.add(item.getId());
                 if (!userIdList.contains(item.getCreateUser())) {
                     userIdList.add(item.getCreateUser());
@@ -554,7 +553,7 @@ public class EnterpriseTestReportService {
             Map<String, Schedule> scheduleMap = scheduleByResourceIds.stream().collect(Collectors.toMap(Schedule::getResourceId, Schedule -> Schedule));
             List<EnterpriseTestReportDTO> returnList = new ArrayList<>();
             Map<String, User> userMap = baseUserService.queryNameByIds(userIdList);
-            for (EnterpriseTestReport model : modleList) {
+            for (EnterpriseTestReport model : modelList) {
                 EnterpriseTestReportDTO dto = new EnterpriseTestReportDTO();
                 BeanUtils.copyBean(dto, model);
                 if (userMap.containsKey(dto.getCreateUser())) {

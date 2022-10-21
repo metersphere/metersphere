@@ -12,7 +12,7 @@ import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
 import io.metersphere.reportstatistics.service.remote.apitest.ApiCaseRemoteService;
 import io.metersphere.reportstatistics.service.remote.apitest.ScenarioRemoteService;
-import io.metersphere.reportstatistics.service.remote.performancetest.PerformanceRemoteService;
+import io.metersphere.reportstatistics.service.remote.performance.PerformanceRemoteService;
 import io.metersphere.reportstatistics.service.remote.projectmanagement.TestCaseTemplateRemoteService;
 import io.metersphere.reportstatistics.service.remote.track.TestCaseRemoteService;
 import io.metersphere.request.member.QueryMemberRequest;
@@ -623,7 +623,7 @@ public class TestCaseCountService {
             }
         }
 
-        Map<String, TestCaseCountSummary> returmMap = new LinkedHashMap<>();
+        Map<String, TestCaseCountSummary> returnMap = new LinkedHashMap<>();
 
         if (StringUtils.equalsIgnoreCase(order, "desc")) {
             TreeMap<Long, List<TestCaseCountSummary>> treeMap = new TreeMap<>();
@@ -643,7 +643,7 @@ public class TestCaseCountService {
 
             for (int i = sortedList.size(); i > 0; i--) {
                 TestCaseCountSummary model = sortedList.get(i - 1);
-                returmMap.put(model.groupName, model);
+                returnMap.put(model.groupName, model);
             }
         } else if (StringUtils.equalsIgnoreCase(order, "asc")) {
             TreeMap<Long, List<TestCaseCountSummary>> treeMap = new TreeMap<>();
@@ -658,15 +658,15 @@ public class TestCaseCountService {
             }
             for (List<TestCaseCountSummary> list : treeMap.values()) {
                 for (TestCaseCountSummary model : list) {
-                    returmMap.put(model.groupName, model);
+                    returnMap.put(model.groupName, model);
                 }
             }
         } else {
-            returmMap = summaryMap;
+            returnMap = summaryMap;
         }
 
 
-        return returmMap;
+        return returnMap;
     }
 
     private Map<String, String> getUserIdMap() {
@@ -807,11 +807,11 @@ public class TestCaseCountService {
         dto.setLegend(legend);
     }
 
-    private void formatLegend(Legend legend, List<String> datas, TestCaseCountRequest yrequest) {
+    private void formatLegend(Legend legend, List<String> dataList, TestCaseCountRequest yrequest) {
         Map<String, Boolean> selected = new LinkedHashMap<>();
         List<String> list = new LinkedList<>();
         legend.setSelected(selected);
-        legend.setData(datas);
+        legend.setData(dataList);
     }
 
     private void formatTable(List<TestCaseCountTableDTO> dtos, Map<String, TestCaseCountSummary> summaryMap) {
@@ -830,7 +830,7 @@ public class TestCaseCountService {
         return map;
     }
 
-    public Map<String, List<Map<String, String>>> getSelectFilterDatas(String projectId) {
+    public Map<String, List<Map<String, String>>> getSelectFilterData(String projectId) {
         Map<String, List<Map<String, String>>> returnMap = new HashMap<>();
 
         //组装用户
