@@ -19,7 +19,7 @@
       </ms-table-column>
 
       <ms-table-column
-        :label="$t('home.case.case_name')"
+        :label="$t('api_test.home_page.failed_case_list.table_coloum.case_name')"
         :min-width="120"
         prop="caseName">
       </ms-table-column>
