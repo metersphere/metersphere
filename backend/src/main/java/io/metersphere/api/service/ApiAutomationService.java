@@ -719,19 +719,6 @@ public class ApiAutomationService {
         if (apiScenarioMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("automation_name_already_exists") + " :" + Translator.get("api_definition_module") + request.getModulePath() + " ," + Translator.get("automation_name") + " :" + request.getName());
         }
-        if (StringUtils.isNotBlank(request.getId())) {
-            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
-            if (scenario != null) {
-                example = new ApiScenarioExample();
-                example.createCriteria().andRefIdEqualTo(scenario.getRefId()).andStatusNotEqualTo("Trash");
-                List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
-                if (apiScenarios != null && apiScenarios.size() > 1) {
-                    if (!StringUtils.equals(scenario.getName(), request.getName())) {
-                        MSException.throwException(Translator.get("automation_versions_update"));
-                    }
-                }
-            }
-        }
     }
 
     public ApiScenarioDTO getNewApiScenario(String id) {
