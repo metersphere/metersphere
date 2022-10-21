@@ -38,7 +38,7 @@
     </div>
     <p class="tip">{{ this.$t('commons.ssl.entry') }} </p>
     <div class="ms-border">
-      <el-table :data="sslConfig.entrys" highlight-current-row v-if="!loading">
+      <el-table :data="sslConfig.entry" highlight-current-row v-if="!loading">
         <el-table-column prop="originalAsName" :label="$t('commons.ssl.original_as_name')" show-overflow-tooltip
                          width="180"/>
         <el-table-column prop="newAsName" :label="$t('commons.ssl.new_as_name')" show-overflow-tooltip
@@ -145,7 +145,7 @@ export default {
               item.password = "";
               item.default = false;
 
-              this.sslConfig.entrys.unshift(item);
+              this.sslConfig.entry.unshift(item);
             })
             this.sslConfig.files.unshift(sslFile);
           } else {
@@ -159,7 +159,7 @@ export default {
               }
               item.password = "";
               item.default = false;
-              this.sslConfig.entrys.unshift(item);
+              this.sslConfig.entry.unshift(item);
             })
             this.sslConfig.files.unshift(sslFile);
           }
@@ -170,24 +170,24 @@ export default {
       const index = this.sslConfig.files.findIndex((d) => d.id === row.id);
       this.sslConfig.files.splice(index, 1);
       // 同时删除条目
-      if (this.sslConfig.entrys) {
+      if (this.sslConfig.entry) {
         let removeKeys = [];
-        this.sslConfig.entrys.forEach(item => {
+        this.sslConfig.entry.forEach(item => {
           if (item && item.sourceId === row.id) {
-            const index = this.sslConfig.entrys.findIndex((d) => d.sourceId === row.id);
+            const index = this.sslConfig.entry.findIndex((d) => d.sourceId === row.id);
             removeKeys.push(index);
           }
         });
         removeKeys.forEach(index => {
           if (index !== -1) {
-            this.sslConfig.entrys.splice(index, 1);
+            this.sslConfig.entry.splice(index, 1);
           }
         })
       }
     },
     changeCheck(row) {
       if (row.default) {
-        this.sslConfig.entrys.forEach(item => {
+        this.sslConfig.entry.forEach(item => {
           if (item && item.sourceId !== row.id) {
             item.default = false;
           }
