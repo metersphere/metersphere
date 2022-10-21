@@ -78,8 +78,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static io.metersphere.service.ServiceUtils.buildVersionInfo;
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestCaseService {
@@ -114,8 +112,8 @@ public class TestCaseService {
     @Resource
     TestCaseNodeService testCaseNodeService;
 
-//    @Resource
-//    ApiTestCaseMapper apiTestCaseMapper;
+    //    @Resource
+    //    ApiTestCaseMapper apiTestCaseMapper;
 
     @Resource
     TestCaseIssueService testCaseIssueService;
@@ -132,9 +130,9 @@ public class TestCaseService {
     @Resource
     AttachmentModuleRelationMapper attachmentModuleRelationMapper;
     //    @Resource
-//    private LoadTestMapper loadTestMapper;
-//    @Resource
-//    private ApiScenarioMapper apiScenarioMapper;
+    //    private LoadTestMapper loadTestMapper;
+    //    @Resource
+    //    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
@@ -146,19 +144,19 @@ public class TestCaseService {
     @Resource
     private RelevanceLoadCaseService relevanceLoadCaseService;
     //    @Resource
-//    @Lazy
-//    private ApiTestCaseService apiTestCaseService;
-//    @Resource
-//    @Lazy
-//    private ApiAutomationService apiAutomationService;
-//    @Resource
-//    @Lazy
-//    private PerformanceTestService performanceTestService;
+    //    @Lazy
+    //    private ApiTestCaseService apiTestCaseService;
+    //    @Resource
+    //    @Lazy
+    //    private ApiAutomationService apiAutomationService;
+    //    @Resource
+    //    @Lazy
+    //    private PerformanceTestService performanceTestService;
     @Resource
     private TestCaseFollowMapper testCaseFollowMapper;
     //    @Resource
-//    @Lazy
-//    private TestPlanService testPlanService;
+    //    @Lazy
+    //    private TestPlanService testPlanService;
     @Resource
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
@@ -894,9 +892,9 @@ public class TestCaseService {
             order.setPrefix("test_case");
         });
         // todo
-//        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
-//            request.setRepeatCase(true);
-//        }
+        //        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+        //            request.setRepeatCase(true);
+        //        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, getTestCaseByNotInPlan(request));
     }
@@ -2537,23 +2535,23 @@ public class TestCaseService {
         return null;
     }
 
-//    public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
-//        List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseTestMapper.relevanceApiList(request);
-//        ServiceUtils.buildVersionInfo(apiTestCaseDTOS);
-//        return apiTestCaseDTOS;
-//    }
-//
-//    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
-//        List<ApiScenarioDTO> apiScenarioDTOS = testCaseTestMapper.relevanceScenarioList(request);
-//        ServiceUtils.buildVersionInfo(apiScenarioDTOS);
-//        return apiScenarioDTOS;
-//    }
-//
-//    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
-//        List<LoadTestDTO> loadTestDTOS = testCaseTestMapper.relevanceLoadList(request);
-//        ServiceUtils.buildVersionInfo(loadTestDTOS);
-//        return loadTestDTOS;
-//    }
+    //    public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
+    //        List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseTestMapper.relevanceApiList(request);
+    //        ServiceUtils.buildVersionInfo(apiTestCaseDTOS);
+    //        return apiTestCaseDTOS;
+    //    }
+    //
+    //    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
+    //        List<ApiScenarioDTO> apiScenarioDTOS = testCaseTestMapper.relevanceScenarioList(request);
+    //        ServiceUtils.buildVersionInfo(apiScenarioDTOS);
+    //        return apiScenarioDTOS;
+    //    }
+    //
+    //    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
+    //        List<LoadTestDTO> loadTestDTOS = testCaseTestMapper.relevanceLoadList(request);
+    //        ServiceUtils.buildVersionInfo(loadTestDTOS);
+    //        return loadTestDTOS;
+    //    }
 
     public void relateTest(String type, String caseId, List<String> apiIds) {
         apiIds.forEach(testId -> {
@@ -2847,7 +2845,7 @@ public class TestCaseService {
         Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
                 .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
         testCases.forEach(testCase -> {
-           testCase.setVersionName(projectVersionMap.get(testCase.getVersionId()));
+            testCase.setVersionName(projectVersionMap.get(testCase.getVersionId()));
         });
     }
 
@@ -3091,7 +3089,7 @@ public class TestCaseService {
 
     public List<TestAnalysisChartResult> countTestCaseByTypeAndRequest(String type, TestAnalysisChartRequest request) {
         if (StringUtils.equalsIgnoreCase(type, "create")) {
-            return extTestAnalysisMapper.getCraeteCaseReport(request);
+            return extTestAnalysisMapper.getCreateCaseReport(request);
         } else if (StringUtils.equalsIgnoreCase(type, "update")) {
             return extTestAnalysisMapper.getUpdateCaseReport(request);
         } else {
