@@ -2,7 +2,6 @@ package io.metersphere.gateway.service;
 
 import io.metersphere.base.domain.AuthSource;
 import io.metersphere.base.domain.User;
-import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
@@ -61,7 +60,7 @@ public class SSOService {
     @Resource
     private UserLoginService userLoginService;
 
-    public void exchangeToken(String code, String authId, WebSession session, Locale locale) throws Exception {
+    public Optional<SessionUser> exchangeToken(String code, String authId, WebSession session, Locale locale) throws Exception {
         AuthSource authSource = authSourceService.getAuthSource(authId);
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String tokenUrl = (String) config.get("tokenUrl");
@@ -92,7 +91,7 @@ public class SSOService {
             MSException.throwException(content);
         }
 
-        doOICDLogin(authSource, accessToken, session, locale);
+        return doOICDLogin(authSource, accessToken, session, locale);
     }
 
     private RestTemplate getRestTemplateIgnoreSSL() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
@@ -118,7 +117,7 @@ public class SSOService {
         return new RestTemplate(requestFactory);
     }
 
-    private void doOICDLogin(AuthSource authSource, String accessToken, WebSession session, Locale locale) throws Exception {
+    private Optional<SessionUser> doOICDLogin(AuthSource authSource, String accessToken, WebSession session, Locale locale) throws Exception {
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String userInfoUrl = (String) config.get("userInfoUrl");
         HttpHeaders headers = new HttpHeaders();
@@ -157,12 +156,13 @@ public class SSOService {
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("user", userOptional.get());
+        return userOptional;
     }
 
     /**
      * cas callback
      */
-    public void serviceValidate(String ticket, String authId, WebSession session, Locale locale) throws Exception {
+    public Optional<SessionUser> serviceValidate(String ticket, String authId, WebSession session, Locale locale) throws Exception {
         AuthSource authSource = authSourceService.getAuthSource(authId);
         Map config = JSON.parseObject(authSource.getConfiguration(), Map.class);
         String redirectUrl = ((String) config.get("redirectUrl")).replace("${authId}", authId);
@@ -196,9 +196,12 @@ public class SSOService {
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("user", userOptional.get());
+        session.getAttributes().put("casTicket", ticket);
         // 记录cas对应关系
         Long timeout = env.getProperty("spring.session.timeout", Long.class);
         stringRedisTemplate.opsForValue().set(ticket, name, timeout, TimeUnit.SECONDS);
+
+        return userOptional;
     }
 
     public void kickOutUser(String logoutToken) {

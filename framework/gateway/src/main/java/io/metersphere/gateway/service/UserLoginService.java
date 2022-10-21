@@ -8,7 +8,6 @@ import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.GroupResourceDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserGroupPermissionDTO;
@@ -18,6 +17,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.WebSession;
 
@@ -55,7 +55,7 @@ public class UserLoginService {
                 userDTO = loginLocalMode(request.getUsername(), request.getPassword());
                 break;
         }
-        autoSwitch(userDTO);
+        autoSwitch(session, userDTO);
         return Optional.of(SessionUser.fromUser(userDTO, session.getId()));
     }
 
@@ -84,7 +84,7 @@ public class UserLoginService {
         return user;
     }
 
-    public void autoSwitch(UserDTO user) {
+    public void autoSwitch(WebSession session, UserDTO user) {
         // 用户有 last_project_id 权限
         if (hasLastProjectPermission(user)) {
             return;
@@ -94,7 +94,7 @@ public class UserLoginService {
             return;
         }
         // 判断其他权限
-        checkNewWorkspaceAndProject(user);
+        checkNewWorkspaceAndProject(session, user);
     }
 
     private boolean hasLastProjectPermission(UserDTO user) {
@@ -162,7 +162,7 @@ public class UserLoginService {
         return false;
     }
 
-    private void checkNewWorkspaceAndProject(UserDTO user) {
+    private void checkNewWorkspaceAndProject(WebSession session, UserDTO user) {
         List<UserGroup> userGroups = user.getUserGroups();
         List<String> projectGroupIds = user.getGroups()
                 .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
@@ -180,7 +180,7 @@ public class UserLoginService {
                     .collect(Collectors.toList());
             if (workspaces.size() > 0) {
                 String wsId = workspaces.get(0).getSourceId();
-                switchUserResource("workspace", wsId, user);
+                switchUserResource(session, "workspace", wsId, user);
             } else {
                 // 用户登录之后没有项目和工作空间的权限就把值清空
                 user.setLastWorkspaceId("");
@@ -200,7 +200,7 @@ public class UserLoginService {
         }
     }
 
-    public void switchUserResource(String sign, String sourceId, UserDTO sessionUser) {
+    public void switchUserResource(WebSession session, String sign, String sourceId, UserDTO sessionUser) {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
@@ -217,9 +217,11 @@ public class UserLoginService {
         }
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
-        SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
+        session.getAttributes().put("user", SessionUser.fromUser(user, session.getId()));
+        session.getAttributes().put(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getId());
         userMapper.updateByPrimaryKeySelective(newUser);
     }
+
     public UserDTO getLoginUser(String userId, List<String> list) {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andSourceIn(list);
@@ -381,9 +383,6 @@ public class UserLoginService {
         }
         // 执行变更
         userMapper.updateByPrimaryKeySelective(user);
-        if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
-            SessionUtils.kickOutUser(user.getId());
-        }
     }
 
     private List<Project> getProjectListByWsAndUserId(String userId, String workspaceId) {
@@ -403,5 +402,21 @@ public class UserLoginService {
             }
         }));
         return projectList;
+    }
+
+
+    public void validateCsrfToken(String sessionId, String csrfToken) {
+        if (StringUtils.isBlank(csrfToken)) {
+            throw new RuntimeException("csrf token is empty");
+        }
+        csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
+
+        String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
+        if (signatureArray.length != 4) {
+            throw new RuntimeException("invalid token");
+        }
+        if (!StringUtils.equals(sessionId, signatureArray[2])) {
+            throw new RuntimeException("Please check csrf token.");
+        }
     }
 }

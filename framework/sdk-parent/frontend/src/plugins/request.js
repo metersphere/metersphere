@@ -3,7 +3,7 @@ import {$error} from "./message"
 import {getCurrentProjectID, getCurrentWorkspaceId} from "../utils/token";
 import {PROJECT_ID, TokenKey, WORKSPACE_ID} from "../utils/constants";
 import packageJSON from '@/../package.json'
-import {getUUID} from "../utils";
+import {getUrlParams, getUUID} from "../utils";
 import {Base64} from "js-base64";
 
 // baseURL 根据是否是独立运行修改
@@ -20,6 +20,8 @@ if (window.location.pathname.startsWith('/' + packageJSON.name)) {
     window.location.href = '/'
   }
 }
+
+let urlParams = getUrlParams(window.location.href);
 
 const instance = axios.create({
   baseURL, // url = base url + request url
@@ -39,10 +41,16 @@ instance.interceptors.request.use(
     }
     // sso callback 过来的会有sessionId在url上
     if (!config.headers['X-AUTH-TOKEN']) {
-      const paramsStr = window.location.href
-      let sessionId = paramsStr.split('_token=')[1]
+      let sessionId = urlParams['_token']
       if (sessionId) {
         config.headers['X-AUTH-TOKEN'] = Base64.decode(sessionId);
+      }
+    }
+    // sso callback 过来的会有csrf在url上
+    if (!config.headers['CSRF-TOKEN']) {
+      let csrf = urlParams['_csrf']
+      if (csrf) {
+        config.headers['CSRF-TOKEN'] = csrf;
       }
     }
     // 包含 工作空间 项目的标识
