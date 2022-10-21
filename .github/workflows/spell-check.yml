@@ -1,0 +1,22 @@
+# refer to https://github.com/crate-ci/typos/blob/master/docs/github-action.md
+name: Spell Check
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Repo branch'
+        required: true
+        default: "main"
+
+jobs:
+  run:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Check
+        uses: crate-ci/typos@master
