@@ -1,4 +1,4 @@
-package io.metersphere.plan.dto.reqeust;
+package io.metersphere.plan.dto.request;
 
 
 import io.metersphere.dto.RunModeConfigDTO;
