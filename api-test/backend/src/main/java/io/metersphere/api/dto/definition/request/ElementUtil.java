@@ -176,14 +176,25 @@ public class ElementUtil {
                         MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                     } else {
                         BodyFile file = item.getFiles().get(0);
-                        String path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
-                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageEnums.FILE_REF.name())) {
-                            path = ApiFileUtil.getFilePath(file);
-                        }
-                        if (!config.isOperating() && !new File(path).exists()) {
-                            MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+                        String fileId = item.getId();
+                        boolean isRef = false;
+                        String path = null;
+                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                            isRef = true;
+                            fileId = file.getFileId();
+                            path = FileUtils.getFilePath(file);
+                        } else {
+                            path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
+                            if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageEnums.FILE_REF.name())) {
+                                path = ApiFileUtil.getFilePath(file);
+                            }
+                            if (!config.isOperating() && !new File(path).exists()) {
+                                MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+                            }
                         }
                         csvDataSet.setProperty("filename", path);
+                        csvDataSet.setProperty("isRef", isRef);
+                        csvDataSet.setProperty("fileId", fileId);
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("shareMode", shareMode);
