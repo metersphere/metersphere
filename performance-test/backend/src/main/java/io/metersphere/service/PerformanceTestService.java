@@ -167,7 +167,7 @@ public class PerformanceTestService {
 
     private void conversionFiles(String id, List<String> conversionFileIdList) {
         for (String metaFileId : conversionFileIdList) {
-            if (!this.loadTestFileExsits(id, metaFileId)) {
+            if (!this.loadTestFileExists(id, metaFileId)) {
                 LoadTestFile loadTestFile = new LoadTestFile();
                 loadTestFile.setTestId(id);
                 loadTestFile.setFileId(metaFileId);
@@ -176,13 +176,13 @@ public class PerformanceTestService {
         }
     }
 
-    private boolean loadTestFileExsits(String testId, String metaFileId) {
-        boolean fileExsits = fileMetadataService.isFileExits(metaFileId);
+    private boolean loadTestFileExists(String testId, String metaFileId) {
+        boolean fileExists = fileMetadataService.isFileExits(metaFileId);
         LoadTestFileExample example = new LoadTestFileExample();
         example.createCriteria().andTestIdEqualTo(testId).andFileIdEqualTo(metaFileId);
         long loadTestFiles = loadTestFileMapper.countByExample(example);
 
-        if (!fileExsits && loadTestFiles > 0) {
+        if (!fileExists && loadTestFiles > 0) {
             return false;
         } else {
             return true;

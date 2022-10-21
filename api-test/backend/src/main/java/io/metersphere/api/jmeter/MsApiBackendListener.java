@@ -3,7 +3,6 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.cache.JMeterEngineCache;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.FixedCapacityUtil;
@@ -87,9 +86,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
                 LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
                 apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
-            }
-            if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name())) {
-                apiExecutionQueueService.sendMessage(dto.getReportId());
             }
             LoggerUtil.info("TEST-END处理结果集完成", dto.getReportId());
         } catch (Exception e) {

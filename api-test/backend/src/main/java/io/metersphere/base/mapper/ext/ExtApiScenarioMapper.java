@@ -30,7 +30,7 @@ public interface ExtApiScenarioMapper {
 
     int selectTrash(@Param("projectId") String projectId);
 
-    List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids, @Param("oderId") String oderId);
+    List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids, @Param("order") String order);
 
     List<ApiScenario> selectReference(@Param("request") ApiScenarioRequest request);
 

@@ -322,8 +322,8 @@ public class MsTCPSampler extends MsTestElement {
     }
 
     private String formatMockValue(String value) {
-        String patten = ">@[^>@]+</?";
-        Pattern r = Pattern.compile(patten);
+        String pattern = ">@[^>@]+</?";
+        Pattern r = Pattern.compile(pattern);
         try {
             Matcher m = r.matcher(value);
             while (m.find()) {

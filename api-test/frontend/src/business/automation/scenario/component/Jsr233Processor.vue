@@ -13,7 +13,7 @@
     :if-from-variable-advance="ifFromVariableAdvance"
     :title="title" v-loading="loading">
     <!--自定义脚本-->
-    <legend style="width: 100%" v-if="request && this.request.type === 'JSR223Processor'">
+    <legend style="width: 100%;display:table-column" v-if="request && this.request.type === 'JSR223Processor'">
       <p class="ms-tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
         <!-- 请求头-->

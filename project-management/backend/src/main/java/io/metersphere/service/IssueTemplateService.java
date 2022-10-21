@@ -360,6 +360,7 @@ public class IssueTemplateService extends TemplateBaseService {
             issueTemplateRecord.setUpdateTime(System.currentTimeMillis());
             issueTemplateRecord.setCreateUser(SessionUtils.getUserId());
             issueTemplateRecord.setProjectId(targetProjectId);
+            issueTemplateRecord.setGlobal(false);
             issueTemplateRecords.add(issueTemplateRecord);
             // 根据复制模式设置自定义字段
             sourceCustomFieldTemplates.forEach(sourceCustomFieldTemplate -> {
@@ -420,7 +421,7 @@ public class IssueTemplateService extends TemplateBaseService {
                         } else {
                             // 非系统字段, 则追加_copy
                             tarCustomField.setId(UUID.randomUUID().toString());
-                            tarCustomField.setName(tarCustomField.getName().concat("_copy"));
+                            tarCustomField.setName(tarCustomField.getName().concat("_copy").concat(UUID.randomUUID().toString().substring(0, 8)));
                             tarCustomField.setOptions(sourceCustomField.getOptions());
                             customFieldRecords.add(tarCustomField);
                         }
@@ -430,13 +431,6 @@ public class IssueTemplateService extends TemplateBaseService {
                 tarCustomFieldTemplate.setId(UUID.randomUUID().toString());
                 tarCustomFieldTemplate.setFieldId(tarCustomField.getId());
                 tarCustomFieldTemplate.setTemplateId(issueTemplateRecord.getId());
-                String defaultValue;
-                if (sourceCustomFieldTemplate.getDefaultValue() != null && tarCustomField.getOptions().contains(sourceCustomFieldTemplate.getDefaultValue())) {
-                    defaultValue = sourceCustomFieldTemplate.getDefaultValue();
-                } else {
-                    defaultValue = StringUtils.EMPTY;
-                }
-                tarCustomFieldTemplate.setDefaultValue(defaultValue);
                 customFieldTemplateRecords.add(tarCustomFieldTemplate);
             });
         });

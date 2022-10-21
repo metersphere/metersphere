@@ -14,7 +14,7 @@
       :title="pluginName">
 
       <template v-slot:request>
-        <legend style="width: 100%">
+        <legend style="width: 100%;display:table-column">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
           <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
             <!-- 请求头-->
@@ -226,7 +226,7 @@ export default {
       return false;
     },
     isExternalImport() {
-      if (this.request.referenced && this.request.referenced === 'OT_IMPORT') {
+      if (this.request.referenced && this.request.referenced === 'TO_IMPORT') {
         return true
       }
       return false;

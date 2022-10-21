@@ -59,7 +59,10 @@ public class SessionUtils {
         }
         Map<String, ?> users = sessionRepository.findByPrincipalName(username);
         if (MapUtils.isNotEmpty(users)) {
-            users.keySet().forEach(sessionRepository::deleteById);
+            users.keySet().forEach(k -> {
+                sessionRepository.deleteById(k);
+                sessionRepository.getSessionRedisOperations().delete("spring:session:sessions:" + k);
+            });
         }
     }
 

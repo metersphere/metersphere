@@ -10,6 +10,7 @@
 import MsResponseResult from "../response/ResponseResult";
 import MsRequestMetric from "../response/RequestMetric";
 import {getApiReportDetail} from "../../../../api/definition-report";
+import {baseSocket} from "@/api/base-network";
 
 export default {
   name: "MsRequestResultTail",
@@ -51,10 +52,40 @@ export default {
         this.loading = true;
         getApiReportDetail(this.reportId).then(response => {
           this.loading = false;
-          if (response.data) {
-            this.report = JSON.parse(response.data.content);
+          let data = response.data;
+          if (data) {
+            this.report = JSON.parse(data.content);
+            if (data.status === 'RUNNING') {
+              this.loading = true;
+              this.socketSync();
+            }
           }
         });
+      }
+    },
+    socketSync() {
+      this.websocket = baseSocket(this.reportId);
+      this.websocket.onmessage = this.onMessages;
+      this.websocket.onerror = this.onError;
+    },
+    onError() {
+      this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+    },
+    onMessages(e) {
+      if (e.data && e.data.startsWith("result_")) {
+        try {
+          let data = e.data.substring(7);
+          this.report = JSON.parse(data);
+          this.websocket.close();
+          this.loading = false;
+          this.$EventBus.$emit("API_TEST_END", this.reportId);
+        } catch (e) {
+          console.log(e) // for debug
+          this.websocket.close();
+          this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+        }
+      } else if (e.data === "MS_TEST_END") {
+        this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
       }
     },
   },

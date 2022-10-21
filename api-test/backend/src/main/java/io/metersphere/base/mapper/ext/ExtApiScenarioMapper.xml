@@ -442,7 +442,7 @@
         select *
         from api_scenario
         where id in (${ids})
-        ORDER BY FIND_IN_SET(id, ${oderId})
+        ORDER BY FIND_IN_SET(id, ${order})
     </select>
 
     <select id="selectReference" resultType="io.metersphere.base.domain.ApiScenario">

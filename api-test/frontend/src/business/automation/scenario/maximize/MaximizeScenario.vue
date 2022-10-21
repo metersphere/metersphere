@@ -899,7 +899,7 @@ export default {
     apiImport(importData) {
       if (importData && importData.data) {
         importData.data.forEach(item => {
-          this.setApiParameter(item, "API", "OT_IMPORT");
+          this.setApiParameter(item, "API", "TO_IMPORT");
         })
         this.sort();
         this.reload();

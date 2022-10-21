@@ -75,7 +75,7 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend style="width: 100%;">
+        <legend style="width: 100%;display:table-column">
           <div v-if="!ifFromVariableAdvance">
             <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -339,7 +339,7 @@ export default {
       return (this.request.referenced && verifies.indexOf(this.request.referenced) !== -1);
     },
     isExternalImport() {
-      return (this.request.referenced && this.request.referenced === 'OT_IMPORT');
+      return (this.request.referenced && this.request.referenced === 'TO_IMPORT');
     },
     isCustomizeReq() {
       return (!this.request.referenced || this.request.referenced === 'Created');
@@ -712,12 +712,6 @@ export default {
 </script>
 
 <style scoped>
-.ms-api-col-ot-import-button {
-  background-color: #EEF5FE;
-  margin-right: 20px;
-  color: #409EFF;
-}
-
 .icon.is-active {
   transform: rotate(90deg);
 }

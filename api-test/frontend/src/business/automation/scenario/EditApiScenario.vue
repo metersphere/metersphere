@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container :height="'calc(100vh - 90px)'">
+    <ms-aside-container :height="'calc(100vh - 20px)'">
       <div @click="showAll" style="overflow-x: hidden">
         <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules"
@@ -1880,7 +1880,7 @@ export default {
     apiImport(importData) {
       if (importData && importData.data) {
         importData.data.forEach(item => {
-          this.setApiParameter(item, "API", "OT_IMPORT");
+          this.setApiParameter(item, "API", "TO_IMPORT");
         })
         this.sort();
         this.reload();

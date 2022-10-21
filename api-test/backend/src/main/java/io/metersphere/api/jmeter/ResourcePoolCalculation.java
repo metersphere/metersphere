@@ -59,7 +59,7 @@ public class ResourcePoolCalculation {
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String nodeIp = node.getIp();
                 Integer port = node.getPort();
-                String uri = String.format(BASE_URL + "/jmeter/getJvmInfo", nodeIp, port);
+                String uri = String.format(BASE_URL + "/jmeter/get-jvm-info", nodeIp, port);
                 JvmInfoDTO nodeJvm = this.getNodeJvmInfo(uri);
                 if (nodeJvm == null) {
                     continue;

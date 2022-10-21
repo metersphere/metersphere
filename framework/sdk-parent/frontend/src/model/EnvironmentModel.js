@@ -23,11 +23,11 @@ export class Environment extends BaseConfig {
 export class SSLConfig extends BaseConfig {
   constructor(options = {}) {
     super();
-    this.entrys = [];
+    this.entry = [];
     this.files = [];
     this.set(options);
     this.sets({files: KeyValue}, options);
-    this.sets({entrys: KeyValue}, options);
+    this.sets({entry: KeyValue}, options);
   }
 
   initOptions(options = {}) {

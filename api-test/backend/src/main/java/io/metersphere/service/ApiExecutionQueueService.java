@@ -276,11 +276,6 @@ public class ApiExecutionQueueService {
         kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
     }
 
-    public void sendMessage(String reportId) {
-        // 发送执行通知
-        kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_API_REPORT_TOPIC, reportId, ApiReportStatus.SUCCESS.name());
-    }
-
     public void queueNext(ResultDTO dto) {
         LoggerUtil.info("开始处理队列：" + dto.getReportId() + "QID：" + dto.getQueueId());
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString())) {

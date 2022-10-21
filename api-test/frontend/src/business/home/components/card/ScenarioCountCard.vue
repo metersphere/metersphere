@@ -58,7 +58,7 @@
       <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
         <el-row>
           <span style="float: left">
-            {{ $t('api_test.home_page.detail_card.rate.scenario_pase') + ":" }}&nbsp;&nbsp;
+            {{ $t('home.table.scenario_pass') + ":" }}&nbsp;&nbsp;
           </span>
           <span class="rows-count-number" style="font-size: 14px">
             <b>

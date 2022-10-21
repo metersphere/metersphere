@@ -157,7 +157,7 @@
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
-      <test-plan-api-case-result :response="response" ref="apiCaseResult"/>
+      <test-plan-api-case-result ref="apiCaseResult"/>
 
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
@@ -319,8 +319,8 @@ export default {
       runData: [],
       testPlanCaseIds: [],
       reportId: "",
-      response: {},
       rowLoading: "",
+      runningReport: new Set(),
       userFilters: [],
       projectIds: [],
       projectList: [],
@@ -366,7 +366,10 @@ export default {
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
-
+    this.$EventBus.$on("API_TEST_END", this.handleTestEnd);
+  },
+  destroyed() {
+    this.$EventBus.$off("API_TEST_END", this.handleTestEnd);
   },
   activated() {
     this.status = 'default';
@@ -500,26 +503,18 @@ export default {
     },
     singleRun(row) {
       let reportId = getUUID().substring(0, 8);
-      this.socketSync(reportId);
       this.rowLoading = row.id;
-      run(row.id, reportId);
+      run(row.id, reportId)
+        .then(() => {
+          this.runningReport.add(reportId);
+          this.$refs.apiCaseResult.open(reportId);
+        });
     },
-    socketSync(reportId) {
-      this.websocket = reportSocket(reportId);
-      this.websocket.onmessage = this.onMessages;
-      this.websocket.onerror = this.onError;
-    },
-    onError(e) {
-      this.$error(e);
-    },
-    onMessages(e) {
-      // 这里写自身逻辑
-      if (e && e.data === "SUCCESS") {
+    handleTestEnd(reportId) {
+      if (this.runningReport.has(reportId)) {
         this.runRefresh();
+        this.runningReport.delete(reportId);
       }
-    },
-    errorRefresh() {
-      this.rowLoading = "";
     },
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
@@ -576,9 +571,6 @@ export default {
           });
         }
       });
-    },
-    getTestCase() {
-
     },
     batchEdit(form) {
       let param = {};
@@ -658,13 +650,7 @@ export default {
       }
     },
     getReportResult(apiCase) {
-      apiDefinitionPlanReportGetByCaseId(apiCase.id)
-        .then(response => {
-          if (response.data) {
-            this.response = JSON.parse(response.data.content);
-            this.$refs.apiCaseResult.open();
-          }
-        });
+      this.$refs.apiCaseResult.openByCaseId(apiCase.id);
     },
     getVersionOptions() {
       if (hasLicense()) {

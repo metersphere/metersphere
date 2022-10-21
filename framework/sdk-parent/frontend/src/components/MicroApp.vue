@@ -37,7 +37,8 @@ export default {
         props: {
           defaultPath: this.to,
           routeParams: this.routeParams,
-          routeName: this.routeName
+          routeName: this.routeName,
+          eventBus: this.$EventBus
         }
       };
       if (process.env.NODE_ENV !== 'development') {

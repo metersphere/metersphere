@@ -2,7 +2,7 @@
   <div>
     <div>
       <div style="padding-bottom: 10px;float: left">
-        <el-input :placeholder="$t('commons.search_by_name')" size="mini" v-model="selectVariable"
+        <el-input :placeholder="$t('api_test.search_by_variables')" size="mini" v-model="selectVariable"
                   @change="filter"
                   @keyup.enter="filter">
         </el-input>

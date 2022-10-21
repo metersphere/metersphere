@@ -44,7 +44,6 @@ public class TestPlanTestJob extends MsScheduleJob {
         this.expression = jobDataMap.getString("expression");
         this.projectID = jobDataMap.getString("projectId");
 
-
         businessExecute(context);
     }
 

@@ -252,7 +252,7 @@
         </filter>
         <File>${logging.file.path}/ms-jmeter-run.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/ms-jmeter-run.%d{yyyyMMdd}-%i.log
+            <FileNamePattern>${logging.file.path}/history/ms-jmeter-run-log.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
@@ -272,7 +272,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="apiRunLogAppender"/>
     </appender>
-    <logger name="ms-jmeter-run" additivity="false">
+    <logger name="ms-jmeter-run-log" additivity="false">
         <level value="${logger.level:INFO}"/>
         <appender-ref ref="runLogAppender"/>
     </logger>
