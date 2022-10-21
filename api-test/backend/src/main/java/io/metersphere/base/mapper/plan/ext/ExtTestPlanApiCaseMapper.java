@@ -1,11 +1,11 @@
 package io.metersphere.base.mapper.plan.ext;
 
-import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
+import io.metersphere.api.dto.QueryReferenceRequest;
 import io.metersphere.api.dto.automation.TestPlanDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import org.apache.ibatis.annotations.Param;
@@ -53,5 +53,6 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanApiCase> selectPlanByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
 
+    List<TestPlanApiCase> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
 }
 
