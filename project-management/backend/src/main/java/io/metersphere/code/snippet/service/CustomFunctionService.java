@@ -129,13 +129,13 @@ public class CustomFunctionService {
 
     public MsExecResponseDTO run(String reportId, Object request) {
         HashTree hashTree = null;
+        String jmx = microService.postForData(MicroServiceName.API_TEST, "/api/definition/get-hash-tree", request, String.class);
         try {
-            String jmx = microService.postForData(MicroServiceName.API_TEST, "/api/definition/get-hash-tree", request, String.class);
             Object scriptWrapper = SaveService.loadElement(new ByteArrayInputStream(jmx.getBytes(StandardCharsets.UTF_8)));
             hashTree = this.getHashTree(scriptWrapper);
         } catch (Exception e) {
-            LogUtil.error("执行代码片段时获取API模块返回的hashTree失败");
-            MSException.throwException("调用接口请求API模块获取 hash tree 失败!");
+            LogUtil.error(e.getMessage());
+            MSException.throwException(e.getMessage());
         }
         if (!FixedCapacityUtils.jmeterLogTask.containsKey(reportId)) {
             FixedCapacityUtils.jmeterLogTask.put(reportId, System.currentTimeMillis());
