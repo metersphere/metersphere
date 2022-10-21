@@ -200,6 +200,7 @@ export default {
       this.getTestCases();
     },
     projectId() {
+      this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
       this.page.condition.versionId = null;
       this.getProjectNode();
@@ -222,6 +223,13 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+    },
+    setConditionModuleIdParam() {
+      this.page.condition.components.forEach(component => {
+        if (component.key === 'moduleIds') {
+          component.options.params = {"projectId": this.projectId};
+        }
+      });
     },
     getCustomNum() {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')

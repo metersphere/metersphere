@@ -39,6 +39,10 @@ public class TestCaseNodeController {
 
     @PostMapping("/list/{projectId}")
     public List<TestCaseNodeDTO> getNodeByCondition(@PathVariable String projectId, @RequestBody(required = false) QueryTestCaseRequest request) {
+        // 高级搜索所属模块搜索时, 切换项目时需替换projectId为参数中切换项目
+        if (request != null && request.getProjectId() != null) {
+            projectId = request.getProjectId();
+        }
         baseCheckPermissionService.checkProjectOwner(projectId);
         return testCaseNodeService.getNodeTreeByProjectId(projectId, Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
     }
