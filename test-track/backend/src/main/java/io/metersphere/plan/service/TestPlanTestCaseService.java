@@ -520,8 +520,10 @@ public class TestPlanTestCaseService {
         if (CollectionUtils.isNotEmpty(cases)) {
             Map<String, Project> projectMap = ServiceUtils.getProjectMap(
                     cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
-            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
-                    cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
+            List<String> userIds = new ArrayList();
+            userIds.addAll(cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
+            userIds.addAll(cases.stream().map(TestPlanCaseDTO::getMaintainer).collect(Collectors.toList()));
+            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(userIds);
             cases.forEach(item -> {
                 if (projectMap.containsKey(item.getProjectId())) {
                     item.setProjectName(projectMap.get(item.getProjectId()).getName());
