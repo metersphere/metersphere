@@ -26,6 +26,8 @@ import io.metersphere.service.issue.domain.zentao.ZentaoConfig;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
@@ -437,16 +439,16 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String session = zentaoClient.login();
         HttpHeaders httpHeaders = new HttpHeaders();
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, httpHeaders);
         paramMap.add("files", resource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
         try {
             String fileUpload = zentaoClient.requestUrl.getFileUpload();
             ResponseEntity<String> responseEntity = restTemplate.exchange(fileUpload, HttpMethod.POST, requestEntity,
-                    String.class, "bug", null, session);
+                    String.class, session);
             String body = responseEntity.getBody();
             Map obj = JSON.parseMap(body);
-            Map data = (Map) obj.get("data");
+            Map data = (Map) JSON.parseObject(obj.get("data").toString());
             Set<String> set = data.keySet();
             if (!set.isEmpty()) {
                 id = (String) set.toArray()[0];
