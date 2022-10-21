@@ -4,7 +4,7 @@
       <!-- 表头 -->
       <template v-slot:header>
         <ms-table-header :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE']"
-                         :create-tip="btnTips"
+                         :create-tip="btnTips" :tip="$t('system.search_by_environment_name')"
                          :condition.sync="condition" @search="search" @create="createEnv">
           <template v-slot:button>
             <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT']" icon="el-icon-box"
@@ -27,13 +27,13 @@
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('api_test.environment.name')" prop="name" show-overflow-tooltip>
+        </el-table-column>
         <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId"
                          show-overflow-tooltip>
           <template v-slot="scope">
             <span>{{ idNameMap.get(scope.row.projectId) }}</span>
           </template>
-        </el-table-column>
-        <el-table-column :label="$t('api_test.environment.name')" prop="name" show-overflow-tooltip>
         </el-table-column>
         <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
           <template v-slot="scope">
