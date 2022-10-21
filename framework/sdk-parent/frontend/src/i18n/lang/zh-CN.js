@@ -1227,6 +1227,7 @@ const message = {
     buttons: {
       to_xml: "转xml结构",
     },
+    search_by_variables: "根据变量名搜索",
     case_jump_message: "跳转的用例已经删除！",
     scenario_jump_message: "跳转的场景已经删除！",
     is_continue: "是否继续",
