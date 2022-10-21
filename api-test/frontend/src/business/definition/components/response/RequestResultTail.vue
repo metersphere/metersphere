@@ -58,6 +58,10 @@ export default {
             if (data.status === 'RUNNING') {
               this.loading = true;
               this.socketSync();
+            } else if (data.status === 'SUCCESS') {
+              this.$EventBus.$emit("API_TEST_END", this.reportId);
+            } else {
+              this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
             }
           }
         });
