@@ -10,7 +10,6 @@ import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
@@ -574,41 +573,47 @@ public class TestPlanService {
     }
 
     public void caseTestRelevance(PlanCaseRelevanceRequest request, List<String> testCaseIds) {
-
         //同步添加关联的接口和测试用例
-        if (request.getChecked()) {
-            if (!testCaseIds.isEmpty()) {
-                testCaseIds.forEach(caseId -> {
-                    List<TestCaseTest> list = new ArrayList<>();
-                    TestCaseTestExample examp = new TestCaseTestExample();
-                    examp.createCriteria().andTestCaseIdEqualTo(caseId);
-                    if (testCaseTestMapper.countByExample(examp) > 0) {
-                        list = testCaseTestMapper.selectByExample(examp);
-                    }
+        if (!request.getChecked()) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(testCaseIds)) {
+            return;
+        }
+        List<TestCaseTest> list;
+        TestCaseTestExample exam = new TestCaseTestExample();
+        exam.createCriteria().andTestCaseIdIn(testCaseIds);
+        list = testCaseTestMapper.selectByExample(exam);
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        List<String> apiCaseIds = new ArrayList<>();
+        List<String> scenarioIds = new ArrayList<>();
+        List<String> performanceIds = new ArrayList<>();
+        buildCaseIdList(list, apiCaseIds, scenarioIds, performanceIds);
+        startRelevance(request, apiCaseIds, scenarioIds, performanceIds);
+    }
 
-                    List<String> apiCaseIds = new ArrayList<>();
-                    List<String> scenarioIds = new ArrayList<>();
-                    List<String> performanceIds = new ArrayList<>();
+    private void startRelevance(PlanCaseRelevanceRequest request, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+        try {
+            relevanceTestCaseTest(apiCaseIds, request.getPlanId(), planTestPlanApiCaseService::relevanceByTestIds);
+            relevanceTestCaseTest(scenarioIds, request.getPlanId(), planTestPlanScenarioCaseService::relevanceByTestIds);
+            relevanceTestCaseTest(performanceIds, request.getPlanId(), planTestPlanLoadCaseService::relevanceByTestIds);
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+    }
 
-                    for (TestCaseTest l : list) {
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
-                            performanceIds.add(l.getTestId());
-                        }
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.api.name())) {
-                            apiCaseIds.add(l.getTestId());
-                        }
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
-                            scenarioIds.add(l.getTestId());
-                        }
-                    }
-                    try {
-                        relevanceTestCaseTest(apiCaseIds, request.getPlanId(), planTestPlanApiCaseService::relevanceByTestIds);
-                        relevanceTestCaseTest(scenarioIds, request.getPlanId(), planTestPlanScenarioCaseService::relevanceByTestIds);
-                        relevanceTestCaseTest(performanceIds, request.getPlanId(), planTestPlanLoadCaseService::relevanceByTestIds);
-                    } catch (MSException e) {
-                        LogUtil.error(e);
-                    }
-                });
+    private static void buildCaseIdList(List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+        for (TestCaseTest l : list) {
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
+                performanceIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.api.name())) {
+                apiCaseIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
+                scenarioIds.add(l.getTestId());
             }
         }
     }
@@ -1321,7 +1326,7 @@ public class TestPlanService {
     }
 
     public void runReportWithExceptionHandle(TestPlanSimpleReportDTO report, Function<TestPlanSimpleReportDTO, Object> getCaseFunc,
-                                               BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
+                                             BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
         try {
             // todo 服务调用失败
             setReportCaseFunc.accept(report, getCaseFunc.apply(report));
