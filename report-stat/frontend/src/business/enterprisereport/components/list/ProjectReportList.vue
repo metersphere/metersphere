@@ -60,7 +60,7 @@
             <span v-if="scope.row.scheduleStatus === 'OPEN'">
               <el-tooltip placement="bottom-start" effect="light">
                 <div slot="content">
-                  {{ $t('home.table.run_rule') }}: {{
+                  {{ $t('api_test.home_page.running_task_list.table_coloum.run_rule') }}: {{
                     scope.row.scheduleCorn
                   }}<br/>
                   {{ $t('test_track.plan.next_run_time') }}：<span>{{
