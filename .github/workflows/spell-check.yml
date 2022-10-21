@@ -3,8 +3,12 @@ name: Spell Check
 on:
   workflow_dispatch:
     inputs:
+      repo:
+        description: 'Repo'
+        required: true
+        default: "metersphere/metersphere"
       branch:
-        description: 'Repo branch'
+        description: 'Branch'
         required: true
         default: "main"
 
@@ -16,6 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.branch }}
 
       - name: Check
