@@ -19,9 +19,9 @@ public class TestCaseCountController {
     @Resource
     TestCaseCountService testCaseCountService;
 
-    @PostMapping("/initDatas")
+    @PostMapping("/initData")
     public Map<String, List<Map<String, String>>> initDatas(@RequestBody TestCaseCountRequest request) {
-        Map<String, List<Map<String, String>>> returnMap = testCaseCountService.getSelectFilterDatas(request.getProjectId());
+        Map<String, List<Map<String, String>>> returnMap = testCaseCountService.getSelectFilterData(request.getProjectId());
         return returnMap;
     }
 

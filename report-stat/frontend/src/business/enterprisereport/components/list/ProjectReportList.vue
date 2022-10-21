@@ -29,7 +29,7 @@
                     :content="$t('commons.report_statistics.table.draft')"/>
             <ms-tag v-else-if="scope.row.status == 'SENDED'" type="success" effect="plain"
                     :content="$t('commons.report_statistics.table.sended')"/>
-            <ms-tag v-else-if="scope.row.status == 'SEND_FAILD'" type="error" effect="plain"
+            <ms-tag v-else-if="scope.row.status == 'SEND_FAILED'" type="error" effect="plain"
                     :content="$t('commons.report_statistics.table.send_error')"/>
             <ms-tag v-else type="effect" effect="plain" :content="scope.row.status"/>
           </template>
