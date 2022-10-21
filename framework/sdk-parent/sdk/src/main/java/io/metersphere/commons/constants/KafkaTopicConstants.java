@@ -9,9 +9,6 @@ public interface KafkaTopicConstants {
     String API_REPORT_TOPIC = "ms-api-exec-topic";
     // 测试计划接收执行结果TOPIC
     String TEST_PLAN_REPORT_TOPIC = "TEST_PLAN_REPORT_TOPIC";
-    // 测试计划接收条数结果TOPIC
-    String TEST_PLAN_API_REPORT_TOPIC = "TEST_PLAN_API_REPORT_TOPIC";
-
     // 保存当前站点时检查MOCK环境
     String CHECK_MOCK_ENV_TOPIC = "CHECK_MOCK_ENV_TOPIC";
 

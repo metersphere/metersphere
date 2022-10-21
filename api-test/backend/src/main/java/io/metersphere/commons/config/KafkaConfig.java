@@ -38,12 +38,6 @@ public class KafkaConfig {
                 .build();
     }
 
-    @Bean
-    public NewTopic testPlanApiCaseMessageTopic() {
-        return TopicBuilder.name(KafkaTopicConstants.TEST_PLAN_API_REPORT_TOPIC)
-                .build();
-    }
-
     public static Map<String, Object> getKafka() {
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Map<String, Object> producerProps = new HashMap<>();

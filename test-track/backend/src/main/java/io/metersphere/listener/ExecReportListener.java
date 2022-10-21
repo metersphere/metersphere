@@ -7,10 +7,8 @@ import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.TestPlanReportStatus;
-import io.metersphere.dto.MsgDTO;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.utils.WebSocketUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -23,8 +21,6 @@ import java.util.stream.Collectors;
 @Component
 public class ExecReportListener {
     public static final String CONSUME_ID = "exec-test-plan-report";
-    public static final String DEBUG_CONSUME_ID = "exec-test-plan-debug-report";
-
     @Resource
     protected ApiExecutionQueueMapper queueMapper;
     @Resource
@@ -36,17 +32,6 @@ public class ExecReportListener {
     public void consume(ConsumerRecord<?, String> record) {
         LoggerUtil.info("Execute message received：", record.value());
         this.testPlanReportTestEnded(record.value());
-    }
-
-    @KafkaListener(id = DEBUG_CONSUME_ID, topics = KafkaTopicConstants.TEST_PLAN_API_REPORT_TOPIC, groupId = "${spring.application.name}")
-    public void debugConsume(ConsumerRecord<?, String> record) {
-        LoggerUtil.info("Received debug results：", record.value());
-        MsgDTO dto = new MsgDTO();
-        dto.setExecEnd(false);
-        dto.setReportId("send." + record.key());
-        dto.setToReport(record.key().toString());
-        dto.setContent(record.value());
-        WebSocketUtil.sendMessageSingle(dto);
     }
 
     public void testPlanReportTestEnded(String testPlanReportId) {
@@ -72,6 +57,4 @@ public class ExecReportListener {
             }
         }
     }
-
-
 }
