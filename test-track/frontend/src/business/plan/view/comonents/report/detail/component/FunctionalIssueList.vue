@@ -95,7 +95,7 @@ export default {
           if (values.indexOf(status) == -1) {
             statusFilter.push({
               value: status,
-              text: ISSUE_STATUS_MAP[status] ? ISSUE_STATUS_MAP[status] : status
+              text: ISSUE_STATUS_MAP[status] && item.platform === 'Local' ? ISSUE_STATUS_MAP[status] : status
             });
           }
         }
