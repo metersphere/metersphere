@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.session.Session;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +28,7 @@ public class SSOLogoutService {
     /**
      * oidc logout
      */
-    public void logout() throws Exception {
+    public void logout(Session session) throws Exception {
         String authId = (String) SecurityUtils.getSubject().getSession().getAttribute("authId");
         AuthSource authSource = authSourceMapper.selectByPrimaryKey(authId);
         if (authSource != null) {
@@ -37,6 +38,12 @@ public class SSOLogoutService {
                 String logoutUrl = (String) config.get("logoutUrl");
 
                 restTemplate.getForEntity(logoutUrl + "?id_token_hint=" + idToken, String.class);
+            }
+            if (StringUtils.equals(UserSource.CAS.name(), authSource.getType())) {
+                String casTicket = (String) session.getAttribute("casTicket");
+                if (StringUtils.isNotEmpty(casTicket)) {
+                    stringRedisTemplate.delete(casTicket);
+                }
             }
         }
     }

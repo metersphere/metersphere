@@ -226,7 +226,7 @@ export default {
       return false;
     },
     isExternalImport() {
-      if (this.request.referenced && this.request.referenced === 'OT_IMPORT') {
+      if (this.request.referenced && this.request.referenced === 'TO_IMPORT') {
         return true
       }
       return false;

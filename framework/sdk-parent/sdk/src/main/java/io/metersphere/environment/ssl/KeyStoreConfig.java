@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 
 @Data
 public class KeyStoreConfig {
-    private List<KeyStoreEntry> entrys;
+    private List<KeyStoreEntry> entry;
     private List<KeyStoreFile> files;
 
     public String getDefaultAlias() {
-        if (CollectionUtils.isNotEmpty(entrys)) {
-            List<KeyStoreEntry> entryList = this.entrys.stream().filter(KeyStoreEntry::isDefault).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(entry)) {
+            List<KeyStoreEntry> entryList = this.entry.stream().filter(KeyStoreEntry::isDefault).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(entryList)) {
                 if (StringUtils.isNotEmpty(entryList.get(0).getNewAsName())) {
                     return entryList.get(0).getNewAsName();
@@ -27,8 +27,8 @@ public class KeyStoreConfig {
     }
 
     public String getAlias(String asName) {
-        if (CollectionUtils.isNotEmpty(entrys)) {
-            List<KeyStoreEntry> entryList = this.entrys.stream().filter(ks -> StringUtils.equals(asName, ks.getNewAsName())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(entry)) {
+            List<KeyStoreEntry> entryList = this.entry.stream().filter(ks -> StringUtils.equals(asName, ks.getNewAsName())).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(entryList) && CollectionUtils.isNotEmpty(files) && files.size() == 1) {
                 return entryList.get(0).getOriginalAsName();
             }

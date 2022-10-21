@@ -1217,6 +1217,7 @@ const message = {
     buttons: {
       to_xml: "To xml",
     },
+    search_by_variables: "Search by variable",
     case_jump_message: "The jump use case has been removed！",
     scenario_jump_message: "The jumped scene has been deleted！",
     is_continue: "Is continue",

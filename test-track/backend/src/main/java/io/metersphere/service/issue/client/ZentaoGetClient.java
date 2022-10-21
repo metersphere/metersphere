@@ -16,14 +16,16 @@ public class ZentaoGetClient extends ZentaoClient {
     private static final String STORY_GET="&module=story&methodName=getProductStories&params=productID={key}&t=json&zentaosid=";
     private static final String USER_GET="&module=user&methodName=getList&t=json&zentaosid=";
     private static final String BUILDS_GET="&module=build&methodName=getProductBuildPairs&productID={0}&zentaosid={1}";
-    private static final String FILE_UPLOAD="&module=file&methodName=saveUpload&params=objectType={1},objectID={2},zentaosid={3}";
+    private static final String FILE_UPLOAD="&module=file&methodName=saveUpload&params=objectType=bug&zentaosid={1}";
     private static final String FILE_DELETE="/?m=file&f=delete&t=json&fileID={1}&confirm=yes&zentaosid={2}";
     private static final String FILE_DOWNLOAD="/?m=file&f=download&t=json&fileID={1}&mouse=click&zentaosid={2}";
     private static final String CREATE_META_DATA="?m=bug&f=create&productID={0}&t=json&zentaosid={1}";
     private static final String REPLACE_IMG_URL="<img src=\"%s/index.php?m=file&f=read&fileID=$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("m=file&f=read&fileID=(.*?)\"/>");
     private static final String PRODUCT_GET = "&module=product&methodName=getById&params=productID={0}&zentaosid={1}";
-    // 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，有点恶心
+    /**
+     * 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，有点恶心
+     */
     private static final String BUG_LIST_URL = "/?m=bug&f=browse&productID={0}&branch=&browseType=all&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
 
     RequestUrl request = new RequestUrl();

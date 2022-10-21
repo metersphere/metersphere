@@ -29,6 +29,8 @@ const message = {
       next_execution_time: "下次執行時間",
       create_user: "創建人",
       update_time: "更新時間",
+      case_pass: "用例通過率",
+      scenario_pass: "場景通過率",
     },
     case: {
       index: "排名",

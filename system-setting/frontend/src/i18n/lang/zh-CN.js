@@ -7,7 +7,8 @@ const message = {
     search_get_more_tip: '搜索获取其他选项'
   },
   system: {
-    environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})"
+    environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",
+    search_by_environment_name: "根据环境的名称搜索",
   },
   display: {
     title: '显示设置',
