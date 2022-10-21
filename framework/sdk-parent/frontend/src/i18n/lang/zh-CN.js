@@ -2597,6 +2597,7 @@ const message = {
       edit: "编辑项目",
       delete: "删除项目",
       upload_jar: "上传jar包",
+      environment_config: "环境配置",
     },
     workspace_project_environment: {
       name: "环境设置",

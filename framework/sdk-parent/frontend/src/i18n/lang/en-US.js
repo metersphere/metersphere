@@ -2589,6 +2589,7 @@ const message = {
       edit: "EDIT",
       delete: "DELETE",
       upload_jar: "UPLOAD JAR",
+      environment_config: "ENVIRONMENT CONFIG",
     },
     workspace_project_environment: {
       name: "Environment",

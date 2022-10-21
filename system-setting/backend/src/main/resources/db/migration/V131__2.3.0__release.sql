@@ -11,4 +11,9 @@ INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('meter
 INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('metersphere.module.setting', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('base.grid.concurrency', '8', 'text', 1);
 
+DELETE FROM user_group_permission WHERE permission_id = 'WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR';
 
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+SELECT UUID(), id, 'WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG', 'WORKSPACE_PROJECT_MANAGER'
+FROM `group`
+WHERE type = 'WORKSPACE';

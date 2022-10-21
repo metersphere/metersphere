@@ -70,7 +70,7 @@
                 @deleteClick="handleDelete(scope.row)">
                 <template v-slot:behind>
                   <ms-table-operator-button
-                    v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+                    v-permission="['WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG']"
                     :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                     type="info" @exec="openEnvironmentConfig(scope.row)"/>
                 </template>
