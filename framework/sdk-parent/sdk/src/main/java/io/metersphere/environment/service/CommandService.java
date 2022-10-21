@@ -101,8 +101,8 @@ public class CommandService {
             this.createKeyStore("ms-run", newKeyStore);
             // 修改别名
             Map<String, List<KeyStoreEntry>> entryMap = new HashMap<>();
-            if (sslConfig != null && CollectionUtils.isNotEmpty(sslConfig.getEntrys())) {
-                sslConfig.getEntrys().forEach(item -> {
+            if (sslConfig != null && CollectionUtils.isNotEmpty(sslConfig.getEntry())) {
+                sslConfig.getEntry().forEach(item -> {
                     if (entryMap.containsKey(item.getSourceId())) {
                         entryMap.get(item.getSourceId()).add(item);
                     } else {

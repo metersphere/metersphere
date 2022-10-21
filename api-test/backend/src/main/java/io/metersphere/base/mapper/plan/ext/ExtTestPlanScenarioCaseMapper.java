@@ -25,7 +25,7 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<String> selectIds(@Param("request")TestPlanScenarioRequest request);
 
-    List<TestPlanApiScenario> selectByIds(@Param("ids")String ids ,@Param("oderId")String oderId );
+    List<TestPlanApiScenario> selectByIds(@Param("ids")String ids ,@Param("order")String order );
 
     List<TestPlanApiScenarioInfoDTO> selectLegalDataByTestPlanId(String planId);
 

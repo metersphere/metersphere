@@ -20,7 +20,7 @@ export function STEP() {
     ['DubboSampler', getDefaultSamplerMenu()],
     ['JDBCSampler', getDefaultSamplerMenu()],
     ['TCPSampler', getDefaultSamplerMenu()],
-    ['OT_IMPORT', getDefaultSamplerMenu()],
+    ['TO_IMPORT', getDefaultSamplerMenu()],
     ['AbstractSampler', getDefaultSamplerMenu()],
     ['IfController', getAll()],
     ['TransactionController', getAll()],
@@ -48,7 +48,7 @@ export function STEP() {
 export const ELEMENT_TYPE = {
   scenario: 'scenario',
   HTTPSamplerProxy: 'HTTPSamplerProxy',
-  OT_IMPORT: 'OT_IMPORT',
+  TO_IMPORT: 'TO_IMPORT',
   IfController: 'IfController',
   TransactionController: 'TransactionController',
   ConstantTimer: 'ConstantTimer',

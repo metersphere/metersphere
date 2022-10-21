@@ -29,6 +29,8 @@ const message = {
       next_execution_time: "Next Execution Time",
       create_user: "Creator",
       update_time: "Update time",
+      case_pass: "Case pass rate",
+      scenario_pass: "Scenario pass rate",
     },
     case: {
       index: "Ranking",
