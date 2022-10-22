@@ -1,6 +1,6 @@
 <template>
   <ms-edit-dialog
-    width="30%"
+    width="600px"
     :visible.sync="visible"
     @confirm="save"
     :title="title"
