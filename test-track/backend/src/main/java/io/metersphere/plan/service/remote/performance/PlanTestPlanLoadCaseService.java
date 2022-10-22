@@ -94,17 +94,14 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void relevanceByTestIds(List<String> performanceIds, String planId) {
         microService.postForData(serviceName, BASE_UEL + "/relevance/" + planId, performanceIds);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getExecResultByPlanId(String planId) {
         return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<PlanReportCaseDTO> selectStatusForPlanReport(String planId) {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }

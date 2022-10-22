@@ -1,6 +1,7 @@
 package io.metersphere.plan.service.remote.ui;
 
 import io.metersphere.base.domain.TestPlanUiScenario;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
@@ -13,6 +14,7 @@ import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.utils.DiscoveryUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,7 +34,6 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     @Resource
     private PlanUiScenarioReportService planUiScenarioReportService;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getExecResultByPlanId(String planId) {
         return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
     }
