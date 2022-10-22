@@ -189,7 +189,10 @@ export default {
 
   activated() {
     this.initTableData();
-    this.$router.replace({query: null})
+    // remove router query _token _csrf
+    if (this.$route.query && Object.keys(this.$route.query).length > 0) {
+      this.$router.replace({query: null});
+    }
   },
   methods: {
     currentUser: () => {
