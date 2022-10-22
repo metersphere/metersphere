@@ -364,7 +364,7 @@ import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderL
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/plan/components/ScheduleMaintain";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {operationConfirm} from "metersphere-frontend/src/utils";
 import PlanRunModeWithEnv from "@/business/plan/common/PlanRunModeWithEnv";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
@@ -878,13 +878,17 @@ export default {
 
     },
     haveUIScenario() {
-      return new Promise((resolve) => {
-        testPlanHaveUiCase(this.currentPlanId)
-          .then((r) => {
-            this.haveUICase = r.data;
-            resolve()
-          });
-      });
+      if (hasLicense()) {
+        return new Promise((resolve) => {
+          testPlanHaveUiCase(this.currentPlanId)
+            .then((r) => {
+              this.haveUICase = r.data;
+              resolve()
+            });
+        });
+      } else {
+        return new Promise(resolve => resolve());
+      }
     }
   }
 };

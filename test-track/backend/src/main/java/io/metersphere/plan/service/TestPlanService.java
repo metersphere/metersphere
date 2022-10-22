@@ -44,6 +44,7 @@ import io.metersphere.plan.service.remote.ui.PlanUiAutomationService;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
+import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
@@ -351,21 +352,28 @@ public class TestPlanService {
         }
         testPlan.setTotal(testPlan.getTotal() + functionalExecTotal);
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanApiCaseService::getExecResultByPlanId);
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanScenarioCaseService::getExecResultByPlanId);
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanApiCaseService::getExecResultByPlanId);
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanScenarioCaseService::getExecResultByPlanId);
+        }
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
+        }
 
-        List<String> uiScenarioExecResults = calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
-        uiScenarioExecResults.forEach(item -> {
-            if (StringUtils.isNotBlank(item)) {
-                testPlan.setTested(testPlan.getTested() + 1);
-                if (StringUtils.equals(item, "Success")) {
-                    testPlan.setPassed(testPlan.getPassed() + 1);
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            List<String> uiScenarioExecResults = calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
+            uiScenarioExecResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, "Success")) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTotal()));
         testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
@@ -445,8 +453,20 @@ public class TestPlanService {
         statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanId));
         try {
             statusList.addAll(planTestPlanApiCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanLoadCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanUiScenarioCaseService.getExecResultByPlanId(testPlanId));
         } catch (MSException e) {
             LogUtil.error(e);
@@ -761,8 +781,7 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     TestPlanScheduleReportInfoDTO genTestPlanReport(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
-        return reportInfoDTO;
+        return testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
     }
 
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String planReportId, String apiRunConfig) {
@@ -1805,6 +1824,9 @@ public class TestPlanService {
     }
 
     public boolean haveUiCase(String planId) {
+        if (!DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            return false;
+        }
         return planTestPlanUiScenarioCaseService.haveUiCase(planId);
     }
 
