@@ -417,6 +417,9 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
+      if (this.$refs.table) {
+        this.$refs.table.clear();
+      }
       this.autoCheckStatus();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
