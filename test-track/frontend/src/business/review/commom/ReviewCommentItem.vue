@@ -38,6 +38,7 @@
                :title="$t('commons.edit')"
                :destroy-on-close="true"
                :close-on-click-modal="false"
+               @close="handleClose"
                append-to-body>
 
       <div>
@@ -78,8 +79,9 @@ export default {
   data() {
     return {
       visible: false,
-      imgDescription: "",
+      imgDescription: '',
       imageIndex: 99999,
+      originDesc: '',
       src: "",
       srcList: [],
       imgNameList: [],
@@ -145,6 +147,7 @@ export default {
         });
     },
     openEdit() {
+      this.originDesc = this.comment.description;
       if (getCurrentUser().id !== this.comment.author) {
         this.$warning(this.$t('test_track.comment.cannot_edit'));
         return;
@@ -155,10 +158,14 @@ export default {
     editComment() {
       this.$post(this.apiUrl + "/comment/edit", {id: this.comment.id, description: this.comment.description})
         .then(() => {
+          this.originDesc = this.comment.description;
           this.visible = false;
           this.$success(this.$t('commons.modify_success'));
           this.$emit("refresh");
         });
+    },
+    handleClose() {
+      this.comment.description = this.originDesc;
     },
     checkImage() {
       this.srcList = [];
