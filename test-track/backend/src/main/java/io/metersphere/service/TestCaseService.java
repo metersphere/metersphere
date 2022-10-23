@@ -42,6 +42,7 @@ import io.metersphere.service.remote.api.RelevanceApiCaseService;
 import io.metersphere.service.remote.performance.RelevanceLoadCaseService;
 import io.metersphere.service.remote.project.TrackTestCaseTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
+import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
 import io.metersphere.xmind.utils.XmindExportUtil;
@@ -2587,20 +2588,35 @@ public class TestCaseService {
         List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
         Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
                 .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
-        List<ApiTestCase> apiCases = relevanceApiCaseService.getApiCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.testcase.name()));
-        List<ApiScenario> apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.automation.name()));
-        List<LoadTest> apiLoadTests = relevanceLoadCaseService.getLoadCaseByIds(
-                getTestIds(testCaseTests, TestCaseTestType.performance.name()));
-        List<String> projectIds = apiCases.stream().map(c -> c.getProjectId()).collect(Collectors.toList());
-        projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-        projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-        projectIds = projectIds.stream().distinct().collect(Collectors.toList());
 
-        List<String> versionIds = apiCases.stream().map(c -> c.getVersionId()).collect(Collectors.toList());
-        versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
-        versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+
+        List<String> projectIds = new ArrayList<>();
+        List<String> versionIds = new ArrayList<>();
+        List<ApiTestCase> apiCases = new ArrayList<>();
+        List<ApiScenario> apiScenarios = new ArrayList<>();
+        List<LoadTest> apiLoadTests = new ArrayList<>();
+
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            apiCases = relevanceApiCaseService.getApiCaseByIds(
+                    getTestIds(testCaseTests, TestCaseTestType.testcase.name()));
+            apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
+                    getTestIds(testCaseTests, TestCaseTestType.automation.name()));
+            projectIds.addAll(apiCases.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+            projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+            versionIds.addAll(apiCases.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+            versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
+        }
+
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            apiLoadTests = relevanceLoadCaseService.getLoadCaseByIds(
+                    getTestIds(testCaseTests, TestCaseTestType.performance.name()));
+            projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+            versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+        }
+
+
+        projectIds = projectIds.stream().distinct().collect(Collectors.toList());
         versionIds = versionIds.stream().distinct().collect(Collectors.toList());
 
         ProjectExample projectExample = new ProjectExample();
