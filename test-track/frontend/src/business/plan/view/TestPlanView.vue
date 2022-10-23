@@ -180,8 +180,10 @@ export default {
   },
   methods: {
     handleProjectChange() {
-      if (this.$route.path.indexOf("plan/view") > 0) {
-        this.$router.push('/track/plan/all');
+      if (this.$route.path.indexOf("plan/view") > -1) {
+        this.$nextTick(() => {
+          this.$router.push('/track/plan/all');
+        });
       }
     },
     genRedirectParam() {
