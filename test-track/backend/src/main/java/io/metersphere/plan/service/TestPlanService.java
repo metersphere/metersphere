@@ -629,7 +629,7 @@ public class TestPlanService {
             if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
                 performanceIds.add(l.getTestId());
             }
-            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.api.name())) {
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.testcase.name())) {
                 apiCaseIds.add(l.getTestId());
             }
             if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
