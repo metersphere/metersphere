@@ -9,7 +9,7 @@ export {CUSTOM_TABLE_HEADER} from "metersphere-frontend/src/utils/default-table-
 
 
 export {generateColumnKey, getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";
-export {TEST_CASE_RELEVANCE_ISSUE_LIST} from "metersphere-frontend/src/components/search/search-components";
+export {TEST_CASE_RELEVANCE_ISSUE_LIST, OPERATORS} from "metersphere-frontend/src/components/search/search-components";
 
 
 export {getProjectMemberOption} from "metersphere-frontend/src/api/user";
