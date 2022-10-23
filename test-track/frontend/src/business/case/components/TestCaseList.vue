@@ -211,7 +211,7 @@ import TestCaseImport from './import/TestCaseImport';
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
-import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {OPERATORS, TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import BatchEdit from "./BatchEdit";
 import {TEST_CASE_LIST} from "metersphere-frontend/src/utils/constants";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
@@ -550,6 +550,7 @@ export default {
           if (element.label === '用例状态') {
             element.label = this.$t('custom_field.case_status')
             // 回收站TAB页处理高级搜索用例状态字段
+            element.operator.options = [OPERATORS.IN];
             if (this.trashEnable) {
               element.options = [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}];
             } else {
