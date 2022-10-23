@@ -80,8 +80,7 @@
 
 <script>
 
-// 测试计划报告导出的是时候需要引入
-// import MsApiReport from "../../../../../../../../../../api-test/frontend/src/business/automation/report/ApiReportDetail";
+import MsApiReport from "../api/ApiReportDetail";
 
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
@@ -112,7 +111,7 @@ export default {
     MsAsideContainer,
     MicroApp,
     MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
-    // MsApiReport
+    MsApiReport
   },
   props: {
     planId: String,

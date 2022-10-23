@@ -53,6 +53,7 @@
 import MsAssertionResults from "./AssertionResults";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsDropdown from "metersphere-frontend/src/components/MsDropdown";
+import {BODY_FORMAT} from "metersphere-frontend/src/model/ApiTestModel";
 
 export default {
   name: "MsResponseText",
