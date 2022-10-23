@@ -2,7 +2,7 @@ package io.metersphere.controller;
 
 
 import io.metersphere.base.domain.TestCase;
-import io.metersphere.dto.BugStatustics;
+import io.metersphere.dto.BugStatistics;
 import io.metersphere.dto.TrackCountResult;
 import io.metersphere.dto.TrackStatisticsDTO;
 import io.metersphere.i18n.Translator;
@@ -89,7 +89,7 @@ public class TrackController {
     }
 
     @GetMapping("/bug/count/{projectId}")
-    public BugStatustics getBugStatistics(@PathVariable String projectId) {
+    public BugStatistics getBugStatistics(@PathVariable String projectId) {
         return trackService.getBugStatistics(projectId);
     }
 }

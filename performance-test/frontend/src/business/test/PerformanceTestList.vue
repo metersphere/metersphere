@@ -291,6 +291,9 @@ export default {
           this.tableLoading = false;
           this.$success(this.$t('commons.copy_success'));
           this.search();
+        })
+        .catch(() => {
+          this.tableLoading = false;
         });
     },
     handleRun(test) {

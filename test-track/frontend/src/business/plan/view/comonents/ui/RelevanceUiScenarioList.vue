@@ -1,11 +1,12 @@
 <template>
   <div v-loading="loading">
 
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="filterSearch"
-              @keyup.enter.native="filterSearch" class="search-input" size="small" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="filterSearch"/>
+
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="filterSearch"
+              @keyup.enter.native="filterSearch" class="search-input" size="small" v-model="condition.name"/>
 
     <ms-table ref="scenarioTable"
               v-loading="loading"
@@ -78,7 +79,7 @@ import MsTag from "metersphere-frontend/src/components/MsTag";
 import TestPlanScenarioListHeader from "../api/TestPlanScenarioListHeader";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS from "metersphere-frontend/src/components/search/search-components";
+import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";

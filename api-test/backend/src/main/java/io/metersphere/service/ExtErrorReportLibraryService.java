@@ -27,6 +27,9 @@ import java.util.Map;
 public class ExtErrorReportLibraryService {
     public List<MsAssertions> getAssertionByProjectIdAndStatusIsOpen(String projectId, boolean higherThanSuccess, boolean higherThanError) {
         ErrorReportLibraryService service = CommonBeanFactory.getBean(ErrorReportLibraryService.class);
+        if (service == null) {
+            return new ArrayList<>();
+        }
         List<MsAssertions> returnList = new ArrayList<>();
         ErrorReportLibraryExample example = new ErrorReportLibraryExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(true);

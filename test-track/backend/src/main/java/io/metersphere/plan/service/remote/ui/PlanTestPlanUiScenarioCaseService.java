@@ -9,14 +9,12 @@ import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanScenarioStepCountSimpleDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.dto.UiPlanReportDTO;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -32,7 +30,6 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     @Resource
     private PlanUiScenarioReportService planUiScenarioReportService;
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getExecResultByPlanId(String planId) {
         return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
     }

@@ -31,6 +31,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 public class JiraPlatform extends AbstractIssuePlatform {
 
     protected JiraClientV2 jiraClientV2;
+    protected SimpleDateFormat sdfWithZone = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
@@ -111,8 +113,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
             issue.setPlatform(key);
             issue.setCustomFields(JSON.toJSONString(customFieldItems));
             try {
-                issue.setCreateTime(DateUtils.getTimestamp((String) fields.get("created")));
-                issue.setUpdateTime(DateUtils.getTimestamp((String) fields.get("updated")));
+                issue.setCreateTime(sdfWithZone.parse((String) fields.get("created")).getTime());
+                issue.setUpdateTime(sdfWithZone.parse((String) fields.get("updated")).getTime());
             } catch (Exception e) {
                 LogUtil.error(e);
             }
@@ -465,17 +467,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         } else if (StringUtils.equalsAny(item.getType(),  "cascadingSelect")) {
                             if (item.getValue() != null) {
                                 Map attr = new LinkedHashMap<>();
-                                if (item.getValue() instanceof List) {
-                                    List values = JSON.parseArray((String) item.getValue());
-                                    if (CollectionUtils.isNotEmpty(values)) {
-                                        if (values.size() > 0) {
-                                            attr.put("id", values.get(0));
-                                        }
-                                        if (values.size() > 1) {
-                                            Map param = new LinkedHashMap<>();
-                                            param.put("id", values.get(1));
-                                            attr.put("child", param);
-                                        }
+                                List values = JSON.parseArray((String) item.getValue());
+                                if (CollectionUtils.isNotEmpty(values)) {
+                                    if (values.size() > 0) {
+                                        attr.put("id", values.get(0));
+                                    }
+                                    if (values.size() > 1) {
+                                        Map param = new LinkedHashMap<>();
+                                        param.put("id", values.get(1));
+                                        attr.put("child", param);
                                     }
                                 } else {
                                     attr.put("id", item.getValue());
@@ -622,7 +622,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (CollectionUtils.isNotEmpty(transitions)) {
             transitions.forEach(item -> {
                 PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
-                platformStatusDTO.setLable(item.getTo().getName());
+                platformStatusDTO.setLabel(item.getTo().getName());
                 platformStatusDTO.setValue(item.getTo().getName());
                 platformStatusDTOS.add(platformStatusDTO);
             });

@@ -208,6 +208,9 @@ public class HashTreeUtil {
 
     public static List<MsAssertions> getErrorReportByProjectId(String projectId, boolean higherThanSuccess, boolean higherThanError) {
         ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
+        if (service == null) {
+            return new ArrayList<>();
+        }
         return service.getAssertionByProjectIdAndStatusIsOpen(projectId, higherThanSuccess, higherThanError);
     }
 

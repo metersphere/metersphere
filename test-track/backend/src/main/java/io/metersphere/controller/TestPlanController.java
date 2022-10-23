@@ -6,24 +6,26 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.ScheduleDTO;
+import io.metersphere.dto.TestPlanDTOWithMetric;
+import io.metersphere.dto.TestPlanRerunParametersDTO;
+import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
-import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.notice.annotation.SendNotice;
-
-import io.metersphere.dto.*;
+import io.metersphere.plan.request.AddTestPlanRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.ScheduleInfoRequest;
+import io.metersphere.plan.request.api.TestPlanRunRequest;
+import io.metersphere.plan.request.function.PlanCaseRelevanceRequest;
+import io.metersphere.plan.request.function.TestCaseRelevanceRequest;
+import io.metersphere.plan.service.TestPlanProjectService;
+import io.metersphere.plan.service.TestPlanRerunService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.request.ScheduleRequest;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
-import io.metersphere.plan.reuest.AddTestPlanRequest;
-import io.metersphere.plan.reuest.function.TestCaseRelevanceRequest;
-import io.metersphere.plan.reuest.function.PlanCaseRelevanceRequest;
-import io.metersphere.plan.reuest.ScheduleInfoRequest;
-import io.metersphere.plan.reuest.api.TestPlanRunRequest;
 import io.metersphere.service.BaseScheduleService;
-import io.metersphere.plan.service.TestPlanProjectService;
-import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.service.wapper.CheckPermissionService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +51,8 @@ public class TestPlanController {
     private BaseScheduleService baseScheduleService;
     @Resource
     private PlanApiAutomationService planApiAutomationService;
+    @Resource
+    private TestPlanRerunService testPlanRerunService;
 
     @GetMapping("/auto-check/{testPlanId}")
     public void autoCheck(@PathVariable String testPlanId) {
@@ -129,7 +133,7 @@ public class TestPlanController {
 
     @PostMapping("/edit/report/config")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-//    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
+    //    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editReportConfig(@RequestBody TestPlanDTO testPlanDTO) {
         testPlanService.editReportConfig(testPlanDTO);
     }
@@ -330,4 +334,10 @@ public class TestPlanController {
         Schedule schedule = baseScheduleService.getScheduleByResource(testId, group);
         return schedule;
     }
+
+    @PostMapping(value = "/rerun")
+    public String rerun(@RequestBody TestPlanRerunParametersDTO request) {
+        return testPlanRerunService.rerun(request);
+    }
+
 }

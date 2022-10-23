@@ -590,9 +590,10 @@ public class PerformanceTestService {
     }
 
     public void copy(SaveTestPlanRequest request) {
+        LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
+        request.setProjectId(copy.getProjectId());
         checkQuota(request, true);
         // copy test
-        LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
         String copyName = copy.getName() + " Copy";
 
         if (StringUtils.length(copyName) > 30) {

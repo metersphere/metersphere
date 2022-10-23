@@ -1,5 +1,5 @@
 <template>
-  <ms-container v-loading="loading">
+  <ms-container v-loading="loading || reportExportVisible">
     <ms-main-container class="api-report-content">
       <el-card class="report-body">
         <section class="report-container" v-if="this.report.testId">
@@ -98,7 +98,7 @@
               :title="report.name"
               :content="content"
               :report="report"
-              :total-time="totalTime"/>
+              :total-time="totalTime" class="ms-copy-bottom"/>
           </main>
         </section>
       </el-card>
@@ -119,7 +119,7 @@ import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getUUID, windowPrint} from "metersphere-frontend/src/utils";
+import {exportPdf, getUUID} from "metersphere-frontend/src/utils";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   getScenarioReport,
@@ -129,6 +129,7 @@ import {
 } from "../../../api/scenario-report";
 import {STEP} from "../../automation/scenario/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
+import html2canvas from "html2canvas";
 
 export default {
   name: "MsApiReport",
@@ -672,7 +673,7 @@ export default {
         } else {
           if (this.fullTreeNodes) {
             this.fullTreeNodes.forEach(item => {
-              if (item.type === "scenario" || item.type === "UiScenario") {
+              if (item.type === "scenario") {
                 let scenario = {name: item.label, requestResults: []};
                 if (this.content.scenarios && this.content.scenarios.length > 0) {
                   this.content.scenarios.push(scenario);
@@ -687,9 +688,15 @@ export default {
       }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
+      let name = this.report.name;
       this.$nextTick(() => {
-        windowPrint('apiTestReport', 0.57);
-        reset();
+        setTimeout(() => {
+          let promise = html2canvas(document.getElementById("apiTestReport"), {scale: 2});
+          Promise.all([promise]).then(function (canvas) {
+            exportPdf(name || "scenario-report", canvas);
+            reset();
+          });
+        }, 1000);
       });
     },
     handleSave() {
@@ -711,7 +718,8 @@ export default {
       });
     },
     exportReportReset() {
-      this.$router.go(0);
+      this.reportExportVisible = false;
+      this.loading = false;
     },
     handleProjectChange() {
       this.$router.push('/api/automation/report');
@@ -793,5 +801,11 @@ export default {
 
 .report-body {
   min-width: 750px !important;
+}
+
+.ms-copy-bottom {
+  position: absolute;
+  bottom: 0;
+
 }
 </style>

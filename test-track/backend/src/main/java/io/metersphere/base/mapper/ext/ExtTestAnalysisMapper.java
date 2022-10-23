@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ExtTestAnalysisMapper {
 
-    List<TestAnalysisChartResult> getCraeteCaseReport(TestAnalysisChartRequest request);
+    List<TestAnalysisChartResult> getCreateCaseReport(TestAnalysisChartRequest request);
 
     List<TestAnalysisChartResult> getUpdateCaseReport(TestAnalysisChartRequest request);
 }

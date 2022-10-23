@@ -214,7 +214,7 @@ export default {
   methods: {
     isLink(row) {
       let uri = getUrl(row, this);
-      return (row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG')
+      return (row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG' || row.operType === 'COPY')
         && uri !== "/#";
     },
     clickResource(resource) {

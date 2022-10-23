@@ -149,7 +149,7 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.dto.TestPlanDTOWithMetric"
-            parameterType="io.metersphere.plan.reuest.QueryTestPlanRequest">
+            parameterType="io.metersphere.plan.request.QueryTestPlanRequest">
         select DISTINCT test_plan.*, project.name as projectName,schedule.id as scheduleId,
         (select name from user where user.id = test_plan.creator) as createUser,
         IF(schedule.enable = true,true,false) as scheduleOpen
@@ -264,7 +264,7 @@
     </sql>
 
     <select id="planList" resultMap="BaseResultMap"
-            parameterType="io.metersphere.plan.reuest.QueryTestPlanRequest">
+            parameterType="io.metersphere.plan.request.QueryTestPlanRequest">
         SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
         <where>
             <if test="request.workspaceId != null">
@@ -307,7 +307,7 @@
     </select>
 
     <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap"
-            parameterType="io.metersphere.plan.reuest.QueryTestPlanRequest">
+            parameterType="io.metersphere.plan.request.QueryTestPlanRequest">
         SELECT * FROM test_plan p
         <where>
             <if test="request.scenarioId != null">

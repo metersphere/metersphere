@@ -429,7 +429,8 @@ export const UI_TRIGGER_MODE = {
   },
   options: [
     {label: "commons.trigger_mode.manual", value: "MANUAL"},
-    {label: "api_test.automation.batch_execute", value: 'BATCH'}
+    {label: "api_test.automation.batch_execute", value: 'BATCH'},
+    {label: 'commons.trigger_mode.schedule', value: 'SCHEDULE'},
   ],
   props: {
     multiple: true

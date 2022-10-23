@@ -234,7 +234,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
         } else {
-            MSException.throwException("请确认该Zentao账号是否开启超级modle调用接口权限");
+            MSException.throwException("请确认该Zentao账号是否开启超级model调用接口权限");
         }
 
         // 如果是复制新增, 同步MS附件到Zentao
@@ -645,7 +645,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         for (ZentaoIssuePlatformStatus status : ZentaoIssuePlatformStatus.values()) {
             PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
             platformStatusDTO.setValue(status.name());
-            platformStatusDTO.setLable(status.getName());
+            platformStatusDTO.setLabel(status.getName());
 
             platformStatusDTOS.add(platformStatusDTO);
         }

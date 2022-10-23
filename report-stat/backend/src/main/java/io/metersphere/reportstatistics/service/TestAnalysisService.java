@@ -146,16 +146,16 @@ public class TestAnalysisService {
         dto.setSeries(seriesList);
     }
 
-    private void formatLegend(Legend legend, List<String> datas, TestAnalysisChartRequest request) {
+    private void formatLegend(Legend legend, List<String> dataList, TestAnalysisChartRequest request) {
         Map<String, Boolean> selected = new LinkedHashMap<>();
         List<String> list = new LinkedList<>();
-        if (CollectionUtils.isEmpty(datas)) {
+        if (CollectionUtils.isEmpty(dataList)) {
             selected.put(ADD, request.isCreateCase());
             selected.put(UPDATE, request.isUpdateCase());
             list.add(ADD);
             list.add(UPDATE);
         } else {
-            datas.forEach(item -> {
+            dataList.forEach(item -> {
                 selected.put(item + "-" + ADD, request.isCreateCase());
                 selected.put(item + "-" + UPDATE, request.isUpdateCase());
                 list.add(item + "-" + ADD);

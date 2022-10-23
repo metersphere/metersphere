@@ -28,7 +28,7 @@ import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.request.testcase.*;
-import io.metersphere.plan.reuest.function.QueryTestPlanCaseRequest;
+import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;

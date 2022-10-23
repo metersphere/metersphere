@@ -5,7 +5,7 @@ import io.metersphere.base.domain.TestPlanExample;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.dto.BugStatustics;
+import io.metersphere.dto.BugStatistics;
 import io.metersphere.dto.TestPlanBugCount;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TrackCountResult;
@@ -104,12 +104,12 @@ public class TrackService {
         return charts;
     }
 
-    public BugStatustics getBugStatistics(String projectId) {
+    public BugStatistics getBugStatistics(String projectId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         List<TestPlan> plans = testPlanMapper.selectByExample(example);
         List<TestPlanBugCount> list = new ArrayList<>();
-        BugStatustics bugStatustics = new BugStatustics();
+        BugStatistics bugStatistics = new BugStatistics();
         int index = 1;
         int totalCaseSize = 0;
         int totalBugSize = 0;
@@ -138,12 +138,12 @@ public class TrackService {
             totalCaseSize += planCaseSize;
 
         }
-        bugStatustics.setList(list);
+        bugStatistics.setList(list);
         float rage = totalCaseSize == 0 ? 0 : (float) totalBugSize * 100 / totalCaseSize;
         DecimalFormat df = new DecimalFormat("0.0");
-        bugStatustics.setRage(df.format(rage) + "%");
-        bugStatustics.setBugTotalSize(totalBugSize);
-        return bugStatustics;
+        bugStatistics.setRage(df.format(rage) + "%");
+        bugStatistics.setBugTotalSize(totalBugSize);
+        return bugStatistics;
     }
 
     private int getPlanCaseSize(String planId) {

@@ -152,7 +152,7 @@ export default {
       popoverWidth: "0px",//下拉框大小
       isShowSelect: false, // 是否显示树状选择器
       options: [],//select option选项
-      returnDatas: [],//返回给父组件数组对象
+      returnData: [],//返回给父组件数组对象
       returnDataKeys: [],//返回父组件数组主键值
       filterText: "",
       loading: false,
@@ -217,7 +217,7 @@ export default {
           // 多选
           if (Object.prototype.toString.call(this.defaultKey).indexOf("Array") != -1) {
             if (Object.prototype.toString.call(this.defaultKey[0]).indexOf("Object") != -1) {//对象
-              this.setDatas(this.defaultKey);
+              this.setDataFromInit(this.defaultKey);
             } else if (Object.prototype.toString.call(this.defaultKey[0]).indexOf("Number") != -1
               || Object.prototype.toString.call(this.defaultKey[0]).indexOf("String") != -1) {
               this.setKeys(this.defaultKey);
@@ -270,7 +270,7 @@ export default {
         this.returnDataKeys = this.options.map((item) => {
           return item.value;
         });
-        this.returnDatas = t;
+        this.returnData = t;
       }
 
       this.selectNodeIds = [];
@@ -290,7 +290,7 @@ export default {
     //单选:清空选中
     clean() {
       this.$refs.tree.setCurrentKey(null);//清除树选中key
-      this.returnDatas = null;
+      this.returnData = null;
       this.returnDataKeys = '';
       this.selectNodeIds = [];
       this.popoverHide();
@@ -309,7 +309,7 @@ export default {
     setData(data) {
       this.options = [];
       this.options.push({label: data[this.obj.label], value: data[this.obj.id]});
-      this.returnDatas = data;
+      this.returnData = data;
       this.returnDataKeys = data[this.obj.id]
       this.selectNodeIds = [];
       this.getChildNodeId(data, this.selectNodeIds);
@@ -328,13 +328,13 @@ export default {
           return {label: node.label, value: node.key};
         }
       });
-      this.returnDatas = t;
+      this.returnData = t;
       this.popoverHide()
     },
     //多选:设置、初始化对象
-    setDatas(data) {
+    setDataFromInit(data) {
       this.$refs.tree.setCheckedNodes(data);
-      this.returnDatas = data;
+      this.returnData = data;
       let t = [];
       data.map((item) => {//设置option选项
         t.push(item[this.obj.id]);
@@ -360,7 +360,7 @@ export default {
     //下拉框关闭执行
     popoverHide() {
       this.$emit('setSelectNodeIds', this.selectNodeIds);
-      this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
+      this.$emit('getValue', this.returnDataKeys, this.returnData ? this.returnData : {});
     },
     // 多选，清空所有勾选
     clearSelectedNodes() {

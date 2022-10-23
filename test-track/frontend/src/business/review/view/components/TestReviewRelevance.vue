@@ -215,6 +215,7 @@ export default {
       }
     },
     projectId() {
+      this.setConditionModuleIdParam();
       this.condition.projectId = this.projectId;
       this.condition.versionId = null;
       this.getVersionOptions();
@@ -230,6 +231,13 @@ export default {
     this.toggleSelection(this.testReviews);
   },
   methods: {
+    setConditionModuleIdParam() {
+      this.condition.components.forEach(component => {
+        if (component.key === 'moduleIds') {
+          component.options.params = {"projectId": this.projectId};
+        }
+      });
+    },
     openTestReviewRelevanceDialog() {
       this.getProject();
       this.dialogFormVisible = true;

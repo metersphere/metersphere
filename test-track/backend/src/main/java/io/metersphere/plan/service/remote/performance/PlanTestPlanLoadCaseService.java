@@ -8,9 +8,9 @@ import io.metersphere.dto.TestPlanLoadCaseDTO;
 import io.metersphere.dto.TestPlanLoadResultReportDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
-import io.metersphere.plan.reuest.performance.LoadCaseRequest;
-import io.metersphere.plan.reuest.performance.LoadPlanReportDTO;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.performance.LoadCaseRequest;
+import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -94,17 +94,14 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         }
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void relevanceByTestIds(List<String> performanceIds, String planId) {
         microService.postForData(serviceName, BASE_UEL + "/relevance/" + planId, performanceIds);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> getExecResultByPlanId(String planId) {
         return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<PlanReportCaseDTO> selectStatusForPlanReport(String planId) {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }

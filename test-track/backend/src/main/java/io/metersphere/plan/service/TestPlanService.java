@@ -10,7 +10,6 @@ import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
@@ -23,17 +22,17 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
-import io.metersphere.plan.reuest.AddTestPlanRequest;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
-import io.metersphere.plan.reuest.ScheduleInfoRequest;
-import io.metersphere.plan.reuest.api.ApiPlanReportRequest;
-import io.metersphere.plan.reuest.api.RunScenarioRequest;
-import io.metersphere.plan.reuest.api.SchedulePlanScenarioExecuteRequest;
-import io.metersphere.plan.reuest.api.TestPlanRunRequest;
-import io.metersphere.plan.reuest.function.PlanCaseRelevanceRequest;
-import io.metersphere.plan.reuest.function.QueryTestPlanCaseRequest;
-import io.metersphere.plan.reuest.performance.LoadPlanReportDTO;
-import io.metersphere.plan.reuest.ui.RunUiScenarioRequest;
+import io.metersphere.plan.request.AddTestPlanRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.ScheduleInfoRequest;
+import io.metersphere.plan.request.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.RunScenarioRequest;
+import io.metersphere.plan.request.api.SchedulePlanScenarioExecuteRequest;
+import io.metersphere.plan.request.api.TestPlanRunRequest;
+import io.metersphere.plan.request.function.PlanCaseRelevanceRequest;
+import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
+import io.metersphere.plan.request.performance.LoadPlanReportDTO;
+import io.metersphere.plan.request.ui.RunUiScenarioRequest;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
@@ -45,6 +44,7 @@ import io.metersphere.plan.service.remote.ui.PlanUiAutomationService;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
+import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
@@ -352,21 +352,28 @@ public class TestPlanService {
         }
         testPlan.setTotal(testPlan.getTotal() + functionalExecTotal);
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanApiCaseService::getExecResultByPlanId);
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanScenarioCaseService::getExecResultByPlanId);
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanApiCaseService::getExecResultByPlanId);
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanScenarioCaseService::getExecResultByPlanId);
+        }
 
-        calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
+        }
 
-        List<String> uiScenarioExecResults = calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
-        uiScenarioExecResults.forEach(item -> {
-            if (StringUtils.isNotBlank(item)) {
-                testPlan.setTested(testPlan.getTested() + 1);
-                if (StringUtils.equals(item, "Success")) {
-                    testPlan.setPassed(testPlan.getPassed() + 1);
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            List<String> uiScenarioExecResults = calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
+            uiScenarioExecResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, "Success")) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTotal()));
         testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
@@ -446,8 +453,20 @@ public class TestPlanService {
         statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanId));
         try {
             statusList.addAll(planTestPlanApiCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanLoadCaseService.getExecResultByPlanId(testPlanId));
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+        try {
             statusList.addAll(planTestPlanUiScenarioCaseService.getExecResultByPlanId(testPlanId));
         } catch (MSException e) {
             LogUtil.error(e);
@@ -574,41 +593,47 @@ public class TestPlanService {
     }
 
     public void caseTestRelevance(PlanCaseRelevanceRequest request, List<String> testCaseIds) {
-
         //同步添加关联的接口和测试用例
-        if (request.getChecked()) {
-            if (!testCaseIds.isEmpty()) {
-                testCaseIds.forEach(caseId -> {
-                    List<TestCaseTest> list = new ArrayList<>();
-                    TestCaseTestExample examp = new TestCaseTestExample();
-                    examp.createCriteria().andTestCaseIdEqualTo(caseId);
-                    if (testCaseTestMapper.countByExample(examp) > 0) {
-                        list = testCaseTestMapper.selectByExample(examp);
-                    }
+        if (!request.getChecked()) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(testCaseIds)) {
+            return;
+        }
+        List<TestCaseTest> list;
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria().andTestCaseIdIn(testCaseIds);
+        list = testCaseTestMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        List<String> apiCaseIds = new ArrayList<>();
+        List<String> scenarioIds = new ArrayList<>();
+        List<String> performanceIds = new ArrayList<>();
+        buildCaseIdList(list, apiCaseIds, scenarioIds, performanceIds);
+        startRelevance(request, apiCaseIds, scenarioIds, performanceIds);
+    }
 
-                    List<String> apiCaseIds = new ArrayList<>();
-                    List<String> scenarioIds = new ArrayList<>();
-                    List<String> performanceIds = new ArrayList<>();
+    private void startRelevance(PlanCaseRelevanceRequest request, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+        try {
+            relevanceTestCaseTest(apiCaseIds, request.getPlanId(), planTestPlanApiCaseService::relevanceByTestIds);
+            relevanceTestCaseTest(scenarioIds, request.getPlanId(), planTestPlanScenarioCaseService::relevanceByTestIds);
+            relevanceTestCaseTest(performanceIds, request.getPlanId(), planTestPlanLoadCaseService::relevanceByTestIds);
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+    }
 
-                    for (TestCaseTest l : list) {
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
-                            performanceIds.add(l.getTestId());
-                        }
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.api.name())) {
-                            apiCaseIds.add(l.getTestId());
-                        }
-                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
-                            scenarioIds.add(l.getTestId());
-                        }
-                    }
-                    try {
-                        relevanceTestCaseTest(apiCaseIds, request.getPlanId(), planTestPlanApiCaseService::relevanceByTestIds);
-                        relevanceTestCaseTest(scenarioIds, request.getPlanId(), planTestPlanScenarioCaseService::relevanceByTestIds);
-                        relevanceTestCaseTest(performanceIds, request.getPlanId(), planTestPlanLoadCaseService::relevanceByTestIds);
-                    } catch (MSException e) {
-                        LogUtil.error(e);
-                    }
-                });
+    private static void buildCaseIdList(List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+        for (TestCaseTest l : list) {
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
+                performanceIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.testcase.name())) {
+                apiCaseIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
+                scenarioIds.add(l.getTestId());
             }
         }
     }
@@ -756,8 +781,7 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     TestPlanScheduleReportInfoDTO genTestPlanReport(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
-        return reportInfoDTO;
+        return testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
     }
 
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String planReportId, String apiRunConfig) {
@@ -1321,7 +1345,7 @@ public class TestPlanService {
     }
 
     public void runReportWithExceptionHandle(TestPlanSimpleReportDTO report, Function<TestPlanSimpleReportDTO, Object> getCaseFunc,
-                                               BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
+                                             BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
         try {
             // todo 服务调用失败
             setReportCaseFunc.accept(report, getCaseFunc.apply(report));
@@ -1643,7 +1667,7 @@ public class TestPlanService {
         if (!CronExpression.isValidExpression(cron)) {
             return 0;
         }
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Caclulate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();
         Date time1 = trigger.getFireTimeAfter(time0);
         return time1 == null ? 0 : time1.getTime();
@@ -1800,6 +1824,9 @@ public class TestPlanService {
     }
 
     public boolean haveUiCase(String planId) {
+        if (!DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            return false;
+        }
         return planTestPlanUiScenarioCaseService.haveUiCase(planId);
     }
 

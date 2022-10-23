@@ -181,8 +181,8 @@
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
-      "id": "WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR",
-      "name": "permission.workspace_project_manager.upload_jar",
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG",
+      "name": "permission.workspace_project_manager.environment_config",
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {

@@ -35,7 +35,7 @@
     <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
-      :label="$t('api_definition.document.is_required')"
+      :label="$t('api_test.definition.document.table_coloum.is_required')"
       width="80"
       prop="type">
       <template v-slot="scope">

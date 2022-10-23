@@ -11,20 +11,8 @@ import io.metersphere.api.dto.mock.config.response.MockConfigResponse;
 import io.metersphere.api.dto.mock.config.response.MockExpectConfigResponse;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.api.parse.scenario.TcpTreeTableDataParser;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.ext.ExtProjectApplicationService;
 import io.metersphere.api.tcp.TCPPool;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.MockConfig;
-import io.metersphere.base.domain.MockConfigExample;
-import io.metersphere.base.domain.MockExpectConfig;
-import io.metersphere.base.domain.MockExpectConfigExample;
-import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.ProjectApplication;
-import io.metersphere.base.domain.ProjectApplicationExample;
-import io.metersphere.base.domain.ProjectExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.base.mapper.ProjectApplicationMapper;
@@ -33,19 +21,13 @@ import io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.JSONValidator;
-import io.metersphere.commons.utils.JsonStructUtils;
-import io.metersphere.commons.utils.XMLUtil;
-import io.metersphere.commons.utils.mock.MockApiUtils;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.ext.ExtProjectApplicationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,11 +47,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -341,7 +319,7 @@ public class MockConfigService {
                 JSONObject jsonObject = headerArr.optJSONObject(i);
                 if (jsonObject.has("name") && jsonObject.has("value")) {
                     String headerName = jsonObject.optString("name");
-                    String headerValue = jsonObject.optString("value");
+                    String headerValue = StringUtils.trim(jsonObject.optString("value"));
                     if (StringUtils.isNotEmpty(headerName)) {
                         if (!requestHeaderMap.containsKey(headerName) || !StringUtils.equals(requestHeaderMap.get(headerName), headerValue)) {
                             return false;
@@ -461,8 +439,6 @@ public class MockConfigService {
                 }
             }
         }
-
-//        boolean isMatching = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
         return matchRest || matchQuery || matchBody;
     }
 
@@ -857,7 +833,7 @@ public class MockConfigService {
         String url = request.getRequestURL().toString();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix,requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
+            List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             Object paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
@@ -891,7 +867,7 @@ public class MockConfigService {
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix,requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
 
             /**
              * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：

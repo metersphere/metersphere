@@ -348,9 +348,8 @@ export default {
         });
       } else if (this.operation_type_add === 'external') {
         let param = {};
-        param.parentId = node.id;
         param.level = 1;
-        if (data.id != 'root') {
+        if (data.id !== 'root') {
           // 非根节点
           param.parentId = data.id;
           param.level = data.level + 1;

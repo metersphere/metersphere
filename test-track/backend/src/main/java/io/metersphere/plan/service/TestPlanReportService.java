@@ -14,9 +14,9 @@ import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
-import io.metersphere.plan.reuest.QueryTestPlanRequest;
-import io.metersphere.plan.reuest.TestPlanReportSaveRequest;
-import io.metersphere.plan.reuest.api.TestPlanRunRequest;
+import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.TestPlanReportSaveRequest;
+import io.metersphere.plan.request.api.TestPlanRunRequest;
 import io.metersphere.plan.service.remote.api.*;
 import io.metersphere.plan.service.remote.performance.PlanLoadTestReportService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
@@ -26,6 +26,7 @@ import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -240,7 +241,7 @@ public class TestPlanReportService {
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
         TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
-        TestPlanReportRunInfoDTO runInfoDTO = null; // todo 可以为null？
+        TestPlanReportRunInfoDTO runInfoDTO = null;
         if (testPlanReport != null) {
             returnDTO.setTestPlanReport(testPlanReport);
         }
@@ -253,50 +254,58 @@ public class TestPlanReportService {
                 .setTriggerMode(triggerMode)
                 .build();
 
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+
         try {
-            // todo 远程调用失败处理逻辑
-            TestPlanApiReportInfoDTO testPlanApiReportInfoDTO = planTestPlanScenarioCaseService.genApiReportInfoForSchedule(planId, runModeConfigDTO);
-            Map<String, String> planScenarioIdMap = testPlanApiReportInfoDTO.getPlanScenarioIdMap();
-            Map<String, String> planApiCaseIdMap = testPlanApiReportInfoDTO.getPlanApiCaseIdMap();
-            runInfoDTO = testPlanApiReportInfoDTO.getRunInfoDTO();
+            if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+                // todo 远程调用失败处理逻辑
+                TestPlanApiReportInfoDTO testPlanApiReportInfoDTO = planTestPlanScenarioCaseService.genApiReportInfoForSchedule(planId, runModeConfigDTO);
+                Map<String, String> planScenarioIdMap = testPlanApiReportInfoDTO.getPlanScenarioIdMap();
+                Map<String, String> planApiCaseIdMap = testPlanApiReportInfoDTO.getPlanApiCaseIdMap();
+                runInfoDTO = testPlanApiReportInfoDTO.getRunInfoDTO();
 
-            saveRequest.setApiCaseIsExecuting(!planApiCaseIdMap.isEmpty());
-            saveRequest.setScenarioIsExecuting(!planScenarioIdMap.isEmpty());
-            saveRequest.setApiCaseIdMap(planApiCaseIdMap);
-            saveRequest.setScenarioIdMap(planScenarioIdMap);
+                saveRequest.setApiCaseIsExecuting(!planApiCaseIdMap.isEmpty());
+                saveRequest.setScenarioIsExecuting(!planScenarioIdMap.isEmpty());
+                saveRequest.setApiCaseIdMap(planApiCaseIdMap);
+                saveRequest.setScenarioIdMap(planScenarioIdMap);
 
-            returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
-            returnDTO.setApiTestCaseDataMap(planApiCaseIdMap);
+                returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
+                returnDTO.setApiTestCaseDataMap(planApiCaseIdMap);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
 
         try {
-            // todo 远程调用失败处理逻辑
-            Map<String, String> performanceIdMap = new LinkedHashMap<>();
-            List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = planTestPlanLoadCaseService.list(planId);
-            for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
-                performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
-            }
-            saveRequest.setPerformanceIsExecuting(!performanceIdMap.isEmpty());
-            saveRequest.setPerformanceIdMap(performanceIdMap);
+            if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+                // todo 远程调用失败处理逻辑
+                Map<String, String> performanceIdMap = new LinkedHashMap<>();
+                List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = planTestPlanLoadCaseService.list(planId);
+                for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
+                    performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
+                }
+                saveRequest.setPerformanceIsExecuting(!performanceIdMap.isEmpty());
+                saveRequest.setPerformanceIdMap(performanceIdMap);
 
-            returnDTO.setPerformanceIdMap(performanceIdMap);
+                returnDTO.setPerformanceIdMap(performanceIdMap);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
 
         try {
-            // todo 远程调用失败处理逻辑
-            Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
-            List<TestPlanUiScenario> testPlanUiScenarioList = planTestPlanUiScenarioCaseService.list(planId);
-            for (TestPlanUiScenario dto : testPlanUiScenarioList) {
-                uiScenarioIdMap.put(dto.getId(), dto.getUiScenarioId());
-            }
-            saveRequest.setUiScenarioIsExecuting(!uiScenarioIdMap.isEmpty());
-            saveRequest.setUiScenarioIdMap(uiScenarioIdMap);
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+                // todo 远程调用失败处理逻辑
+                Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
+                List<TestPlanUiScenario> testPlanUiScenarioList = planTestPlanUiScenarioCaseService.list(planId);
+                for (TestPlanUiScenario dto : testPlanUiScenarioList) {
+                    uiScenarioIdMap.put(dto.getId(), dto.getUiScenarioId());
+                }
+                saveRequest.setUiScenarioIsExecuting(!uiScenarioIdMap.isEmpty());
+                saveRequest.setUiScenarioIdMap(uiScenarioIdMap);
 
-            returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
+                returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -348,29 +357,34 @@ public class TestPlanReportService {
             testPlanReport.setRunInfo(JSON.toJSONString(runInfoDTO));
         }
 
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+
         if (saveRequest.isCountResources()) {
             String planId = saveRequest.getPlanId();
             try {
-                // todo 远程调用失败处理逻辑
-                testPlanReport.setIsApiCaseExecuting(planTestPlanApiCaseService.isCaseExecuting(planId));
+                if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+                    // todo 远程调用失败处理逻辑
+                    testPlanReport.setIsApiCaseExecuting(planTestPlanApiCaseService.isCaseExecuting(planId));
+                    testPlanReport.setIsScenarioExecuting(planTestPlanScenarioCaseService.isCaseExecuting(planId));
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
             }
+
             try {
-                // todo 远程调用失败处理逻辑
-                testPlanReport.setIsScenarioExecuting(planTestPlanScenarioCaseService.isCaseExecuting(planId));
+                if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+                    // todo 远程调用失败处理逻辑
+                    testPlanReport.setIsUiScenarioExecuting(planTestPlanUiScenarioCaseService.isCaseExecuting(planId));
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
             }
+
             try {
-                // todo 远程调用失败处理逻辑
-                testPlanReport.setIsUiScenarioExecuting(planTestPlanUiScenarioCaseService.isCaseExecuting(planId));
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
-            try {
-                // todo 远程调用失败处理逻辑
-                testPlanReport.setIsPerformanceExecuting(planTestPlanLoadCaseService.isCaseExecuting(planId, testPlan.getProjectId()));
+                if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+                    // todo 远程调用失败处理逻辑
+                    testPlanReport.setIsPerformanceExecuting(planTestPlanLoadCaseService.isCaseExecuting(planId, testPlan.getProjectId()));
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
             }
@@ -554,6 +568,12 @@ public class TestPlanReportService {
             //计算测试计划状态
             if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
                 testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
+                HttpHeaderUtils.runAsUser("admin");
+                try {
+                    testPlanService.checkStatus(testPlanReport.getTestPlanId());
+                } finally {
+                    HttpHeaderUtils.clearUser();
+                }
             } else {
                 testPlanReport.setStatus(status);
             }
@@ -1301,7 +1321,7 @@ public class TestPlanReportService {
                         }
                     }
                 } catch (Exception e) {
-                    LogUtil.error("Parse test plan report cenario case error!", e);
+                    LogUtil.error("Parse test plan report scenario case error!", e);
                 }
             }
 
