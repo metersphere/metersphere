@@ -35,6 +35,7 @@ import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author songcc
@@ -63,6 +64,8 @@ public class AttachmentService {
     private FileAssociationMapper fileAssociationMapper;
     @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private BaseUserService baseUserService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
@@ -198,6 +201,7 @@ public class AttachmentService {
             FileAttachmentMetadataExample fileExample = new FileAttachmentMetadataExample();
             fileExample.createCriteria().andIdIn(attachmentIds);
             List<FileAttachmentMetadata> fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByExample(fileExample);
+            Map<String, List<User>> userMap = baseUserService.getUserList().stream().collect(Collectors.groupingBy(User::getId));
             fileAttachmentMetadata.forEach(file -> {
                 String fileRefId = relationMap.get(file.getId());
                 if (StringUtils.isEmpty(fileRefId)) {
@@ -212,7 +216,12 @@ public class AttachmentService {
                         file.setIsRelatedDeleted(Boolean.FALSE);
                         file.setName(fileMetadata.getName());
                         file.setSize(fileMetadata.getSize());
-                        file.setCreator(fileMetadata.getCreateUser());
+                        List<User> users = userMap.get(fileMetadata.getCreateUser());
+                        if (CollectionUtils.isNotEmpty(users)) {
+                            file.setCreator(users.get(0).getName());
+                        } else {
+                            file.setCreator(fileMetadata.getCreateUser());
+                        }
                         file.setCreateTime(fileMetadata.getCreateTime());
                     } else {
                         file.setIsRelatedDeleted(Boolean.TRUE);
