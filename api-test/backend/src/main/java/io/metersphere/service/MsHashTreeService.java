@@ -4,6 +4,8 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.request.ElementUtil;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -35,6 +37,9 @@ public class MsHashTreeService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+
+    @Resource
+    private ProjectMapper projectMapper;
 
     public static final String CASE = "CASE";
     public static final String REFERENCED = "referenced";
@@ -163,6 +168,9 @@ public class MsHashTreeService {
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), "Copy")) {
                 ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.optString(ID));
+                Project project = projectMapper.selectByPrimaryKey(definitionWithBLOBs.getProjectId());
+                definitionWithBLOBs.setProjectName(project.getName());
+                definitionWithBLOBs.setVersionEnable(project.getVersionEnable());
                 if (definitionWithBLOBs != null) {
                     element.put(ID, definitionWithBLOBs.getId());
                     this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
