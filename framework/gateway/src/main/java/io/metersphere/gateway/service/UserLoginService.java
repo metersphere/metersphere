@@ -2,6 +2,7 @@ package io.metersphere.gateway.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.constants.UserStatus;
@@ -56,7 +57,9 @@ public class UserLoginService {
                 break;
         }
         autoSwitch(session, userDTO);
-        return Optional.of(SessionUser.fromUser(userDTO, session.getId()));
+        SessionUser sessionUser = SessionUser.fromUser(userDTO, session.getId());
+        session.getAttributes().put(SessionConstants.ATTR_USER, sessionUser);
+        return Optional.of(sessionUser);
     }
 
     private UserDTO loginLdapMode(String userId, String authenticate) {
@@ -217,7 +220,7 @@ public class UserLoginService {
         }
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
-        session.getAttributes().put("user", SessionUser.fromUser(user, session.getId()));
+        session.getAttributes().put(SessionConstants.ATTR_USER, SessionUser.fromUser(user, session.getId()));
         session.getAttributes().put(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getId());
         userMapper.updateByPrimaryKeySelective(newUser);
     }

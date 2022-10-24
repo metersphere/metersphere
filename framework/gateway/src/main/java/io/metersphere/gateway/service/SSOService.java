@@ -2,6 +2,7 @@ package io.metersphere.gateway.service;
 
 import io.metersphere.base.domain.AuthSource;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
@@ -155,7 +156,7 @@ public class SSOService {
         Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
-        session.getAttributes().put("user", userOptional.get());
+        session.getAttributes().put(SessionConstants.ATTR_USER, userOptional.get());
         return userOptional;
     }
 
@@ -195,7 +196,7 @@ public class SSOService {
         Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
-        session.getAttributes().put("user", userOptional.get());
+        session.getAttributes().put(SessionConstants.ATTR_USER, userOptional.get());
         session.getAttributes().put("casTicket", ticket);
         // 记录cas对应关系
         Long timeout = env.getProperty("spring.session.timeout", Long.class);
