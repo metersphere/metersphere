@@ -17,3 +17,19 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 SELECT UUID(), id, 'WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG', 'WORKSPACE_PROJECT_MANAGER'
 FROM `group`
 WHERE type = 'WORKSPACE';
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+SELECT UUID(), id, 'PROJECT_MESSAGE:READ+DELETE', 'PROJECT_MESSAGE'
+FROM `group`
+WHERE type = 'PROJECT'
+  and `group`.id in (select group_id from user_group_permission where permission_id = 'PROJECT_MESSAGE:READ');
+
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+SELECT UUID(), id, 'PROJECT_ERROR_REPORT_LIBRARY:READ+BATCH_DELETE', 'PROJECT_ERROR_REPORT_LIBRARY'
+FROM `group`
+WHERE type = 'PROJECT'
+  and `group`.id in
+      (select group_id from user_group_permission where permission_id = 'PROJECT_ERROR_REPORT_LIBRARY:READ');

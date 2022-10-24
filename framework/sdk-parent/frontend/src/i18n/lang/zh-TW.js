@@ -2506,6 +2506,7 @@ const message = {
       create: "創建誤報",
       edit: "修改誤報",
       delete: "刪除誤報",
+      batch_delete: "批量刪除誤報",
     },
     system_user: {
       name: "用戶",
@@ -2577,7 +2578,8 @@ const message = {
     project_message: {
       name: "消息設置",
       read: "查詢",
-      edit: "編輯"
+      edit: "編輯",
+      delete: "刪除"
     },
     project_template: {
       name: "模版設置",

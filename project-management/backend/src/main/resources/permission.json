@@ -171,6 +171,11 @@
       "resourceId": "PROJECT_MESSAGE"
     },
     {
+      "id": "PROJECT_MESSAGE:READ+DELETE",
+      "name": "permission.project_message.delete",
+      "resourceId": "PROJECT_MESSAGE"
+    },
+    {
       "id": "PROJECT_CUSTOM_CODE:READ",
       "name": "permission.project_custom_code.read",
       "resourceId": "PROJECT_CUSTOM_CODE"
@@ -246,6 +251,12 @@
     {
       "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE",
       "name": "permission.project_error_report_library.delete",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+BATCH_DELETE",
+      "name": "permission.project_error_report_library.batch_delete",
       "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
       "license": true
     }

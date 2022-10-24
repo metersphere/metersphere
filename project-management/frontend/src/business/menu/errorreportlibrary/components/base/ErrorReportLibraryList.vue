@@ -124,7 +124,7 @@ export default {
       buttons: [{
         name: this.$t('api_test.definition.request.batch_delete'),
         handleClick: this.handleBatchDelete,
-        permissions: ['PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE']
+        permissions: ['PROJECT_ERROR_REPORT_LIBRARY:READ+BATCH_DELETE']
       }],
       selectNodeIds: [],
       screenHeight: 'calc(100vh - 150px)',//屏幕高度
