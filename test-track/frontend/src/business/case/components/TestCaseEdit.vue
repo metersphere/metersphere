@@ -39,7 +39,7 @@
                   {{ $t('operating_log.change_history') }}
                 </el-link>
                 <!--  版本历史 -->
-                <ms-version-history v-xpack
+                <mx-version-history v-xpack
                                     ref="versionHistory"
                                     :version-data="versionData"
                                     :current-id="currentTestCaseInfo.id"
@@ -180,7 +180,7 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
+import MxVersionHistory from "metersphere-frontend/src/components/version/MxVersionHistory";
 import {useStore} from "@/store";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {
@@ -211,7 +211,7 @@ export default {
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
-    'MsVersionHistory': MxVersionSelect,
+    MxVersionHistory,
     TestCaseVersionDiff,
     VersionCreateOtherInfoSelect,
     TestCaseBaseInfo,
