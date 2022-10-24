@@ -6,11 +6,8 @@
           <el-col :span="14">
             <el-row>
               <el-breadcrumb separator-class="el-icon-arrow-right">
-                <el-breadcrumb-item :to="{ path: '/performance/test/' + this.projectId }">{{ projectName }}
-                </el-breadcrumb-item>
-                <el-breadcrumb-item v-if="!testDeleted" :to="{ path: '/performance/test/edit/' + this.testId }">
-                  {{ testName }}
-                </el-breadcrumb-item>
+                <el-breadcrumb-item @click.native="toListPage()" class="el-link">{{ projectName }}</el-breadcrumb-item>
+                <el-breadcrumb-item v-if="!testDeleted" class="el-link" @click.native="toEditTestPage()">{{ testName }}</el-breadcrumb-item>
                 <el-breadcrumb-item v-else>{{ testName }}</el-breadcrumb-item>
                 <el-breadcrumb-item>{{ reportName }}</el-breadcrumb-item>
               </el-breadcrumb>
@@ -183,16 +180,7 @@ import MonitorCard from "./components/MonitorCard";
 import MsTestConfiguration from "./components/TestConfiguration";
 import {generateShareInfoWithExpired, getShareRedirectUrl} from "@/api/share";
 import ProjectEnvironmentDialog from "./components/ProjectEnvironmentDialog";
-import {
-  downloadJtl,
-  downloadZip,
-  getProjectApplication,
-  getReport,
-  getReportTime,
-  getTestProInfo,
-  initReportSocket,
-  stopTest
-} from "@/api/report";
+import {downloadJtl, downloadZip, getProjectApplication, getReport, getReportTime, getTestProInfo, initReportSocket, stopTest} from "@/api/report";
 import {getTest, runTest} from "@/api/performance";
 
 
@@ -557,6 +545,12 @@ export default {
       } else {
         return null;
       }
+    },
+    toListPage() {
+      window.open(`/#/performance/test/all`, '_blank');
+    },
+    toEditTestPage() {
+      window.open('/#/performance/test/edit/' + this.testId, '_blank');
     }
   },
   created() {
