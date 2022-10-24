@@ -17,7 +17,7 @@ public class PerfExecController {
     PerfExecService perfExecService;
 
     @PostMapping("/run")
-    public Map<String, String> getLoadFailureCases(@RequestBody PlanPerformanceExecRequest request) {
+    public Map<String, String> run(@RequestBody PlanPerformanceExecRequest request) {
       return perfExecService.run(request.getPlanReportId(), request.getConfig(), request.getTriggerMode(), request.getPerfMap());
     }
 }
