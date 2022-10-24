@@ -29,7 +29,6 @@ export default {
   methods: {
     microAppInit() {
       const microPorts = JSON.parse(sessionStorage.getItem("micro_ports"));
-
       let app = {
         name: 'micro-app-' + this.service,
         container: this.$refs.child1,
