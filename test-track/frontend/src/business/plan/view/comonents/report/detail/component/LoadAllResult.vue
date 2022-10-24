@@ -15,7 +15,7 @@
     <ms-main-container>
 
       <div v-if="showResponse">
-        <micro-app v-if="!isTemplate"
+        <micro-app v-if="!isTemplate && reportShow"
                    route-name="perReportView"
                    service="performance"
                    :route-params="{
@@ -75,7 +75,8 @@ export default {
       failureTestCases: [],
       showResponse: false,
       reportId: "",
-      response: null
+      response: null,
+      reportShow: true
     }
   },
   methods: {
@@ -112,6 +113,10 @@ export default {
       if (exist) {
         this.reportId = loadReportId;
         this.showResponse = true;
+        this.reportShow = false;
+        this.$nextTick(() => {
+          this.reportShow = true;
+        });
       } else {
         this.showResponse = false;
         this.$message.warning(this.$t('test_track.plan.load_case.report_not_found'));
