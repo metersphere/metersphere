@@ -191,7 +191,7 @@ export default {
       comps.forEach(comp => comp.init());
     },
     setModulesParam() {
-      let comps = this.optional.components.filter(c => c.key === 'moduleIds');
+      let comps = this.optional.components.filter(c => c.key === 'moduleIds' && c.options.type === 'POST');
       comps.forEach(comp => comp.options.params = {"projectId": this.condition.projectId});
     },
     addFilter() {
