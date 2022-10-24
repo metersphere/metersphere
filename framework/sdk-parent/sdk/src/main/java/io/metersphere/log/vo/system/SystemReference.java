@@ -131,7 +131,7 @@ public class SystemReference {
         licenseColumns.put("expired", "授权截止时间");
         licenseColumns.put("product", "产品名称");
         licenseColumns.put("edition", "产品版本");
-        licenseColumns.put("count", "icense版本");
+        licenseColumns.put("count", "license版本");
         licenseColumns.put("licenseVersion", "授权数量");
         licenseColumns.put("status", "状态");
 
