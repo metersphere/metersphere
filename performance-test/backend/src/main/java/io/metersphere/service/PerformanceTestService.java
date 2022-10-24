@@ -783,6 +783,15 @@ public class PerformanceTestService {
         return null;
     }
 
+    public String getRunLogDetails(String id) {
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
+        if (loadTest != null) {
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), loadTest.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
     public String deleteBatchLog(DeletePerformanceRequest request) {
         ServiceUtils.getSelectAllIds(request, request, (query) -> getLoadTestIds(request.getProjectId()));
         List<String> loadTestIds = request.getIds();
