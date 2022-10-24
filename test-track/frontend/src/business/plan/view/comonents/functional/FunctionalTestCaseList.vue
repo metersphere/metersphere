@@ -299,8 +299,7 @@ import {getTestTemplate} from "@/api/custom-field-template";
 import {
   editTestPlanTestCaseOrder,
   testPlanAutoCheck,
-  testPlanEdit,
-  testPlanEditStatus,
+  testPlanEditStatus, testPlanFresh,
   testPlanGet
 } from "@/api/remote/plan/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
@@ -313,6 +312,7 @@ import {
   testPlanTestCaseDelete,
   testPlanTestCaseEdit
 } from "@/api/remote/plan/test-plan-test-case";
+import {getIssuesByCaseId, getOriginIssuesByCaseId} from "@/api/issue";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -517,11 +517,11 @@ export default {
   methods: {
     loadIssue(row) {
       if (row.issuesSize && !row.hasLoadIssue) {
-        // todo
-        //   this.$get("/issues/get/case/PLAN_FUNCTIONAL/" + row.id).then(response => {
-        //     this.$set(row, "issuesContent", response.data.data);
-        //     this.$set(row, "hasLoadIssue", true);
-        //   });
+        getOriginIssuesByCaseId('PLAN_FUNCTIONAL', row.id)
+         .then(r => {
+            this.$set(row, "issuesContent", r.data);
+            this.$set(row, "hasLoadIssue", true);
+          });
       }
     },
     handleOpenFailureTestCase(row) {
@@ -681,12 +681,6 @@ export default {
       this.getTestPlanById();
       this.initTableData();
     },
-    refreshTestPlanRecent() {
-      let param = {};
-      param.id = this.planId;
-      param.updateTime = Date.now();
-      testPlanEdit(param);
-    },
     search() {
       this.initTableData();
       this.$emit('search');
@@ -765,8 +759,8 @@ export default {
         testPlanGet(this.planId)
           .then(response => {
             this.testPlan = response.data;
-            this.refreshTestPlanRecent();
-          })
+            testPlanFresh(this.planId);
+          });
       }
     },
     batchEdit(form) {

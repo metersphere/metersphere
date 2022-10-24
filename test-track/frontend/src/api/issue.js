@@ -82,6 +82,10 @@ export function getIssuesByCaseId(refType, caseId, page) {
   }
 }
 
+export function getOriginIssuesByCaseId(refType, caseId) {
+  return get('issues/get/case/' + refType + '/' + caseId);
+}
+
 export function getIssuesById(id) {
   return id ? get('/issues/get/' + id) : {};
 }
