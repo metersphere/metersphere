@@ -25,7 +25,7 @@ export function getTestCase(id) {
 }
 
 export function hasTestCaseOtherInfo(id) {
-  return get(BASE_URL + `test/case/hasOtherInfo/${id}`);
+  return get(BASE_URL + `hasOtherInfo/${id}`);
 }
 
 export function testCaseGetByVersionId(versionId, id) {
