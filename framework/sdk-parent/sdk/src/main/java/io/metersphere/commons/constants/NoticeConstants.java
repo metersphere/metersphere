@@ -51,6 +51,10 @@ public interface NoticeConstants {
         String CASE_UPDATE = "CASE_UPDATE";
         String CASE_DELETE = "CASE_DELETE";
 
+        String MOCK_CREATE = "MOCK_CREATE";
+        String MOCK_UPDATE = "MOCK_UPDATE";
+        String MOCK_DELETE = "MOCK_DELETE";
+
         String COMMENT = "COMMENT";
         String IMPORT = "IMPORT";
 
