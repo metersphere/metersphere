@@ -5,13 +5,8 @@ import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
 import io.metersphere.security.CsrfFilter;
 import io.metersphere.security.MsPermissionAnnotationMethodInterceptor;
-import io.metersphere.security.UserModularRealmAuthenticator;
-import io.metersphere.security.realm.LdapRealm;
 import io.metersphere.security.realm.LocalRealm;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.aop.AnnotationResolver;
-import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.authz.aop.*;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
@@ -26,21 +21,14 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.ServletContainerSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import java.util.*;
 
-public class ShiroConfig implements EnvironmentAware {
-
-    private Environment env;
+public class ShiroConfig {
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager sessionManager) {
@@ -77,11 +65,6 @@ public class ShiroConfig implements EnvironmentAware {
 
     @Bean
     public SessionManager sessionManager() {
-        Long timeout = env.getProperty("spring.session.timeout", Long.class);
-        String storeType = env.getProperty("spring.session.store-type");
-        if (StringUtils.equals(storeType, "none")) {
-            return ShiroUtils.getSessionManager(timeout, memoryConstrainedCacheManager());
-        }
         return new ServletContainerSessionManager();
     }
 
@@ -90,11 +73,11 @@ public class ShiroConfig implements EnvironmentAware {
      * 解决方法见 handleContextRefresh
      */
     @Bean(name = "securityManager")
-    public DefaultWebSecurityManager securityManager(SessionManager sessionManager, CacheManager cacheManager) {
+    public DefaultWebSecurityManager securityManager(SessionManager sessionManager, CacheManager cacheManager, Realm localRealm) {
         DefaultWebSecurityManager dwsm = new DefaultWebSecurityManager();
         dwsm.setSessionManager(sessionManager);
         dwsm.setCacheManager(cacheManager);
-        dwsm.setAuthenticator(modularRealmAuthenticator());
+        dwsm.setRealm(localRealm);
         return dwsm;
     }
 
@@ -102,12 +85,6 @@ public class ShiroConfig implements EnvironmentAware {
     @DependsOn("lifecycleBeanPostProcessor")
     public LocalRealm localRealm() {
         return new LocalRealm();
-    }
-
-    @Bean
-    @DependsOn("lifecycleBeanPostProcessor")
-    public LdapRealm ldapRealm() {
-        return new LdapRealm();
     }
 
     @Bean(name = "lifecycleBeanPostProcessor")
@@ -123,13 +100,6 @@ public class ShiroConfig implements EnvironmentAware {
         return daap;
     }
 
-    @Bean
-    public ModularRealmAuthenticator modularRealmAuthenticator() {
-        //自己重写的ModularRealmAuthenticator
-        UserModularRealmAuthenticator modularRealmAuthenticator = new UserModularRealmAuthenticator();
-        modularRealmAuthenticator.setAuthenticationStrategy(new FirstSuccessfulStrategy());
-        return modularRealmAuthenticator;
-    }
 
     @Bean
     public AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(DefaultWebSecurityManager sessionManager) {
@@ -149,23 +119,4 @@ public class ShiroConfig implements EnvironmentAware {
         return aasa;
     }
 
-    /**
-     * 等到ApplicationContext 加载完成之后 装配shiroRealm
-     */
-    @EventListener
-    public void handleContextRefresh(ContextRefreshedEvent event) {
-        ApplicationContext context = event.getApplicationContext();
-        List<Realm> realmList = new ArrayList<>();
-        LocalRealm localRealm = context.getBean(LocalRealm.class);
-        LdapRealm ldapRealm = context.getBean(LdapRealm.class);
-        // 基本realm
-        realmList.add(localRealm);
-        realmList.add(ldapRealm);
-        context.getBean(DefaultWebSecurityManager.class).setRealms(realmList);
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.env = environment;
-    }
 }
