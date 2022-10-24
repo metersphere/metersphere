@@ -7,7 +7,7 @@
     :modal-append-to-body="false"
     size="100%"
     ref="drawer"
-    v-loading="result.loading">
+    v-loading="loading">
 
     <template>
       <el-row :gutter="10">
@@ -188,7 +188,7 @@ export default {
   },
   data() {
     return {
-      result: {},
+      loading: false,
       showDialog: false,
       testCase: {},
       index: 0,
@@ -367,8 +367,10 @@ export default {
       this.getTestCase(this.testCases[this.index].id);
     },
     getTestCase(id) {
+      this.loading = true;
       getTestReviewTestCase(id)
         .then((response) => {
+          this.loading = false;
           let item = {};
           let data = response.data;
           Object.assign(item, data);
@@ -423,7 +425,7 @@ export default {
         }
       }
 
-      getTestTemplate()
+      getTestTemplate(testCase.projectId)
         .then((response) => {
           this.testCaseTemplate = response;
           initFuc(testCase.id);

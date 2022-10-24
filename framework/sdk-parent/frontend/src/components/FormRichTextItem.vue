@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
+import MsMarkDownText from "./MsMarkDownText";
 export default {
   name: "FormRichTextItem",
   components: {MsMarkDownText},

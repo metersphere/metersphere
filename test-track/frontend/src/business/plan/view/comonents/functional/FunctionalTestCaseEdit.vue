@@ -145,7 +145,6 @@
 <script>
 import TestPlanTestCaseStatusButton from '../../../common/TestPlanTestCaseStatusButton';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
@@ -231,9 +230,6 @@ export default {
     prePageData: Object
   },
   computed: {
-    projectId() {
-      return getCurrentProjectID();
-    },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
     },
@@ -456,7 +452,7 @@ export default {
 
       listenGoBack(this.handleClose);
       let initFuc = this.getTestCase;
-      getTestTemplate()
+      getTestTemplate(testCase.projectId)
         .then((template) => {
           this.testCaseTemplate = template;
           initFuc(testCase.id);
