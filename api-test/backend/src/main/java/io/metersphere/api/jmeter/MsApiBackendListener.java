@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class MsApiBackendListener extends AbstractBackendListenerClient implements Serializable {
     private ApiExecutionQueueService apiExecutionQueueService;
+    private TestResultService testResultService;
     private List<SampleResult> queues;
     private ResultDTO dto;
 
@@ -39,47 +40,59 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         LoggerUtil.info("初始化监听");
         queues = new LinkedList<>();
         this.setParam(context);
+        if (apiExecutionQueueService == null) {
+            apiExecutionQueueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
+        }
+        if (testResultService == null) {
+            testResultService = CommonBeanFactory.getBean(TestResultService.class);
+        }
         super.setupTest(context);
     }
 
     @Override
     public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
         LoggerUtil.info("接收到JMETER执行数据【" + sampleResults.size() + " 】", dto.getReportId());
-        queues.addAll(sampleResults);
+        if (dto.isRetryEnable()) {
+            queues.addAll(sampleResults);
+        } else {
+            if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                dto.setConsole(FixedCapacityUtil.getJmeterLogger(getReportId(), false));
+            }
+            sampleResults = RetryResultUtil.clearLoops(sampleResults);
+            JMeterBase.resultFormatting(sampleResults, dto);
+            testResultService.saveResults(dto);
+            sampleResults.clear();
+        }
     }
 
     @Override
     public void teardownTest(BackendListenerContext context) {
         try {
+            LoggerUtil.info("进入TEST-END处理报告" + dto.getRunMode(), dto.getReportId());
             super.teardownTest(context);
-            // 清理过程步骤
-            queues = RetryResultUtil.clearLoops(queues);
-            JMeterBase.resultFormatting(queues, dto);
-            if (dto.isRetryEnable()) {
-                LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】开始");
-                RetryResultUtil.mergeRetryResults(dto.getRequestResults());
-                LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
-            }
-            String reportId = dto.getReportId();
-            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())
-                    && !FixedCapacityUtil.containsKey(dto.getTestPlanReportId())
-                    && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                reportId = dto.getTestPlanReportId();
-            }
+            // 获取执行日志
             if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                dto.setConsole(FixedCapacityUtil.getJmeterLogger(reportId, true));
+                dto.setConsole(FixedCapacityUtil.getJmeterLogger(getReportId(), true));
             }
-            // 入库存储
-            CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
-            LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
+            if (dto.isRetryEnable()) {
+                LoggerUtil.info("重试结果处理开始", dto.getReportId());
+                // 清理过程步骤
+                queues = RetryResultUtil.clearLoops(queues);
+                JMeterBase.resultFormatting(queues, dto);
+
+                LoggerUtil.info("合并重试结果集", dto.getReportId());
+                RetryResultUtil.mergeRetryResults(dto.getRequestResults());
+
+                LoggerUtil.info("执行结果入库存储", dto.getReportId());
+                testResultService.saveResults(dto);
+                LoggerUtil.info("重试结果处理结束", dto.getReportId());
+            }
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             // 整体执行结束更新资源状态
-            CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
-            if (apiExecutionQueueService == null) {
-                apiExecutionQueueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
-            }
+            testResultService.testEnded(dto);
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
+                LoggerUtil.info("串行进入下一个执行点", dto.getReportId());
                 apiExecutionQueueService.queueNext(dto);
             }
             // 更新测试计划报告
@@ -91,6 +104,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         } catch (Exception e) {
             LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {
+            queues.clear();
             FileUtils.deleteBodyFiles(dto.getReportId());
             if (FileServer.getFileServer() != null) {
                 LoggerUtil.info("进入监听，开始关闭CSV", dto.getReportId());
@@ -99,7 +113,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
-            queues.clear();
         }
     }
 
@@ -125,5 +138,15 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         if (StringUtils.isNotEmpty(ept)) {
             dto.setExtendedParameters(JSON.parseObject(context.getParameter(BackendListenerConstants.EPT.name()), Map.class));
         }
+    }
+
+    private String getReportId() {
+        String reportId = dto.getReportId();
+        if (StringUtils.isNotEmpty(dto.getTestPlanReportId())
+                && !FixedCapacityUtil.containsKey(dto.getTestPlanReportId())
+                && StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+            reportId = dto.getTestPlanReportId();
+        }
+        return reportId;
     }
 }
