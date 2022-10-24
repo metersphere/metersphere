@@ -27,6 +27,7 @@
 
       <ms-table-column
         prop="name"
+        permission="PROJECT_TRACK_REPORT:READ+DELETE"
         :field="item"
         :fields-width="fieldsWidth"
         sortable
