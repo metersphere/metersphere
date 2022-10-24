@@ -39,7 +39,7 @@
                   {{ $t('operating_log.change_history') }}
                 </el-link>
                 <!--  版本历史 -->
-                <ms-version-history v-xpack
+                <mx-version-history v-xpack
                                     ref="versionHistory"
                                     :version-data="versionData"
                                     :current-id="currentTestCaseInfo.id"
@@ -163,7 +163,6 @@ import CustomFiledComponent from "metersphere-frontend/src/components/template/C
 import {
   buildCustomFields,
   buildTestCaseOldFields,
-  getTemplate,
   parseCustomField
 } from "metersphere-frontend/src/utils/custom_field";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
@@ -180,7 +179,6 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {useStore} from "@/store";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {
@@ -211,13 +209,13 @@ export default {
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
-    'MsVersionHistory': MxVersionSelect,
     TestCaseVersionDiff,
     VersionCreateOtherInfoSelect,
     TestCaseBaseInfo,
     MsContainer,
     MsAsideContainer,
     MsMainContainer,
+    MxVersionHistory: () => import("metersphere-frontend/src/components/version/MxVersionHistory")
   },
   data() {
     return {
@@ -1118,7 +1116,7 @@ export default {
     hasOtherInfo() {
       return new Promise((resolve) => {
           if (this.form.id) {
-            hasTestCaseOtherInfo()
+            hasTestCaseOtherInfo(this.form.id)
               .then((res) => {
                 resolve(res.data);
               });
