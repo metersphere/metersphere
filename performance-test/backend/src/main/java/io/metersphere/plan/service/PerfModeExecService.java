@@ -28,7 +28,7 @@ public class PerfModeExecService {
                 performanceTestService.run(request);
             } catch (Exception e) {
                 loadCase.setStatus(TestPlanLoadCaseStatus.error.name());
-                MSException.throwException(e);
+                MSException.throwException(e.getMessage());
             }
             //更新关联处的报告
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(loadCase);
