@@ -16,18 +16,25 @@
 </template>
 
 <script>
-import {handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes, tagBatch} from "@/business/common/minder/minderUtils";
+import {
+  handleExpandToLevel,
+  listenBeforeExecCommand,
+  listenNodeSelected,
+  loadSelectNodes,
+  tagBatch
+} from "@/business/common/minder/minderUtils";
 import {getReviewCasesForMinder} from "@/api/testCase";
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 import MsModuleMinder from "@/business/common/minder/MsModuleMinder";
 import {useStore} from "@/store";
 import {mapState} from "pinia";
 import {testReviewCaseMinderEdit} from "@/api/remote/plan/test-review-case";
+
 export default {
-name: "TestReviewMinder",
+  name: "TestReviewMinder",
   components: {MsModuleMinder},
   data() {
-    return{
+    return {
       dataMap: new Map(),
       tags: [this.$t('test_track.plan_view.pass'), this.$t('test_track.plan_view.not_pass')],
       result: {loading: false}
@@ -75,7 +82,7 @@ name: "TestReviewMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        loadSelectNodes(this.getParam(),  getReviewCasesForMinder, this.setParamCallback);
+        loadSelectNodes(this.getParam(), getReviewCasesForMinder, this.setParamCallback);
       });
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
@@ -124,6 +131,9 @@ name: "TestReviewMinder",
           this.result.loading = false;
           this.$success(this.$t('commons.save_success'));
           this.setIsChange(false);
+        })
+        .catch(() => {
+          this.result.loading = false;
         });
     },
     buildSaveCase(root, saveCases) {
