@@ -102,7 +102,6 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         dto.setToReport(this.getName());
         LoggerUtil.debug("send. " + this.getName());
         WebSocketUtil.sendMessageSingle(dto);
-        WebSocketUtil.onClose(this.getName());
         PoolExecBlockingQueueUtil.offer(this.getName());
     }
 

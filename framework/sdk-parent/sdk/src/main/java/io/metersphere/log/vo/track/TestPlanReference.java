@@ -13,7 +13,7 @@ public class TestPlanReference {
         testPlanColumns.clear();
         reportColumns.clear();
         issuesColumns.clear();
-        testPlanColumns.put("name", "用例名称");
+        testPlanColumns.put("name", "测试计划名称");
         testPlanColumns.put("creator", "创建人");
         testPlanColumns.put("principal", "责任人");
         testPlanColumns.put("status", "状态");

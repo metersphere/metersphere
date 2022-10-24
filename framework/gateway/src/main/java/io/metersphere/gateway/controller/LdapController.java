@@ -9,6 +9,7 @@ import io.metersphere.request.LoginRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
 import java.util.Locale;
@@ -23,7 +24,8 @@ public class LdapController {
     @PostMapping(value = "/signin")
     @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.LOGIN, title = "LDAP")
     public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session, Locale locale) {
-        return Mono.just(ldapService.login(request, session, locale))
+        return Mono.defer(() -> ldapService.login(request, session, locale).map(Mono::just).orElseGet(Mono::empty))
+                .subscribeOn(Schedulers.boundedElastic())
                 .map(ResultHolder::success);
     }
 

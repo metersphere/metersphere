@@ -19,7 +19,7 @@
             {{ $t('operating_log.change_history') }}
           </el-link>
           <!--  版本历史 -->
-          <ms-version-history v-xpack
+          <mx-version-history v-xpack
                               ref="versionHistory"
                               :version-data="versionData"
                               :current-id="currentTestCaseInfo.id"
@@ -145,7 +145,6 @@ import StepChangeItem from "@/business/case/components/StepChangeItem";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
 import BatchMove from "@/business/case/components/BatchMove";
 import TestCaseVersionDiff from "@/business/case/version/TestCaseVersionDiff";
-import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {useStore} from "@/store";
 import {
   getTestCase,
@@ -172,8 +171,8 @@ export default {
     MsTestCaseStepRichText,
     MsChangeHistory,
     BatchMove,
-    'MsVersionHistory': MxVersionSelect,
-    TestCaseVersionDiff
+    TestCaseVersionDiff,
+    MxVersionHistory: () => import("metersphere-frontend/src/components/version/MxVersionHistory")
   },
   data() {
     return {

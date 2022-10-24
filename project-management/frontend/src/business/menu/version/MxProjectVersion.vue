@@ -312,9 +312,8 @@ export default {
               });
             }
           }
-          saveProjectVersion(this.form)
+          this.createLoading = saveProjectVersion(this.form)
             .then(resp => {
-              this.createLoading = false;
               this.$success(this.$t('commons.save_success'));
               this.initData();
               if (create) {
@@ -323,12 +322,7 @@ export default {
                 this.createVisible = false;
               }
             })
-            .catch(err => {
-              this.createLoading = false;
-              this.$error(err.response.data.message);
-            });
         } else {
-          this.createLoading = false;
           return false;
         }
       });

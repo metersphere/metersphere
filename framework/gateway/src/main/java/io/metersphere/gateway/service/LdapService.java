@@ -109,7 +109,6 @@ public class LdapService {
 
         session.getAttributes().put("authenticate", UserSource.LDAP.name());
         session.getAttributes().put("email", email);
-        session.getAttributes().put("user", u);
 
         // 执行 LocalRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();

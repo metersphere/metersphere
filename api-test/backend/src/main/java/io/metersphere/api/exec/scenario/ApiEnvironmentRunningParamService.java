@@ -49,36 +49,35 @@ public class ApiEnvironmentRunningParamService {
                 JSONObject commonConfig = configObj.optJSONObject(COMMON_CONFIG);
                 if (commonConfig.has(VARIABLES)) {
                     JSONArray variables = commonConfig.optJSONArray(VARIABLES);
-                    List<JSONObject> variableList = new LinkedList<>();
+                    if (variables == null) {
+                        return;
+                    }
                     for (Map.Entry<String, String> entry : varMap.entrySet()) {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-
                         boolean contains = false;
                         for (int i = 0; i < variables.length(); i++) {
                             JSONObject jsonObj = variables.optJSONObject(i);
-                            if (jsonObj.has(NAME) && StringUtils.equals(jsonObj.optString(NAME), key)) {
+                            if (jsonObj.has(NAME) && StringUtils.equals(jsonObj.optString(NAME), entry.getKey())) {
                                 contains = true;
-                                if (jsonObj.has(VALUE) && StringUtils.equals(jsonObj.optString(VALUE), value)) {
+                                if (jsonObj.has(VALUE) && StringUtils.equals(jsonObj.optString(VALUE), entry.getValue())) {
                                     break;
                                 } else {
                                     envNeedUpdate = true;
-                                    jsonObj.put(VALUE, value);
+                                    jsonObj.put(VALUE, entry.getValue());
                                 }
                             }
                         }
                         if (!contains) {
                             envNeedUpdate = true;
                             JSONObject itemObj = new JSONObject();
-                            itemObj.put(NAME, key);
-                            itemObj.put(VALUE, value);
+                            itemObj.put(NAME, entry.getKey());
+                            itemObj.put(VALUE, entry.getValue());
                             itemObj.put(ENABLE, true);
-                            if (variableList.size() == 0) {
-                                variableList.add(itemObj);
+                            if (variables.length() == 0) {
+                                variables.put(itemObj);
                             } else {
-                                variableList.add(variables.length() - 1, itemObj);
+                                variables.put(variables.length() - 1, itemObj);
                             }
-                            commonConfig.put(VARIABLES, variableList);
+                            commonConfig.put(VARIABLES, variables);
                         }
                     }
                 } else {

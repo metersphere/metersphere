@@ -71,7 +71,6 @@ public class LoginController {
         return Mono.defer(() -> userLoginService.login(request, session, locale).map(Mono::just).orElseGet(Mono::empty))
                 .subscribeOn(Schedulers.boundedElastic())
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .doOnNext(user -> session.getAttributes().put("user", user))
                 .map(ResultHolder::success);
     }
 
