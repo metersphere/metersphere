@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-show="showDiff">
     <el-row>
       <el-col :span="12">
         <el-tag>当前{{ oldData.versionName }}</el-tag>
@@ -476,6 +476,7 @@ export default {
       newEnableCookieShare: {},
       newOnSampleError: {},
       newProjectEnvMap: new Map,
+      showDiff: false,
     }
   },
   methods: {
@@ -504,7 +505,7 @@ export default {
       }
     },
     getDffScenario() {
-      getScenarioById(this.dffScenarioId + "/" + this.scenarioRefId, response => {
+      getScenarioById(this.dffScenarioId + "/" + this.scenarioRefId).then(response => {
         getScenarioWithBLOBsById(response.data.id).then(res => {
           if (res.data) {
             if (res.data.scenarioDefinition != null) {
@@ -543,6 +544,7 @@ export default {
             this.dealWithTag(res.data);
             this.newData = res.data;
             this.closeExpansion()
+            this.showDiff = true;
           }
         });
       })
@@ -608,7 +610,7 @@ export default {
           if (this.stepSize > 35 && this.expandedStatus) {
             nodes[i].active = false;
           }
-          if (nodes[i].hashTree  && nodes[i].hashTree.length > 0) {
+          if (nodes[i].hashTree && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree, source);
           }
         }
@@ -646,7 +648,7 @@ export default {
       for (let i in nodes) {
         if (nodes[i]) {
           nodes[i].enable = this.stepEnable;
-          if (nodes[i].hashTree  && nodes[i].hashTree.length > 0) {
+          if (nodes[i].hashTree && nodes[i].hashTree.length > 0) {
             this.stepStatus(nodes[i].hashTree);
           }
         }
