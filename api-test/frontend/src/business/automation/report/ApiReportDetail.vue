@@ -119,7 +119,7 @@ import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {exportPdf, getUUID} from "metersphere-frontend/src/utils";
+import {downloadPDF, getUUID} from "metersphere-frontend/src/utils";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   getScenarioReport,
@@ -129,7 +129,6 @@ import {
 } from "../../../api/scenario-report";
 import {STEP} from "../../automation/scenario/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import html2canvas from "html2canvas";
 
 export default {
   name: "MsApiReport",
@@ -691,12 +690,9 @@ export default {
       let name = this.report.name;
       this.$nextTick(() => {
         setTimeout(() => {
-          let promise = html2canvas(document.getElementById("apiTestReport"), {scale: 2});
-          Promise.all([promise]).then(function (canvas) {
-            exportPdf(name || "scenario-report", canvas);
-            reset();
-          });
-        }, 1000);
+          downloadPDF(document.getElementById("apiTestReport"), name || "scenario-report");
+          reset();
+        }, 5000);
       });
     },
     handleSave() {
