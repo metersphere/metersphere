@@ -1,11 +1,12 @@
 <template>
   <ms-module-minder
     v-loading="result.loading"
+    minder-key="REVIEW_CASE"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
     :tag-enable="true"
-    minder-key="REVIEW_CASE"
+    :disabled="disable"
     :select-node="selectNode"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     :ignore-num="true"
@@ -29,6 +30,7 @@ import MsModuleMinder from "@/business/common/minder/MsModuleMinder";
 import {useStore} from "@/store";
 import {mapState} from "pinia";
 import {testReviewCaseMinderEdit} from "@/api/remote/plan/test-review-case";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestReviewMinder",
@@ -78,6 +80,9 @@ export default {
       selectNodeIds: 'testReviewSelectNodeIds',
       selectNode: 'testReviewSelectNode'
     }),
+    disable() {
+      return !hasPermission('PROJECT_TRACK_REVIEW:READ+EDIT');
+    }
   },
   methods: {
     handleAfterMount() {
