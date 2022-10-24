@@ -5,6 +5,7 @@
     width="30%"
     :append-to-body="true"
     :destroy-on-close="true"
+    z-index="99998"
     :before-close="handleClose">
     <div>
       <div v-if="projectEnvMap" type="flex">
@@ -40,6 +41,7 @@ export default {
       this.dialogVisible = true;
       this.projectEnvMap = projectEnvMap;
     }
+
   }
 }
 </script>
