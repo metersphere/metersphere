@@ -756,7 +756,13 @@ export default {
       this.treeNodes = data;
     },
     setCondition(data) {
-      this.condition = data;
+      if (this.activeName === 'trash' && this.$refs.testCaseTrashList) {
+        this.condition = this.$refs.testCaseTrashList.condition;
+      } else if (this.activeName === 'default' && this.$refs.testCaseList) {
+        this.condition = this.$refs.testCaseList.condition;
+      } else {
+        this.condition = data;
+      }
     },
     getProject() {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')
