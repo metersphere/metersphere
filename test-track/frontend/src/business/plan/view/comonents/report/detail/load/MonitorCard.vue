@@ -171,7 +171,7 @@ export default {
       // this.init = true;
       if (this.planReportTemplate) {
         this.instances = this.planReportTemplate.reportResource;
-        this.currentInstance = currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
+        this.currentInstance = currentInstance || this.instances[0]?.ip + ":" + this.instances[0]?.port;
         this.data = this.planReportTemplate.metricData;
         this.totalOption = this.getOption(this.currentInstance);
       }
