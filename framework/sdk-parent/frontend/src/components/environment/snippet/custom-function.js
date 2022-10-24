@@ -281,6 +281,9 @@ function _beanshellTemplate(obj) {
   }
   try {
     requestBody = JSON.stringify(requestBody);
+    if (!requestBody || requestBody === "null") {
+      requestBody = "";
+    }
   } catch (e) {
     requestBody = "";
   }
