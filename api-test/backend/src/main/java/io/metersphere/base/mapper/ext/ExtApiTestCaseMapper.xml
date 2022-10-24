@@ -1220,4 +1220,14 @@
             GROUP BY ${apiCaseGroupColumn}
         </if>
     </select>
+
+    <select id="getCaseCountById" resultType="java.lang.Integer">
+        select
+        count(id) AS countNum
+        FROM api_test_case
+        <where>
+            ( `status` != 'Trash' OR `status` IS NULL)
+            AND api_definition_id = #{apiId}
+        </where>
+    </select>
 </mapper>

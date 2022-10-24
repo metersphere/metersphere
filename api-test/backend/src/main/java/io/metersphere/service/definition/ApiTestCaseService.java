@@ -1233,4 +1233,8 @@ public class ApiTestCaseService {
         jmxInfoDTO.setName(apiTestCase.getName());
         return jmxInfoDTO;
     }
+
+    public int getCaseCountById(String id) {
+        return extApiTestCaseMapper.getCaseCountById(id);
+    }
 }
