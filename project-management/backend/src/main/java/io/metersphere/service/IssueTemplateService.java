@@ -391,11 +391,10 @@ public class IssueTemplateService extends TemplateBaseService {
                     tarCustomField.setCreateUser(SessionUtils.getUserId());
                     if (StringUtils.equals("1", request.getCopyModel())) {
                         // 覆盖模式
-                        if (StringUtils.equals(sourceCustomField.getType(), tarCustomField.getType())) {
-                            tarCustomField.setOptions(sourceCustomField.getOptions());
-                        } else {
-                            tarCustomField.setOptions("[]");
+                        if (!StringUtils.equals(sourceCustomField.getType(), tarCustomField.getType())) {
+                            tarCustomField.setType(sourceCustomField.getType());
                         }
+                        tarCustomField.setOptions(sourceCustomField.getOptions());
                         customFieldMapper.updateByPrimaryKeyWithBLOBs(tarCustomField);
                     } else {
                         //追加模式
