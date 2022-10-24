@@ -159,6 +159,27 @@ export const STATUS = {
     multiple: true
   }
 }
+
+// 报告状态
+export const PERFORMANCE_REPORT_STATUS = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: 'commons.status',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'Starting', value: 'Starting'},
+    {label: 'Running', value: 'Running'},
+    {label: 'Reporting', value: 'Reporting'},
+    {label: 'Completed', value: 'Completed'},
+    {label: 'Error', value: 'Error'}
+  ],
+  props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: true
+  }
+}
+
 // ui 报告状态
 export const UI_REPORT_STATUS = {
   key: "status",
@@ -797,7 +818,7 @@ export const TEST_CONFIGS = [ID, NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
 
-export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
+export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, PERFORMANCE_REPORT_STATUS, CREATOR, TRIGGER_MODE];
 
 export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
