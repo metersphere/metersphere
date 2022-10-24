@@ -20,7 +20,7 @@
             <!-- content header chart -->
             <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
 
-            <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1000px">
+            <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1500px">
               <!-- all step-->
               <el-tab-pane label="All" name="total">
                 <ms-scenario-results
