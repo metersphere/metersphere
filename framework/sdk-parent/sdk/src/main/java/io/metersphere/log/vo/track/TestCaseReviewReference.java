@@ -10,7 +10,7 @@ public class TestCaseReviewReference {
     static {
         testCaseReviewColumns.clear();
         commentReviewColumns.clear();
-        testCaseReviewColumns.put("name", "用例名称");
+        testCaseReviewColumns.put("name", "用例评审名称");
         testCaseReviewColumns.put("createUser", "创建人");
         testCaseReviewColumns.put("status", "状态");
         testCaseReviewColumns.put("tags", "标签");
