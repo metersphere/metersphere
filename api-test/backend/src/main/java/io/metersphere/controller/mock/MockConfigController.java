@@ -8,8 +8,10 @@ import io.metersphere.api.dto.mock.config.MockConfigRequest;
 import io.metersphere.api.dto.mock.config.MockExpectConfigRequest;
 import io.metersphere.api.dto.mock.config.response.MockConfigResponse;
 import io.metersphere.api.dto.mock.config.response.MockExpectConfigResponse;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.commons.utils.mock.MockTestDataUtil;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -37,16 +39,19 @@ public class MockConfigController {
     private ApiDefinitionService apiDefinitionService;
 
     @PostMapping("/gen")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_CREATE, subject = "接口定义通知")
     public MockConfigResponse genMockConfig(@RequestBody MockConfigRequest request) {
         return mockConfigService.genMockConfig(request);
     }
 
     @PostMapping(value = "/update/form", consumes = {"multipart/form-data"})
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_UPDATE, subject = "接口定义通知")
     public MockExpectConfig updateMockExpectConfig(@RequestPart("request") MockExpectConfigRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return mockConfigService.updateMockExpectConfig(request, bodyFiles);
     }
 
     @PostMapping(value = "/update/expect")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_UPDATE, subject = "接口定义通知")
     public MockExpectConfig updateMockExpectConfig(@RequestBody MockExpectConfigRequest request) {
         return mockConfigService.updateMockExpectConfigStatus(request);
     }
@@ -59,6 +64,7 @@ public class MockConfigController {
     }
 
     @GetMapping("/delete/{id}")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_DELETE, subject = "接口定义通知")
     public String deleteMockExpectConfig(@PathVariable String id) {
         mockConfigService.deleteMockExpectConfig(id);
         return "SUCCESS";

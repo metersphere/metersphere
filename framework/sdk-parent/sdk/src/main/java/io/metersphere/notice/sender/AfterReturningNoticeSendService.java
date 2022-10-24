@@ -63,14 +63,17 @@ public class AfterReturningNoticeSendService {
         switch (sendNotice.event()) {
             case NoticeConstants.Event.CREATE:
             case NoticeConstants.Event.CASE_CREATE:
+            case NoticeConstants.Event.MOCK_CREATE:
                 operation = "创建了";
                 break;
             case NoticeConstants.Event.UPDATE:
             case NoticeConstants.Event.CASE_UPDATE:
+            case NoticeConstants.Event.MOCK_UPDATE:
                 operation = "更新了";
                 break;
             case NoticeConstants.Event.DELETE:
             case NoticeConstants.Event.CASE_DELETE:
+            case NoticeConstants.Event.MOCK_DELETE:
                 operation = "删除了";
                 break;
             case NoticeConstants.Event.COMMENT:

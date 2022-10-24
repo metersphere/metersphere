@@ -226,7 +226,7 @@ public class MockConfigService {
             FileUtils.copyBdyFile(request.getCopyId(), model.getId());
         }
         FileUtils.createBodyFiles(model.getId(), bodyFiles);
-        return model;
+        return mockExpectConfigMapper.selectByPrimaryKey(model.getId());
     }
 
     private String getMockExpectId(String mockConfigId) {
