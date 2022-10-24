@@ -210,6 +210,7 @@ import {
   getMockEnvironment,
   updateDefinitionFollows
 } from "@/api/definition";
+import {apiTestCaseCount} from "@/api/api-test-case";
 import {relationGet, updateRuleRelation} from "@/api/xpack";
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseText from "../response/ResponseText";
@@ -787,25 +788,30 @@ export default {
       // 创建新版本
       this.httpForm.versionId = row.id;
       this.httpForm.versionName = row.name;
-      this.$set(this.httpForm, 'newVersionRemark', !!this.httpForm.remark);
-      this.$set(this.httpForm, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
-      this.$set(this.httpForm, 'newVersionCase', this.httpForm.caseTotal > 0);
-      createMockConfig({projectId: this.projectId, apiId: this.httpForm.id}).then(response => {
-        this.$set(this.httpForm, 'newVersionMock', response.data.mockExpectConfigList.length > 0);
+      apiTestCaseCount({id: this.httpForm.id}).then(response => {
+        if (response.data > 0) {
+          this.httpForm.caseTotal = response.data;
+        }
+        this.$set(this.httpForm, 'newVersionRemark', !!this.httpForm.remark);
+        this.$set(this.httpForm, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
+        this.$set(this.httpForm, 'newVersionCase', this.httpForm.caseTotal > 0);
+        createMockConfig({projectId: this.projectId, apiId: this.httpForm.id}).then(response => {
+          this.$set(this.httpForm, 'newVersionMock', response.data.mockExpectConfigList.length > 0);
 
-        if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.httpForm.remark ||
-          this.httpForm.newVersionCase || this.httpForm.newVersionMock) {
-          this.createNewVersionVisible = true;
-        } else {
-          this.saveApi();
+          if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.httpForm.remark ||
+            this.httpForm.newVersionCase || this.httpForm.newVersionMock) {
+            this.createNewVersionVisible = true;
+          } else {
+            this.saveApi();
+            if (this.$refs.versionHistory) {
+              this.$refs.versionHistory.loading = false;
+            }
+          }
+        }, error => {
           if (this.$refs.versionHistory) {
             this.$refs.versionHistory.loading = false;
           }
-        }
-      }, error => {
-        if (this.$refs.versionHistory) {
-          this.$refs.versionHistory.loading = false;
-        }
+        });
       });
     },
     del(row) {
