@@ -1034,6 +1034,7 @@ export default {
         this.debugLoading = false;
         this.message = "stop";
         this.stopDebug = "stop";
+        this.messageWebSocket.close();
         this.reload();
       }
     },
