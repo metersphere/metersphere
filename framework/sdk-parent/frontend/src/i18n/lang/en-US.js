@@ -2501,6 +2501,7 @@ const message = {
       create: "CREATE",
       edit: "EDIT",
       delete: "DELETE",
+      batch_delete: "BATCH DELETE",
     },
     system_user: {
       name: "User",
@@ -2573,6 +2574,7 @@ const message = {
       name: "Message",
       read: "READ",
       edit: "EDIT",
+      delete: "DELETE"
     },
     project_template: {
       name: "Template",
