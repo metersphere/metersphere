@@ -13,11 +13,9 @@ import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.api.parse.scenario.TcpTreeTableDataParser;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.MockConfigMapper;
-import io.metersphere.base.mapper.MockExpectConfigMapper;
-import io.metersphere.base.mapper.ProjectApplicationMapper;
-import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
@@ -26,6 +24,8 @@ import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.ext.ExtProjectApplicationService;
 import org.apache.commons.collections.CollectionUtils;
@@ -75,6 +75,14 @@ public class MockConfigService {
     private String tcpMockPorts;
     @Resource
     private BaseEnvironmentService baseEnvironmentService;
+    @Resource
+    private NoticeSendService noticeSendService;
+
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
 
     public List<MockExpectConfigWithBLOBs> selectMockExpectConfigByApiId(String apiId) {
         return extMockExpectConfigMapper.selectByApiId(apiId);
@@ -169,6 +177,33 @@ public class MockConfigService {
         return returnRsp;
     }
 
+    public void sendMockNotice(MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs, String defaultContext, String event) {
+        String context = SessionUtils.getUserId().concat(defaultContext).concat(":").concat(mockExpectConfigWithBLOBs.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        MockConfig mockConfig = mockConfigMapper.selectByPrimaryKey(mockExpectConfigWithBLOBs.getMockConfigId());
+        getParamMap(paramMap, SessionUtils.getUserId(), mockExpectConfigWithBLOBs, mockConfig);
+        NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(mockExpectConfigWithBLOBs.getId()).subject("接口定义通知").paramMap(paramMap).excludeSelf(true).event(event).build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    private void getParamMap(Map<String, Object> paramMap, String userId, MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs, MockConfig mockConfig) {
+        paramMap.put("operator", userId);
+        paramMap.put("id", mockExpectConfigWithBLOBs.getId());
+        paramMap.put("name", mockExpectConfigWithBLOBs.getName());
+        paramMap.put("createUser", mockExpectConfigWithBLOBs.getCreateUserId());
+        if (mockConfig != null) {
+            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(mockConfig.getApiId());
+            if (apiDefinitionWithBLOBs != null) {
+                paramMap.put("projectId", apiDefinitionWithBLOBs.getProjectId());
+                paramMap.put("apiDefinitionId", apiDefinitionWithBLOBs.getId());
+                ProjectVersion projectVersion = projectVersionMapper.selectByPrimaryKey(apiDefinitionWithBLOBs.getVersionId());
+                paramMap.put("version", projectVersion.getName());
+            }
+
+        }
+
+    }
+
     public MockExpectConfig updateMockExpectConfigStatus(MockExpectConfigRequest request) {
         if (StringUtils.isNotEmpty(request.getId()) && StringUtils.isNotEmpty(request.getStatus())) {
             MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
@@ -177,6 +212,7 @@ public class MockConfigService {
             model.setUpdateTime(timeStmp);
             model.setStatus(request.getStatus());
             mockExpectConfigMapper.updateByPrimaryKeySelective(model);
+            sendMockNotice(model, "更新了mock", NoticeConstants.Event.MOCK_UPDATE);
             return model;
         } else {
             return null;
@@ -219,14 +255,17 @@ public class MockConfigService {
             model.setCreateUserId(SessionUtils.getUserId());
             model.setStatus("true");
             mockExpectConfigMapper.insert(model);
+            sendMockNotice(model, "新建了mock", NoticeConstants.Event.MOCK_CREATE);
         } else {
             mockExpectConfigMapper.updateByPrimaryKeySelective(model);
+            model = mockExpectConfigMapper.selectByPrimaryKey(model.getId());
+            sendMockNotice(model, "更新了mock", NoticeConstants.Event.MOCK_UPDATE);
         }
         if (StringUtils.isNotEmpty(request.getCopyId())) {
             FileUtils.copyBdyFile(request.getCopyId(), model.getId());
         }
         FileUtils.createBodyFiles(model.getId(), bodyFiles);
-        return model;
+        return mockExpectConfigMapper.selectByPrimaryKey(model.getId());
     }
 
     private String getMockExpectId(String mockConfigId) {
@@ -637,6 +676,7 @@ public class MockConfigService {
     public void deleteMockExpectConfig(String id) {
         MockExpectConfigWithBLOBs mockBlobs = mockExpectConfigMapper.selectByPrimaryKey(id);
         if (mockBlobs != null) {
+            sendMockNotice(mockBlobs, "删除了mock", NoticeConstants.Event.MOCK_DELETE);
             this.deleteMockExpectFiles(mockBlobs);
             mockExpectConfigMapper.deleteByPrimaryKey(id);
         }
