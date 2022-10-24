@@ -11,15 +11,15 @@
                    :sortable="sortable"
                    :filter-method="filterMethod"
                    :filtered-value="filteredValue	"
-                   :show-overflow-tooltip="showOverflowTooltip"
-  >
+                   :show-overflow-tooltip="showOverflowTooltip">
+
     <template v-slot:default="scope">
       <slot :row="scope.row" :$index="scope.$index" v-if="!editable">
         <span @click="$emit('click', scope.row)">{{ scope.row[prop] }}</span>
       </slot>
       <slot :row="scope.row" :$index="scope.$index" v-if="editable">
         <span style="cursor: pointer;" @click="$emit('click', scope.row)">{{ scope.row[prop] }}</span>
-        <el-tooltip :content="editContent ? editContent : $t('commons.edit')"
+        <el-tooltip v-permission="permission ? [permission] : null" :content="editContent ? editContent : $t('commons.edit')"
                     @click.native.stop="$emit('editColumn', scope.row)">
           <a style="cursor: pointer">
             <i style="cursor:pointer" class="el-input__icon el-icon-edit pointer"></i>
@@ -27,6 +27,7 @@
         </el-tooltip>
       </slot>
     </template>
+
   </el-table-column>
 </template>
 
@@ -48,6 +49,7 @@ export default {
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
+    permission: String,
     showOverflowTooltip: {
       type: Boolean,
       default() {
