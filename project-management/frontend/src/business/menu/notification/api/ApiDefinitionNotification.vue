@@ -73,6 +73,9 @@ export default {
         {value: 'CASE_CREATE', label: 'CASE ' + this.$t('commons.create')},
         {value: 'CASE_UPDATE', label: 'CASE ' + this.$t('commons.update')},
         {value: 'CASE_DELETE', label: 'CASE ' + this.$t('commons.delete')},
+        {value: 'MOCK_CREATE', label: 'MOCK ' + this.$t('commons.create')},
+        {value: 'MOCK_UPDATE', label: 'MOCK ' + this.$t('commons.update')},
+        {value: 'MOCK_DELETE', label: 'MOCK ' + this.$t('commons.delete')},
         {value: 'EXECUTE_SUCCESSFUL', label: 'CASE ' + this.$t('commons.run_success')},
         {value: 'EXECUTE_FAILED', label: 'CASE ' + this.$t('commons.run_fail')},
       ],
@@ -316,6 +319,20 @@ export default {
               .replace('接口定义', '接口用例');
             this.variables = this.caseVariables;
             break;
+          case 'MOCK_CREATE':
+            robotTemplate = this.robotTitle.replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
+            break;
+          case 'MOCK_UPDATE':
+            robotTemplate = this.robotTitle.replace('创建', '更新')
+              .replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
+            break;
+          case 'MOCK_DELETE':
+            robotTemplate = this.robotTitle.replace('创建', '删除')
+              .replace('接口定义', '接口用例');
+            this.variables = this.caseVariables;
+            break;
           case 'EXECUTE_SUCCESSFUL':
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('接口定义', '接口用例成功');
@@ -346,8 +363,19 @@ export default {
             row.userIds.splice(i, 1);
           }
           break;
+        case "MOCK_CREATE":
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
+            }
+          }
+          break;
         case "UPDATE":
         case "CASE_UPDATE":
+        case "MOCK_UPDATE":
+        case "MOCK_DELETE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
