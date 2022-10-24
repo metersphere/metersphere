@@ -123,6 +123,14 @@ public class TestPlanController {
         return testPlanService.editTestPlanWithRequest(testPlanDTO);
     }
 
+    @PostMapping("/fresh/{planId}")
+    public TestPlan freshRecentPlan(@PathVariable String planId) {
+        AddTestPlanRequest request = new AddTestPlanRequest();
+        request.setId(planId);
+        request.setUpdateTime(System.currentTimeMillis());
+        return testPlanService.editTestPlanWithRequest(request);
+    }
+
     @PostMapping("/edit/status/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)

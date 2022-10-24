@@ -20,6 +20,10 @@ export function testPlanEditStatus(id) {
   return post(BASE_URL + `edit/status/${id}`, {});
 }
 
+export function testPlanFresh(planId) {
+  return post(BASE_URL + `fresh/${planId}`, {});
+}
+
 export function testPlanAdd(param) {
   return post(BASE_URL + 'add', param);
 }

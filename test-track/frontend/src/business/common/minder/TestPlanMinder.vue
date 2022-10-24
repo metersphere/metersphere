@@ -49,6 +49,7 @@ import {addIssueHotBox} from "./minderUtils";
 import MsModuleMinder from "@/business/common/minder/MsModuleMinder";
 import {useStore} from "@/store";
 import {testPlanCaseMinderEdit} from "@/api/remote/plan/test-plan-case";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestPlanMinder",
@@ -87,7 +88,7 @@ export default {
       return getCurrentWorkspaceId();
     },
      disableMinder() {
-      if (this.planStatus === 'Archived') {
+      if (this.planStatus === 'Archived' || !hasPermission('PROJECT_TRACK_PLAN:READ+RUN')) {
         return true
       } else {
         return false
