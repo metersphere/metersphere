@@ -30,8 +30,10 @@ const message = {
   },
   pj_batch_delete: {
     error_library: "Confirm batch delete error library"
+  },
+  project_version: {
+    version_time: 'Version cycle',
   }
-
 }
 
 export default {

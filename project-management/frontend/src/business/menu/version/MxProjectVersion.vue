@@ -117,13 +117,16 @@
             <el-date-picker style="width: 100%" v-model="form.publishTime" type="datetime"
                             value-format="timestamp"></el-date-picker>
           </el-form-item>
-          <el-form-item :label="$t('project.version.start_time')" prop="startTime">
-            <el-date-picker style="width: 100%" v-model="form.startTime" type="datetime"
-                            value-format="timestamp"></el-date-picker>
-          </el-form-item>
-          <el-form-item :label="$t('project.version.end_time')" prop="endTime">
-            <el-date-picker style="width: 100%" v-model="form.endTime" type="datetime"
-                            value-format="timestamp"></el-date-picker>
+          <el-form-item :label="$t('project_version.version_time')" prop="startTime">
+            <el-date-picker
+              v-model="form.versionTime"
+              style="width: 100%"
+              type="datetimerange"
+              range-separator="-"
+              value-format="timestamp"
+              :start-placeholder="$t('project.version.start_time')"
+              :end-placeholder="$t('project.version.end_time')">
+            </el-date-picker>
           </el-form-item>
         </el-form>
         <template v-slot:footer>
@@ -165,9 +168,12 @@ import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
 import {
   changeLatest,
-  changeProjectVersionEnable, changeStatus,
-  checkForDelete, deleteProjectVersion,
-  getProjectMembers, getProjectVersion,
+  changeProjectVersionEnable,
+  changeStatus,
+  checkForDelete,
+  deleteProjectVersion,
+  getProjectMembers,
+  getProjectVersion,
   isProjectVersionEnable,
   listProjectVersions,
   saveProjectVersion
@@ -272,6 +278,9 @@ export default {
         .then(response => {
           this.form = response.data;
           this.form.setLatestAble = !response.data.latest;
+          if (this.form.startTime && this.form.endTime) {
+            this.form.versionTime = [this.form.startTime, this.form.endTime];
+          }
           this.createVisible = true;
         });
     },
@@ -300,7 +309,6 @@ export default {
         });
     },
     save(create) {
-      this.createLoading = true;
       this.$refs['form'].validate(valid => {
         if (valid) {
           this.form.projectId = this.projectId;
@@ -311,6 +319,10 @@ export default {
                 d.latest = false;
               });
             }
+          }
+          if (this.form.versionTime) {
+            this.form.startTime = this.form.versionTime[0];
+            this.form.endTime = this.form.versionTime[1];
           }
           this.createLoading = saveProjectVersion(this.form)
             .then(resp => {
