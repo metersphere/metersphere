@@ -396,7 +396,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Project">
-    UPDATE project
+    update project
     <set>
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
@@ -449,11 +449,14 @@
       <if test="versionEnable != null">
         version_enable = #{versionEnable,jdbcType=BIT},
       </if>
+      <if test="apiTemplateId != null">
+        api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
+      </if>
       <if test="issueConfig != null">
         issue_config = #{issueConfig,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    WHERE id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.Project">
     UPDATE project
