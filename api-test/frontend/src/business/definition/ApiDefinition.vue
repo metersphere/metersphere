@@ -244,7 +244,10 @@
 
       </ms-main-container>
     </ms-container>
-
+    <mock-edit-drawer :is-tcp=isTcp :api-id="mockConfigData.apiId"
+                      :api-params="apiParams"
+                      @refreshMockInfo="refreshMockInfo"
+                      :mock-config-id="mockConfigData.id" ref="mockEditDrawer"/>
   </div>
 </template>
 <script>
@@ -279,6 +282,8 @@ import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 import {PROJECT_ID, WORKSPACE_ID} from "metersphere-frontend/src/utils/constants";
 import {useApiStore} from "@/store";
 import {buildTree} from "metersphere-frontend/src/model/NodeTree";
+import {createMockConfig, getMockApiParams, getTcpMockInfo, mockExpectConfig} from "@/api/api-mock";
+import MockEditDrawer from "@/business/definition/components/mock/MockEditDrawer";
 
 const store = useApiStore();
 export default {
@@ -341,6 +346,7 @@ export default {
     MockConfig,
     MsEditCompleteContainer,
     MsEnvironmentSelect,
+    MockEditDrawer,
     MxVersionSelect: () => import("metersphere-frontend/src/components/version/MxVersionSelect"),
   },
   props: {
@@ -392,6 +398,9 @@ export default {
       currentVersion: null,
       trashVersion: null,
       isAsideHidden: true,
+      mockConfigData: {},
+      apiParams: {},
+      isTcp: false
     };
   },
   activated() {
@@ -504,6 +513,23 @@ export default {
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.activeDom = 'middle';
+    }
+    if (this.$route.query.mockId) {
+      if (this.currentProtocol === "TCP") {
+        this.isTcp = true;
+      }
+      mockExpectConfig(this.$route.query.mockId).then(res => {
+        this.mockExpectConfigData = res.data;
+        if (this.mockExpectConfigData.mockConfigId) {
+          let mockParam = {};
+          mockParam.id = this.mockExpectConfigData.mockConfigId;
+          createMockConfig(mockParam).then(response => {
+            this.mockConfigData = response.data;
+            this.searchApiParams(this.mockConfigData.apiId)
+            this.$refs.mockEditDrawer.open(this.mockExpectConfigData)
+          });
+        }
+      })
     }
   },
   methods: {
@@ -941,6 +967,27 @@ export default {
     mockConfig(data) {
       let targetName = this.$t("commons.mock") + "-" + data.apiName;
       this.handleMockTabsConfig(targetName, "MOCK", data);
+    },
+    refreshMockInfo(mockConfigId) {
+      let mockParam = {};
+      mockParam.id = mockConfigId;
+      createMockConfig(mockParam).then(response => {
+        this.mockConfigData = response.data;
+      });
+    },
+    searchApiParams(apiId) {
+      getMockApiParams(apiId).then(response => {
+        this.apiParams = response.data;
+        if (!this.apiParams.query) {
+          this.apiParams.query = [];
+        }
+        if (!this.apiParams.rest) {
+          this.apiParams.rest = [];
+        }
+        if (!this.apiParams.form) {
+          this.apiParams.form = [];
+        }
+      });
     },
     saveApi(data) {
       this.setTabTitle(data);
