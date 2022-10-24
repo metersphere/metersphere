@@ -30,6 +30,7 @@ export default {
   ui_scenario_test_case: "UI Scenario Case",
   report_statistics: "Report Statistics",
   sort: 'Sort',
+  other_test_name: 'Other Test Name',
   demand: {
     id: 'Demand ID',
     name: 'Demand Name',
