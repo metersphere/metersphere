@@ -370,7 +370,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/edit/follows/{caseId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void editTestFollows(@PathVariable String caseId, @RequestBody List<String> follows) {
         testCaseService.saveFollows(caseId, follows);
     }
