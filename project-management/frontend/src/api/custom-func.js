@@ -9,7 +9,7 @@ export function deleteCodeSnippetById(id) {
 }
 
 export function copyCodeSnippetById(id) {
-  return get(`/custom/func/copy${id}`);
+  return get(`/custom/func/copy/${id}`);
 }
 
 export function getCodeSnippetById(id) {
