@@ -196,66 +196,6 @@
       "resourceId": "PROJECT_CUSTOM_CODE"
     },
     {
-      "id": "PROJECT_REPORT_ANALYSIS:READ",
-      "name": "permission.project_report_analysis.read",
-      "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": false
-    },
-    {
-      "id": "PROJECT_REPORT_ANALYSIS:READ+EXPORT",
-      "name": "permission.project_report_analysis.export",
-      "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": false
-    },
-    {
-      "id": "PROJECT_REPORT_ANALYSIS:READ+UPDATE",
-      "name": "permission.project_report_analysis.update",
-      "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": false
-    },
-    {
-      "id": "PROJECT_REPORT_ANALYSIS:READ+CREATE",
-      "name": "permission.project_report_analysis.create",
-      "resourceId": "PROJECT_REPORT_ANALYSIS",
-      "license": false
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+EXPORT",
-      "name": "permission.project_enterprise_report.export",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+CREATE",
-      "name": "permission.project_enterprise_report.create",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+DELETE",
-      "name": "permission.project_enterprise_report.delete",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+COPY",
-      "name": "permission.project_enterprise_report.copy",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+SCHEDULE",
-      "name": "permission.project_enterprise_report.schedule",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
-      "id": "PROJECT_ENTERPRISE_REPORT:READ+EDIT",
-      "name": "permission.project_enterprise_report.edit",
-      "resourceId": "PROJECT_ENTERPRISE_REPORT",
-      "license": true
-    },
-    {
       "id": "PROJECT_VERSION:READ",
       "name": "project.version.read",
       "resourceId": "PROJECT_VERSION",
