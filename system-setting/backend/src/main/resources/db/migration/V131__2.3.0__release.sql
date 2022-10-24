@@ -9,7 +9,7 @@ INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('meter
 INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('metersphere.module.track', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('metersphere.module.project', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('metersphere.module.setting', 'ENABLE', 'text', 1);
-INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('base.grid.concurrency', '8', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('base.grid.concurrency', '4', 'text', 1);
 
 DELETE FROM user_group_permission WHERE permission_id = 'WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR';
 
