@@ -82,7 +82,8 @@
 import {
   definitionFollow,
   delDefinitionByRefId,
-  getDefinitionById, getDefinitionByIdAndRefId,
+  getDefinitionById,
+  getDefinitionByIdAndRefId,
   getDefinitionVersions,
   updateDefinitionFollows
 } from "@/api/definition";
@@ -97,6 +98,7 @@ import {createComponent} from ".././jmeter/components";
 import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {useApiStore} from "@/store";
+import {apiTestCaseCount} from "@/api/api-test-case";
 
 const store = useApiStore();
 const {Body} = require("@/business/definition/model/ApiTestModel");
@@ -358,18 +360,23 @@ export default {
       // 创建新版本
       this.basisData.versionId = row.id;
       this.basisData.versionName = row.name;
-      this.$set(this.basisData, 'newVersionRemark', !!this.basisData.remark);
-      this.$set(this.basisData, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
-      this.$set(this.basisData, 'newVersionCase', this.basisData.caseTotal > 0);
-
-      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark || this.basisData.newVersionCase) {
-        this.createNewVersionVisible = true;
-      } else {
-        this.saveApi();
-        if (this.$refs.versionHistory) {
-          this.$refs.versionHistory.loading = false;
+      apiTestCaseCount({id: this.basisData.id}).then(response => {
+        if (response.data > 0) {
+          this.basisData.caseTotal = response.data;
         }
-      }
+        this.$set(this.basisData, 'newVersionRemark', !!this.basisData.remark);
+        this.$set(this.basisData, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
+        this.$set(this.basisData, 'newVersionCase', this.basisData.caseTotal > 0);
+
+        if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark || this.basisData.newVersionCase) {
+          this.createNewVersionVisible = true;
+        } else {
+          this.saveApi();
+          if (this.$refs.versionHistory) {
+            this.$refs.versionHistory.loading = false;
+          }
+        }
+      });
     },
     del(row) {
       this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {

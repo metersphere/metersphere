@@ -81,3 +81,7 @@ export function createApiCase(file, files, params) {
 export function editApiCase(url, file, files, params) {
   return fileUpload(url, file, files, params);
 }
+
+export function apiTestCaseCount(param) {
+  return post('/api/testcase/case-count',param);
+}
