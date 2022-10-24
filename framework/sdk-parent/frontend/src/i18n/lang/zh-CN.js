@@ -2509,6 +2509,7 @@ const message = {
       create: "创建误报",
       edit: "修改误报",
       delete: "刪除误报",
+      batch_delete: "批量刪除误报",
     },
     system_user: {
       name: "用户",
@@ -2580,7 +2581,8 @@ const message = {
     project_message: {
       name: "消息设置",
       read: "查询",
-      edit: "编辑"
+      edit: "编辑",
+      delete: "删除"
     },
     project_template: {
       name: "模版设置",
@@ -2588,7 +2590,7 @@ const message = {
       case_template: "用例模版",
       issue_template: "缺陷模版",
       api_template: "接口模版",
-      custom: "自定义字段"
+      custom: "模版字段"
     },
     workspace_project_manager: {
       name: "项目管理",
@@ -2638,7 +2640,7 @@ const message = {
       setting_permission: "设置权限",
     },
     project_environment: {
-      name: "环境设置",
+      name: "项目环境",
       read: "查询环境",
       create: "创建环境",
       edit: "编辑环境",
@@ -2699,7 +2701,7 @@ const message = {
 
     },
     project_app_manager: {
-      name: "应用设置",
+      name: "应用管理",
       edit: "编辑应用设置"
     },
     project_track_plan: {
