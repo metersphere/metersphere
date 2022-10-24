@@ -6,6 +6,7 @@
           <ms-aside-container :height="pageHeight">
             <test-case-base-info
               :form="form"
+
               :is-form-alive="isFormAlive"
               :isloading="loading"
               :read-only="readOnly"
@@ -43,7 +44,7 @@
                                     ref="versionHistory"
                                     :version-data="versionData"
                                     :current-id="currentTestCaseInfo.id"
-                                    :is-read="currentTestCaseInfo.trashEnable"
+                                    :is-read="currentTestCaseInfo.trashEnable || readOnly"
                                     @confirmOtherInfo="confirmOtherInfo"
                                     :current-project-id="currentProjectId"
                                     @compare="compare" @checkout="checkout" @create="create" @del="del"/>
