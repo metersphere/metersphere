@@ -484,14 +484,20 @@ export default {
         mode: "serial"
       };
       if (this.planId) {
+        this.loading = true;
         testPlanScenarioCaseRun(param)
           .then((response) => {
-            this.runVisible = true;
-            if (response.data && response.data.length > 0) {
-              this.reportId = response.data[0].reportId;
-            }
-            this.search();
-          });
+            setTimeout(() => {
+              this.loading = false;
+              this.runVisible = true;
+              if (response.data && response.data.length > 0) {
+                this.reportId = response.data[0].reportId;
+              }
+              this.search();
+            }, 2000)
+          }).catch(() => {
+          this.loading = false;
+        });
       }
     },
     buildExecuteParam(param, row) {
