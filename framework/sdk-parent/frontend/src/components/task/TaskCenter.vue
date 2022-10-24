@@ -34,7 +34,7 @@
         <micro-app :to="`/performance/report/view/${reportId}`" service="performance"
                    v-if="executionModule === 'PERFORMANCE'"/>
         <!-- UI测试报告 -->
-        <micro-app :to="`/ui/report/view/${reportId}`" service="ui"
+        <micro-app :to="`/ui/report/view/${reportId}?showCancelButton=false`" service="ui"
                    v-if="executionModule === 'UI_SCENARIO'"/>
       </el-card>
 
