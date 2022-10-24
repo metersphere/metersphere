@@ -72,7 +72,7 @@
         <org-json.version>20171018</org-json.version>
         <jmeter-plugins-dubbo.version>2.7.16</jmeter-plugins-dubbo.version>
         <nacos.version>1.4.1</nacos.version>
-        <minio.version>8.4.3</minio.version>
+        <minio.version>8.4.5</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
