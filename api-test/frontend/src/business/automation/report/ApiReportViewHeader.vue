@@ -154,7 +154,12 @@ export default {
       let uuid = getUUID().substring(1, 5);
       let projectId = getCurrentProjectID();
       let workspaceId = getCurrentWorkspaceId();
-      let path = `/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${this.scenarioId}`;
+      let prefix = "/#";
+      if (this.$route && this.$route.path.startsWith('/api/automation/report')
+        && this.$route.query && this.$route.query.list) {
+        prefix = ""
+      }
+      let path = `${prefix}/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${this.scenarioId}`;
       let data = this.$router.resolve({
         path: path
       });
