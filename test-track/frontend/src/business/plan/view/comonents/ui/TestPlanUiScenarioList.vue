@@ -582,8 +582,8 @@ export default {
     },
     openById(item) {
       let automationData = this.$router.resolve({
-        name: 'uiAutomation',
-        params: {
+        path: '/ui/automation',
+        query: {
           redirectID: getUUID(),
           dataType: "scenario",
           dataSelectRange: 'edit:' + item.caseId,
