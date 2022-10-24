@@ -233,6 +233,6 @@ export default {
 }
 
 .report-header {
-  min-width: 1000px;
+  min-width: 1500px;
 }
 </style>
