@@ -31,6 +31,7 @@ export default {
   report_statistics: "報告統計",
   sort: '種類',
   automatic_status_update: "自動狀態更新",
+  other_test_name: '其他用例名稱',
   case: {
     list: "列錶",
     minder: "腦圖",
