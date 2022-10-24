@@ -30,6 +30,9 @@ const message = {
   },
   pj_batch_delete: {
     error_library: "确定批量删除误报库"
+  },
+  project_version: {
+    version_time: '版本周期',
   }
 }
 
