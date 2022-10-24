@@ -214,35 +214,10 @@ export function SYSLIST() {
           leaf: true
         },
         {
-          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.project_message.name'),
-          value: [i18n.t('commons.workspace') + "-" + i18n.t('permission.project_message.name'), 'WORKSPACE_MESSAGE_SETTINGS'],
-          leaf: true
-        },
-        {
           label: i18n.t('commons.workspace') + "-" + i18n.t('permission.project_user.name'),
           value: [i18n.t('commons.workspace') + "-" + i18n.t('permission.project_user.name'), 'WORKSPACE_MEMBER'],
           leaf: true
         },
-        {
-          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.project_template.name'),
-          value: [i18n.t('commons.workspace') + "-" + i18n.t('permission.project_template.name'), 'WORKSPACE_TEMPLATE_SETTINGS_CASE'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.personal_information') + "-" + i18n.t('commons.personal_setting'),
-          value: [i18n.t('commons.personal_information') + "-" + i18n.t('commons.personal_setting'), 'PERSONAL_INFORMATION_PERSONAL_SETTINGS'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.personal_information') + "-API Keys",
-          value: [i18n.t('commons.personal_information') + "-API Keys", 'PERSONAL_INFORMATION_APIKEYS'],
-          leaf: true
-        },
-        {
-          label: i18n.t('operating_log.auth_title'),
-          value: [i18n.t('operating_log.auth_title'), 'AUTH_TITLE'],
-          leaf: true
-        }
       ]
     },
     {
@@ -389,125 +364,16 @@ export function WORKSYSLIST() {
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
           leaf: true
         },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_message.name'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_message.name'), 'WORKSPACE_MESSAGE_SETTINGS'],
+          leaf: true
+        },
       ]
     },
   ];
   return worksysList;
 }
-
-export function PROJECTSYSLIST() {
-  let projectsysList = [
-    {
-      label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
-        {
-          label: i18n.t('permission.project_track_case.name'),
-          value: [i18n.t('permission.project_track_case.name'), 'TRACK_TEST_CASE'],
-          leaf: true
-        },
-        {
-          label: i18n.t('test_track.review.test_review'),
-          value: [i18n.t('test_track.review.test_review'), 'TRACK_TEST_CASE_REVIEW'],
-          leaf: true
-        },
-        {
-          label: i18n.t('test_track.plan.test_plan'),
-          value: [i18n.t('test_track.plan.test_plan'), 'TRACK_TEST_PLAN'],
-          leaf: true
-        },
-        {
-          label: i18n.t('operating_log.track_test_plan_schedule'),
-          value: [i18n.t('operating_log.track_test_plan_schedule'), 'TRACK_TEST_PLAN_SCHEDULE'],
-          leaf: true
-        },
-        {
-          label: i18n.t('test_track.issue.issue_management'),
-          value: [i18n.t('test_track.issue.issue_management'), 'TRACK_BUG'],
-          leaf: true
-        },
-        {label: i18n.t('commons.report'), value: [i18n.t('commons.report'), 'TRACK_REPORT'], leaf: true}]
-    },
-    {
-      label: i18n.t('commons.api'), value: i18n.t('commons.api'), children: [
-        {
-          label: i18n.t('workstation.table_name.api_definition'),
-          value: [i18n.t('workstation.table_name.api_definition'), 'API_DEFINITION'],
-          leaf: true
-        },
-        {
-          label: i18n.t('operating_log.api_definition_case'),
-          value: [i18n.t('operating_log.api_definition_case'), 'API_DEFINITION_CASE'],
-          leaf: true
-        },
-        {
-          label: i18n.t('workstation.table_name.api_automation'),
-          value: [i18n.t('workstation.table_name.api_automation'), 'API_AUTOMATION'],
-          leaf: true
-        },
-        {
-          label: i18n.t('operating_log.api_automation_schedule'),
-          value: [i18n.t('operating_log.api_automation_schedule'), 'API_AUTOMATION_SCHEDULE'],
-          leaf: true
-        },
-        {
-          label: i18n.t('permission.project_api_report.name'),
-          value: [i18n.t('permission.project_api_report.name'), 'API_AUTOMATION_REPORT'],
-          leaf: true
-        }]
-    },
-    {
-      label: i18n.t('workstation.table_name.performance'),
-      value: i18n.t('workstation.table_name.performance'),
-      children: [
-        {
-          label: i18n.t('workstation.table_name.performance'),
-          value: [i18n.t('workstation.table_name.performance'), 'PERFORMANCE_TEST'],
-          leaf: true
-        },
-        {
-          label: i18n.t('report.load_test_report'),
-          value: [i18n.t('report.load_test_report'), 'PERFORMANCE_TEST_REPORT'],
-          leaf: true
-        }]
-    },
-
-    {
-      label: i18n.t('commons.project_setting'), value: i18n.t('commons.project_setting'), children: [
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('project.manager'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('project.manager'), 'PROJECT_PROJECT_MANAGER'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_user.name'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_user.name'), 'PROJECT_PROJECT_MEMBER'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('api_test.jar_config.jar_manage'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('api_test.jar_config.jar_manage'), 'PROJECT_PROJECT_JAR'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('permission.workspace_project_environment.name'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('permission.workspace_project_environment.name'), 'PROJECT_ENVIRONMENT_SETTING'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_file.name'), 'PROJECT_FILE_MANAGEMENT'],
-          leaf: true
-        },
-        {
-          label: i18n.t('commons.project') + "-" + i18n.t('permission.template.name'),
-          value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
-          leaf: true
-        },
-      ]
-    },
-  ];
-  return projectsysList;
-}
-
 
 export function getUrl(d, _this) {
   let url = "/#";
