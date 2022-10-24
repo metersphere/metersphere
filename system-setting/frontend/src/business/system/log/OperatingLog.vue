@@ -161,6 +161,7 @@ import {getWorkspaces} from "../../../api/workspace";
 import {getUserListByResourceUrl} from "../../../api/user";
 import {modifyUserByResourceId} from "metersphere-frontend/src/api/user";
 import {getOperatingLogPages} from "../../../api/operating-log";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "OperatingLog",
@@ -170,6 +171,26 @@ export default {
     MsLogDetail
   },
   data() {
+    let getModules = function () {
+      let license = hasLicense();
+      let data = new SYSLIST;
+      return data.filter(item => {
+        if (!item.license) {
+          if (item.children) {
+            item.children = item.children.filter(child => {
+              if (!child.license || (child.license && license)) {
+                return true;
+              }
+            })
+          }
+          return true;
+        } else {
+          if (license) {
+            return true;
+          }
+        }
+      });
+    };
     return {
       props: {
         multiple: false,
@@ -190,7 +211,7 @@ export default {
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
       LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
-      sysList: new SYSLIST(),
+      sysList: getModules(),
       loading: false,
       options: [],
       selectLoading: false
@@ -201,7 +222,6 @@ export default {
       handler(toPath) {
         if (toPath === '/setting/operatingLog/system') {
           this.isSystem = true;
-          this.sysList = new SYSLIST();
           this.condition.workspaceId = '';
           this.getWorkSpaceList();
           this.getMember();

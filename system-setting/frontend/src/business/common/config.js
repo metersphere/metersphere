@@ -194,7 +194,8 @@ export function SYSLIST() {
         {
           label: i18n.t('commons.system') + "-" + i18n.t('commons.quota'),
           value: [i18n.t('commons.system') + "-" + i18n.t('commons.quota'), 'SYSTEM_QUOTA_MANAGEMENT'],
-          leaf: true
+          leaf: true,
+          license: true
         },
         {
           label: i18n.t('commons.system') + "-" + i18n.t('license.title'),
