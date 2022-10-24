@@ -33,6 +33,7 @@
                                 ref="versionHistory"
                                 :version-data="versionData"
                                 :current-id="testId"
+                                :is-read="isReadOnly"
                                 @compare="compare" @checkout="checkout" @create="create" @del="del"/>
             <el-button :disabled="isReadOnly" type="primary" size="small" plain @click="save"
                        v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
