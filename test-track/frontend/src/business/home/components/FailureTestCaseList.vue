@@ -11,7 +11,9 @@
       <el-table-column prop="caseName" :label="$t('home.case.case_name')"
                        width="150">
         <template v-slot:default="{row}">
-          <el-link type="info" @click="redirect(row.caseType,row.id)">
+          <el-link type="info" @click="redirect(row.caseType,row.id)"
+                   :disabled="(row.caseType === 'apiCase' && apiCaseReadOnly) || (row.caseType === 'scenario' && apiScenarioReadOnly) ||
+                  (row.caseType === 'load' && loadCaseReadOnly) || (row.caseType === 'testCase' && testCaseReadOnly)">
             {{ row.caseName }}
           </el-link>
         </template>
@@ -52,6 +54,7 @@
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {homeTestPlanFailureCaseGet} from "@/api/remote/api/api-home";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "MsFailureTestCaseList",
@@ -63,7 +66,11 @@ export default {
   data() {
     return {
       tableData: [],
-      loading: false
+      loading: false,
+      testCaseReadOnly: false,
+      apiCaseReadOnly: false,
+      apiScenarioReadOnly: false,
+      loadCaseReadOnly: false,
     }
   },
   props: {
@@ -103,6 +110,10 @@ export default {
 
   created() {
     this.search();
+    this.testCaseReadOnly = !hasPermission('PROJECT_TRACK_CASE:READ');
+    this.apiCaseReadOnly = !hasPermission('PROJECT_API_DEFINITION:READ');
+    this.apiScenarioReadOnly = !hasPermission('PROJECT_API_SCENARIO:READ');
+    this.loadCaseReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ');
   },
   activated() {
     this.search();
