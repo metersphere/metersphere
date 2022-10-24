@@ -84,7 +84,7 @@ export default {
     response: {
       handler(newObj, oldObj) {
         this.responseCount++;
-        if (this.responseCount > 1) {
+        if (this.responseCount > 3) {
           store.apiStatus.set("responseChange", true);
           store.apiMap.set(this.currentApi.id, store.apiStatus);
         }
@@ -324,9 +324,7 @@ export default {
       this.responseCount = 0;
       this.count = 0;
       store.apiStatus.set("fromChange", false);
-      store.apiMap.set(this.currentApi.id, store.apiStatus);
       store.apiStatus.set("requestChange", false);
-      store.apiMap.set(this.currentApi.id, store.apiStatus);
       store.apiStatus.set("responseChange", false);
       store.apiMap.set(this.currentApi.id, store.apiStatus);
     },
