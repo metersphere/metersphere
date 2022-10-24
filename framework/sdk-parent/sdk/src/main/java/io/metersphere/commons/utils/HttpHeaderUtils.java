@@ -27,6 +27,7 @@ public class HttpHeaderUtils {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.toString());
         headers.add(HttpHeaders.COOKIE, SessionUtils.getHttpHeader(HttpHeaders.COOKIE));
+        headers.add(HttpHeaders.ACCEPT_LANGUAGE, SessionUtils.getHttpHeader(HttpHeaders.ACCEPT_LANGUAGE));
 
         String headerToken = SessionUtils.getHttpHeader(SessionConstants.HEADER_TOKEN);
         if (StringUtils.isNotBlank(headerToken)) {
