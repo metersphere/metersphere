@@ -1,10 +1,10 @@
 import {post, get} from "metersphere-frontend/src/plugins/request";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
-export function getTemplate(baseUrl) {
+export function getTemplate(baseUrl, projectId) {
   return new Promise((resolve) => {
     let template = {};
-    get(baseUrl + getCurrentProjectID())
+    get(baseUrl + (projectId ? projectId : getCurrentProjectID()))
       .then(response => {
         template = response.data;
         if (template.customFields) {
@@ -23,8 +23,8 @@ export function getIssueTemplate() {
   return getTemplate('field/template/issue/get/relate/');
 }
 
-export function getTestTemplate() {
-  return getTemplate('field/template/case/get/relate/');
+export function getTestTemplate(projectId) {
+  return getTemplate('field/template/case/get/relate/', projectId);
 }
 
 export function updateCustomFieldTemplate(request) {
