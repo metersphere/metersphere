@@ -15,10 +15,6 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
-import io.metersphere.commons.utils.*;
-import io.metersphere.constants.RunModeConstants;
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.RemakeReportService;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
@@ -30,10 +26,14 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.api.service.ApiRetryOnFailureService;
 import org.apache.commons.lang3.StringUtils;
@@ -44,11 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -203,7 +199,8 @@ public class ApiCaseSerialService {
                 list.addAll(elements);
             }
             if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.HTTP_SAMPLER)) {
-                MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class);
+                MsHTTPSamplerProxy httpSamplerProxy = mapper.readValue(element.toString(), new TypeReference<MsHTTPSamplerProxy>() {
+                });
                 httpSamplerProxy.setHashTree(list);
                 httpSamplerProxy.setName(planId);
                 if (StringUtils.isNotEmpty(envId)) {
