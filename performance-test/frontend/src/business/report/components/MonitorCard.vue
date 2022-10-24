@@ -187,7 +187,7 @@ export default {
             if (currentInstance) {
               this.currentInstance = currentInstance;
             } else {
-              this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
+              this.currentInstance = this.currentInstance || this.instances[0]?.ip + ":" + this.instances[0]?.port;
             }
             this.handleChecked(this.currentInstance);
             getSharePerformanceMetricQuery(this.shareId, this.id)
@@ -210,7 +210,7 @@ export default {
                 this.showChart = true;
               });
             } else {
-              this.currentInstance = this.currentInstance || this.instances[0].ip + ":" + this.instances[0].port;
+              this.currentInstance = this.currentInstance || this.instances[0]?.ip + ":" + this.instances[0]?.port;
             }
             this.handleChecked(this.currentInstance);
             getPerformanceMetricQuery(this.id).then(result => {
