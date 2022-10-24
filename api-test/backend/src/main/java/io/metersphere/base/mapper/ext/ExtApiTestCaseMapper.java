@@ -100,4 +100,6 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCaseDTO> relevanceApiList(@Param("request") ApiTestCaseRequest request);
 
     List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
+
+    int getCaseCountById(String id);
 }

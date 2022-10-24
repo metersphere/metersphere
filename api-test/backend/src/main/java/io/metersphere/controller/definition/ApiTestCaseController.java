@@ -266,4 +266,9 @@ public class ApiTestCaseController {
     public List<JmxInfoDTO> getScenarioCaseByIds(@RequestBody ApiCaseExportJmxRequest request) {
         return apiTestCaseService.exportJmx(request.getCaseIds(), request.getEnvId());
     }
+
+    @PostMapping("/case-count")
+    public int getCaseCountById(@RequestBody SaveApiTestCaseRequest request) {
+        return apiTestCaseService.getCaseCountById(request.getId());
+    }
 }
