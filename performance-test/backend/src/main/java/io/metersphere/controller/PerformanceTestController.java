@@ -182,7 +182,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/run")
-    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.EXECUTE, beforeEvent = "#msClass.getRunLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
