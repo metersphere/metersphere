@@ -494,13 +494,22 @@ public class IssueTemplateService extends TemplateBaseService {
         for (CustomFieldTemplate customFieldTemplate : customFields) {
             CustomField customField = customFieldMapper.selectByPrimaryKey(customFieldTemplate.getFieldId());
             CustomFieldDao customFieldDao = new CustomFieldDao();
-            BeanUtils.copyBean(customFieldDao, customField);
-            customFieldDao.setDefaultValue(customFieldTemplate.getDefaultValue());
-            List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customFieldDao, SystemReference.issueFieldColumns);
-            columns.addAll(columnsField);
+            if (customField != null) {
+                BeanUtils.copyBean(customFieldDao, customField);
+                customFieldDao.setDefaultValue(customFieldTemplate.getDefaultValue());
+                List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customFieldDao, SystemReference.issueFieldColumns);
+                columns.addAll(columnsField);
+            } else {
+                customFieldDao.setName(StringUtils.EMPTY);
+                customFieldDao.setScene(StringUtils.EMPTY);
+                customFieldDao.setType(StringUtils.EMPTY);
+                customFieldDao.setSystem(null);
+                customFieldDao.setRemark(StringUtils.EMPTY);
+                customFieldDao.setDefaultValue(StringUtils.EMPTY);
+                List<DetailColumn> columnsField = ReflexObjectUtil.getColumns(customFieldDao, SystemReference.issueFieldColumns);
+                columns.addAll(columnsField);
+            }
         }
-        List<DetailColumn> columnIssues = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
-        columns.addAll(columnIssues);
         OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()),
                 templateWithBLOBs.getProjectId(), templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
         return JSON.toJSONString(details);
