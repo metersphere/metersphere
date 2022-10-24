@@ -90,13 +90,19 @@ export function getIssuesById(id) {
   return id ? get('/issues/get/' + id) : {};
 }
 
-export function getIssuesListById(id, projectId, workspaceId) {
+export function getIssuesForMinder(id, projectId, workspaceId) {
   let condition = {
     id: id,
     projectId: projectId,
     workspaceId: workspaceId
   };
-  return post('issues/list/' + 1 + '/' + 10, condition);
+  return new Promise(resolve => {
+    post('issues/list/' + 1 + '/' + 10, condition)
+      .then((r) => {
+        parseCustomFilesForList(r.data.listObject);
+        resolve({data: r.data.listObject[0]});
+      });
+  });
 }
 
 export function getIssuesByPlanId(planId) {
