@@ -36,8 +36,6 @@
 <script>
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 
-const {getCurrentWorkspaceId} = require("metersphere-frontend/src/utils");
-const {getIssuesListById} = require("@/api/issue");
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
   tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch, listenDblclick, handleMinderIssueDelete
@@ -49,7 +47,8 @@ import {addIssueHotBox} from "./minderUtils";
 import MsModuleMinder from "@/business/common/minder/MsModuleMinder";
 import {useStore} from "@/store";
 import {testPlanCaseMinderEdit} from "@/api/remote/plan/test-plan-case";
-import {hasPermission} from "@/business/utils/sdk-utils";
+import {getCurrentWorkspaceId, hasPermission} from "@/business/utils/sdk-utils";
+import {getIssuesForMinder} from "@/api/issue";
 
 export default {
   name: "TestPlanMinder",
@@ -87,7 +86,7 @@ export default {
     workspaceId() {
       return getCurrentWorkspaceId();
     },
-     disableMinder() {
+    disableMinder() {
       if (this.planStatus === 'Archived' || !hasPermission('PROJECT_TRACK_PLAN:READ+RUN')) {
         return true
       } else {
@@ -137,10 +136,11 @@ export default {
       listenDblclick(() => {
         let data = getSelectedNodeData();
         if (data.type === 'issue') {
-          getIssuesListById(data.id, this.projectId, this.workspaceId, (data) => {
-            data.customFields = JSON.parse(data.customFields);
-            this.$refs.issueEdit.open(data);
-          });
+          getIssuesForMinder(data.id, this.projectId, this.workspaceId)
+            .then((r) => {
+              let data = r.data;
+              this.$refs.issueEdit.open(data);
+            });
         }
       });
 
