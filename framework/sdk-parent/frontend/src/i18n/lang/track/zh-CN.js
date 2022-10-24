@@ -31,6 +31,7 @@ export default {
   report_statistics: "报告统计",
   sort: '种类',
   automatic_status_update: "自动状态更新",
+  other_test_name: '其他用例名称',
   case: {
     list: "列表",
     minder: "脑图",
