@@ -815,20 +815,16 @@ export default {
       }
     },
     editApiModule(row) {
-      if (this.moduleOptions && this.moduleOptions.length === 0) {
-        getApiModuleByProjectIdAndProtocol(row.projectId, row.protocol).then(response => {
-          if (response.data) {
-            response.data.forEach(node => {
-              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
-              buildTree(node, {path: ''});
-            });
-            this.moduleOptions = response.data;
-          }
-          this.editApi(row);
-        });
-      } else {
+      getApiModuleByProjectIdAndProtocol(row.projectId, row.protocol).then(response => {
+        if (response.data) {
+          response.data.forEach(node => {
+            node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
+            buildTree(node, {path: ''});
+          });
+          this.moduleOptions = response.data;
+        }
         this.editApi(row);
-      }
+      });
     },
     editApi(row) {
       const index = this.apiTabs.find(p => p.api && p.api.id === row.id);
