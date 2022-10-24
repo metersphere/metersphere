@@ -67,7 +67,6 @@
               <div>
                 <el-upload
                   multiple
-                  :limit="8"
                   action=""
                   :auto-upload="true"
                   :file-list="fileList"

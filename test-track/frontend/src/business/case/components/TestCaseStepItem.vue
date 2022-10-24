@@ -142,8 +142,8 @@ export default {
 </script>
 
 <style scoped>
-.el-table >>> td:nth-child(2) .cell,.el-table >>> td:nth-child(2),
-.el-table >>> td:nth-child(3) .cell,.el-table >>> td:nth-child(3) {
+.el-table :deep(td:nth-child(2) .cell),.el-table :deep(td:nth-child(2)),
+.el-table :deep(td:nth-child(3) .cell),.el-table :deep(td:nth-child(3)) {
   padding: 0;
 }
 
