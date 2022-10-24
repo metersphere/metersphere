@@ -86,7 +86,7 @@ export default {
     workspaceId() {
       return getCurrentWorkspaceId();
     },
-    disableMinder() {
+     disableMinder() {
       if (this.planStatus === 'Archived') {
         return true
       } else {
