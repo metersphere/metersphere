@@ -46,7 +46,7 @@
                       class="ms-file-item-input"
                       size="small"
                       v-model="data.name"
-                      :disabled="isRepositoryFile()"
+                      :disabled="isRepositoryFile() || !canEdit"
                       show-word-limit @blur="save"/>
                   </el-form-item>
                   <el-form-item :label="$t('commons.description')" prop="description">
@@ -67,7 +67,7 @@
                   </el-form-item>
 
                   <el-form-item :label="$t('test_track.case.module')" prop="moduleId">
-                    <ms-select-tree :disabled="isRepositoryFile()" size="small" :data="moduleOptions"
+                    <ms-select-tree :disabled="isRepositoryFile() || !canEdit" size="small" :data="moduleOptions"
                                     :defaultKey="data.moduleId"
                                     @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
 
@@ -82,7 +82,7 @@
                   </el-form-item>
 
                   <el-form-item :label="'加载Jar包'" prop="loadJar" v-if="data.type === 'JAR'">
-                    <el-switch v-model="data.loadJar" :active-text="$t('project.file_jar_message')" @change="save"/>
+                    <el-switch v-model="data.loadJar" :active-text="$t('project.file_jar_message')" @change="save" :disabled="!canEdit"/>
                   </el-form-item>
                   <el-form-item v-if="isRepositoryFile()" :label="$t('commons.version')">
                     {{ getCommitId() }}
@@ -122,6 +122,8 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getFileMetaPages, modifyFileMeta, pullGitFile, uploadFileMeta} from "../../../../api/file";
 import FileVersionList from "@/business/menu/file/list/FileVersionList";
 import FileCaseRelevanceList from "@/business/menu/file/list/FileCaseRelevanceList";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
+
 
 export default {
   name: "MsEditFileMetadata",
@@ -157,6 +159,11 @@ export default {
       currentPage: 1,
       images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng", "jpeg"]
     };
+  },
+  computed: {
+    canEdit() {
+      return hasPermission('PROJECT_FILE:READ+UPLOAD+JAR');
+    }
   },
   props: {
     moduleOptions: Array,
