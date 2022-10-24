@@ -72,10 +72,10 @@ import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import MsModuleMinder from "@/business/common/minder/MsModuleMinder";
 
-const {getIssuesListById} = require("@/api/issue");
 import {useStore} from "@/store"
 import {mapState} from "pinia";
 import {getCurrentWorkspaceId} from "@/business/utils/sdk-utils";
+import {getIssuesForMinder} from "@/api/issue";
 
 
 export default {
@@ -204,10 +204,11 @@ export default {
             isNotDisableNode = true;
           }
           if (node.data.type === 'issue') {
-            getIssuesListById(node.data.id, this.projectId, this.workspaceId, (data) => {
-              data.customFields = JSON.parse(data.customFields);
-              this.$refs.issueEdit.open(data);
-            });
+            getIssuesForMinder(node.data.id, this.projectId, this.workspaceId)
+              .then((r) => {
+                let data = r.data;
+                this.$refs.issueEdit.open(data);
+              })
           }
         });
         if (isNotDisableNode) {
