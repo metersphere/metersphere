@@ -113,7 +113,7 @@
           v-show="!scope.row.isSet"
           @click="deleteRowTask(scope.$index,scope.row)"
           :tip="$t('commons.delete')"
-          v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
+          v-permission="['PROJECT_MESSAGE:READ+DELETE']"/>
       </template>
     </el-table-column>
   </el-table>
