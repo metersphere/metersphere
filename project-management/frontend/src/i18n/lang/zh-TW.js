@@ -30,6 +30,9 @@ const message = {
   },
   pj_batch_delete: {
     error_library: "確定刪除誤報庫"
+  },
+  project_version: {
+    version_time: '版本週期',
   }
 }
 
