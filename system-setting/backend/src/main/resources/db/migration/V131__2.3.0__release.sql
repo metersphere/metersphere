@@ -13,17 +13,20 @@ INSERT INTO system_parameter (param_key, param_value, type, sort) VALUES ('base.
 
 DELETE FROM user_group_permission WHERE permission_id = 'WORKSPACE_PROJECT_MANAGER:READ+UPLOAD_JAR';
 
+-- 已有READ权限的工作空间类型的用户组，添加该权限
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 SELECT UUID(), id, 'WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG', 'WORKSPACE_PROJECT_MANAGER'
 FROM `group`
-WHERE type = 'WORKSPACE';
+WHERE type = 'WORKSPACE'
+  AND `group`.id IN
+      (SELECT group_id FROM user_group_permission WHERE permission_id = 'WORKSPACE_PROJECT_MANAGER:READ');
 
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 SELECT UUID(), id, 'PROJECT_MESSAGE:READ+DELETE', 'PROJECT_MESSAGE'
 FROM `group`
 WHERE type = 'PROJECT'
-  and `group`.id in (select group_id from user_group_permission where permission_id = 'PROJECT_MESSAGE:READ');
+  AND `group`.id IN (SELECT group_id FROM user_group_permission WHERE permission_id = 'PROJECT_MESSAGE:READ');
 
 
 
@@ -31,5 +34,5 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 SELECT UUID(), id, 'PROJECT_ERROR_REPORT_LIBRARY:READ+BATCH_DELETE', 'PROJECT_ERROR_REPORT_LIBRARY'
 FROM `group`
 WHERE type = 'PROJECT'
-  and `group`.id in
-      (select group_id from user_group_permission where permission_id = 'PROJECT_ERROR_REPORT_LIBRARY:READ');
+  AND `group`.id IN
+      (SELECT group_id FROM user_group_permission WHERE permission_id = 'PROJECT_ERROR_REPORT_LIBRARY:READ');
