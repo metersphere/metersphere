@@ -379,12 +379,6 @@ public class TestCaseService {
     public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
-        // 更新数据
-        TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andIdEqualTo(testCase.getId());
-        if (StringUtils.isNotBlank(testCase.getVersionId())) {
-            example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
-        }
 
         // 同步缺陷与需求的关联关系
         updateThirdPartyIssuesLink(testCase);
@@ -395,12 +389,12 @@ public class TestCaseService {
         if (StringUtils.isEmpty(testCase.getDemandId())) {
             testCase.setDemandId(StringUtils.EMPTY);
         }
-        createNewVersionOrNot(testCase, example);
+        createNewVersionOrNot(testCase);
 
         if (StringUtils.isNotBlank(testCase.getCustomNum()) && StringUtils.isNotBlank(testCase.getId())) {
             TestCaseWithBLOBs caseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCase.getId());
             if (caseWithBLOBs != null) {
-                example.clear();
+                TestCaseExample example = new TestCaseExample();
                 example.createCriteria().andRefIdEqualTo(caseWithBLOBs.getRefId());
                 TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
                 testCaseWithBLOBs.setCustomNum(testCase.getCustomNum());
@@ -442,9 +436,11 @@ public class TestCaseService {
      * 根据前后端 versionId 判定是编辑旧数据还是创建新版本
      *
      * @param testCase
-     * @param example
      */
-    private void createNewVersionOrNot(EditTestCaseRequest testCase, TestCaseExample example) {
+    private void createNewVersionOrNot(EditTestCaseRequest testCase) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdEqualTo(testCase.getId())
+                .andVersionIdEqualTo(testCase.getVersionId());
         if (testCaseMapper.updateByExampleSelective(testCase, example) == 0) {
             // 插入新版本的数据
             TestCaseWithBLOBs oldTestCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -458,8 +454,8 @@ public class TestCaseService {
             testCase.setLatest(false);
             DealWithOtherInfo(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
-            checkAndSetLatestVersion(testCase.getRefId(), testCase.getVersionId(), testCase.getProjectId(), "add");
         }
+        checkAndSetLatestVersion(testCase.getRefId());
     }
 
     /**
@@ -1334,7 +1330,7 @@ public class TestCaseService {
             sqlSession.flushStatements();
 
             insertCases.forEach(item -> {
-                checkAndSetLatestVersion(item.getRefId(), request.getVersionId(), request.getProjectId(), "add");
+                checkAndSetLatestVersion(item.getRefId());
             });
         } catch (Exception e) {
             LogUtil.error(e);
@@ -2967,69 +2963,17 @@ public class TestCaseService {
             //删除执行记录
             functionCaseExecutionInfoService.deleteBySourceIdList(idList);
             //检查最新版本
-            checkAndSetLatestVersion(refId, version, testCaseList.get(0).getProjectId(), "del");
+            checkAndSetLatestVersion(refId);
         }
     }
 
+
     /**
      * 检查设置最新版本
-     *
-     * @param refId
-     * @param versionId
      */
-    private void checkAndSetLatestVersion(String refId, String versionId, String projectId, String opt) {
-        if (StringUtils.isAnyBlank(refId, versionId, projectId))
-            return;
-        if (StringUtils.equalsAnyIgnoreCase("add", opt)) {
-            String latestVersion = baseProjectVersionMapper.getDefaultVersion(projectId);
-            if (StringUtils.equals(versionId, latestVersion)) {
-                TestCaseExample e = new TestCaseExample();
-                e.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(versionId);
-                List<String> changeToLatestIds = testCaseMapper.selectByExample(e).stream().map(TestCase::getId).collect(Collectors.toList());
-                //如果是最新版本
-                TestCaseWithBLOBs t = new TestCaseWithBLOBs();
-                t.setLatest(true);
-                testCaseMapper.updateByExampleSelective(t, e);
-
-                if (CollectionUtils.isNotEmpty(changeToLatestIds)) {
-                    e.clear();
-                    e.createCriteria().andRefIdEqualTo(refId).andIdNotIn(changeToLatestIds);
-                    t.setLatest(false);
-                    testCaseMapper.updateByExampleSelective(t, e);
-                }
-            }
-        } else if (StringUtils.equalsIgnoreCase("del", opt)) {
-            //删掉该版本数据
-            TestCaseExample e = new TestCaseExample();
-            e.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
-            if (testCaseMapper.countByExample(e) == 0) {
-                //删掉最新版本的数据
-                e.clear();
-                e.createCriteria().andRefIdEqualTo(refId).andVersionIdNotEqualTo(versionId);
-                List<TestCase> differentVersionData = testCaseMapper.selectByExample(e);
-                if (differentVersionData.size() != 0) {
-                    ProjectVersionExample pe = new ProjectVersionExample();
-                    pe.createCriteria().andProjectIdEqualTo(projectId);
-                    pe.setOrderByClause("create_time desc");
-                    List<ProjectVersion> versionList = projectVersionMapper.selectByExample(pe);
-                    TestCase latestData = null;
-                    for (ProjectVersion projectVersion : versionList) {
-                        for (TestCase t : differentVersionData)
-                            if (projectVersion.getId().equalsIgnoreCase(t.getVersionId())) {
-                                latestData = t;
-                                break;
-                            }
-                        if (latestData != null)
-                            break;
-                    }
-                    if (latestData == null)
-                        latestData = differentVersionData.get(0);
-                    latestData.setLatest(true);
-                    testCaseMapper.updateByPrimaryKey(latestData);
-                }
-            }
-        }
-
+    private void checkAndSetLatestVersion(String refId) {
+        extTestCaseMapper.clearLatestVersion(refId);
+        extTestCaseMapper.addLatestVersion(refId);
     }
 
     public void deleteTestCasePublic(String versionId, String refId) {

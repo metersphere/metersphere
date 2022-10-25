@@ -761,18 +761,19 @@ export default {
       let param = this.buildParam();
       if (this.validate(param)) {
         let option = this.getOption(param);
-        this.result = this.$request(option)
+        this.loading = true;
+        this.$request(option)
           .then((response) => {
             response = response.data;
             // 保存用例后刷新附件
             this.currentTestCaseInfo.isCopy = false;
             this.$refs.otherInfo.getFileMetaData(response.data.id);
+            this.loading = false;
             this.$success(this.$t('commons.save_success'));
             this.path = "/test/case/edit";
-            // this.operationType = "edit"
+            this.operationType = "edit"
             this.$emit("refreshTestCase",);
             useStore().testCaseMap.set(this.form.id, 0);
-            //this.tableType = 'edit';
             this.$emit("refresh", response.data);
             if (this.form.id) {
               this.$emit("caseEdit", param);
@@ -798,6 +799,8 @@ export default {
             if (hasLicense()) {
               this.getVersionHistory();
             }
+          }).catch(() => {
+            this.loading = false;
           });
       }
     },
@@ -1084,10 +1087,11 @@ export default {
           this.$refs.versionHistory.loading = false;
           this.$refs.selectPropDialog.open();
         } else {
-          this.saveCase();
-          if (this.$refs.versionHistory) {
-            this.$refs.versionHistory.loading = false;
-          }
+          this.saveCase(() => {
+            if (this.$refs.versionHistory) {
+              this.$refs.versionHistory.loading = false;
+            }
+          });
         }
       } else {
         this.$refs.versionHistory.loading = false;
@@ -1110,9 +1114,6 @@ export default {
           }
         }
       });
-    },
-    changeType(type) {
-      this.type = type;
     },
     hasOtherInfo() {
       return new Promise((resolve) => {
