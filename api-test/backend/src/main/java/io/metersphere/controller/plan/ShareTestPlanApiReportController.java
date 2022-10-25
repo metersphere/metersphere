@@ -1,7 +1,7 @@
 package io.metersphere.controller.plan;
 
 import io.metersphere.api.dto.ApiReportResult;
-import io.metersphere.service.BaseShareInfoService;
+import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +17,11 @@ public class ShareTestPlanApiReportController {
     @Resource
     ApiDefinitionService apiDefinitionService;
     @Resource
-    BaseShareInfoService baseShareInfoService;
+    ShareInfoService shareInfoService;
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
     public ApiReportResult getApiReport(@PathVariable String shareId, @PathVariable String testId) {
-        baseShareInfoService.validateExpired(shareId);
+        shareInfoService.validateExpired(shareId);
         return apiDefinitionService.getDbResult(testId);
     }
 }
