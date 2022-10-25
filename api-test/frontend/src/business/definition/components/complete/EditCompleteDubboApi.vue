@@ -49,8 +49,8 @@
         :new-data="newData"
         :new-show-follow="newShowFollow"
         :module-options="moduleOptions"
-        :request="request"
-        :old-request="newRequest"
+        :request="newRequest"
+        :old-request="request"
       ></dubbo-api-version-diff>
     </el-dialog>
 
