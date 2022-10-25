@@ -1,63 +1,25 @@
 package io.metersphere.service.scenario;
 
-import io.metersphere.api.dto.ApiReportBatchRequest;
-import io.metersphere.api.dto.ApiScenarioReportDTO;
-import io.metersphere.api.dto.DeleteAPIReportRequest;
-import io.metersphere.api.dto.EnvironmentType;
-import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.RunModeDataDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.ApiScenarioReportInitDTO;
 import io.metersphere.api.dto.automation.ApiScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.domain.ApiScenarioReportDetail;
-import io.metersphere.base.domain.ApiScenarioReportDetailExample;
-import io.metersphere.base.domain.ApiScenarioReportExample;
-import io.metersphere.base.domain.ApiScenarioReportResultExample;
-import io.metersphere.base.domain.ApiScenarioReportStructureExample;
-import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironment;
-import io.metersphere.base.domain.ApiTestEnvironmentExample;
-import io.metersphere.base.domain.EnvironmentGroup;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestPlanApiScenario;
-import io.metersphere.base.domain.User;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
-import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.base.mapper.EnvironmentGroupMapper;
-import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
+import io.metersphere.api.jmeter.utils.ReportStatusUtil;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.ApiReportCountDTO;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.dto.PlanReportCaseDTO;
-import io.metersphere.dto.RequestResult;
-import io.metersphere.dto.ResultDTO;
-import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -68,10 +30,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.utils.LoggerUtil;
-import io.metersphere.utils.RetryResultUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -84,14 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -217,8 +168,11 @@ public class ApiScenarioReportService {
     public QueryAPIReportRequest initRequest(QueryAPIReportRequest request) {
         if (request != null) {
             //初始化triggerMode的查询条件： 如果查询API的话，增加 JENKINS_RUN_TEST_PLAN(jenkins调用测试计划时执行的场景) 查询条件
-            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode") && CollectionUtils.isNotEmpty(request.getFilters().get("trigger_mode")) && request.getFilters().get("trigger_mode").contains("API") && !request.getFilters().get("trigger_mode").contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())) {
-                request.getFilters().get("trigger_mode").add(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
+            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey(CommonConstants.TRIGGER_MODE)
+                    && CollectionUtils.isNotEmpty(request.getFilters().get(CommonConstants.TRIGGER_MODE))
+                    && request.getFilters().get(CommonConstants.TRIGGER_MODE).contains("API")
+                    && !request.getFilters().get(CommonConstants.TRIGGER_MODE).contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())) {
+                request.getFilters().get(CommonConstants.TRIGGER_MODE).add(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
             }
         }
         return request;
@@ -241,7 +195,11 @@ public class ApiScenarioReportService {
 
     private void checkNameExist(ApiScenarioReportResult request) {
         ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andExecuteTypeEqualTo(ExecuteType.Saved.name()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andNameEqualTo(request.getName()).
+                andProjectIdEqualTo(request.getProjectId()).
+                andExecuteTypeEqualTo(ExecuteType.Saved.name()).
+                andIdNotEqualTo(request.getId());
+
         if (apiScenarioReportMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
@@ -320,7 +278,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(ResultDTO dto) {
-        String status = getStatus(dto);
+        String status = ReportStatusUtil.getStatus(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
@@ -330,7 +288,8 @@ public class ApiScenarioReportService {
             } else {
                 testPlanApiScenario.setLastResult(status);
             }
-            long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
+            long successSize = dto.getRequestResults().stream().filter(requestResult ->
+                    StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
 
             String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
             testPlanApiScenario.setPassRate(passRate);
@@ -359,7 +318,7 @@ public class ApiScenarioReportService {
         List<String> testPlanReportIdList = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();
 
-        String status = getStatus(dto);
+        String status = ReportStatusUtil.getStatus(dto);
         ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
@@ -467,7 +426,7 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updateScenario(ResultDTO dto) {
         // 更新报告状态
-        String status = getStatus(dto);
+        String status = ReportStatusUtil.getStatus(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
@@ -881,56 +840,6 @@ public class ApiScenarioReportService {
         }
         report.setStatus(ApiReportStatus.RUNNING.name());
         return report;
-    }
-
-    public List<RequestResult> filterRetryResults(List<RequestResult> results) {
-        List<RequestResult> list = new LinkedList<>();
-        if (CollectionUtils.isNotEmpty(results)) {
-            Map<String, List<RequestResult>> resultMap = results.stream().collect(Collectors.groupingBy(RequestResult::getResourceId));
-            resultMap.forEach((k, v) -> {
-                if (CollectionUtils.isNotEmpty(v)) {
-                    // 校验是否含重试结果
-                    List<RequestResult> isRetryResults = v.stream().filter(c -> StringUtils.isNotEmpty(c.getName()) && c.getName().startsWith(RetryResultUtil.RETRY_CN)).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(isRetryResults)) {
-                        list.add(isRetryResults.get(isRetryResults.size() - 1));
-                    } else {
-                        // 成功的结果
-                        list.addAll(v);
-                    }
-                }
-            });
-        }
-        return list;
-    }
-
-    /**
-     * 返回正确的报告状态
-     *
-     * @param dto jmeter返回
-     * @return
-     */
-    private String getStatus(ResultDTO dto) {
-        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey("REPORT_STATUS")) {
-            // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            return String.valueOf(dto.getArbitraryData().get("REPORT_STATUS"));
-        }
-        // 过滤掉重试结果后进行统计
-        List<RequestResult> requestResults = filterRetryResults(dto.getRequestResults());
-        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.ERROR.name())).count();
-        // 误报
-        long errorReportResultSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())).count();
-        String status = dto.getRequestResults().isEmpty() ? ApiReportStatus.PENDING.name() : ApiReportStatus.SUCCESS.name();
-        if (errorSize > 0) {
-            status = ApiReportStatus.ERROR.name();
-        } else if (errorReportResultSize > 0) {
-            status = ApiReportStatus.FAKE_ERROR.name();
-        }
-        // 超时状态
-        if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey(ApiReportStatus.TIMEOUT.name()) && (Boolean) dto.getArbitraryData().get(ApiReportStatus.TIMEOUT.name())) {
-            LoggerUtil.info("资源 " + dto.getTestId() + " 执行超时", dto.getReportId());
-            status = ApiReportStatus.ERROR.name();
-        }
-        return status;
     }
 
     public void cleanUpReport(long time, String projectId) {
