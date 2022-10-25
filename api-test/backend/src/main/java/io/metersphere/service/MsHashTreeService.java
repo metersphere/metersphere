@@ -168,10 +168,10 @@ public class MsHashTreeService {
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), "Copy")) {
                 ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.optString(ID));
-                Project project = projectMapper.selectByPrimaryKey(definitionWithBLOBs.getProjectId());
-                definitionWithBLOBs.setProjectName(project.getName());
-                definitionWithBLOBs.setVersionEnable(project.getVersionEnable());
                 if (definitionWithBLOBs != null) {
+                    Project project = projectMapper.selectByPrimaryKey(definitionWithBLOBs.getProjectId());
+                    definitionWithBLOBs.setProjectName(project.getName());
+                    definitionWithBLOBs.setVersionEnable(project.getVersionEnable());
                     element.put(ID, definitionWithBLOBs.getId());
                     this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
                     isExist = true;
