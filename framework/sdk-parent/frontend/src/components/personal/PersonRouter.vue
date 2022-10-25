@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <el-tabs v-model="activeIndex">
       <el-tab-pane v-if="hasPermission('PERSONAL_INFORMATION:READ+EDIT')" name="commons.personal_setting"
                    :label="$t('commons.personal_setting')"
@@ -55,7 +55,7 @@ import JiraUserInfo from "./JiraUserInfo";
 import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {getIntegrationService} from "../../api/workspace";
 import {useUserStore} from "@/store";
-import {handleAuth as _handleAuth,getUserInfo, getWsAndPj} from "../../api/user";
+import {handleAuth as _handleAuth, getUserInfo, getWsAndPj, updateInfo} from "../../api/user";
 
 const userStore = useUserStore();
 
@@ -95,6 +95,7 @@ export default {
         azureDevopsPat: ''
       },
       result: {},
+      loading: false,
       workspaceList: [],
       projectList: []
     }
@@ -184,7 +185,7 @@ export default {
       let param = {};
       Object.assign(param, this.form);
       param.platformInfo = JSON.stringify(this.form.platformInfo);
-      this.result = this.$post(this.updatePath, param, response => {
+      this.loading = updateInfo(param).then(response => {
         this.$success(this.$t('commons.modify_success'));
         userStore.$patch(response);
         this.$emit('closeDialog', false);
