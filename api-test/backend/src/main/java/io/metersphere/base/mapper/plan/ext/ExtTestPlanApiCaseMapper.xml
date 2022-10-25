@@ -72,7 +72,8 @@
         a.protocol,
         t.status execResult,
         a.user_id,
-        a.version_id versionId
+        a.version_id versionId,
+        project_version.NAME AS version_name
         from
         test_plan_api_case t
         inner join
@@ -85,6 +86,8 @@
         api_definition a
         on
         c.api_definition_id = a.id
+        inner JOIN project_version ON a.project_id = project_version.project_id
+        AND project_version.id = a.version_id
         where 1
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
