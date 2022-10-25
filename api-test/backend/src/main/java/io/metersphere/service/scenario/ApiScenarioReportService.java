@@ -316,7 +316,6 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updateSchedulePlanCase(ResultDTO dto) {
         List<String> testPlanReportIdList = new ArrayList<>();
-        StringBuilder scenarioNames = new StringBuilder();
 
         String status = ReportStatusUtil.getStatus(dto);
         ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
@@ -326,19 +325,14 @@ public class ApiScenarioReportService {
             }
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
             if (testPlanApiScenario != null) {
-                report.setScenarioId(testPlanApiScenario.getApiScenarioId());
-                report.setEndTime(System.currentTimeMillis());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 testPlanApiScenario.setLastResult(report.getStatus());
                 long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
                 String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
                 testPlanApiScenario.setPassRate(passRate);
 
                 testPlanApiScenario.setReportId(report.getId());
-                report.setEndTime(System.currentTimeMillis());
                 testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-                scenarioNames.append(report.getName()).append(",");
 
                 // 更新场景状态
                 ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());

@@ -230,4 +230,9 @@ public class TestPlanScenarioCaseController {
     public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
         return testPlanScenarioCaseService.getPlanProjectEnvMap(resourceIds);
     }
+    @GetMapping("/get-scenario-id/{id}")
+    public String getScenarioId(@PathVariable("id") String planScenarioId) {
+        return testPlanScenarioCaseService.getScenarioId(planScenarioId);
+    }
+
 }
