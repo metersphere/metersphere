@@ -318,7 +318,7 @@ export default {
 <style scoped>
 .metric-container {
   padding: 5px 10px;
-  min-width: 1500px;
+  min-width: 1200px;
 }
 
 .metric-container #chart {
