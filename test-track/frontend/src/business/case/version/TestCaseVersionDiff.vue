@@ -60,8 +60,10 @@
           <el-form v-if="oldData.isFormAlive" :model="oldData.customFieldForm" :rules="oldData.customFieldRules"
                    ref="oldCustomFieldForm"
                    class="case-form">
-            <custom-filed-form-item :form="oldData.customFieldForm" :form-label-width="oldData.formLabelWidth"
-                                    :issue-template="oldData.testCaseTemplate" :is-public="isPublic"/>
+            <custom-filed-form-row :form="oldData.customFieldForm"
+                                   :disabled="readOnly"
+                                   :default-open="defaultOpen"
+                                   :issue-template="oldData.testCaseTemplate"/>
           </el-form>
 
           <el-row v-if="oldData.isCustomNum">
@@ -237,7 +239,7 @@ import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
 import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
 import {removeGoBackListener} from "metersphere-frontend/src/utils";
-import {buildTestCaseOldFields, parseCustomField} from "metersphere-frontend/src/utils/custom_field";
+import {buildTestCaseOldFields, parseCustomField, sortCustomFields} from "metersphere-frontend/src/utils/custom_field";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
@@ -250,7 +252,6 @@ import {useStore} from "@/store";
 import {getProjectListAll, getProjectMemberOption} from "@/business/utils/sdk-utils";
 import {getTestTemplate} from "@/api/custom-field-template";
 import {testCaseCommentList} from "@/api/test-case-comment";
-
 const {diff} = require("@/business/v_node_diff");
 
 export default {
@@ -407,8 +408,8 @@ export default {
       this[prop].$get = this.$get;
       let that = this;
       getTestTemplate()
-        .then((r) => {
-          this[prop].testCaseTemplate = r.data;
+        .then((testCaseTemplate) => {
+          this[prop].testCaseTemplate = testCaseTemplate;
           initFuc(prop, () => {
             that.reloadForm(prop);
           });
@@ -443,6 +444,7 @@ export default {
       this[prop].module = this[prop].nodeId;
       //设置自定义熟悉默认值
       this[prop].customFieldForm = parseCustomField(this[prop], this[prop].testCaseTemplate, null, this[prop] ? buildTestCaseOldFields(this[prop]) : null);
+      sortCustomFields(this[prop].testCaseTemplate.customFields);
     },
     setTestCaseExtInfo(prop) {
       this[prop] = {};
