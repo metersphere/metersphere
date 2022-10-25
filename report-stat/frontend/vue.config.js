@@ -29,6 +29,13 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
   },
+  pages: {
+    shareEnterpriseReport: {
+      entry: "src/template/enterprise/share/share-enterprise-report.js",
+      template: "src/template/enterprise/share/share-enterprise-report.html",
+      filename: "share-enterprise-report.html",
+    },
+  },
   configureWebpack: {
     devtool: 'cheap-module-source-map',
     resolve: {
