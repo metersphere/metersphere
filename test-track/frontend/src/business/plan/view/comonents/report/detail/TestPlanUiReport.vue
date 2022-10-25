@@ -11,7 +11,7 @@
         <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
                             :report="report" :is-template="isTemplate" :plan-id="planId"
                             :ui-all-cases="uiAllCases"
-                            :filter-status="['Error']"
+                            :filter-status="['Error', 'ERROR']"
                             @setSize="setFailureSize"/>
       </el-tab-pane>
       <el-tab-pane style="min-height: 500px" name="third" v-if="unExecuteEnable">
@@ -21,7 +21,7 @@
         <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
                             :report="report" :is-template="isTemplate" :plan-id="planId"
                             :ui-all-cases="uiAllCases"
-                            :filter-status="['unexecute', 'STOP']"
+                            :filter-status="['unexecute', 'STOP', 'PENDING']"
                             @setSize="setUnExecuteSize"/>
       </el-tab-pane>
 

@@ -148,7 +148,7 @@
                            :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
               <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult==='PENDING' || row.lastResult==='UnExecute'">
-                <ms-test-plan-api-status :status="row.lastResult"/>
+                <ms-test-plan-api-status status="PENDING"/>
               </el-link>
             </template>
           </ms-table-column>
@@ -189,7 +189,7 @@ import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
-import TestPlanScenarioListHeader from "../api/TestPlanScenarioListHeader";
+import TestPlanScenarioListHeader from "../ui/TestPlanUiScenarioListHeader";
 import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import {
   initCondition,
