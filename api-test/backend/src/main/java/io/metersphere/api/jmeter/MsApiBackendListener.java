@@ -2,7 +2,9 @@ package io.metersphere.api.jmeter;
 
 
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
+import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.cache.JMeterEngineCache;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.FixedCapacityUtil;
@@ -22,6 +24,7 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
     private TestResultService testResultService;
     private List<SampleResult> queues;
     private ResultDTO dto;
+    // 当前场景报告/用例结果状态
+    private String status;
 
     /**
      * 参数初始化方法
@@ -61,6 +66,9 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             sampleResults = RetryResultUtil.clearLoops(sampleResults);
             JMeterBase.resultFormatting(sampleResults, dto);
             testResultService.saveResults(dto);
+
+            status = ReportStatusUtil.getStatus(dto, status);
+            dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, status);
             sampleResults.clear();
         }
     }
@@ -85,6 +93,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
 
                 LoggerUtil.info("执行结果入库存储", dto.getReportId());
                 testResultService.saveResults(dto);
+                status = ReportStatusUtil.getStatus(dto, status);
+                dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, status);
                 LoggerUtil.info("重试结果处理结束", dto.getReportId());
             }
             // 全局并发队列
@@ -133,7 +143,9 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         }
         dto.setQueueId(context.getParameter(BackendListenerConstants.QUEUE_ID.name()));
         dto.setRunType(context.getParameter(BackendListenerConstants.RUN_TYPE.name()));
-
+        if (dto.getArbitraryData() == null) {
+            dto.setArbitraryData(new LinkedHashMap<>());
+        }
         String ept = context.getParameter(BackendListenerConstants.EPT.name());
         if (StringUtils.isNotEmpty(ept)) {
             dto.setExtendedParameters(JSON.parseObject(context.getParameter(BackendListenerConstants.EPT.name()), Map.class));
@@ -149,4 +161,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         }
         return reportId;
     }
+
+
 }
