@@ -491,7 +491,7 @@ public class ApiScenarioReportService {
 
         String event;
         String status;
-        if (StringUtils.equals(scenario.getLastResult(), ApiReportStatus.SUCCESS.name())) {
+        if (StringUtils.endsWithIgnoreCase(scenario.getLastResult(), ApiReportStatus.SUCCESS.name())) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
             status = "成功";
         } else {
