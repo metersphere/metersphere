@@ -1,109 +1,112 @@
 <template>
-  <ms-container v-loading="loading || reportExportVisible">
-    <ms-main-container class="api-report-content">
-      <el-card class="report-body">
-        <section class="report-container" v-if="this.report.testId">
-          <!-- header -->
-          <ms-api-report-view-header
-            :show-cancel-button="showCancel"
-            :show-rerun-button="showRerunButton"
-            :is-plan="isPlan"
-            :is-template="isTemplate"
-            :debug="debug"
-            :report="report"
-            :project-env-map="projectEnvMap"
-            @reportExport="handleExport"
-            @reportSave="handleSave"/>
+  <div>
+    <ms-container v-loading="loading || reportExportVisible">
+      <ms-main-container>
+        <el-card>
+          <section class="report-container" v-if="this.report.testId">
+            <!-- header -->
+            <ms-api-report-view-header
+              :show-cancel-button="showCancel"
+              :show-rerun-button="showRerunButton"
+              :is-plan="isPlan"
+              :is-template="isTemplate"
+              :debug="debug"
+              :report="report"
+              :project-env-map="projectEnvMap"
+              @reportExport="handleExport"
+              @reportSave="handleSave"/>
 
-          <!-- content -->
-          <main v-if="isNotRunning">
-            <!-- content header chart -->
-            <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
+            <!-- content -->
+            <main v-if="isNotRunning">
+              <!-- content header chart -->
+              <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
 
-            <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1500px">
-              <!-- all step-->
-              <el-tab-pane label="All" name="total">
-                <ms-scenario-results
-                  :treeData="fullTreeNodes"
-                  :console="content.console"
-                  :report="report"
-                  :is-share="isShare"
-                  :share-id="shareId"
-                  v-on:requestResult="requestResult"
-                  ref="resultsTree"/>
-              </el-tab-pane>
-              <!-- fail step -->
-              <el-tab-pane name="fail">
-                <template slot="label">
-                  Error
-                </template>
-                <ms-scenario-results
-                  v-on:requestResult="requestResult"
-                  :console="content.console"
-                  :report="report"
-                  :is-share="isShare"
-                  :share-id="shareId"
-                  :treeData="fullTreeNodes" ref="failsTree"
-                  :errorReport="content.error"/>
-              </el-tab-pane>
-              <!--error step -->
-              <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
-                <template slot="label">
+              <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1200px">
+                <!-- all step-->
+                <el-tab-pane label="All" name="total">
+                  <ms-scenario-results
+                    :treeData="fullTreeNodes"
+                    :console="content.console"
+                    :report="report"
+                    :is-share="isShare"
+                    :share-id="shareId"
+                    v-on:requestResult="requestResult"
+                    ref="resultsTree"/>
+                </el-tab-pane>
+                <!-- fail step -->
+                <el-tab-pane name="fail">
+                  <template slot="label">
+                    Error
+                  </template>
+                  <ms-scenario-results
+                    v-on:requestResult="requestResult"
+                    :console="content.console"
+                    :report="report"
+                    :is-share="isShare"
+                    :share-id="shareId"
+                    :treeData="fullTreeNodes" ref="failsTree"
+                    :errorReport="content.error"/>
+                </el-tab-pane>
+                <!--error step -->
+                <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
+                  <template slot="label">
                   <span class="fail" style="color: #F6972A">
                     FakeError
                   </span>
-                </template>
-                <ms-scenario-results
-                  v-on:requestResult="requestResult"
-                  :report="report"
-                  :is-share="isShare"
-                  :share-id="shareId"
-                  :console="content.console"
-                  :treeData="fullTreeNodes" ref="errorReportTree"/>
-              </el-tab-pane>
-              <!-- Not performed step -->
-              <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
-                <template slot="label">
+                  </template>
+                  <ms-scenario-results
+                    v-on:requestResult="requestResult"
+                    :report="report"
+                    :is-share="isShare"
+                    :share-id="shareId"
+                    :console="content.console"
+                    :treeData="fullTreeNodes" ref="errorReportTree"/>
+                </el-tab-pane>
+                <!-- Not performed step -->
+                <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
+                  <template slot="label">
                     <span class="fail"
                           style="color: #9C9B9A">
                       Pending
                      </span>
-                </template>
-                <ms-scenario-results
-                  v-on:requestResult="requestResult"
-                  :report="report"
-                  :is-share="isShare"
-                  :share-id="shareId"
-                  :console="content.console"
-                  :treeData="fullTreeNodes" ref="unExecuteTree"/>
-              </el-tab-pane>
-              <!-- console -->
-              <el-tab-pane name="console">
-                <template slot="label">
-                  <span class="console">Console</span>
-                </template>
-                <ms-code-edit
-                  :mode="'text'"
-                  :read-only="true"
-                  :data.sync="content.console"
-                  height="calc(100vh - 500px)"/>
-              </el-tab-pane>
-            </el-tabs>
+                  </template>
+                  <ms-scenario-results
+                    v-on:requestResult="requestResult"
+                    :report="report"
+                    :is-share="isShare"
+                    :share-id="shareId"
+                    :console="content.console"
+                    :treeData="fullTreeNodes" ref="unExecuteTree"/>
+                </el-tab-pane>
+                <!-- console -->
+                <el-tab-pane name="console">
+                  <template slot="label">
+                    <span class="console">Console</span>
+                  </template>
+                  <ms-code-edit
+                    :mode="'text'"
+                    :read-only="true"
+                    :data.sync="content.console"
+                    height="calc(100vh - 500px)"/>
+                </el-tab-pane>
+              </el-tabs>
+            </main>
+          </section>
+        </el-card>
+      </ms-main-container>
 
-            <!--export report-->
-            <ms-api-report-export
-              v-if="reportExportVisible"
-              id="apiTestReport"
-              :project-env-map="projectEnvMap"
-              :title="report.name"
-              :content="content"
-              :report="report"
-              :total-time="totalTime" class="ms-copy-bottom"/>
-          </main>
-        </section>
-      </el-card>
-    </ms-main-container>
-  </ms-container>
+    </ms-container>
+
+    <!--export report-->
+    <ms-api-report-export
+      v-if="reportExportVisible"
+      id="apiTestReport"
+      :project-env-map="projectEnvMap"
+      :title="report.name"
+      :content="content"
+      :report="report"
+      :total-time="totalTime" class="target-node-item"/>
+  </div>
 </template>
 
 <script>
@@ -756,7 +759,7 @@ export default {
 <style scoped>
 
 .report-container {
-  height: calc(100vh - 155px);
+  height: calc(100vh - 70px);
   min-height: 600px;
   overflow-y: auto;
 }
@@ -799,9 +802,7 @@ export default {
   min-width: 750px !important;
 }
 
-.ms-copy-bottom {
-  position: absolute;
-  bottom: 0;
-
+.target-node-item {
+  background: #FFFFFF;
 }
 </style>

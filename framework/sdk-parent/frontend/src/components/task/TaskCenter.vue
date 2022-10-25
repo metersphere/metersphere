@@ -559,4 +559,10 @@ export default {
 .report-bottom {
   margin-top: 10px;
 }
+
+:deep(.report-container) {
+  height: calc(100vh - 155px) !important;
+  min-height: 600px;
+  overflow-y: auto;
+}
 </style>

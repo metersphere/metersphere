@@ -1,6 +1,5 @@
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW, ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW, PRIMARY_COLOR} from "./constants";
 import i18n from '../i18n'
-import {MessageBox} from "element-ui";
 import html2canvas from 'html2canvas';
 import JsPDF from 'jspdf';
 
@@ -343,8 +342,8 @@ export function getUrlParams(url) {
 
 
 /**
- * @param  ele          要生成 pdf 的DOM元素（容器）
- * @param  padfName     PDF文件生成后的文件名字
+ * @param  ele 要生成 pdf 的DOM元素（容器）
+ * @param  pdfName PDF文件生成后的文件名字
  * */
 export function downloadPDF(ele, pdfName) {
   let eleW = ele.offsetWidth;// 获得该容器的宽
@@ -393,6 +392,7 @@ export function downloadPDF(ele, pdfName) {
 
   html2canvas(ele, {
     dpi: 300,
+    backgroundColor: 'white',
     // allowTaint: true,  //允许 canvas 污染， allowTaint参数要去掉，否则是无法通过toDataURL导出canvas数据的
     useCORS: true  //允许canvas画布内 可以跨域请求外部链接图片, 允许跨域请求。
   }).then((canvas) => {
