@@ -3,6 +3,7 @@ package io.metersphere.gateway.service;
 
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -102,7 +103,7 @@ public class LdapService {
             }
 
             user.setSource(UserSource.LDAP.name());
-            u = userLoginService.addLdapUser(user);
+            userLoginService.addLdapUser(user);
         } else {
             // 更新
             u.setName(name);
@@ -111,14 +112,16 @@ public class LdapService {
             userLoginService.updateUser(u);
         }
 
-        session.getAttributes().put("authenticate", UserSource.LDAP.name());
-        session.getAttributes().put("email", email);
-
         // 执行 LocalRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(userId);
         loginRequest.setAuthenticate(UserSource.LDAP.name());
-        return userLoginService.login(loginRequest, session, locale);
+
+        Optional<SessionUser> sessionUser = userLoginService.login(loginRequest, session, locale);
+        session.getAttributes().put("authenticate", UserSource.LDAP.name());
+        session.getAttributes().put("email", email);
+
+        return sessionUser;
     }
 
     private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) throws AuthenticationException {
