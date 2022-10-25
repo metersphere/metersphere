@@ -1174,15 +1174,7 @@ public class ApiDefinitionService {
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
-                    
-                    if (CollectionUtils.isEmpty(caseList)) {
-                        apiDefinition.setToBeUpdated(false);
-                    } else {
-                        List<ApiTestCaseWithBLOBs> oldCaseList = caseList.stream().filter(t -> StringUtils.equalsIgnoreCase("old_case", t.getVersionId()) && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
-                        if (CollectionUtils.isEmpty(oldCaseList)) {
-                            apiDefinition.setToBeUpdated(false);
-                        }
-                    }
+
                 } else {
                     apiDefinition.setUpdateTime(System.currentTimeMillis());
                 }
@@ -1319,7 +1311,6 @@ public class ApiDefinitionService {
                 diffByNodes = getDiffByArrayNodes(apiRequest, exApiRequest, objectMapper, property);
                 if (diffByNodes) {
                     if (toUpdate && applicationMap.get(property)) {
-                        apiDefinition.setToBeUpdated(true);
                         apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                     }
                     break;
@@ -1341,7 +1332,6 @@ public class ApiDefinitionService {
             if (exRowNode != null && rowNode != null) {
                 if (!StringUtils.equals(exRowNode.asText(), rowNode.asText())) {
                     if (applicationMap.get(BODY)) {
-                        apiDefinition.setToBeUpdated(true);
                         apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                     }
                     return true;
@@ -1350,7 +1340,6 @@ public class ApiDefinitionService {
 
             boolean diffByNodes = getDiffByArrayNodes(bodyNode, exBodyNode, objectMapper, "kvs");
             if (diffByNodes && toUpdate && applicationMap.get(BODY)) {
-                apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
             if (diffByNodes) {
@@ -1369,7 +1358,6 @@ public class ApiDefinitionService {
             }
             boolean diffJsonschema = replenishCaseProperties(exApiProperties, apiProperties);
             if (diffJsonschema && toUpdate && applicationMap.get(BODY)) {
-                apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
             return diffJsonschema;
@@ -1425,14 +1413,12 @@ public class ApiDefinitionService {
     private static Boolean delBasicInfo(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition, ApiSyncCaseRequest apiSyncCaseRequest, Boolean toUpdate) {
         if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
             if (apiSyncCaseRequest.getMethod() && toUpdate) {
-                apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
             return true;
         }
         if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
             if (apiSyncCaseRequest.getProtocol() && toUpdate) {
-                apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
             return true;
@@ -1440,7 +1426,6 @@ public class ApiDefinitionService {
 
         if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
             if (apiSyncCaseRequest.getPath() && toUpdate) {
-                apiDefinition.setToBeUpdated(true);
                 apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
             }
             return true;
