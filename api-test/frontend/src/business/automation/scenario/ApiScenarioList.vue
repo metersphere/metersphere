@@ -1087,7 +1087,7 @@ export default {
             if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
-              alertMsg += this.$t('api_test.is_continue') + " ？";
+              alertMsg += this.$t('api_test.is_continue') + this.$t('commons.delete') + " ？";
             }
           }
           operationConfirm(this, alertMsg, () => {
@@ -1250,7 +1250,7 @@ export default {
             if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm');
             } else {
-              alertMsg += this.$t('api_test.is_continue');
+              alertMsg += this.$t('api_test.is_continue') + this.$t('commons.delete');
             }
           }
           //
