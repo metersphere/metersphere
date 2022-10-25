@@ -102,6 +102,15 @@ public class ApiDefinitionExecResultService {
                             result.setUserId(dto.getExtendedParameters().get("userId").toString());
                         }
                     }
+                    //如果是测试计划用例，更新接口用例的上次执行结果
+                    TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
+                    if (testPlanApiCase != null) {
+                        ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+                        if (apiTestCase != null) {
+                            apiTestCase.setLastResultId(dto.getReportId());
+                            apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                        }
+                    }
                     // 发送通知
                     LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
                     sendNotice(result, user);
@@ -296,6 +305,12 @@ public class ApiDefinitionExecResultService {
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+
+                            ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(apiCase.getApiCaseId());
+                            if (apiTestCase != null) {
+                                apiTestCase.setLastResultId(dto.getReportId());
+                                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                            }
                         }
                     } else {
                         this.setExecResult(dto.getTestId(), status, item.getStartTime());
