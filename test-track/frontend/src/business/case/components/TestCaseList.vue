@@ -240,7 +240,7 @@ import BatchMove from "@/business/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import TestCasePreview from "@/business/case/components/TestCasePreview";
 import {
-  deletePublicTestCaseVersion,
+  deleteTestCaseVersion,
   editTestCaseOrder,
   getTestCase,
   getTestCaseStep,
@@ -1025,7 +1025,7 @@ export default {
     _handleDeleteVersion(testCase, deleteCurrentVersion) {
       // 删除指定版本
       if (deleteCurrentVersion) {
-        deletePublicTestCaseVersion(testCase.versionId, testCase.refId)
+        deleteTestCaseVersion(testCase.versionId, testCase.refId)
           .then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.$refs.apiDeleteConfirm.close();
