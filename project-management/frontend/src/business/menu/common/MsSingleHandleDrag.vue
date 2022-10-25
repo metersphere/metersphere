@@ -2,8 +2,8 @@
   <div class="ms-single-handle-drag">
     <div>
       <slot name="header">
-        <el-link class="add-text" :underline="false" :disabled="disable"  @click="add">
-          <i class="el-icon-plus">{{$t('custom_field.add_option')}}</i>
+        <el-link class="add-text" :underline="false" :disabled="disable" @click="add">
+          <i class="el-icon-plus">{{ $t('custom_field.add_option') }}</i>
         </el-link>
       </slot>
       <ms-instructions-icon size="13" v-if="isKv" :content="$t('选项值用于对接Jira等平台提交缺陷时，对应字段的属性值')"/>
@@ -12,7 +12,7 @@
     <draggable :list="data" handle=".handle" class="list-group">
 
       <div class="list-group-item"
-        v-for="(element, idx) in data" :key="idx">
+           v-for="(element, idx) in data" :key="idx">
         <font-awesome-icon class="handle" :icon="['fas', 'align-justify']"/>
 
         <el-input size="mini" type="text"
@@ -23,10 +23,10 @@
                   v-model="element.text"/>
         <span class="text-item" v-else>
           <span v-if="element.system">
-             {{$t(element.text)}}
+             {{ $t(element.text) }}
           </span>
           <span v-else>
-             {{element.text}}
+             {{ element.text }}
           </span>
         </span>
 
@@ -38,13 +38,13 @@
                   v-model="element.value"/>
         <span class="text-item" v-else-if="isKv">
           <span>
-             {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '')}}
+             {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '') }}
           </span>
         </span>
 
         <el-link :underline="false" v-for="item in operators" :disabled="element.system && item.isEdit" :key="item.id">
           <i :class="item.icon"
-             @click="item.click(element, idx)" />
+             @click="item.click(element, idx)"/>
         </el-link>
       </div>
     </draggable>
@@ -56,6 +56,7 @@
 import draggable from "vuedraggable";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import {getUUID} from "metersphere-frontend/src/utils";
+
 export default {
   name: "MsSingleHandleDrag",
   components: {
@@ -73,15 +74,15 @@ export default {
     data: {
       type: Array,
       default() {
-        return  [
-          { name: "John", text: "text", id: 0 },
+        return [
+          {name: "John", text: "text", id: 0},
         ];
       }
     },
     operators: {
       type: Array,
       default() {
-        return  [
+        return [
           {
             id: 1,
             icon: 'el-icon-edit',
@@ -118,6 +119,9 @@ export default {
         value: ''
       };
       if (!this.isKv) {
+        item.value = getUUID().substring(0, 8);
+      }
+      while (typeof item.value === 'number') {
         item.value = getUUID().substring(0, 8);
       }
       this.data.push(item);
