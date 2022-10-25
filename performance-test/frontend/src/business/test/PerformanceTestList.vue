@@ -342,7 +342,7 @@ export default {
     },
     _handleDelete(test, deleteCurrentVersion) {
       if (deleteCurrentVersion) {
-        deleteCurrentVersionTest()
+        deleteCurrentVersionTest(test)
           .then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.initTableData();
