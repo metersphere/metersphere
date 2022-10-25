@@ -50,7 +50,7 @@ public class UserLoginService {
                 userDTO = loginSsoMode(request.getUsername(), request.getAuthenticate());
                 break;
             case "LDAP":
-                userDTO = loginLdapMode(request.getUsername(), request.getAuthenticate());
+                userDTO = loginLdapMode(request.getUsername());
                 break;
             default:
                 userDTO = loginLocalMode(request.getUsername(), request.getPassword());
@@ -62,8 +62,12 @@ public class UserLoginService {
         return Optional.of(sessionUser);
     }
 
-    private UserDTO loginLdapMode(String userId, String authenticate) {
-        return getLoginUser(userId, Collections.singletonList(authenticate));
+    private UserDTO loginLdapMode(String userId) {
+        UserDTO loginUser = getLoginUser(userId, Collections.singletonList(UserSource.LDAP.name()));
+        if (loginUser == null) {
+            MSException.throwException(Translator.get("user_not_found_or_not_unique"));
+        }
+        return loginUser;
     }
 
     private UserDTO loginSsoMode(String userId, String authType) {
