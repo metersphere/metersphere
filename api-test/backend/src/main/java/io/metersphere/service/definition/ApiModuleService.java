@@ -1021,7 +1021,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
-            if (apiDefinitionWithBLOBs == null){
+            if (apiDefinitionWithBLOBs == null) {
                 return;
             }
             Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
@@ -1061,7 +1061,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                                          Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         //覆盖但不覆盖模块
         if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
-           return moduleMap;
+            return moduleMap;
         }
         //导入文件没有新增接口无需创建接口模块
         moduleMap = judgeModule(moduleMap, nameModuleMap, repeatDataMap);
@@ -1123,7 +1123,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                              Map<String, ApiDefinitionWithBLOBs> repeatDataMap, String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                              Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         if (MapUtils.isEmpty(nameModuleMap) || MapUtils.isEmpty(repeatDataMap)) {
-           return;
+            return;
         }
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
@@ -1304,7 +1304,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         List<ApiTestCaseWithBLOBs> oldApiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
 
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseNameMap;
-        //如果重复用例有多个，则覆盖最后的那个
+        //如果同名重复用例有多个，则覆盖最后的那个
         if (CollectionUtils.isNotEmpty(oldApiTestCases)) {
             oldCaseNameMap = oldApiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getName));
             caseNameMap.forEach((name, importCaseWithBLOBs) -> {
@@ -1332,17 +1332,15 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     }
                     oldCaseNameMap.remove(name);
                 }
-                //不同名的旧数据处理
-                oldCaseNameMap.forEach((k, v) -> {
-                    if (!StringUtils.equals(k, name)) {
-                        if (CollectionUtils.isNotEmpty(v)) {
-                            for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : v) {
-                                apiTestCaseWithBLOBs.setVersionId("old_case");
-                                optionDataCases.add(apiTestCaseWithBLOBs);
-                            }
-                        }
+            });
+            //不同名的旧数据处理
+            oldCaseNameMap.forEach((k, v) -> {
+                if (CollectionUtils.isNotEmpty(v)) {
+                    for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : v) {
+                        apiTestCaseWithBLOBs.setVersionId("old_case");
+                        optionDataCases.add(apiTestCaseWithBLOBs);
                     }
-                });
+                }
             });
         } else {
             //否则直接给新增用例赋值新的接口ID
@@ -1617,7 +1615,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         int i = 0;
         Map<String, List<ApiModule>> idModuleMap = new HashMap<>();
         for (ApiModuleDTO apiModuleDTO : nodeTreeByProjectId) {
-            if (StringUtils.isBlank(apiModuleDTO.getParentId()) || StringUtils.equals(apiModuleDTO.getParentId(),"0")) {
+            if (StringUtils.isBlank(apiModuleDTO.getParentId()) || StringUtils.equals(apiModuleDTO.getParentId(), "0")) {
                 apiModuleDTO.setParentId(PropertyConstant.ROOT);
             }
             String parentModulePath = parentModulePathMap.get(apiModuleDTO.getParentId());
