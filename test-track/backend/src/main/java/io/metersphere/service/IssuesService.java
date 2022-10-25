@@ -308,6 +308,9 @@ public class IssuesService {
 
     public IssuesWithBLOBs getIssue(String id) {
         IssuesDao issuesWithBLOBs = extIssuesMapper.selectByPrimaryKey(id);
+        if (issuesWithBLOBs == null) {
+            return null;
+        }
         IssuesRequest issuesRequest = new IssuesRequest();
         Project project = baseProjectService.getProjectById(issuesWithBLOBs.getProjectId());
         issuesRequest.setWorkspaceId(project.getWorkspaceId());

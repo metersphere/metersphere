@@ -116,7 +116,7 @@ public class IssuesController {
 
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, subject = "缺陷通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.getIssue(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, subject = "缺陷通知")
     public void delete(@PathVariable String id) {
         issuesService.delete(id);
     }
