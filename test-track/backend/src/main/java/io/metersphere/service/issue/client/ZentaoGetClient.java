@@ -16,7 +16,7 @@ public class ZentaoGetClient extends ZentaoClient {
     private static final String STORY_GET="&module=story&methodName=getProductStories&params=productID={key}&t=json&zentaosid=";
     private static final String USER_GET="&module=user&methodName=getList&t=json&zentaosid=";
     private static final String BUILDS_GET="&module=build&methodName=getProductBuildPairs&productID={0}&zentaosid={1}";
-    private static final String FILE_UPLOAD="&module=file&methodName=saveUpload&params=objectType=bug&zentaosid={1}";
+    private static final String FILE_UPLOAD="&module=file&methodName=saveUpload&params=objectType=bug,objectID={1}&zentaosid={2}";
     private static final String FILE_DELETE="/?m=file&f=delete&t=json&fileID={1}&confirm=yes&zentaosid={2}";
     private static final String FILE_DOWNLOAD="/?m=file&f=download&t=json&fileID={1}&mouse=click&zentaosid={2}";
     private static final String CREATE_META_DATA="?m=bug&f=create&productID={0}&t=json&zentaosid={1}";
