@@ -4,6 +4,7 @@ import io.metersphere.dto.ModuleNodeDTO;
 import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
+import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.wapper.CheckPermissionService;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +32,10 @@ public class TrackTestPlanUiScenarioCaseController {
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Object relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         return planTestPlanUiScenarioCaseService.relevanceList(request, goPage, pageSize);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        planTestPlanUiScenarioCaseService.orderCase(request);
     }
 }
