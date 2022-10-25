@@ -675,4 +675,8 @@ export default {
   vertical-align: middle;
 }
 
+:deep(.el-drawer__wrapper) {
+  z-index: 2000;
+}
+
 </style>
