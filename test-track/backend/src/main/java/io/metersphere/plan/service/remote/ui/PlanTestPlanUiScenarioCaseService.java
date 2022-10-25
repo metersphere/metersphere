@@ -15,6 +15,7 @@ import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.request.ResetOrderRequest;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -135,5 +136,9 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
         request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
         return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
+    }
+
+    public void orderCase(ResetOrderRequest request) {
+        microService.postForData(serviceName, BASE_UEL + "/edit/order", request);
     }
 }
