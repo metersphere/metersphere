@@ -4,8 +4,11 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.plan.dto.*;
+import io.metersphere.plan.request.api.ApiTestCaseRequest;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,9 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
 
     @Resource
     PlanApiDefinitionExecResultService planApiDefinitionExecResultService;
+    @Resource
+    @Lazy
+    TestPlanService testPlanService;
 
     /**
      * 计算测试计划中接口用例的相关数据
@@ -65,7 +71,7 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
     }
 
     public List<String> getExecResultByPlanId(String planId) {
-       return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
+        return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
     }
 
     public List<TestPlanApiCaseDTO> listByPlanId(String planId) {
@@ -85,7 +91,7 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
     }
 
     public RunModeConfigDTO setApiCaseEnv(String planId, RunModeConfigDTO runModeConfig) {
-       return microService.postForData(serviceName, BASE_UEL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
+        return microService.postForData(serviceName, BASE_UEL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -138,5 +144,10 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
 
     public List<TestPlanFailureApiDTO> buildResponse(List<TestPlanFailureApiDTO> apiAllCases) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", apiAllCases, TestPlanFailureApiDTO.class);
+    }
+
+    public Object relevanceList(int pageNum, int pageSize, ApiTestCaseRequest request) {
+        request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
+        return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
 }
