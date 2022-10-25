@@ -68,25 +68,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="stage"
-        column-key="stage"
-        :filters="stageFilters"
-        :label="$t('test_track.plan.plan_stage')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.home.test_rate')"
-        min-width="100"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <el-progress :percentage="scope.row.testRate"></el-progress>
-        </template>
-      </el-table-column>
-      <el-table-column
         prop="projectName"
         :label="$t('test_track.plan.plan_project')"
         show-overflow-tooltip>
