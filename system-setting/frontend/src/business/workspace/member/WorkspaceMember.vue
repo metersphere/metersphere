@@ -12,13 +12,6 @@
                 @select="handleSelect"
                 ref="userTable">
         <el-table-column v-if="hasPermission('WORKSPACE_PROJECT_MANAGER:READ+ADD_USER')" type="selection" width="50"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        :table-data-count-in-page="tableData.length"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
         <el-table-column width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
             <show-more-btn v-permission="['WORKSPACE_PROJECT_MANAGER:READ+ADD_USER']"
@@ -171,6 +164,7 @@ export default {
       return getCurrentUser();
     },
     initTableData() {
+      this.selectRows = new Set();
       if (getCurrentWorkspaceId() === null) {
         return false;
       }
