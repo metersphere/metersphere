@@ -13,6 +13,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.service.SSLLdapContextSource;
 import io.metersphere.request.LoginRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.InvalidNameException;
 import org.springframework.ldap.InvalidSearchFilterException;
@@ -69,6 +70,9 @@ public class LdapService {
     }
 
     public Optional<SessionUser> login(LoginRequest request, WebSession session, Locale locale) {
+        if (locale != null) {
+            LocaleContextHolder.setLocale(locale, true);
+        }
         String isOpen = service.getValue(ParamConstants.LDAP.OPEN.getValue());
         if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
             MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
