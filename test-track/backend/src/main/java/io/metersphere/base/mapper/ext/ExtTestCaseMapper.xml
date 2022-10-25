@@ -1381,4 +1381,9 @@
             select id from test_case_node where project_id = #{projectId}
             )
     </update>
+    <update id="clearLatestVersion">
+        UPDATE test_case
+        SET latest = 0
+        where ref_id = #{refId}
+    </update>
 </mapper>
