@@ -30,6 +30,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
@@ -155,9 +156,9 @@ public class TestCaseService {
     //    private PerformanceTestService performanceTestService;
     @Resource
     private TestCaseFollowMapper testCaseFollowMapper;
-    //    @Resource
-    //    @Lazy
-    //    private TestPlanService testPlanService;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
     @Resource
     private MinderExtraNodeService minderExtraNodeService;
     @Resource
@@ -884,10 +885,9 @@ public class TestCaseService {
         request.getOrders().forEach(order -> {
             order.setPrefix("test_case");
         });
-        // todo
-        //        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
-        //            request.setRepeatCase(true);
-        //        }
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setRepeatCase(true);
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, getTestCaseByNotInPlan(request));
     }

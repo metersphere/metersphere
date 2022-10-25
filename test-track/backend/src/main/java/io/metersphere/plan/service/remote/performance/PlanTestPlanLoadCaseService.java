@@ -11,10 +11,10 @@ import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.performance.LoadCaseRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -29,6 +29,9 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
 
     @Resource
     private PlanLoadTestReportService planLoadTestReportService;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         try {
@@ -116,5 +119,10 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
 
     public List<TestPlanLoadCaseDTO> buildResponse(List<TestPlanLoadCaseDTO> loadCases) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class);
+    }
+
+    public Object relevanceList(int pageNum, int pageSize, LoadCaseRequest request) {
+        request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getTestPlanId()));
+        return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
 }
