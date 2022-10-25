@@ -85,6 +85,7 @@ import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getProjectApplicationConfig} from "../../../api/project";
 import {apiTestReRun} from "../../../api/xpack";
 import {getUUID} from "metersphere-frontend/src/utils";
+import {getApiScenarioIdByPlanScenarioId} from "@/api/test-plan";
 
 export default {
   name: "MsApiReportViewHeader",
@@ -151,6 +152,17 @@ export default {
       $event.target.blur();
     },
     redirect() {
+      let resourceId = this.scenarioId;
+      if (this.isPlan) {
+        getApiScenarioIdByPlanScenarioId(this.scenarioId).then((res) => {
+          resourceId = res.data;
+          this.showDetails(resourceId);
+        });
+      } else {
+        this.showDetails(resourceId);
+      }
+    },
+    showDetails(resourceId) {
       let uuid = getUUID().substring(1, 5);
       let projectId = getCurrentProjectID();
       let workspaceId = getCurrentWorkspaceId();
@@ -159,7 +171,7 @@ export default {
         && this.$route.query && this.$route.query.list) {
         prefix = ""
       }
-      let path = `${prefix}/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${this.scenarioId}`;
+      let path = `${prefix}/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${resourceId}`;
       let data = this.$router.resolve({
         path: path
       });

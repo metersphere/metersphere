@@ -9,3 +9,7 @@ export function getPlanStageOption() {
 export function planPage(page, pageSize, params) {
   return post('/test/plan/list/all/', params);
 }
+
+export function getApiScenarioIdByPlanScenarioId(id) {
+  return get('/test/plan/scenario/case/get-scenario-id/' + id);
+}
