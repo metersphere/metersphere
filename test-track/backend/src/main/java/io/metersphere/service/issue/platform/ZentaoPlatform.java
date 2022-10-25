@@ -445,7 +445,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         try {
             String fileUpload = zentaoClient.requestUrl.getFileUpload();
             ResponseEntity<String> responseEntity = restTemplate.exchange(fileUpload, HttpMethod.POST, requestEntity,
-                    String.class, session);
+                    String.class, null, session);
             String body = responseEntity.getBody();
             Map obj = JSON.parseMap(body);
             Map data = (Map) JSON.parseObject(obj.get("data").toString());
