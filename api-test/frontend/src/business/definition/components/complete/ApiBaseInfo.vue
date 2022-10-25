@@ -186,7 +186,7 @@ export default {
     },
     customFieldForm: {
       handler(v, v1) {
-        if (v && v1 && this.$store.state.apiMap && this.basicForm.id) {
+        if (v && v1 && store.apiMap && this.basicForm.id) {
           this.apiMapStatus();
         }
       },
@@ -245,4 +245,8 @@ export default {
 
 <style scoped>
 
+.case-form {
+  height: 95%;
+  overflow: auto;
+}
 </style>
