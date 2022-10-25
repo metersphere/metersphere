@@ -366,9 +366,11 @@ export default {
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
+    this.$EventBus.$on("API_TEST_ERROR", this.handleTestEnd);
     this.$EventBus.$on("API_TEST_END", this.handleTestEnd);
   },
   destroyed() {
+    this.$EventBus.$off("API_TEST_ERROR", this.handleTestEnd);
     this.$EventBus.$off("API_TEST_END", this.handleTestEnd);
   },
   activated() {
