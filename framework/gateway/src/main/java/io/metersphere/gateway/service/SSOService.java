@@ -156,7 +156,6 @@ public class SSOService {
         Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
-        session.getAttributes().put(SessionConstants.ATTR_USER, userOptional.get());
         return userOptional;
     }
 
@@ -196,7 +195,6 @@ public class SSOService {
         Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
-        session.getAttributes().put(SessionConstants.ATTR_USER, userOptional.get());
         session.getAttributes().put("casTicket", ticket);
         // 记录cas对应关系
         Long timeout = env.getProperty("spring.session.timeout", Long.class);
