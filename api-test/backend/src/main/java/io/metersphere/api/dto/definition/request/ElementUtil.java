@@ -852,9 +852,12 @@ public class ElementUtil {
 
         // 场景变量
         if (CollectionUtils.isNotEmpty(variables)) {
-            variables.stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue -> arguments.addArgument(keyValue.getName(), keyValue.getValue(), "="));
-
-            List<ScenarioVariable> variableList = variables.stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
+            variables.stream()
+                    .filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
+                            arguments.addArgument(keyValue.getName(),
+                                    keyValue.getValue(), "="));
+            List<ScenarioVariable> variableList = variables.stream()
+                    .filter(ScenarioVariable::isListValid).collect(Collectors.toList());
             variableList.forEach(item -> {
                 String[] arrays = item.getValue().split(",");
                 for (int i = 0; i < arrays.length; i++) {
@@ -863,12 +866,24 @@ public class ElementUtil {
             });
         }
         // 环境通用变量
-        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
+        if (config.isEffective(projectId)
+                && config.getConfig().get(projectId).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
             //常量
-            List<ScenarioVariable> constants = config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isConstantValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
-            constants.forEach(keyValue -> arguments.addArgument(keyValue.getName(), keyValue.getValue(), "="));
+            List<ScenarioVariable> constants = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
+                    .filter(ScenarioVariable::isConstantValid)
+                    .filter(ScenarioVariable::isEnable)
+                    .collect(Collectors.toList());
+            constants.forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(),
+                            keyValue.getValue() != null && keyValue.getValue().startsWith("@")
+                                    ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())
+                                    : keyValue.getValue(), "="));
             // List类型的变量
-            List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isListValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
+            List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
+                    .filter(ScenarioVariable::isListValid)
+                    .filter(ScenarioVariable::isEnable)
+                    .collect(Collectors.toList());
             variableList.forEach(item -> {
                 String[] arrays = item.getValue().split(",");
                 for (int i = 0; i < arrays.length; i++) {
@@ -888,9 +903,13 @@ public class ElementUtil {
 
     public static void addApiVariables(ParameterConfig config, HashTree httpSamplerTree, String projectId) {
         if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
-            ElementUtil.addApiCsvDataSet(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), config, "shareMode.group");
-            ElementUtil.addCounter(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), false);
-            ElementUtil.addRandom(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables());
+            ElementUtil.addApiCsvDataSet(httpSamplerTree,
+                    config.getConfig().get(projectId).getCommonConfig().getVariables(),
+                    config, "shareMode.group");
+            ElementUtil.addCounter(httpSamplerTree,
+                    config.getConfig().get(projectId).getCommonConfig().getVariables(), false);
+            ElementUtil.addRandom(httpSamplerTree,
+                    config.getConfig().get(projectId).getCommonConfig().getVariables());
         }
     }
 
@@ -900,15 +919,24 @@ public class ElementUtil {
             List<ApiTestEnvironmentWithBLOBs> environment = environmentService.list(projectId);
             EnvironmentConfig dataConfig = null;
             List<String> dataName = new ArrayList<>();
-            List<ApiTestEnvironmentWithBLOBs> orgDataSource = environment.stream().filter(ApiTestEnvironmentWithBLOBs -> ApiTestEnvironmentWithBLOBs.getConfig().contains(dataSourceId)).collect(Collectors.toList());
+            List<ApiTestEnvironmentWithBLOBs> orgDataSource = environment.stream()
+                    .filter(ApiTestEnvironmentWithBLOBs ->
+                            ApiTestEnvironmentWithBLOBs.getConfig().contains(dataSourceId)).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(orgDataSource)) {
                 dataConfig = JSONUtil.parseObject(orgDataSource.get(0).getConfig(), EnvironmentConfig.class);
                 if (CollectionUtils.isNotEmpty(dataConfig.getDatabaseConfigs())) {
-                    dataName = dataConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getId().equals(dataSourceId)).map(DatabaseConfig::getName).collect(Collectors.toList());
+                    dataName = dataConfig.getDatabaseConfigs().stream()
+                            .filter(DatabaseConfig ->
+                                    DatabaseConfig.getId().equals(dataSourceId))
+                            .map(DatabaseConfig::getName)
+                            .collect(Collectors.toList());
                 }
             }
             List<String> finalDataName = dataName;
-            List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getName().equals(finalDataName.get(0))).collect(Collectors.toList());
+            List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream()
+                    .filter(DatabaseConfig ->
+                            DatabaseConfig.getName().equals(finalDataName.get(0)))
+                    .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(collect)) {
                 return collect.get(0);
             }
