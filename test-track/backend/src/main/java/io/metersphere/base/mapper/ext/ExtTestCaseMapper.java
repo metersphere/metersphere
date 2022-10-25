@@ -161,4 +161,6 @@ public interface ExtTestCaseMapper {
     List<TestCaseNodeDTO> getWorkspaceCountNodes(@Param("request") QueryTestCaseRequest request);
 
     void updateNoModuleTrashNodeToDefault(@Param("projectId") String projectId, @Param("defaultNodeId") String defaultNodeId, @Param("defaultNodePath") String defaultNodePath);
+
+    void clearLatestVersion(@Param("refId") String refId);
 }
