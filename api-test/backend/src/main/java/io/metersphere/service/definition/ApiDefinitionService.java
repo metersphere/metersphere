@@ -287,6 +287,7 @@ public class ApiDefinitionService {
             return new ArrayList<>(0);
         } else {
             request = this.initRequest(request, true, true);
+            request.setNotEqStatus(ApiTestDataStatus.TRASH.getValue());
             List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
             calculateResult(resList, request.getProjectId());
             calculateResultSce(resList);
