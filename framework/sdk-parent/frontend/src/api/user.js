@@ -30,7 +30,7 @@ export function updatePassword(data) {
 }
 
 export function handleAuth(param) {
-  return post('issues/user/auth', param)
+  return post('/personal/relate/issues/user/auth', param);
 }
 
 export function getSystemTheme() {

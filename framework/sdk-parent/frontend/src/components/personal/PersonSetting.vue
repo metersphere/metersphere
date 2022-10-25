@@ -100,7 +100,7 @@ import {getIntegrationService} from "../../api/workspace";
 import ZentaoUserInfo from "./ZentaoUserInfo";
 import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {useUserStore} from "@/store";
-import {handleAuth, updateInfo, updatePassword} from "../../api/user";
+import {handleAuth as _handleAuth, updateInfo, updatePassword} from "../../api/user";
 
 const userStore = useUserStore();
 
@@ -302,7 +302,7 @@ export default {
       let param = {...this.currentPlatformInfo};
       param.workspaceId = getCurrentWorkspaceId();
       param.platform = type;
-      this.$parent.result = handleAuth(param)
+      this.$parent.result = _handleAuth(param)
         .then(() => {
           this.$success(this.$t('organization.integration.verified'));
         });
