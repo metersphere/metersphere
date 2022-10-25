@@ -10,10 +10,13 @@ import io.metersphere.plan.dto.TestPlanScenarioStepCountSimpleDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.dto.UiPlanReportDTO;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.ApiScenarioRequest;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,6 +32,9 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     @Resource
     private PlanUiScenarioReportService planUiScenarioReportService;
+    @Resource
+    @Lazy
+    TestPlanService testPlanService;
 
     public List<String> getExecResultByPlanId(String planId) {
         return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
@@ -124,5 +130,10 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     public List<TestPlanUiScenarioDTO> buildResponse(List<TestPlanUiScenarioDTO> uiCases) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", uiCases, TestPlanUiScenarioDTO.class);
+    }
+
+    public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
+        request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
+        return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
 }

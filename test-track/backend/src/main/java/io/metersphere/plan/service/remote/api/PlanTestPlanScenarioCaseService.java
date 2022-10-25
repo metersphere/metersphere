@@ -7,8 +7,11 @@ import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
+import io.metersphere.plan.request.api.ApiScenarioRequest;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,6 +22,10 @@ import java.util.stream.Collectors;
 public class PlanTestPlanScenarioCaseService extends ApiTestService {
 
     private static final String BASE_UEL = "/test/plan/scenario/case";
+
+    @Resource
+    @Lazy
+    TestPlanService testPlanService;
 
     @Resource
     PlanApiScenarioReportService planApiScenarioReportService;
@@ -165,5 +172,10 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
 
     public List<TestPlanFailureScenarioDTO> buildResponse(List<TestPlanFailureScenarioDTO> scenarioCases) {
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanFailureScenarioDTO.class);
+    }
+
+    public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
+        request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
+        return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
 }

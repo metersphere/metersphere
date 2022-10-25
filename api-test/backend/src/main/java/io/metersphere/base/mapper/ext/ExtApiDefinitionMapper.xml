@@ -550,9 +550,6 @@
                 )
                 )
             </if>
-            <if test="request.repeatCase">
-                and api_definition.case_total is not null and api_definition.case_total > 0
-            </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
             </include>

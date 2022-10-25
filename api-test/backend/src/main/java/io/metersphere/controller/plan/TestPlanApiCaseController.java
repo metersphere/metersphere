@@ -73,7 +73,6 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.selectAllTableRows(request);
     }
 
-    // todo request allowedRepeatCase
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         return testPlanApiCaseService.relevanceList(goPage, pageSize, request);
