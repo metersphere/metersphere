@@ -854,6 +854,11 @@ public class IssuesService {
         return DistinctKeyUtil.distinctByKey(planIssues, IssuesDao::getId);
     }
 
+    /**
+     * 获取缺陷状态的自定义字段替换
+     * @param planIssues
+     * @param planId
+     */
     private void replaceStatus(List<IssuesDao> planIssues, String planId) {
         TestPlanWithBLOBs testPlan = testPlanService.get(planId);
         CustomField customField = baseCustomFieldService.getCustomFieldByName(testPlan.getProjectId(), SystemCustomField.ISSUE_STATUS);
@@ -865,7 +870,7 @@ public class IssuesService {
                         List<CustomFieldOptionDTO> options = JSON.parseArray(customField.getOptions(), CustomFieldOptionDTO.class);
                         for (CustomFieldOptionDTO option : options) {
                             String value = field.getValue();
-                            if (value != null) {
+                            if (StringUtils.isNotBlank(value)) {
                                 value = (String) JSON.parseObject(value);
                             }
                             if (StringUtils.equals(option.getValue(), value)) {
