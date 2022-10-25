@@ -55,10 +55,10 @@
       <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom"
                        min-width="120px">
         <template v-slot:default="{row}">
-          <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
+          <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success' || row.lastResult === 'SUCCESS'">
             {{ $t('api_test.automation.success') }}
           </el-link>
-          <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
+          <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail' || row.lastResult === 'FAIL'">
             {{ $t('api_test.automation.fail') }}
           </el-link>
         </template>
@@ -79,7 +79,7 @@ import MsTag from "metersphere-frontend/src/components/MsTag";
 import TestPlanScenarioListHeader from "../api/TestPlanScenarioListHeader";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import {TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";
@@ -113,7 +113,7 @@ export default {
       loading: false,
       showConfigButtonWithOutPermission: false,
       condition: {
-        components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
+        components: TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS
       },
       currentScenario: {},
       schedule: {},

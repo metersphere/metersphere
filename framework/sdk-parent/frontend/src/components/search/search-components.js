@@ -273,6 +273,24 @@ export const API_SCENARIO_RESULT = {
     multiple: true
   }
 }
+// 场景执行结果
+export const UI_SCENARIO_RESULT = {
+  key: "lastResult",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.plan_view.execute_result',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {text: 'Pending', value: 'PENDING'},
+    {text: 'Success', value: 'SUCCESS'},
+    {text: 'Error', value: 'ERROR'},
+  ],
+  props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: true
+  }
+}
+
 // 请求类型
 export const API_METHOD = {
   key: "method",
@@ -858,6 +876,7 @@ export const TEST_PLAN_RELEVANCE_FUNC_CONFIGS = [NAME, TAGS, CREATE_TIME, UPDATE
 export const TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
 export const TEST_PLAN_RELEVANCE_API_CASE_CONFIGS = [NAME, PRIORITY, TAGS, UPDATE_TIME, CREATOR, API_PATH];
 export const TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, UI_SCENARIO_RESULT, CREATE_TIME, UPDATE_TIME, CREATOR];
 export const TEST_PLAN_RELEVANCE_LOAD_CASE = [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
 
 // 测试用例关联测试
