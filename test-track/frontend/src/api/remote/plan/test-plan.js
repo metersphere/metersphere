@@ -236,6 +236,10 @@ export function editTestPlanScenarioCaseOrder(request) {
   return post(BASE_URL + 'scenario/case/edit/order', request);
 }
 
+export function editTestPlanUiScenarioCaseOrder(request) {
+  return post(BASE_URL + 'uiScenario/case/edit/order', request);
+}
+
 export function editTestPlanLoadCaseOrder(request) {
   return post(BASE_URL + 'load/case/edit/order', request);
 }
