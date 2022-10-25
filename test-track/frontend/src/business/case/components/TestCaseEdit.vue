@@ -344,9 +344,6 @@ export default {
     },
     readOnly() {
       const {rowClickHasPermission} = this.currentTestCaseInfo;
-      if (this.publicEnable) {
-        return true;
-      }
       if (rowClickHasPermission !== undefined) {
         return !rowClickHasPermission;
       }
