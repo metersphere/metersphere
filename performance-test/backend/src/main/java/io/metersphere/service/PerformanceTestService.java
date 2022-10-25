@@ -961,6 +961,7 @@ public class PerformanceTestService {
         Map<String, List<String>> param = new HashMap<>();
         param.put("id", request.getIds());
         request2.setFilters(param);
+        request2.setVersionId(request.getCondition().getVersionId());
         return this.list(request2);
     }
 
