@@ -17,14 +17,9 @@ import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.service.BaseShareInfoService;
+import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -37,7 +32,7 @@ public class ApiScenarioReportController {
     @Resource
     private ApiScenarioReportService apiReportService;
     @Resource
-    private BaseShareInfoService baseShareInfoService;
+    private ShareInfoService shareInfoService;
 
     @GetMapping("/get/{reportId}")
     public ApiScenarioReportResult get(@PathVariable String reportId) {
@@ -46,7 +41,7 @@ public class ApiScenarioReportController {
 
     @GetMapping("/get/{shareId}/{reportId}")
     public ApiScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
-        baseShareInfoService.validateExpired(shareId);
+        shareInfoService.validateExpired(shareId);
         return apiReportService.get(reportId, true);
     }
 
