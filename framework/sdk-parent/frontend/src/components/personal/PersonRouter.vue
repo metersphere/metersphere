@@ -55,7 +55,7 @@ import JiraUserInfo from "./JiraUserInfo";
 import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {getIntegrationService} from "../../api/workspace";
 import {useUserStore} from "@/store";
-import {getUserInfo, getWsAndPj} from "../../api/user";
+import {handleAuth as _handleAuth,getUserInfo, getWsAndPj} from "../../api/user";
 
 const userStore = useUserStore();
 
@@ -142,9 +142,9 @@ export default {
       }
       param.workspaceId = getCurrentWorkspaceId();
       param.platform = type;
-      this.$parent.result = this.$post("issues/user/auth", param, () => {
+      this.$parent.result = _handleAuth(param).then(() => {
         this.$success(this.$t('organization.integration.verified'));
-      });
+      })
     },
     getPlatformInfo(row) {
       let orgId = getCurrentWorkspaceId();
