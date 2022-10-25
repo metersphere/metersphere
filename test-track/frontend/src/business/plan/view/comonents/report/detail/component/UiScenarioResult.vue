@@ -156,17 +156,20 @@ export default {
     },
     rowClick(row) {
       this.showResponse = false;
-      if (this.isTemplate) {
-        if (row.response) {
-          this.showResponse = true;
-          this.response = row.response;
-        }
-      } else {
-        if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
-          this.showResponse = true;
-          this.reportId = row.reportId;
-        }
-      }
+      this.$nextTick(()=>{
+        if (this.isTemplate) {
+          if (row.response) {
+            this.showResponse = true;
+            this.response = row.response;
+          }
+        } else {
+          if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
+            this.showResponse = true;
+            this.reportId = row.reportId;
+            console.log(this.isTemplate);
+          }
+       }
+      })
     }
   }
 }

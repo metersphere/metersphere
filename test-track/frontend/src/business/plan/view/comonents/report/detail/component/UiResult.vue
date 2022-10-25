@@ -81,6 +81,9 @@ export default {
       this.stepCharData = stepCharData;
     },
     getDataByStatus(status) {
+      if(status === "STOPPED"){
+        status = "ERROR";
+      }
       let tmp = this.caseDataMap.get(status);
       if (!tmp) {
         tmp = this.caseDataMap.get('Prepare');
