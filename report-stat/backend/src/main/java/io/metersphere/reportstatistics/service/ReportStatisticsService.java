@@ -278,12 +278,12 @@ public class ReportStatisticsService {
 
         Map<String, String> urlMap = new HashMap<>();
         for (ReportStatisticsWithBLOBs blob : reportRecordIdList) {
-            String url = platformUrl + "/echartPic?shareId=" + blob.getId();
+            String url = platformUrl + "/report/chart-pic?shareId=" + blob.getId();
             urlMap.put(blob.getId(), url);
         }
         headlessRequest.setUrlMap(urlMap);
         headlessRequest.setRemoteDriverUrl(remoteDriverUrl);
-        LogUtil.info("使用ChromeUtil来获取图片信息。 language：" + language + "，headlessRequest：" + JSON.toJSONString(headlessRequest));
+        LogUtil.info("使用ChromeUtil来获取图片信息。url:" + JSON.toJSONString(urlMap) + "; language：" + language + "，headlessRequest：" + JSON.toJSONString(headlessRequest));
         Map<String, String> returnMap = chromeUtils.getImageInfo(headlessRequest, language);
         return returnMap;
     }
