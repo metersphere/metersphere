@@ -1174,6 +1174,7 @@ public class ApiDefinitionService {
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
+                    
                     if (CollectionUtils.isEmpty(caseList)) {
                         apiDefinition.setToBeUpdated(false);
                     } else {
