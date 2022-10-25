@@ -223,7 +223,7 @@ public abstract class ZentaoClient extends BaseClient {
 
         try {
             restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST, requestEntity,
-                    String.class, objectType, objectId, sessionId);
+                    String.class, objectId, sessionId);
         } catch (Exception e) {
             LogUtil.info("upload zentao attachment error");
         }
