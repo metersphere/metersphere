@@ -1207,4 +1207,12 @@ public class TestPlanScenarioCaseService {
         }
         return nodeTrees;
     }
+
+    public String getScenarioId(String planScenarioId) {
+        TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
+        if (planApiScenario != null) {
+            return planApiScenario.getApiScenarioId();
+        }
+        return planScenarioId;
+    }
 }
