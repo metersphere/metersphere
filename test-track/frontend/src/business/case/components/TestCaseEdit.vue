@@ -1017,10 +1017,10 @@ export default {
           let p1 = getTestCase(response.data.id);
           let p2 = getTestCase(this.currentTestCaseInfo.id);
           let that = this;
-          Promise.all([p1, p2]).then(data => {
-            if (data[0] && data[1]) {
-              that.newData = data[0].data.data;
-              that.oldData = data[1].data.data;
+          Promise.all([p1, p2]).then(r => {
+            if (r[0] && r[1]) {
+              that.newData = r[0].data;
+              that.oldData = r[1].data;
               that.newData.createTime = row.createTime;
               that.oldData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === that.oldData.versionId)[0].createTime;
               that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
