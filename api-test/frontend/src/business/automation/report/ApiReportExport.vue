@@ -3,79 +3,76 @@
                              :type="$t('report.api_test_report')">
     <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime" :report="report"/>
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
-      <div>
-        <el-card>
-          <template v-slot:header>
-            {{ $t('api_report.scenario_name') }}：{{ scenario.name }}
-          </template>
-          <div class="ms-border clearfix" v-for="(request, index) in scenario.requestResults" :key="index"
-               :request="request">
-
-            <div class="request-top">
-              <div>
-                {{ getName(request.name) }}
-              </div>
-              <div class="url">
-                {{ request.url }}
-              </div>
+      <el-card>
+        <template v-slot:header>
+          {{ $t('api_report.scenario_name') }}：{{ scenario.name }}
+        </template>
+        <div class="ms-border clearfix" v-for="(request, index) in scenario.requestResults" :key="index"
+             :request="request">
+          <div class="request-top">
+            <div>
+              {{ getName(request.name) }}
             </div>
-            <el-divider/>
-            <div class="request-middle">
-              <api-report-request-header-item :title="$t('api_test.request.method')">
-                <span class="method"> {{ request.method }}</span>
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.response_time')">
-                {{ request.responseResult.responseTime }} ms
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.latency')">
-                {{ request.responseResult.latency }} ms
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.request_size')">
-                {{ request.requestSize }} bytes
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.response_size')">
-                {{ request.responseResult.responseSize }} bytes
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.error')">
-                {{ request.error }}
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.assertions')">
-                {{ request.passAssertions + " / " + request.totalAssertions }}
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.response_code')">
-                {{ request.responseResult.responseCode }}
-              </api-report-request-header-item>
-
-              <api-report-request-header-item :title="$t('api_report.result')">
-                <el-tag v-if="request.unexecute">{{
-                    $t('api_test.home_page.detail_card.unexecute')
-                  }}
-                </el-tag>
-                <el-tag v-else-if="!request.success && request.status && request.status==='PENDING'">{{
-                    $t('api_test.home_page.detail_card.unexecute')
-                  }}
-                </el-tag>
-                <el-tag v-else-if="request.errorCode" class="ms-test-error_code">
-                  {{ $t('error_report_library.option.name') }}
-                </el-tag>
-                <el-tag size="mini" type="success" v-else-if="request.success">
-                  {{ $t('api_report.success') }}
-                </el-tag>
-                <el-tag size="mini" type="danger" v-else>
-                  {{ $t('api_report.fail') }}
-                </el-tag>
-              </api-report-request-header-item>
+            <div class="url">
+              {{ request.url }}
             </div>
           </div>
-        </el-card>
-      </div>
+          <el-divider/>
+          <div class="request-middle">
+            <api-report-request-header-item :title="$t('api_test.request.method')">
+              <span class="method"> {{ request.method }}</span>
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.response_time')">
+              {{ request.responseResult.responseTime }} ms
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.latency')">
+              {{ request.responseResult.latency }} ms
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.request_size')">
+              {{ request.requestSize }} bytes
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.response_size')">
+              {{ request.responseResult.responseSize }} bytes
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.error')">
+              {{ request.error }}
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.assertions')">
+              {{ request.passAssertions + " / " + request.totalAssertions }}
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.response_code')">
+              {{ request.responseResult.responseCode }}
+            </api-report-request-header-item>
+
+            <api-report-request-header-item :title="$t('api_report.result')">
+              <el-tag v-if="request.unexecute">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag v-else-if="!request.success && request.status && request.status==='PENDING'">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag v-else-if="request.errorCode" class="ms-test-error_code">
+                {{ $t('error_report_library.option.name') }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="request.success">
+                {{ $t('api_report.success') }}
+              </el-tag>
+              <el-tag size="mini" type="danger" v-else>
+                {{ $t('api_report.fail') }}
+              </el-tag>
+            </api-report-request-header-item>
+          </div>
+        </div>
+      </el-card>
     </div>
   </ms-report-export-template>
 </template>
