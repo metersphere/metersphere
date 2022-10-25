@@ -1,14 +1,15 @@
 <template>
   <div>
+    <div class="right-search">
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20" />
 
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
-              @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                             v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="initTable"/>
+      <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
+                @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
 
-    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-left="-100"
-                    class="search-input"/>
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
+    </div>
 
     <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition"
               :page-size="pageSize"
@@ -206,8 +207,12 @@ export default {
 </script>
 
 <style scoped>
-.search-input {
+.right-search {
   float: right;
+  display: inline-block;
+}
+
+.search-input {
   width: 300px;
   margin-right: 20px;
 }
