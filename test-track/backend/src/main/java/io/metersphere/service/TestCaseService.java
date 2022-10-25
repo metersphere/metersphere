@@ -314,7 +314,7 @@ public class TestCaseService {
         BeanUtils.copyBean(request, testCase);
         EditTestCaseRequest.OtherInfoConfig otherInfoConfig = EditTestCaseRequest.OtherInfoConfig.createDefault();
         request.setOtherInfoConfig(otherInfoConfig);
-        DealWithOtherInfo(request, oldTestCaseId);
+        dealWithOtherInfoOfNewVersion(request, oldTestCaseId);
     }
 
     public void saveFollows(String caseId, List<String> follows) {
@@ -452,7 +452,7 @@ public class TestCaseService {
             testCase.setOrder(oldTestCase.getOrder());
             testCase.setRefId(oldTestCase.getRefId());
             testCase.setLatest(false);
-            DealWithOtherInfo(testCase, oldTestCase.getId());
+            dealWithOtherInfoOfNewVersion(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
         checkAndSetLatestVersion(testCase.getRefId());
@@ -464,7 +464,7 @@ public class TestCaseService {
      * @param testCase
      * @param oldTestCaseId
      */
-    private void DealWithOtherInfo(EditTestCaseRequest testCase, String oldTestCaseId) {
+    private void dealWithOtherInfoOfNewVersion(EditTestCaseRequest testCase, String oldTestCaseId) {
         EditTestCaseRequest.OtherInfoConfig otherInfoConfig = testCase.getOtherInfoConfig();
         if (otherInfoConfig != null) {
             if (!otherInfoConfig.isRemark()) {
@@ -496,15 +496,11 @@ public class TestCaseService {
                 }
             }
             if (otherInfoConfig.isArchive()) {
-                List<FileMetadata> files = attachmentService.getFileMetadataByCaseId(oldTestCaseId);
-                if (CollectionUtils.isNotEmpty(files)) {
-                    files.forEach(file -> {
-                        TestCaseFile testCaseFile = new TestCaseFile();
-                        testCaseFile.setCaseId(testCase.getId());
-                        testCaseFile.setFileId(file.getId());
-                        testCaseFileMapper.insertSelective(testCaseFile);
-                    });
-                }
+                AttachmentRequest attachmentRequest = new AttachmentRequest();
+                attachmentRequest.setBelongId(testCase.getId());
+                attachmentRequest.setCopyBelongId(oldTestCaseId);
+                attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
+                attachmentService.copyAttachment(attachmentRequest);
             }
             if (otherInfoConfig.isDependency()) {
                 List<RelationshipEdge> preRelations = relationshipEdgeService.getRelationshipEdgeByType(oldTestCaseId, "PRE");
