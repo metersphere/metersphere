@@ -23,7 +23,7 @@
         :field-key="tableHeaderKey"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
-        :row-order-func="editTestPlanScenarioCaseOrder"
+        :row-order-func="editTestPlanUiScenarioCaseOrder"
         :row-order-group-id="planId"
         @order="search"
         @filter="filterSearch"
@@ -206,7 +206,7 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import {editTestPlanScenarioCaseOrder} from "@/api/remote/plan/test-plan";
+import {editTestPlanUiScenarioCaseOrder} from "@/api/remote/plan/test-plan";
 import {
   testPlanUiScenarioCaseBatchDelete, testPlanUiScenarioCaseBatchUpdateEnv, testPlanUiScenarioCaseDelete,
   testPlanUiScenarioCaseRun, testPlanUiScenarioCaseSelectAllTableRows, testPlanUiScenarioEnv,
@@ -332,8 +332,8 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    editTestPlanScenarioCaseOrder() {
-      return editTestPlanScenarioCaseOrder;
+    editTestPlanUiScenarioCaseOrder() {
+      return editTestPlanUiScenarioCaseOrder;
     }
   },
   created() {
