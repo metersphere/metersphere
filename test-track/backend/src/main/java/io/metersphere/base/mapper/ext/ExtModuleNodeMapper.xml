@@ -159,7 +159,6 @@
             distinct
         </if>
         <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
-        ,module_path
         from ${tableName}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
