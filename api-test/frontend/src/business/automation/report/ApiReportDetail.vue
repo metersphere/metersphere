@@ -105,7 +105,7 @@
       :title="report.name"
       :content="content"
       :report="report"
-      :total-time="totalTime" class="target-node-item"/>
+      :total-time="totalTime"/>
   </div>
 </template>
 

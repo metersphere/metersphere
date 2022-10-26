@@ -363,37 +363,10 @@ export function downloadPDF(ele, pdfName) {
   let context = canvas.getContext("2d");
   context.scale(2, 2);
   context.translate(-eleOffsetLeft - abs, -eleOffsetTop);
-  // 这里默认横向没有滚动条的情况，因为offset.left(),有无滚动条的时候存在差值，因此
-  // translate的时候，要把这个差值去掉
-
-  //  解决分页内容被切割问题
-  let pageHeightNum = canvas.width / 2 / 592.28 * 841.89
-  let lists = document.getElementsByClassName('target-node-item')
-  for (let i = 0; i < lists.length; i++) {
-    let multiple = Math.ceil((lists[i].offsetTop + lists[i].offsetHeight) / pageHeightNum)
-    if (isSplit(lists, i, multiple * pageHeightNum)) {
-      let divParent = lists[i].parentNode // 获取该div的父节点
-      let newNode = document.createElement('div')
-      newNode.className = 'ms-export-div'
-      newNode.style.background = '#ffffff'
-      let _H = multiple * pageHeightNum - (lists[i].offsetTop + lists[i].offsetHeight)
-      newNode.style.height = _H + 50 + 'px'
-      let next = lists[i].nextSibling // 获取div的下一个兄弟节点
-      // 判断兄弟节点是否存在
-      if (next) {
-        // 存在则将新节点插入到div的下一个兄弟节点之前，即div之后
-        divParent.insertBefore(newNode, next)
-      } else {
-        // 不存在则直接添加到最后,appendChild默认添加到divParent的最后
-        divParent.appendChild(newNode)
-      }
-    }
-  }
-
+  let scrollWidth = document.getElementById("apiTestReport").scrollWidth;
   html2canvas(ele, {
-    dpi: 300,
-    backgroundColor: 'white',
-    // allowTaint: true,  //允许 canvas 污染， allowTaint参数要去掉，否则是无法通过toDataURL导出canvas数据的
+    dpi: 100,
+    width: scrollWidth < 1500 ? 1500 : scrollWidth, // 为了使横向滚动条的内容全部展示
     useCORS: true  //允许canvas画布内 可以跨域请求外部链接图片, 允许跨域请求。
   }).then((canvas) => {
     let contentWidth = canvas.width;
@@ -405,7 +378,7 @@ export function downloadPDF(ele, pdfName) {
     //页面偏移
     let position = 0;
     //a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
-    let imgWidth = 595.28;
+    let imgWidth = 610.28;
     let imgHeight = 595.28 / contentWidth * contentHeight;
 
     let pageData = canvas.toDataURL('image/jpeg', 1.0);
@@ -416,7 +389,6 @@ export function downloadPDF(ele, pdfName) {
     if (leftHeight < pageHeight) {
       //在pdf.addImage(pageData, 'JPEG', 左，上，宽度，高度)设置在pdf中显示；
       pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
-      // pdf.addImage(pageData, 'JPEG', 20, 40, imgWidth, imgHeight);
     } else {    // 分页
       while (leftHeight > 0) {
         pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
