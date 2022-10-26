@@ -268,7 +268,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                             //判断是否是JsonSchema
                                             boolean isJsonSchema = false;
                                             if (bodyObj.has("format")) {
-                                                String formatValue = String.valueOf(bodyObj.get("format"));
+                                                String formatValue = bodyObj.get("format").asText();
                                                 if (StringUtils.equals("JSON-SCHEMA", formatValue)) {
                                                     isJsonSchema = true;
                                                 }
@@ -305,10 +305,10 @@ public class ShareInfoService extends BaseShareInfoService {
                                                     if (this.isObjectHasKey(kv, "name")) {
                                                         String value = StringUtils.EMPTY;
                                                         if (kv.has("value")) {
-                                                            value = String.valueOf(kv.get("value"));
+                                                            value = kv.get("value").asText();
                                                         }
                                                         bodyParamArr.add(kv);
-                                                        previewObjMap.put(String.valueOf(kv.get("name")), value);
+                                                        previewObjMap.put(kv.get("name").asText(), value);
                                                     }
                                                 }
                                                 this.setPreviewData(previewJsonArray, JSON.toJSONString(previewObjMap));
@@ -337,7 +337,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                                         bodyMap.put("contentType", "File");
                                                         bodyParamList.add(bodyMap);
 
-                                                        previewObjMap.put(String.valueOf(name), String.valueOf(value));
+                                                        previewObjMap.put(name, value);
 
                                                     }
                                                 }
@@ -389,18 +389,24 @@ public class ShareInfoService extends BaseShareInfoService {
                                         //判断是否是JsonSchema
                                         boolean isJsonSchema = false;
                                         if (bodyObj.has("format")) {
-                                            String formatValue = String.valueOf(bodyObj.get("format"));
+                                            String formatValue = bodyObj.get("format").asText();
                                             if (StringUtils.equals("JSON-SCHEMA", formatValue)) {
                                                 isJsonSchema = true;
                                             }
                                         }
+
+                                        JSONSchemaBodyDTO jsonSchemaBodyDTO = new JSONSchemaBodyDTO();
                                         if (isJsonSchema) {
+                                            jsonSchemaBodyDTO.setJsonSchema(bodyObj.get("jsonSchema"));
                                             apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
-                                            apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
+                                            apiInfoDTO.setJsonSchemaResponseBody(jsonSchemaBodyDTO);
                                         } else {
                                             if (bodyObj.has("raw")) {
                                                 String raw = bodyObj.get("raw").asText();
                                                 apiInfoDTO.setResponseBodyStructureData(raw);
+                                                jsonSchemaBodyDTO.setRaw(raw);
+                                                apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
+                                                apiInfoDTO.setJsonSchemaResponseBody(jsonSchemaBodyDTO);
                                             }
                                         }
                                     } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
