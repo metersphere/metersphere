@@ -36,7 +36,7 @@ export default {
     placeholder: {
       type: String,
     },
-    errorInfor: String,
+    errorInfo: String,
     addTagOnKeys: {
       type: Array,
       default: () => [13, 188, 9]
@@ -119,8 +119,8 @@ export default {
         this.innerTags.push(tag)
         return true
       } else {
-        if (tag !== "" && this.errorInfor) {
-          this.$error(this.errorInfor);
+        if (tag !== "" && this.errorInfo) {
+          this.$error(this.errorInfo);
         }
       }
       return false
