@@ -439,6 +439,9 @@ public class TestCaseService {
      * @param testCase
      */
     private void createNewVersionOrNot(EditTestCaseRequest testCase) {
+        if (StringUtils.isBlank(testCase.getVersionId())) {
+            return;
+        }
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdEqualTo(testCase.getId())
                 .andVersionIdEqualTo(testCase.getVersionId());
