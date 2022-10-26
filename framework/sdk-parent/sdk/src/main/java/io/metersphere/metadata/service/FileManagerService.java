@@ -98,7 +98,7 @@ public class FileManagerService {
     public List<FileInfoDTO> downloadFileBatch(List<FileRequest> requestList) {
         List<FileInfoDTO> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(requestList)) {
-            Map<String, List<FileRequest>> requestByStorage = requestList.stream().collect(Collectors.groupingBy(FileRequest::getStorage));
+            Map<String, List<FileRequest>> requestByStorage = requestList.stream().filter((e) -> StringUtils.isNotBlank(e.getStorage()) && !StringUtils.equalsIgnoreCase(e.getStorage(), StorageConstants.LOCAL.name())).collect(Collectors.groupingBy(FileRequest::getStorage));
             for (Map.Entry<String, List<FileRequest>> requestByStorageEntry : requestByStorage.entrySet()) {
                 try {
                     list.addAll(FileCenter.getRepository(requestByStorageEntry.getKey()).getFileBatch(requestByStorageEntry.getValue()));
