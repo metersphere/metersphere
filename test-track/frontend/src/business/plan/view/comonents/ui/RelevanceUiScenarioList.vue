@@ -144,7 +144,7 @@ export default {
     },
     projectId() {
       this.condition = {
-        components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
+        components: TEST_PLAN_RELEVANCE_UI_SCENARIO_CONFIGS
       };
       this.selectNodeIds.length = 0;
       this.search();
