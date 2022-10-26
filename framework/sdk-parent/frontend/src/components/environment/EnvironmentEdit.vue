@@ -4,7 +4,7 @@
       <el-row>
         <el-col :span="10" v-if="!isProject">
           <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
-            <el-select @change="handleProjectChange" v-model="environment.currentProjectId" filterable clearable
+            <el-select v-model="environment.currentProjectId" filterable clearable
                        size="small" :disabled="!ifCreate">
               <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
@@ -508,9 +508,6 @@ export default {
     },
     clearValidate() {
       this.$refs["environment"].clearValidate();
-    },
-    handleProjectChange() {   //项目选择下拉框选择其他项目后清空“启用条件”,因为项目变了模块也就变了。
-      this.environment.config.httpConfig.conditions = [];
     },
   },
 }
