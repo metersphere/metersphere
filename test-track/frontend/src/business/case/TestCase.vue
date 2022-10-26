@@ -26,14 +26,14 @@
 
     <ms-aside-container v-if="showPublicNode">
       <test-case-public-node-tree
-        :case-condition="condition"
+        :case-condition="publicCondition"
         @nodeSelectEvent="publicNodeChange"
         ref="publicNodeTree"/>
     </ms-aside-container>
 
     <ms-aside-container v-if="showTrashNode">
       <test-case-trash-node-tree
-        :case-condition="condition"
+        :case-condition="trashCondition"
         @nodeSelectEvent="trashNodeChange"
         ref="trashNodeTree"/>
     </ms-aside-container>
@@ -57,7 +57,7 @@
               @testCaseCopy="copyTestCase"
               @refresh="refreshTrashNode"
               @refreshAll="refreshAll"
-              @setCondition="setCondition"
+              @setCondition="setTrashCondition"
               @search="refreshTreeByCaseFilter"
               ref="testCaseTrashList">
             </test-case-list>
@@ -75,7 +75,7 @@
             @refresh="refresh"
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
-            @setCondition="setCondition"
+            @setCondition="setPublicCondition"
             @search="refreshTreeByCaseFilter"
             ref="testCasePublicList">
           </public-test-case-list>
@@ -143,7 +143,7 @@
               :read-only="testCaseReadOnly"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
-              :select-condition="condition"
+              :select-condition="item.isPublic ? publicCondition : condition"
               :public-enable="item.isPublic"
               :case-type="type"
               @addTab="addTab"
@@ -252,6 +252,8 @@ export default {
       publicEnable: false,
       showPublic: false,
       condition: {},
+      trashCondition: {},
+      publicCondition: {},
       activeName: 'default',
       currentActiveName: '',
       tabs: [],
@@ -755,14 +757,14 @@ export default {
     setTreeNodes(data) {
       this.treeNodes = data;
     },
+    setPublicCondition(data) {
+      this.publicCondition = data;
+    },
+    setTrashCondition(data) {
+      this.trashCondition = data;
+    },
     setCondition(data) {
-      if (this.activeName === 'trash' && this.$refs.testCaseTrashList) {
-        this.condition = this.$refs.testCaseTrashList.condition;
-      } else if (this.activeName === 'default' && this.$refs.testCaseList) {
-        this.condition = this.$refs.testCaseList.condition;
-      } else {
-        this.condition = data;
-      }
+      this.condition = data;
     },
     getProject() {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')
