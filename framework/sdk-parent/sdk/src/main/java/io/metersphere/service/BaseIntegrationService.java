@@ -87,14 +87,22 @@ public class BaseIntegrationService {
         return CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
     }
 
-    public String getLogDetails(String id) {
-        ServiceIntegration ser = serviceIntegrationMapper.selectByPrimaryKey(id);
-        if (ser != null) {
+    public String getLogDetails(String workspaceId, String platform) {
+        ServiceIntegrationExample example = new ServiceIntegrationExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andPlatformEqualTo(platform);
+        List<ServiceIntegration> list = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
+        if (!CollectionUtils.isEmpty(list)) {
+            ServiceIntegration ser = list.get(0);
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(ser, SystemReference.serverColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ser.getId()), null, ser.getPlatform(), null, columns);
             return JSON.toJSONString(details);
+        } else {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(new ServiceIntegration(), SystemReference.serverColumns);
+            OperatingLogDetails details = new OperatingLogDetails("", null, platform, null, columns);
+            return JSON.toJSONString(details);
         }
-        return null;
     }
 
     public void authServiceIntegration(String workspaceId, String platform) {
