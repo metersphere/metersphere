@@ -11,6 +11,7 @@ import io.metersphere.gateway.service.BaseDisplayService;
 import io.metersphere.gateway.service.SystemParameterService;
 import io.metersphere.gateway.service.UserLoginService;
 import io.metersphere.request.LoginRequest;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
@@ -71,7 +72,13 @@ public class LoginController {
         return Mono.defer(() -> userLoginService.login(request, session, locale).map(Mono::just).orElseGet(Mono::empty))
                 .subscribeOn(Schedulers.boundedElastic())
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not found user info or invalid password")))
-                .map(ResultHolder::success);
+                .map(ResultHolder::success)
+                .map(rh -> {
+                    // 登录是否提示修改密码
+                    boolean changePassword = userLoginService.checkWhetherChangePasswordOrNot(request);
+                    rh.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
+                    return rh;
+                });
     }
 
     @GetMapping(value = "/currentUser")
