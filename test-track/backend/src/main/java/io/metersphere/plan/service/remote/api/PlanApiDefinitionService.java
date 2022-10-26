@@ -1,7 +1,7 @@
 package io.metersphere.plan.service.remote.api;
 
+import io.metersphere.plan.request.api.ApiDefinitionRequest;
 import io.metersphere.plan.service.TestPlanService;
-import io.metersphere.xpack.api.dto.request.ApiDefinitionRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
