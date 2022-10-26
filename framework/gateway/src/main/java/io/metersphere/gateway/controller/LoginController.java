@@ -1,6 +1,8 @@
 package io.metersphere.gateway.controller;
 
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.utils.RsaKey;
 import io.metersphere.commons.utils.RsaUtil;
@@ -10,6 +12,7 @@ import io.metersphere.gateway.service.AuthSourceService;
 import io.metersphere.gateway.service.BaseDisplayService;
 import io.metersphere.gateway.service.SystemParameterService;
 import io.metersphere.gateway.service.UserLoginService;
+import io.metersphere.gateway.log.annotation.MsAuditLog;
 import io.metersphere.request.LoginRequest;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +71,7 @@ public class LoginController {
     }
 
     @PostMapping(value = "/signin")
+    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Mono<ResultHolder> login(@RequestBody LoginRequest request, WebSession session, Locale locale) {
         return Mono.defer(() -> userLoginService.login(request, session, locale).map(Mono::just).orElseGet(Mono::empty))
                 .subscribeOn(Schedulers.boundedElastic())

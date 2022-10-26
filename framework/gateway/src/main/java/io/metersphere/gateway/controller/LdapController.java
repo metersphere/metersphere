@@ -4,7 +4,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.controller.handler.ResultHolder;
 import io.metersphere.gateway.service.LdapService;
-import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.gateway.log.annotation.MsAuditLog;
 import io.metersphere.request.LoginRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.WebSession;
