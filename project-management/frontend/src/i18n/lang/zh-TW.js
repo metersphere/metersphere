@@ -4,7 +4,8 @@ import mf from "metersphere-frontend/src/i18n/lang/zh-TW"
 
 const message = {
   pj: {
-    environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})"
+    environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})",
+    check_third_project_success: "檢查通過",
   },
   file_manage: {
     my_file: '我的文件',

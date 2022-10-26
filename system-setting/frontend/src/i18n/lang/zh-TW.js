@@ -9,6 +9,7 @@ const message = {
   system: {
     environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})",
     search_by_environment_name: "根據環境的名稱搜索",
+    check_third_project_success: "檢查通過"
   },
   display: {
     title: '顯示設置',

@@ -4,7 +4,8 @@ import mf from "metersphere-frontend/src/i18n/lang/en-US"
 
 const message = {
   pj: {
-    environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})"
+    environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})",
+    check_third_project_success: "inspection passed",
   },
   file_manage: {
     my_file: 'My File',
