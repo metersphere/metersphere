@@ -130,7 +130,7 @@ import MsDrawer from "../MsDrawer";
 import {getCurrentProjectID, getCurrentUser} from "../../utils/token";
 import {hasPermissions} from "../../utils/permission";
 import {getProjectUsers} from "../../api/user";
-import {getScenarioData, getCaseData, getTaskSocket, getTaskList, stopTask, stopBatchTask} from "../../api/task";
+import {getCaseData, getScenarioData, getTaskList, getTaskSocket, stopBatchTask, stopTask} from "../../api/task";
 import MicroApp from "../../components/MicroApp";
 import {prefetchApps} from "qiankun";
 
@@ -373,6 +373,9 @@ export default {
       }
       if (mode === 'BATCH') {
         return this.$t('api_test.automation.batch_execute');
+      }
+      if (mode === 'JENKINS_RUN_TEST_PLAN') {
+        return this.$t('commons.trigger_mode.api');
       }
       return mode;
     },
