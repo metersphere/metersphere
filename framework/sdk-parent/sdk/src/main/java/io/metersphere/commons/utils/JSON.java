@@ -26,6 +26,7 @@ public class JSON {
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
     public static String toJSONString(Object value) {
