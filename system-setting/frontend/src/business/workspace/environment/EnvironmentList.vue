@@ -333,6 +333,7 @@ export default {
       this.$refs.environmentEdit.save();
     },
     copyEnv(environment) {
+      this.ifCreate = true;
       this.currentProjectId = environment.projectId;  //复制时默认选择所要复制环境对应的项目
       environment.currentProjectId = environment.projectId;
       this.dialogTitle = this.$t('api_test.environment.copy_environment');
