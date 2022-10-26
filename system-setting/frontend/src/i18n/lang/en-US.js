@@ -9,6 +9,7 @@ const message = {
   system: {
     environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})",
     search_by_environment_name: "search by environment name",
+    check_third_project_success: "inspection passed"
   },
   display: {
     title: 'Theme',
