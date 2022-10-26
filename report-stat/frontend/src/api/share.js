@@ -1,9 +1,9 @@
 import {post} from "metersphere-frontend/src/plugins/request"
 
-let basePath = '/share/info';
+let basePath = '/report/stat/share';
 
 export function selectShareReportById(param) {
-  return post(basePath + '/selectHistoryReportById', param)
+  return post(basePath + '/select/report/by/id', param)
 }
 
 export function getShareId() {
