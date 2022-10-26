@@ -357,6 +357,18 @@ export default {
     },
     search() {
       initCondition(this.condition, this.condition.selectAll);
+      if(this.condition && this.condition.filters && this.condition.filters.last_result){
+        if(this.condition.filters.last_result.length > 0){
+          //校验是否含有PENDING
+          if(this.condition.filters.last_result.includes("PENDING")){
+            this.condition.filters.last_result = [...this.condition.filters.last_result, "UnExecute"]
+          }
+          //校验是否含有ERROR
+          if(this.condition.filters.last_result.includes("ERROR")){
+            this.condition.filters.last_result = [...this.condition.filters.last_result, "FAIL"]
+          }
+        }
+      }
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
       if (this.clickType) {
