@@ -30,6 +30,11 @@ module.exports = {
     },
   },
   pages: {
+    index: {
+      entry: "src/main.js",
+      template: "public/index.html",
+      filename: "index.html"
+    },
     shareEnterpriseReport: {
       entry: "src/template/enterprise/share/share-enterprise-report.js",
       template: "src/template/enterprise/share/share-enterprise-report.html",
