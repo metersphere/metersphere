@@ -295,7 +295,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
         StringBuilder path = new StringBuilder(rootPath);
 
-        path.append("/" + nodeName);
+        path.append("/" + nodeName.trim());
 
         String pid;
         //创建过不创建
@@ -309,7 +309,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         }
 
         while (pathIterator.hasNext()) {
-            String nextNodeName = pathIterator.next();
+            String nextNodeName = pathIterator.next().trim();
             path.append("/" + nextNodeName);
             if (pathMap.get(path.toString()) != null) {
                 pid = pathMap.get(path.toString());
