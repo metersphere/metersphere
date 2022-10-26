@@ -153,14 +153,10 @@ export default {
     },
     redirect() {
       let resourceId = this.scenarioId;
-      if (this.isPlan) {
-        getApiScenarioIdByPlanScenarioId(this.scenarioId).then((res) => {
-          resourceId = res.data;
-          this.showDetails(resourceId);
-        });
-      } else {
+      getApiScenarioIdByPlanScenarioId(this.scenarioId).then((res) => {
+        resourceId = res.data;
         this.showDetails(resourceId);
-      }
+      });
     },
     showDetails(resourceId) {
       let uuid = getUUID().substring(1, 5);
