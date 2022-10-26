@@ -9,6 +9,7 @@ const message = {
   system: {
     environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",
     search_by_environment_name: "根据环境的名称搜索",
+    check_third_project_success: "检查通过"
   },
   display: {
     title: '显示设置',
