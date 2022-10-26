@@ -361,13 +361,15 @@ export function downloadPDF(ele, pdfName) {
   canvas.width = eleW * 2;    // 将画布宽&&高放大两倍
   canvas.height = eleH * 2;
   let context = canvas.getContext("2d");
-  context.scale(2, 2);
+  let scale = canvas.height / (canvas.width / 592.28 * 841.89);
+  scale = scale > 3 ? 1 : 2;
   context.translate(-eleOffsetLeft - abs, -eleOffsetTop);
   let scrollWidth = document.getElementById("apiTestReport").scrollWidth;
   html2canvas(ele, {
-    dpi: 100,
+    scale: scale,// 背景灰色
+    background: "#FFFFFF",
     width: scrollWidth < 1500 ? 1500 : scrollWidth, // 为了使横向滚动条的内容全部展示
-    useCORS: true  //允许canvas画布内 可以跨域请求外部链接图片, 允许跨域请求。
+    useCORS: true,  //允许canvas画布内 可以跨域请求外部链接图片, 允许跨域请求。
   }).then((canvas) => {
     let contentWidth = canvas.width;
     let contentHeight = canvas.height;
@@ -378,11 +380,10 @@ export function downloadPDF(ele, pdfName) {
     //页面偏移
     let position = 0;
     //a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
-    let imgWidth = 610.28;
+    let imgWidth = 595.28;
     let imgHeight = 595.28 / contentWidth * contentHeight;
 
-    let pageData = canvas.toDataURL('image/jpeg', 1.0);
-
+    let pageData = canvas.toDataURL('image/jpeg', 0.1);
     let pdf = new JsPDF('', 'pt', 'a4');
     //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(841.89)
     //当内容未超过pdf一页显示的范围，无需分页
@@ -392,7 +393,7 @@ export function downloadPDF(ele, pdfName) {
     } else {    // 分页
       while (leftHeight > 0) {
         pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
-        leftHeight -= pageHeight;
+        leftHeight -= (pageHeight + 841.89);
         position -= 841.89;
         //避免添加空白页
         if (leftHeight > 0) {
@@ -400,22 +401,7 @@ export function downloadPDF(ele, pdfName) {
         }
       }
     }
-
-    let delArr = document.getElementsByClassName('ms-export-div')
-    for (let i = delArr.length - 1; i >= 0; i--) {
-      if (delArr[i] && delArr[i].parentElement) {
-        delArr[i].remove();
-      }
-    }
-
     //可动态生成
     pdf.save(pdfName);
   })
-}
-
-export function isSplit(nodes, index, pageHeight) {
-  if (nodes[index].offsetTop + nodes[index].offsetHeight < pageHeight && nodes[index + 1] && nodes[index + 1].offsetTop + nodes[index + 1].offsetHeight > pageHeight) {
-    return true
-  }
-  return false
 }
