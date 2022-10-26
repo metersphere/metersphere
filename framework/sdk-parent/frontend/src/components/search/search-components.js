@@ -282,9 +282,9 @@ export const UI_SCENARIO_RESULT = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {text: 'Pending', value: 'PENDING'},
-    {text: 'Success', value: 'SUCCESS'},
     {text: 'Error', value: 'ERROR'},
+    {text: 'Success', value: 'SUCCESS'},
+    {text: 'Pending', value: 'PENDING'},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
