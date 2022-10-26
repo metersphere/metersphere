@@ -77,6 +77,10 @@
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <jgit.version>6.3.0.202209071007-r</jgit.version>
+        <!-- frontend -->
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+        <node.version>v16.10.0</node.version>
+        <npm.version>8.12.1</npm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
     </properties>
