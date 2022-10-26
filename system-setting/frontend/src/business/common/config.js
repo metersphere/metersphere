@@ -103,7 +103,28 @@ export function LOG_MODULE_MAP(_this) {
 export function SYSLIST() {
   let sysList = [
     {
-      label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
+      label: i18n.t('commons.ui'), value: i18n.t('commons.ui'), license: true,
+      children: [
+        {
+          label: i18n.t('ui.ui_element'),
+          value: [i18n.t('ui.ui_element'), 'UI_ELEMENT'],
+          leaf: true
+        },
+        {
+          label: i18n.t('ui.ui_automation'),
+          value: [i18n.t('ui.ui_automation'), 'UI_AUTOMATION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('ui.report'),
+          value: [i18n.t('ui.report'), 'UI_AUTOMATION_REPORT'],
+          leaf: true
+        },
+      ]
+    },
+    {
+      label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'),
+      children: [
         {
           label: i18n.t('permission.project_track_case.name'),
           value: [i18n.t('permission.project_track_case.name'), 'TRACK_TEST_CASE'],
@@ -260,6 +281,26 @@ export function SYSLIST() {
 
 export function WORKSYSLIST() {
   let worksysList = [
+    {
+      label: i18n.t('commons.ui'), value: i18n.t('commons.ui'), license: true,
+      children: [
+        {
+          label: i18n.t('ui.ui_element'),
+          value: [i18n.t('ui.ui_element'), 'UI_ELEMENT'],
+          leaf: true
+        },
+        {
+          label: i18n.t('ui.ui_automation'),
+          value: [i18n.t('ui.ui_automation'), 'UI_AUTOMATION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('ui.report'),
+          value: [i18n.t('ui.report'), 'UI_AUTOMATION_REPORT'],
+          leaf: true
+        },
+      ]
+    },
     {
       label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
         {
