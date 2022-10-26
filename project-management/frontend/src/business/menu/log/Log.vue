@@ -144,6 +144,7 @@ import {getCurrentWsMembers} from "../../../api/user";
 import {modifyUserByResourceId} from "metersphere-frontend/src/api/user";
 import {getOperatingLogPages} from "../../../api/log";
 import {getProject} from "../../../api/project";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "Log",
@@ -153,6 +154,26 @@ export default {
     MsContainer
   },
   data() {
+    let getModules = function () {
+      let license = hasLicense();
+      let data = new PROJECTSYSLIST();
+      return data.filter(item => {
+        if (!item.license) {
+          if (item.children) {
+            item.children = item.children.filter(child => {
+              if (!child.license || (child.license && license)) {
+                return true;
+              }
+            })
+          }
+          return true;
+        } else {
+          if (license) {
+            return true;
+          }
+        }
+      });
+    };
     return {
       props: {
         multiple: false,
@@ -172,7 +193,7 @@ export default {
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
       LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
-      sysList: new PROJECTSYSLIST(),
+      sysList: getModules(),
       options: [],
       selectLoading: false,
       cardLoading: false
