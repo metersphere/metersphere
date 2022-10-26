@@ -22,6 +22,7 @@ import io.metersphere.plan.request.LoadCaseReportBatchRequest;
 import io.metersphere.plan.request.LoadCaseReportRequest;
 import io.metersphere.plan.request.LoadCaseRequest;
 import io.metersphere.plan.request.RunBatchTestPlanRequest;
+import io.metersphere.plan.service.remote.TestPlanService;
 import io.metersphere.request.*;
 import io.metersphere.service.*;
 import io.metersphere.xpack.resourcepool.service.ValidQuotaResourcePoolService;
@@ -41,8 +42,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanLoadCaseService {
-    //    @Resource
-//    TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
     @Resource
@@ -57,8 +56,8 @@ public class TestPlanLoadCaseService {
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
-    //    @Resource
-//    private TestPlanService testPlanService;
+    @Resource
+    private TestPlanService testPlanService;
     @Resource
     private MetricQueryService metricQueryService;
     @Resource
@@ -135,14 +134,8 @@ public class TestPlanLoadCaseService {
             testPlanLoadCaseMapper.insert(t);
         }
 
-//        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-//        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
-//                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
-//            testPlan.setStatus(TestPlanStatus.Underway.name());
-//            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
-//            testPlan.setActualEndTime(null);
-//            testPlanMapper.updateByPrimaryKey(testPlan);
-//        }
+        testPlanService.statusReset(request.getTestPlanId());
+
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -281,13 +274,12 @@ public class TestPlanLoadCaseService {
     public String getLogDetails(String id) {
         TestPlanLoadCase bloBs = testPlanLoadCaseMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
-            // todo
-//            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(bloBs.getTestPlanId());
-//            LoadTest test = loadTestMapper.selectByPrimaryKey(bloBs.getLoadCaseId());
-//            if (test != null && testPlan != null) {
-//                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testPlan.getProjectId(), test.getName(), bloBs.getCreateUser(), new LinkedList<>());
-//                return JSON.toJSONString(details);
-//            }
+            TestPlan testPlan = testPlanService.get(bloBs.getTestPlanId());
+            LoadTest test = loadTestMapper.selectByPrimaryKey(bloBs.getLoadCaseId());
+            if (test != null && testPlan != null) {
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testPlan.getProjectId(), test.getName(), bloBs.getCreateUser(), new LinkedList<>());
+                return JSON.toJSONString(details);
+            }
         }
         return null;
     }
@@ -297,14 +289,13 @@ public class TestPlanLoadCaseService {
         caseExample.createCriteria().andIdIn(ids);
         List<TestPlanLoadCase> cases = testPlanLoadCaseMapper.selectByExample(caseExample);
         if (CollectionUtils.isNotEmpty(cases)) {
-            // todo
-//            LoadTestExample example = new LoadTestExample();
-//            example.createCriteria().andIdIn(cases.stream().map(TestPlanLoadCase::getLoadCaseId).collect(Collectors.toList()));
-//            List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
-//            List<String> names = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
-//            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(cases.get(0).getTestPlanId());
-//            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
-//            return JSON.toJSONString(details);
+            LoadTestExample example = new LoadTestExample();
+            example.createCriteria().andIdIn(cases.stream().map(TestPlanLoadCase::getLoadCaseId).collect(Collectors.toList()));
+            List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
+            List<String> names = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
+            TestPlan testPlan = testPlanService.get(cases.get(0).getTestPlanId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
+            return JSON.toJSONString(details);
         }
         return null;
     }
@@ -318,11 +309,10 @@ public class TestPlanLoadCaseService {
             example.createCriteria().andIdIn(cases.stream().map(TestPlanLoadCase::getLoadCaseId).collect(Collectors.toList()));
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(loadTests)) {
-                // todo
-//                List<String> names = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
-//                TestPlan testPlan = testPlanMapper.selectByPrimaryKey(cases.get(0).getTestPlanId());
-//                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
-//                return JSON.toJSONString(details);
+                List<String> names = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
+                TestPlan testPlan = testPlanService.get(cases.get(0).getTestPlanId());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
+                return JSON.toJSONString(details);
             }
         }
         return null;

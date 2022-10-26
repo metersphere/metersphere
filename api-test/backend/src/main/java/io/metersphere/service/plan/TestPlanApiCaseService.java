@@ -16,7 +16,6 @@ import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
-import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -40,6 +39,7 @@ import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.service.plan.remote.TestPlanService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -94,9 +94,6 @@ public class TestPlanApiCaseService {
     ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Lazy
     @Resource
-    private ApiScenarioEnvService apiScenarioEnvService;
-    @Lazy
-    @Resource
     private ApiModuleService apiModuleService;
     @Resource
     BaseProjectService baseProjectService;
@@ -104,6 +101,8 @@ public class TestPlanApiCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ApiExecuteService apiExecuteService;
+    @Resource
+    private TestPlanService testPlanService;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -586,15 +585,7 @@ public class TestPlanApiCaseService {
             }
         }
 
-        // todo check
-//        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-//        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
-//                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
-//            testPlan.setStatus(TestPlanStatus.Underway.name());
-//            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
-//            testPlan.setActualEndTime(null);
-//            testPlanMapper.updateByPrimaryKey(testPlan);
-//        }
+        testPlanService.statusReset(request.getPlanId());
         sqlSession.flushStatements();
     }
 
@@ -602,8 +593,8 @@ public class TestPlanApiCaseService {
         TestPlanApiCase t = new TestPlanApiCase();
         Long nextApiOrder = ServiceUtils.getNextOrder(planId, extTestPlanApiCaseMapper::getLastOrder);
         for (String id : ids) {
-            ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(id);
-            if (null != apitest) {
+            ApiTestCaseWithBLOBs apiTest = apiTestCaseMapper.selectByPrimaryKey(id);
+            if (null != apiTest) {
                 t.setId(UUID.randomUUID().toString());
                 t.setTestPlanId(planId);
                 t.setApiCaseId(id);
