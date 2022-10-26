@@ -5,11 +5,13 @@ import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -107,9 +109,12 @@ public class MsLogAspect {
     /**
      * 切面 配置通知
      */
-    @AfterReturning("logPoinCut()")
-    public void saveLog(JoinPoint joinPoint) {
+    @AfterReturning(value = "logPoinCut()", returning = "result")
+    public void saveLog(JoinPoint joinPoint, Object result) {
         try {
+            if (this.hasLogicalFail(result)) {
+                return;
+            }
             //从切面织入点处通过反射机制获取织入点处的方法
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             //获取切入点所在的方法
@@ -262,5 +267,18 @@ public class MsLogAspect {
             operUser.remove();
             beforeValue.remove();
         }
+    }
+
+
+    /**
+     * 方法正常返回，但是执行逻辑是失败的
+     * @param result 方法返回值
+     * @return boolean
+     */
+    private boolean hasLogicalFail(Object result) {
+        if (result instanceof ExcelResponse) {
+            return BooleanUtils.isFalse(((ExcelResponse<?>) result).getSuccess());
+        }
+        return false;
     }
 }
