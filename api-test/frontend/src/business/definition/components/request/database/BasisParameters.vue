@@ -365,7 +365,7 @@ export default {
       });
     },
     openEnvironmentConfig() {
-      this.$refs.environmentConfig.open(getCurrentProjectID());
+      this.$refs.environmentConfig.open(this.request.projectId ? this.request.projectId : getCurrentProjectID());
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName) {
       this.databaseConfigsOptions = [];
