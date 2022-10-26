@@ -348,4 +348,8 @@ public class TestPlanController {
         return testPlanRerunService.rerun(request);
     }
 
+    @GetMapping(value = "/status/reset/{planId}")
+    public void resetStatus(@PathVariable String planId) {
+        testPlanService.resetStatus(planId);
+    }
 }

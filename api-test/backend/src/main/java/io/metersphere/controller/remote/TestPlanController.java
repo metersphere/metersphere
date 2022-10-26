@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 public class TestPlanController {
     @Resource
-    private RemoteTestPlanService testPlanService;
+    private RemoteTestPlanService remoteTestPlanService;
 
     public static final List<String> EXCLUDE_APIS = new ArrayList<>(2) {{
         add("test/plan/api/case");
@@ -25,13 +25,13 @@ public class TestPlanController {
     @GetMapping("/**")
     public List getStageOption(HttpServletRequest request) {
         excludeApi(request.getRequestURI());
-        return testPlanService.get(request.getRequestURI());
+        return remoteTestPlanService.get(request.getRequestURI());
     }
 
     @PostMapping("/**")
     public List getPage(HttpServletRequest request, @RequestBody QueryTestPlanRequest params) {
         excludeApi(request.getRequestURI());
-        return testPlanService.post(request.getRequestURI(), params);
+        return remoteTestPlanService.post(request.getRequestURI(), params);
     }
 
     /**

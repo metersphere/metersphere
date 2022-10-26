@@ -281,12 +281,11 @@ public class TestPlanService {
             testPlan.setActualStartTime(System.currentTimeMillis());
         }
 
-        int i;
         if (testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
-            i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
         } else {  //  有修改字段的调用，为保证将某些时间置null的情况，使用updateByPrimaryKey
             baseScheduleService.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
-            i = testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
+            testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
         }
         return testPlanMapper.selectByPrimaryKey(testPlan.getId());
     }
@@ -329,7 +328,7 @@ public class TestPlanService {
 
     public void calcTestPlanRate(List<TestPlanDTOWithMetric> testPlans) {
         // 速度太慢 todo
-        testPlans.forEach(testPlan -> calcTestPlanRate(testPlan));
+        testPlans.forEach(this::calcTestPlanRate);
     }
 
     public void calcTestPlanRate(TestPlanDTOWithMetric testPlan) {
@@ -579,13 +578,7 @@ public class TestPlanService {
 
         caseTestRelevance(request, testCaseIds);
 
-        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
-                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
-            testPlan.setStatus(TestPlanStatus.Underway.name());
-            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
-            testPlan.setActualEndTime(null);
-            testPlanMapper.updateByPrimaryKey(testPlan);
-        }
+        resetStatus(testPlan.getId());
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -856,7 +849,6 @@ public class TestPlanService {
             uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
         }
 
-//        if (apiCaseReportMap != null && scenarioReportMap != null && loadCaseReportMap != null && uiScenarioReportMap != null) todo 需要判断？
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap, scenarioReportMap, loadCaseReportMap, uiScenarioReportMap);
 
@@ -1845,5 +1837,16 @@ public class TestPlanService {
 
         baseScheduleService.addSchedule(schedule);
         baseScheduleService.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
+    }
+
+    public void resetStatus(String planId) {
+        TestPlan testPlan = get(planId);
+        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
+                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
+            testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
+            testPlan.setActualEndTime(null);
+            testPlanMapper.updateByPrimaryKey(testPlan);
+        }
     }
 }

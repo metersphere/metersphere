@@ -11,10 +11,8 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.plan.*;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
@@ -40,6 +38,7 @@ import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
+import io.metersphere.service.plan.remote.TestPlanService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioService;
@@ -89,10 +88,6 @@ public class TestPlanScenarioCaseService {
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
-    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
-    @Resource
-    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
-    @Resource
     private ApiScenarioEnvService apiScenarioEnvService;
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
@@ -105,6 +100,8 @@ public class TestPlanScenarioCaseService {
     @Lazy
     @Resource
     private ApiScenarioModuleService apiScenarioModuleService;
+    @Resource
+    private TestPlanService testPlanService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -221,6 +218,7 @@ public class TestPlanScenarioCaseService {
             nextOrder += ServiceUtils.ORDER_STEP;
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
         }
+        testPlanService.statusReset(request.getPlanId());
     }
 
     public int delete(String id) {
@@ -465,10 +463,9 @@ public class TestPlanScenarioCaseService {
         TestPlanApiScenario scenario = testPlanApiScenarioMapper.selectByPrimaryKey(id);
         if (scenario != null) {
             ApiScenarioWithBLOBs testCase = apiScenarioMapper.selectByPrimaryKey(scenario.getApiScenarioId());
-            // todo check
-//            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(scenario.getTestPlanId());
-//            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testPlan.getProjectId(), testCase.getName(), scenario.getCreateUser(), new LinkedList<>());
-//            return JSON.toJSONString(details);
+            TestPlan testPlan = testPlanService.get(scenario.getTestPlanId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testPlan.getProjectId(), testCase.getName(), scenario.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
         }
         return null;
     }
@@ -686,6 +683,7 @@ public class TestPlanScenarioCaseService {
                 }
             }
         }
+        testPlanService.statusReset(planId);
     }
 
     public void copyPlan(String sourcePlanId, String targetPlanId) {
