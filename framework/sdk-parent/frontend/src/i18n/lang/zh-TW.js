@@ -568,7 +568,8 @@ const message = {
     selenium_docker_url: 'selenium-docker 地址',
     selenium_docker: {
       url_tip: '例如:http://localhost:4444',
-    }
+    },
+    local_selenium_url: '本地 selenium-server 地址'
   },
   custom_field: {
     add_option: '添加選項',
