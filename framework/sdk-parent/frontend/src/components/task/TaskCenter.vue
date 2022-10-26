@@ -83,7 +83,7 @@
         </div>
         <el-divider direction="horizontal" style="width: 100%"/>
 
-        <div class="report-container">
+        <div class="ms-body-container">
           <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
             <el-card class="ms-card-task" @click.native="showReport(item)">
               <span>
@@ -443,7 +443,7 @@ export default {
 
 
 <style scoped>
-.report-container {
+.ms-body-container {
   height: calc(100vh - 270px);
   overflow-y: auto;
 }
