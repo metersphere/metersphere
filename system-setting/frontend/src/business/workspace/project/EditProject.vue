@@ -213,7 +213,7 @@ export default {
         return;
       }
       checkThirdPlatformProject(this.form).then(() => {
-        this.$success("OK");
+        this.$success(this.$t("system.check_third_project_success"));
       });
     },
     getOptions() {
