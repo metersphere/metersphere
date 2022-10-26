@@ -42,52 +42,9 @@ public class ApiEnvironmentRunningParamService {
         if (environment == null) {
             return;
         }
-        boolean envNeedUpdate = false;
         try {
             JSONObject configObj = JSONUtil.parseObject(environment.getConfig());
-            if (configObj.has(COMMON_CONFIG)) {
-                JSONObject commonConfig = configObj.optJSONObject(COMMON_CONFIG);
-                if (commonConfig.has(VARIABLES)) {
-                    JSONArray variables = commonConfig.optJSONArray(VARIABLES);
-                    if (variables == null) {
-                        return;
-                    }
-                    for (Map.Entry<String, String> entry : varMap.entrySet()) {
-                        boolean contains = false;
-                        for (int i = 0; i < variables.length(); i++) {
-                            JSONObject jsonObj = variables.optJSONObject(i);
-                            if (jsonObj.has(NAME) && StringUtils.equals(jsonObj.optString(NAME), entry.getKey())) {
-                                contains = true;
-                                if (jsonObj.has(VALUE) && StringUtils.equals(jsonObj.optString(VALUE), entry.getValue())) {
-                                    break;
-                                } else {
-                                    envNeedUpdate = true;
-                                    jsonObj.put(VALUE, entry.getValue());
-                                }
-                            }
-                        }
-                        if (!contains) {
-                            envNeedUpdate = true;
-                            JSONObject itemObj = new JSONObject();
-                            itemObj.put(NAME, entry.getKey());
-                            itemObj.put(VALUE, entry.getValue());
-                            itemObj.put(ENABLE, true);
-                            if (variables.length() == 0) {
-                                variables.put(itemObj);
-                            } else {
-                                variables.put(variables.length() - 1, itemObj);
-                            }
-                            commonConfig.put(VARIABLES, variables);
-                        }
-                    }
-                } else {
-                    List<JSONObject> variables = createArray(varMap);
-                    JSONObject emptyObj = new JSONObject();
-                    emptyObj.put(ENABLE, true);
-                    variables.add(emptyObj);
-                    commonConfig.put(VARIABLES, variables);
-                }
-            } else {
+            if (!configObj.has(COMMON_CONFIG)) {
                 JSONObject commonConfig = new JSONObject();
                 List<JSONObject> variables = createArray(varMap);
                 JSONObject emptyObj = new JSONObject();
@@ -95,12 +52,57 @@ public class ApiEnvironmentRunningParamService {
                 variables.add(emptyObj);
                 commonConfig.put(VARIABLES, variables);
                 configObj.put(COMMON_CONFIG, commonConfig);
+                return;
+            }
+            JSONObject commonConfig = configObj.optJSONObject(COMMON_CONFIG);
+            if (!commonConfig.has(VARIABLES)) {
+                List<JSONObject> variables = createArray(varMap);
+                JSONObject emptyObj = new JSONObject();
+                emptyObj.put(ENABLE, true);
+                variables.add(emptyObj);
+                commonConfig.put(VARIABLES, variables);
+                return;
+            }
+            JSONArray variables = commonConfig.optJSONArray(VARIABLES);
+            if (variables == null) {
+                return;
+            }
+            boolean envNeedUpdate = false;
+            for (Map.Entry<String, String> entry : varMap.entrySet()) {
+                boolean contains = false;
+                for (int i = 0; i < variables.length(); i++) {
+                    JSONObject jsonObj = variables.optJSONObject(i);
+                    if (jsonObj.has(NAME) && StringUtils.equals(jsonObj.optString(NAME), entry.getKey())) {
+                        contains = true;
+                        if (jsonObj.has(VALUE) && StringUtils.equals(jsonObj.optString(VALUE), entry.getValue())) {
+                            break;
+                        } else {
+                            envNeedUpdate = true;
+                            jsonObj.put(VALUE, entry.getValue());
+                        }
+                    }
+                }
+                if (!contains) {
+                    envNeedUpdate = true;
+                    JSONObject itemObj = new JSONObject();
+                    itemObj.put(NAME, entry.getKey());
+                    itemObj.put(VALUE, entry.getValue());
+                    itemObj.put(ENABLE, true);
+                    if (variables.length() > 0 && StringUtils.isEmpty(variables.optJSONObject(variables.length() - 1).optString(NAME))) {
+                        variables.put(variables.length() - 1, itemObj);
+                    } else {
+                        variables.put(itemObj);
+                    }
+                    JSONObject emptyObj = new JSONObject();
+                    emptyObj.put(ENABLE, true);
+                    variables.put(emptyObj);
+                    commonConfig.put(VARIABLES, variables);
+                }
             }
             if (envNeedUpdate) {
                 environment.setConfig(configObj.toString());
                 testEnvironmentMapper.updateByPrimaryKeyWithBLOBs(environment);
             }
-
         } catch (Exception ex) {
             LoggerUtil.error("设置环境变量异常", ex);
         }
