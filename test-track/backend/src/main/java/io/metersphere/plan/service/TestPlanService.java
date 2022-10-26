@@ -1518,7 +1518,7 @@ public class TestPlanService {
         if (StringUtils.equals(envType, "JSON") && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
             this.setPlanCaseEnv(testPlanId, runModeConfig);
-        } else if (StringUtils.equals(envType, "JSON") && StringUtils.isNotBlank(environmentGroupId)) {
+        } else if (StringUtils.equals(envType, "GROUP") && StringUtils.isNotBlank(environmentGroupId)) {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
             this.setPlanCaseEnv(testPlanId, runModeConfig);
         }
