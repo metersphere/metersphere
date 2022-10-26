@@ -1,7 +1,7 @@
 <template>
   <div class="setting-container">
     <div class="server-setting-row">
-      <div class="server-label">本地 selenium-server 地址</div>
+      <div class="server-label">{{$t("system_config.local_selenium_url")}}</div>
       <div class="server-input">
         <el-input
           size="small"
