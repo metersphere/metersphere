@@ -30,7 +30,7 @@ export function apiRunningTask(id, params) {
 }
 
 export function dubboProviders(params) {
-  return post('/home/dubbo/providers', params);
+  return post('/home/api/dubbo/providers', params);
 }
 
 export function databaseValidate(params) {
