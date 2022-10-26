@@ -268,17 +268,21 @@ export default {
       showMore: false,
       buttons: [
         {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch
+          name: this.$t('test_track.case.batch_edit_case'),
+          handleClick: this.handleEditBatch,
+          permissions: ['PROJECT_TRACK_REVIEW:READ+EDIT']
         },
         {
-          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
+          name: this.$t('test_track.case.batch_unlink'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']
         }
       ],
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_REVIEW:READ+EDIT']
         },
         {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock", type: "danger",
