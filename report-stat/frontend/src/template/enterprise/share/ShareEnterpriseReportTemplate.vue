@@ -1,10 +1,10 @@
 <template>
-  <report-chart v-if="!needReloading" :read-only="true" :need-full-screen="false" :chart-type="dataOption.chartType"
+  <report-chart v-if="!needReloading" :read-only="true" :need-full-screen="false"
+                :chart-type="dataOption.chartType"
                 ref="analysisChart" :load-option="dataOption.loadOption" :pie-option="dataOption.pieOption"/>
 </template>
 
 <script>
-// import ReportChart from "@/template/enterprise/share/ReportChart";
 import ReportChart from "@/business/enterprisereport/components/chart/ReportChart";
 import {getShareId, selectShareReportById} from "@/api/share";
 

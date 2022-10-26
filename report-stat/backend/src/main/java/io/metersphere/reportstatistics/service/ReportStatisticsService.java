@@ -84,7 +84,7 @@ public class ReportStatisticsService {
         boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
         if (isReportNeedUpdate) {
             TestCaseCountRequest countRequest = JSON.parseObject(blob.getSelectOption(), TestCaseCountRequest.class);
-            Map<String, Object> returnDataOption = this.reloadData(countRequest, JSON.toJSONString(dataOption.get("chartType")));
+            Map<String, Object> returnDataOption = this.reloadData(countRequest, dataOption.get("chartType").toString());
             if (returnDataOption != null) {
                 dataOption = returnDataOption;
             }
@@ -94,8 +94,13 @@ public class ReportStatisticsService {
             if (dataOption.get("tableData") != null) {
                 String tableDataJsonStr = JSON.toJSONString(dataOption.get("tableData"));
                 List<TestCaseCountTableDTO> dtos = JSON.parseArray(tableDataJsonStr, TestCaseCountTableDTO.class);
-                String yaxisStr = JSON.toJSONString(selectOption.get("yaxis"));
-                List<String> yaxis = JSON.parseArray(yaxisStr, String.class);
+                List<String> yaxis = new ArrayList<>();
+                try {
+                    yaxis = (List<String>) selectOption.get("yaxis");
+                } catch (Exception e) {
+                    String yaxisStr = JSON.toJSONString(selectOption.get("yaxis"));
+                    yaxis = JSON.parseArray(yaxisStr, String.class);
+                }
                 TestCaseCountTableDataDTO showTable = this.countShowTable(String.valueOf(selectOption.get("xaxis")), yaxis, dtos);
                 dataOption.put("showTable", showTable);
                 blob.setDataOption(JSON.toJSONString(dataOption));

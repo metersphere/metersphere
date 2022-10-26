@@ -203,6 +203,12 @@ export default {
       if (typeof (formatData.xaxis) === 'string') {
         formatData.xaxis = JSON.parse(formatData.xaxis);
       }
+      if (typeof (formatData.xAxis) === 'string') {
+        formatData.xAxis = JSON.parse(formatData.xAxis);
+      }
+      if (typeof (formatData.yAxis) === 'string') {
+        formatData.yAxis = JSON.parse(formatData.yAxis);
+      }
       if (typeof (formatData.series) === 'string') {
         formatData.series = JSON.parse(formatData.series);
       }
