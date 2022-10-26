@@ -171,41 +171,8 @@ public class TestReviewTestCaseService {
 
     public TestReviewCaseDTO get(String reviewId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(reviewId);
-//        List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testReviewCaseDTO.getCaseId());
-//        testCaseTestDTOS.forEach(dto -> {
-//            setTestName(dto);
-//        });
-//        testReviewCaseDTO.setList(testCaseTestDTOS);
         return testReviewCaseDTO;
     }
-
-    // todo check
-//    private void setTestName(TestCaseTestDTO dto) {
-//        String type = dto.getTestType();
-//        String id = dto.getTestId();
-//        switch (type) {
-//            case "performance":
-//                LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
-//                if (loadTest != null) {
-//                    dto.setTestName(loadTest.getName());
-//                }
-//                break;
-//            case "testcase":
-//                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
-//                if (apiTestCaseWithBLOBs != null) {
-//                    dto.setTestName(apiTestCaseWithBLOBs.getName());
-//                }
-//                break;
-//            case "automation":
-//                ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
-//                if (apiScenarioWithBLOBs != null) {
-//                    dto.setTestName(apiScenarioWithBLOBs.getName());
-//                }
-//                break;
-//            default:
-//                break;
-//        }
-//    }
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
