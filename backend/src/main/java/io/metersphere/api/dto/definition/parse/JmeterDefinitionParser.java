@@ -277,7 +277,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         apiDefinition.setName(element.getName());
         apiDefinition.setProjectId(this.projectId);
         apiDefinition.setRequest(JSON.toJSONString(element));
-       
         apiDefinition.setModulePath("/" + this.planName);
         // todo 除HTTP协议外，其它协议设置默认模块
         apiDefinition.setStatus("Prepare");
@@ -551,6 +550,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         msTCPSampler.setServer(tcpSampler.getServer());
         msTCPSampler.setPort(tcpSampler.getPort() + "");
         msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
+        msTCPSampler.setClassname(tcpSampler.getProperty(TCPSampler.CLASSNAME).getStringValue());
         msTCPSampler.setReUseConnection(tcpSampler.getProperty(TCPSampler.RE_USE_CONNECTION).getBooleanValue());
         msTCPSampler.setNodelay(tcpSampler.getProperty(TCPSampler.NODELAY).getBooleanValue());
         msTCPSampler.setCloseConnection(tcpSampler.isCloseConnection());
