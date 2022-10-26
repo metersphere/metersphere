@@ -142,21 +142,6 @@ pipeline {
             withCredentials([string(credentialsId: 'wechat-bot-webhook', variable: 'WEBHOOK')]) {
                 qyWechatNotification failNotify: true, mentionedId: '', mentionedMobile: '', webhookUrl: "$WEBHOOK"
             }
-            script {
-                try {
-                    if (env.BUILD_PARENT || env.BUILD_SDK) {
-                        println "JOB_NAME=$JOB_NAME, BUILD_NUMBER=$BUILD_NUMBER, BUILD_URL=$BUILD_URL"
-                        Hudson.instance.getItemByFullName("$JOB_NAME").builds.each {
-                            if(it.number == Integer.parseInt("$BUILD_NUMBER")) {
-                                println 'Deleting build number ' + it.number
-                                it.delete()
-                                break;
-                            }
-                        }
-                    }
-                } catch (NoSuchElementException) {
-                }
-            }
         }
     }
 }
