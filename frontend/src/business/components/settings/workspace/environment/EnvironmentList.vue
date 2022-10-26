@@ -74,7 +74,7 @@
         <el-col :span="20">
           <el-form label-width="80px" :rules="rules" style="display: flow-root">
             <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
-              <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
+              <el-select v-model="currentProjectId" filterable clearable :disabled="!ifCreate">
                 <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
@@ -415,9 +415,6 @@ export default {
       downloadFile('MS_' + envs.length + '_Environments.json', JSON.stringify(envs));
     },
 
-    handleProjectChange() {   //项目选择下拉框选择其他项目后清空“启用条件”,因为项目变了模块也就变了。
-      this.currentEnvironment.config.httpConfig.conditions = [];
-    },
     parseDomainName(environment) {   //解析出环境域名用于前端展示
       if (environment.config) {
         const config = JSON.parse(environment.config);
