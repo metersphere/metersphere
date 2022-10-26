@@ -20,7 +20,7 @@ public class ServiceIntegrationController {
     private BaseIntegrationService baseIntegrationService;
 
     @PostMapping("/save")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_SERVICE_INTEGRATION, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#service.id)", msClass = BaseIntegrationService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_SERVICE_INTEGRATION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#service.workspaceId, #service.platform)",  content = "#msClass.getLogDetails(#service.workspaceId, #service.platform)", msClass = BaseIntegrationService.class)
     public ServiceIntegration save(@RequestBody ServiceIntegration service) {
         return baseIntegrationService.save(service);
     }
@@ -31,7 +31,7 @@ public class ServiceIntegrationController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_SERVICE_INTEGRATION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = BaseIntegrationService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_SERVICE_INTEGRATION, title = "#request.platform", type = OperLogConstants.DELETE, msClass = BaseIntegrationService.class)
     public void delete(@RequestBody IntegrationRequest request) {
         baseIntegrationService.delete(request);
     }
