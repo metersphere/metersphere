@@ -122,6 +122,7 @@ export default {
 .scenario-result {
   margin-top: 20px;
   margin-bottom: 20px;
+  min-width: 1200px;
 }
 
 .method {
