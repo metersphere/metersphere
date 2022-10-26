@@ -1932,6 +1932,9 @@ public class ApiScenarioService {
                 api.setName(ServiceUtils.getCopyName(api.getName()));
                 api.setApiScenarioModuleId(request.getApiScenarioModuleId());
                 api.setModulePath(request.getModulePath());
+                api.setCreateUser(SessionUtils.getUserId());
+                api.setUserId(SessionUtils.getUserId());
+                api.setPrincipal(SessionUtils.getUserId());
                 api.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
                 api.setCreateTime(System.currentTimeMillis());
                 api.setUpdateTime(System.currentTimeMillis());
