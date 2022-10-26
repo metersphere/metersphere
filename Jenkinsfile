@@ -141,7 +141,7 @@ pipeline {
             sh "echo \$WEBHOOK\n"
             script {
                 try {
-                    if ($BUILD_PARENT || $BUILD_SDK) {
+                    if ("$BUILD_PARENT".equals("true") || "$BUILD_SDK".equals("true")) {
                         println "JOB_NAME=$JOB_NAME, BUILD_NUMBER=$BUILD_NUMBER, BUILD_URL=$BUILD_URL"
                         Hudson.instance.getItemByFullName("$JOB_NAME").builds.each {
                             if(it.number == Integer.parseInt("$BUILD_NUMBER")) {
