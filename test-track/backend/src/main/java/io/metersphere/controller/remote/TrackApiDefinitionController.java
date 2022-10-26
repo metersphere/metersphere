@@ -1,7 +1,7 @@
 package io.metersphere.controller.remote;
 
+import io.metersphere.plan.request.api.ApiDefinitionRequest;
 import io.metersphere.plan.service.remote.api.PlanApiDefinitionService;
-import io.metersphere.xpack.api.dto.request.ApiDefinitionRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
