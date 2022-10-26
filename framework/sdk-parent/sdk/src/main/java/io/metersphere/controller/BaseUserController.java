@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.AuthUserIssueRequest;
+import io.metersphere.request.member.EditPassWordRequest;
 import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.service.BaseUserService;
@@ -41,6 +42,15 @@ public class BaseUserController {
     @MsAuditLog(module = OperLogModule.PERSONAL_INFORMATION_PERSONAL_SETTINGS, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = BaseUserService.class)
     public UserDTO updateCurrentUser(@RequestBody User user) {
         return baseUserService.updateCurrentUser(user);
+    }
+
+    /*
+     * 修改当前用户密码
+     * */
+    @PostMapping("/update/password")
+    @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, title = "个人密码")
+    public int updateCurrentUserPassword(@RequestBody EditPassWordRequest request) {
+        return baseUserService.updateCurrentUserPassword(request);
     }
 
 

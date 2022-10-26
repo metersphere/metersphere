@@ -190,14 +190,6 @@ public class UserController {
         userService.deleteProjectMember(projectId, userId);
     }
 
-    /*
-     * 修改当前用户密码
-     * */
-    @PostMapping("/update/password")
-    @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, title = "个人密码")
-    public int updateCurrentUserPassword(@RequestBody EditPassWordRequest request) {
-        return userService.updateCurrentUserPassword(request);
-    }
 
     /*管理员修改用户密码*/
     @PostMapping("/special/password")
