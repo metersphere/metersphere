@@ -70,7 +70,7 @@ public class ChromeUtil {
                     driver.get(url);
                     driver.manage().window().fullscreen();
                     //预留echart动画的加载时间
-                    Thread.sleep(3 * 1000);
+                    Thread.sleep(10 * 1000);
                     String js = "var chartsCanvas = document.getElementById('picChart').getElementsByTagName('canvas')[0];" +
                             "var imageUrl = null;" +
                             "if (chartsCanvas!= null) {" +
