@@ -148,7 +148,7 @@
                            :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
               <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult==='PENDING' || row.lastResult==='UnExecute'">
-                <ms-test-plan-api-status status="PENDING"/>
+                <ms-test-plan-api-status :status="row.lastResult==='UnExecute' ? 'PENDING' : row.lastResult"/>
               </el-link>
             </template>
           </ms-table-column>
