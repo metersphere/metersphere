@@ -565,7 +565,8 @@ const message = {
     selenium_docker_url: 'selenium-docker URL',
     selenium_docker: {
       url_tip: 'example: http://localhost:4444',
-    }
+    },
+    local_selenium_url: 'Local selenium-server URL'
   },
   custom_field: {
     add_option: 'Add Option',
