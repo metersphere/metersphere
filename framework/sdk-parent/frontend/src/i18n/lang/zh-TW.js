@@ -565,7 +565,7 @@ const message = {
       host_tip: '例如:http://ms-prometheus:9090',
       host_is_null: 'Prometheus地址不能為空'
     },
-    selenium_docker_url: 'selenium-docker 地址',
+    selenium_docker_url: 'selenium-grid 地址',
     selenium_docker: {
       url_tip: '例如:http://localhost:4444',
     },
