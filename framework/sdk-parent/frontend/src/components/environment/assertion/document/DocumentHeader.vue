@@ -37,7 +37,7 @@ export default {
   methods: {
     add() {
       let obj = new AssertionDocument({id: "root"});
-      if (this.document.type === "JSON" && this.document.data.json.length === 0) {
+      if (this.document.type === "JSON" || this.document.type === "json" && this.document.data.json.length === 0) {
         this.document.data.json.push(obj);
       }
       if (this.document.type === "XML" && this.document.data.xml.length === 0) {
@@ -62,7 +62,7 @@ export default {
 
 <style scoped>
 .assertion-btn {
-  text-align: center;
-  width: 60px;
+  text-align: right;
+  width: 180px;
 }
 </style>

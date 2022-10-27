@@ -18,6 +18,6 @@ public class ReportStatShareController {
 
     @PostMapping("/select/report/by/id")
     public ReportStatisticsWithBLOBs selectById(@RequestBody ReportStatisticsSaveRequest request) {
-        return reportStatisticsService.selectById(request.getId());
+        return reportStatisticsService.selectById(request.getId(), true);
     }
 }

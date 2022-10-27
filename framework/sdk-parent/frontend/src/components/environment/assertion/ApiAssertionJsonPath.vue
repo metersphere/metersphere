@@ -27,9 +27,11 @@
       </el-col>
       <el-col class="assertion-btn">
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
-          <el-switch v-model="jsonPath.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right: 10px"/>
+          <el-switch v-model="jsonPath.enable" class="enable-switch" size="mini" :disabled="isReadOnly"
+                     style="width: 30px;margin-right: 10px"/>
         </el-tooltip>
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
+                   v-if="edit"/>
         <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
@@ -124,7 +126,7 @@ export default {
 }
 
 .assertion-btn {
-  text-align: center;
-  width: 80px;
+  text-align: right;
+  width: 180px;
 }
 </style>
