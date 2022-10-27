@@ -27,6 +27,7 @@ import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.plan.service.TestPlanProjectService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.testcase.*;
 import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
@@ -65,6 +66,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
     @Resource
     TestPlanProjectService testPlanProjectService;
+    @Resource
+    TestPlanService testPlanService;
 
     public TestCaseNodeService() {
         super(TestCaseNodeDTO.class);
@@ -351,6 +354,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getRelatePlanNodes(QueryTestCaseRequest request) {
         request.setNodeIds(null);
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setRepeatCase(true);
+        }
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestPlanRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));

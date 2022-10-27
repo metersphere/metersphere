@@ -323,10 +323,14 @@
     <select id="getTestPlanRelateCountNodes" resultType="io.metersphere.dto.TestCaseNodeDTO">
         select tcn.id, count(*) as caseNum, test_case.project_id
         from test_case
-        left join test_plan_test_case tptc on tptc.case_id = test_case.id and tptc.plan_id = #{request.planId}
+        <if test="!request.repeatCase">
+            left join test_plan_test_case tptc on tptc.case_id = test_case.id and tptc.plan_id = #{request.planId}
+        </if>
         left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
-        and tptc.case_id is null
+        <if test="!request.repeatCase">
+            and tptc.case_id is null
+        </if>
         group by tcn.id
     </select>
     <select id="getTestReviewRelateCountNodes" resultType="io.metersphere.dto.TestCaseNodeDTO">
