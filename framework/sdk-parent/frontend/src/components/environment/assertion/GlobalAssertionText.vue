@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import {Regex, ASSERTION_REGEX_SUBJECT} from "../../../model/ApiTestModel";
+import {ASSERTION_REGEX_SUBJECT, Regex} from "../../../model/ApiTestModel";
 
 export default {
   name: "MsApiAssertionText",
@@ -123,6 +123,6 @@ export default {
 }
 
 .assertion-btn {
-  width: 60px;
+  width: 180px;
 }
 </style>
