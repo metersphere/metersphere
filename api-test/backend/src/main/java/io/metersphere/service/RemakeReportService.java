@@ -22,6 +22,7 @@ import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.commons.utils.FixedCapacityUtil;
@@ -119,7 +120,7 @@ public class RemakeReportService {
                 }
             } else {
                 ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
-                if (report != null) {
+                if (report != null && !StringUtils.equals(request.getRunType(), RunModeConstants.SERIAL.toString())) {
                     report.setStatus(ApiReportStatus.ERROR.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
@@ -143,31 +144,6 @@ public class RemakeReportService {
         } catch (Exception e) {
             LogUtil.error(e);
         }
-    }
-
-    public void remakeScenario(String runMode, String scenarioId, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReportWithBLOBs report) {
-        // 生成失败报告
-        if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name())) {
-            TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioId);
-            if (testPlanApiScenario != null) {
-                report.setScenarioId(scenarioWithBLOBs.getId());
-                report.setEndTime(System.currentTimeMillis());
-
-                testPlanApiScenario.setLastResult(ApiReportStatus.ERROR.name());
-                testPlanApiScenario.setPassRate("0%");
-                testPlanApiScenario.setReportId(report.getId());
-                testPlanApiScenario.setUpdateTime(report.getCreateTime());
-                testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-            }
-        } else {
-            scenarioWithBLOBs.setLastResult(ApiReportStatus.ERROR.name());
-            scenarioWithBLOBs.setPassRate("0%");
-            scenarioWithBLOBs.setReportId(report.getId());
-            scenarioWithBLOBs.setExecuteTimes(1);
-            apiScenarioMapper.updateByPrimaryKey(scenarioWithBLOBs);
-        }
-        report.setStatus(ApiReportStatus.ERROR.name());
-        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
     }
 
     public void testEnded(JmeterRunRequestDTO request, String errorMsg) {

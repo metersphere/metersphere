@@ -1,11 +1,10 @@
 package io.metersphere.api.jmeter.utils;
 
 
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
-import io.metersphere.dto.TestResourceDTO;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,7 +26,7 @@ public class SmoothWeighted {
         if (StringUtils.isEmpty(poolId)) {
             return;
         }
-        List<JvmInfoDTO> resources = new ArrayList<>();
+        List<TestResource> resources = new ArrayList<>();
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(poolId);
         if (pool.isPool()) {
             resources = GenerateHashTreeUtil.setPoolResource(poolId);
@@ -39,8 +38,8 @@ public class SmoothWeighted {
         }
 
         Map<String, ServerConfig> configs = new HashMap<>();
-        for (JvmInfoDTO jvmInfoDTO : resources) {
-            String configuration = jvmInfoDTO.getTestResource().getConfiguration();
+        for (TestResource testResource : resources) {
+            String configuration = testResource.getConfiguration();
             if (StringUtils.isNotEmpty(configuration)) {
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String uri = String.format(BASE_URL + "/jmeter/api/start", node.getIp(), node.getPort());
@@ -115,10 +114,10 @@ public class SmoothWeighted {
     public static ServerConfig getResource(String poolId) {
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(poolId);
         if (pool.isPool()) {
-            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(poolId);
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(poolId);
             if (CollectionUtils.isNotEmpty(resources)) {
                 int index = (int) (Math.random() * resources.size());
-                TestResourceDTO testResource = resources.get(index).getTestResource();
+                TestResource testResource = resources.get(index);
                 NodeDTO node = JSON.parseObject(testResource.getConfiguration(), NodeDTO.class);
                 String nodeIp = node.getIp();
                 Integer port = node.getPort();
