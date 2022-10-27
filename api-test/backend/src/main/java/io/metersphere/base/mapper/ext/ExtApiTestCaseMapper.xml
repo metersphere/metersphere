@@ -114,27 +114,12 @@
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
-                <if test="${object}.value.contains(''.toString()) or ${object}.value.contains('PENDING'.toString())">
-                    or t1.status is null or t1.status = ''
-                </if>
-                <if test="${condition}.exec_result != null">
-                    )
-                </if>
             </when>
             <when test='${object}.operator == "not in"'>
                 not in
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
-                <if test="${condition}.exec_result != null and (${object}.value.contains(''.toString()) or ${object}.value.contains('PENDING'.toString()))">
-                    and t1.status is not null and t1.status != ''
-                </if>
-                <if test="${condition}.exec_result != null and !${object}.value.contains('PENDING'.toString())">
-                    or t1.status is null or t1.status = ''
-                </if>
-                <if test="${condition}.exec_result != null">
-                    )
-                </if>
             </when>
             <when test='${object}.operator == "between"'>
                 between #{${object}.value[0]} and #{${object}.value[1]}
@@ -240,9 +225,35 @@
         </if>
         <if test="${condition}.exec_result != null">
             and (t1.status
-            <include refid="condition">
-                <property name="object" value="${condition}.exec_result"/>
-            </include>
+            <choose>
+                <when test='${condition}.exec_result.operator == "in"'>
+                    in
+                    <foreach collection="${condition}.exec_result.value" item="v" separator="," open="(" close=")">
+                        #{v}
+                    </foreach>
+                    <if test="${condition}.exec_result.value.contains('') or ${condition}.exec_result.value.contains('PENDING')">
+                        or t1.status is null or t1.status = ''
+                    </if>
+                    <if test="${condition}.exec_result != null">
+                        )
+                    </if>
+                </when>
+                <when test='${condition}.exec_result.operator == "not in"'>
+                    not in
+                    <foreach collection="${condition}.exec_result.value" item="v" separator="," open="(" close=")">
+                        #{v}
+                    </foreach>
+                    <if test="${condition}.exec_result != null and (${condition}.exec_result.value.contains('') or ${condition}.exec_result.value.contains('PENDING'))">
+                        and t1.status is not null and t1.status != ''
+                    </if>
+                    <if test="${condition}.exec_result != null and !${condition}.exec_result.value.contains('PENDING')">
+                        or t1.status is null or t1.status = ''
+                    </if>
+                    <if test="${condition}.exec_result != null">
+                        )
+                    </if>
+                </when>
+            </choose>
         </if>
     </sql>
 
