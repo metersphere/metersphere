@@ -48,6 +48,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         this.key = IssuesManagePlatform.Jira.name();
+        this.isThirdPartTemplate = true;
         jiraClientV2 = new JiraClientV2();
         setConfig();
     }
@@ -799,7 +800,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         if (defaultValue instanceof String) {
                             msDefaultValue = defaultValue;
                         } else {
-                            msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate();
+                            msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate().toString();
                         }
                     } else if (customFieldDao.getType().equals(CustomFieldType.DATETIME.getValue())) {
                         if (defaultValue instanceof String) {

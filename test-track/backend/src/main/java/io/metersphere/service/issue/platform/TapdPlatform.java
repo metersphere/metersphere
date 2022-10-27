@@ -31,6 +31,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
         this.key = IssuesManagePlatform.Tapd.name();
+        this.isThirdPartTemplate = true;
         tapdClient = new TapdClient();
         setConfig();
     }
