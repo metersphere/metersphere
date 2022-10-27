@@ -259,8 +259,8 @@ public class JmeterDocumentParser implements EngineSourceParser {
         }
         StringBuilder csv = new StringBuilder();
         Object config = ((Map) csvConfig).get(filename);
-        boolean csvSplit = (Boolean) ((Map) (config)).get("csvSplit");
-        if (!csvSplit) {
+        Boolean csvSplit = (Boolean) ((Map) (config)).get("csvSplit");
+        if (!BooleanUtils.toBoolean(csvSplit)) {
             return;
         }
         boolean csvHasHeader = (Boolean) ((Map) (config)).get("csvHasHeader");
