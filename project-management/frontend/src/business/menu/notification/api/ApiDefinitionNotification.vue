@@ -422,18 +422,15 @@ export default {
           }
           break;
         case "MOCK_CREATE":
-          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
-          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.isSet) {
-            if (i < 0) {
-              row.userIds.unshift('FOLLOW_PEOPLE');
-            }
+          if (i2 > -1) {
+            row.userIds.splice(i2, 1);
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
           }
           break;
         case "UPDATE":
         case "CASE_UPDATE":
-        case "MOCK_UPDATE":
-        case "MOCK_DELETE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
@@ -442,6 +439,16 @@ export default {
             }
             if (i < 0) {
               row.userIds.unshift('FOLLOW_PEOPLE');
+            }
+          }
+          break;
+        case "MOCK_UPDATE":
+        case "MOCK_DELETE":
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
             }
           }
           break;
