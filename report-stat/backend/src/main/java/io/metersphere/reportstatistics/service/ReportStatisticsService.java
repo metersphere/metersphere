@@ -4,10 +4,7 @@ import io.metersphere.base.domain.ReportStatistics;
 import io.metersphere.base.domain.ReportStatisticsExample;
 import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
 import io.metersphere.base.mapper.ReportStatisticsMapper;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.reportstatistics.dto.*;
 import io.metersphere.reportstatistics.dto.charts.Series;
@@ -74,11 +71,16 @@ public class ReportStatisticsService {
         return reportStatisticsMapper.deleteByPrimaryKey(id);
     }
 
-    public ReportStatisticsWithBLOBs selectById(String id) {
+    public ReportStatisticsWithBLOBs selectById(String id, boolean isRemoteRequest) {
         ReportStatisticsWithBLOBs blob = reportStatisticsMapper.selectByPrimaryKey(id);
         if (blob == null) {
             return null;
         }
+        if (isRemoteRequest) {
+            //通过接口进行的请求时没有session的
+            HttpHeaderUtils.runAsUser(blob.getCreateUser());
+        }
+
         Map<String, Object> selectOption = JSON.parseObject(blob.getSelectOption(), Map.class);
         Map<String, Object> dataOption = JSON.parseObject(blob.getDataOption(), Map.class);
         boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
@@ -90,6 +92,9 @@ public class ReportStatisticsService {
             }
         }
 
+        if (isRemoteRequest) {
+            HttpHeaderUtils.clearUser();
+        }
         if (!dataOption.containsKey("showTable")) {
             if (dataOption.get("tableData") != null) {
                 String tableDataJsonStr = JSON.toJSONString(dataOption.get("tableData"));

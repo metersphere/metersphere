@@ -112,9 +112,7 @@
 
 <script>
 
-import {
-  getCurrentProjectID, getCurrentUserId
-} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import {ASSERTION_REGEX_SUBJECT, ASSERTION_TYPE, Regex} from "metersphere-frontend/src/model/ApiTestModel";
@@ -154,7 +152,7 @@ export default {
           jsonPath: [],
           xpath2: [],
           jsr223: [],
-          document: {type: "json", data: {json: [], xml: []}},
+          document: {type: "JSON", data: {json: [], xml: []}},
         },
       },
       rules: {

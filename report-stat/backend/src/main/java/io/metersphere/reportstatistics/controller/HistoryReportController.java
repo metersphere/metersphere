@@ -54,6 +54,6 @@ public class HistoryReportController {
 
     @PostMapping("/selectById")
     public ReportStatisticsWithBLOBs selectById(@RequestBody ReportStatisticsSaveRequest request) {
-        return reportStatisticsService.selectById(request.getId());
+        return reportStatisticsService.selectById(request.getId(), false);
     }
 }
