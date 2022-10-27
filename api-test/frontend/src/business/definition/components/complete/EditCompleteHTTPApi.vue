@@ -871,6 +871,13 @@ export default {
           this.citedScenarioCount = response.data;
         }
       });
+    },
+    getCaseCount() {
+      apiTestCaseCount({id: this.httpForm.id}).then(response => {
+        if (response.data > 0) {
+          this.httpForm.caseTotal = response.data;
+        }
+      });
     }
   },
 
@@ -904,6 +911,7 @@ export default {
       this.getVersionHistory();
       this.getSyncRule();
       this.getCitedScenarioCount();
+      this.getCaseCount();
     }
   },
   mounted() {
