@@ -462,9 +462,12 @@ export default {
     getProject() {
       getProjectConfig(this.projectId, "/CASE_CUSTOM_NUM")
         .then(result => {
+          let store = useStore();
           let data = result.data;
-          if (data) {
-            useStore().currentProjectIsCustomNum = data.caseCustomNum;
+          if (data && data.typeValue === 'true') {
+            store.currentProjectIsCustomNum = true;
+          } else {
+            store.currentProjectIsCustomNum = false;
           }
         });
     },

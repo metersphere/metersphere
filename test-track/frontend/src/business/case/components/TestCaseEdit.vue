@@ -6,7 +6,6 @@
           <ms-aside-container :height="pageHeight">
             <test-case-base-info
               :form="form"
-
               :is-form-alive="isFormAlive"
               :isloading="loading"
               :read-only="readOnly"
@@ -452,6 +451,8 @@ export default {
         let data = res.data;
         if (data && data.typeValue === 'true') {
           this.isPublic = true;
+        } else {
+          this.isPublic = false;
         }
       });
     if (hasLicense()) {
