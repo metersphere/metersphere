@@ -63,6 +63,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         this.key = IssuesManagePlatform.Zentao.name();
+        this.isThirdPartTemplate = true;
         ZentaoConfig zentaoConfig = getConfig();
         this.workspaceId = issuesRequest.getWorkspaceId();
         this.zentaoClient = ZentaoFactory.getInstance(zentaoConfig.getUrl(), zentaoConfig.getRequest());
