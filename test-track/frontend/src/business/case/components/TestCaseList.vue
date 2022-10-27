@@ -550,8 +550,8 @@ export default {
           if (element.label === '用例状态') {
             element.label = this.$t('custom_field.case_status')
             // 回收站TAB页处理高级搜索用例状态字段
-            element.operator.options = [OPERATORS.IN];
             if (this.trashEnable) {
+              element.operator.options = [OPERATORS.IN];
               element.options = [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}];
             } else {
               element.options.forEach(option => {
