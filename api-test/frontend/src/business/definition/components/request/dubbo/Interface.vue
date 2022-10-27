@@ -95,10 +95,12 @@
         dubboProviders(param).then(response => {
           this.methodMap = {};
           this.interfaces = [];
-          response.data.data.forEach(p => {
-            this.providerMap[p.serviceInterface] = p;
-            this.interfaces.push({label: p.service, value: p.serviceInterface})
-          });
+          if(response.data) {
+            response.data.forEach(p => {
+              this.providerMap[p.serviceInterface] = p;
+              this.interfaces.push({label: p.service, value: p.serviceInterface})
+            });
+          }
           if (this.methodMap[this.request.interface]) {
             this.methods = this.methodMap[this.request.interface].methods;
           }
