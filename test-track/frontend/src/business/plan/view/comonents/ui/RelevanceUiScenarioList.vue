@@ -222,8 +222,10 @@ export default {
         getProjectApplicationConfig('SCENARIO_CUSTOM_NUM')
           .then(result => {
             let data = result.data;
-            if (data) {
-              this.customNum = data.scenarioCustomNum;
+            if (data && data.typeValue === 'true') {
+              this.customNum = true;
+            } else {
+              this.customNum = false;
             }
           });
       }
