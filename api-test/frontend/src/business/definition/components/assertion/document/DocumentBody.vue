@@ -34,7 +34,10 @@
             v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)"
             v-model="scope.row.name" style="width: 140px" size="mini"
             :placeholder="$t('api_test.definition.request.esb_table.name')"/>
-          <span v-else>{{ scope.row.name }}</span>
+          <el-input v-else
+                    :disabled=" document.type === 'JSON'"
+                    v-model="scope.row.name" style="width: 140px" size="mini"
+                    :placeholder="$t('api_test.definition.request.esb_table.name')"/>
         </template>
       </el-table-column>
 
@@ -621,8 +624,8 @@ export default {
 
     },
     removeTableRow(row) {
-      this.removeVerSet(this.mapData.get(row.parentId), row);
-      this.removeFromDataStruct(this.mapData.get(row.parentId), row);
+      this.removeVerSet(this.mapData.get(row.parentId) ? this.mapData.get(row.parentId) : this.tableData, row);
+      this.removeFromDataStruct(this.mapData.get(row.parentId) ? this.mapData.get(row.parentId) : this.tableData, row);
     },
     removeFromDataStruct(dataStruct, row) {
       if (dataStruct == null || dataStruct.length === 0) {
