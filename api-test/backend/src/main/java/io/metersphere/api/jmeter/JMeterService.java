@@ -5,23 +5,19 @@ import io.metersphere.api.exec.engine.EngineFactory;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.config.KafkaConfig;
-import io.metersphere.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
-import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -203,13 +199,13 @@ public class JMeterService {
 
     public boolean getRunningQueue(String poolId, String reportId) {
         try {
-            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(poolId);
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(poolId);
             if (CollectionUtils.isEmpty(resources)) {
                 return false;
             }
             boolean isRunning = false;
-            for (JvmInfoDTO testResource : resources) {
-                String configuration = testResource.getTestResource().getConfiguration();
+            for (TestResource testResource : resources) {
+                String configuration = testResource.getConfiguration();
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String nodeIp = node.getIp();
                 Integer port = node.getPort();

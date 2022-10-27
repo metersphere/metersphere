@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.commons.constants.ElementConstants;
@@ -95,10 +96,10 @@ public class GenerateHashTreeUtil {
         return pool;
     }
 
-    public static List<JvmInfoDTO> setPoolResource(String id) {
+    public static List<TestResource> setPoolResource(String id) {
         if (GenerateHashTreeUtil.isResourcePool(id).isPool() && !GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
             ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
-            return resourcePoolCalculation.getPools(id);
+            return resourcePoolCalculation.getResourcePools(id);
         }
         return new LinkedList<>();
     }
