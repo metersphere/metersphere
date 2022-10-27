@@ -34,4 +34,7 @@ public class OperatingLogRequest implements Serializable {
 
     private List<String> modules;
 
+    //要查找的日志类型
+    private String logType;
+
 }

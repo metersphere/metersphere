@@ -102,6 +102,15 @@
             <if test="request.sourceId != null and request.sourceId != ''">
                 AND t3.source_id = #{request.sourceId, jdbcType=VARCHAR}
             </if>
+            <if test="request.logType != null and request.logType != ''">
+                AND t.oper_content like '%diffValue%'
+            </if>
+            <if test="request.logType == 'preScript' ">
+                AND t.oper_content  REGEXP 'preProcessorRaw|preStepProcessorRaw'
+            </if>
+            <if test="request.logType == 'postScript' ">
+                AND t.oper_content REGEXP 'postProcessorRaw|postStepProcessorRaw'
+            </if>
             AND JSON_UNQUOTE(JSON_EXTRACT(t.oper_content, '$.columns[*].diffValue')) IS NOT NULL
         </where>
         )tt
