@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <!-- 全局前后置脚本 -->
-  <div style="border:1px #DCDFE6 solid;" v-if="!loading">
+  <div class="env-history" style="border:1px #DCDFE6 solid;" v-if="!loading">
     <el-tabs v-model="activeName" class="request-tabs">
       <!--全局前置脚本-->
       <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="allPreScript" v-if="showPre">
@@ -169,4 +169,8 @@ export default {
 <style scoped>
 @import "~jsondiffpatch/dist/formatters-styles/html.css";
 @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
+
+.env-history >>> pre {
+  white-space: normal;
+}
 </style>
