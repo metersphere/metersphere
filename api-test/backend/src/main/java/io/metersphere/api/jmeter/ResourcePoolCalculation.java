@@ -41,34 +41,38 @@ public class ResourcePoolCalculation {
         }
     }
 
-    public List<JvmInfoDTO> getPools(String resourcePoolId) {
-        // 获取可以执行的资源池
+    public List<TestResource> getResourcePools(String resourcePoolId) {
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andIdEqualTo(resourcePoolId);
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
-
-        // 按照NODE节点的可用内存空间大小排序
-        List<JvmInfoDTO> availableNodes = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(pools)) {
             List<String> poolIds = pools.stream().map(pool -> pool.getId()).collect(Collectors.toList());
             TestResourceExample resourceExample = new TestResourceExample();
             resourceExample.createCriteria().andTestResourcePoolIdIn(poolIds);
             List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(resourceExample);
-            for (TestResource testResource : testResources) {
-                String configuration = testResource.getConfiguration();
-                NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
-                String nodeIp = node.getIp();
-                Integer port = node.getPort();
-                String uri = String.format(BASE_URL + "/jmeter/get-jvm-info", nodeIp, port);
-                JvmInfoDTO nodeJvm = this.getNodeJvmInfo(uri);
-                if (nodeJvm == null) {
-                    continue;
-                }
-                TestResourceDTO dto = new TestResourceDTO();
-                BeanUtils.copyBean(dto, testResource);
-                nodeJvm.setTestResource(dto);
-                availableNodes.add(nodeJvm);
+            return testResources;
+        }
+        return new ArrayList<>();
+    }
+
+    public List<JvmInfoDTO> getPools(String resourcePoolId) {
+        // 按照NODE节点的可用内存空间大小排序
+        List<JvmInfoDTO> availableNodes = new ArrayList<>();
+        List<TestResource> testResources = getResourcePools(resourcePoolId);
+        for (TestResource testResource : testResources) {
+            String configuration = testResource.getConfiguration();
+            NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+            String nodeIp = node.getIp();
+            Integer port = node.getPort();
+            String uri = String.format(BASE_URL + "/jmeter/get-jvm-info", nodeIp, port);
+            JvmInfoDTO nodeJvm = this.getNodeJvmInfo(uri);
+            if (nodeJvm == null) {
+                continue;
             }
+            TestResourceDTO dto = new TestResourceDTO();
+            BeanUtils.copyBean(dto, testResource);
+            nodeJvm.setTestResource(dto);
+            availableNodes.add(nodeJvm);
         }
         return availableNodes;
     }
