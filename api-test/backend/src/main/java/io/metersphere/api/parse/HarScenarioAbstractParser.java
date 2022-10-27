@@ -32,6 +32,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
         } else {
             request.setPath("/");
         }
+        request.setUrl(harRequest.url);
         parseParameters(harRequest, request);
         parseRequestBody(harRequest, request.getBody());
         addBodyHeader(request);
