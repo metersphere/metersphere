@@ -761,6 +761,7 @@ public class ApiScenarioService {
         Boolean enable = request.getEnvironmentEnable();
         String scenarioDefinition = request.getDefinition();
         JSONObject element = JSONUtil.parseObject(scenarioDefinition);
+        ElementUtil.dataFormatting(element);
         try {
             Map<String, String> environmentMap = new HashMap<>();
             if (BooleanUtils.isFalse(enable)) {
