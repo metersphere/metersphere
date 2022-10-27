@@ -47,6 +47,7 @@ pipeline {
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
+                        export NPM_CONFIG_USERCONFIG=`pwd`/.npmrc
                         java -version
                         ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
                     '''
@@ -61,6 +62,7 @@ pipeline {
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
+                        export NPM_CONFIG_USERCONFIG=`pwd`/.npmrc
                         java -version
                         ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
                         ./mvnw clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface --settings ./settings.xml
@@ -86,6 +88,7 @@ pipeline {
                         export JAVA_HOME=/opt/jdk-11
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
+                        export NPM_CONFIG_USERCONFIG=`pwd`/.npmrc
                         java -version
                         ./mvnw clean package -Drevision=${REVISION} --settings ./settings.xml
 
