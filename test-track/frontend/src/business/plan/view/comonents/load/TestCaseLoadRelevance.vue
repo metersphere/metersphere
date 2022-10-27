@@ -53,7 +53,7 @@
       </el-table-column>
 
       <el-table-column
-        v-if="versionEnable"
+        v-if="versionEnable && versionFilters"
         prop="versionId"
         :column-key="'versionId'"
         :filters="versionFilters"
@@ -156,7 +156,7 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'}
       ],
-      versionFilters: [],
+      versionFilters: null,
     };
   },
   props: {
