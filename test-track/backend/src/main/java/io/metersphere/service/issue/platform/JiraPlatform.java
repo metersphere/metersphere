@@ -56,6 +56,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public JiraClientV2 getJiraClientV2() {
         return jiraClientV2;
     }
+    
+    public void setThirdPartTemplate() {
+        this.isThirdPartTemplate = true;
+    }
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
@@ -799,7 +803,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         if (defaultValue instanceof String) {
                             msDefaultValue = defaultValue;
                         } else {
-                            msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate();
+                            msDefaultValue = Instant.ofEpochMilli((Long) defaultValue).atZone(ZoneId.systemDefault()).toLocalDate().toString();
                         }
                     } else if (customFieldDao.getType().equals(CustomFieldType.DATETIME.getValue())) {
                         if (defaultValue instanceof String) {
