@@ -54,12 +54,12 @@ export default {
       }
     },
     saveCaseRelevance(param, vueObj) {
-      vueObj.page.result.loading = true;
+      vueObj.page.loading = true;
       if (param.ids.length > 0) {
         param.planId = this.planId;
         testPlanRelevance(param)
           .then(() => {
-            vueObj.page.result.loading = false;
+            vueObj.page.loading = false;
             vueObj.isSaving = false;
             this.$success(this.$t('commons.save_success'));
             vueObj.$refs.baseRelevance.close();
@@ -82,10 +82,10 @@ export default {
       if (this.planId) {
         condition.planId = this.planId;
       }
-      this.loading = true;
+      this.page.loading = true;
       testCaseRelateList({pageNum: this.page.currentPage, pageSize: this.page.pageSize}, condition)
         .then(response => {
-          this.loading = false;
+          this.page.loading = false;
           getPageDate(response, this.page);
           let data = this.page.data;
           data.forEach(item => {

@@ -25,7 +25,7 @@
     </ms-table-header>
 
     <ms-table
-      v-loading="page.result.loading"
+      v-loading="page.loading"
       :data="page.data"
       :condition="page.condition"
       :total="page.total"
@@ -53,7 +53,7 @@
       <ms-table-column prop="name" :label="$t('commons.name')"/>
 
       <ms-table-column
-        v-if="versionEnable"
+        v-if="versionEnable && versionFilters"
         prop="versionId"
         :filters="versionFilters"
         :label="$t('commons.version')"
@@ -167,7 +167,7 @@ export default {
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
       ],
-      versionFilters: []
+      versionFilters: null
     };
   },
   props: {
