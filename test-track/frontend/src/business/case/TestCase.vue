@@ -770,8 +770,10 @@ export default {
       getProjectApplicationConfig('CASE_CUSTOM_NUM')
         .then(result => {
           let data = result.data;
-          if (data) {
-            store.currentProjectIsCustomNum = data.caseCustomNum;
+          if (data && data.typeValue === 'true') {
+            store.currentProjectIsCustomNum = true;
+          } else {
+            store.currentProjectIsCustomNum = false;
           }
         });
     },
