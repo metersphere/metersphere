@@ -130,7 +130,6 @@ public class ApiCaseSerialService {
                 envId = envMap.get(caseWithBLOBs.getProjectId());
             }
             if (caseWithBLOBs != null) {
-                String data = caseWithBLOBs.getRequest();
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
 
@@ -152,6 +151,10 @@ public class ApiCaseSerialService {
                 }
                 group.setProjectId(caseWithBLOBs.getProjectId());
                 MsTestElement testElement;
+                // 数据兼容处理
+                JSONObject element = JSONUtil.parseObject(caseWithBLOBs.getRequest());
+                ElementUtil.dataFormatting(element);
+                String data = element.toString();
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     // 失败重试
                     ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
@@ -159,9 +162,9 @@ public class ApiCaseSerialService {
                     data = StringUtils.isNotEmpty(retryData) ? retryData : data;
                     // 格式化数据
                     testElement = apiRetryOnFailureService.retryParse(data);
-                    MsTestElement element = parse(JSON.toJSONString(testElement.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
+                    MsTestElement msTestElement = parse(JSON.toJSONString(testElement.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
                     testElement.setHashTree(new LinkedList<>() {{
-                        this.add(element);
+                        this.add(msTestElement);
                     }});
                 } else {
                     testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
@@ -171,7 +174,6 @@ public class ApiCaseSerialService {
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
-
                 LoggerUtil.info("用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
                 return jmeterHashTree;
             }
@@ -189,8 +191,6 @@ public class ApiCaseSerialService {
     private MsTestElement parse(String api, String planId, String envId, String projectId) {
         try {
             JSONObject element = JSONUtil.parseObject(api);
-            ElementUtil.dataFormatting(element);
-
             LinkedList<MsTestElement> list = new LinkedList<>();
             if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.optString(ElementConstants.HASH_TREE),
