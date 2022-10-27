@@ -978,7 +978,7 @@ export default {
       getProjectApplicationConfig('CASE_PUBLIC')
         .then(res => {
           let data = res.data;
-          if (data && data.casePublic) {
+          if (data && data.typeValue === 'true') {
             let param = {};
             param.ids = this.$refs.table.selectIds;
             param.casePublic = true;
