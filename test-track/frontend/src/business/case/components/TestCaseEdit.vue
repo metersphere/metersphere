@@ -450,7 +450,7 @@ export default {
       .then(res => {
         this.loading = false;
         let data = res.data;
-        if (data && data.casePublic) {
+        if (data && data.typeValue === 'true') {
           this.isPublic = true;
         }
       });
