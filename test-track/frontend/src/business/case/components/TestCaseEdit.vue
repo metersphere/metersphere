@@ -1031,6 +1031,7 @@ export default {
         });
     },
     checkout(row) {
+      this.getVersionHistory();
       this.$refs.versionHistory.loading = true;
       let testCase = this.versionData.filter(v => v.versionId === row.id)[0];
 
@@ -1090,6 +1091,9 @@ export default {
             }
           });
         }
+        setTimeout(() => {
+          this.checkout(row);
+        }, 3000);
       } else {
         this.$refs.versionHistory.loading = false;
       }
