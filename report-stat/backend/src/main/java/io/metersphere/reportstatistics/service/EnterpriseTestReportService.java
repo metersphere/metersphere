@@ -476,7 +476,7 @@ public class EnterpriseTestReportService {
             List<ReportStatisticsWithBLOBs> bloBsList = new ArrayList<>();
             for (EnterpriseReportContentStep step : stepList) {
                 //定时任务触发的数据，需要检查图片是否需要重新生成
-                ReportStatisticsWithBLOBs reportStatisticsWithBLOBs = reportStatisticsService.selectById(step.getReportRecordId());
+                ReportStatisticsWithBLOBs reportStatisticsWithBLOBs = reportStatisticsService.selectById(step.getReportRecordId(), false);
                 if (reportStatisticsWithBLOBs != null) {
                     boolean needSyncImage = reportStatisticsService.isReportNeedUpdate(reportStatisticsWithBLOBs);
                     if (needSyncImage) {

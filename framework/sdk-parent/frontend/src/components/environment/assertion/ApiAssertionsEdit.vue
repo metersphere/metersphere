@@ -116,7 +116,7 @@ export default {
   computed: {
     isShow() {
       let rt = this.assertions.duration;
-      return rt.value  && rt.value !== 0;
+      return rt.value && rt.value !== 0;
     },
     isDocument() {
       return this.assertions.document && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0);
@@ -176,7 +176,7 @@ export default {
 }
 
 .assertion-remove-btn {
-  text-align: center;
-  width: 80px;
+  text-align: right;
+  width: 180px;
 }
 </style>
