@@ -143,30 +143,42 @@ export default {
       } else if (this.isDb) {
         if (this.isShare) {
           //持久化的报告分享
-          this.loading = getShareTestPlanReportContent(this.shareId, this.reportId)
+          this.loading = true;
+          getShareTestPlanReportContent(this.shareId, this.reportId)
             .then((r) => {
+              this.loading = false;
               this.report = r.data;
               this.report.config = this.getDefaultConfig(this.report);
             });
         } else {
-          this.loading = getTestPlanReportContent(this.reportId)
+          this.loading = true;
+          getTestPlanReportContent(this.reportId)
             .then((r) => {
+              this.loading = false;
               this.report = r.data;
               this.report.config = this.getDefaultConfig(this.report);
             });
         }
       } else if (this.isShare) {
-        this.loading = getShareTestPlanReport(this.shareId, this.planId)
-          .then((r) => {
-            this.report = r.data;
-            this.report.config = this.getDefaultConfig(this.report);
-          });
+        this.loading = true;
+        if (this.shareId && this.planId) {
+          getShareTestPlanReport(this.shareId, this.planId)
+            .then((r) => {
+              this.loading = false;
+              this.report = r.data;
+              this.report.config = this.getDefaultConfig(this.report);
+            });
+        }
       } else {
-        this.loading = getTestPlanReport(this.planId)
-          .then((r) => {
-            this.report = r.data;
-            this.report.config = this.getDefaultConfig(this.report);
-          });
+        this.loading = true;
+        if (this.planId) {
+          getTestPlanReport(this.planId)
+            .then((r) => {
+              this.loading = false;
+              this.report = r.data;
+              this.report.config = this.getDefaultConfig(this.report);
+            });
+        }
       }
     },
     getDefaultConfig(report) {
