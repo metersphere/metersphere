@@ -10,7 +10,7 @@ import java.util.List;
 public class Monitor {
     private String name;
     private String ip;
-    private Integer port;
+    private String port;
     private String description;
     private List<MonitorItem> monitorConfig;
 }

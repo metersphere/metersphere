@@ -165,7 +165,7 @@ public class MetricQueryService {
                     int port = dto.getMonitorPort() == null ? 9100 : dto.getMonitorPort();
                     Monitor e = new Monitor();
                     e.setIp(dto.getIp());
-                    e.setPort(port);
+                    e.setPort(String.valueOf(port));
                     instances.add(e);
                 }
             });
@@ -183,7 +183,7 @@ public class MetricQueryService {
             Monitor monitor = new Monitor();
             monitor.setIp((String) m.get("ip"));
             monitor.setName((String) m.get("name"));
-            monitor.setPort((int) m.get("port"));
+            monitor.setPort(String.valueOf(m.get("port")));
             monitor.setDescription((String) m.get("description"));
             // todo
             monitor.setMonitorConfig((List<MonitorItem>) m.get("monitorConfig"));
@@ -270,7 +270,7 @@ public class MetricQueryService {
                 int port = monitorPort == null ? 9100 : monitorPort;
                 Monitor monitor = new Monitor();
                 monitor.setIp(dto.getIp());
-                monitor.setPort(port);
+                monitor.setPort(String.valueOf(port));
                 result.add(monitor);
             }
         });
@@ -288,7 +288,7 @@ public class MetricQueryService {
             Monitor monitor = new Monitor();
             monitor.setIp((String) o.get("ip"));
             monitor.setName((String) o.get("name"));
-            monitor.setPort((int) o.get("port"));
+            monitor.setPort(String.valueOf(o.get("port")));
             monitor.setDescription((String) o.get("description"));
             // todo
             monitor.setMonitorConfig((List<MonitorItem>) o.get("monitorConfig"));
