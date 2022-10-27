@@ -82,7 +82,7 @@ export default {
     },
     getDataByStatus(status) {
       if(status === "STOPPED"){
-        status = "ERROR";
+        status = "PENDING";
       }
       let tmp = this.caseDataMap.get(status);
       if (!tmp) {
