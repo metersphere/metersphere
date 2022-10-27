@@ -53,7 +53,7 @@
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
           <div style="padding-bottom: 20px;" v-if="!ifCreate">
-            <el-link style="float: right;" type="primary" @click="openHis">
+            <el-link style="float: right;" type="primary" @click="openHis('preScript')">
               {{ $t('operating_log.change_history') }}
             </el-link>
           </div>
@@ -71,7 +71,7 @@
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
           <div style="padding-bottom: 20px;" v-if="!ifCreate">
-            <el-link style="float: right;" type="primary" @click="openHis">
+            <el-link style="float: right;" type="primary" @click="openHis('postScript')">
               {{ $t('operating_log.change_history') }}
             </el-link>
           </div>
@@ -354,8 +354,8 @@ export default {
         }
       });
     },
-    openHis() {
-      this.$refs.changeHistory.open(this.environment.id, ["项目-环境设置", "項目-環境設置", "Project environment setting"]);
+    openHis(logType) {
+      this.$refs.changeHistory.open(this.environment.id, ["项目-环境设置", "項目-環境設置", "Project environment setting"], logType);
     },
     validate() {
       let isValidate = false;

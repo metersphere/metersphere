@@ -17,7 +17,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
+      <el-table-column prop="originalValue" :label="$t('operating_log.change_field')">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
@@ -29,23 +29,6 @@
               </div>
               <el-tooltip :content="detail.originalValue" v-else>
                 <div class="current-value">{{ detail.originalValue ? detail.originalValue : "空值" }}</div>
-              </el-tooltip>
-            </div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
-        <template v-slot:default="scope">
-          <div v-if="scope.row.details && scope.row.details.columns">
-            <div v-for="detail in scope.row.details.columns" :key="detail.id">
-              <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
-                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{
-                    $t('operating_log.info')
-                  }}
-                </el-link>
-              </div>
-              <el-tooltip :content="detail.newValue" v-else>
-                <div class="current-value">{{ detail.newValue ? detail.newValue : "空值" }}</div>
               </el-tooltip>
             </div>
           </div>
@@ -83,7 +66,8 @@ export default {
       goPage: 1,
       totalCount: 0,
       id: String,
-      module: String
+      module: String,
+      logType: String,
     }
   },
   methods: {
@@ -94,7 +78,7 @@ export default {
       id = this.id;
       modules = this.module;
       this.loading = true;
-      getOperatingLogForResource(this.goPage, this.pageSize, {sourceId: id, modules: modules})
+      getOperatingLogForResource(this.goPage, this.pageSize, {sourceId: id, modules: modules, logType: this.logType})
         .then(response => {
           this.loading = false;
           let data = response.data.listObject;
@@ -138,10 +122,11 @@ export default {
           }
         })
     },
-    open(id, modules) {
+    open(id, modules, logType) {
       this.infoVisible = true;
       this.id = id;
       this.module = modules;
+      this.logType = logType;
       this.getDetails(id, modules);
     },
     openDetail(row, value) {
