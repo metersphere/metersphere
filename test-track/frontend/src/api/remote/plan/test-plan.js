@@ -95,9 +95,7 @@ export function testPlanRelevance(param) {
 }
 
 export function getShareTestPlanReport(shareId, planId) {
-  if (planId) {
-    return get('/share/test/plan/report/' + shareId + '/' + planId);
-  }
+  return planId ? get('/share/test/plan/report/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function planApiTestCasePage(page, pageSize, params) {
@@ -113,107 +111,107 @@ export function editPlanReportConfig(param) {
 }
 
 export function getExportReport(planId) {
-  return planId ? get(BASE_URL + 'get/report/export/' + planId) : {};
+  return planId ? get(BASE_URL + 'get/report/export/' + planId) : new Promise(() => {});
 }
 
 export function getTestPlanReportContent(reportId) {
-  return reportId ? get(BASE_URL + 'report/db/' + reportId) : {};
+  return reportId ? get(BASE_URL + 'report/db/' + reportId) : new Promise(() => {});
 }
 
 export function getShareTestPlanReportContent(shareId, reportId) {
-  return reportId ? get('/share/test/plan/report/db/' + shareId + '/' + reportId) : {};
+  return reportId ? get('/share/test/plan/report/db/' + shareId + '/' + reportId) : new Promise(() => {});
 }
 
 export function getPlanFunctionAllCase(planId, param) {
-  return planId ? post(BASE_URL + 'case/list/all/' + planId, param) : {};
+  return planId ? post(BASE_URL + 'case/list/all/' + planId, param) : new Promise(() => {});
 }
 
 export function getSharePlanFunctionAllCase(shareId, planId, param) {
-  return planId ? post('/share/test/plan/case/list/all/' + shareId + '/' + planId, param) : {};
+  return planId ? post('/share/test/plan/case/list/all/' + shareId + '/' + planId, param) : new Promise(() => {});
 }
 
 export function getPlanScenarioFailureCase(planId) {
-  return planId ? get(BASE_URL + 'scenario/case/list/failure/' + planId) : {};
+  return planId ? get(BASE_URL + 'scenario/case/list/failure/' + planId) : new Promise(() => {});
 }
 
 export function getPlanScenarioErrorReportCase(planId) {
-  return planId ? get(BASE_URL + 'scenario/case/list/error-report/' + planId) : {};
+  return planId ? get(BASE_URL + 'scenario/case/list/error-report/' + planId) : new Promise(() => {});
 }
 
 export function getPlanScenarioUnExecuteCase(planId) {
-  return planId ? get(BASE_URL + 'scenario/case/list/pending/' + planId) : {};
+  return planId ? get(BASE_URL + 'scenario/case/list/pending/' + planId) : new Promise(() => {});
 }
 
 export function getPlanScenarioAllCase(planId) {
-  return planId ? get(BASE_URL + 'scenario/case/list/all/' + planId) : {};
+  return planId ? get(BASE_URL + 'scenario/case/list/all/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanScenarioFailureCase(shareId, planId) {
-  return planId ? get('/share/test/plan/scenario/case/list/failure/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/scenario/case/list/failure/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanScenarioAllCase(shareId, planId) {
-  return planId ? get('/share/test/plan/scenario/case/list/all/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/scenario/case/list/all/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanScenarioErrorReportCase(shareId, planId) {
-  return planId ? get('/share/test/plan/scenario/case/list/errorReport/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/scenario/case/list/errorReport/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanScenarioUnExecuteCase(shareId, planId) {
-  return planId ? get('/share/test/plan/scenario/case/list/unExecute/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/scenario/case/list/unExecute/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanUiScenarioAllCase(shareId, planId, param) {
-  return planId ? post('/share/test/plan/uiScenario/case/list/all/' + shareId + '/' + planId, param) : {};
+  return planId ? post('/share/test/plan/uiScenario/case/list/all/' + shareId + '/' + planId, param) : new Promise(() => {});
 }
 
 export function getPlanApiFailureCase(planId) {
-  return planId ? get(BASE_URL + 'api/case/list/failure/' + planId) : {};
+  return planId ? get(BASE_URL + 'api/case/list/failure/' + planId) : new Promise(() => {});
 }
 
 export function getPlanApiErrorReportCase(planId) {
-  return planId ? get(BASE_URL + 'api/case/list/errorReport/' + planId) : {};
+  return planId ? get(BASE_URL + 'api/case/list/errorReport/' + planId) : new Promise(() => {});
 }
 
 export function getPlanApiUnExecuteCase(planId) {
-  return planId ? get(BASE_URL + 'api/case/list/unExecute/' + planId) : {};
+  return planId ? get(BASE_URL + 'api/case/list/unExecute/' + planId) : new Promise(() => {});
 }
 
 export function getPlanApiAllCase(planId) {
-  return planId ? get(BASE_URL + 'api/case/list/all/' + planId) : {};
+  return planId ? get(BASE_URL + 'api/case/list/all/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanApiFailureCase(shareId, planId) {
-  return planId ? get('/share/test/plan/api/case/list/failure/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/api/case/list/failure/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanApiErrorReportCase(shareId, planId) {
-  return planId ? get('/share/test/plan/api/case/list/errorReport/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/api/case/list/errorReport/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanApiUnExecuteCase(shareId, planId) {
-  return planId ? get('/share/test/plan/api/case/list/unExecute/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/api/case/list/unExecute/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanApiAllCase(shareId, planId) {
-  return planId ? get('/share/test/plan/api/case/list/all/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/api/case/list/all/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getPlanLoadFailureCase(planId) {
-  return planId ? get(BASE_URL + 'load/case/list/failure/' + planId) : {};
+  return planId ? get(BASE_URL + 'load/case/list/failure/' + planId) : new Promise(() => {});
 }
 
 export function getPlanLoadAllCase(planId) {
-  return planId ? get(BASE_URL + 'load/case/list/all/' + planId) : {};
+  return planId ? get(BASE_URL + 'load/case/list/all/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanLoadFailureCase(shareId, planId) {
-  return planId ? get('/share/test/plan/load/case/list/failure/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/load/case/list/failure/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function getSharePlanLoadAllCase(shareId, planId) {
-  return planId ? get('/share/test/plan/load/case/list/all/' + shareId + '/' + planId) : {};
+  return planId ? get('/share/test/plan/load/case/list/all/' + shareId + '/' + planId) : new Promise(() => {});
 }
 
 export function checkoutLoadReport(param) {
@@ -246,15 +244,15 @@ export function editTestPlanLoadCaseOrder(request) {
 
 export function getPlanStageOption() {
   let projectID = getCurrentProjectID();
-  return projectID ? get(BASE_URL + 'get/stage/option/' + projectID) : {};
+  return projectID ? get(BASE_URL + 'get/stage/option/' + projectID) : new Promise(() => {});
 }
 
 export function saveTestPlanReport(planId) {
-  return planId ? get(BASE_URL + 'report/saveTestPlanReport/' + planId + '/MANUAL') : {};
+  return planId ? get(BASE_URL + 'report/saveTestPlanReport/' + planId + '/MANUAL') : new Promise(() => {});
 }
 
 export function getPlanUiScenarioAllCase(planId, param) {
-  return planId ? post(BASE_URL + 'uiScenario/case/list/all/' + planId, param) : {};
+  return planId ? post(BASE_URL + 'uiScenario/case/list/all/' + planId, param) : new Promise(() => {});
 }
 
 export function updatePlanSchedule(param) {
@@ -300,6 +298,6 @@ export function reportSocket(reportId) {
 }
 
 export function testPlanLoadCaseEditStatus(planId) {
-  return post(BASE_URL + `edit/status/${planId}`, {});
+  return post(BASE_URL + `edit/status/${planId}`, new Promise(() => {}));
 }
 
