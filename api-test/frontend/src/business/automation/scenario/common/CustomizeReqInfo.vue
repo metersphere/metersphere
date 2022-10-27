@@ -120,7 +120,7 @@ export default {
     },
     setDomain() {
       let urlStr = this.addProtocol(this.request.url);
-      const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g;
+      const reg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
       if (reg.test(urlStr)) {
         let url = this.getURL(urlStr);
         if (url && url.pathname) {
