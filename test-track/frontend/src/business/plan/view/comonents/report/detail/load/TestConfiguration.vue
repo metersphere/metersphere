@@ -1,5 +1,5 @@
 <template>
-  <el-tabs>
+  <el-tabs v-model="active">
     <el-tab-pane :label="$t('load_test.pressure_config')">
       <performance-pressure-config :is-read-only="true" :test="test" :report="report" :report-id="reportId"
                                    :is-share="isShare" :share-id="shareId" @fileChange="fileChange"/>
@@ -18,6 +18,11 @@ import PerformanceAdvancedConfig from "../../../load/PerformanceAdvancedConfig";
 export default {
   name: "TestConfiguration",
   components: {PerformancePressureConfig, PerformanceAdvancedConfig},
+  data() {
+    return {
+      active: '0'
+    }
+  },
   props: {
     test: Object,
     testId: String,
