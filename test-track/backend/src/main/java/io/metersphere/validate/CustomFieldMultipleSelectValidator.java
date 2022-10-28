@@ -17,7 +17,7 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
         if (StringUtils.isBlank(value)) {
             return;
         }
-        prepareCatch(customField);
+        prepareCache(customField);
         Set<String> idSet = optionValueSetCache.get(customField.getId());
         Set<String> textSet = optionTextSetCache.get(customField.getId());
         for (String item : parse2Array(customField.getName(), value)) {
