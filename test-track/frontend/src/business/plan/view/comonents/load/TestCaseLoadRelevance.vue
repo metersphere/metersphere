@@ -5,16 +5,6 @@
     :plan-id="planId"
     ref="baseRelevance">
 
-    <template v-slot:aside>
-      <node-tree class="node-tree"
-                 v-loading="loading"
-                 @nodeSelectEvent="nodeChange"
-                 local-suffix="test_case"
-                 default-label="未规划用例"
-                 :tree-nodes="treeNodes"
-                 ref="nodeTree"/>
-    </template>
-
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="search"/>
