@@ -61,9 +61,14 @@ public class LoginController {
                     .map(r -> {
                         if (r instanceof RsaKey) {
                             return ResultHolder.error(rsaKey.getPublicKey());
-                        } else {
-                            return ResultHolder.success(r);
                         }
+                        if (r instanceof User) {
+                            // 用户只有工作空间权限
+                            if (StringUtils.isBlank(((User) r).getLastProjectId())) {
+                                ((User) r).setLastProjectId("no_such_project");
+                            }
+                        }
+                        return ResultHolder.success(r);
                     });
         } else {
             return Mono.just(ResultHolder.error(rsaKey.getPublicKey()));
