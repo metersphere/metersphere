@@ -29,6 +29,7 @@
                                   :is-read-only="isReadOnly"
                                   :is-show-enable="isShowEnable"
                                   :suggestions="suggestions"
+                                  :disable-variable-tip="true"
                                   :parameters="body.kvs"/>
     </div>
     <div v-if="body.type == 'JSON'">
@@ -78,8 +79,7 @@ import MsDropdown from "@/business/commons/MsDropdown";
 import MsApiFromUrlVariable from "@/business/definition/components/body/ApiFromUrlVariable";
 import BatchAddParameter from "@/business/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/commons/json-schema/convert/convert";
-import MockCombinationCondition
-  from "@/business/definition/components/mock/Components/MockCombinationCondition";
+import MockCombinationCondition from "@/business/definition/components/mock/Components/MockCombinationCondition";
 
 export default {
   name: "MockApiBody",

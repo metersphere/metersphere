@@ -22,7 +22,7 @@
               </el-row>
               <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly"
                                 :isShowEnable="isShowEnable"
-                                :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
+                                :suggestions="headerSuggestions" :items="request.headers" :need-mock="false"/>
             </el-tab-pane>
 
             <!--query 参数-->
@@ -41,6 +41,7 @@
               </el-row>
               <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly"
                                           :is-show-enable="isShowEnable" :suggestions="apiParams.query"
+                                          :disable-variable-tip="true"
                                           :parameters="request.arguments"/>
             </el-tab-pane>
 
@@ -62,6 +63,7 @@
               </el-row>
               <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly"
                                           :is-show-enable="isShowEnable" :suggestions="apiParams.rest"
+                                          :disable-variable-tip="true"
                                           :parameters="request.rest"/>
             </el-tab-pane>
 
@@ -104,12 +106,10 @@ import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permissi
 import BatchAddParameter from "@/business/definition/components/basis/BatchAddParameter";
 import MsApiAdvancedConfig from "@/business/definition/components/request/http/ApiAdvancedConfig";
 import MsJsr233Processor from "@/business/automation/scenario/component/Jsr233Processor";
-import ApiDefinitionStepButton
-  from "@/business/definition/components/request/components/ApiDefinitionStepButton";
+import ApiDefinitionStepButton from "@/business/definition/components/request/components/ApiDefinitionStepButton";
 import Convert from "@/business/commons/json-schema/convert/convert";
 import MockApiBody from "@/business/definition/components/mock/Components/MockApiBody";
-import MockCombinationCondition
-  from "@/business/definition/components/mock/Components/MockCombinationCondition";
+import MockCombinationCondition from "@/business/definition/components/mock/Components/MockCombinationCondition";
 
 export default {
   name: "MockRequestParam",
