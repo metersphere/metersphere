@@ -32,6 +32,11 @@ export const microRoutes = [
     path: '/performance/report/view/:reportId',
     name: "perReportView",
     component: () => import('@/business/report/PerformanceReportView'),
+  },
+  {
+    path: '/share/performance/report/view/:reportId',
+    name: "sharePerReportView",
+    component: () => import('@/template/report/performance/share/ShareLoadReportView'),
   }
 ]
 
