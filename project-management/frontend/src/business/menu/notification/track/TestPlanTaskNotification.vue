@@ -75,7 +75,8 @@ export default {
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('commons.run_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('commons.run_fail')},
       ],
-      variables: [
+      variables: [],
+      reportVariables: [
         {
           label: this.$t('group.operator'),
           value: 'operator',
@@ -103,14 +104,6 @@ export default {
         {
           label: this.$t('test_track.plan.plan_stage'),
           value: 'stage',
-        },
-        {
-          label: this.$t('test_track.case.match_rule'),
-          value: 'testCaseMatchRule',
-        },
-        {
-          label: this.$t('test_track.plan.plan_stage'),
-          value: 'executorMatchRule',
         },
         {
           label: this.$t('commons.create_time'),
@@ -261,6 +254,76 @@ export default {
           value: 'reportEndTime'
         },
       ],
+      noReportVariables: [
+        {
+          label: this.$t('group.operator'),
+          value: 'operator',
+        },
+        {
+          label: 'id',
+          value: 'id',
+        },
+        {
+          label: this.$t('workspace.id'),
+          value: 'workspaceId',
+        },
+        {
+          label: this.$t('commons.name'),
+          value: 'name',
+        },
+        {
+          label: this.$t('commons.description'),
+          value: 'description',
+        },
+        {
+          label: this.$t('commons.status'),
+          value: 'status',
+        },
+        {
+          label: this.$t('test_track.plan.plan_stage'),
+          value: 'stage',
+        },
+        {
+          label: this.$t('commons.create_time'),
+          value: 'createTime',
+        },
+        {
+          label: this.$t('commons.update_time'),
+          value: 'updateTime',
+        },
+        {
+          label: this.$t('test_track.plan.actual_start_time'),
+          value: 'actualStartTime',
+        },
+        {
+          label: this.$t('test_track.plan.actual_end_time'),
+          value: 'actualEndTime',
+        },
+        {
+          label: this.$t('test_track.plan.planned_start_time'),
+          value: 'plannedStartTime',
+        },
+        {
+          label: this.$t('test_track.plan.planned_end_time'),
+          value: 'plannedEndTime',
+        },
+        {
+          label: this.$t('commons.create_user'),
+          value: 'creator',
+        },
+        {
+          label: this.$t('project.id'),
+          value: 'projectId',
+        },
+        {
+          label: this.$t('commons.execution_times'),
+          value: 'executionTimes',
+        },
+        {
+          label: this.$t('test_track.automatic_status_update'),
+          value: 'automaticStatusUpdate',
+        }
+      ]
     };
   },
   activated() {
@@ -345,24 +408,31 @@ export default {
         switch (row.event) {
           case 'CREATE':
             robotTemplate = this.robotTitle;
+            this.variables = this.noReportVariables;
             break;
           case 'UPDATE':
             robotTemplate = this.robotTitle.replace('创建', '更新');
+            this.variables = this.noReportVariables;
             break;
           case 'DELETE':
             robotTemplate = this.robotTitle.replace('创建', '删除');
+            this.variables = this.noReportVariables;
             break;
           case 'COMMENT':
             robotTemplate = this.robotTitle.replace('创建', '评论');
+            this.variables = this.noReportVariables;
             break;
           case "COMPLETE":
             robotTemplate = this.robotTitle.replace('创建', '完成测试计划');
+            this.variables = this.reportVariables;
             break;
           case "EXECUTE_SUCCESSFUL":
             robotTemplate = this.robotTitle.replace('创建了测试计划', '执行测试计划成功');
+            this.variables = this.reportVariables;
             break;
           case "EXECUTE_FAILED":
             robotTemplate = this.robotTitle.replace('创建了测试计划', '执行测试计划失败');
+            this.variables = this.reportVariables;
             break;
           default:
             break;
