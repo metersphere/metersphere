@@ -20,7 +20,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (user && user.id) {
     if (to.path === '/login') {
-      next({path: '/'});
+      next();
       NProgress.done(); // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
     } else {
       // const roles = user.roles.filter(r => r.id);

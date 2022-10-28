@@ -116,11 +116,21 @@ export default {
       this.handleSelect(this.activeIndex);
     }
   },
+  created() {
+    this.$EventBus.$on('projectChange', () => {
+      this.$nextTick(() => {
+        this.menuKey++;
+      })
+    })
+  },
   mounted() {
     if (this.$route.matched.length > 0) {
       this.activeIndex = this.$route.matched[0].path;
     }
     this.registerEvents();
+  },
+  beforeDestroy() {
+    this.$EventBus.$off('projectChange');
   },
   methods: {
     hasLicense,

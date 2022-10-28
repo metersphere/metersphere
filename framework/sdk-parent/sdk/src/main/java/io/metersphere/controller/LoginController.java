@@ -57,6 +57,10 @@ public class LoginController {
             baseUserService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
+            // 用户只有工作空间权限
+            if (StringUtils.isBlank(sessionUser.getLastProjectId())) {
+                sessionUser.setLastProjectId("no_such_project");
+            }
             return ResultHolder.success(sessionUser);
         }
         return ResultHolder.error(rsaKey.getPublicKey());

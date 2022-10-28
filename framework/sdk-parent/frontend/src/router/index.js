@@ -1,7 +1,6 @@
 import Vue from "vue"
 import Router from "vue-router"
 import Layout from "../business/app-layout"
-import {getCurrentUserId} from "../utils/token";
 import {hasPermissions} from "../utils/permission";
 import {SECOND_LEVEL_ROUTE_PERMISSION_MAP} from "../utils/constants";
 
@@ -64,83 +63,34 @@ let store = null;
 router.beforeEach(async (to, from, next) => {
   if (store === null) {
     const {useUserStore} = await import('@/store');
-    store = useUserStore()
+    store = useUserStore();
   }
-  let user = store.currentUser
-  if (to.path.split('/')[1] !== from.path.split('/')[1]) {
+  let formModule = from.path.split('/')[1];
+  let toModule = to.path.split('/')[1];
+  if (to.path !== '/login' && formModule && toModule !== formModule) {
     try {
-      user = await store.getIsLogin();
-      if (window.location.href.endsWith('/#/login')) {
-        window.location.replace("/#/setting/personsetting");
-      }
+      await store.getIsLogin();
     } catch (e) {
-      // console.error(e)
+      // nothing
     }
   }
-  if (user && user.id) {
-    redirectLoginPath(to.fullPath, next);
-  } else {
+
+  if (to.name === "login_redirect" || to.path === "/login") {
     next();
+    return;
+  }
+
+  // 二级菜单权限控制
+  let changedPath = getDefaultSecondLevelMenu(to.fullPath);
+  sessionStorage.setItem('redirectUrl', changedPath);
+  if (changedPath === to.fullPath) {
+    // 有权限则放行
+    next();
+  } else {
+    // 未通过校验，放行至有权限路由
+    next({path: changedPath});
   }
 });
-
-// 登入后跳转至原路径
-function redirectLoginPath(originPath, next) {
-  let redirectUrl = sessionStorage.getItem('redirectUrl');
-  let loginSuccess = sessionStorage.getItem('loginSuccess');
-
-  if (!redirectUrl || redirectUrl === '/') {
-    if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_TEMPLATE:READ', 'PROJECT_MESSAGE:READ')) {
-      redirectUrl = '/project/home';
-    } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'PROJECT_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ')) {
-      redirectUrl = '/setting/project/:type';
-    } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
-      redirectUrl = '/setting';
-    } else {
-      redirectUrl = '/';
-    }
-  }
-
-  sessionStorage.setItem('lastUser', getCurrentUserId());
-  sessionStorage.setItem('redirectUrl', originPath);
-  sessionStorage.removeItem('loginSuccess');
-  let defaultMenuRoute = sessionStorage.getItem('defaultMenuRoute');
-
-  if (redirectUrl && loginSuccess) {
-    // 登录后只执行一次
-    sessionStorage.removeItem('loginSuccess');
-    let changedPath = getDefaultSecondLevelMenu(originPath);
-    if (changedPath === originPath) {
-      // 通过了权限校验，保留路由相关信息，直接放行
-      next();
-    } else {
-      // 未通过校验，放行至有权限路由
-      next({path: changedPath});
-    }
-  } else {
-    if (!defaultMenuRoute) {
-      // 记录标识，防止死循环
-      sessionStorage.setItem('defaultMenuRoute', 'sign');
-      let changedPath = getDefaultSecondLevelMenu(originPath);
-      if (changedPath === originPath) {
-        // 通过了权限校验，保留路由相关信息，直接放行
-        next();
-      } else {
-        // 未通过校验，放行至有权限路由
-        next({path: changedPath});
-      }
-      if (router.currentRoute.fullPath === originPath) {
-        sessionStorage.setItem('redirectUrl', originPath);
-        // 路径相同时，移除标识
-        sessionStorage.removeItem("defaultMenuRoute");
-      }
-    } else {
-      sessionStorage.setItem('redirectUrl', originPath);
-      sessionStorage.removeItem("defaultMenuRoute");
-      next();
-    }
-  }
-}
 
 export function getDefaultSecondLevelMenu(toPath) {
   let {TRACK: tracks, API: apis, LOAD: loads, UI: ui, REPORT: report} = SECOND_LEVEL_ROUTE_PERMISSION_MAP;
