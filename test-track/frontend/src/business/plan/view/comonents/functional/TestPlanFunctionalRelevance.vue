@@ -69,7 +69,7 @@ export default {
           vueObj.isSaving = false;
         });
       } else {
-        vueObj.page.result.loading = false;
+        vueObj.page.loading = false;
         vueObj.isSaving = false;
         this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
       }
