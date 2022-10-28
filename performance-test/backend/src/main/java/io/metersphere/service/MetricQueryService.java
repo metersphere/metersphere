@@ -185,8 +185,9 @@ public class MetricQueryService {
             monitor.setName((String) m.get("name"));
             monitor.setPort(String.valueOf(m.get("port")));
             monitor.setDescription((String) m.get("description"));
-            // todo
-            monitor.setMonitorConfig((List<MonitorItem>) m.get("monitorConfig"));
+            if (m.get("monitorConfig") instanceof String && StringUtils.isNotBlank((String) m.get("monitorConfig"))) {
+                monitor.setMonitorConfig(JSON.parseArray((String) m.get("monitorConfig"), MonitorItem.class));
+            }
             instances.add(monitor);
         }
 
@@ -290,8 +291,9 @@ public class MetricQueryService {
             monitor.setName((String) o.get("name"));
             monitor.setPort(String.valueOf(o.get("port")));
             monitor.setDescription((String) o.get("description"));
-            // todo
-            monitor.setMonitorConfig((List<MonitorItem>) o.get("monitorConfig"));
+            if (o.get("monitorConfig") instanceof String && StringUtils.isNotBlank((String) o.get("monitorConfig"))) {
+                monitor.setMonitorConfig(JSON.parseArray((String) o.get("monitorConfig"), MonitorItem.class));
+            }
             result.add(monitor);
         }
 
