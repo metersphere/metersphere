@@ -65,6 +65,7 @@
                           :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
                           :show-mock-vars="showMockVars"
+                          :disabled="disabled"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
