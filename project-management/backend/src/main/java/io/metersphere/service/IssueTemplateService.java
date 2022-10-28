@@ -448,7 +448,7 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplateRecords;
     }
 
-    public String getLogDetails(String id, List<CustomFieldTemplate> newCustomFieldTemplates) {
+    public String getLogDetails(String id, List<CustomFieldTemplate> newFields) {
         List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
         if (templateWithBLOBs == null) {
@@ -457,16 +457,16 @@ public class IssueTemplateService extends TemplateBaseService {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
-        List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
-        if (newCustomFieldTemplates.size() > customFieldTemplates.size()) {
-            for (int i = 0; i < newCustomFieldTemplates.size() - customFieldTemplates.size(); i++) {
+        List<CustomFieldTemplate> oldFields = customFieldTemplateMapper.selectByExample(example);
+        Collections.sort(oldFields, (f1, f2) -> f1.getKey().compareTo(f2.getKey()));
+        if (newFields.size() > oldFields.size()) {
+            int size = newFields.size() - oldFields.size();
+            for (int i = 0; i < size; i++) {
                 CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
-                customFieldTemplates.add(customFieldTemplate);
+                oldFields.add(oldFields.size(), customFieldTemplate);
             }
         }
-
-        return getCustomFieldColums(columns, templateWithBLOBs, customFieldTemplates);
-
+        return getCustomFieldColums(columns, templateWithBLOBs, oldFields);
     }
 
     public String getLogDetails(UpdateIssueTemplateRequest request) {
@@ -480,13 +480,8 @@ public class IssueTemplateService extends TemplateBaseService {
         example.createCriteria().andTemplateIdEqualTo(templateWithBLOBs.getId());
         example.createCriteria().andSceneEqualTo("ISSUE");
         List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(example);
-        if (newCustomFieldTemplates.size() < customFieldTemplates.size()) {
-            for (int i = 0; i < customFieldTemplates.size() - newCustomFieldTemplates.size(); i++) {
-                CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
-                newCustomFieldTemplates.add(customFieldTemplate);
-            }
-        }
-        return getCustomFieldColums(columns, templateWithBLOBs, newCustomFieldTemplates);
+        Collections.sort(customFieldTemplates, (f1, f2) -> f1.getKey().compareTo(f2.getKey()));
+        return getCustomFieldColums(columns, templateWithBLOBs, customFieldTemplates);
     }
 
     private String getCustomFieldColums(List<DetailColumn> columns, IssueTemplate templateWithBLOBs, List<CustomFieldTemplate> customFields) {
