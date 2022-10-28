@@ -49,10 +49,10 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -404,7 +404,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), "UTF-8"), "UTF-8"));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(url, "UTF-8"), "UTF-8");
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -467,15 +467,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MSException.throwException("请重新选择环境");
                 }
                 URL urlObject = new URL(url);
-                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
                 } else if (urlObject.getPort() != -1) {
                     sampler.setPort(urlObject.getPort());
                 }
                 sampler.setProtocol(urlObject.getProtocol());
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                sampler.setProperty("HTTPSampler.path", envPath);
+                String envPath = url;
+                sampler.setProperty("HTTPSampler.path", envPath, StandardCharsets.UTF_8.name());
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));
                     sampler.setProperty("HTTPSampler.path", envPath);
