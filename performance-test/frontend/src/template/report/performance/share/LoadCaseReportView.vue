@@ -242,6 +242,11 @@ export default {
       this.init();
     }
   },
+  created() {
+    if (this.reportId) {
+      this.init();
+    }
+  },
   computed: {
     showProjectEnv() {
       return this.projectEnvMap && JSON.stringify(this.projectEnvMap) !== '{}';
