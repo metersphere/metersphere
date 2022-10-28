@@ -100,22 +100,6 @@ export default {
     this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
     this.isCollapse = this.isFixed === true ? false : true;
   },
-  beforeCreate() {
-    if (checkMicroMode()) {
-      return;
-    }
-    const userStore = useUserStore();
-    userStore.getIsLogin()
-      .then(response => {
-        if (window.location.href.endsWith('/#/login')) {
-          window.location.replace("/#/setting/personsetting");
-        }
-      })
-      .catch(() => {
-        userStore.userLogout();
-        window.location.replace('/#/login');
-      });
-  },
   // 提供可注入子组件属性
   provide() {
     return {

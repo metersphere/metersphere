@@ -59,6 +59,13 @@ const createRouter = () => new Router({
 
 const router = createRouter()
 
+let userStore = null;
+// 刷新整个页面会到这里
+import('@/store').then(async ({useUserStore}) => {
+  userStore = useUserStore();
+  await userStore.getIsLogin()
+});
+
 let store = null;
 router.beforeEach(async (to, from, next) => {
   if (store === null) {
