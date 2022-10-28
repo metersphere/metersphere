@@ -67,8 +67,7 @@
 import {getUUID} from "metersphere-frontend/src/utils";
 import {TYPE, TYPE_NAME, TYPES} from "@/business/commons/json-schema/schema/editor/type/type";
 import MsMock from "@/business/commons/json-schema/schema/editor/mock/MockComplete";
-import JsonAdvancedSetting
-  from "@/business/definition/components/document/components/plugin/JsonAdvancedSetting";
+import JsonAdvancedSetting from "@/business/definition/components/document/components/plugin/JsonAdvancedSetting";
 
 export default {
   name: 'JsonSchemaPanel',
@@ -169,19 +168,33 @@ export default {
     }
   },
   created() {
-    if (this.pickValue) {
-      if (this.pickValue.hidden === undefined) {
-        this.hidden = this.root ? false : true;
-      } else {
-        this.hidden = this.root ? false : this.pickValue.hidden;
-      }
+    if (this.expandAllParams) {
+      this.hidden = false;
     } else {
-      this.hidden = true;
+      if (this.pickValue) {
+        if (this.pickValue.hidden === undefined) {
+          this.hidden = this.root ? false : true;
+        } else {
+          this.hidden = this.root ? false : this.pickValue.hidden;
+        }
+      } else {
+        this.hidden = true;
+      }
     }
+    this.collapseStatus = this.expandAllParams;
   },
   watch: {
     expandAllParams() {
-      this.collapseStatus = this.expandAllParams;
+      if (this.expandAllParams) {
+        this.hidden = false;
+      } else {
+        if (!this.root) {
+          this.hidden = true;
+        }
+      }
+      this.$nextTick(() => {
+        this.collapseStatus = this.expandAllParams;
+      });
     }
   },
   methods: {
