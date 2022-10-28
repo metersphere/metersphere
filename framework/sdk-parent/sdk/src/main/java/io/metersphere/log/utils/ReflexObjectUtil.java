@@ -212,7 +212,7 @@ public class ReflexObjectUtil {
                                 column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
                             }
                         } else {
-                            String newValue = Objects.toString(column.getNewValue().toString(), "");
+                            String newValue = Objects.toString(column.getNewValue(), "");
                             if (StringUtils.isNotEmpty(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", StringUtils.SPACE));
                             }
