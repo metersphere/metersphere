@@ -15,12 +15,24 @@
     <ms-main-container>
 
       <div v-if="showResponse">
-        <micro-app v-if="!isTemplate && reportShow"
-                   route-name="perReportView"
-                   service="performance"
-                   :route-params="{
-                    reportId,
-                 }"/>
+        <div v-if="!isTemplate && reportShow">
+          <micro-app v-if="isShare"
+                     route-name="sharePerReportView"
+                     service="performance"
+                     :route-params="{
+                       reportId,
+                       isShare,
+                       shareId,
+                       isPlanReport: true,
+                     }"/>
+          <micro-app v-else
+                     route-name="perReportView"
+                     service="performance"
+                     :route-params="{
+                        reportId,
+                      }"/>
+        </div>
+
 
         <load-case-report-view v-else
                                :is-plan-report="true"
@@ -94,18 +106,19 @@ export default {
           reportId: row.loadReportId
         }
         if (!row.loadReportId) {
+          this.showResponse = false;
           return;
         }
         if (this.isShare) {
           shareCheckoutLoadReport(this.shareId, param)
-          .then(r => {
-            this.openReport(r.data, row.loadReportId);
-          });
+              .then(r => {
+                this.openReport(r.data, row.loadReportId);
+              });
         } else {
           checkoutLoadReport(param)
-            .then(r => {
-              this.openReport(r.data, row.loadReportId);
-            });
+              .then(r => {
+                this.openReport(r.data, row.loadReportId);
+              });
         }
       }
     },
