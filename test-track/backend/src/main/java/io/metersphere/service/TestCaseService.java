@@ -2984,10 +2984,12 @@ public class TestCaseService {
 
     public Boolean hasOtherInfo(String caseId) {
         TestCaseWithBLOBs tc = getTestCase(caseId);
+        AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+        example.createCriteria().andRelationIdEqualTo(caseId).andRelationTypeEqualTo(AttachmentType.TEST_CASE.type());
         if (tc != null) {
             if (StringUtils.isNotBlank(tc.getRemark()) || StringUtils.isNotBlank(tc.getDemandId()) || CollectionUtils.isNotEmpty(getRelateTest(caseId))
                     || CollectionUtils.isNotEmpty(issuesService.getIssues(caseId, IssueRefType.FUNCTIONAL.name())) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "PRE")) || CollectionUtils.isNotEmpty(getRelationshipCase(caseId, "POST"))
-                    || CollectionUtils.isNotEmpty(attachmentService.getFileMetadataByCaseId(caseId))) {
+                    || CollectionUtils.isNotEmpty(attachmentModuleRelationMapper.selectByExample(example))) {
                 return true;
             }
         }
