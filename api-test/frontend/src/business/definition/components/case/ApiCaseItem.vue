@@ -482,13 +482,13 @@ export default {
       });
     },
     singleRun(data) {
-      let methods = ["SQL", "DUBBO", "dubbo://", "TCP"];
+      let methods = ['SQL', 'DUBBO', 'dubbo://'];
       if (data.apiMethod && methods.indexOf(data.apiMethod) === -1 && (!this.environment || this.environment === undefined)) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
       mergeRequestDocumentData(data.request);
-      if (data.apiMethod !== "SQL" && data.apiMethod !== "DUBBO" && data.apiMethod !== "dubbo://" && data.apiMethod !== "TCP") {
+      if (data.apiMethod !== 'SQL' && data.apiMethod !== 'DUBBO' && data.apiMethod !== 'dubbo://') {
         data.request.useEnvironment = this.environment;
       } else {
         data.request.useEnvironment = data.request.environmentId;
@@ -504,7 +504,7 @@ export default {
         let request = JSON.parse(JSON.stringify(data.request));
         request.id = uuid;
         let obj = {
-          name: "copy_" + data.name,
+          name: 'copy_' + data.name,
           priority: data.priority,
           active: true,
           tags: data.tags,

@@ -553,7 +553,7 @@ export default {
           active: true,
           tags: [],
           uuid: newUuid,
-          caseStatus: "Underway",
+          caseStatus: 'Underway',
           type: 'AddCase'
         };
         request.projectId = getCurrentProjectID();
@@ -574,7 +574,7 @@ export default {
       this.$emit('showExecResult', row);
     },
     singleRun(row) {
-      let methods = ["SQL", "DUBBO", "dubbo://", "TCP"];
+      let methods = ['SQL', 'DUBBO', 'dubbo://'];
       if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && (!this.environment || this.environment === undefined)) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
@@ -583,7 +583,7 @@ export default {
       this.singleLoading = true;
       this.singleRunId = row.id;
       row.request.name = row.id;
-      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://") {
+      if (row.apiMethod !== 'SQL' && row.apiMethod !== 'DUBBO' && row.apiMethod !== 'dubbo://') {
         row.request.useEnvironment = this.environment;
       } else {
         row.request.useEnvironment = row.request.environmentId;
@@ -595,13 +595,13 @@ export default {
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
       this.testCaseId = row.id ? row.id : row.request.id;
-      this.$emit("refreshCase", this.testCaseId);
+      this.$emit('refreshCase', this.testCaseId);
     },
 
     stop(id) {
-      let obj = {type: "API", reportId: this.reportId};
+      let obj = {type: 'API', reportId: this.reportId};
       execBatchStop([obj]).then(response => {
-        this.$emit("stop", id);
+        this.$emit('stop', id);
         this.singleLoading = false;
         this.$success(this.$t('report.test_stop_success'));
       });
@@ -639,7 +639,8 @@ export default {
 .ms-drawer :deep(.ms-drawer-body) {
   margin-top: 40px;
 }
-.ms-drawer-case-header :deep(.ms-drawer-header){
+
+.ms-drawer-case-header :deep(.ms-drawer-header) {
   margin-left: 0px;
 }
 </style>
