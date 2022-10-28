@@ -245,6 +245,9 @@ public class TestPlanMessageService {
         //
         result.put("loadCaseAllCount", 0L);
         result.put("caseCount", report.getCaseCount());
+        //
+        result.put("reportStartTime", report.getStartTime());
+        result.put("reportEndTime", report.getEndTime());
 
 
         List<TestPlanCaseDTO> functionAllCases = report.getFunctionAllCases();
