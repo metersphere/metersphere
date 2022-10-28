@@ -113,7 +113,7 @@ function getComponentOperator(componentType, fieldType, async) {
     case 'MsTableSearchDatePicker':
     case 'MsTableSearchDateTimePicker':
       operator = {
-        options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+        options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.LT]
       }
       break;
     case 'MsTableSearchInputNumber':
