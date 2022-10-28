@@ -169,19 +169,33 @@ export default {
     }
   },
   created() {
-    if (this.pickValue) {
-      if (this.pickValue.hidden === undefined) {
-        this.hidden = this.root ? false : true;
+    if(this.expandAllParams){
+      this.hidden = false;
+    }else {
+      if (this.pickValue) {
+        if (this.pickValue.hidden === undefined) {
+          this.hidden = this.root ? false : true;
+        } else {
+          this.hidden = this.root ? false : this.pickValue.hidden;
+        }
       } else {
-        this.hidden = this.root ? false : this.pickValue.hidden;
+        this.hidden = true;
       }
-    } else {
-      this.hidden = true;
     }
+    this.collapseStatus = this.expandAllParams;
   },
   watch: {
     expandAllParams() {
-      this.collapseStatus = this.expandAllParams;
+      if(this.expandAllParams){
+        this.hidden = false;
+      }else {
+        if (!this.root) {
+          this.hidden = true;
+        }
+      }
+      this.$nextTick( ()=>{
+        this.collapseStatus = this.expandAllParams;
+      });
     }
   },
   methods: {
