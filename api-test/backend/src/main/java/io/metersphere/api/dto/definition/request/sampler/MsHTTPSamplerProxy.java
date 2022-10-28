@@ -21,12 +21,7 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.environment.service.CommandService;
 import io.metersphere.environment.ssl.KeyStoreConfig;
 import io.metersphere.environment.ssl.KeyStoreFile;
@@ -379,7 +374,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
+                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(url, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -442,15 +437,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MSException.throwException("请重新选择环境");
                 }
                 URL urlObject = new URL(url);
-                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
                 } else if (urlObject.getPort() != -1) {
                     sampler.setPort(urlObject.getPort());
                 }
                 sampler.setProtocol(urlObject.getProtocol());
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                sampler.setProperty("HTTPSampler.path", envPath);
+                String envPath = url;
+                sampler.setProperty("HTTPSampler.path", envPath, StandardCharsets.UTF_8.name());
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
                     sampler.setProperty("HTTPSampler.path", envPath);
