@@ -45,7 +45,7 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
         if (StringUtils.isBlank(value)) {
             return;
         }
-        prepareCatch(customField);
+        prepareCache(customField);
         Set<String> idSet = optionValueSetCache.get(customField.getId());
         Set<String> textSet = optionTextSetCache.get(customField.getId());
         if (!idSet.contains(value) && !textSet.contains(value)) {
@@ -68,7 +68,7 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
      *
      * @param customField
      */
-    protected void prepareCatch(CustomFieldDao customField) {
+    protected void prepareCache(CustomFieldDao customField) {
         if (optionValueSetCache.get(customField.getId()) == null) {
             List<CustomFieldOptionDTO> options = getOptions(customField.getId(), customField.getOptions());
 
@@ -87,20 +87,15 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
      */
     private void translateSystemOption(CustomFieldDao customField, List<CustomFieldOptionDTO> options) {
         Map<String, String> fieldI18nMap = i18nMap.get(customField.getName());
+        // 不为空，说明需要翻译
         if (fieldI18nMap != null) {
-            // 不为空，说明需要翻译
             Iterator<CustomFieldOptionDTO> iterator = options.iterator();
-            // 先将系统字段删掉
+            // 替换成翻译后的值
             while (iterator.hasNext()) {
                 CustomFieldOptionDTO option = iterator.next();
-                if (option.getSystem()) {
-                    iterator.remove();
+                if (option.getSystem() && fieldI18nMap.keySet().contains(option.getValue())) {
+                    option.setText(fieldI18nMap.get(option.getValue()));
                 }
-            }
-            // 再填充翻译后的值
-            for (String optionValue : fieldI18nMap.keySet()) {
-                CustomFieldOptionDTO option = new CustomFieldOptionDTO(optionValue, fieldI18nMap.get(optionValue), true);
-                options.add(option);
             }
         }
     }
