@@ -350,6 +350,12 @@ export default {
           case "COMPLETE":
             robotTemplate = this.robotTitle.replace('创建', '完成测试计划');
             break;
+          case "EXECUTE_SUCCESSFUL":
+            robotTemplate = this.robotTitle.replace('创建了测试计划', '执行测试计划成功');
+            break;
+          case "EXECUTE_FAILED":
+            robotTemplate = this.robotTitle.replace('创建了测试计划', '执行测试计划失败');
+            break;
           default:
             break;
         }
