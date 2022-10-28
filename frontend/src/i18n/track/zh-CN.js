@@ -216,6 +216,8 @@ export default {
     planned_end_time: "计划结束",
     actual_start_time: "实际开始",
     actual_end_time: "实际结束",
+    report_start_time: "报告开始",
+    report_end_time: "报告结束",
     plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
     plan_delete_tip: "该测试计划正在进行中，请确认再删除！",
     plan_delete: "删除计划",

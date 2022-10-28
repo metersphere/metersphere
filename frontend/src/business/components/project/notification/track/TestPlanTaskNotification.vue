@@ -237,6 +237,14 @@ export default {
           label: this.$t('test_track.plan.test_plan_load_case_count'),
           value: 'loadCaseAllCount'
         },
+        {
+          label: this.$t('test_track.plan.report_start_time'),
+          value: 'reportStartTime'
+        },
+        {
+          label: this.$t('test_track.plan.report_end_time'),
+          value: 'reportEndTime'
+        },
       ],
     };
   },

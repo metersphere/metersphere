@@ -138,10 +138,13 @@ public class TestPlanMessageService {
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";
         if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
-            subject = Translator.get("task_notification_jenkins");
+            subject = "Jenkins任务通知";
         } else {
-            subject = Translator.get("task_notification");
+            subject = "任务通知";
         }
+        // 计算通过率
+        TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
+        testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
         // 计算各种属性
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(testPlanReport.getId());
         Map<String, Long> caseCountMap = calculateCaseCount(report);
@@ -158,7 +161,6 @@ public class TestPlanMessageService {
             paramMap.put("operator", userDTO.getName());
             paramMap.put("executor", userDTO.getId());
         }
-        paramMap.putAll(new BeanMap(report));
 
         // 执行率 通过率 两位小数
         if (report.getPassRate() != null && !report.getPassRate().isNaN()) {
@@ -169,6 +171,7 @@ public class TestPlanMessageService {
         }
 
         paramMap.putAll(caseCountMap);
+        paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId(), creator);
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
@@ -239,6 +242,9 @@ public class TestPlanMessageService {
         result.put("uiScenarioAllCount", 0L);
         //
         result.put("loadCaseAllCount", 0L);
+        //
+        result.put("reportStartTime", report.getStartTime());
+        result.put("reportEndTime", report.getEndTime());
 
 
         List<TestPlanCaseDTO> functionAllCases = report.getFunctionAllCases();
