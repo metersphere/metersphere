@@ -79,9 +79,10 @@
 </template>
 
 <script>
-  import MsCsvFileUpload from "./CsvFileUpload";
+import MsCsvFileUpload from "./CsvFileUpload";
+import axios from "axios";
 
-  export default {
+export default {
     name: "MsEditCsv",
     components: {
       MsCsvFileUpload
@@ -159,13 +160,8 @@
         // 远程下载文件
         if (this.editData.files && this.editData.files.length > 0 && !this.editData.files[0].file) {
           let file = this.editData.files[0];
-          let conf = {
-            url: "/api/automation/file/download",
-            method: 'post',
-            data: file,
-            responseType: 'blob',
-          };
-          this.result = this.$request(conf).then(response => {
+          let url = '/api/automation/file/download';
+          this.result = axios.post(url, file , {responseType: 'blob'}).then(response => {
             const content = response.data;
             const blob = new Blob([content]);
             this.loading = true;
