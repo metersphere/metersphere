@@ -33,6 +33,7 @@
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {getCurrentProjectID, removeGoBackListener} from "@/business/utils/sdk-utils";
+import {issueDemandList} from "@/api/issue";
 
 export default {
   name: "RelateDemand",
@@ -73,31 +74,32 @@ export default {
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
         this.result = {loading: true};
-        this.$get("/issues/demand/list/" + getCurrentProjectID()).then(response => {
-          this.demandOptions = [];
-          if (response.data.data && response.data.data.length > 0) {
-            this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
-          }
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
-        }).catch(() => {
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
-        });
+        issueDemandList(getCurrentProjectID())
+          .then(response => {
+            this.demandOptions = [];
+            if (response.data && response.data.length > 0) {
+              this.buildDemandCascaderOptions(response.data, this.demandOptions, []);
+            }
+            this.demandOptions.unshift({
+              value: 'other',
+              label: 'Other: ' + this.$t('test_track.case.other'),
+              platform: 'Other'
+            });
+            if (this.form.demandId === 'other') {
+              this.demandValue = ['other'];
+            }
+            this.result = {loading: false};
+          }).catch(() => {
+            this.demandOptions.unshift({
+              value: 'other',
+              label: 'Other: ' + this.$t('test_track.case.other'),
+              platform: 'Other'
+            });
+            if (this.form.demandId === 'other') {
+              this.demandValue = ['other'];
+            }
+            this.result = {loading: false};
+          })
       }
     },
     buildDemandCascaderOptions(data, options, pathArray) {
