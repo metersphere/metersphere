@@ -82,6 +82,7 @@
             icon="el-icon-delete"
             type="danger"
             :tip="$t('commons.delete')"
+            :disabled="tableData.filter(f => f.name === scope.row.name).length > 0"
             @exec="handleDelete(scope.row)">
           </ms-table-operator-button>
         </template>
