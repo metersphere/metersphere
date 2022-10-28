@@ -189,6 +189,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/copy/{id}")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, subject = "测试计划通知")
     public TestPlan copy(@PathVariable String id) {
         return testPlanService.copy(id);
