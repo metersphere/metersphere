@@ -5,14 +5,14 @@
         {{ $t('project.version.name') }}: {{ versionName }}
       </div>
       <div style="float: left;margin-top: 15px">
-      Mock地址：
-      <el-link v-if="this.getUrlPrefix !== '' " :href="getUrlPrefix" style="color: black" target="_blank"
-               type="primary">
-        <span>{{ this.getUrlPrefix }}</span>
-      </el-link>
-      <el-link v-else style="color: darkred" target="_blank"
-               type="primary">当前项目未开启Mock服务
-      </el-link>
+        Mock地址：
+        <el-link v-if="this.getUrlPrefix !== '' " :href="getUrlPrefix" style="color: black" target="_blank"
+                 type="primary">
+          <span>{{ this.getUrlPrefix }}</span>
+        </el-link>
+        <el-link v-else style="color: darkred" target="_blank"
+                 type="primary">当前项目未开启Mock服务
+        </el-link>
       </div>
       <el-input :placeholder="$t('commons.search_by_name')" class="search-input" size="small"
                 :clearable="true"
@@ -167,7 +167,9 @@ export default {
     }
   },
   created() {
-    this.mockConfigData = this.baseMockConfigData;
+    if (this.baseMockConfigData) {
+      this.mockConfigData = this.baseMockConfigData;
+    }
     this.checkVersionEnable();
     this.initMockEnvironment();
   },
