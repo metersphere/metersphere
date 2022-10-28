@@ -101,7 +101,7 @@ export default {
       ready: false,
       openLdap: false,
       authSources: [],
-      lastUser: null,
+      lastUser: sessionStorage.getItem('lastUser'),
       loginTitle: this.$t('commons.welcome')
     }
   },
@@ -238,6 +238,7 @@ export default {
     },
     checkRedirectUrl() {
       if (this.lastUser === getCurrentUserId()) {
+        this.$router.push({path: sessionStorage.getItem('redirectUrl') || '/'});
         return;
       }
       let redirectUrl = '/';
@@ -252,7 +253,8 @@ export default {
       }
 
       sessionStorage.setItem('redirectUrl', redirectUrl);
-      this.$router.push({path: redirectUrl || '/', query: this.otherQuery})
+      sessionStorage.setItem('lastUser', getCurrentUserId());
+      this.$router.push({ name: "login_redirect", path: redirectUrl || '/', query: this.otherQuery});
     },
     doLogin() {
       const userStore = useUserStore()
@@ -282,10 +284,7 @@ export default {
           .then(response => {
             language = response.data;
             localStorage.setItem(DEFAULT_LANGUAGE, language);
-            window.location.href = "/";
           });
-      } else {
-        window.location.href = "/";
       }
     },
     redirectAuth(authId) {

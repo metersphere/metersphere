@@ -109,15 +109,16 @@ export default {
     },
 
     userLogout() {
+      clearSessionStorage();
       return new Promise((resolve, reject) => {
         logout().then(() => {
-          clearSessionStorage()
-          location.reload()
-          resolve()
+          location.href = '/#/login';
+          location.reload();
+          resolve();
         }).catch(error => {
-          clearSessionStorage()
-          location.reload()
-          reject(error)
+          location.href = '/#/login';
+          location.reload();
+          reject(error);
         })
       })
     },
