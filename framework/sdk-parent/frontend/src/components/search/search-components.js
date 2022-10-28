@@ -99,7 +99,7 @@ export const UPDATE_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'commons.update_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.LT]
   },
 }
 // 所属项目
@@ -135,7 +135,7 @@ export const CREATE_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'commons.create_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.LT]
   },
 }
 // 报告状态
