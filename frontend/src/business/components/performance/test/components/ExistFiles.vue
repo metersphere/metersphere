@@ -12,7 +12,6 @@
           accept=".jmx"
           action=""
           multiple
-          :limit="fileNumLimit"
           :show-file-list="false"
           :before-upload="beforeUploadFile"
           :http-request="handleUpload"
@@ -27,7 +26,6 @@
           style="margin-bottom: 10px"
           accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt,.der,.cer,.pem,.crt,.pfx,.p12,.jks"
           action=""
-          :limit="fileNumLimit"
           multiple
           :show-file-list="false"
           :before-upload="beforeUploadFile"
@@ -68,7 +66,6 @@
             style="width: 38px; float: left;"
             accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt,.der,.cer,.pem,.crt,.pfx,.p12,.jks"
             action=""
-            :limit="fileNumLimit"
             :show-file-list="false"
             :before-upload="beforeUpdateUploadFile"
             :http-request="handleUpdateUpload"
@@ -133,7 +130,6 @@ export default {
       loadType: 'jmx',
       existFiles: [],
       selectIds: new Set,
-      fileNumLimit: 10,
       condition: {}
     };
   },
