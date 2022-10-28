@@ -137,6 +137,7 @@
         </ms-table-column>
 
         <ms-table-column
+          :filters="versionFilters"
           v-if="versionEnable"
           :label="$t('project.version.name')"
           :field="item"
@@ -223,6 +224,7 @@ import {useStore} from "@/store";
 import {getProjectMemberUserFilter} from "@/api/user";
 import {operationConfirm} from "@/business/utils/sdk-utils";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 
 
 export default {
@@ -298,7 +300,8 @@ export default {
       fieldsWidth: getCustomTableWidth('TRACK_PUBLIC_TEST_CASE'),
       rowCase: {},
       rowCaseResult: {},
-      userFilter: []
+      userFilter: [],
+      versionFilters: []
     };
   },
   props: {
@@ -341,6 +344,7 @@ export default {
     getProjectMemberUserFilter((data) => {
       this.userFilter = data;
     });
+    this.getVersionOptions();
 
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
@@ -512,6 +516,12 @@ export default {
           this.$refs.testBatchMove.close();
           this.refresh();
         });
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        getVersionFilters(getCurrentProjectID())
+          .then(r =>  this.versionFilters = r.data);
+      }
     },
   }
 };
