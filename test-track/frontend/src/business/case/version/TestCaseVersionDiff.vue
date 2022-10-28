@@ -60,10 +60,9 @@
           <el-form v-if="oldData.isFormAlive" :model="oldData.customFieldForm" :rules="oldData.customFieldRules"
                    ref="oldCustomFieldForm"
                    class="case-form">
-            <custom-filed-form-row :form="oldData.customFieldForm"
-                                   :disabled="readOnly"
-                                   :default-open="defaultOpen"
-                                   :issue-template="oldData.testCaseTemplate"/>
+            <custom-filed-form-item :form="oldData.customFieldForm"
+                                    :form-label-width="oldData.formLabelWidth"
+                                    :issue-template="oldData.testCaseTemplate"/>
           </el-form>
 
           <el-row v-if="oldData.isCustomNum">
@@ -252,6 +251,7 @@ import {useStore} from "@/store";
 import {getProjectListAll, getProjectMemberOption} from "@/business/utils/sdk-utils";
 import {getTestTemplate} from "@/api/custom-field-template";
 import {testCaseCommentList} from "@/api/test-case-comment";
+
 const {diff} = require("@/business/v_node_diff");
 
 export default {
