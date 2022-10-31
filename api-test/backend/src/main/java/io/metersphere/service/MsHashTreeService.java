@@ -1,21 +1,22 @@
 package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.request.ElementUtil;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.ApiTestCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -36,6 +37,8 @@ public class MsHashTreeService {
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
 
     @Resource
@@ -44,7 +47,7 @@ public class MsHashTreeService {
     public static final String CASE = "CASE";
     public static final String REFERENCED = "referenced";
     public static final String REF = "REF";
-    public static final String CREATED = "Created";
+    public static final String COPY = "Copy";
     public static final String REF_TYPE = "refType";
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -165,17 +168,13 @@ public class MsHashTreeService {
                 isExist = true;
                 this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
             }
-        } else {
-            if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), "Copy")) {
-                ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.optString(ID));
-                if (definitionWithBLOBs != null) {
-                    Project project = projectMapper.selectByPrimaryKey(definitionWithBLOBs.getProjectId());
-                    definitionWithBLOBs.setProjectName(project.getName());
-                    definitionWithBLOBs.setVersionEnable(project.getVersionEnable());
-                    element.put(ID, definitionWithBLOBs.getId());
-                    this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
-                    isExist = true;
-                }
+        } else if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), COPY)) {
+            ApiDefinition definition = apiDefinitionMapper.selectByPrimaryKey(element.optString(ID));
+            if (definition != null) {
+                Project project = projectMapper.selectByPrimaryKey(definition.getProjectId());
+                element.put(ID, definition.getId());
+                this.setElement(element, definition.getNum(), enable, project.getName(), project.getVersionEnable());
+                isExist = true;
             }
         }
         if (!isExist) {
