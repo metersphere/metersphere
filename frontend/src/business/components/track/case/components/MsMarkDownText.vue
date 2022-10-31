@@ -214,8 +214,8 @@ export default {
 
 <style scoped>
 
-/deep/ .v-note-wrapper {
-  position: initial;
+.v-note-wrapper {
+  display: block !important;
 }
 
 /deep/ .dropdown-item.dropdown-images {
