@@ -132,7 +132,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         String headerOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getHeaders())), JSON_END);
         if (!StringUtils.equals(headerNew, headerOld)) {
             String patch = jsonDiff.diff(headerOld, headerNew);
-            String diffPatch = jsonDiff.apply(headerNew, patch);
+            String diffPatch = jsonDiff.apply(headerOld, patch);
             if (StringUtils.isNotEmpty(diffPatch)) {
                 diffMap.put("header", diffPatch);
             }
@@ -146,7 +146,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         String queryOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getArguments())), JSON_END);
         if (!StringUtils.equals(queryNew, queryOld)) {
             String patch = jsonDiff.diff(queryOld, queryNew);
-            String diff = jsonDiff.apply(queryNew, patch);
+            String diff = jsonDiff.apply(queryOld, patch);
             if (StringUtils.isNotEmpty(diff)) {
                 diffMap.put(QUERY, diff);
             }
@@ -160,7 +160,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         String restOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getRest())), JSON_END);
         if (!StringUtils.equals(restNew, restOld)) {
             String patch = jsonDiff.diff(restOld, restNew);
-            String diff = jsonDiff.apply(restNew, patch);
+            String diff = jsonDiff.apply(restOld, patch);
             if (StringUtils.isNotEmpty(diff)) {
                 diffMap.put("rest", diff);
             }
