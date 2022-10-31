@@ -184,11 +184,13 @@
                 <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                          :expand-on-click-node="false"
                          :allow-drop="allowDrop"
+                         :allow-drag="allowDrag"
                          :empty-text="$t('api_test.scenario.step_info')"
                          highlight-current
                          :show-checkbox="isBatchProcess"
                          @check-change="chooseHeadsUp"
-                         @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" :key="reloadTree">
+                         @node-drag-end="nodeDragEnd" @node-click="nodeClick" draggable ref="stepTree"
+                         :key="reloadTree">
 
                   <el-row class="custom-tree-node" :gutter="10" type="flex" align="middle" slot-scope="{node, data}"
                           style="width: 100%">
@@ -1552,6 +1554,12 @@ export default {
     environmentConfigClose() {
       this.getEnvironments();
     },
+    allowDrag(node) {
+      if (node.data && node.data.disabled && node.parent.data && node.parent.data.disabled) {
+        return false;
+      }
+      return true;
+    },
     allowDrop(draggingNode, dropNode, dropType) {
       if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
         return false;
@@ -1566,12 +1574,13 @@ export default {
         }
         return false;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
+        && !dropNode.data.disabled
         && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)) {
         return true;
       }
       return false;
     },
-    allowDrag(draggingNode, dropNode, dropType) {
+    nodeDragEnd(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
         this.forceRerender();
