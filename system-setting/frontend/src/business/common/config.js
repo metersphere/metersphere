@@ -239,6 +239,11 @@ export function SYSLIST() {
           value: [i18n.t('commons.workspace') + "-" + i18n.t('permission.project_user.name'), 'WORKSPACE_MEMBER'],
           leaf: true
         },
+        {
+          label: i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_project_environment.name'),
+          value: [i18n.t('commons.workspace') + "-" + i18n.t('permission.workspace_project_environment.name'), 'PROJECT_ENVIRONMENT_SETTING'],
+          leaf: true
+        }
       ]
     },
     {
