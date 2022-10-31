@@ -68,6 +68,7 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/add")
+    @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, title = "#apiTestEnvironmentWithBLOBs.name", project = "#apiTestEnvironmentWithBLOBs.projectId", msClass = BaseEnvironmentService.class)
     public String create(@RequestPart("request") TestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironmentWithBLOBs);
         return baseEnvironmentService.add(apiTestEnvironmentWithBLOBs, sslFiles, variableFile);
@@ -114,6 +115,7 @@ public class TestEnvironmentController {
     }
 
     @GetMapping("/delete/{id}")
+    @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = BaseEnvironmentService.class)
     public void delete(@PathVariable String id) {
         baseEnvironmentService.delete(id);
     }
