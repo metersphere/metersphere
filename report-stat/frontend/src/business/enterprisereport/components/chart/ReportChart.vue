@@ -30,8 +30,8 @@
       </el-row>
       <el-row style="overflow: auto">
         <ms-chart ref="chart1" v-if="!loading" :options="dataOption"
-                  :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}" class="chart-config" :autoresize="true"
-                  :id="reportId"/>
+                  :style="{width: '100%', height: (h-70) + 'px'}" class="chart-config" :autoresize="true"
+                  id="picChart"/>
       </el-row>
     </el-card>
   </div>
