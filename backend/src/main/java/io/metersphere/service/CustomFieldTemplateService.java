@@ -45,7 +45,7 @@ public class CustomFieldTemplateService {
         CustomFieldTemplateExample example = new CustomFieldTemplateExample();
         example.createCriteria().andTemplateIdEqualTo(templateId);
         example.setOrderByClause("`order` asc");
-        return customFieldTemplateMapper.selectByExample(example);
+        return customFieldTemplateMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<CustomFieldTemplateDao> list(CustomFieldTemplate request) {
