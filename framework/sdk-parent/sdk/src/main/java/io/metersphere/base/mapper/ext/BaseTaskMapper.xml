@@ -15,7 +15,14 @@
             #{id}
         </foreach>
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -36,7 +43,14 @@
         </foreach>
 
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -57,7 +71,14 @@
             #{id}
         </foreach>
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -119,7 +140,14 @@
             #{id}
         </foreach>
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -140,7 +168,14 @@
             #{id}
         </foreach>
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -162,7 +197,14 @@
         </foreach>
 
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
@@ -184,7 +226,14 @@
             #{id}
         </foreach>
         <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+            <choose>
+                <when test="request.triggerMode== 'API'">
+                    AND t.trigger_mode in ('JENKINS_API_PLAN', 'JENKINS_SCENARIO_PLAN', 'JENKINS_PERFORMANCE_TEST', 'JENKINS')
+                </when>
+                <otherwise>
+                    AND t.trigger_mode = #{request.triggerMode}
+                </otherwise>
+            </choose>
         </if>
         <if test="request.executionStatus != null and request.executionStatus != ''">
             AND t.status = #{request.executionStatus}
