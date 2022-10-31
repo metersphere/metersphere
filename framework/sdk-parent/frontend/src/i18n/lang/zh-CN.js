@@ -2423,6 +2423,7 @@ const message = {
     organization_member: "组织-成员",
     organization_workspace: "组织-工作空间",
     workspace_service_integration: "工作空间-服务集成",
+    project_message_settings: "项目-消息设置",
     project_settings: "项目-消息设置",
     workspace_member: "工作空间-成员",
     project_template_settings_field: "项目-模版设置-自定义字段",
