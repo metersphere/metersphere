@@ -558,14 +558,6 @@ public class TestPlanReportService {
                 content.setPassRate(null);
                 extTestPlanReportMapper.setApiBaseCountAndPassRateIsNullById(content.getId());
             }
-            if (content != null) {
-                //更新content表对结束日期
-                if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-                    content.setStartTime(testPlanReport.getStartTime());
-                    content.setEndTime(endTime);
-                }
-                testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
-            }
             //计算测试计划状态
             if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
                 testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
@@ -577,6 +569,16 @@ public class TestPlanReportService {
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport.setIsUiScenarioExecuting(false);
+
+            if (content != null) {
+                //更新content表对结束日期,并计算报表信息
+                if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+                    content.setStartTime(testPlanReport.getStartTime());
+                    content.setEndTime(endTime);
+                }
+                this.initTestPlanReportBaseCount(testPlanReport,content);
+                testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
+            }
 
             TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
             testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
@@ -609,6 +611,13 @@ public class TestPlanReportService {
         //发送通知
         testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
         return testPlanReport;
+    }
+
+    private void initTestPlanReportBaseCount(TestPlanReport testPlanReport,TestPlanReportContentWithBLOBs reportContent) {
+        if(testPlanReport != null && reportContent != null){
+            TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
+            reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+        }
     }
 
     /**
