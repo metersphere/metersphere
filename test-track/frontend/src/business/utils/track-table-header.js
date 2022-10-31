@@ -5,7 +5,7 @@ const TRACK_HEADER = {
   TEST_PLAN_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'commons.name'},
-    {id: 'priority', key: '3', label: 'test_track.case.priority'},
+    {id: 'priority', key: 'd', label: 'test_track.case.priority'},
     {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
     {id: 'tags', key: '3', label: 'commons.tag'},
     {id: 'nodePath', key: '4', label: 'test_track.case.module'},
