@@ -4,6 +4,7 @@
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
                 @change="handleChange"
+                clearable
                 filterable v-model="data[prop]" :placeholder="$t('commons.default')">
       <el-option
         v-for="(item,index) in data.options ? data.options : []"
