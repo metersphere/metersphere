@@ -2434,7 +2434,10 @@ const message = {
     error_report_library: "Error report",
     enterprise_test_report: "Enterprise report",
     change_history: "Change log",
-    change_content: "Change content"
+    change_content: "Change content",
+    ui_element: "ui element",
+    ui_automation: "ui automation",
+    ui_automation_report: "ui automation report"
   },
   plugin: {
     title: "Plug-in management",
