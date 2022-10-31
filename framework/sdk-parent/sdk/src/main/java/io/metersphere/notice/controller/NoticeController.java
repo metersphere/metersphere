@@ -35,7 +35,7 @@ public class NoticeController {
     }
 
     @GetMapping("/delete/message/{identification}")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#identification)", msClass = NoticeService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getDelLogDetails(#identification)", msClass = NoticeService.class)
     public int deleteMessage(@PathVariable String identification) {
         return noticeService.delMessage(identification);
     }
