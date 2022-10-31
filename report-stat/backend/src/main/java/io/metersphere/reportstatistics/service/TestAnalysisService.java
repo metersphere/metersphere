@@ -2,14 +2,12 @@ package io.metersphere.reportstatistics.service;
 
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.dto.ProjectDTO;
 import io.metersphere.reportstatistics.dto.*;
 import io.metersphere.reportstatistics.dto.charts.Legend;
 import io.metersphere.reportstatistics.dto.charts.Series;
 import io.metersphere.reportstatistics.dto.charts.XAxis;
 import io.metersphere.reportstatistics.dto.charts.YAxis;
 import io.metersphere.reportstatistics.service.remote.track.TestCaseRemoteService;
-import io.metersphere.request.ProjectRequest;
 import io.metersphere.service.BaseProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,17 +37,10 @@ public class TestAnalysisService {
         request.setStartTime(DateUtils.getDataStr(request.getTimes().get(0)));
         request.setEndTime(DateUtils.getDataStr(request.getTimes().get(1)));
         if (CollectionUtils.isEmpty(request.getProjects())) {
-            // 获取当前组织空间下所有项目
-            String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-
-            ProjectRequest projectRequest = new ProjectRequest();
-            projectRequest.setWorkspaceId(currentWorkspaceId);
-            List<ProjectDTO> projectDTOS = projectService.getProjectList(projectRequest);
-            if (CollectionUtils.isNotEmpty(projectDTOS)) {
-                request.setProjects(projectDTOS.stream().map(ProjectDTO::getId).collect(Collectors.toList()));
-            } else {
-                request.setProjects(new LinkedList<String>() {{
-                    this.add(UUID.randomUUID().toString());
+            String projectId = SessionUtils.getCurrentProjectId();
+            if (StringUtils.isNotBlank(projectId)) {
+                request.setProjects(new ArrayList<>() {{
+                    this.add(projectId);
                 }});
             }
         }
@@ -117,7 +108,10 @@ public class TestAnalysisService {
         List<Integer> upCollect = dtos.stream().map(item -> Integer.valueOf(item.getUpdateCount())).collect(Collectors.toList());
         // reduce求和
         Optional<Integer> updateCount = upCollect.stream().reduce(Integer::sum);
-        dtos.add(new TestAnalysisTableDTO("Count", createCount.get().toString(), updateCount.get().toString(), new LinkedList<>()));
+        dtos.add(new TestAnalysisTableDTO("Count",
+                createCount.isEmpty() ? "0" : createCount.get().toString(),
+                updateCount.isEmpty() ? "0" : updateCount.get().toString(),
+                new LinkedList<>()));
 
         TestAnalysisResult testAnalysisResult = new TestAnalysisResult();
         testAnalysisResult.setChartDTO(dto);
