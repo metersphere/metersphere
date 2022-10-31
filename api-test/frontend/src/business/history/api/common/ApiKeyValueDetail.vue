@@ -8,14 +8,18 @@
         </el-col>
         <span style="margin-left: 10px" v-else/>
         <el-col class="item">
-          <input class="el-input el-input__inner" v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200" show-word-limit :style="item.style"/>
-          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small" show-word-limit :style="item.style"/>
+          <input class="el-input el-input__inner" v-if="!suggestions" :disabled="isReadOnly" v-model="item.name"
+                 size="small" maxlength="200" show-word-limit :style="item.style"/>
+          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
+                           show-word-limit :style="item.style"/>
         </el-col>
         <el-col v-if="showRequired">
-          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.required" size="small" :style="item.style"/>
+          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.required" size="small"
+                 :style="item.style"/>
         </el-col>
         <el-col class="item">
-          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.value" size="small" show-word-limit :style="item.style"/>
+          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.value" size="small"
+                 show-word-limit :style="item.style"/>
         </el-col>
         <el-col class="item" v-if="showDesc">
           <input class="el-input el-input__inner" v-model="item.description" size="small" maxlength="200"
@@ -131,11 +135,11 @@ export default {
                 newObj[key] = value;
               }
             });
-            item.style = background_old;
+            item.style = background_new;
             this.data.push(item);
-            newObj["box"] = true;
-            newObj["style"] = background_new;
-            newObj["required"] = newObj.required ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
+            item["box"] = true;
+            newObj["style"] = background_old;
+            newObj["required"] = newObj.required === this.$t('commons.selector.required') ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
             this.data.push(newObj);
           } else {
             this.data.push(item);
