@@ -164,7 +164,7 @@ export default {
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
         {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
         {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
-        {id: 'API', label: 'API'}
+        {id: 'API', label: this.$t('commons.trigger_mode.api')}
       ],
       runStatus: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
@@ -374,7 +374,7 @@ export default {
       if (mode === 'BATCH') {
         return this.$t('api_test.automation.batch_execute');
       }
-      if (mode === 'JENKINS_RUN_TEST_PLAN') {
+      if (mode.startsWith('JENKINS')) {
         return this.$t('commons.trigger_mode.api');
       }
       return mode;
