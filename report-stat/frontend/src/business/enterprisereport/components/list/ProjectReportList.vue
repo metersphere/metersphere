@@ -197,8 +197,8 @@ export default {
     },
     scheduleChange(row) {
       let titles = this.$t('api_test.home_page.running_task_list.confirm.open_title');
-      if (row.scheduleIsOpen) {
-        this.$t('api_test.home_page.running_task_list.confirm.close_title');
+      if (!row.scheduleIsOpen) {
+        titles = this.$t('api_test.home_page.running_task_list.confirm.close_title');
       }
       let param = {id: row.scheduleId, enable: row.scheduleIsOpen};
       row.scheduleIsOpen = !row.scheduleIsOpen;
@@ -262,36 +262,28 @@ export default {
       });
     },
     deleteReport(row) {
-      this.$alert(this.$t('commons.confirm') + this.$t('commons.delete') + row.name + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let param = {id: row.id, projectId: getCurrentProjectID()};
-            deleteEnterpriseReport(param).then(() => {
-              this.$success(this.$t('commons.delete_success'));
-              this.initTableData();
-            });
-          }
-        }
+      let alertMsg = this.$t('commons.confirm') + this.$t('commons.delete') + row.name + "？";
+      operationConfirm(this, alertMsg, () => {
+        let param = {id: row.id, projectId: getCurrentProjectID()};
+        deleteEnterpriseReport(param).then(() => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTableData();
+        });
       });
     },
     handleBatchDelete() {
-      this.$alert(this.$t('api_report.delete_batch_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            if (!this.condition.selectAll) {
-              let selectRows = this.$refs.msTable.selectRows;
-              let ids = Array.from(selectRows).map(row => row.id);
-              this.condition.ids = ids;
-            }
-            deleteEnterpriseReport(this.condition).then(() => {
-              this.condition.ids = [];
-              this.$success(this.$t('commons.delete_success'));
-              this.initTableData();
-            });
-          }
+      let alertMsg = this.$t('api_report.delete_batch_confirm') + "?";
+      operationConfirm(this, alertMsg, () => {
+        if (!this.condition.selectAll) {
+          let selectRows = this.$refs.msTable.selectRows;
+          let ids = Array.from(selectRows).map(row => row.id);
+          this.condition.ids = ids;
         }
+        deleteEnterpriseReport(this.condition).then(() => {
+          this.condition.ids = [];
+          this.$success(this.$t('commons.delete_success'));
+          this.initTableData();
+        });
       });
     },
     copyProjectReport(row) {
