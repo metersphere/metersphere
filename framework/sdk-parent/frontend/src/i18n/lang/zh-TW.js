@@ -2429,7 +2429,7 @@ const message = {
     project_project_manager: "項目-項目管理",
     project_project_member: "項目-成員",
     project_project_jar: "項目-JAR包管理",
-    project_environment_setting: "項目-環境設置",
+    project_environment_setting: "環境設置",
     project_file_management: "項目-文件管理",
     project_template_management: "項目-模板管理",
     personal_information_personal_settings: "個人信息-個人設置",
