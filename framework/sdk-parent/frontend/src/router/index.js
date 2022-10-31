@@ -59,11 +59,14 @@ const createRouter = () => new Router({
 
 const router = createRouter()
 
-let userStore = null;
 // 刷新整个页面会到这里
 import('@/store').then(async ({useUserStore}) => {
-  userStore = useUserStore();
-  await userStore.getIsLogin()
+  const userStore = useUserStore();
+  try {
+    await userStore.getIsLogin();
+  } catch (e) {
+    // nothing
+  }
 });
 
 let store = null;
