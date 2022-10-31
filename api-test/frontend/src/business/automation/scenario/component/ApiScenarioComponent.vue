@@ -136,6 +136,7 @@ export default {
     this.isShowNum = this.scenario.num ? true : false;
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.scenario.root = this.node.parent.parent ? false : true;
+      this.scenario.disabled = true;
       this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
     }
   },
@@ -233,6 +234,7 @@ export default {
         }
       }
       if (this.scenario && this.scenario.hashTree && this.node.expanded) {
+        this.scenario.disabled = true;
         this.recursive(this.scenario.hashTree, this.scenario.projectId, (this.scenario.id && this.scenario.referenced === 'REF'));
       }
       this.reload();
