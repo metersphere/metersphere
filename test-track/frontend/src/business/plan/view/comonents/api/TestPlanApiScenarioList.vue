@@ -37,7 +37,9 @@
             min-width="80px"
             label="ID">
              <template v-slot:default="scope">
-               <el-link @click="openById(scope.row)">
+               <span style="cursor:pointer"
+                     v-if="!hasPermission('PROJECT_API_SCENARIO:READ+EDIT')"> {{ scope.row.num }} </span>
+               <el-link @click="openById(scope.row)" v-else>
                   <span>
                     {{ scope.row.customNum }}
                   </span>
@@ -204,7 +206,7 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import MsTableMoreBtn from "metersphere-frontend/src/components/table/TableMoreBtn";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
@@ -365,6 +367,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     filterSearch() {
       // 添加搜索条件时，当前页设置成第一页
       this.currentPage = 1;
