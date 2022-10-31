@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
@@ -557,31 +558,35 @@ public class TestPlanReportService {
                 content.setPassRate(null);
                 extTestPlanReportMapper.setApiBaseCountAndPassRateIsNullById(content.getId());
             }
-            if (content != null) {
-                //更新content表对结束日期
-                if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-                    content.setStartTime(testPlanReport.getStartTime());
-                    content.setEndTime(endTime);
-                }
-                testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
-            }
-            //计算测试计划状态
-            if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
-                testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
-                HttpHeaderUtils.runAsUser("admin");
-                try {
-                    testPlanService.checkStatus(testPlanReport.getTestPlanId());
-                } finally {
-                    HttpHeaderUtils.clearUser();
-                }
-            } else {
-                testPlanReport.setStatus(status);
-            }
+
             //更新测试计划并发送通知
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport.setIsUiScenarioExecuting(false);
+            //计算测试计划状态
+
+            try {
+                if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
+                    testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
+                    HttpHeaderUtils.runAsUser("admin");
+                    testPlanService.checkStatus(testPlanReport.getTestPlanId());
+                } else {
+                    testPlanReport.setStatus(status);
+                }
+
+                if (content != null) {
+                    //更新content表对结束日期
+                    if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+                        content.setStartTime(testPlanReport.getStartTime());
+                        content.setEndTime(endTime);
+                    }
+                    this.initTestPlanReportBaseCount(testPlanReport, content);
+                    testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
+                }
+            } finally {
+                HttpHeaderUtils.clearUser();
+            }
 
             TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
             testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
@@ -614,6 +619,13 @@ public class TestPlanReportService {
         //发送通知
         testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
         return testPlanReport;
+    }
+
+    private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
+        if (testPlanReport != null && reportContent != null) {
+            TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
+            reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+        }
     }
 
     /**
