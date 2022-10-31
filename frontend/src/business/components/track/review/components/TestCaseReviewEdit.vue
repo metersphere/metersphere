@@ -128,7 +128,7 @@ export default {
       rules: {
         name: [
           {required: true, message: this.$t('test_track.review.input_review_name'), trigger: 'blur'},
-          {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
+          {max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}
         ],
         userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
