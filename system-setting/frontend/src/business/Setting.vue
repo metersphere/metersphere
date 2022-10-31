@@ -24,14 +24,15 @@ import {getCurrentUser} from "metersphere-frontend/src/utils/token";
 import {GROUP_SYSTEM} from "metersphere-frontend/src/utils/constants";
 import MsHeaderRightMenus from "metersphere-frontend/src/components/layout/HeaderRightMenus";
 import {hasPermissions} from "metersphere-frontend/src/utils/permission";
-
+import {useUserStore} from "@/store";
+const store = useUserStore();
 
 export default {
   name: "MsSetting",
   components: {MsMainContainer, MsContainer, MsAsideContainer, MsSettingMenu, MsCurrentUser, MsHeaderRightMenus},
   computed: {
     isShowWarning() {
-      return false;
+      return store.showLicenseCountWarning;
     },
     isSystemGroup() {
       let user = getCurrentUser();
