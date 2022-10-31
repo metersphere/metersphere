@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -1263,10 +1264,10 @@ public class TestPlanService {
             }
             TestPlanExecuteReportDTO testPlanExecuteReportDTO = testPlanReportService.genTestPlanExecuteReportDTOByTestPlanReportContent(testPlanReportContentWithBLOBs);
             TestPlanSimpleReportDTO report = null;
+            boolean apiBaseInfoChanged = false;
             if (StringUtils.isEmpty(testPlanReportContentWithBLOBs.getApiBaseCount())) {
                 report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
-                testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(report));
-                returnDTO.setApiBaseInfoChanged(true);
+                apiBaseInfoChanged = true;
             } else {
                 try {
                     report = JSON.parseObject(testPlanReportContentWithBLOBs.getApiBaseCount(), TestPlanSimpleReportDTO.class);
@@ -1275,15 +1276,28 @@ public class TestPlanService {
                 }
                 if (report == null) {
                     report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
-                    testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(report));
-                    returnDTO.setApiBaseInfoChanged(true);
+                    apiBaseInfoChanged = true;
                 }
             }
-            buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
-            buildApiReport(report, config, testPlanExecuteReportDTO);
-            buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
+            if (report.getFunctionAllCases() == null || report.getIssueList() == null) {
+                buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
+                apiBaseInfoChanged = true;
+            }
+            if (report.getApiAllCases() == null && report.getScenarioAllCases() == null) {
+                buildApiReport(report, config, testPlanExecuteReportDTO);
+                apiBaseInfoChanged = true;
+            }
+            if (report.getLoadAllCases() == null) {
+                buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
+                apiBaseInfoChanged = true;
+            }
             buildUiReport(report, config, testPlanReport.getTestPlanId(), testPlanExecuteReportDTO, false);
             returnDTO.setTestPlanSimpleReportDTO(report);
+
+            if (apiBaseInfoChanged) {
+                testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
+                returnDTO.setApiBaseInfoChanged(true);
+            }
             return returnDTO;
         } else {
             returnDTO.setTestPlanSimpleReportDTO(new TestPlanSimpleReportDTO());
