@@ -131,7 +131,7 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {
-  getUrl,
+  getPermissionUrl,
   LOG_MODULE_MAP,
   LOG_TYPE,
   LOG_TYPE_MAP,
@@ -144,7 +144,7 @@ import {getCurrentWsMembers} from "../../../api/user";
 import {modifyUserByResourceId} from "metersphere-frontend/src/api/user";
 import {getOperatingLogPages} from "../../../api/log";
 import {getProject} from "../../../api/project";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermissions} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "Log",
@@ -205,14 +205,24 @@ export default {
   },
   methods: {
     isLink(row) {
-      let uri = getUrl(row, this);
+      let res = getPermissionUrl(row, this);
+      let permissions = undefined;
+      let uri = "/#";
+      if (res && res instanceof Array) {
+        uri = res[0];
+        permissions = res[1];
+      }
       if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
+        if (permissions && permissions instanceof Array) {
+          return hasPermissions(...permissions);
+        }
         return true;
       }
       return false;
     },
     clickResource(resource) {
-      let uri = getUrl(resource, this);
+      let res = getPermissionUrl(resource, this);
+      let uri = res[0];
       if (!resource.sourceId) {
         this.toPage(uri);
       }
