@@ -611,6 +611,7 @@ public class TestPlanLoadCaseService {
         Map config = request.getConfig();
         Map<String, String> loadCaseReportMap = request.getReportIdMap();
         if (MapUtils.isEmpty(loadCaseReportMap)) {
+            loadPlanReport.setLoadAllCases(new ArrayList<>());
             return loadPlanReport;
         }
         if (ServiceUtils.checkConfigEnable(config, "load")) {
