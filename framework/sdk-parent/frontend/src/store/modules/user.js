@@ -40,6 +40,7 @@ export default {
   id: TokenKey,
   state: () => ({
     language: getLanguage(),
+    showLicenseCountWarning: false,
   }),
   persist: true,
   getters: {

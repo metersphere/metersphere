@@ -9,6 +9,8 @@
 <script>
 import {getLicense, getSystemUserSize} from "../api/license";
 import {saveLicense} from "../utils/permission";
+import {useUserStore} from "@/store";
+
 
 export default {
   name: "MxLicenseMessage",
@@ -18,6 +20,7 @@ export default {
     }
   },
   created() {
+    const store = useUserStore();
     this.result = getLicense()
       .then(response => {
         let data = response.data;
@@ -26,18 +29,14 @@ export default {
         }
         saveLicense(data.status)
         if (data.status !== 'valid') {
-          localStorage.setItem('setShowLicenseCountWarning', "false");
+          store.showLicenseCountWarning = false;
           return;
         }
         let licenseCount = data.license.count;
         getSystemUserSize()
           .then(res => {
             let userCount = res ? res.data : 0;
-            if (userCount > licenseCount) {
-              localStorage.setItem('setShowLicenseCountWarning', "true");
-            } else {
-              localStorage.setItem('setShowLicenseCountWarning', "false");
-            }
+            store.showLicenseCountWarning = userCount > licenseCount;
           });
       })
       .catch(e => {
