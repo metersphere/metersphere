@@ -189,8 +189,24 @@ public class NoticeService {
             }
         }
         List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
-        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), task.getProjectId(),
                 StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), null, columns);
         return JSON.toJSONString(details);
+    }
+
+    public String getDelLogDetails(String identification) {
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria().andIdentificationEqualTo(identification);
+        List<MessageTask> tasks = messageTaskMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(tasks)) {
+            MessageTask messageTask = tasks.get(0);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(messageTask.getId()),
+                    messageTask.getProjectId(),
+                    StatusReference.statusMap.containsKey(messageTask.getTaskType()) ? StatusReference.statusMap.get(messageTask.getTaskType()) : messageTask.getTaskType(),
+                    null,
+                    new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
