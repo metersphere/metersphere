@@ -129,11 +129,7 @@ export default {
         {
           label: this.$t('test_track.issue.platform_status'),
           value: 'platformStatus',
-        },
-        {
-          label: this.$t('custom_field.issue_processor'),
-          value: 'processor',
-        },
+        }
       ]
     };
   },
