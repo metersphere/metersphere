@@ -238,7 +238,7 @@ export function PROJECTSYSLIST() {
   return projectsysList;
 }
 
-export function getUrl(d, _this) {
+export function getPermissionUrl(d, _this) {
   let url = "/#";
   let resourceId = d.sourceId;
   if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
@@ -248,132 +248,134 @@ export function getUrl(d, _this) {
     if (resourceId.length === 1) {
       resourceId = resourceId[0];
     } else {
-      return url;
+      return [url, []];
     }
   }
   let moduleMap = LOG_MODULE_MAP(_this);
   let module = moduleMap.get(d.operModule) ? moduleMap.get(d.operModule) : d.operModule;
+  let res;
   switch (module) {
     case "接口自动化" :
     case "Api automation" :
     case"接口自動化":
-      url += "/api/automation?resourceId=" + resourceId;
+      res = [url + "/api/automation?resourceId=" + resourceId, ["PROJECT_API_SCENARIO:READ"]];
       break;
     case "测试计划" :
     case "測試計劃" :
     case "Test plan":
-      url += "/track/plan/view/" + resourceId;
+      res = [url + "/track/plan/view/" + resourceId, ["PROJECT_TRACK_PLAN:READ"]];
       break;
     case "用例评审" :
     case "Case review" :
     case "用例評審":
-      url += "/track/review/view/" + resourceId;
+      res = [url + "/track/review/view/" + resourceId, ["PROJECT_TRACK_REVIEW:READ"]];
       break;
     case "缺陷管理" :
     case "Defect management":
-      url += "/track/issue";
+      res = [url + "/track/issue/", ["PROJECT_TRACK_ISSUE:READ"]];
       break;
     case "SWAGGER_TASK" :
-      url += "/api/definition";
+      res = [url + "/api/definition", ["PROJECT_API_DEFINITION:READ"]];
       break;
     case "接口定义" :
     case "接口定義" :
     case "Api definition":
-      url += "/api/definition?resourceId=" + resourceId;
+      res = [url + "/api/definition?resourceId=" + resourceId, ["PROJECT_API_DEFINITION:READ"]];
       break;
     case "接口定义用例" :
     case "接口定義用例":
     case "Api definition case":
-      url += "/api/definition?caseId=" + resourceId;
+      res = [url + "/api/definition?caseId=" + resourceId, ["PROJECT_API_DEFINITION:READ"]];
       break;
     case "测试报告" :
     case "測試報告" :
     case "Test Report":
-      url += "/api/automation/report";
+      res = [url + "/api/automation/report", ["PROJECT_API_REPORT:READ"]];
       break;
     case "性能测试报告" :
     case "性能測試報告" :
     case "Performance test report" :
-      url += "/performance/report/all";
+      res = [url + "/performance/report/all", ["PROJECT_PERFORMANCE_REPORT:READ"]];
       break;
     case "性能测试" :
     case "性能測試" :
     case "Performance test" :
-      url += "/performance/test/edit/" + resourceId;
+      res = [url + "/performance/test/edit/" + resourceId, ["PROJECT_PERFORMANCE_TEST:READ+EDIT"]];
       break;
     case "测试用例" :
     case "測試用例" :
     case "Test case":
-      url += "/track/case/all?resourceId=" + resourceId;
+      res = [url + "/track/case/all?resourceId=" + resourceId, ["PROJECT_TRACK_CASE:READ+EDIT"]];
       break;
     case "系统-用户":
     case "System user":
-      url += "/setting/user";
+      res = [url + "/setting/user", ["SYSTEM_USER:READ"]];
       break;
     case "系统-组织" :
     case "系統-組織" :
     case "System organization":
-      url += "/setting/organization";
+      res = [url + "/setting/organization", ["SYSTEM_ORGANIZATION:READ"]];
       break;
     case "工作空间" :
     case "系统-工作空间" :
     case "workspace" :
-      url += "/setting/systemworkspace";
+      res = [url + "/setting/systemworkspace", ["SYSTEM_WORKSPACE:READ"]];
       break;
     case "用户组与权限" :
     case "用戶組與權限" :
     case "Group" :
-      url += "/setting/usergroup";
+      res = [url + "/setting/usergroup", ["SYSTEM_GROUP:READ"]];
       break;
     case "系统-测试资源池":
     case "系统-測試資源池" :
     case "System test resource" :
-      url += "/setting/testresourcepool";
+      res = [url + "/setting/testresourcepool", ["SYSTEM_TEST_POOL:READ"]];
       break;
     case "系统-系统参数设置":
     case "系统-系統參數設置" :
     case "System parameter setting" :
-      url += "/setting/systemparametersetting";
+      res = [url + "/setting/systemparametersetting", ["SYSTEM_SETTING:READ"]];
       break;
     case "工作空间-成员" :
     case "工作空間-成員" :
     case "Workspace member" :
-      url += "/setting/member";
+      res = [url + "/setting/member", ["WORKSPACE_USER:READ"]];
       break;
     case "项目-项目管理" :
     case "項目-項目管理" :
     case "Project project manager" :
-      url += "/setting/project/:type";
+      res = [url + "/setting/project/:type", ["WORKSPACE_PROJECT_MANAGER:READ"]];
       break;
     case "项目-环境设置" :
     case "項目-環境設置" :
     case "Project environment setting" :
-      url += "/project/env";
+      res = [url + "/project/env", ["WORKSPACE_PROJECT_ENVIRONMENT:READ"]];
       break;
     case "项目-模版设置-自定义字段" :
     case "項目-模版設置-自定義字段" :
     case "Project template settings field" :
-      url += "/project/template";
+      res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
       break;
     case "项目-模版设置-用例模版" :
     case "項目-模版設置-用例模板" :
     case "Project template settings case" :
-      url += "/project/template";
+      res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
       break;
     case "项目-模版设置-缺陷模版" :
     case "項目-模版設置-缺陷模板" :
     case "Project template settings issue" :
-      url += "/project/template";
+      res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
       break;
     case "项目-成员":
     case "項目-成員" :
     case "Project member" :
-      url += "/project/member";
+      res = [url + "/project/member", ["PROJECT_USER:READ"]];
       break;
     default:
+      res = [url, []];
       break;
-
   }
-  return url;
+  return res;
 }
+
 
