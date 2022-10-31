@@ -1,10 +1,10 @@
 package io.metersphere.listener;
 
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.exec.queue.UiExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.JarConfig;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
@@ -21,7 +21,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @Component
 public class AppStartListener implements ApplicationListener<ApplicationReadyEvent> {
@@ -94,6 +93,11 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
             int size = Integer.parseInt(dto.getConcurrency());
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(size);
         }
+
+        String uiCorePoolSize = systemParameterService.getValue(ParamConstants.BASE.GRID_CONCURRENCY.getValue());
+        int corePoolSize = StringUtils.isEmpty(uiCorePoolSize) ? 4 : Integer.parseInt(uiCorePoolSize);
+        CommonBeanFactory.getBean(UiExecThreadPoolExecutor.class).setCorePoolSize(corePoolSize);
+
         initPythonEnv();
 
         //检查状态为开启的TCP-Mock服务端口

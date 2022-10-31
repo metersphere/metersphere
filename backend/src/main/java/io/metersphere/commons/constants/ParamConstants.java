@@ -113,6 +113,7 @@ public interface ParamConstants {
     enum BASE implements ParamConstants {
         URL("base.url"),
         CONCURRENCY("base.concurrency"),
+        GRID_CONCURRENCY("base.ui.concurrency"),
         PROMETHEUS_HOST("base.prometheus.host"),
         SELENIUM_DOCKER_URL("base.selenium.docker.url");
 
@@ -140,6 +141,21 @@ public interface ParamConstants {
         private String value;
 
         LDAP(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+    enum MODEL implements ParamConstants {
+        RUN_MODEL_UI("UI");
+
+        private String value;
+
+        MODEL(String value) {
             this.value = value;
         }
 
