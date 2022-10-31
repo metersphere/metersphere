@@ -6,8 +6,10 @@ import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.cache.JMeterEngineCache;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.JmeterThreadUtils;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
@@ -55,23 +57,40 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             // 清理过程步骤
             queues = RetryResultUtil.clearLoops(queues);
             JMeterBase.resultFormatting(queues, dto);
+            if(dto.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue()) &&
+                    StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString()) &&
+                    StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())){
+                dto.setReportId(JmeterThreadUtils.getReportId(dto.getReportId()));
+            }
             if (dto.isRetryEnable()) {
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】开始");
                 RetryResultUtil.mergeRetryResults(dto.getRequestResults());
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
             }
 
-            String console = FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
+            String console;
+            if(dto.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue()) &&
+                StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString()) &&
+                StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())){
+                console = FixedCapacityUtils.getJmeterLogger(JmeterThreadUtils.getThreadName(dto), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
+            }else{
+                console = FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString()));
+            }
             if (FileUtils.isFolderExists(dto.getReportId())) {
                 console += "\r\n" + "tmp folder  " + FileUtils.BODY_FILE_DIR + File.separator + dto.getReportId() + " has deleted.";
             }
             dto.setConsole(console);
-
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
             // 全局并发队列
-            PoolExecBlockingQueueUtil.offer(dto.getReportId());
+            if(dto.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue()) &&
+                    StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString()) &&
+                    StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())){
+                PoolExecBlockingQueueUtil.offer(JmeterThreadUtils.getThreadName(dto));
+            }else{
+                PoolExecBlockingQueueUtil.offer(dto.getReportId());
+            }
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
             if (apiExecutionQueueService == null) {
@@ -95,7 +114,13 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 FileServer.getFileServer().closeCsv(dto.getReportId());
             }
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
-                JMeterEngineCache.runningEngine.remove(dto.getReportId());
+                if(dto.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue()) &&
+                        StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString()) &&
+                        StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())){
+                    JMeterEngineCache.runningEngine.remove(JmeterThreadUtils.getThreadName(dto));
+                }else{
+                    JMeterEngineCache.runningEngine.remove(dto.getReportId());
+                }
             }
             queues.clear();
         }

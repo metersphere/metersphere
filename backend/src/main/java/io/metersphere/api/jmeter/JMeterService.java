@@ -2,11 +2,13 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.exec.queue.UiExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.config.JmeterProperties;
@@ -192,7 +194,11 @@ public class JMeterService {
         } else {
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
-            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
+            if(request.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue())){
+                CommonBeanFactory.getBean(UiExecThreadPoolExecutor.class).addTask(request);
+            }else{
+                CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
+            }
         }
     }
 
