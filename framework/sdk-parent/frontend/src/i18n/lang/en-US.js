@@ -2424,7 +2424,7 @@ const message = {
     project_template_settings_issue: "Project template settings issue",
     project_project_manager: "Project project manager",
     project_project_jar: "Project project jar",
-    project_environment_setting: "Project environment setting",
+    project_environment_setting: "Environment setting",
     project_file_management: "Project file management",
     project_template_management: "Project template management",
     personal_information_personal_settings: "Personal information personal settings",
