@@ -1,13 +1,13 @@
 <template>
   <div :style="{ height: h + 'px'}">
-    <el-container v-loading="loading" id="reportAnalysis" style="overflow: scroll">
+    <el-container v-loading="loading" style="overflow: scroll">
       <el-container class="ms-row">
         <el-aside :width="!isHide ?'235px':'0px'" style="margin-left: 5px; max-height: 843px">
           <history-report-data report-type="TEST_CASE_ANALYSIS"
                                @selectReport="selectReport" @removeHistoryReportId="removeHistoryReportId"
                                ref="historyReport"/>
         </el-aside>
-        <el-main class="ms-main">
+        <el-main class="ms-main" id="reportAnalysis">
           <div>
             <test-analysis-chart @hidePage="hidePage" @orderCharts="orderCharts" ref="analysisChart"
                                  :load-option="loadOption"/>

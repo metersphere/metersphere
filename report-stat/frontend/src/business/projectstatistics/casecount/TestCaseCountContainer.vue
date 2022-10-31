@@ -1,13 +1,12 @@
 <template>
   <div>
-
-    <el-container v-loading="loading" id="reportAnalysis" :style="{ 'max-height': (h-50) + 'px', 'overflow': 'auto'}">
+    <el-container v-loading="loading" :style="{ 'max-height': (h-50) + 'px', 'overflow': 'auto'}">
       <el-aside v-if="!isHide" :width="!isHide ?'235px':'0px'" :style="{  'margin-left': '5px'}">
         <history-report-data report-type="TEST_CASE_COUNT"
                              @selectReport="selectReport" @removeHistoryReportId="removeHistoryReportId"
                              ref="historyReport"/>
       </el-aside>
-      <el-main class="ms-main" style="padding: 0px 5px 0px">
+      <el-main class="ms-main" id="reportAnalysis" style="padding: 0px 5px 0px">
         <div>
           <test-case-count-chart @hidePage="hidePage" @orderCharts="orderCharts"
                                  ref="analysisChart" @updateChartType="updateChartType"

@@ -54,8 +54,8 @@
 
 <script>
 import MsSelectTree from "@/business/compnent/form/MsSelectTree";
-import {listAllProject} from "@/api/project";
-import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {getProject} from "@/api/project";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {selectTestCaseNodeList, selectUserProjectMember} from "@/api/resource";
 
 export default {
@@ -147,15 +147,13 @@ export default {
       }
     },
     init: function () {
-      let workspaceId = getCurrentWorkspaceId();
-      this.loading = listAllProject(workspaceId).then(response => {
-        let projects = response.data;
-        if (projects) {
+      let projectId = getCurrentProjectID();
+      this.loading = getProject(projectId).then(response => {
+        let project = response.data;
+        if (project) {
           this.items = [];
-          projects.forEach(item => {
-            let data = {id: item.id, label: item.name};
-            this.items.push(data);
-          })
+          let data = {id: project.id, label: project.name};
+          this.items.push(data);
         }
       }).catch(() => {
         this.loading = false;
@@ -178,9 +176,6 @@ export default {
       });
     },
     setProjects(key, data, data2) {//获取子组件值
-
-      let selectNodeIds = this.$refs.projectSelector.selectNodeIds;
-
       if (!key || key === "") {
         key = [];
       }
@@ -192,19 +187,13 @@ export default {
       } else {
         this.disabled = false;
       }
-
       if (this.syncReport) {
         this.$emit('filterCharts', this.option);
       }
-
       this.$nextTick(() => {
-        console.info("------>");
-        console.info(this.option.projects);
-        console.info("<------");
         if (this.option.projects && this.option.projects.length == 1) {
           this.initModule();
         }
-
       })
 
     },
