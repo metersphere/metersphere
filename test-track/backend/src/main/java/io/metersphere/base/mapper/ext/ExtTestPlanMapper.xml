@@ -180,15 +180,9 @@
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
             </if>
-           <include refid="filter"/>
+            <include refid="filter"/>
             <if test="(request.filters == null or request.filters.size() == 0) and request.byFilter != true ">
                 and test_plan.status != 'Archived'
-            </if>
-            <if test="request.byFilter == true">
-                and test_plan.status in
-                <foreach collection="request.filterStatus" item="value" separator="," open="(" close=")">
-                    #{value}
-                </foreach>
             </if>
         </where>
 
@@ -211,15 +205,14 @@
                                     AND (( test_plan_principal.principal_id =
                                     '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
                                     test_plan.status in
-                                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                                     )
                                     or
                                     (test_plan_test_case.executor =
                                     '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
                                     test_plan_test_case.status in
-                                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                                     ))
-                                    AND test_plan.status != 'Archived'
                                 </when>
                                 <otherwise>
                                     and test_plan.status in
@@ -326,13 +319,12 @@
         SELECT p.name
         FROM test_plan tp
                  INNER JOIN project p ON p.id = tp.project_id
-        WHERE tp.id = #{0}
-        limit 1;
+        WHERE tp.id = #{0} limit 1;
     </select>
     <select id="findIdByPerformanceReportId" resultType="java.lang.String">
         SELECT report.id
         FROM test_plan_report report
-        INNER JOIN test_plan_report_content reportData ON report.id = reportData.test_plan_report_id
+                 INNER JOIN test_plan_report_content reportData ON report.id = reportData.test_plan_report_id
         WHERE reportData.plan_load_case_report_struct like CONCAT('%', #{0}, '%');
     </select>
     <select id="listRecent" resultType="io.metersphere.base.domain.TestPlan">
