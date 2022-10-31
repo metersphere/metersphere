@@ -49,10 +49,11 @@ import MsView from "../../components/layout/View";
 import MxLicenseMessage from "../../components/MxLicenseMessage";
 import MxTheme from "../../components/MxTheme";
 import {hasLicense} from "../../utils/permission";
-import {checkMicroMode, setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "../../utils";
+import {setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "../../utils";
 import {ORIGIN_COLOR} from "../../utils/constants";
 import {getDisplayInfo, getSystemTheme, isLogin} from "../../api/user";
 import {useUserStore} from "@/store";
+import {getModuleList} from "../../api/module";
 
 
 export default {
@@ -95,6 +96,13 @@ export default {
           // this.$store.commit('setTheme', res.data);
         });
       this.getDisplayInfo();
+      getModuleList().then(response => {
+        let modules = {};
+        response.data.forEach(m => {
+          modules[m.key] = m.status;
+        });
+        localStorage.setItem('modules', JSON.stringify(modules));
+      });
     }
 
     this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
