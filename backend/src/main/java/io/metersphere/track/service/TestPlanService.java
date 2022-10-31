@@ -1735,6 +1735,7 @@ public class TestPlanService {
 
     public void buildLoadReport(TestPlanSimpleReportDTO report, JSONObject config, Map<String, String> loadCaseReportMap, boolean saveResponse) {
         if (MapUtils.isEmpty(loadCaseReportMap)) {
+            report.setLoadAllCases(new ArrayList<>());
             return;
         }
         if (checkReportConfig(config, "load")) {
@@ -1759,7 +1760,13 @@ public class TestPlanService {
         }
     }
 
-    public TestPlanSimpleReportDTO buildPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+    /**
+     * @param testPlanReport                 测试计划报告
+     * @param testPlanReportContentWithBLOBs 测试计划报告内容
+     * @return
+     */
+    public TestPlanReportBuildResultDTO buildPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+        TestPlanReportBuildResultDTO returnDTO = new TestPlanReportBuildResultDTO();
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         if (testPlan != null) {
             String reportConfig = testPlan.getReportConfig();
@@ -1768,13 +1775,44 @@ public class TestPlanService {
                 config = JSONObject.parseObject(reportConfig);
             }
             TestPlanExecuteReportDTO testPlanExecuteReportDTO = testPlanReportService.genTestPlanExecuteReportDTOByTestPlanReportContent(testPlanReportContentWithBLOBs);
-            TestPlanSimpleReportDTO report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
-            buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
-            buildApiReport(report, config, testPlanExecuteReportDTO);
-            buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
-            return report;
+            TestPlanSimpleReportDTO report = null;
+            boolean apiBaseInfoChanged = false;
+            if (StringUtils.isEmpty(testPlanReportContentWithBLOBs.getApiBaseCount())) {
+                report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
+                apiBaseInfoChanged = true;
+            } else {
+                try {
+                    report = JSONObject.parseObject(testPlanReportContentWithBLOBs.getApiBaseCount(), TestPlanSimpleReportDTO.class);
+                } catch (Exception e) {
+                    LogUtil.info("解析接口统计数据出错！数据：" + testPlanReportContentWithBLOBs.getApiBaseCount(), e);
+                }
+                if (report == null) {
+                    report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
+                    apiBaseInfoChanged = true;
+                }
+            }
+            if(report.getFunctionAllCases() == null || report.getIssueList() == null){
+                buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
+                apiBaseInfoChanged = true;
+            }
+            if(report.getApiAllCases() == null && report.getScenarioAllCases() == null){
+                buildApiReport(report, config, testPlanExecuteReportDTO);
+                apiBaseInfoChanged = true;
+            }
+            if(report.getLoadAllCases()  == null){
+                buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
+                apiBaseInfoChanged = true;
+            }
+            returnDTO.setTestPlanSimpleReportDTO(report);
+
+            if(apiBaseInfoChanged){
+                testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
+                returnDTO.setApiBaseInfoChanged(true);
+            }
+            return returnDTO;
         } else {
-            return null;
+            returnDTO.setTestPlanSimpleReportDTO(new TestPlanSimpleReportDTO());
+            return returnDTO;
         }
     }
 
