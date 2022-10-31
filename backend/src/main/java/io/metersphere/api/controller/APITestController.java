@@ -313,7 +313,7 @@ public class APITestController {
          */
         List<ApiDefinition> apiNoCaseList = apiDefinitionService.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
         Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId);
-        int apiInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList).size();
+        int apiInScenario = apiAutomationService.getApiIdInScenario(scenarioUrlList, apiNoCaseList).size();
 
         try {
             if (effectiveApiCount == 0) {
