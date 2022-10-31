@@ -61,7 +61,7 @@
         <jmeter.version>5.5</jmeter.version>
         <jython.version>2.7.3</jython.version>
         <docker-java.version>3.2.13</docker-java.version>
-        <jmeter-plugins-webdriver.version>3.4.3</jmeter-plugins-webdriver.version>
+        <jmeter-plugins-webdriver.version>3.4.4</jmeter-plugins-webdriver.version>
         <oracle-database.version>19.7.0.0</oracle-database.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
