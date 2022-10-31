@@ -387,10 +387,10 @@
                 and test_case.project_id=#{request.projectId}
             </if>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
+        <if test="request.condition.orders != null and request.condition.orders.size() > 0">
             order by
-            <foreach collection="request.orders" separator="," item="order">
-                `${order.name}` ${order.type}
+            <foreach collection="request.condition.orders" separator="," item="order">
+                test_case.`${order.name}` ${order.type}
             </foreach>
         </if>
     </select>
