@@ -38,7 +38,9 @@
                            prop="num"
                            min-width="80">
              <template v-slot:default="scope">
-               <el-link @click="openApiById(scope.row)">
+               <span style="cursor:pointer"
+                     v-if="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"> {{ scope.row.num }} </span>
+               <el-link @click="openApiById(scope.row)" v-else>
                   <span>
                     {{ scope.row.num }}
                   </span>
@@ -185,7 +187,7 @@ import MsBottomContainer from "metersphere-frontend/src/components/MsBottomConta
 import BatchEdit from "@/business/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "metersphere-frontend/src/model/JsonData";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
@@ -205,7 +207,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import {editTestPlanApiCaseOrder, reportSocket, run, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
+import {editTestPlanApiCaseOrder, run, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
 import {getProjectMemberUserFilter} from "@/api/user";
 import {apiTestCaseGet, apiTestCaseReduction} from "@/api/remote/api/api-case";
 import {
@@ -216,7 +218,6 @@ import {
   testPlanApiCaseRun,
   testPlanApiCaseSelectAllTableRows
 } from "@/api/remote/plan/test-plan-api-case";
-import {apiDefinitionPlanReportGetByCaseId} from "@/api/remote/api/api-definition-report";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import {getProjectVersions} from "@/business/utils/sdk-utils";
 
@@ -406,6 +407,7 @@ export default {
     },
   },
   methods: {
+    hasPermission,
     customHeader() {
       const list = deepClone(this.tableLabel);
       this.$refs.headerCustom.open(list);
