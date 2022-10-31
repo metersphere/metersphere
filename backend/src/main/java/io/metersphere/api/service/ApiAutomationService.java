@@ -1857,7 +1857,7 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(apiList)) {
             return coverage;
         }
-        int urlContainsCount = this.getApiIdInScenario(projectId, scenarioUrlMap, apiList).size();
+        int urlContainsCount = this.getApiIdInScenario(scenarioUrlMap, apiList).size();
         coverage.setCoverate(urlContainsCount);
         coverage.setNotCoverate(apiList.size() - urlContainsCount);
         float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
@@ -1866,30 +1866,18 @@ public class ApiAutomationService {
         return coverage;
     }
 
-    public List<String> getApiIdInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
+    public List<String> getApiIdInScenario(Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
         List<String> apiIdList = new ArrayList<>();
         if (MapUtils.isNotEmpty(scenarioUrlMap) && CollectionUtils.isNotEmpty(apiList)) {
-            ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
-            boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
             for (ApiDefinition model : apiList) {
                 if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
                     Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
                     if (stepIdAndUrlMap != null) {
-                        if (isUrlRepeatable) {
-                            String url = stepIdAndUrlMap.get(model.getId());
-                            if (StringUtils.isNotEmpty(url)) {
-                                boolean urlMatched = MockApiUtils.isUrlMatch(model.getPath(), url);
-                                if (urlMatched) {
-                                    apiIdList.add(model.getId());
-                                }
-                            }
-                        } else {
                             Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
                             boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
                             if (matchedUrl) {
                                 apiIdList.add(model.getId());
                             }
-                        }
                     }
                 } else {
                     Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");

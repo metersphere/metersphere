@@ -370,7 +370,7 @@ public class ApiDefinitionService {
             }
             //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
             Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
-            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
+            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(scenarioUrlList, definitionList);
             if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                 request.setCoverageIds(apiIdInScenario);
             }
