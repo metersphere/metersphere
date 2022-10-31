@@ -49,9 +49,12 @@
 
                     <el-row class="head-bar">
                       <el-col>
-                        <el-divider content-position="left">
+                        <el-divider content-position="left" class="title-divider">
                           <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
-                            <span class="title-link" :title="testCase.name">
+                            <span
+                              class="title-link"
+                              :title="testCase.name"
+                              :style="{'max-width': titleWith + 'px'}">
                               {{ testCase.customNum }}-{{ testCase.name }}
                             </span>
                           </el-button>
@@ -212,6 +215,7 @@ export default {
       otherInfoActive: true,
       isReadOnly: false,
       testCases: [],
+      titleWith: 0,
       originalStatus: ""
     };
   },
@@ -457,6 +461,7 @@ export default {
       this.hasTapdId = false;
       this.hasZentaoId = false;
       this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
+      this.setTitleWith();
 
       if (tableData) {
         this.testCases = tableData;
@@ -522,6 +527,15 @@ export default {
     },
     syncRelationGraphOpen(val) {
       this.relationGraphOpen = val;
+    },
+    setTitleWith() {
+      this.$nextTick(() => {
+        this.titleWith = 0;
+        let titleDivider = document.getElementsByClassName("title-divider");
+        if (titleDivider && titleDivider.length > 0) {
+          this.titleWith = 0.9 * titleDivider[0].clientWidth;
+        }
+      });
     },
     openTestTestCase(item) {
       let TestCaseData = this.$router.resolve(
@@ -631,7 +645,6 @@ p {
 
 .title-link {
   display: inline-block;
-  max-width: 300px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
