@@ -2443,7 +2443,10 @@ const message = {
     error_report_library: "误报库",
     enterprise_test_report: "项目报告",
     change_history: "变更记录",
-    change_content: "变更内容"
+    change_content: "变更内容",
+    ui_element: "UI元素库",
+    ui_automation: "UI自动化",
+    ui_automation_report: "UI测试报告"
   },
   plugin: {
     title: "插件管理",

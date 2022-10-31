@@ -2439,7 +2439,10 @@ const message = {
     error_report_library: "誤報庫",
     enterprise_test_report: "項目報告",
     change_history: "變更記錄",
-    change_content: "變更內容"
+    change_content: "變更內容",
+    ui_element: "UI元素庫",
+    ui_automation: "UI自動化",
+    ui_automation_report: "UI測試報告"
   },
   plugin: {
     title: "插件管理",
