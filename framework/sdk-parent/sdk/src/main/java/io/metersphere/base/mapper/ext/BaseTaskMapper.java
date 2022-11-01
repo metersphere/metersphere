@@ -2,15 +2,19 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
+import io.metersphere.task.dto.TaskStatisticsDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface BaseTaskMapper {
 
-    List<TaskCenterDTO> getTasks(@Param("request") TaskCenterRequest request, @Param("uiPermission") Boolean uiPermission);
+    List<TaskCenterDTO> getApiTasks(@Param("request") TaskCenterRequest request);
+    List<TaskCenterDTO> getScenarioTasks(@Param("request") TaskCenterRequest request);
+    List<TaskCenterDTO> getPerfTasks(@Param("request") TaskCenterRequest request);
+    List<TaskCenterDTO> getUiTasks(@Param("request") TaskCenterRequest request, @Param("uiPermission") Boolean uiPermission);
 
-    int getRunningTasks(@Param("request") TaskCenterRequest request);
+    TaskStatisticsDTO getRunningTasks(@Param("request") TaskCenterRequest request);
 
     List<TaskCenterDTO> getCases(@Param("id") String id);
 
