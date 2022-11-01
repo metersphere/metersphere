@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.environment.item.MsScenarioEnv;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -172,6 +173,9 @@ public class ApiScenarioEnvService {
             environmentType = EnvironmentType.JSON.toString();
         }
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
+        JSONObject element = JSONUtil.parseObject(definition);
+        ElementUtil.dataFormatting(element);
+        definition = element.toString();
         MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
         GenerateHashTreeUtil.parse(definition, scenario);
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString()) && StringUtils.isNotEmpty(environmentJson)) {
@@ -189,7 +193,7 @@ public class ApiScenarioEnvService {
     public boolean verifyScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
         if (apiScenarioWithBLOBs != null) {
             String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-            MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
+            MsScenarioEnv scenario = JSON.parseObject(definition, MsScenarioEnv.class);
             Map<String, String> envMap = scenario.getEnvironmentMap();
             return this.check(definition, envMap, scenario.getEnvironmentId(), apiScenarioWithBLOBs.getProjectId());
         }
@@ -250,7 +254,7 @@ public class ApiScenarioEnvService {
     public boolean verifyPlanScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
         if (apiScenarioWithBLOBs != null) {
             String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-            MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
+            MsScenarioEnv scenario = JSON.parseObject(definition, MsScenarioEnv.class);
             Map<String, String> envMap = scenario.getEnvironmentMap();
             if (testPlanApiScenarios != null) {
                 String envType = testPlanApiScenarios.getEnvironmentType();

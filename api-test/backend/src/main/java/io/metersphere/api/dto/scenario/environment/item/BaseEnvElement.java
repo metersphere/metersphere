@@ -1,16 +1,16 @@
 package io.metersphere.api.dto.scenario.environment.item;
 
-import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 
 import java.util.LinkedList;
+
 @Data
 public class BaseEnvElement {
     // 组件类型
     private String type;
 
     // 用于数据反射对象
-    private String clazzName = MsTestElement.class.getCanonicalName();
+    private String clazzName = BaseEnvElement.class.getCanonicalName();
 
     // 自身资源ID（用例ID/接口ID/场景ID)等
     private String id;
@@ -39,7 +39,7 @@ public class BaseEnvElement {
     private String refType;
 
     // 子组件
-    private LinkedList<MsTestElement> hashTree;
+    private LinkedList<BaseEnvElement> hashTree;
 
     // 项目ID
     private String projectId;
