@@ -75,14 +75,19 @@ public class TestReviewTestCaseService {
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
         List<String> versionIds = list.stream().map(TestReviewCaseDTO::getVersionId).collect(Collectors.toList());
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
-        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
-                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        if (projectVersionService != null) {
+            Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                    .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+            list.forEach(item -> {
+                item.setVersionName(projectVersionMap.get(item.getVersionId()));
+            });
+        }
+
         list.forEach(item -> {
             String reviewId = item.getReviewId();
             List<String> userIds = getReviewUserIds(reviewId);
             item.setReviewerName(getReviewName(userIds, userMap));
             item.setMaintainerName(userMap.get(item.getMaintainer()));
-            item.setVersionName(projectVersionMap.get(item.getVersionId()));
         });
         return list;
     }
