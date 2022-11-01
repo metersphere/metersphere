@@ -195,6 +195,9 @@
         }else if(hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')){
           this.activeIndex = 'third_account';
           return;
+        } else if (hasPermission('PERSONAL_INFORMATION:READ+UI_SETTING')) {
+          this.activeIndex = 'commons.ui_setting';
+          return;
         }
       },
     },

@@ -176,6 +176,7 @@ public class GenerateHashTreeUtil {
         } catch (Exception ex) {
             remakeException(runRequest);
             LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
+            return null;
         }
 
         LogUtil.info(testPlan.getJmx(jmeterHashTree));
