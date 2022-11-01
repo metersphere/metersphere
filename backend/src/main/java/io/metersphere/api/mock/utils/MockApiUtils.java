@@ -45,7 +45,8 @@ public class MockApiUtils {
         Map<String, String> mockExpectHeaders = new HashMap<>();
         for (int i = 0; i < mockExpectHeaderArray.size(); i++) {
             JSONObject obj = mockExpectHeaderArray.getJSONObject(i);
-            if (obj.containsKey("name") && obj.containsKey("value")) {
+            if (obj.containsKey("name")  && StringUtils.isNotBlank(obj.getString("name"))
+                    && obj.containsKey("value") && StringUtils.isNotBlank(obj.getString("value"))) {
                 mockExpectHeaders.put(obj.getString("name"), obj.getString("value"));
             }
         }
@@ -392,7 +393,9 @@ public class MockApiUtils {
 
         if (isPostRequest) {
             JSONArray jsonArray = new JSONArray();
-            jsonArray.add(queryParamsObject);
+            if(!queryParamsObject.isEmpty()){
+                jsonArray.add(queryParamsObject);
+            }
             requestMockParams.setBodyParams(jsonArray);
         }
         return requestMockParams;
