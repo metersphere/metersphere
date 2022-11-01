@@ -417,21 +417,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 if (ObjectUtils.isNotEmpty(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType())) {
                         if (StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
-                            if (StringUtils.equalsAnyIgnoreCase(name, "PML", "PMLinkTest", "PMLink")) {
-                                fields.put(fieldName, item.getValue());
-                            } else {
-                                JSONObject param = new JSONObject();
-                                if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
-                                    if (issuesRequest.isThirdPartPlatform()) {
-                                        param.put("id", item.getValue());
-                                    } else {
-                                        param.put("accountId", item.getValue());
-                                    }
-                                } else {
+                            JSONObject param = new JSONObject();
+                            if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
+                                if (issuesRequest.isThirdPartPlatform()) {
                                     param.put("id", item.getValue());
+                                } else {
+                                    param.put("accountId", item.getValue());
                                 }
-                                fields.put(fieldName, param);
+                            } else {
+                                param.put("id", item.getValue());
                             }
+                            fields.put(fieldName, param);
                         } else if (StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
                             JSONArray attrs = new JSONArray();
                             if (item.getValue() != null) {
@@ -754,6 +750,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 value = CustomFieldType.SELECT.getValue();
             } else if (StringUtils.isNotBlank(schema.getType()) &&
                     (schema.getType().contains("option") || schema.getType().contains("array"))) {
+                value = CustomFieldType.SELECT.getValue();
+            } else if (customType.contains("customfieldtypes") && StringUtils.equals(schema.getType(), "project")) {
                 value = CustomFieldType.SELECT.getValue();
             }
         } else {
