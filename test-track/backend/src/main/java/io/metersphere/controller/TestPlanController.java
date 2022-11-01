@@ -136,7 +136,7 @@ public class TestPlanController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
-        testPlanService.editTestPlanStatus(planId);
+        testPlanService.checkStatus(planId);
     }
 
     @PostMapping("/edit/report/config")
