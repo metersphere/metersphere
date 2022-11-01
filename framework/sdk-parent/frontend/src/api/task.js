@@ -5,8 +5,8 @@ import packageInfo from '@/../package.json'
 
 const currentModuleName = packageInfo.name;
 
-export function getTaskSocket() {
-  return socket("/websocket/task/running/" + getCurrentProjectID() + "/" + getCurrentUser().id)
+export function getTaskSocket(hasLicense) {
+  return socket("/websocket/task/running/" + getCurrentProjectID() + "/" + getCurrentUser().id + "/" + hasLicense)
 }
 
 export function getCaseData(id) {

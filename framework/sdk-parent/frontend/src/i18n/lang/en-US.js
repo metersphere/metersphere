@@ -3003,6 +3003,12 @@ const message = {
       go_to_case_message: 'CASE update message notification',
       update_case_tip: 'When the CASE changes, the creator of the automation scene referring to the CASE will receive an in-site message reminder'
     }
+  },
+  task: {
+    api_title: "Api testing tasks",
+    scenario_title: "Scenario testing tasks",
+    ui_title: "UI testing tasks",
+    perf_title: "Perf testing tasks"
   }
 }
 

@@ -1066,10 +1066,6 @@ export default {
   margin: 0 0 0px;
 }
 
-:deep(.el-tabs__nav-scroll) {
-  width: calc(100% - 200px);
-}
-
 :deep( .el-card) {
   /*border: 1px solid #EBEEF5;*/
   /*border-style: none;*/

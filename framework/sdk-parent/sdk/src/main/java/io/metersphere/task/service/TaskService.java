@@ -1,9 +1,15 @@
 package io.metersphere.task.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.mapper.ext.BaseInformationSchemaTableMapper;
 import io.metersphere.base.mapper.ext.BaseScheduleMapper;
 import io.metersphere.base.mapper.ext.BaseTaskMapper;
 import io.metersphere.commons.constants.MicroServiceName;
+import io.metersphere.commons.constants.TaskCenterType;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.TaskInfoResult;
 import io.metersphere.request.BaseQueryRequest;
 import io.metersphere.service.BaseCheckPermissionService;
@@ -11,6 +17,7 @@ import io.metersphere.service.MicroService;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.dto.TaskRequestDTO;
+import io.metersphere.task.dto.TaskStatisticsDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -56,17 +63,51 @@ public class TaskService {
         return new ArrayList<>(userRelatedProjectIds);
     }
 
-    public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
+    public Pager<List<TaskCenterDTO>> getTasks(TaskCenterRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getGoPage(), request.getPageSize(), true);
+        if (StringUtils.equals(request.getActiveName(), TaskCenterType.UI.name())) {
+            return PageUtils.setPageInfo(page, getUiTasks(request));
+        } else if (StringUtils.equals(request.getActiveName(), TaskCenterType.SCENARIO.name())) {
+            return PageUtils.setPageInfo(page, getScenarioTasks(request));
+        } else if (StringUtils.equals(request.getActiveName(), TaskCenterType.PERF.name())) {
+            return PageUtils.setPageInfo(page, getPerfTasks(request));
+        } else {
+            return PageUtils.setPageInfo(page, getApiTasks(request));
+        }
+    }
+
+    public List<TaskCenterDTO> getApiTasks(TaskCenterRequest request) {
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new ArrayList<>();
         }
-        return baseTaskMapper.getTasks(request,checkUiPermission());
+        return baseTaskMapper.getApiTasks(request);
     }
 
-    public int getRunningTasks(TaskCenterRequest request) {
+    public List<TaskCenterDTO> getUiTasks(TaskCenterRequest request) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
+            return new ArrayList<>();
+        }
+        return baseTaskMapper.getUiTasks(request, checkUiPermission());
+    }
+
+    public List<TaskCenterDTO> getPerfTasks(TaskCenterRequest request) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
+            return new ArrayList<>();
+        }
+        return baseTaskMapper.getPerfTasks(request);
+    }
+
+    public List<TaskCenterDTO> getScenarioTasks(TaskCenterRequest request) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
+            return new ArrayList<>();
+        }
+        return baseTaskMapper.getScenarioTasks(request);
+    }
+
+    public TaskStatisticsDTO getRunningTasks(TaskCenterRequest request) {
         request.setProjects(this.getOwnerProjectIds(request.getUserId()));
         if (CollectionUtils.isEmpty(request.getProjects())) {
-            return 0;
+            return new TaskStatisticsDTO();
         }
         return baseTaskMapper.getRunningTasks(request);
     }
@@ -95,7 +136,7 @@ public class TaskService {
             if (taskRequestMap.containsKey(PERF)) {
                 microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
             }
-            if(taskRequestMap.containsKey(UI)){
+            if (taskRequestMap.containsKey(UI)) {
                 microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
             }
         }
@@ -115,13 +156,14 @@ public class TaskService {
         }
     }
 
-    private boolean checkUiPermission(){
+    private boolean checkUiPermission() {
         try {
             String uiScenarioReport = baseInformationSchemaTableMapper.checkExist(UI_SCENARIO_REPORT);
-            if(StringUtils.isNotEmpty(uiScenarioReport)){
+            if (StringUtils.isNotEmpty(uiScenarioReport)) {
                 return true;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
         return false;
     }

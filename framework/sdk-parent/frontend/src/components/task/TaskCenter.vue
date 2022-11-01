@@ -22,7 +22,7 @@
       :title="$t('commons.task_center')"
       :size="size.toString()"
       custom-class="ms-drawer-task">
-      <el-card style="float: left;" :style="{'width': (size - 550)+'px'}" v-if="size > 550 ">
+      <el-card style="float: left;margin-top: 0px" :style="{'width': (size - 600)+'px'}" v-if="size > 600 ">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <micro-app :to="`/definition/report/view/${reportId}`" service="api"
@@ -37,14 +37,13 @@
         <micro-app :to="`/ui/report/view/${reportId}?showCancelButton=false`" service="ui"
                    v-if="executionModule === 'UI_SCENARIO'"/>
       </el-card>
-
-      <el-card style="width: 550px;float: right" v-loading="loading">
-        <div style="color: #2B415C;margin: 0px 20px 0px;">
+      <el-card style="width: 550px;float: right">
+        <div style="color: #2B415C;margin: 0px;">
           <el-form label-width="95px" class="ms-el-form-item">
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -52,7 +51,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.status')" prop="status">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -62,7 +61,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
-                  <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
+                  <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="mini"
                              style="margin-right: 10px" @change="init" :disabled="isDebugHistory">
                     <el-option
                       v-for="item in maintainerOptions"
@@ -74,7 +73,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
+                <el-button size="mini" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
                   {{ $t('report.stop_btn_all') }}
                 </el-button>
               </el-col>
@@ -82,45 +81,27 @@
           </el-form>
         </div>
         <el-divider direction="horizontal" style="width: 100%"/>
-
-        <div class="ms-body-container">
-          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
-            <el-card class="ms-card-task" @click.native="showReport(item)">
-              <span>
-                {{ getModeName(item.executionModule) }} : <el-link type="primary" class="ms-task-name-width"> {{
-                  item.name
-                }} </el-link>
-              </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
-                         v-if="showStop(item.executionStatus)">
-                {{ $t('report.stop_btn') }}
-              </el-button>
-              <br/>
-              <span>
-                  {{ $t('commons.actuator') }}：{{ item.actuator }} {{ $t('commons.from') }} {{ item.executor }} {{
-                  item.executionTime | datetimeFormat
-                }} {{ getMode(item.triggerMode) }}
-              </span>
-              <br/>
-              <el-row>
-                <el-col :span="20">
-                  <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
-                </el-col>
-                <el-col :span="4">
-                  <ms-task-report-status :status="item.executionStatus"/>
-                </el-col>
-              </el-row>
-            </el-card>
-          </div>
-        </div>
-        <div class="report-bottom">
-          <ms-table-pagination v-if="showType !== 'SCENARIO' && showType !== 'CASE'" :change="init"
-                               :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
-                               small/>
-          <span v-else> {{ $t('commons.task_center_remark') }}</span>
-        </div>
+        <el-tabs v-model="activeName" @tab-click="init" v-loading="loading">
+          <el-tab-pane :name="tab.id" :label="tab.label" v-for="tab in tabs" :disabled="isDebugHistory">
+            <span slot="label">
+              <el-badge class="ms-badge-item" v-if="showBadge(tab.id) > 0" :value="showBadge(tab.id)">
+                {{ tab.label }}
+              </el-badge>
+              <span v-else>{{ tab.label }}</span>
+            </span>
+            <task-center-item
+              :task-data="taskData"
+              :is-debug-history="isDebugHistory"
+              :show-type="showType"
+              :total="total"
+              :maintainer-options="maintainerOptions"
+              @packUp="packUp"
+              @nextPage="nextPage"
+              @showReport="showReport"
+            />
+          </el-tab-pane>
+        </el-tabs>
       </el-card>
-
     </el-drawer>
   </div>
 </template>
@@ -128,17 +109,19 @@
 <script>
 import MsDrawer from "../MsDrawer";
 import {getCurrentProjectID, getCurrentUser} from "../../utils/token";
-import {hasPermissions} from "../../utils/permission";
+import {hasPermissions, hasLicense} from "../../utils/permission";
 import {getProjectUsers} from "../../api/user";
 import {getCaseData, getScenarioData, getTaskList, getTaskSocket, stopBatchTask, stopTask} from "../../api/task";
 import MicroApp from "../../components/MicroApp";
 import {prefetchApps} from "qiankun";
+import TaskCenterItem from "./TaskCenterItem";
 
 export default {
   name: "MsTaskCenter",
   components: {
     MicroApp,
     MsDrawer,
+    TaskCenterItem,
     MsTaskReportStatus: () => import("./TaskReportStatus"),
     MsTablePagination: () => import("./TaskPagination"),
   },
@@ -147,6 +130,11 @@ export default {
   ],
   data() {
     return {
+      runningData: {},
+      pageSize: 10,
+      currentPage: 1,
+      total: 0,
+      activeName: "API",
       runningTotal: 0,
       taskVisible: false,
       result: {},
@@ -156,15 +144,17 @@ export default {
       initEnd: false,
       visible: false,
       showType: "",
-      pageSize: 10,
-      currentPage: 1,
-      total: 0,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
         {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
         {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
         {id: 'API', label: this.$t('commons.trigger_mode.api')}
+      ],
+      tabs: [
+        {id: 'API', label: this.$t('task.api_title')},
+        {id: 'SCENARIO', label: this.$t('task.scenario_title')},
+        {id: 'PERF', label: this.$t('task.perf_title')}
       ],
       runStatus: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
@@ -182,7 +172,7 @@ export default {
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
       websocket: Object,
-      size: 550,
+      size: 600,
       reportId: "",
       executionModule: "",
       reportType: "",
@@ -205,7 +195,9 @@ export default {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
       this.condition.executor = getCurrentUser().id;
     }
-    //
+    if (hasLicense()) {
+      this.tabs.push({id: 'UI', label: this.$t('task.ui_title')})
+    }
     this.prefetchApps();
   },
   watch: {
@@ -216,15 +208,23 @@ export default {
     }
   },
   methods: {
-    nextData() {
-      this.loading = true;
-      this.init();
+    showBadge(executionModule) {
+      switch (executionModule) {
+        case "SCENARIO":
+          return this.runningData.scenarioTotal;
+        case "PERF":
+          return this.runningData.perfTotal;
+        case "API":
+          return this.runningData.apiTotal;
+        case "UI":
+          return this.runningData.uiTotal;
+      }
     },
     format(item) {
       return '';
     },
     packUp() {
-      this.size = 550;
+      this.size = 600;
     },
     stop(row) {
       if (row) {
@@ -253,7 +253,7 @@ export default {
         })
     },
     initWebSocket() {
-      this.websocket = getTaskSocket();
+      this.websocket = getTaskSocket(hasLicense());
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
       this.websocket.onerror = this.onError;
@@ -264,10 +264,9 @@ export default {
     onError(e) {
     },
     onMessage(e) {
-      this.currentPage = 1;
       this.loading = false;
-      let taskTotal = e.data;
-      this.runningTotal = taskTotal;
+      this.runningData = JSON.parse(e.data);
+      this.runningTotal = this.runningData.total;
       this.initIndex++;
       if (this.taskVisible && this.initEnd) {
         setTimeout(() => {
@@ -286,18 +285,18 @@ export default {
     },
     close() {
       this.visible = false;
-      this.size = 550;
+      this.size = 600;
       this.showType = "";
-      this.currentPage = 1;
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
       }
     },
-    open() {
+    open(activeName) {
+      if (activeName) {
+        this.activeName = activeName;
+      }
       this.showTaskCenter();
       this.initIndex = 0;
-      this.noMore = false;
-      this.currentPage = 1;
     },
     getPercentage(status) {
       if (status) {
@@ -335,7 +334,7 @@ export default {
       }
     },
     showReport(row) {
-      if (this.size > 550 && this.reportId === row.id) {
+      if (this.size > 600 && this.reportId === row.id) {
         this.packUp();
         return;
       }
@@ -382,12 +381,22 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
+    nextPage(currentPage, pageSize) {
+      this.currentPage = currentPage;
+      this.pageSize = pageSize;
+      this.init();
+    },
     init() {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
       this.condition.userId = getCurrentUser().id;
+      if (this.runningData) {
+        this.setActiveName();
+      }
+      this.condition.activeName = this.activeName;
+      this.loading = true;
       this.result = getTaskList(this.condition, this.currentPage, this.pageSize)
         .then(response => {
           this.total = response.data.itemCount;
@@ -396,6 +405,17 @@ export default {
           this.loading = false;
         });
     },
+    setActiveName() {
+      if (this.runningData.apiTotal > 0) {
+        this.activeName = 'API';
+      } else if (this.runningData.scenarioTotal > 0) {
+        this.activeName = 'SCENARIO';
+      } else if (this.runningData.perfTotal > 0) {
+        this.activeName = 'PERF';
+      } else if (this.runningData.uiTotal > 0) {
+        this.activeName = 'UI';
+      }
+    },
     initCaseHistory(id) {
       getCaseData(id)
         .then(response => {
@@ -403,6 +423,7 @@ export default {
         })
     },
     openHistory(id) {
+      this.activeName = 'API';
       this.initCaseHistory(id);
       this.taskVisible = true;
       this.isDebugHistory = true;
@@ -410,6 +431,7 @@ export default {
       this.showType = "CASE";
     },
     openScenarioHistory(id) {
+      this.activeName = 'SCENARIO';
       getScenarioData(id)
         .then(response => {
           this.taskData = response.data;
@@ -460,11 +482,11 @@ export default {
 }
 
 :deep(.el-drawer__header) {
-  font-size: 18px;
+  font-size: 14px;
   color: #0a0a0a;
   border-bottom: 1px solid #E6E6E6;
   background-color: #FFF;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
@@ -523,7 +545,7 @@ export default {
 }
 
 .ms-el-form-item :deep(.el-form-item) {
-  margin-bottom: 6px;
+  margin-bottom: 0px;
 }
 
 .ms-task-opt-btn {
@@ -567,5 +589,15 @@ export default {
   height: calc(100vh - 155px) !important;
   min-height: 600px;
   overflow-y: auto;
+}
+
+.ms-badge-item {
+  margin-top: 0px;
+  margin-right: 0px;
+  font-size: 12px;
+}
+
+:deep(.el-badge__content.is-fixed) {
+  transform: translateY(-10%) translateX(100%);
 }
 </style>
