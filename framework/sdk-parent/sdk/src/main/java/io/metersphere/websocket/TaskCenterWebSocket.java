@@ -1,9 +1,10 @@
 package io.metersphere.websocket;
 
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.task.dto.TaskCenterRequest;
+import io.metersphere.task.dto.TaskStatisticsDTO;
 import io.metersphere.task.service.TaskService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -14,7 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/websocket/task/running/{projectId}/{userId}")
+@ServerEndpoint("/websocket/task/running/{projectId}/{userId}/{hasLicense}")
 @Component
 public class TaskCenterWebSocket {
     private static TaskService taskService;
@@ -29,9 +30,9 @@ public class TaskCenterWebSocket {
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("projectId") String projectId, @PathParam("userId") String userId, Session session) {
+    public void onOpen(@PathParam("projectId") String projectId, @PathParam("userId") String userId, @PathParam("hasLicense") boolean hasLicense, Session session) {
         Timer timer = new Timer(true);
-        TaskCenter task = new TaskCenter(session, projectId, userId);
+        TaskCenter task = new TaskCenter(session, projectId, userId, hasLicense);
         timer.schedule(task, 0, 10 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
@@ -52,7 +53,7 @@ public class TaskCenterWebSocket {
      * 推送消息
      */
     @OnMessage
-    public void onMessage(@PathParam("projectId") String projectId, @PathParam("userId") String userId, Session session, String message) {
+    public void onMessage(@PathParam("projectId") String projectId, @PathParam("userId") String userId, @PathParam("hasLicense") boolean hasLicense, Session session, String message) {
         int refreshTime = 10;
         try {
             refreshTime = Integer.parseInt(message);
@@ -63,7 +64,7 @@ public class TaskCenterWebSocket {
             timer.cancel();
 
             Timer newTimer = new Timer(true);
-            newTimer.schedule(new TaskCenter(session, projectId, userId), 0, refreshTime * 1000L);
+            newTimer.schedule(new TaskCenter(session, projectId, userId, hasLicense), 0, refreshTime * 1000L);
             refreshTasks.put(session, newTimer);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -83,23 +84,24 @@ public class TaskCenterWebSocket {
         private Session session;
         private TaskCenterRequest request;
 
-        TaskCenter(Session session, String projectId, String userId) {
+        TaskCenter(Session session, String projectId, String userId, boolean hasLicense) {
             this.session = session;
             TaskCenterRequest request = new TaskCenterRequest();
             request.setProjectId(projectId);
             request.setUserId(userId);
+            request.setHasLicense(hasLicense);
             this.request = request;
         }
 
         @Override
         public void run() {
             try {
-                int taskTotal = taskService.getRunningTasks(request);
+                TaskStatisticsDTO task = taskService.getRunningTasks(request);
                 if (!session.isOpen()) {
                     return;
                 }
-                session.getBasicRemote().sendText(taskTotal + StringUtils.EMPTY);
-                if (taskTotal == 0) {
+                session.getBasicRemote().sendText(JSON.toJSONString(task));
+                if (task.getTotal() == 0) {
                     session.close();
                 }
             } catch (Exception e) {
