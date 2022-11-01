@@ -1,6 +1,4 @@
 import {post, get} from "metersphere-frontend/src/plugins/request";
-import {$success} from "metersphere-frontend/src/plugins/message";
-import i18n from "@/i18n";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {buildPagePath} from "@/api/base-network";
 
@@ -245,4 +243,8 @@ export function saveCaseRelevanceScenario(caseId, param) {
 
 export function saveCaseRelevanceLoad(caseId, param) {
   return post(BASE_URL + "relate/test/performance/" + caseId, param);
+}
+
+export function checkProjectPermission(projectId) {
+  return get(BASE_URL + "check/permission/" + projectId);
 }
