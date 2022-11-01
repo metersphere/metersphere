@@ -654,4 +654,12 @@ public class TestPlanScenarioCaseService {
                 extTestPlanScenarioCaseMapper.getFailureList(planId, "unExecute");
         return buildCases(apiTestCases);
     }
+
+    public String getScenarioId(String planScenarioId) {
+        TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
+        if (planApiScenario != null) {
+            return planApiScenario.getApiScenarioId();
+        }
+        return planScenarioId;
+    }
 }

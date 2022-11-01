@@ -82,6 +82,7 @@
 import {generateShareInfoWithExpired} from "@/network/share";
 import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const UiDownloadScreenshot = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiDownloadScreenshot.vue") : {};
 
@@ -155,6 +156,18 @@ export default {
       $event.target.blur();
     },
     redirect() {
+      let resourceId = this.scenarioId;
+      if (this.isPlan) {
+        this.$get('/test/plan/scenario/case/get-scenario-id/' + resourceId , res => {
+          resourceId = res.data;
+          this.showDetail(resourceId);
+        });
+      } else {
+        resourceId = this.scenarioId;
+        this.showDetail(resourceId);
+      }
+    },
+    showDetail(resourceId) {
       let data = this.$router.resolve({
         name: this.isUi ? 'uiAutomation' : 'ApiAutomation',
         query: {
@@ -162,7 +175,7 @@ export default {
           dataType: "scenario",
           projectId: getCurrentProjectID(),
           workspaceId: getCurrentWorkspaceId(),
-          resourceId: this.scenarioId
+          resourceId: resourceId
         }
       });
       window.open(data.href, '_blank');
@@ -193,7 +206,7 @@ export default {
       pram.shareType = 'API_REPORT';
       let thisHost = window.location.host;
       let shareUrl = thisHost + "/shareApiReport";
-      if(this.isUi){
+      if (this.isUi) {
         pram.shareType = 'UI_REPORT';
         shareUrl = thisHost + "/shareUiReport";
       }
@@ -202,8 +215,8 @@ export default {
       });
     },
     getProjectApplication() {
-      let path  = "/API_SHARE_REPORT_TIME";
-      if(this.isUi){
+      let path = "/API_SHARE_REPORT_TIME";
+      if (this.isUi) {
         path = "/UI_SHARE_REPORT_TIME";
       }
       this.$get('/project_application/get/' + getCurrentProjectID() + path, res => {
