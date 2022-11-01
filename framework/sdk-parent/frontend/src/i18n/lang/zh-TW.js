@@ -2994,6 +2994,12 @@ const message = {
       go_to_case_message: 'CASE更新消息通知',
       update_case_tip: '當CASE發生變化時，引用CASE的自動化場景創建人會收到站內消息提醒'
     }
+  },
+  task: {
+    api_title: "接口測試任務",
+    scenario_title: "場景測試任務",
+    ui_title: "UI測試任務",
+    perf_title: "性能測試任務"
   }
 }
 

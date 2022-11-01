@@ -457,7 +457,7 @@ export default {
     MsDrawer: () => import("metersphere-frontend/src/components/MsDrawer"),
     MsSelectTree: () => import("metersphere-frontend/src/components/select-tree/SelectTree"),
     MsChangeHistory: () => import("@/business/history/ApiHistory"),
-    MsTaskCenter: () => import("@/business/history/task/ApiTaskCenter"),
+    MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
     MsApiVariableAdvance: () => import("./../../definition/components/ApiVariableAdvance"),
     MsMainContainer: () => import("metersphere-frontend/src/components/MsMainContainer"),
     MsAsideContainer: () => import("metersphere-frontend/src/components/MsAsideContainer"),

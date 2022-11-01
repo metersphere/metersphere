@@ -1,9 +1,6 @@
 package io.metersphere.task.controller;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import io.metersphere.commons.utils.CronUtils;
-import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.TaskInfoResult;
 import io.metersphere.request.BaseQueryRequest;
@@ -28,8 +25,7 @@ public class TaskController {
         request.setProjects(taskService.getOwnerProjectIds(request.getUserId()));
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, taskService.getTasks(request));
+        return taskService.getTasks(request);
     }
 
     @GetMapping("/case/{id}")
