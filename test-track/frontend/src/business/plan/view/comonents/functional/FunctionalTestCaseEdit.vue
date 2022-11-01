@@ -593,10 +593,6 @@ p {
   line-height: 20px;
 }
 
-.head-bar {
-  z-index: 999;
-}
-
 .issues-popover {
   height: 550px;
   overflow: auto;
@@ -626,17 +622,5 @@ p {
 
 .comment-card :deep(.executeCard) {
   margin-bottom: 5px;
-}
-
-:deep(.el-form-item__content) {
-  z-index: 2;
-}
-
-:deep(.el-scrollbar__bar.is-vertical) {
-  z-index: 3;
-}
-
-.head-bar {
-  z-index: 1;
 }
 </style>
