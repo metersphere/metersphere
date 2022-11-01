@@ -143,12 +143,21 @@ public class IssuesService {
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
+            final String platformId = issues.getPlatformId();
             // 复制新增, 同步缺陷的MS附件
             AttachmentRequest attachmentRequest = new AttachmentRequest();
             attachmentRequest.setCopyBelongId(issuesRequest.getCopyIssueId());
             attachmentRequest.setBelongId(issues.getId());
             attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
             attachmentService.copyAttachment(attachmentRequest);
+
+            // MS附件同步到其他平台, Jira, Zentao已经在创建缺陷时处理, AzureDevops单独处理
+            if (StringUtils.equals(issuesRequest.getPlatform(), IssuesManagePlatform.AzureDevops.toString())) {
+                AttachmentRequest request = new AttachmentRequest();
+                request.setBelongId(issuesRequest.getCopyIssueId());
+                request.setBelongType(AttachmentType.ISSUE.type());
+                uploadAzureCopyAttachment(request, issuesRequest.getPlatform(), platformId);
+            }
         } else {
             final String issueId = issues.getId();
             final String platform = issues.getPlatform();
@@ -194,6 +203,7 @@ public class IssuesService {
                     File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
                     IssuesRequest addIssueRequest = new IssuesRequest();
                     addIssueRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    addIssueRequest.setProjectId(SessionUtils.getCurrentProjectId());
                     Objects.requireNonNull(IssueFactory.createPlatform(platform, addIssueRequest))
                             .syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
                     FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
@@ -1106,5 +1116,22 @@ public class IssuesService {
             }
         }).collect(Collectors.toList());
         return filterIssues;
+    }
+
+    private void uploadAzureCopyAttachment(AttachmentRequest attachmentRequest,  String platform, String platformId) {
+        List<String> attachmentIds = attachmentService.getAttachmentIdsByParam(attachmentRequest);
+        if (CollectionUtils.isNotEmpty(attachmentIds)) {
+            attachmentIds.forEach(attachmentId -> {
+                FileAttachmentMetadata fileAttachmentMetadata = attachmentService.getFileAttachmentMetadataByFileId(attachmentId);
+                File file = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
+                IssuesRequest createRequest = new IssuesRequest();
+                createRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                createRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                IssuesPlatform azurePlatform = Objects.requireNonNull(IssueFactory.createPlatform(platform, createRequest));
+                IssuesUpdateRequest uploadRequest = new IssuesUpdateRequest();
+                uploadRequest.setPlatformId(platformId);
+                azurePlatform.syncIssuesAttachment(uploadRequest, file, AttachmentSyncType.UPLOAD);
+            });
+        }
     }
 }

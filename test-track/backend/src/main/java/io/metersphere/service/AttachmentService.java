@@ -100,6 +100,7 @@ public class AttachmentService {
             File uploadFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
             Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
                     .syncIssuesAttachment(updateRequest, uploadFile, AttachmentSyncType.UPLOAD);
         }
@@ -120,6 +121,7 @@ public class AttachmentService {
                 File deleteFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
                 IssuesRequest issuesRequest = new IssuesRequest();
                 issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
                 Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
                         .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
             }
@@ -178,6 +180,7 @@ public class AttachmentService {
                     File refFile = downloadMetadataFile(metadataRefId, fileMetadata.getName());
                     IssuesRequest issuesRequest = new IssuesRequest();
                     issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
                     Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
                             .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
                     FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
@@ -275,6 +278,7 @@ public class AttachmentService {
                     File refFile = downloadMetadataFile(metadataRefId, fileMetadata.getName());
                     IssuesRequest issuesRequest = new IssuesRequest();
                     issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
                     Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
                             .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
                     FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
@@ -299,6 +303,7 @@ public class AttachmentService {
                 File deleteFile = new File(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileAttachmentMetadata.getName());
                 IssuesRequest issuesRequest = new IssuesRequest();
                 issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
                 Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
                         .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
             });
@@ -326,7 +331,7 @@ public class AttachmentService {
         List<AttachmentModuleRelation> attachmentModuleRelations = attachmentModuleRelationMapper.selectByExample(example);
         List<String> attachmentIds = attachmentModuleRelations.stream().map(AttachmentModuleRelation::getAttachmentId)
                 .collect(Collectors.toList());
-        return  attachmentIds;
+        return attachmentIds;
     }
 
     public String getRefIdByAttachmentId(String attachmentId) {
