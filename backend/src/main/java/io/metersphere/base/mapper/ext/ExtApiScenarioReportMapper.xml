@@ -492,4 +492,10 @@
         where status in ('Rerunning', 'Running', 'Waiting')
     </update>
 
+    <update id="updateExecuteTime">
+        update api_scenario_report
+        set create_time = #{time},update_time = #{time}
+        where id = #{id}
+    </update>
+
 </mapper>

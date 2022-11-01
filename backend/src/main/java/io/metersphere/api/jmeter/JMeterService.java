@@ -7,6 +7,7 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.RemakeReportService;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -52,6 +53,8 @@ public class JMeterService {
     private RestTemplate restTemplate;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
 
     @PostConstruct
     private void init() {
@@ -128,6 +131,14 @@ public class JMeterService {
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
+        }
+
+        if(request.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue()) &&
+            StringUtils.equals(request.getRunType(), RunModeConstants.PARALLEL.toString()) &&
+            StringUtils.equals(request.getReportType(), RunModeConstants.INDEPENDENCE.toString())){
+            String poolId = request.getPoolId();
+            Long time = System.currentTimeMillis();
+            extApiScenarioReportMapper.updateExecuteTime(poolId,time);
         }
 
         LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());

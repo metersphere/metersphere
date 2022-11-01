@@ -50,4 +50,6 @@ public interface ExtApiScenarioReportMapper {
     List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
 
     void updateAllStatus();
+
+    void updateExecuteTime(@Param("id") String id,@Param("time") Long time);
 }
