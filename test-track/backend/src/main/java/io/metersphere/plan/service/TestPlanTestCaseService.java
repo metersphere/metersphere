@@ -117,12 +117,16 @@ public class TestPlanTestCaseService {
                     .stream().collect(Collectors.toMap(User::getId, User::getName));
             List<String> versionIds = list.stream().map(TestPlanCaseDTO::getVersionId).collect(Collectors.toList());
             ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
-            Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
-                    .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+            if (projectVersionService != null) {
+                Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                        .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+                list.forEach(item -> {
+                    item.setVersionName(projectVersionMap.get(item.getVersionId()));
+                });
+            }
             list.forEach(item -> {
                 item.setExecutorName(userMap.get(item.getExecutor()));
                 item.setMaintainerName(userMap.get(item.getMaintainer()));
-                item.setVersionName(projectVersionMap.get(item.getVersionId()));
             });
         }
         return list;

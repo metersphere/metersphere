@@ -16,6 +16,9 @@ public class TestCaseExportVersionConverter implements TestCaseExportConverter {
 
     public TestCaseExportVersionConverter() {
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        if (projectVersionService == null) {
+            return;
+        }
         List<ProjectVersionDTO> projectVersions = projectVersionService.getProjectVersions(SessionUtils.getCurrentProjectId());
         projectVersions.forEach(i -> versionMap.put(i.getId(), i.getName()));
     }
