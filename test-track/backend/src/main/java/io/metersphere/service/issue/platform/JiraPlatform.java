@@ -448,7 +448,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                 if (issuesRequest.isThirdPartPlatform() || isSass) {
                                     param.put("id", item.getValue());
                                 } else {
-                                    param.put("name", item.getValue());
+                                    param.put("accountId", item.getValue());
                                 }
                             } else {
                                 param.put("id", item.getValue());
