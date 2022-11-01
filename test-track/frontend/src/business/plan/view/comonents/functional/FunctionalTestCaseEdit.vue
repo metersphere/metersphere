@@ -43,7 +43,11 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left" class="title-divider">
-                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
+                        <el-button
+                          class="test-case-name"
+                          type="text"
+                          :disabled="!hasProjectPermission"
+                          @click="openTestTestCase(testCase)">
                             <span
                               class="title-link"
                               :title="testCase.name"
@@ -113,7 +117,8 @@
 
                     <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
                       <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
-                                                 :is-test-plan-edit="true" @syncRelationGraphOpen="syncRelationGraphOpen"
+                                                 :is-test-plan-edit="true"
+                                                 @syncRelationGraphOpen="syncRelationGraphOpen"
                                                  :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
                                                  :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                     </el-form-item>
@@ -166,6 +171,8 @@ import StatusTableItem from "@/business/common/tableItems/planview/StatusTableIt
 import {testPlanTestCaseEdit, testPlanTestCaseGet} from "@/api/remote/plan/test-plan-test-case";
 import {testPlanEditStatus} from "@/api/remote/plan/test-plan";
 import {getTestTemplate} from "@/api/custom-field-template";
+import {getCurrentProjectID} from "@/business/utils/sdk-utils";
+import {checkProjectPermission} from "@/api/testCase";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -190,6 +197,7 @@ export default {
     return {
       loading: false,
       showDialog: false,
+      hasProjectPermission: true,
       testCase: {},
       index: 0,
       editor: ClassicEditor,
@@ -235,7 +243,7 @@ export default {
     },
     pageTotal() {
       return Math.ceil(this.total / this.pageSize);
-    }
+    },
   },
   methods: {
     handleClose() {
@@ -431,6 +439,10 @@ export default {
         });
     },
     openTestCaseEdit(testCase, tableData) {
+      checkProjectPermission(testCase.projectId)
+        .then(r => {
+          this.hasProjectPermission = r.data;
+        });
       this.showDialog = true;
       this.activeTab = 'detail';
       this.hasTapdId = false;

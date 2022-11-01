@@ -242,6 +242,11 @@ public class TestCaseController {
         return testCaseService.testCaseImport(file, request, httpRequest);
     }
 
+    @GetMapping("/check/permission/{projectId}")
+    public boolean checkProjectPermission(@PathVariable String projectId) {
+        return baseCheckPermissionService.getUserRelatedProjectIds().contains(projectId);
+    }
+
     @GetMapping("/export/template/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     public void testCaseTemplateExport(@PathVariable String projectId, @PathVariable String importType, HttpServletResponse response) {
