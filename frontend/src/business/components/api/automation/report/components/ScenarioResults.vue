@@ -8,7 +8,7 @@
         <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion"/>
       </el-tooltip>
     </div>
-    <el-tree :data="treeData"
+    <el-tree :data="tempNodes"
              :expand-on-click-node="false"
              :default-expand-all="defaultExpand"
              :filter-node-method="filterNode"
@@ -43,10 +43,12 @@ export default {
   },
   data() {
     return {
-      isActive: false
+      isActive: false,
+      tempNodes:[]
     }
   },
   created() {
+    this.tempNodes = JSON.parse(JSON.stringify(this.treeData))
     if (this.$refs.resultsTree && this.$refs.resultsTree.root) {
       this.$refs.resultsTree.root.expanded = true;
     }
@@ -58,6 +60,7 @@ export default {
   },
   methods: {
     filterNode(value, data) {
+      console.log(value, data)
       if (!data.value && (!data.children || data.children.length === 0)) {
         return false;
       }
@@ -82,9 +85,43 @@ export default {
       return false;
     },
     filter(val) {
+      this.tempNodes = JSON.parse(JSON.stringify(this.treeData))
+      if(this.isUi && val === "unexecute"){
+        this.tempNodes = this.refresh("unexecute", this.tempNodes)
+        return
+      }
       this.$nextTick(() => {
         this.$refs.resultsTree.filter(val);
       });
+    },
+    refresh(customType, arr){
+      let hit = [];
+      for(let i =0; i < arr.length; i++){
+        if(this.doCheck(customType, arr[i])){
+          //满足条件的节点
+          hit.push(arr[i]);
+        }
+      }
+
+      //从命中的中查找子节点
+      for(let i = 0; i < hit.length; i++){
+        if(hit[i].children){
+          hit[i].children = this.refresh(customType, hit[i].children)
+        }
+      }
+
+      return hit;
+    },
+    doCheck(customType, data){
+      console.log(data)
+      if(data.totalStatus === customType){
+        return true;
+      }
+
+      if(data.value && data.value.status === customType){
+        return true;
+      }
+      return false;
     },
     requestResult(requestResult) {
       this.$emit("requestResult", requestResult);
