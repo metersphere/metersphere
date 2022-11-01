@@ -374,7 +374,7 @@ export default {
     SyncSetting,
     MsApiReportStatus: () => import("../../../automation/report/ApiReportStatus"),
     PlanStatusTableItem: () => import("@/business/commons/PlanStatusTableItem"),
-    MsTaskCenter: () => import("@/business/history/task/ApiTaskCenter"),
+    MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
   },
   data() {
     return {
@@ -701,7 +701,7 @@ export default {
         } else {
           store.currentApiCase = {case: true};
         }
-        this.$refs.taskCenter.open();
+        this.$refs.taskCenter.open("API");
       });
     },
     customHeader() {

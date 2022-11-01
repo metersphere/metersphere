@@ -28,5 +28,9 @@ public class TaskCenterRequest {
 
     private int pageSize;
 
+    private String activeName;
+
+    private boolean hasLicense;
+
     List<String> projects;
 }

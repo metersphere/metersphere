@@ -78,7 +78,7 @@ export default {
     ApiCaseHeader,
     MsRun: () => import("../Run"),
     ApiCaseItem: () => import("./ApiCaseItem"),
-    MsTaskCenter: () => import("@/business/history/task/ApiTaskCenter"),
+    MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
   },
   props: {
     createCase: String,
