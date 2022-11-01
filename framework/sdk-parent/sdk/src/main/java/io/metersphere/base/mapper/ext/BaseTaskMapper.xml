@@ -87,27 +87,29 @@
             AND t.user_id = #{request.executor}
         </if>
         )
-        UNION ALL
-        (SELECT t.id,t.name AS name ,'UI_SCENARIO' AS
-        executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS
-        executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
-        FROM ui_scenario_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
-        t.actuator = t2.id
-        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
-        !='Marge' AND t.project_id IN
-        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        <if test="request.triggerMode != null and request.triggerMode != ''">
-            AND t.trigger_mode = #{request.triggerMode}
+        <if test="uiPermission">
+            UNION ALL
+            (SELECT t.id,t.name AS name ,'UI_SCENARIO' AS
+            executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS
+            executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
+            FROM ui_scenario_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
+            t.actuator = t2.id
+            WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+            !='Marge' AND t.project_id IN
+            <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            <if test="request.triggerMode != null and request.triggerMode != ''">
+                AND t.trigger_mode = #{request.triggerMode}
+            </if>
+            <if test="request.executionStatus != null and request.executionStatus != ''">
+                AND t.status = #{request.executionStatus}
+            </if>
+            <if test="request.executor != null and request.executor != ''">
+                AND t.user_id = #{request.executor}
+            </if>
+            )
         </if>
-        <if test="request.executionStatus != null and request.executionStatus != ''">
-            AND t.status = #{request.executionStatus}
-        </if>
-        <if test="request.executor != null and request.executor != ''">
-            AND t.user_id = #{request.executor}
-        </if>
-        )
         )tt ORDER BY tt.executionTime DESC
     </select>
 
