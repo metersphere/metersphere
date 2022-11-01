@@ -10,18 +10,21 @@ import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
-import io.metersphere.base.domain.TestResource;
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.RemakeReportService;
-import io.metersphere.commons.constants.ElementConstants;
-import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.ResultDTO;
+import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import io.metersphere.xpack.api.service.ApiRetryOnFailureService;
@@ -139,14 +142,17 @@ public class GenerateHashTreeUtil {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
             group.setName(runRequest.getReportId());
-            MsScenario scenario = JSON.parseObject(item.getScenarioDefinition(), MsScenario.class);
+            JSONObject element = JSONUtil.parseObject(item.getScenarioDefinition());
+            ElementUtil.dataFormatting(element);
+            String definition = element.toString();
+            MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
             if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             } else {
                 setScenarioEnv(scenario, item);
             }
-            String data = item.getScenarioDefinition();
+            String data = definition;
             // 失败重试
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                 ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
@@ -172,6 +178,7 @@ public class GenerateHashTreeUtil {
         } catch (Exception ex) {
             remakeException(runRequest);
             LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
+            return null;
         }
 
         LogUtil.info(testPlan.getJmx(jmeterHashTree));
