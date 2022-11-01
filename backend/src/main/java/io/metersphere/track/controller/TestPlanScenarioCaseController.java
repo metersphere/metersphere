@@ -123,4 +123,9 @@ public class TestPlanScenarioCaseController {
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testPlanScenarioCaseService.updateOrder(request);
     }
+
+    @GetMapping("/get-scenario-id/{id}")
+    public String getScenarioId(@PathVariable("id") String planScenarioId) {
+        return testPlanScenarioCaseService.getScenarioId(planScenarioId);
+    }
 }
