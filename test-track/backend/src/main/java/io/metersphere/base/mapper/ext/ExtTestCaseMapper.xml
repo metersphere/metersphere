@@ -890,7 +890,14 @@
                  join issues
                       on tci.issues_id = issues.id
         where tptc.plan_id = #{planId}
-          and test_case.status != 'Trash';
+          and test_case.status != 'Trash'
+        union distinct
+        select distinct tci.issues_id
+        from test_plan_test_case tptc
+                 join test_case_issues tci on tptc.id = tci.resource_id
+                 join issues
+                      on tci.issues_id = issues.id
+        where tptc.plan_id = #{planId}
     </select>
     <select id="getTestPlanCase" resultType="int">
         select count(s)
