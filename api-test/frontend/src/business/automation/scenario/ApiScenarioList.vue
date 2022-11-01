@@ -408,7 +408,7 @@ export default {
     MsTestPlanList: () => import("./testplan/TestPlanList"),
     MsTableOperatorButton: () => import("metersphere-frontend/src/components/MsTableOperatorButton"),
     MsRunMode: () => import("./common/RunMode"),
-    MsTaskCenter: () => import("@/business/history/task/ApiTaskCenter"),
+    MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
     MsRun: () => import("./DebugRun"),
     MxRelationshipGraphDrawer: () => import("metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer")
   },
@@ -985,7 +985,7 @@ export default {
       if (this.batchReportId) {
         this.result = false;
         this.$success(this.$t('commons.run_message'));
-        this.$refs.taskCenter.open();
+        this.$refs.taskCenter.open("SCENARIO");
       }
     },
     buildBatchParam(param) {
