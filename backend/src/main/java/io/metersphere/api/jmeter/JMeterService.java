@@ -191,7 +191,7 @@ public class JMeterService {
         //UI 测试只走本地 ms，资源池交给 selenium-grid 本身实现
         if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode()) && !request.getRunMode().startsWith("UI")) {
             this.runNode(request);
-        } else {
+        } else if(request.getHashTree() != null){
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
             if(request.getRunMode().startsWith(ParamConstants.MODEL.RUN_MODEL_UI.getValue())){

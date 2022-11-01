@@ -493,11 +493,15 @@ export default {
         mode: "serial"
       };
       if (this.planId) {
+        this.loading = true;
         this.$post("/test/plan/scenario/case/run", param, response => {
-          this.runVisible = true;
-          if (response.data && response.data.length > 0) {
-            this.reportId = response.data[0].reportId;
-          }
+          setTimeout(() => {
+            this.loading = false;
+            this.runVisible = true;
+            if (response.data && response.data.length > 0) {
+              this.reportId = response.data[0].reportId;
+            }
+          }, 2000)
         });
       }
       if (this.reviewId) {

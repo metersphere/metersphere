@@ -9,7 +9,7 @@ export function apiCaseBatchRun(condition) {
 }
 
 export function getScenarioReport(reportId, callback) {
-  return reportId ? baseGet('/api/scenario/report/get/' + reportId, callback) : {};
+  return reportId ? baseGet('/api/scenario/report/getAll/' + reportId, callback) : {};
 }
 
 export function getScenarioReportAll(reportId, callback) {
