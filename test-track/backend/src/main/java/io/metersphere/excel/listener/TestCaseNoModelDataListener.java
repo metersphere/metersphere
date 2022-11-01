@@ -798,6 +798,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         for (Map.Entry<Integer, String> headEntry : headMap.entrySet()) {
             Integer index = headEntry.getKey();
             String field = headEntry.getValue();
+            if (StringUtils.isBlank(field)) {
+                continue;
+            }
             String value = StringUtils.isEmpty(row.get(index)) ? StringUtils.EMPTY : row.get(index);
 
             if (excelHeadToFieldNameDic.containsKey(field)) {

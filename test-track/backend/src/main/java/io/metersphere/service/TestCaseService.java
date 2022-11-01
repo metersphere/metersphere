@@ -2853,6 +2853,9 @@ public class TestCaseService {
     public void buildVersionInfo(List<TestCaseDTO> testCases) {
         List<String> versionIds = testCases.stream().map(TestCaseDTO::getVersionId).collect(Collectors.toList());
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        if (projectVersionService == null) {
+            return;
+        }
         Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
                 .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
         testCases.forEach(testCase -> {
