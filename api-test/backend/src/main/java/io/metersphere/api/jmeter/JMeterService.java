@@ -186,7 +186,7 @@ public class JMeterService {
     public void run(JmeterRunRequestDTO request) {
         if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode())) {
             this.runNode(request);
-        } else {
+        } else if (request.getHashTree() != null) {
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
