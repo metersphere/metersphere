@@ -6,7 +6,6 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.xpack.track.dto.AttachmentSyncType;
@@ -45,6 +44,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
     protected JiraClientV2 jiraClientV2;
     protected SimpleDateFormat sdfWithZone = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    protected Boolean isSass = false;
+
     public JiraPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         this.key = IssuesManagePlatform.Jira.name();
@@ -56,7 +57,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public JiraClientV2 getJiraClientV2() {
         return jiraClientV2;
     }
-    
+
     public void setThirdPartTemplate() {
         this.isThirdPartTemplate = true;
     }
@@ -444,7 +445,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         if (StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                             Map param = new LinkedHashMap<>();
                             if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
-                                if (issuesRequest.isThirdPartPlatform()) {
+                                if (issuesRequest.isThirdPartPlatform() || isSass) {
                                     param.put("id", item.getValue());
                                 } else {
                                     param.put("name", item.getValue());
@@ -595,6 +596,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public JiraConfig setConfig() {
         JiraConfig config = getConfig();
         validateConfig(config);
+        if (config.getUrl().contains(".atlassian.net")) {
+            this.isSass = true;
+        }
         jiraClientV2.setConfig(config);
         return config;
     }
