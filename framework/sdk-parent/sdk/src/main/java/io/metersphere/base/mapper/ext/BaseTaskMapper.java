@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface BaseTaskMapper {
 
-    List<TaskCenterDTO> getTasks(@Param("request") TaskCenterRequest request);
+    List<TaskCenterDTO> getTasks(@Param("request") TaskCenterRequest request, @Param("uiPermission") Boolean uiPermission);
 
     int getRunningTasks(@Param("request") TaskCenterRequest request);
 

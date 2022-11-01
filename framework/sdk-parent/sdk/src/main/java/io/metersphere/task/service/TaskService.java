@@ -1,5 +1,6 @@
 package io.metersphere.task.service;
 
+import io.metersphere.base.mapper.ext.BaseInformationSchemaTableMapper;
 import io.metersphere.base.mapper.ext.BaseScheduleMapper;
 import io.metersphere.base.mapper.ext.BaseTaskMapper;
 import io.metersphere.commons.constants.MicroServiceName;
@@ -30,6 +31,8 @@ public class TaskService {
     @Resource
     private BaseScheduleMapper baseScheduleMapper;
     @Resource
+    private BaseInformationSchemaTableMapper baseInformationSchemaTableMapper;
+    @Resource
     private BaseCheckPermissionService baseCheckPermissionService;
     @Resource
     private MicroService microService;
@@ -38,6 +41,7 @@ public class TaskService {
     private static final String PERF = "PERFORMANCE";
 
     private static final String UI = "UI_SCENARIO";
+    private static final String UI_SCENARIO_REPORT = "ui_scenario_report";
 
     public List<String> getOwnerProjectIds(String userId) {
         Set<String> userRelatedProjectIds = null;
@@ -56,7 +60,7 @@ public class TaskService {
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new ArrayList<>();
         }
-        return baseTaskMapper.getTasks(request);
+        return baseTaskMapper.getTasks(request,checkUiPermission());
     }
 
     public int getRunningTasks(TaskCenterRequest request) {
@@ -109,5 +113,16 @@ public class TaskService {
         if (taskRequestMap.containsKey(API) || taskRequestMap.containsKey(SCENARIO)) {
             microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
         }
+    }
+
+    private boolean checkUiPermission(){
+        try {
+            String uiScenarioReport = baseInformationSchemaTableMapper.checkExist(UI_SCENARIO_REPORT);
+            if(StringUtils.isNotEmpty(uiScenarioReport)){
+                return true;
+            }
+        }catch (Exception e){
+        }
+        return false;
     }
 }
