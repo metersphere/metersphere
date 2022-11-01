@@ -364,15 +364,7 @@ public class TestPlanService {
         }
 
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
-            List<String> uiScenarioExecResults = calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
-            uiScenarioExecResults.forEach(item -> {
-                if (StringUtils.isNotBlank(item)) {
-                    testPlan.setTested(testPlan.getTested() + 1);
-                    if (StringUtils.equals(item, "Success")) {
-                        testPlan.setPassed(testPlan.getPassed() + 1);
-                    }
-                }
-            });
+            calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
         }
 
         testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTotal()));
@@ -385,13 +377,13 @@ public class TestPlanService {
      * @param planId
      * @return
      */
-    List<String> calcExecResultStatus(String planId, TestPlanDTOWithMetric testPlan, Function<String, List<String>> getResultFunc) {
+    void calcExecResultStatus(String planId, TestPlanDTOWithMetric testPlan, Function<String, List<String>> getResultFunc) {
         try {
             List<String> execResults = getResultFunc.apply(planId);
             execResults.forEach(item -> {
-                if (StringUtils.isNotBlank(item)) {
+                if (StringUtils.isNotBlank(item) && !StringUtils.equalsIgnoreCase("UnExecute", item)) {
                     testPlan.setTested(testPlan.getTested() + 1);
-                    if (StringUtils.equalsIgnoreCase(item, "Success")) {
+                    if (StringUtils.equalsIgnoreCase(item, APITestStatus.Success.name())) {
                         testPlan.setPassed(testPlan.getPassed() + 1);
                     }
                 }
@@ -400,7 +392,6 @@ public class TestPlanService {
         } catch (MSException e) {
             LogUtil.error(e);
         }
-        return new ArrayList<>();
     }
 
     public List<TestPlanDTOWithMetric> listTestPlan(QueryTestPlanRequest request) {
