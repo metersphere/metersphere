@@ -3,14 +3,15 @@ package io.metersphere.service;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.domain.TestPlanExample;
 import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.dto.BugStatistics;
-import io.metersphere.dto.TestPlanBugCount;
-import io.metersphere.dto.TestPlanDTOWithMetric;
-import io.metersphere.dto.TrackCountResult;
+import io.metersphere.dto.*;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -36,6 +38,9 @@ public class TrackService {
     private CustomFieldIssuesService customFieldIssuesService;
     @Resource
     private TestPlanService testPlanService;
+
+    @Resource
+    private ExtIssuesMapper extIssuesMapper;
 
     public List<TrackCountResult> countPriority(String projectId) {
         return extTestCaseMapper.countPriority(projectId);
@@ -111,15 +116,15 @@ public class TrackService {
         List<TestPlanBugCount> list = new ArrayList<>();
         BugStatistics bugStatistics = new BugStatistics();
         int index = 1;
-        int totalCaseSize = 0;
-        int totalBugSize = 0;
+        int totalPlanBugSize = 0;
+        int allUnClosedBugSize = this.getAllUnClosedBugSize(projectId);
         for (TestPlan plan : plans) {
             int planBugSize = getPlanBugSize(plan.getId(), projectId);
             // bug为0不记录
             if (planBugSize == 0) {
                 continue;
             }
-            totalBugSize += planBugSize;
+            totalPlanBugSize += planBugSize;
 
             TestPlanBugCount testPlanBug = new TestPlanBugCount();
             testPlanBug.setIndex(index++);
@@ -135,14 +140,13 @@ public class TrackService {
             double planPassRage = getPlanPassRage(plan.getId());
             testPlanBug.setPassRage(planPassRage + "%");
             list.add(testPlanBug);
-            totalCaseSize += planCaseSize;
 
         }
         bugStatistics.setList(list);
-        float rage = totalCaseSize == 0 ? 0 : (float) totalBugSize * 100 / totalCaseSize;
+        float rage = allUnClosedBugSize == 0 ? 0 : (float) totalPlanBugSize * 100 / allUnClosedBugSize;
         DecimalFormat df = new DecimalFormat("0.0");
         bugStatistics.setRage(df.format(rage) + "%");
-        bugStatistics.setBugTotalSize(totalBugSize);
+        bugStatistics.setBugTotalSize(allUnClosedBugSize);
         return bugStatistics;
     }
 
@@ -162,6 +166,21 @@ public class TrackService {
         }
         return (int) issueIds.stream()
                 .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                .count();
+    }
+
+    private int getAllUnClosedBugSize(String projectId) {
+        IssuesRequest req = new IssuesRequest();
+        req.setProjectId(projectId);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(req);
+        if (CollectionUtils.isEmpty(issues)) {
+            return 0;
+        }
+        List<String> ids = issues.stream().map(IssuesDao::getId).collect(Collectors.toList());
+        Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(ids, projectId);
+
+        return (int) issues.stream()
+                .filter(i -> !StringUtils.equals(statusMap.getOrDefault(i.getId(), StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                 .count();
     }
 
