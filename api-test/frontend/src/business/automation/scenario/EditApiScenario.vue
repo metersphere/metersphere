@@ -1172,6 +1172,11 @@ export default {
       }
     },
     addComponent(type, plugin) {
+      if (this.selectedNode && this.selectedNode.parent
+        && this.selectedNode.parent.data && this.selectedNode.parent.data.disabled) {
+        this.$warning(this.$t('api_test.scenario.scenario_warning'));
+        return;
+      }
       setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
