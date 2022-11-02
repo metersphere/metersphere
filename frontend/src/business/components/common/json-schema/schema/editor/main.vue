@@ -62,7 +62,7 @@
     </template>
     <!-- 高级设置-->
     <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
-               @close="handleClose">
+               @close="handleClose" v-if="modalVisible">
       <p class="tip">{{ $t("schema.base_setting") }} </p>
 
       <el-form label-position="left" label-width="100px" v-model="advancedValue" class="ms-advanced-search-form">
