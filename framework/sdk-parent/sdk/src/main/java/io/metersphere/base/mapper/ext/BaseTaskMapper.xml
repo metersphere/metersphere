@@ -165,7 +165,7 @@
         <if test="request.executor != null and request.executor != ''">
             AND t.user_id = #{request.executor}
         </if>
-        AND t.status IN ("running","starting","pending")
+        AND t.status IN ("running","starting")
         ) as scenarioTotal ,
         <if test="request.hasLicense">
             (SELECT
@@ -199,7 +199,7 @@
             <if test="request.executor != null and request.executor != ''">
                 AND t.user_id = #{request.executor}
             </if>
-            AND t.status IN ("running","starting","pending")
+            AND t.status IN ("running","starting")
             ),
         </if>
         (SELECT
@@ -262,7 +262,7 @@
         <if test="request.executor != null and request.executor != ''">
             AND t.user_id = #{request.executor}
         </if>
-        AND t.status IN ("running","starting","pending")
+        AND t.status IN ("running","starting")
         ) as perfTotal
     </select>
 
