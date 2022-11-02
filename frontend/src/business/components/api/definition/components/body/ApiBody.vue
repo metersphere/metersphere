@@ -232,7 +232,7 @@ export default {
             }
           } catch (e) {
             this.body.format = 'JSON';
-            this.$error(this.$t('api_definition.json_format_error'));
+            this.$error(this.$t('api_test.definition.json_format_error'));
           }
         }
       } else {
