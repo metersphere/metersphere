@@ -29,6 +29,7 @@ import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.utils.XpackUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -295,7 +296,7 @@ public class TestPlanReportService {
         }
 
         try {
-            if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
                 // todo 远程调用失败处理逻辑
                 Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
                 List<TestPlanUiScenario> testPlanUiScenarioList = planTestPlanUiScenarioCaseService.list(planId);
@@ -362,33 +363,23 @@ public class TestPlanReportService {
 
         if (saveRequest.isCountResources()) {
             String planId = saveRequest.getPlanId();
-            try {
-                if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
-                    // todo 远程调用失败处理逻辑
-                    testPlanReport.setIsApiCaseExecuting(planTestPlanApiCaseService.isCaseExecuting(planId));
-                    testPlanReport.setIsScenarioExecuting(planTestPlanScenarioCaseService.isCaseExecuting(planId));
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
+
+            if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+
+                testPlanReport.setIsApiCaseExecuting(planTestPlanApiCaseService.isCaseExecuting(planId));
+                testPlanReport.setIsScenarioExecuting(planTestPlanScenarioCaseService.isCaseExecuting(planId));
             }
 
-            try {
-                if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
-                    // todo 远程调用失败处理逻辑
-                    testPlanReport.setIsUiScenarioExecuting(planTestPlanUiScenarioCaseService.isCaseExecuting(planId));
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
+
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+                testPlanReport.setIsUiScenarioExecuting(planTestPlanUiScenarioCaseService.isCaseExecuting(planId));
             }
 
-            try {
-                if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
-                    // todo 远程调用失败处理逻辑
-                    testPlanReport.setIsPerformanceExecuting(planTestPlanLoadCaseService.isCaseExecuting(planId, testPlan.getProjectId()));
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
+
+            if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+                testPlanReport.setIsPerformanceExecuting(planTestPlanLoadCaseService.isCaseExecuting(planId, testPlan.getProjectId()));
             }
+
         } else {
             testPlanReport.setIsApiCaseExecuting(saveRequest.isApiCaseIsExecuting());
             testPlanReport.setIsScenarioExecuting(saveRequest.isScenarioIsExecuting());
