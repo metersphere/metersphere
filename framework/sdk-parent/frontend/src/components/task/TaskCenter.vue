@@ -43,7 +43,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="init(true)"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -51,7 +51,8 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.status')" prop="status">
-                  <el-select size="mini" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.executionStatus"
+                             @change="init(true)"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -62,7 +63,7 @@
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
                   <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="mini"
-                             style="margin-right: 10px" @change="init" :disabled="isDebugHistory">
+                             style="margin-right: 10px" @change="init(true)" :disabled="isDebugHistory">
                     <el-option
                       v-for="item in maintainerOptions"
                       :key="item.id"
@@ -81,13 +82,13 @@
           </el-form>
         </div>
         <el-divider direction="horizontal" style="width: 100%"/>
-        <el-tabs v-model="activeName" @tab-click="init" v-loading="loading">
+        <el-tabs v-model="activeName" @tab-click="init(true)" v-loading="loading">
           <el-tab-pane :name="tab.id" :label="tab.label" v-for="tab in tabs" :disabled="isDebugHistory">
             <span slot="label">
               <el-badge class="ms-badge-item" v-if="showBadge(tab.id) > 0" :value="showBadge(tab.id)">
                 {{ tab.label }}
               </el-badge>
-              <span v-else>{{ tab.label }}</span>
+              <span style="font-size: 13px" v-else>{{ tab.label }}</span>
             </span>
             <task-center-item
               :task-data="taskData"
@@ -141,7 +142,6 @@ export default {
       loading: false,
       taskData: [],
       response: {},
-      initEnd: false,
       visible: false,
       showType: "",
       runMode: [
@@ -231,7 +231,7 @@ export default {
         let request = {type: row.executionModule, reportId: row.id};
         stopTask(request).then(response => {
           this.$success(this.$t('report.test_stop_success'));
-          this.init();
+          this.init(true);
         });
       } else {
         let array = [];
@@ -241,7 +241,7 @@ export default {
         array.push({type: 'UI_SCENARIO', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
         stopBatchTask(array).then(response => {
           this.$success(this.$t('report.test_stop_success'));
-          this.init();
+          this.init(true);
         });
       }
     },
@@ -266,13 +266,12 @@ export default {
     onMessage(e) {
       this.loading = false;
       this.runningData = JSON.parse(e.data);
+      if (this.runningData) {
+        this.setActiveName();
+      }
       this.runningTotal = this.runningData.total;
-      this.initIndex++;
-      if (this.taskVisible && this.initEnd) {
-        setTimeout(() => {
-          this.initEnd = false;
-          this.init();
-        }, 3000);
+      if (this.runningTotal > 0) {
+        this.init(false);
       }
     },
     onClose(e) {
@@ -280,7 +279,7 @@ export default {
     showTaskCenter() {
       this.getTaskRunning();
       this.getMaintainerOptions();
-      this.init();
+      this.init(true);
       this.taskVisible = true;
     },
     close() {
@@ -296,7 +295,6 @@ export default {
         this.activeName = activeName;
       }
       this.showTaskCenter();
-      this.initIndex = 0;
     },
     getPercentage(status) {
       if (status) {
@@ -384,24 +382,20 @@ export default {
     nextPage(currentPage, pageSize) {
       this.currentPage = currentPage;
       this.pageSize = pageSize;
-      this.init();
+      this.init(true);
     },
-    init() {
+    init(loading) {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
       this.condition.userId = getCurrentUser().id;
-      if (this.runningData) {
-        this.setActiveName();
-      }
       this.condition.activeName = this.activeName;
-      this.loading = true;
+      this.loading = loading;
       this.result = getTaskList(this.condition, this.currentPage, this.pageSize)
         .then(response => {
           this.total = response.data.itemCount;
           this.taskData = response.data.listObject;
-          this.initEnd = true;
           this.loading = false;
         });
     },
@@ -594,7 +588,7 @@ export default {
 .ms-badge-item {
   margin-top: 0px;
   margin-right: 0px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 :deep(.el-badge__content.is-fixed) {
