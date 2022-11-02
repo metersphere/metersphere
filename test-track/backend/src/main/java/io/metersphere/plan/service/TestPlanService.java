@@ -48,6 +48,7 @@ import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.utils.XpackUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -363,7 +364,7 @@ public class TestPlanService {
             calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
         }
 
-        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
             calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
         }
 
@@ -1004,7 +1005,6 @@ public class TestPlanService {
         return null;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public TestPlan copy(String planId) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan == null) {
@@ -1047,7 +1047,6 @@ public class TestPlanService {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public void copyPlanCase(String sourcePlanId, String targetPlanId) {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(sourcePlanId);
@@ -1076,10 +1075,26 @@ public class TestPlanService {
             }
             sqlSession.flushStatements();
 
-            planTestPlanApiCaseService.copyPlan(sourcePlanId, targetPlanId);
-            planTestPlanScenarioCaseService.copyPlan(sourcePlanId, targetPlanId);
-            planTestPlanLoadCaseService.copyPlan(sourcePlanId, targetPlanId);
-            planTestPlanUiScenarioCaseService.copyPlan(sourcePlanId, targetPlanId);
+            try {
+                planTestPlanApiCaseService.copyPlan(sourcePlanId, targetPlanId);
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+
+            Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+
+            if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+                planTestPlanApiCaseService.copyPlan(sourcePlanId, targetPlanId);
+                planTestPlanScenarioCaseService.copyPlan(sourcePlanId, targetPlanId);
+            }
+
+            if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+                planTestPlanLoadCaseService.copyPlan(sourcePlanId, targetPlanId);
+            }
+
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+                planTestPlanUiScenarioCaseService.copyPlan(sourcePlanId, targetPlanId);
+            }
 
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
