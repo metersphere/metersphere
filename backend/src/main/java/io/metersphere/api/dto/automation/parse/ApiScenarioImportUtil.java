@@ -1,10 +1,10 @@
 package io.metersphere.api.dto.automation.parse;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
+import io.metersphere.api.dto.automation.ApiScenarioParamDto;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
@@ -28,6 +28,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ApiScenarioImportUtil {
 
@@ -158,7 +159,10 @@ public class ApiScenarioImportUtil {
         }
     }
 
-    public static void checkCase(int i, JSONObject object, String versionId, String projectId, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
+    public static void checkCase(JSONObject object, String versionId, String projectId, ApiScenarioParamDto apiScenarioParamDto) {
+        Map<String, ApiDefinition> definitionMap = apiScenarioParamDto.getDefinitionMap();
+        ApiTestCaseMapper apiTestCaseMapper = apiScenarioParamDto.getApiTestCaseMapper();
+        Map<String, Set<String>> apiIdCaseNameMap = apiScenarioParamDto.getApiIdCaseNameMap();
         ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
@@ -173,23 +177,23 @@ public class ApiScenarioImportUtil {
                     request.setName(object.getString("name"));
                     ApiTestCase sameCase = testCaseService.getSameCase(request);
                     if (sameCase == null) {
-                        structureCaseByJson(i, object, testCaseService, apiDefinition, apiTestCaseMapper);
+                        structureCaseByJson(object, testCaseService, apiDefinition, apiTestCaseMapper,apiIdCaseNameMap);
                     } else {
                         object.put("id", sameCase.getId());
                         object.put("resourceId", sameCase.getId());
                         object.put("projectId", projectId);
-                        object.put("useEnvironment", "");
-                        object.put("environmentId", "");
+                        object.put("useEnvironment", StringUtils.EMPTY);
+                        object.put("environmentId", StringUtils.EMPTY);
                     }
                 }
             } else {
-                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(i, apiDefinitionService, object, versionId, projectId, apiDefinitionMapper, definitionMap);
-                structureCaseByJson(i, object, testCaseService, apiDefinitionResult, apiTestCaseMapper);
+                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(apiDefinitionService, object, versionId, projectId, apiScenarioParamDto.getApiDefinitionMapper(), definitionMap);
+                structureCaseByJson(object, testCaseService, apiDefinitionResult, apiTestCaseMapper,apiIdCaseNameMap);
             }
         }
     }
 
-    public static ApiDefinitionResult structureApiDefinitionByJson(int i, ApiDefinitionService apiDefinitionService, JSONObject object, String versionId, String projectId, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
+    public static ApiDefinitionResult structureApiDefinitionByJson(ApiDefinitionService apiDefinitionService, JSONObject object, String versionId, String projectId, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
         ApiDefinitionResult test = new ApiDefinitionResult();
         apiDefinitionService.checkQuota(projectId);
         String protocal = object.getString("protocal");
@@ -207,7 +211,14 @@ public class ApiScenarioImportUtil {
         }
         String id = UUID.randomUUID().toString();
         test.setId(id);
-        test.setNum(apiDefinitionService.getNextNum(projectId) + i);
+        if (MapUtils.isEmpty(definitionMap)){
+            test.setNum(apiDefinitionService.getNextNum(projectId));
+        }else {
+            ArrayList<ApiDefinition> apiDefinitions = new ArrayList<>(definitionMap.values());
+            List<Integer> collect = apiDefinitions.stream().map(ApiDefinition::getNum).collect(Collectors.toList());
+            Collections.sort(collect);
+            test.setNum(collect.get(collect.size()-1)+1);
+        }
         test.setName(object.getString("name"));
         if (StringUtils.isBlank(object.getString("path"))) {
             if (StringUtils.isNotBlank(object.getString("url"))) {
@@ -229,13 +240,13 @@ public class ApiScenarioImportUtil {
         object.put("id", test.getId());
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment", "");
-        object.put("environmentId", "");
-        object.put("url", "");
+        object.put("useEnvironment", StringUtils.EMPTY);
+        object.put("environmentId", StringUtils.EMPTY);
+        object.put("url", StringUtils.EMPTY);
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
-        test.setRequest(objectNew.toJSONString());
+        test.setRequest(objectNew.toString());
         HttpResponse httpResponse = new HttpResponse();
         KeyValue keyValue = new KeyValue();
         List<KeyValue> list = new ArrayList<>();
@@ -243,7 +254,7 @@ public class ApiScenarioImportUtil {
         httpResponse.setHeaders(list);
         httpResponse.setStatusCode(list);
         httpResponse.setBody(new Body());
-        test.setResponse(JSON.toJSONString(httpResponse));
+        test.setResponse(httpResponse.toString());
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
@@ -255,7 +266,12 @@ public class ApiScenarioImportUtil {
         return test;
     }
 
-    public static void structureCaseByJson(int i, JSONObject object, ApiTestCaseService testCaseService, ApiDefinition apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
+    public static void structureCaseByJson(JSONObject object, ApiTestCaseService testCaseService, ApiDefinition apiDefinition, ApiTestCaseMapper apiTestCaseMapper, Map<String, Set<String>> apiIdCaseNameMap) {
+        String caseMapKey = apiDefinition.getId();
+        Set<String> caseNameSet = apiIdCaseNameMap.get(caseMapKey);
+        if (CollectionUtils.isNotEmpty(caseNameSet) && caseNameSet.contains(object.getString("name"))){
+            return;
+        }
         String projectId = apiDefinition.getProjectId();
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
@@ -271,19 +287,31 @@ public class ApiScenarioImportUtil {
         apiTestCase.setUpdateTime(System.currentTimeMillis());
         apiTestCase.setVersionId(apiDefinition.getVersionId());
         apiTestCase.setPriority("P0");
-        apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum() + i, projectId));
+        if (CollectionUtils.isEmpty(caseNameSet)){
+            apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum(), projectId));
+        }else {
+            apiTestCase.setNum(apiDefinition.getNum()*1000+caseNameSet.size()+1);
+        }
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment", "");
-        object.put("environmentId", "");
+        object.put("useEnvironment", StringUtils.EMPTY);
+        object.put("environmentId", StringUtils.EMPTY);
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
-        apiTestCase.setRequest(objectNew.toJSONString());
+        apiTestCase.setRequest(objectNew.toString());
         apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
         if (apiTestCase.getName().length() > 255) {
             apiTestCase.setName(apiTestCase.getName().substring(0, 255));
+        }
+        Set<String> strings = apiIdCaseNameMap.get(caseMapKey);
+        if (CollectionUtils.isEmpty(strings)){
+            Set<String>addCaseNameSet  = new HashSet<>();
+            addCaseNameSet.add(apiTestCase.getName());
+            apiIdCaseNameMap.put(caseMapKey,addCaseNameSet);
+        }else {
+            strings.add(apiTestCase.getName());
         }
         apiTestCaseMapper.insert(apiTestCase);
     }
