@@ -345,7 +345,7 @@ export default {
           'pending' || status === 'fake_error') {
           this.executionModule = null;
           this.$nextTick(() => {
-            this.size = window.innerWidth - 50;
+            this.size = window.innerWidth;
             this.reportId = row.id;
             this.executionModule = row.executionModule;
             this.reportType = row.reportType;
