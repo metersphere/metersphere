@@ -135,7 +135,7 @@ public class ApiScenarioEnvService {
                 MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) testElement;
                 if (httpSamplerProxy.isCustomizeReq()) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
-                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : httpSamplerProxy.getIsRefEnvironment());
+                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : !httpSamplerProxy.getIsRefEnvironment());
                 } else if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null &&
                         httpSamplerProxy.getIsRefEnvironment())) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());

@@ -976,4 +976,10 @@ export default {
   white-space: nowrap;
   max-width: 200px;
 }
+
+/deep/ .fulls-screen-btn {
+  position: fixed;
+  right: 0px;
+  top: 0px;
+}
 </style>

@@ -175,7 +175,7 @@ export default {
 }
 
 /deep/ .el-icon-close:hover {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: bold;
 }
 
