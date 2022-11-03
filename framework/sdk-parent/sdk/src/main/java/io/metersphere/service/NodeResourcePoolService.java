@@ -99,6 +99,7 @@ public class NodeResourcePoolService {
     private List<TestResource> getResourcesFromDB(TestResourcePoolDTO testResourcePool) {
         TestResourceExample example = new TestResourceExample();
         example.createCriteria().andTestResourcePoolIdEqualTo(testResourcePool.getId());
+        example.setOrderByClause("create_time");
         return testResourceMapper.selectByExample(example);
     }
 

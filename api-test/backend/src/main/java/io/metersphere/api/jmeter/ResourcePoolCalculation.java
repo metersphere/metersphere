@@ -49,6 +49,7 @@ public class ResourcePoolCalculation {
             List<String> poolIds = pools.stream().map(pool -> pool.getId()).collect(Collectors.toList());
             TestResourceExample resourceExample = new TestResourceExample();
             resourceExample.createCriteria().andTestResourcePoolIdIn(poolIds);
+            resourceExample.setOrderByClause("create_time");
             List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(resourceExample);
             return testResources;
         }

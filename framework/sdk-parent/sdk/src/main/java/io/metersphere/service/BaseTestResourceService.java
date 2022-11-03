@@ -19,12 +19,14 @@ public class BaseTestResourceService {
     public List<TestResource> getTestResourceList(String testResourcePoolId) {
         TestResourceExample testResourceExample = new TestResourceExample();
         testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
+        testResourceExample.setOrderByClause("create_time");
         return testResourceMapper.selectByExampleWithBLOBs(testResourceExample);
     }
 
     public List<TestResource> getResourcesByPoolId(String resourcePoolId) {
         TestResourceExample example = new TestResourceExample();
         example.createCriteria().andTestResourcePoolIdEqualTo(resourcePoolId);
+        example.setOrderByClause("create_time");
         return testResourceMapper.selectByExampleWithBLOBs(example);
     }
 
