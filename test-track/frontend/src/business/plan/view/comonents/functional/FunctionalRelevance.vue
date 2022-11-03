@@ -121,7 +121,8 @@ import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCa
 import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getProjectApplicationConfig} from "@/api/project-application";
-import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {getAdvSearchCustomField, getVersionFilters} from "@/business/utils/sdk-utils";
+import {getTestTemplate} from "@/api/custom-field-template";
 
 export default {
   name: "FunctionalRelevance",
@@ -167,7 +168,8 @@ export default {
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
       ],
-      versionFilters: null
+      versionFilters: null,
+      testCaseTemplate: {},
     };
   },
   props: {
@@ -199,7 +201,8 @@ export default {
     selectNodeIds() {
       this.getTestCases();
     },
-    projectId() {
+    projectId(val) {
+      this.pushCustomFieldToCondition(val);
       this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
       this.page.condition.versionId = null;
@@ -211,7 +214,7 @@ export default {
   },
   methods: {
     open() {
-      this.page.condition = {components: TEST_CASE_CONFIGS};
+      this.page.condition = {custom: false, components: TEST_CASE_CONFIGS};
       this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
@@ -300,7 +303,23 @@ export default {
     },
     setSelectCounts(data) {
       this.$refs.baseRelevance.selectCounts = data;
-    }
+    },
+    pushCustomFieldToCondition(projectId) {
+      getTestTemplate(projectId).then(data => {
+        this.testCaseTemplate = data;
+        let comp = getAdvSearchCustomField(this.page.condition, this.testCaseTemplate.customFields);
+        let caseStatus = comp.find(i => i.label === '用例状态');
+        if (caseStatus) {
+          caseStatus.label = this.$t('custom_field.case_status');
+          caseStatus.options.forEach(option => {
+            option.text = this.$t(option.text);
+          });
+          caseStatus.custom = false;
+          this.page.condition.custom = false;
+          this.page.condition.components.push(caseStatus);
+        }
+      });
+    },
   }
 };
 </script>

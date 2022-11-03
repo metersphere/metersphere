@@ -241,6 +241,7 @@ import {apiAutomationReduction} from "@/api/remote/api/api-automation";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {TEST_PLAN_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -282,7 +283,9 @@ export default {
       screenHeight: 'calc(100vh - 250px)',//屏幕高度
       tableLabel: [],
       loading: false,
-      condition: {},
+      condition: {
+        components: TEST_PLAN_API_SCENARIO_CONFIGS
+      },
       currentScenario: {},
       schedule: {},
       selectAll: false,

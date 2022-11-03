@@ -30,4 +30,6 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
 
     private List<io.metersphere.dto.TestCaseTestDTO> list;
     private List<IssuesDao> issueList;
+    private List<CustomFieldDao> fields;
+
 }
