@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseCommentMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -39,7 +40,8 @@ public class TestCaseCommentService {
     public TestCaseComment saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
         testCaseComment.setId(request.getId());
-        testCaseComment.setAuthor(SessionUtils.getUser().getId());
+        SessionUser user = SessionUtils.getUser();
+        testCaseComment.setAuthor(user == null ? "System" : user.getId());
         testCaseComment.setCaseId(request.getCaseId());
         testCaseComment.setCreateTime(System.currentTimeMillis());
         testCaseComment.setUpdateTime(System.currentTimeMillis());
