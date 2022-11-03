@@ -411,7 +411,7 @@ public class TestPlanScenarioCaseService {
         example.createCriteria()
                 .andTestPlanIdEqualTo(planId)
                 .andApiScenarioIdIn(automationIds)
-                .andLastResultEqualTo("Fail");
+                .andLastResultIn(Arrays.asList("Fail", "Error"));
         return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
     }
 
