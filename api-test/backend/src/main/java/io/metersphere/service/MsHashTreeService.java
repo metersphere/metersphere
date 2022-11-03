@@ -72,6 +72,7 @@ public class MsHashTreeService {
     public static final String PROJECT_ID = "projectId";
     public static final String ACTIVE = "active";
     public static final String ENV_MAP = "environmentMap";
+    public static final String REF_ENABLE = "refEnable";
     private static final String PRE = "PRE";
     private static final String POST = "POST";
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
@@ -203,7 +204,7 @@ public class MsHashTreeService {
                 element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
             }
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
-                element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                element = setRefEnable(element, JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition()));
                 element.put(REFERENCED, REF);
                 element.put(NAME, scenarioWithBLOBs.getName());
             }
@@ -220,6 +221,34 @@ public class MsHashTreeService {
             element.put(NUM, StringUtils.EMPTY);
         }
         return element;
+    }
+
+    public static JSONObject setRefEnable(JSONObject targetElement, JSONObject orgElement) {
+        if (orgElement == null || targetElement == null) {
+            return null;
+        }
+        if (orgElement.optBoolean(ENABLE) == false) {
+            orgElement.put(ENABLE, false);
+            orgElement.put(REF_ENABLE, true);
+        } else {
+            orgElement.put(ENABLE, targetElement.optBoolean(ENABLE));
+        }
+        if (orgElement.has(HASH_TREE)) {
+            JSONArray orgJSONArray = orgElement.optJSONArray(HASH_TREE);
+            JSONArray targetJSONArray = targetElement.optJSONArray(HASH_TREE);
+            if (orgJSONArray != null && targetJSONArray != null) {
+                orgJSONArray.forEach(obj -> {
+                    JSONObject orgJsonObject = (JSONObject) obj;
+                    targetJSONArray.forEach(targetObj -> {
+                        JSONObject targetJsonObject = (JSONObject) targetObj;
+                        if (StringUtils.equals(orgJsonObject.optString(ID), targetJsonObject.optString(ID))) {
+                            setRefEnable(targetJsonObject, orgJsonObject);
+                        }
+                    });
+                });
+            }
+        }
+        return orgElement;
     }
 
     public void dataFormatting(JSONArray hashTree) {

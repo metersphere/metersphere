@@ -16,22 +16,20 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.MsHashTreeService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jorphan.collections.HashTree;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -194,7 +192,8 @@ public class MsScenario extends MsTestElement {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-                JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
+                JSONObject elementOrg = JSONUtil.parseObject(scenario.getScenarioDefinition());
+                JSONObject element = setRefEnable(this, elementOrg);
                 // 历史数据处理
                 ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
                 this.setName(scenario.getName());
@@ -224,6 +223,32 @@ public class MsScenario extends MsTestElement {
             ex.printStackTrace();
         }
         return false;
+    }
+
+    public static JSONObject setRefEnable(MsTestElement targetElement, JSONObject orgElement) {
+        if (orgElement == null || targetElement == null) {
+            return null;
+        }
+        if (orgElement.optBoolean(MsHashTreeService.ENABLE) == false) {
+            orgElement.put(MsHashTreeService.ENABLE, false);
+        } else {
+            orgElement.put(MsHashTreeService.ENABLE, targetElement.isEnable());
+        }
+        if (orgElement.has(MsHashTreeService.HASH_TREE)) {
+            JSONArray orgJSONArray = orgElement.optJSONArray(MsHashTreeService.HASH_TREE);
+            LinkedList<MsTestElement> hashTree = targetElement.getHashTree();
+            if (orgJSONArray != null && CollectionUtils.isNotEmpty(hashTree)) {
+                orgJSONArray.forEach(obj -> {
+                    JSONObject orgJsonObject = (JSONObject) obj;
+                    hashTree.forEach(targetObj -> {
+                        if (StringUtils.equals(orgJsonObject.optString(MsHashTreeService.ID), targetObj.getId())) {
+                            setRefEnable(targetObj, orgJsonObject);
+                        }
+                    });
+                });
+            }
+        }
+        return orgElement;
     }
 
     private void setNewConfig(Map<String, EnvironmentConfig> envConfig, ParameterConfig newConfig) {
