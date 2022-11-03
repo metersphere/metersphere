@@ -242,6 +242,7 @@ public class TestPlanMessageService {
         result.put("uiScenarioAllCount", 0L);
         //
         result.put("loadCaseAllCount", 0L);
+        result.put("caseCount", report.getCaseCount());
         //
         result.put("reportStartTime", report.getStartTime());
         result.put("reportEndTime", report.getEndTime());
