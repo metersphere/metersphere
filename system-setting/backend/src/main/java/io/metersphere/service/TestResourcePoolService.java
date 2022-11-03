@@ -112,6 +112,7 @@ public class TestResourcePoolService {
             BeanUtils.copyProperties(testResourcePoolDTO, testResourcePool);
             TestResourceExample example2 = new TestResourceExample();
             example2.createCriteria().andTestResourcePoolIdEqualTo(poolId);
+            example2.setOrderByClause("create_time");
             List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(example2);
             testResourcePoolDTO.setResources(testResources);
             if (validateTestResourcePool(testResourcePoolDTO)) {
@@ -172,6 +173,7 @@ public class TestResourcePoolService {
         testResourcePools.forEach(pool -> {
             TestResourceExample example2 = new TestResourceExample();
             example2.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
+            example2.setOrderByClause("create_time");
             List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(example2);
             TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
             try {
@@ -242,6 +244,7 @@ public class TestResourcePoolService {
         if (pool != null) {
             TestResourceExample example = new TestResourceExample();
             example.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
+            example.setOrderByClause("create_time");
             List<TestResource> resources = testResourceMapper.selectByExampleWithBLOBs(example);
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(pool, SystemReference.poolColumns);
             if (pool.getType().equals("NODE")) {
