@@ -19,6 +19,7 @@
         :index-number="node.index"
         :command="node"
         :isActive="isActive"
+        :is-share="isShare"
         :result="node.value"/>
     </div>
     <div v-else>
