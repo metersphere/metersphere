@@ -3,7 +3,6 @@ package io.metersphere.api.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.parse.har.model.*;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.postman.PostmanEvent;
@@ -15,6 +14,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import io.metersphere.commons.utils.XMLUtils;
+import io.metersphere.plugin.core.MsTestElement;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +38,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
         } else {
             request.setPath("/");
         }
+        request.setUrl(harRequest.url);
         parseParameters(harRequest, request);
         parseRequestBody(harRequest, request.getBody());
         addBodyHeader(request);
