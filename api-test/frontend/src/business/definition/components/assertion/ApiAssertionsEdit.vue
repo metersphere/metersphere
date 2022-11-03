@@ -50,11 +50,13 @@
 
     <div class="assertion-item-editing response-time" v-if="isShow">
       <div> {{ $t("api_test.request.assertions.response_time") }}</div>
-      <ms-api-assertion-duration
-        :is-read-only="isReadOnly"
-        v-model="assertions.duration.value"
-        :duration="assertions.duration"
-        :edit="true"/>
+      <div class="regex-item">
+        <ms-api-assertion-duration
+          :is-read-only="isReadOnly"
+          v-model="assertions.duration.value"
+          :duration="assertions.duration"
+          :edit="true"/>
+      </div>
     </div>
     <div class="assertion-item-editing response-time" v-if="isDocument">
       <div>
@@ -116,7 +118,7 @@ export default {
   computed: {
     isShow() {
       let rt = this.assertions.duration;
-      return rt.value  && rt.value !== 0;
+      return rt.value && rt.value !== 0;
     },
     isDocument() {
       return this.assertions.document && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0);
