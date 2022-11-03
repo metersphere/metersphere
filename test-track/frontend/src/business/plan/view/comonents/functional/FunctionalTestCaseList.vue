@@ -35,6 +35,7 @@
       :row-order-group-id="planId"
       :row-order-func="editTestPlanTestCaseOrder"
       :enable-order-drag="enableOrderDrag"
+      :custom-fields="testCaseTemplate.customFields"
       @filter="search"
       @order="initTableData"
       @handlePageChange="initTableData"
@@ -230,6 +231,9 @@
                   <priority-table-item
                     :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
               </span>
+            <span v-else-if="field.name === '用例状态'">
+                {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
+            </span>
             <span v-else>
                 {{ getCustomFieldValue(scope.row, field) }}
               </span>
@@ -290,7 +294,9 @@ import {
   getLastTableSortField,
   getTableHeaderWithCustomFields,
   initCondition,
-  getCustomFieldFilter
+  getCustomFieldFilter,
+  parseCustomFilesForList,
+  getCustomFieldValue as _getCustomFieldValue,
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -305,14 +311,18 @@ import {
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import {getTestPlanTestCase} from "@/api/testCase";
 import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/TestPlanCaseIssueItem";
-import {getCustomFieldValueForTrack, getProjectMemberOption, getProjectVersions} from "@/business/utils/sdk-utils";
+import {
+  getProjectMemberOption,
+  getProjectVersions,
+  getAdvSearchCustomField
+} from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
   testPlanTestCaseBatchEdit,
   testPlanTestCaseDelete,
   testPlanTestCaseEdit
 } from "@/api/remote/plan/test-plan-test-case";
-import {getIssuesByCaseId, getOriginIssuesByCaseId} from "@/api/issue";
+import {getOriginIssuesByCaseId} from "@/api/issue";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -341,7 +351,8 @@ export default {
       result: {},
       deletePath: "/test/case/delete",
       condition: {
-        components: TEST_PLAN_TEST_CASE_CONFIGS
+        components: TEST_PLAN_TEST_CASE_CONFIGS,
+        custom: false
       },
       nextPageData: null,
       prePageData: null,
@@ -518,7 +529,7 @@ export default {
     loadIssue(row) {
       if (row.issuesSize && !row.hasLoadIssue) {
         getOriginIssuesByCaseId('PLAN_FUNCTIONAL', row.id)
-         .then(r => {
+          .then(r => {
             this.$set(row, "issuesContent", r.data);
             this.$set(row, "hasLoadIssue", true);
           });
@@ -551,7 +562,19 @@ export default {
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
+        this.testCaseTemplate.customFields = this.testCaseTemplate.customFields.filter(item => item.name === '用例状态' && item.system);
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
+        let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
+        let caseStatus = comp.find(i => i.label === '用例状态');
+        if (caseStatus) {
+          caseStatus.label = this.$t('custom_field.case_status');
+          caseStatus.options.forEach(option => {
+            option.text = this.$t(option.text);
+          });
+          caseStatus.custom = false;
+          this.condition.custom = false;
+          this.condition.components.push(caseStatus);
+        }
         this.$nextTick(() => {
           if (this.$refs.table) {
             this.$refs.table.resetHeader();
@@ -562,23 +585,18 @@ export default {
     },
     getCustomFieldFilter(field) {
       if (field.name === '用例状态') {
-        let option = [];
-        field.options.forEach((item) => {
-          option.push({
-            text: this.$t(item.text),
-            value: item.value
-          })
-        });
-        return option;
+        return null;
       }
       return getCustomFieldFilter(field, this.userFilters);
     },
     getCustomFieldValue(row, field, defaultVal = '') {
-      let value = getCustomFieldValueForTrack(row, field, this.members);
+      let value = _getCustomFieldValue(row, field, this.members);
       if (field.name === '用例等级') {
         return row.priority;
       } else if (field.name === '责任人') {
         return row.maintainerName;
+      } else if (field.name === '用例状态') {
+        value = value === 'Trash' ? this.$t('test_track.plan.plan_status_trash') : value
       }
       return value ? value : defaultVal;
     },
@@ -610,6 +628,7 @@ export default {
             this.total = r.data.itemCount;
             this.pageCount = Math.ceil(this.total / this.pageSize);
             this.tableData = r.data.listObject;
+            parseCustomFilesForList(this.tableData);
             for (let i = 0; i < this.tableData.length; i++) {
               if (this.tableData[i]) {
                 if (this.tableData[i].customFields) {

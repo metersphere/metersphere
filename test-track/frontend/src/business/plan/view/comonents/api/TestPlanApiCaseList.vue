@@ -220,6 +220,7 @@ import {
 } from "@/api/remote/plan/test-plan-api-case";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import {getProjectVersions} from "@/business/utils/sdk-utils";
+import {TEST_PLAN_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 
 export default {
   name: "TestPlanApiCaseList",
@@ -252,7 +253,9 @@ export default {
       fields: getCustomTableHeader('TEST_PLAN_API_CASE'),
       fieldsWidth: getCustomTableWidth('TEST_PLAN_API_CASE'),
       tableLabel: [],
-      condition: {},
+      condition: {
+        components: TEST_PLAN_API_CASE_CONFIGS
+      },
       selectCase: {},
       loading: false,
       moduleId: "",

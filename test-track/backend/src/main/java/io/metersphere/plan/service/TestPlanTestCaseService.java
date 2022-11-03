@@ -32,10 +32,7 @@ import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.member.QueryMemberRequest;
-import io.metersphere.service.BaseProjectApplicationService;
-import io.metersphere.service.BaseUserService;
-import io.metersphere.service.FunctionCaseExecutionInfoService;
-import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.*;
 import io.metersphere.dto.*;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.request.testreview.SaveCommentRequest;
@@ -89,6 +86,8 @@ public class TestPlanTestCaseService {
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
+    @Resource
+    private CustomFieldTestCaseService customFieldTestCaseService;
 
     private static final String CUSTOM_NUM = "custom_num";
     private static final String NUM = "num";
@@ -105,6 +104,9 @@ public class TestPlanTestCaseService {
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
+        Map<String, List<CustomFieldDao>> fieldMap =
+                customFieldTestCaseService.getMapByResourceIds(list.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList()));
+        list.forEach(i -> i.setFields(fieldMap.get(i.getCaseId())));
         if (CollectionUtils.isNotEmpty(list)) {
             // 设置版本信息
             ServiceUtils.buildVersionInfo(list);

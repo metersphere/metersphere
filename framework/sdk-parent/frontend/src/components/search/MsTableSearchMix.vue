@@ -38,6 +38,7 @@ export default {
       if (!projectId) {
         projectId = getCurrentUser().lastProjectId;
       }
+      let originUrl = this.component.options.url;
       this.component.options.url += '/' + projectId;
       this.loading = get(this.component.options.url).then(response => {
         if (response.data) {
@@ -48,6 +49,7 @@ export default {
             })
           })
         }
+        this.component.options.url = originUrl;
       })
     }
   },
