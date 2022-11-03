@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.automation.parse;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
@@ -246,7 +247,7 @@ public class ApiScenarioImportUtil {
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
-        test.setRequest(objectNew.toString());
+        test.setRequest(objectNew.toJSONString());
         HttpResponse httpResponse = new HttpResponse();
         KeyValue keyValue = new KeyValue();
         List<KeyValue> list = new ArrayList<>();
@@ -254,7 +255,7 @@ public class ApiScenarioImportUtil {
         httpResponse.setHeaders(list);
         httpResponse.setStatusCode(list);
         httpResponse.setBody(new Body());
-        test.setResponse(httpResponse.toString());
+        test.setResponse(JSON.toJSONString(httpResponse));
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
@@ -300,7 +301,7 @@ public class ApiScenarioImportUtil {
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
-        apiTestCase.setRequest(objectNew.toString());
+        apiTestCase.setRequest(objectNew.toJSONString());
         apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
         if (apiTestCase.getName().length() > 255) {
             apiTestCase.setName(apiTestCase.getName().substring(0, 255));
