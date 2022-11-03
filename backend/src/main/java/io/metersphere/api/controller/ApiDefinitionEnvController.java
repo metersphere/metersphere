@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.service.ApiDefinitionEnvService;
 import io.metersphere.base.domain.ApiDefinitionEnv;
 import io.metersphere.commons.constants.PermissionConstants;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class ApiDefinitionEnvController {
     }
 
     @PostMapping(value = "/create")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API, PermissionConstants.PROJECT_API_DEFINITION_READ}, logical = Logical.OR)
     public void create(@RequestBody ApiDefinitionEnv request) {
         apiDefinitionEnvService.insert(request);
     }
