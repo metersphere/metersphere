@@ -229,12 +229,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         setUserConfig();
         Project project = getProject();
-        List<File> imageFiles = getImageFiles(issuesRequest);
         JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
-
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
+        List<File> imageFiles = getImageFiles(issuesRequest);
         // 上传附件
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
 
@@ -357,6 +356,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             fields.put("description", desc);
             // 添加后，解析图片会用到
             customFields.add(getRichTextCustomField("description", desc));
+            issuesRequest.setCustomFields(JSONObject.toJSONString(customFields));
             parseCustomFiled(issuesRequest, customFields, fields);
         }
         setSpecialParam(fields);
@@ -459,8 +459,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                 }
                                 fields.put(fieldName, attr);
                             }
-                        } else if (StringUtils.equalsAny(item.getType(),  "richText")) {
-                            fields.put(fieldName, removeImage(item.getValue().toString()));
+                        } else if (StringUtils.equalsAny(item.getType(), "richText")) {
+                            fields.put(fieldName, parseRichTextImageUrlToJira(item.getValue().toString()));
                             if (fieldName.equals("description")) {
                                 issuesRequest.setDescription(item.getValue().toString());
                             }
@@ -478,11 +478,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         setUserConfig();
         Project project = getProject();
-        List<File> imageFiles = getImageFiles(request);
 
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
 
+        List<File> imageFiles = getImageFiles(request);
         Set<String> attachmentNames = new HashSet<>();
         // 更新附件
         JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
@@ -864,5 +864,26 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
         return jiraClientV2.proxyForGet(url, responseEntityClazz);
+    }
+
+    private String parseRichTextImageUrlToJira(String parseRichText) {
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        if (StringUtils.isBlank(parseRichText)) {
+            return "";
+        }
+        Matcher matcher = Pattern.compile(regex).matcher(parseRichText);
+        while (matcher.find()) {
+            String msRichAttachmentUrl = matcher.group();
+            String filename = "";
+            if (msRichAttachmentUrl.contains("fileName")) {
+                // 本地上传的图片URL
+                filename = msRichAttachmentUrl.substring(msRichAttachmentUrl.indexOf("=") + 1, msRichAttachmentUrl.lastIndexOf(")"));
+            } else if (msRichAttachmentUrl.contains("platform=Jira")) {
+                // Jira同步的图片URL
+                filename = msRichAttachmentUrl.substring(msRichAttachmentUrl.indexOf("[") + 1, msRichAttachmentUrl.indexOf("]"));
+            }
+            parseRichText = parseRichText.replace(msRichAttachmentUrl, "\n!" + filename + "|width=1360,height=876!\n");
+        }
+        return parseRichText;
     }
 }
