@@ -7,9 +7,12 @@
       </el-col>
       <el-col class="assertion-btn">
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
-          <el-switch v-model="xPath2.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right:10px"/>
+          <el-switch v-model="xPath2.enable" class="enable-switch" size="mini" :disabled="isReadOnly"
+                     style="width: 30px;margin-right:10px"/>
         </el-tooltip>
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
+        <el-button :disabled="isReadOnly" size="mini" icon="el-icon-copy-document" circle @click="copyRow" v-if="edit"/>
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
+                   v-if="edit"/>
         <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
@@ -54,6 +57,9 @@ export default {
     getXPath2() {
       return new XPath2(this.xPath2);
     },
+    copyRow() {
+      this.list.splice(this.index + 1, 0, this.getXPath2());
+    }
   }
 }
 </script>
@@ -61,6 +67,6 @@ export default {
 <style scoped>
 .assertion-btn {
   text-align: center;
-  width: 80px;
+  width: 120px;
 }
 </style>

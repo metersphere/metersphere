@@ -26,6 +26,7 @@
                      style="width: 30px;margin-right:10px"/>
         </el-tooltip>
 
+        <el-button :disabled="isReadOnly" size="mini" icon="el-icon-copy-document" circle @click="copyRow" v-if="edit"/>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
                    v-if="edit"/>
         <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
@@ -96,6 +97,9 @@ export default {
     setRegexDescription() {
       this.showTip = !this.regex || !this.regex.description || this.regex.description.length < 80;
       this.regex.description = this.regex.subject + " has: " + this.regex.expression;
+    },
+    copyRow() {
+      this.list.splice(this.index + 1, 0, this.getRegex());
     }
   }
 }
@@ -117,6 +121,6 @@ export default {
 
 .assertion-btn {
   text-align: center;
-  width: 80px;
+  width: 120px;
 }
 </style>

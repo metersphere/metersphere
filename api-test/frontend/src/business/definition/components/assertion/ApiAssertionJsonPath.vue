@@ -27,9 +27,12 @@
       </el-col>
       <el-col class="assertion-btn">
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
-          <el-switch v-model="jsonPath.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right: 10px"/>
+          <el-switch v-model="jsonPath.enable" class="enable-switch" size="mini" :disabled="isReadOnly"
+                     style="width: 30px;margin-right: 10px"/>
         </el-tooltip>
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
+        <el-button :disabled="isReadOnly" size="mini" icon="el-icon-copy-document" circle @click="copyRow" v-if="edit"/>
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
+                   v-if="edit"/>
         <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
@@ -109,6 +112,9 @@ export default {
     setJSONPathDescription() {
       this.showTip = !this.jsonPath || !this.jsonPath.expression || this.jsonPath.expression.length < 50;
       this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
+    },
+    copyRow() {
+      this.list.splice(this.index + 1, 0, this.getJSONPath());
     }
   }
 }
@@ -125,6 +131,6 @@ export default {
 
 .assertion-btn {
   text-align: center;
-  width: 80px;
+  width: 120px;
 }
 </style>

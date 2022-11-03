@@ -331,7 +331,7 @@ export default {
 
 .assertion-item.btn.circle {
   text-align: right;
-  min-width: 80px;
+  min-width: 120px;
 }
 
 .quick-script-block {
