@@ -457,22 +457,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             } else {
                 String url = this.getUrl();
-                if (StringUtils.isNotEmpty(url) && !url.startsWith("http://") && !url.startsWith("https://")) {
-                    url = "http://" + url;
-                }
                 if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     url = url.replace(this.getPort(), "10990");
                 }
                 if (StringUtils.isEmpty(url)) {
                     MSException.throwException("请重新选择环境");
                 }
-                URL urlObject = new URL(url);
-                if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                    sampler.setProperty("HTTPSampler.port", this.getPort());
-                } else if (urlObject.getPort() != -1) {
-                    sampler.setPort(urlObject.getPort());
-                }
-                sampler.setProtocol(urlObject.getProtocol());
                 String envPath = url;
                 sampler.setProperty("HTTPSampler.path", envPath, StandardCharsets.UTF_8.name());
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
