@@ -281,6 +281,11 @@ export function SYSLIST() {
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.template.name'), 'PROJECT_TEMPLATE_MANAGEMENT'],
           leaf: true
         },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('permission.project_message.name'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_message.name'), 'WORKSPACE_MESSAGE_SETTINGS'],
+          leaf: true
+        },
       ]
     },
   ];
