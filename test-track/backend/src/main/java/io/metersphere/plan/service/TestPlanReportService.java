@@ -1,7 +1,6 @@
 package io.metersphere.plan.service;
 
 
-import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
@@ -29,7 +28,6 @@ import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
-import io.metersphere.xpack.utils.XpackUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -296,7 +294,7 @@ public class TestPlanReportService {
         }
 
         try {
-            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
                 // todo 远程调用失败处理逻辑
                 Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
                 List<TestPlanUiScenario> testPlanUiScenarioList = planTestPlanUiScenarioCaseService.list(planId);
@@ -371,7 +369,7 @@ public class TestPlanReportService {
             }
 
 
-            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
                 testPlanReport.setIsUiScenarioExecuting(planTestPlanUiScenarioCaseService.isCaseExecuting(planId));
             }
 
@@ -615,7 +613,7 @@ public class TestPlanReportService {
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
         if (testPlanReport != null && reportContent != null) {
             TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
-            reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            reportContent.setApiBaseCount(JSON.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
         }
     }
 

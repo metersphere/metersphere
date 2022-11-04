@@ -1,7 +1,5 @@
 package io.metersphere.plan.service;
 
-
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -37,7 +35,6 @@ import io.metersphere.plan.request.ui.RunUiScenarioRequest;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
-import io.metersphere.plan.service.remote.gateway.GatewayService;
 import io.metersphere.plan.service.remote.performance.PerfExecService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
 import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
@@ -48,7 +45,6 @@ import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
-import io.metersphere.xpack.utils.XpackUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -146,8 +142,6 @@ public class TestPlanService {
     private TestPlanExecutionQueueService testPlanExecutionQueueService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
-    @Resource
-    private GatewayService gatewayService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -364,7 +358,7 @@ public class TestPlanService {
             calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanLoadCaseService::getExecResultByPlanId);
         }
 
-        if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             calcExecResultStatus(testPlan.getId(), testPlan, planTestPlanUiScenarioCaseService::getExecResultByPlanId);
         }
 
@@ -1092,7 +1086,7 @@ public class TestPlanService {
                 planTestPlanLoadCaseService.copyPlan(sourcePlanId, targetPlanId);
             }
 
-            if (serviceIdSet.contains(MicroServiceName.UI_TEST) && XpackUtil.validateLicense()) {
+            if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
                 planTestPlanUiScenarioCaseService.copyPlan(sourcePlanId, targetPlanId);
             }
 
@@ -1103,7 +1097,7 @@ public class TestPlanService {
     }
 
     public String getShareReport() {
-        Object microServices = gatewayService.getMicroServices();
+        Object microServices = DiscoveryUtil.getServices();
         return replaceSharReport(microServices);
     }
 
@@ -1301,7 +1295,7 @@ public class TestPlanService {
             returnDTO.setTestPlanSimpleReportDTO(report);
 
             if (apiBaseInfoChanged) {
-                testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
+                testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(report));
                 returnDTO.setApiBaseInfoChanged(true);
             }
             return returnDTO;
