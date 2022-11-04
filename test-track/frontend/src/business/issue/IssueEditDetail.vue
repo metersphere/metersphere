@@ -192,8 +192,6 @@
 
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import CustomFieldFormList from "metersphere-frontend/src/components/template/CustomFieldFormList";
-import CustomFieldRelateList from "metersphere-frontend/src/components/template/CustomFieldRelateList";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
 import {buildCustomFields, parseCustomField} from "metersphere-frontend/src/utils/custom_field";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
@@ -240,8 +238,6 @@ export default {
     TestCaseIssueList,
     CustomFiledComponent,
     FormRichTextItem,
-    CustomFieldRelateList,
-    CustomFieldFormList,
     MsFormDivider,
     TemplateComponentEditHeader,
     MsMarkDownText,
