@@ -12,7 +12,8 @@
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
               <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body"
-                                      :headers="response.headers" :use-post-script="response.usePostScript"/>
+                                      :headers="response.headers" :use-post-script="response.usePostScript"
+                                      :need-mock="false"/>
             </el-tab-pane>
 
             <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code"
@@ -66,8 +67,7 @@ import BatchAddParameter from "@/business/definition/components/basis/BatchAddPa
 import MsApiAdvancedConfig from "@/business/definition/components/request/http/ApiAdvancedConfig";
 import MsJsr233Processor from "@/business/automation/scenario/component/Jsr233Processor";
 import MockApiScriptEditor from "@/business/definition/components/mock/Components/MockApiScriptEditor";
-import ApiDefinitionStepButton
-  from "@/business/definition/components/request/components/ApiDefinitionStepButton";
+import ApiDefinitionStepButton from "@/business/definition/components/request/components/ApiDefinitionStepButton";
 import {Body, BODY_FORMAT} from "@/business/definition/model/ApiTestModel";
 import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
 
@@ -208,8 +208,8 @@ export default {
           this.response.vars = "";
         }
         this.reqMessages = this.$t('api_test.request.address') + ":\n" + this.response.url + "\n" +
-            this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
-            this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
+          this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
+          this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
       }
     },
   },

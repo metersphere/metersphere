@@ -39,6 +39,7 @@
       <ms-json-code-edit
         v-if="body.format==='JSON-SCHEMA'"
         :body="body"
+        :need-mock="needMock"
         ref="jsonCodeEdit"/>
       <ms-code-edit
         v-else-if="codeEditActive"
@@ -101,6 +102,10 @@ export default {
       default: false
     },
     isShowEnable: {
+      type: Boolean,
+      default: true
+    },
+    needMock: {
       type: Boolean,
       default: true
     }
