@@ -92,7 +92,6 @@
     </select>
 
     <select id="getUiTasks" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
-        <if test="uiPermission">
         SELECT t.id,t.name AS name ,'UI_SCENARIO' AS
             executionModule,t.report_type, ifnull(t2.name,'LOCAL') AS actuator, t1.`name` AS executor,t.create_time AS
             executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
@@ -113,7 +112,6 @@
                 AND t.user_id = #{request.executor}
             </if>
             ORDER BY t.create_time DESC
-        </if>
     </select>
 
     <select id="getCases" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
@@ -167,7 +165,7 @@
         </if>
         AND t.status IN ("running","starting")
         ) as scenarioTotal ,
-        <if test="request.hasLicense">
+        <if test="request.hasLicense == true">
             (SELECT
             count( t.id )
             FROM
@@ -200,7 +198,7 @@
                 AND t.user_id = #{request.executor}
             </if>
             AND t.status IN ("running","starting")
-            ),
+            ) as uiTotal,
         </if>
         (SELECT
             count( t.id )
