@@ -1,14 +1,5 @@
 package io.metersphere.commons.utils;
 
-import io.metersphere.security.CustomSessionIdGenerator;
-import io.metersphere.security.CustomSessionManager;
-import org.apache.shiro.cache.CacheManager;
-import org.apache.shiro.session.mgt.SessionManager;
-import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
-import org.apache.shiro.web.servlet.Cookie;
-import org.apache.shiro.web.servlet.SimpleCookie;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-
 import java.util.Map;
 
 public class ShiroUtils {
@@ -93,27 +84,5 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
-    }
-
-    public static Cookie getSessionIdCookie() {
-        SimpleCookie sessionIdCookie = new SimpleCookie();
-        sessionIdCookie.setPath("/");
-        sessionIdCookie.setName("MS_SESSION_ID");
-        return sessionIdCookie;
-    }
-
-    public static SessionManager getSessionManager(Long sessionTimeout, CacheManager cacheManager) {
-        DefaultWebSessionManager sessionManager = new CustomSessionManager();
-        sessionManager.setSessionIdUrlRewritingEnabled(false);
-        sessionManager.setDeleteInvalidSessions(true);
-        sessionManager.setSessionValidationSchedulerEnabled(true);
-        sessionManager.setSessionIdCookie(ShiroUtils.getSessionIdCookie());
-        sessionManager.setGlobalSessionTimeout(sessionTimeout * 1000);// 超时时间ms
-        sessionManager.setCacheManager(cacheManager);
-        AbstractSessionDAO sessionDAO = (AbstractSessionDAO) sessionManager.getSessionDAO();
-        sessionDAO.setSessionIdGenerator(new CustomSessionIdGenerator());
-
-        //sessionManager.setSessionIdCookieEnabled(true);
-        return sessionManager;
     }
 }

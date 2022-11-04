@@ -12,6 +12,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ import java.util.Set;
  * set realm
  * </p>
  */
-public class LocalRealm extends BaseRealm {
+public class LocalRealm extends AuthorizingRealm {
 
     private Logger logger = LoggerFactory.getLogger(LocalRealm.class);
     @Resource
@@ -77,6 +78,11 @@ public class LocalRealm extends BaseRealm {
         SessionUtils.putUser(sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());
 
+    }
+
+    @Override
+    public boolean isPermitted(PrincipalCollection principals, String permission) {
+        return SessionUtils.hasPermission(SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId(), permission);
     }
 
     private UserDTO getUserWithOutAuthenticate(String userId) {
