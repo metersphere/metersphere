@@ -251,6 +251,10 @@ export default {
       tree.loadedChildren = true
       // 渲染子节点
       resolve(resolveArr);
+      if (tree.id === 'root') {
+        this.$set(this.document, 'rootName', tree.name);
+        this.$set(this.document, 'rootType', tree.type);
+      }
       this.mapData.set(tree.id, resolveArr);
     },
     checkedAPI() {
