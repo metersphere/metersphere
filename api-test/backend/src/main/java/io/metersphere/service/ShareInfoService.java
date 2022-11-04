@@ -277,7 +277,7 @@ public class ShareInfoService extends BaseShareInfoService {
                                             if (isJsonSchema) {
                                                 jsonSchemaBodyDTO.setJsonSchema(bodyObj.get("jsonSchema"));
                                                 apiInfoDTO.setJsonSchemaBody(jsonSchemaBodyDTO);
-                                                String raw = JSONSchemaGenerator.getJson(bodyObj.get("jsonSchema").toString());
+                                                String raw = JSONSchemaGenerator.getJson(bodyObj.get("jsonSchema").asText());
                                                 this.setPreviewData(previewJsonArray, raw);
                                             } else {
                                                 if (bodyObj.has("raw")) {
