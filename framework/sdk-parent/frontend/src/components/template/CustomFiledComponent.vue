@@ -84,6 +84,7 @@
     <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
                :multiple="data.type === 'multipleMember'"
                @change="handleChange"
+               clearable
                :disabled="disabled"
                filterable v-model="data[prop]" :placeholder="$t('commons.default')">
        <el-option
