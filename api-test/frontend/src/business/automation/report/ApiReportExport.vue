@@ -64,10 +64,10 @@
                 {{ $t('error_report_library.option.name') }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success">
-                {{ $t('api_report.success') }}
+                Success
               </el-tag>
               <el-tag size="mini" type="danger" v-else>
-                {{ $t('api_report.fail') }}
+                Error
               </el-tag>
             </api-report-request-header-item>
           </div>
