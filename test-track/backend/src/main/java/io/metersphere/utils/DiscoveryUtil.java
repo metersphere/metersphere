@@ -2,8 +2,9 @@ package io.metersphere.utils;
 
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.ServiceDTO;
-import io.metersphere.plan.service.remote.gateway.GatewayService;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,10 +15,16 @@ public class DiscoveryUtil {
     }
 
     public static Set<String> getServiceIdSet() {
-        GatewayService gatewayService = CommonBeanFactory.getBean(GatewayService.class);
-        return gatewayService.getMicroServices()
+        DiscoveryClient discoveryClient = CommonBeanFactory.getBean(DiscoveryClient.class);
+        return discoveryClient.getServices()
                 .stream()
-                .map(ServiceDTO::getServiceId)
                 .collect(Collectors.toSet());
+    }
+
+    public static List<ServiceDTO> getServices() {
+        DiscoveryClient discoveryClient = CommonBeanFactory.getBean(DiscoveryClient.class);
+        return discoveryClient.getServices().stream()
+                .map(service -> new ServiceDTO(service, discoveryClient.getInstances(service).get(0).getPort()))
+                .collect(Collectors.toList());
     }
 }
