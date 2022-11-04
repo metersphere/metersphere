@@ -38,6 +38,10 @@ export function saveNoticeTask(task) {
   return post('/notice/save/message/task', task);
 }
 
+export function updateNoticeTask(task) {
+  return post('/notice/update/message/task', task);
+}
+
 export function deleteNoticeTask(taskId) {
   return get(`/notice/delete/message/${taskId}`);
 }

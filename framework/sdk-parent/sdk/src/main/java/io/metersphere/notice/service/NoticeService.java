@@ -147,6 +147,7 @@ public class NoticeService {
         MessageDetail messageDetail = new MessageDetail();
         for (MessageTask m : messageTasks) {
             userIds.add(m.getUserId());
+            messageDetail.setId(m.getId());
             messageDetail.setEvent(m.getEvent());
             messageDetail.setTaskType(m.getTaskType());
             messageDetail.setWebhook(m.getWebhook());
