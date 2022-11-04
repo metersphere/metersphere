@@ -13,6 +13,7 @@
                               :show-mock-vars="showMockVars"
                               :scenario-definition="scenarioDefinition"
                               @editScenarioAdvance="editScenarioAdvance"
+                              :need-mock="needMock"
                               lang="zh_CN" custom/>
         </div>
       </el-tab-pane>
@@ -54,6 +55,12 @@ export default {
       }
     },
     scenarioDefinition: Array,
+    needMock: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    }
   },
   created() {
     if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
