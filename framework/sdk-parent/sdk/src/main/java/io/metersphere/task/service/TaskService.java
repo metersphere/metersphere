@@ -87,7 +87,7 @@ public class TaskService {
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new ArrayList<>();
         }
-        return baseTaskMapper.getUiTasks(request, checkUiPermission());
+        return baseTaskMapper.getUiTasks(request);
     }
 
     public List<TaskCenterDTO> getPerfTasks(TaskCenterRequest request) {

@@ -102,6 +102,7 @@ public class TaskCenterWebSocket {
                 }
                 session.getBasicRemote().sendText(JSON.toJSONString(task));
                 if (task.getTotal() == 0) {
+                    session.getBasicRemote().sendText(JSON.toJSONString(task));
                     session.close();
                 }
             } catch (Exception e) {
