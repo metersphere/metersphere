@@ -6,10 +6,10 @@
     <el-table-column prop="pass" :label="$t('api_report.assertions_is_success')" width="100">
       <template v-slot:default="{row}">
         <el-tag size="mini" type="success" v-if="row.pass">
-          {{ $t('api_report.success') }}
+          Success
         </el-tag>
         <el-tag size="mini" type="danger" v-else>
-          {{ $t('api_report.fail') }}
+          Error
         </el-tag>
       </template>
     </el-table-column>
