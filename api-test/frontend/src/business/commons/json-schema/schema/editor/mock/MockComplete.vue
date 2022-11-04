@@ -10,7 +10,8 @@
       value-key="name"
       highlight-first-item
       @select="change">
-      <i slot="suffix" v-if="!disabled" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
+      <i slot="suffix" v-if="!disabled && needMock" class="el-input__icon el-icon-edit pointer"
+         @click="advanced(mock)"></i>
     </el-autocomplete>
     <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition"
                              :current-item="mock" ref="variableAdvance"/>
@@ -39,6 +40,12 @@ export default {
         return false;
       }
     },
+    needMock: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    }
   },
   data() {
     return {

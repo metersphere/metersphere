@@ -73,6 +73,7 @@
                              :suggestions="apiParams.form"
                              :is-read-only="isReadOnly"
                              :isShowEnable="isShowEnable"
+                             :need-mock="false"
                              :headers="request.headers" :body="request.body"/>
             </el-tab-pane>
             <el-tab-pane name="create"
