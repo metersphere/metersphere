@@ -475,7 +475,7 @@ export default {
       let newRow = this.getNewRow();
       newRow.idList = [row.id, newRow.id];
       newRow.parentId = row.id;
-      if (this.mapData.has(row.id) && this.mapData.get(row.id).length > 0) {
+      if (this.mapData.has(row.id)) {
         this.mapData.get(row.id).push(newRow);
       } else {
         this.getChild(this.originalData, row);
