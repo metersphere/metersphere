@@ -22,6 +22,7 @@
         v-if="body.format==='JSON-SCHEMA'"
         :body="body"
         :show-mock-vars="true"
+        :need-mock="needMock"
         ref="jsonCodeEdit"/>
       <ms-code-edit
         v-else-if="codeEditActive && loadIsOver"
@@ -108,6 +109,10 @@ export default {
     usePostScript: {
       type: Boolean,
       default: false
+    },
+    needMock: {
+      type: Boolean,
+      default: true
     },
   },
   data() {
