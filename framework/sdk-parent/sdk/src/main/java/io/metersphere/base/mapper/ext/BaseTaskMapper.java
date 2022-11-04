@@ -12,7 +12,7 @@ public interface BaseTaskMapper {
     List<TaskCenterDTO> getApiTasks(@Param("request") TaskCenterRequest request);
     List<TaskCenterDTO> getScenarioTasks(@Param("request") TaskCenterRequest request);
     List<TaskCenterDTO> getPerfTasks(@Param("request") TaskCenterRequest request);
-    List<TaskCenterDTO> getUiTasks(@Param("request") TaskCenterRequest request, @Param("uiPermission") Boolean uiPermission);
+    List<TaskCenterDTO> getUiTasks(@Param("request") TaskCenterRequest request);
 
     TaskStatisticsDTO getRunningTasks(@Param("request") TaskCenterRequest request);
 

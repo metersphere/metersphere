@@ -156,23 +156,25 @@ export default {
       this.$emit("showReport", row)
     },
     getMode(mode) {
-      if (mode === 'MANUAL') {
-        return this.$t('commons.trigger_mode.manual');
-      }
-      if (mode === 'SCHEDULE') {
-        return this.$t('commons.trigger_mode.schedule');
-      }
-      if (mode === 'TEST_PLAN_SCHEDULE') {
-        return this.$t('commons.trigger_mode.schedule');
-      }
-      if (mode === 'API') {
-        return this.$t('commons.trigger_mode.api');
-      }
-      if (mode === 'BATCH') {
-        return this.$t('api_test.automation.batch_execute');
-      }
-      if (mode.startsWith('JENKINS')) {
-        return this.$t('commons.trigger_mode.api');
+      if (mode) {
+        if (mode === 'MANUAL') {
+          return this.$t('commons.trigger_mode.manual');
+        }
+        if (mode === 'SCHEDULE') {
+          return this.$t('commons.trigger_mode.schedule');
+        }
+        if (mode === 'TEST_PLAN_SCHEDULE') {
+          return this.$t('commons.trigger_mode.schedule');
+        }
+        if (mode === 'API') {
+          return this.$t('commons.trigger_mode.api');
+        }
+        if (mode === 'BATCH') {
+          return this.$t('api_test.automation.batch_execute');
+        }
+        if (mode.startsWith('JENKINS')) {
+          return this.$t('commons.trigger_mode.api');
+        }
       }
       return mode;
     },
@@ -193,21 +195,8 @@ export default {
   overflow-y: auto;
 }
 
-.align-right {
-  float: right;
-}
-
-.icon {
-  width: 24px;
-}
-
 .ms-card-task :deep(.el-card__body) {
   padding: 10px;
-}
-
-.global {
-  color: rgb(96, 98, 102);
-  font-size: 14px
 }
 
 .ms-card-task:hover {
@@ -215,22 +204,8 @@ export default {
   border-color: #783887;
 }
 
-.ms-header-menu {
-  padding-top: 12px;
-  width: 24px;
-}
-
-.ms-header-menu:hover {
-  cursor: pointer;
-  border-color: var(--color);
-}
-
 :deep(.el-progress-bar) {
   padding-right: 20px;
-}
-
-.item {
-  margin-right: 10px;
 }
 
 .ms-task-stop {
@@ -258,32 +233,8 @@ export default {
   margin-bottom: 6px;
 }
 
-.ms-task-opt-btn {
-  position: fixed;
-  right: calc(98% - var(--asideWidth));
-  top: 50%;
-  z-index: 5;
-  width: 20px;
-  height: 60px;
-  padding: 3px;
-  line-height: 30px;
-  border-radius: 0 15px 15px 0;
-  background-color: #783887;
-  color: white;
-  display: inline-block;
-  cursor: pointer;
-  opacity: 0.5;
-  font-size: 10px;
-  font-weight: bold;
-  margin-left: 1px;
-}
-
 .ms-task-opt-btn i {
   margin-left: -2px;
-}
-
-.ms-task-opt-btn:hover {
-  opacity: 0.8;
 }
 
 .ms-task-opt-btn:hover i {
@@ -293,11 +244,5 @@ export default {
 
 .report-bottom {
   margin-top: 10px;
-}
-
-:deep(.report-container) {
-  height: calc(100vh - 155px) !important;
-  min-height: 600px;
-  overflow-y: auto;
 }
 </style>

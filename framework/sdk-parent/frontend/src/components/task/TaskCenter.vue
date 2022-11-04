@@ -22,7 +22,8 @@
       :title="$t('commons.task_center')"
       :size="size.toString()"
       custom-class="ms-drawer-task">
-      <el-card style="float: left;margin-top: 0px" :style="{'width': (size - 600)+'px'}" v-if="size > 600 ">
+      <el-card style="float: left;margin-top: 0px" :style="{'width': (size - 600)+'px'}" v-if="size > 600 "
+               class="ms-task-container">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <micro-app :to="`/definition/report/view/${reportId}`" service="api"
@@ -253,7 +254,8 @@ export default {
         })
     },
     initWebSocket() {
-      this.websocket = getTaskSocket(hasLicense());
+      let isLicense = hasLicense();
+      this.websocket = getTaskSocket(isLicense ? isLicense : false);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
       this.websocket.onerror = this.onError;
@@ -266,25 +268,28 @@ export default {
     onMessage(e) {
       this.loading = false;
       this.runningData = JSON.parse(e.data);
-      if (this.runningData) {
+      if (this.runningData && this.runningData.total > 0) {
         this.setActiveName();
       }
       this.runningTotal = this.runningData.total;
-      if (this.runningTotal > 0) {
-        this.init(false);
-      }
+      this.init(false);
+
     },
     onClose(e) {
+    },
+    listenScreenChange() {
+      this.size = document.body.clientWidth;
     },
     showTaskCenter() {
       this.getTaskRunning();
       this.getMaintainerOptions();
-      this.init(true);
+      window.addEventListener("resize", this.listenScreenChange, false);
       this.taskVisible = true;
     },
     close() {
       this.visible = false;
       this.size = 600;
+      window.removeEventListener("resize", this.listenScreenChange);
       this.showType = "";
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
@@ -417,6 +422,7 @@ export default {
         })
     },
     openHistory(id) {
+      window.addEventListener("resize", this.listenScreenChange, false);
       this.activeName = 'API';
       this.initCaseHistory(id);
       this.taskVisible = true;
@@ -425,6 +431,7 @@ export default {
       this.showType = "CASE";
     },
     openScenarioHistory(id) {
+      window.addEventListener("resize", this.listenScreenChange, false);
       this.activeName = 'SCENARIO';
       getScenarioData(id)
         .then(response => {
@@ -462,11 +469,6 @@ export default {
 
 
 <style scoped>
-.ms-body-container {
-  height: calc(100vh - 270px);
-  overflow-y: auto;
-}
-
 .align-right {
   float: right;
 }
@@ -485,18 +487,9 @@ export default {
   padding-bottom: 6px;
 }
 
-.ms-card-task :deep(.el-card__body) {
-  padding: 10px;
-}
-
 .global {
   color: rgb(96, 98, 102);
   font-size: 14px
-}
-
-.ms-card-task:hover {
-  cursor: pointer;
-  border-color: #783887;
 }
 
 .ms-header-menu {
@@ -526,16 +519,6 @@ export default {
 
 .ms-task-stop {
   color: #909399;
-}
-
-.ms-task-name-width {
-  display: inline-block;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 300px;
 }
 
 .ms-el-form-item :deep(.el-form-item) {
@@ -575,14 +558,14 @@ export default {
   color: white;
 }
 
-.report-bottom {
-  margin-top: 10px;
-}
-
 :deep(.report-container) {
   height: calc(100vh - 155px) !important;
   min-height: 600px;
   overflow-y: auto;
+}
+
+.ms-task-container :deep(.el-container) {
+  height: calc(100vh - 100px) !important;
 }
 
 .ms-badge-item {
