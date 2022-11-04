@@ -17,7 +17,9 @@ const message = {
     },
     body: {
       json_format_error: "JSON format error"
-    }
+    },
+    case_name: "Case name",
+    case_no_permission: "No permission to edit case"
   },
   home: {
     dashboard: {

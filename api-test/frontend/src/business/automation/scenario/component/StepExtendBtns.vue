@@ -29,6 +29,10 @@
                           v-if="allSamplers.indexOf(data.type)!=-1 && (data.referenced===undefined || data.referenced ==='Created' )">
           {{ this.$t("api_test.automation.save_as_api") }}
         </el-dropdown-item>
+        <el-dropdown-item command="saveAsCase"
+                          v-if="data.refType==='API'">
+          {{ this.$t('api_test.definition.request.save_as_case') }}
+        </el-dropdown-item>
         <el-dropdown-item command="setScenario" v-if="data.type==='scenario'">
           {{ $t('commons.reference_settings') }}
         </el-dropdown-item>
@@ -36,6 +40,8 @@
     </el-dropdown>
     <ms-variable-list ref="scenarioParameters" @setVariables="setVariables"/>
     <ms-add-basis-api :currentProtocol="currentProtocol" ref="api"/>
+
+    <ms-add-api-case :currentProtocol="currentProtocol" ref="apiCase"/>
 
 
     <el-dialog
@@ -60,13 +66,15 @@
 import {STEP} from "../Setting";
 import MsVariableList from "../variable/VariableList";
 import MsAddBasisApi from "../api/AddBasisApi";
+import MsAddApiCase from "../api/AddApiCase";
 import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {checkScenarioEnv, getScenarioWithBLOBsById, setScenarioDomain} from "@/api/scenario";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "StepExtendBtns",
-  components: {STEP, MsVariableList, MsAddBasisApi},
+  components: {STEP, MsVariableList, MsAddBasisApi, MsAddApiCase},
   props: {
     isScenario: {
       type: Boolean,
@@ -122,6 +130,9 @@ export default {
           break;
         case "rename":
           this.$emit("rename");
+          break;
+        case "saveAsCase":
+          this.saveAsCase();
           break;
       }
     },
@@ -185,7 +196,7 @@ export default {
             scenarioDefinition[i].refEevMap = this.data.environmentMap;
           }
         }
-        if (scenarioDefinition[i].hashTree  && scenarioDefinition[i].hashTree.length > 0) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree);
         }
       }
@@ -194,7 +205,18 @@ export default {
       this.currentProtocol = this.data.protocol;
       this.data.customizeReq = false;
       this.$refs.api.open(this.data);
-    }
+    },
+    saveAsCase() {
+      if (!this.data.num) {
+        this.$warning(this.$t('api_test.automation.scenario.api_none'));
+        return false;
+      }
+      if (!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')) {
+        this.$message.error(this.$t('api_definition.case_no_permission'));
+        return false;
+      }
+      this.$refs.apiCase.open(this.data);
+    },
   }
 }
 </script>
