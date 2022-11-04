@@ -26,7 +26,6 @@ import io.metersphere.request.LoginRequest;
 import io.metersphere.request.member.EditPassWordRequest;
 import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
-import io.metersphere.security.MsUserToken;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -357,7 +356,7 @@ public class BaseUserService {
             }
         }
 
-        MsUserToken token = new MsUserToken(username, password, login);
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(token);

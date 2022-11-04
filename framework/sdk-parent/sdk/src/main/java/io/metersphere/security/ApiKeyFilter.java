@@ -4,6 +4,7 @@ import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.web.filter.authc.AnonymousFilter;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -22,7 +23,7 @@ public class ApiKeyFilter extends AnonymousFilter {
             // sso 带了token的
             String userId = ApiKeySessionHandler.validate(httpRequest);
             if (StringUtils.isNotBlank(userId)) {
-                SecurityUtils.getSubject().login(new MsUserToken(userId, ApiKeySessionHandler.random, "LOCAL"));
+                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, ApiKeySessionHandler.random));
             }
             return true;
         }
@@ -31,7 +32,7 @@ public class ApiKeyFilter extends AnonymousFilter {
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
             if (StringUtils.isNotBlank(userId)) {
-                SecurityUtils.getSubject().login(new MsUserToken(userId, ApiKeySessionHandler.random, "LOCAL"));
+                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, ApiKeySessionHandler.random));
             }
         }
 
