@@ -17,7 +17,9 @@ const message = {
     },
     body: {
       json_format_error: "JSON格式错误",
-    }
+    },
+    case_name: "用例名称",
+    case_no_permission: "无编辑用例的权限",
   },
   home: {
     table: {
