@@ -18,8 +18,14 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("save/message/task")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#messageDetail.id)", content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
     public void saveMessage(@RequestBody MessageDetail messageDetail) {
+        noticeService.saveMessageTask(messageDetail);
+    }
+
+    @PostMapping("update/message/task")
+    @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#messageDetail.id)", content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
+    public void updateMessage(@RequestBody MessageDetail messageDetail) {
         noticeService.saveMessageTask(messageDetail);
     }
 
