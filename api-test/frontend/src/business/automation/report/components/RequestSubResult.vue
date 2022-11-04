@@ -44,10 +44,10 @@
         <el-col :span="2">
           <div class="success">
             <el-tag size="mini" type="success" v-if="request.success">
-              {{ $t('api_report.success') }}
+              Success
             </el-tag>
             <el-tag size="mini" type="danger" v-else>
-              {{ $t('api_report.fail') }}
+              Error
             </el-tag>
           </div>
         </el-col>
