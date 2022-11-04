@@ -21,7 +21,7 @@
       </template>
     </ms-table-column>
 
-    <ms-table-column
+    <el-table-column
       :label="$t('commons.default')"
       min-width="200"
       prop="type">
@@ -34,7 +34,7 @@
             :is-template-edit="true"/>
         </el-scrollbar>
       </template>
-    </ms-table-column>
+    </el-table-column>
 
     <field-custom-data-table-item :scene="scene"/>
 
