@@ -122,7 +122,7 @@
 <script>
 import MsTipButton from "../MsTipButton";
 import {hasLicense} from "../../utils/permission";
-import {deleteNoticeTask, saveNoticeTask} from "../../api/notification";
+import {deleteNoticeTask, saveNoticeTask, updateNoticeTask} from "../../api/notification";
 
 export default {
   name: "NotificationTable",
@@ -180,8 +180,10 @@ export default {
       }
     },
     addTask(data) {
-      this.loading = saveNoticeTask(data).then(() => {
+      let promise = data.isUpdate ? updateNoticeTask(data) : saveNoticeTask(data);
+      this.loading = promise.then(() => {
         data.isSet = false;
+        this.$set(data, "isUpdate", false);
         this.$emit('refresh');
         this.$success(this.$t('commons.save_success'));
       });
@@ -202,6 +204,7 @@ export default {
     handleEditTask(index, data) {
       this.handleReceivers(data);
       data.isSet = true;
+      this.$set(data, "isUpdate", true);
       if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
         data.webhook = '';

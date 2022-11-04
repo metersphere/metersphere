@@ -28,7 +28,7 @@
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsCodeEdit from "@/business/definition/components/MsCodeEdit";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
-import NotificationTable from "./NotificationTable";
+import NotificationTable from "metersphere-frontend/src/components/notification/NotificationTable";
 import {getMessageById} from "../../api/notice";
 
 
