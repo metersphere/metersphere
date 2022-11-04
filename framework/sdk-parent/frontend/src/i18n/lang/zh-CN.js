@@ -2610,7 +2610,7 @@ const message = {
       environment_config: "环境配置",
     },
     workspace_project_environment: {
-      name: "环境设置",
+      name: "环境管理",
       read: "查询",
       create: "创建环境",
       edit: "编辑环境",
