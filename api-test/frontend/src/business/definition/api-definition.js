@@ -210,8 +210,12 @@ export function stepCompute(array, request) {
 
 }
 
-export function mergeDocumentData(originalData, childMap) {
+export function mergeDocumentData(originalData, childMap, rootName, rootType) {
   originalData.forEach(item => {
+    if (item.id === 'root') {
+      item.name = rootName;
+      item.type = rootType;
+    }
     if (childMap && childMap.has(item.id)) {
       let sourceData = JSON.parse(JSON.stringify(item.children));
       item.children = JSON.parse(JSON.stringify(childMap.get(item.id)));
@@ -234,7 +238,7 @@ export function mergeRequestDocumentData(request) {
     let index = request.hashTree.findIndex(item => item.type === 'Assertions');
     if (index !== -1) {
       if (request.hashTree[index].document && request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
-        mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData);
+        mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData, request.hashTree[index].document.rootName, request.hashTree[index].document.rootType);
         if (request.hashTree[index].document.type === 'json') {
           request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
         } else {
