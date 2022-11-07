@@ -27,7 +27,7 @@
 
 <script>
 import EnvironmentGroup from "./EnvironmentGroupList";
-import {environmentGetALl, getEnvironmentMapByGroupId} from "metersphere-frontend/src/api/environment";
+import {environmentGetALL, getEnvironmentMapByGroupId} from "metersphere-frontend/src/api/environment";
 
 export default {
   name: "EnvGroup",
@@ -67,7 +67,7 @@ export default {
       this.envGroupId = this.groupId;
     },
     init() {
-      environmentGetALl().then(res => {
+      environmentGetALL().then(res => {
         let data = res.data;
         this.groups = data ? data : [];
       })
