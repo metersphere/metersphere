@@ -32,7 +32,7 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids, @Param("order") String order);
 
-    List<ApiScenario> selectReference(@Param("request") ApiScenarioRequest request);
+    List<ApiScenarioDTO> selectReference(@Param("request") ApiScenarioRequest request);
 
     int removeToGcByExample(ApiScenarioExampleWithOperation example);
 

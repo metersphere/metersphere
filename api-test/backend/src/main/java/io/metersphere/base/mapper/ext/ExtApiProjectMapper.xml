@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiProjectMapper">
+    <select id="getUserProject" resultType="io.metersphere.dto.ProjectDTO">
+        SELECT DISTINCT p.*
+        FROM `group` g
+                     JOIN user_group ug ON g.id = ug.group_id
+                     JOIN project p ON p.id = ug.source_id
+        <where>
+            g.type = 'PROJECT'
+                    AND ug.user_id = #{proRequest.userId}
+            <if test="proRequest.workspaceId != null and proRequest.workspaceId != ''">
+                AND p.workspace_id = #{proRequest.workspaceId}
+            </if>
+            <if test="proRequest.name != null and proRequest.name != ''">
+                AND p.name LIKE #{proRequest.name, jdbcType=VARCHAR}
+            </if>
+            <if test="proRequest.workspaceIds != null and proRequest.workspaceIds.size() > 0">
+                and p.workspace_id in
+                <foreach collection="proRequest.workspaceIds" item="workspaceId" separator="," open="(" close=")">
+                    #{workspaceId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

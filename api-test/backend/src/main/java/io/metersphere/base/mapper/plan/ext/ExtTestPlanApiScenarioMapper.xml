@@ -26,4 +26,16 @@
             #{v}
         </foreach>
     </select>
+    <select id="selectByScenarioIds" resultType="io.metersphere.base.domain.TestPlanApiScenario">
+        SELECT
+        plan.*
+        FROM
+        test_plan_api_scenario plan
+        INNER JOIN test_plan on plan.test_plan_id = test_plan.id
+        WHERE
+         plan.api_scenario_id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
 </mapper>

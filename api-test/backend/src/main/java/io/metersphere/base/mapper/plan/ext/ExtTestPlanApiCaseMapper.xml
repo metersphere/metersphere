@@ -479,8 +479,13 @@
     </select>
     <select id="selectTestPlanByRelevancy" resultType="io.metersphere.api.dto.automation.TestPlanDTO"
             parameterType="io.metersphere.api.dto.QueryReferenceRequest">
-        SELECT * FROM test_plan p
+        SELECT p.id , p.name, project.name as projectName , w.name as workspaceName ,p.workspace_id AS workspaceId, p.project_id AS projectId FROM test_plan p
+        LEFT JOIN project ON p.project_id = project.id
+        LEFT JOIN `workspace` w ON  p.workspace_id = w.id
         <where>
+            <if test="request.workspaceId != null">
+                and p.workspace_id = #{request.workspaceId}
+            </if>
             <if test="request.scenarioId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id =
                 #{request.scenarioId} )
@@ -491,6 +496,52 @@
             <if test="request.loadId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_load_case WHERE load_case_id = #{request.loadId})
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='project_id'">
+                                and p.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='workspace_id'">
+                                and p.workspace_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
         </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <if test="order.name != ''">
+                    p.${order.name} ${order.type}
+                </if>
+            </foreach>
+        </if>
+    </select>
+    <select id="selectNameByIdIn" resultType="java.lang.String">
+        select name from test_plan where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectByRefIds" resultType="io.metersphere.base.domain.TestPlanApiCase">
+        SELECT
+        plan.*
+        FROM
+        test_plan_api_case plan
+        INNER JOIN test_plan on plan.test_plan_id = test_plan.id
+        WHERE
+        plan.api_case_id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
     </select>
 </mapper>

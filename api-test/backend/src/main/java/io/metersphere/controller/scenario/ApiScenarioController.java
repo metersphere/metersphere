@@ -273,11 +273,6 @@ public class ApiScenarioController {
         apiAutomationService.batchUpdateEnv(request);
     }
 
-    @PostMapping("/getReference")
-    public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
-        return apiAutomationService.getReference(request);
-    }
-
     @PostMapping("/scenario/plan")
     public String addScenarioToPlan(@RequestBody SaveApiPlanRequest request) {
         return apiAutomationService.addScenarioToPlan(request);

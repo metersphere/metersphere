@@ -3,8 +3,8 @@ package io.metersphere.controller.definition;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
@@ -262,9 +262,11 @@ public class ApiDefinitionController {
         apiDefinitionService.deleteSchedule(request);
     }
 
-    @PostMapping("/get-reference")
-    public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
-        return apiDefinitionService.getReference(request);
+    @PostMapping("/get-reference/{goPage}/{pageSize}")
+    public Pager<List<ApiScenarioDTO>> getReference(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
+        apiDefinitionService.getReferenceIds(request);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiDefinitionService.getReference(request));
     }
 
     @PostMapping("/batch/edit")

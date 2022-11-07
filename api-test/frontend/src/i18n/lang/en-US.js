@@ -19,7 +19,15 @@ const message = {
       json_format_error: "JSON format error"
     },
     case_name: "Case name",
-    case_no_permission: "No permission to edit case"
+    case_no_permission: "No permission to edit case",
+    view_case: "View case",
+    view_scenario: "View scenario",
+    case_is: "Case is",
+    scenario_is: "Scenario is",
+    scenario_count: "{0} [scenario]",
+    plan_count: "{0} [test plan]",
+    case_is_referenced: "{0} cases have reference relationships",
+    scenario_is_referenced: "{0} scenarios have reference relationships"
   },
   home: {
     dashboard: {
