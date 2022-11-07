@@ -60,12 +60,14 @@
             <ms-table-column
               prop="userName"
               :field="item"
+              :filters="userFilters"
               :fields-width="fieldsWidth"
               :label="$t('report.user_name')"
               show-overflow-tooltip>
             </ms-table-column>
             <ms-table-column
               prop="maxUsers"
+              sortable
               :field="item"
               :fields-width="fieldsWidth"
               min-width="65"
@@ -74,12 +76,14 @@
             <ms-table-column
               min-width="100"
               :field="item"
+              sortable
               :fields-width="fieldsWidth"
               prop="avgResponseTime"
               :label="$t('report.response_time')">
             </ms-table-column>
             <ms-table-column
               prop="tps"
+              sortable
               :field="item"
               :fields-width="fieldsWidth"
               label="TPS">
@@ -87,6 +91,7 @@
             <ms-table-column
               min-width="100"
               :field="item"
+              sortable
               :fields-width="fieldsWidth"
               show-overflow-tooltip
               prop="testStartTime"
@@ -99,6 +104,7 @@
               min-width="100"
               show-overflow-tooltip
               :field="item"
+              sortable
               :fields-width="fieldsWidth"
               prop="testEndTime"
               :label="$t('report.test_end_time')">
@@ -110,6 +116,7 @@
               min-width="90"
               prop="testDuration"
               :field="item"
+              sortable
               :fields-width="fieldsWidth"
               :label="$t('report.test_execute_time')">
               <template v-slot:default="scope">
@@ -183,6 +190,7 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {deleteReport, deleteReportBatch, getOverview, getReportTime, renameReport, searchReports} from "@/api/report";
 import {getProjectVersions, isProjectVersionEnable} from "metersphere-frontend/src/api/version";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {getProjectUsers} from "metersphere-frontend/src/api/user";
 
 export default {
   name: "PerformanceTestReportList",
@@ -203,6 +211,7 @@ export default {
   },
   created() {
     this.testId = this.$route.path.split('/')[3];
+    this.getMaintainerOptions();
     this.initTableData();
     this.getVersionOptions();
     this.checkVersionEnable();
@@ -272,6 +281,7 @@ export default {
       versionEnable: false,
       fields: getCustomTableHeader('PERFORMANCE_REPORT_TABLE'),
       fieldsWidth: getCustomTableWidth('PERFORMANCE_REPORT_TABLE'),
+      userFilters: [],
     };
   },
   watch: {
@@ -285,6 +295,15 @@ export default {
     }
   },
   methods: {
+    getMaintainerOptions() {
+      let workspaceId = getCurrentWorkspaceId();
+      getProjectUsers()
+        .then(response => {
+          this.userFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+    },
     handleTimeInfo(report) {
       if (report.testStartTime) {
         let duration = report.testDuration;
@@ -312,6 +331,9 @@ export default {
       }
     },
     handleOverview(report) {
+      this.$set(report, 'maxUsers', parseInt(report.maxUsers));
+      this.$set(report, 'avgResponseTime', parseFloat(report.avgResponseTime));
+      this.$set(report, 'tps', parseFloat(report.tps));
       if (report.status === 'Completed' && !report.maxUsers) {
         this.loading = getOverview(report.id)
           .then(response => {
@@ -472,7 +494,7 @@ export default {
           this.initTableData();
           this.$refs.renameDialog.close();
         });
-    }
+    },
   }
 };
 </script>
