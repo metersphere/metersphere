@@ -6,7 +6,10 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.dto.*;
+import io.metersphere.dto.BugStatistics;
+import io.metersphere.dto.TestPlanBugCount;
+import io.metersphere.dto.TestPlanDTOWithMetric;
+import io.metersphere.dto.TrackCountResult;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.xpack.track.dto.IssuesDao;
@@ -20,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,15 +116,18 @@ public class TrackService {
         List<TestPlanBugCount> list = new ArrayList<>();
         BugStatistics bugStatistics = new BugStatistics();
         int index = 1;
+        int totalUnClosedPlanBugSize = 0;
         int totalPlanBugSize = 0;
-        int allUnClosedBugSize = this.getAllUnClosedBugSize(projectId);
         for (TestPlan plan : plans) {
-            int planBugSize = getPlanBugSize(plan.getId(), projectId);
+            Map<String, Integer> bugSizeMap = getPlanBugSize(plan.getId(), projectId);
+            int planBugSize = bugSizeMap.get("total");
+            int unClosedPlanBugSize = bugSizeMap.get("unClosed");
+            totalUnClosedPlanBugSize += unClosedPlanBugSize;
+            totalPlanBugSize += planBugSize;
             // bug为0不记录
-            if (planBugSize == 0) {
+            if (unClosedPlanBugSize == 0) {
                 continue;
             }
-            totalPlanBugSize += planBugSize;
 
             TestPlanBugCount testPlanBug = new TestPlanBugCount();
             testPlanBug.setIndex(index++);
@@ -136,17 +139,17 @@ public class TrackService {
             int planCaseSize = getPlanCaseSize(plan.getId());
             testPlanBug.setCaseSize(planCaseSize);
 
-            testPlanBug.setBugSize(planBugSize);
+            testPlanBug.setBugSize(unClosedPlanBugSize);
             double planPassRage = getPlanPassRage(plan.getId());
             testPlanBug.setPassRage(planPassRage + "%");
             list.add(testPlanBug);
 
         }
         bugStatistics.setList(list);
-        float rage = allUnClosedBugSize == 0 ? 0 : (float) totalPlanBugSize * 100 / allUnClosedBugSize;
+        float rage = totalPlanBugSize == 0 ? 0 : (float) totalUnClosedPlanBugSize * 100 / totalPlanBugSize;
         DecimalFormat df = new DecimalFormat("0.0");
         bugStatistics.setRage(df.format(rage) + "%");
-        bugStatistics.setBugTotalSize(allUnClosedBugSize);
+        bugStatistics.setBugTotalSize(totalUnClosedPlanBugSize);
         return bugStatistics;
     }
 
@@ -155,18 +158,25 @@ public class TrackService {
 
     }
 
-    private int getPlanBugSize(String planId, String projectId) {
+    private Map<String, Integer> getPlanBugSize(String planId, String projectId) {
         List<String> issueIds = extTestCaseMapper.getTestPlanBug(planId);
 
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
+        Map<String, Integer> bugSizeMap = new HashMap<>();
+
+        bugSizeMap.put("total", issueIds.size());
 
         // 缺陷是否有状态
         if (MapUtils.isEmpty(statusMap)) {
-            return issueIds.size();
+            bugSizeMap.put("unClosed", issueIds.size());
+            return bugSizeMap;
         }
-        return (int) issueIds.stream()
+
+        int unClosedSize = (int) issueIds.stream()
                 .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                 .count();
+        bugSizeMap.put("unClosed", unClosedSize);
+        return bugSizeMap;
     }
 
     private int getAllUnClosedBugSize(String projectId) {
