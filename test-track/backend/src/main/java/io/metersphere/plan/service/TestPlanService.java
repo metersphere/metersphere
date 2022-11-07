@@ -1,5 +1,7 @@
 package io.metersphere.plan.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -22,6 +24,7 @@ import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
 import io.metersphere.plan.request.AddTestPlanRequest;
+import io.metersphere.plan.request.BatchOperateRequest;
 import io.metersphere.plan.request.QueryTestPlanRequest;
 import io.metersphere.plan.request.ScheduleInfoRequest;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
@@ -142,7 +145,8 @@ public class TestPlanService {
     private TestPlanExecutionQueueService testPlanExecutionQueueService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
-
+    @Resource
+    private ObjectMapper objectMapper;
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
@@ -302,7 +306,11 @@ public class TestPlanService {
     public int deleteTestPlan(String planId) {
 
         // 发送删除通知
-        kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_DELETED_TOPIC, planId);
+        try {
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_DELETED_TOPIC, objectMapper.writeValueAsString(List.of(planId)));
+        } catch (JsonProcessingException e) {
+            LogUtil.error("send msg to TEST_PLAN_DELETED_TOPIC error", e);
+        }
 
         testPlanPrincipalService.deleteTestPlanPrincipalByPlanId(planId);
         testPlanFollowService.deleteTestPlanFollowByPlanId(planId);
@@ -314,6 +322,35 @@ public class TestPlanService {
         baseScheduleService.deleteByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
 
         return testPlanMapper.deleteByPrimaryKey(planId);
+    }
+
+    public int deleteTestPlans(List<String> planIds) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return 0;
+        }
+
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andIdIn(planIds);
+        int deletedSize = testPlanMapper.deleteByExample(testPlanExample);
+
+        testPlanPrincipalService.deletePlanPrincipalByPlanIds(planIds);
+        testPlanFollowService.deletePlanFollowByPlanIds(planIds);
+
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andPlanIdIn(planIds);
+        testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
+
+
+        testPlanReportService.deleteByPlanIds(planIds);
+        //删除定时任务
+        baseScheduleService.deleteByResourceIds(planIds, ScheduleGroup.TEST_PLAN_TEST.name());
+
+        try {
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_DELETED_TOPIC, objectMapper.writeValueAsString(planIds));
+        } catch (Exception e) {
+            LogUtil.error("send msg to TEST_PLAN_DELETED_TOPIC error", e);
+        }
+        return deletedSize;
     }
 
     public void deleteTestCaseByPlanId(String testPlanId) {
@@ -971,16 +1008,26 @@ public class TestPlanService {
             testPlanExample.createCriteria().andIdIn(ids);
             List<TestPlan> planList = testPlanMapper.selectByExample(testPlanExample);
             if (CollectionUtils.isNotEmpty(planList)) {
-                List<OperatingLogDetails> detailsList = new ArrayList<>();
-                for (TestPlan plan : planList) {
-                    List<DetailColumn> columns = ReflexObjectUtil.getColumns(planList.get(0), TestPlanReference.testPlanColumns);
-                    OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(plan.getId()), plan.getProjectId(), plan.getName(), plan.getCreator(), columns);
-                    detailsList.add(details);
-                }
-                return JSON.toJSONString(detailsList);
+                List<String> names = planList.stream().map(TestPlan::getName).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), planList.get(0).getProjectId(), String.join(",", names), planList.get(0).getCreator(), new LinkedList<>());
+                return JSON.toJSONString(details);
             }
         }
         return null;
+    }
+
+    public String getDeleteBatchLogDetails(BatchOperateRequest request) {
+        List<String> ids = request.getIds();
+        if (request.isSelectAll()) {
+            QueryTestPlanRequest queryTestPlanRequest = request.getQueryTestPlanRequest();
+            request.getQueryTestPlanRequest().setOrders(ServiceUtils.getDefaultOrder(queryTestPlanRequest.getOrders()));
+            if (StringUtils.isNotBlank(queryTestPlanRequest.getProjectId())) {
+                request.getQueryTestPlanRequest().setProjectId(queryTestPlanRequest.getProjectId());
+            }
+            List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(queryTestPlanRequest);
+            ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+        }
+        return getLogDetails(ids);
     }
 
     public String getLogDetails(String id) {
@@ -1892,5 +1939,22 @@ public class TestPlanService {
             testPlan.setActualEndTime(null);
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
+    }
+
+    public void deleteTestPlanBatch(BatchOperateRequest request) {
+        List<String> ids = request.getIds();
+        if (request.isSelectAll()) {
+            QueryTestPlanRequest queryTestPlanRequest = request.getQueryTestPlanRequest();
+            request.getQueryTestPlanRequest().setOrders(ServiceUtils.getDefaultOrder(queryTestPlanRequest.getOrders()));
+            if (StringUtils.isNotBlank(queryTestPlanRequest.getProjectId())) {
+                request.getQueryTestPlanRequest().setProjectId(queryTestPlanRequest.getProjectId());
+            }
+            List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(queryTestPlanRequest);
+            ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+            if (request.getUnSelectIds() != null) {
+                ids.removeAll(request.getUnSelectIds());
+            }
+        }
+        this.deleteTestPlans(ids);
     }
 }

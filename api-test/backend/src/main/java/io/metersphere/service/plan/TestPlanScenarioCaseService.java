@@ -385,6 +385,19 @@ public class TestPlanScenarioCaseService {
         deleteApiCaseBath(request);
     }
 
+    public void deleteByPlanIds(List<String> planIds) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return;
+        }
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andTestPlanIdIn(planIds);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(example);
+        List<String> ids = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
+        TestPlanScenarioCaseBatchRequest request = new TestPlanScenarioCaseBatchRequest();
+        request.setIds(ids);
+        deleteApiCaseBath(request);
+    }
+
     public void deleteByRelevanceProjectIds(String planId, List<String> relevanceProjectIds) {
         TestPlanScenarioCaseBatchRequest request = new TestPlanScenarioCaseBatchRequest();
         request.setIds(extTestPlanScenarioCaseMapper.getNotRelevanceCaseIds(planId, relevanceProjectIds));

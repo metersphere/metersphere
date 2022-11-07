@@ -962,6 +962,14 @@ public class TestPlanReportService {
         this.delete(testPlanReportIdList);
     }
 
+    public void deleteByPlanIds(List<String> planIds) {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdIn(planIds);
+        List<TestPlanReport> reportList = testPlanReportMapper.selectByExample(example);
+        List<String> ids = reportList.stream().map(TestPlanReport::getId).collect(Collectors.toList());
+        this.delete(ids);
+    }
+
     public TestPlanSimpleReportDTO getShareDbReport(ShareInfo shareInfo, String reportId) {
         HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
         try {

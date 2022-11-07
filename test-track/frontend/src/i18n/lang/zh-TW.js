@@ -20,6 +20,9 @@ const message = {
       test_plan: "所屬測試計劃",
       failure_times: "失敗次數",
     }
+  },
+  plan: {
+    batch_delete_tip: "批量刪除測試計劃，是否繼續？",
   }
 }
 

@@ -186,6 +186,15 @@ public class TestPlanApiCaseService {
         return testPlanApiCaseMapper.deleteByExample(example);
     }
 
+    public void deleteByPlanIds(List<String> planIds) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return;
+        }
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdIn(planIds);
+        testPlanApiCaseMapper.deleteByExample(example);
+    }
+
     public void deleteApiCaseBath(TestPlanApiCaseBatchRequest request) {
         List<String> deleteIds = request.getIds();
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {

@@ -20,6 +20,9 @@ const message = {
       test_plan: "Test Plan",
       failure_times: "Failure times",
     }
+  },
+  plan: {
+    batch_delete_tip: "Do you want to continue deleting the test plan?",
   }
 }
 export default {
