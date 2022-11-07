@@ -156,6 +156,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='user_name'">
+                                and ltr.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <otherwise>
                                 and ltr.trigger_mode in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -171,7 +177,17 @@
         <if test="reportRequest.orders != null and reportRequest.orders.size() > 0">
             order by
             <foreach collection="reportRequest.orders" separator="," item="order">
-                ltr.${order.name} ${order.type}
+                <choose>
+                    <when test="order.name == 'tps' || order.name == 'test_duration'">
+                        CAST(ltr.${order.name} AS DECIMAL) ${order.type}
+                    </when>
+                    <when test=" order.name == 'max_users' || order.name == 'avg_response_time'">
+                        CAST(ltr.${order.name} AS SIGNED) ${order.type}
+                    </when>
+                    <otherwise>
+                        ltr.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
     </select>
