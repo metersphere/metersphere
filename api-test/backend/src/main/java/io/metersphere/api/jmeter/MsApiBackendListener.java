@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.FixedCapacityUtil;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
@@ -35,7 +36,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
     private List<SampleResult> queues;
     private ResultDTO dto;
     // 当前场景报告/用例结果状态
-    private String status;
+    private ResultVO resultVO;
 
     /**
      * 参数初始化方法
@@ -51,6 +52,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         if (testResultService == null) {
             testResultService = CommonBeanFactory.getBean(TestResultService.class);
         }
+        resultVO = new ResultVO();
         super.setupTest(context);
     }
 
@@ -67,8 +69,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             JMeterBase.resultFormatting(sampleResults, dto);
             testResultService.saveResults(dto);
 
-            status = ReportStatusUtil.getStatus(dto, status);
-            dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, status);
+            resultVO = ReportStatusUtil.getStatus(dto, resultVO);
+            dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, resultVO);
             sampleResults.clear();
         }
     }
@@ -93,8 +95,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
 
                 LoggerUtil.info("执行结果入库存储", dto.getReportId());
                 testResultService.saveResults(dto);
-                status = ReportStatusUtil.getStatus(dto, status);
-                dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, status);
+                resultVO = ReportStatusUtil.getStatus(dto, resultVO);
+                dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, resultVO);
                 LoggerUtil.info("重试结果处理结束", dto.getReportId());
             }
             // 全局并发队列
