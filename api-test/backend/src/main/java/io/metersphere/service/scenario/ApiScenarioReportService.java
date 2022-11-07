@@ -18,6 +18,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
@@ -41,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -278,20 +278,17 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(ResultDTO dto) {
-        String status = ReportStatusUtil.getStatus(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
             if (report != null) {
                 testPlanApiScenario.setLastResult(report.getStatus());
                 report.setScenarioId(testPlanApiScenario.getApiScenarioId());
             } else {
-                testPlanApiScenario.setLastResult(status);
+                testPlanApiScenario.setLastResult(resultVO.getStatus());
             }
-            long successSize = dto.getRequestResults().stream().filter(requestResult ->
-                    StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
-
-            String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
+            String passRate = resultVO.computerPassRate();
             testPlanApiScenario.setPassRate(passRate);
             testPlanApiScenario.setReportId(dto.getReportId());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
@@ -300,7 +297,7 @@ public class ApiScenarioReportService {
             // 更新场景状态
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
             if (scenario != null) {
-                scenario.setLastResult(status);
+                scenario.setLastResult(resultVO.getStatus());
                 scenario.setPassRate(passRate);
                 scenario.setReportId(dto.getReportId());
                 int executeTimes = 0;
@@ -317,8 +314,8 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updateSchedulePlanCase(ResultDTO dto) {
         List<String> testPlanReportIdList = new ArrayList<>();
 
-        String status = ReportStatusUtil.getStatus(dto);
-        ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
+        ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());
@@ -326,9 +323,8 @@ public class ApiScenarioReportService {
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
             if (testPlanApiScenario != null) {
                 testPlanApiScenario.setLastResult(report.getStatus());
-                long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
-                String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
-                testPlanApiScenario.setPassRate(passRate);
+                String passRate = resultVO.computerPassRate();
+                testPlanApiScenario.setPassRate(resultVO.computerPassRate());
 
                 testPlanApiScenario.setReportId(report.getId());
                 testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
@@ -337,7 +333,7 @@ public class ApiScenarioReportService {
                 // 更新场景状态
                 ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
                 if (scenario != null) {
-                    scenario.setLastResult(status);
+                    scenario.setLastResult(resultVO.getStatus());
                     scenario.setPassRate(passRate);
                     scenario.setReportId(report.getId());
                     int executeTimes = 0;
@@ -420,22 +416,17 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updateScenario(ResultDTO dto) {
         // 更新报告状态
-        String status = ReportStatusUtil.getStatus(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (scenario == null) {
             scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            scenario.setLastResult(status);
-            long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count();
-            if (dto.getRequestResults().size() == 0) {
-                scenario.setPassRate("0%");
-            } else {
-                scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size()));
-            }
-
+            scenario.setLastResult(resultVO.getStatus());
+            scenario.setPassRate(resultVO.computerPassRate());
+            scenario.setPassRate(resultVO.computerPassRate());
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
             if (scenario.getExecuteTimes() != null) {
