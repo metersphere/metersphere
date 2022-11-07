@@ -2,6 +2,7 @@ package io.metersphere.controller.ext;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.ApiProjectRequest;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -11,12 +12,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.ext.ExtProjectApplicationService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -57,5 +53,10 @@ public class ExtProjectController {
     @GetMapping("/api/current/user/{resourceId}")
     public void updateCurrentUserByResourceId(@PathVariable String resourceId) {
         extProjectApplicationService.updateCurrentUserByResourceId(resourceId);
+    }
+
+    @PostMapping("/list/related")
+    public List<ProjectDTO> getUserProject(@RequestBody ApiProjectRequest request) {
+        return extProjectApplicationService.getUserProject(request);
     }
 }

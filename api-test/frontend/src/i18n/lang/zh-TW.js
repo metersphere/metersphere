@@ -20,6 +20,14 @@ const message = {
     },
     case_name: "用例名稱",
     case_no_permission: "無編輯用例的權限",
+    view_case: "查看用例",
+    view_scenario: "查看場景",
+    case_is: "用例被",
+    scenario_is: "場景被",
+    scenario_count: "{0}個[場景]",
+    plan_count: "{0}個[测试計劃]",
+    case_is_referenced: "有{0}個用例存在引用關係",
+    scenario_is_referenced: "有{0}個場景存在引用關係",
   },
   home: {
     dashboard: {

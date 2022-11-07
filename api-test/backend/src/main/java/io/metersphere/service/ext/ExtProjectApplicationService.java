@@ -1,5 +1,6 @@
 package io.metersphere.service.ext;
 
+import io.metersphere.api.dto.ApiProjectRequest;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectApplication;
@@ -8,22 +9,26 @@ import io.metersphere.base.mapper.ProjectApplicationMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
+import io.metersphere.base.mapper.ext.ExtApiProjectMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ProjectConfig;
+import io.metersphere.dto.ProjectDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.BaseProjectService;
+import io.metersphere.service.ServiceUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 public class ExtProjectApplicationService {
@@ -41,6 +46,8 @@ public class ExtProjectApplicationService {
     private BaseProjectMapper baseProjectMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ExtApiProjectMapper extApiProjectMapper;
 
     public void createOrUpdateConfig(String projectId, String type, String value) {
         ProjectApplication conf = new ProjectApplication();
@@ -161,6 +168,7 @@ public class ExtProjectApplicationService {
             TCPPool.closeTcp(tcpPort);
         }
     }
+
     public void updateCurrentUserByResourceId(String resourceId) {
         Project project = baseProjectMapper.selectProjectByResourceId(resourceId);
         if (project == null) {
@@ -170,5 +178,13 @@ public class ExtProjectApplicationService {
         user.setLastProjectId(project.getId());
         user.setLastWorkspaceId(project.getWorkspaceId());
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public List<ProjectDTO> getUserProject(ApiProjectRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extApiProjectMapper.getUserProject(request);
     }
 }

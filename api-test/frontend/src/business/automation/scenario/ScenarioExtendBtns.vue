@@ -15,7 +15,7 @@
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <ms-reference-view @openScenario="openScenario" ref="viewRef"/>
+
     <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable" :request="request"/>
 
   </div>
@@ -23,7 +23,6 @@
 
 <script>
 import {genPerformanceTestJmx} from "@/api/scenario";
-import MsReferenceView from "@/business/automation/scenario/ReferenceView";
 import MsScheduleMaintain from "@/business/automation/schedule/ScheduleMaintain";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
@@ -34,7 +33,7 @@ const performanceStore = usePerformanceStore();
 
 export default {
   name: "MsScenarioExtendButtons",
-  components: {MsReferenceView, MsScheduleMaintain},
+  components: {MsScheduleMaintain},
   props: {
     row: Object,
     request: {}
@@ -44,7 +43,7 @@ export default {
     handleCommand(cmd) {
       switch (cmd) {
         case  "ref":
-          this.$refs.viewRef.open(this.row);
+          this.$emit("showCaseRef", this.row);
           break;
         case "schedule":
           this.$emit('openSchedule');

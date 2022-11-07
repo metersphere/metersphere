@@ -34,4 +34,5 @@ public class TestPlanDTO extends TestPlanWithBLOBs {
      * 定时任务下一次执行时间
      */
     private Long scheduleExecuteTime;
+    private String workspaceName;
 }

@@ -2,10 +2,11 @@ package io.metersphere.controller.plan;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.automation.TestPlanDTO;
+import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
-import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -15,6 +16,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.plan.TestPlanApiCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -184,5 +186,11 @@ public class TestPlanApiCaseController {
     public List<TestPlanFailureApiDTO> buildResponse(@RequestBody List<TestPlanFailureApiDTO> cases) {
         testPlanApiCaseService.buildApiResponse(cases);
         return cases;
+    }
+
+    @PostMapping("/get-reference/{goPage}/{pageSize}")
+    public Pager<List<TestPlanDTO>> getReference(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryReferenceRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanApiCaseService.getReference(request));
     }
 }

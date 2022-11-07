@@ -121,8 +121,12 @@ export function jsonGenerator(params) {
   return post('/api/definition/generator', params);
 }
 
-export function getDefinitionReference(params) {
-  return post('/api/definition/get-reference', params);
+export function getDefinitionReference(currentPage, pageSize, params) {
+  return post('/api/definition/get-reference/' + currentPage + '/' + pageSize, params);
+}
+
+export function getPlanReference(currentPage, pageSize, params) {
+  return post('/test/plan/api/case/get-reference/' + currentPage + '/' + pageSize, params);
 }
 
 export function deleteBatchByParams(params) {

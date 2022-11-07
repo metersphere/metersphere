@@ -242,7 +242,7 @@
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
-    <ms-reference-view ref="viewRef"/>
+    <ms-show-reference ref="viewRef"/>
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
@@ -268,6 +268,14 @@
         <el-button type="primary" @click="batchSync()">{{ $t('commons.confirm') }}</el-button>
       </span>
     </el-dialog>
+    <!--  删除接口提示  -->
+    <api-delete-confirm
+      :has-ref="hasRef"
+      :show-case="showCase"
+      @showCaseRef="showCaseRef"
+      @handleDeleteCase="handleDeleteCase"
+      ref="apiDeleteConfirm"
+    />
   </span>
 
 </template>
@@ -306,14 +314,14 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "@/business/commons/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import {getUUID, operationConfirm} from "metersphere-frontend/src/utils";
+import {getUUID} from "metersphere-frontend/src/utils";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getBodyUploadFiles} from "@/business/definition/api-definition";
 import PriorityTableItem from "@/business/commons/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
-import MsReferenceView from "../reference/ReferenceView";
+import MsShowReference from "../reference/ShowReference";
 import MsSetEnvironment from "@/business/definition/components/basis/SetEnvironment";
 import TestPlan from "@/business/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "@/business/definition/components/jmeter/components/thread-group";
@@ -341,6 +349,8 @@ import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environmen
 import {useApiStore, usePerformanceStore} from "@/store";
 import {REPORT_STATUS} from "@/business/commons/js/commons";
 import MsApiRunMode from "@/business/automation/scenario/common/ApiRunMode";
+import ApiDeleteConfirm from "@/business/definition/components/list/ApiDeleteConfirm";
+
 const performanceStore = usePerformanceStore();
 
 const store = useApiStore();
@@ -363,7 +373,6 @@ export default {
     ShowMoreBtn,
     MsBatchEdit,
     MsApiCaseTableExtendBtns,
-    MsReferenceView,
     MsTableAdvSearchBar,
     MsTable,
     MsTableColumn,
@@ -371,6 +380,8 @@ export default {
     MsApiRunMode,
     MsSearch,
     SyncSetting,
+    MsShowReference,
+    ApiDeleteConfirm,
     MsApiReportStatus: () => import("../../../automation/report/ApiReportStatus"),
     PlanStatusTableItem: () => import("@/business/commons/PlanStatusTableItem"),
     MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
@@ -407,27 +418,11 @@ export default {
           handleClick: this.handleRunBatch,
           permissions: ['PROJECT_API_DEFINITION:READ+RUN']
         },
-      ],
-      batchButtons: [
-        {
-          name: this.$t('api_test.definition.request.batch_delete'),
-          handleClick: this.handleDeleteToGcBatch,
-          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
-        },
-        {
-          name: this.$t('api_test.definition.request.batch_edit'),
-          handleClick: this.handleEditBatch,
-          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
-        },
-        {
-          name: this.$t('api_test.automation.batch_execute'),
-          handleClick: this.handleRunBatch,
-          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
-        },
         {
           name: this.$t('commons.batch') + this.$t('workstation.sync'),
           handleClick: this.openBatchSync,
-          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
+          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE'],
+          isXPack: true,
         },
       ],
       trashButtons: [
@@ -523,6 +518,8 @@ export default {
       userFilters: [],
       environmentsFilters: [],
       batchSyncCaseVisible: false,
+      hasRef: false,
+      showCase: false,
     };
   },
   props: {
@@ -563,12 +560,7 @@ export default {
       this.buttons = this.trashButtons;
     } else {
       this.operators = this.simpleOperators;
-      if (hasLicense()) {
-        this.buttons = this.batchButtons;
-      } else {
-        this.buttons = this.simpleButtons;
-      }
-
+      this.buttons = this.simpleButtons;
     }
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
@@ -994,28 +986,17 @@ export default {
       obj.unSelectIds = this.unSelection;
       obj = Object.assign(obj, this.condition);
       obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj.type = 'batch';
+      this.showCase = false;
+      this.hasRef = false;
       checkDeleteData(obj).then(response => {
         let checkResult = response.data;
         let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + " ？";
-        if (!checkResult.deleteFlag) {
-          alertMsg = "";
-          checkResult.checkMsg.forEach(item => {
-            alertMsg += item + ";";
-          });
-          if (alertMsg === "") {
-            alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + " ？";
-          } else {
-            alertMsg += this.$t('api_test.is_continue') + " ？";
-          }
+        if (checkResult.deleteFlag) {
+          alertMsg = this.$t('api_definition.case_is_referenced', [checkResult.refCount]) + ', ' + this.$t('api_test.is_continue') + " ？";
+          this.showCase = true;
         }
-        operationConfirm(this, alertMsg, () => {
-          delCaseToGcByParam(obj).then(() => {
-            this.$refs.caseTable.clearSelectRows();
-            this.initTable();
-            this.$success(this.$t('commons.delete_success'));
-            this.$emit('refreshTable');
-          });
-        });
+        this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_definition.delete_case'), obj, checkResult.checkMsg);
       });
     },
     handleEditBatch() {
@@ -1081,34 +1062,43 @@ export default {
       });
       return;
     },
+    handleDeleteCase(apiCase) {
+      this.$refs.apiDeleteConfirm.close();
+      if (apiCase.type === 'batch') {
+        delCaseToGcByParam(apiCase).then(() => {
+          this.$refs.caseTable.clearSelectRows();
+          this.initTable();
+          this.$success(this.$t('commons.delete_success'));
+          this.$emit('refreshTable');
+        });
+      } else {
+        deleteToGc(apiCase.id).then(() => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTable();
+          this.$emit("refreshTree");
+          this.$emit('refreshTable');
+        });
+      }
+    },
     deleteToGc(apiCase) {
       let obj = {};
       obj.projectId = this.projectId;
       obj.selectAllDate = false;
       obj.ids = [apiCase.id];
       obj = Object.assign(obj, this.condition);
+      this.showCase = false;
+      this.hasRef = false;
       checkDeleteData(obj).then(response => {
         let checkResult = response.data;
-        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
-        if (!checkResult.deleteFlag) {
-          alertMsg = "";
-          checkResult.checkMsg.forEach(item => {
-            alertMsg += item + ";";
-          });
-          if (alertMsg === "") {
-            alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
-          } else {
-            alertMsg += this.$t('api_test.is_continue') + " ？";
-          }
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + '[' + apiCase.name + ']' + '?';
+        if (checkResult.deleteFlag) {
+          alertMsg = '[' + apiCase.name + '] ' + this.$t('api_definition.case_is') + (checkResult.scenarioCount > 0 ? this.$t('api_definition.scenario_count', [checkResult.scenarioCount]) : '') +
+            (checkResult.planCount > 0 && checkResult.scenarioCount > 0 ? '、 ' : '') +
+            (checkResult.planCount > 0 ? this.$t('api_definition.plan_count', [checkResult.planCount]) : '') + this.$t('api_test.scenario.reference') + ', ' +
+            this.$t('api_test.is_continue') + " ？";
+          this.hasRef = true;
         }
-        operationConfirm(this, alertMsg, () => {
-          deleteToGc(apiCase.id).then(() => {
-            this.$success(this.$t('commons.delete_success'));
-            this.initTable();
-            this.$emit("refreshTree");
-            this.$emit('refreshTable');
-          });
-        });
+        this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_definition.delete_case'), apiCase, null);
       });
     },
     reduction(row) {
@@ -1182,6 +1172,15 @@ export default {
       if (dataType === 'apiTestCase') {
         this.selectDataRange = routeParam;
       }
+      if (this.$route.query && this.$route.params.dataSelectRange === 'ref') {
+        if (this.$route.query.ids) {
+          if (typeof this.$route.query.ids === 'string') {
+            this.condition.ids = [this.$route.query.ids];
+          } else {
+            this.condition.ids = this.$route.query.ids;
+          }
+        }
+      }
     },
     changeSelectDataRangeAll() {
       this.$emit("changeSelectDataRangeAll", "testCase");
@@ -1195,7 +1194,7 @@ export default {
       let param = {};
       Object.assign(param, row);
       param.moduleId = undefined;
-      this.$refs.viewRef.open(param);
+      this.$refs.viewRef.open(param, 'API');
     },
     showEnvironment(row) {
       if (this.projectId) {
