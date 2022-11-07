@@ -9,13 +9,14 @@
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
     </el-dropdown-menu>
-    <ms-reference-view ref="viewRef"/>
+    <ms-show-reference ref="viewRef"/>
+
   </el-dropdown>
 </template>
 
 <script>
 import {genPerformanceTestXml} from "@/api/home";
-import MsReferenceView from "./ReferenceView";
+import MsShowReference from "./ShowReference";
 import MsTestPlanList from "../../../automation/scenario/testplan/TestPlanList";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getBodyUploadFiles} from "@/business/definition/api-definition";
@@ -27,7 +28,7 @@ import {usePerformanceStore} from "@/store";
 const performanceStore = usePerformanceStore();
 export default {
   name: "MsApiExtendBtns",
-  components: {MsReferenceView, MsTestPlanList},
+  components: {MsShowReference, MsTestPlanList},
   props: {
     row: Object,
     isCaseEdit: Boolean,
@@ -43,7 +44,7 @@ export default {
       if (this.row.id) {
         switch (cmd) {
           case  "ref":
-            this.$refs.viewRef.open(this.row);
+            this.$refs.viewRef.open(this.row, 'API');
             break;
           case "create_performance":
             this.createPerformance(this.row);

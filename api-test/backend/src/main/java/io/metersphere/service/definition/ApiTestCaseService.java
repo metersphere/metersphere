@@ -16,6 +16,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
@@ -36,12 +37,12 @@ import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
-import io.metersphere.service.scenario.ApiScenarioReferenceIdService;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiTestCaseSyncService;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +84,6 @@ public class ApiTestCaseService {
     @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
-    private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
-    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
@@ -108,6 +107,10 @@ public class ApiTestCaseService {
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -966,54 +969,63 @@ public class ApiTestCaseService {
     }
 
     public DeleteCheckResult checkDeleteData(ApiTestBatchRequest request) {
+        DeleteCheckResult result = new DeleteCheckResult();
         List<String> deleteIds = request.getIds();
         if (request.isSelectAll()) {
             deleteIds = this.getAllApiCaseIdsByFrontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId(), request.getCombine());
         }
-        DeleteCheckResult result = new DeleteCheckResult();
-        List<String> checkMsgList = new ArrayList<>();
-
         if (CollectionUtils.isNotEmpty(deleteIds)) {
-            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds, MsTestElementConstants.REF.name());
+            //场景引用
+            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = extApiScenarioReferenceIdMapper.selectReferenceIdByIds(deleteIds);
+            Map<String, List<String>> scenarioDic = new HashMap<>();
             if (CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)) {
-                Map<String, List<String>> scenarioDic = new HashMap<>();
                 apiScenarioReferenceIdList.forEach(item -> {
-                    String refreceID = item.getReferenceId();
+                    String referenceId = item.getReferenceId();
                     String scenarioId = item.getApiScenarioId();
-                    if (scenarioDic.containsKey(refreceID)) {
-                        scenarioDic.get(refreceID).add(scenarioId);
+                    if (scenarioDic.containsKey(referenceId)) {
+                        scenarioDic.get(referenceId).add(scenarioId);
                     } else {
                         List<String> list = new ArrayList<>();
                         list.add(scenarioId);
-                        scenarioDic.put(refreceID, list);
+                        scenarioDic.put(referenceId, list);
                     }
                 });
-
-                for (Map.Entry<String, List<String>> entry : scenarioDic.entrySet()) {
-                    String refreceId = entry.getKey();
-                    List<String> scenarioIdList = entry.getValue();
-                    if (CollectionUtils.isNotEmpty(scenarioIdList)) {
-                        List<String> scenarioNameList = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
-                        String deleteCaseName = extApiTestCaseMapper.selectNameById(refreceId);
-
-                        if (StringUtils.isNotEmpty(deleteCaseName) && CollectionUtils.isNotEmpty(scenarioNameList)) {
-                            String nameListStr = "[";
-                            for (String name : scenarioNameList) {
-                                nameListStr += name + ",";
-                            }
-                            if (nameListStr.length() > 1) {
-                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
-                            }
-                            String msg = deleteCaseName + StringUtils.SPACE + Translator.get("delete_check_reference_by") + ": " + nameListStr + StringUtils.SPACE;
-                            checkMsgList.add(msg);
-                        }
+            }
+            //测试计划引用
+            List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.selectByRefIds(deleteIds);
+            Map<String, List<String>> planList = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(testPlanApiCases)) {
+                testPlanApiCases.forEach(item -> {
+                    String referenceId = item.getApiCaseId();
+                    String testPlanId = item.getTestPlanId();
+                    if (planList.containsKey(referenceId)) {
+                        planList.get(referenceId).add(testPlanId);
+                    } else {
+                        List<String> list = new ArrayList<>();
+                        list.add(testPlanId);
+                        planList.put(referenceId, list);
+                    }
+                });
+            }
+            if (MapUtils.isNotEmpty(scenarioDic) || MapUtils.isNotEmpty(planList)) {
+                if (StringUtils.equals("batch", request.getType())) {
+                    Map<String, List<String>> map = scenarioDic.entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v2, () -> new HashMap<>(planList)));
+                    result.setRefCount(map.size());
+                    result.setCheckMsg(new ArrayList<>(map.keySet()));
+                } else {
+                    ArrayList<List<String>> scenarioList = new ArrayList<>(scenarioDic.values());
+                    if (CollectionUtils.isNotEmpty(scenarioList)) {
+                        result.setScenarioCount(new TreeSet<String>(scenarioList.get(0)).size());
+                    }
+                    ArrayList<List<String>> testPlanList = new ArrayList<>(planList.values());
+                    if (CollectionUtils.isNotEmpty(testPlanList)) {
+                        result.setPlanCount(new TreeSet<String>(testPlanList.get(0)).size());
                     }
                 }
+                result.setDeleteFlag(scenarioDic.size() > 0 || planList.size() > 0);
             }
         }
-
-        result.setDeleteFlag(checkMsgList.isEmpty());
-        result.setCheckMsg(checkMsgList);
         return result;
     }
 
@@ -1287,4 +1299,5 @@ public class ApiTestCaseService {
     private ApiCaseBasicInfoDTO selectApiCaseBasicInfoById(String id) {
         return extApiTestCaseMapper.selectApiCaseBasicInfoById(id);
     }
+
 }

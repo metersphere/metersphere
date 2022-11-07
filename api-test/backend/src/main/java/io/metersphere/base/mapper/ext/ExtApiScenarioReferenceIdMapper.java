@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ExtApiScenarioReferenceIdMapper {
     List<ApiScenarioReferenceId> selectUrlByProjectId(String projectId);
+
+    List<ApiScenarioReferenceId> selectReferenceIdByIds(List<String> ids);
 }

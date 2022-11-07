@@ -14,4 +14,7 @@ import java.util.List;
 public class DeleteCheckResult {
     boolean deleteFlag;
     List<String> checkMsg;
+    int refCount;
+    int scenarioCount;
+    int planCount;
 }

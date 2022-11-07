@@ -460,18 +460,41 @@
         ORDER BY FIND_IN_SET(id, ${order})
     </select>
 
-    <select id="selectReference" resultType="io.metersphere.base.domain.ApiScenario">
-        select * from api_scenario
+    <select id="selectReference" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
+        select a.id, a.name , a.num,p.name AS projectName, a.update_time, a.create_time,
+        w.name AS workspaceName, p.workspace_id AS workspaceId, p.id AS projectId from api_scenario a
+        LEFT JOIN project p ON a.project_id = p.id
+        LEFT JOIN `workspace` w ON  p.workspace_id = w.id
         <where>
-            <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId}
+         a.status != 'Trash'
+            <if test="request.ids != null and request.ids.size() > 0">
+                and a.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
             </if>
-            <if test="request.moduleId != null">
-                AND api_scenario_module_id = #{request.moduleId}
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='project_id'">
+                             and a.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='workspace_id'">
+                                and p.workspace_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
             </if>
-            and status != 'Trash'
-            and scenario_definition like CONCAT('%', #{request.id},'%') and id != #{request.id}
         </where>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
         update api_scenario
