@@ -15,6 +15,7 @@ import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.AddTestPlanRequest;
+import io.metersphere.plan.request.BatchOperateRequest;
 import io.metersphere.plan.request.QueryTestPlanRequest;
 import io.metersphere.plan.request.ScheduleInfoRequest;
 import io.metersphere.plan.request.api.TestPlanRunRequest;
@@ -167,6 +168,13 @@ public class TestPlanController {
     public int deleteTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
         return testPlanService.deleteTestPlan(testPlanId);
+    }
+
+    @PostMapping("/delete/batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_BATCH_DELETE)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_DEL, project = "#request.projectId", beforeEvent = "#msClass.getDeleteBatchLogDetails(#request)", msClass = TestPlanService.class)
+    public void deleteTestPlanBatch(@RequestBody BatchOperateRequest request) {
+        testPlanService.deleteTestPlanBatch(request);
     }
 
     @PostMapping("/relevance")

@@ -277,6 +277,10 @@ export function updateBatchScheduleEnable(param) {
   return post(BASE_URL + 'schedule/Batch/updateEnable', param);
 }
 
+export function batchDeletePlan(param) {
+  return post(BASE_URL + 'delete/batch', param);
+}
+
 export function createSchedule(param){
   return post(BASE_URL + 'schedule/create',param);
 }

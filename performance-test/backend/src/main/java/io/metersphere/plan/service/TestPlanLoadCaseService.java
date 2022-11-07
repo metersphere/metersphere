@@ -352,6 +352,15 @@ public class TestPlanLoadCaseService {
         testPlanLoadCaseMapper.deleteByExample(example);
     }
 
+    public void deleteByPlanIds(List<String> planIds) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria().andTestPlanIdIn(planIds);
+        testPlanLoadCaseMapper.deleteByExample(example);
+    }
+
 
     public List<TestPlanLoadCaseDTO> getAllCases(String planId) {
         List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCases(planId, null);

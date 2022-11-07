@@ -92,6 +92,15 @@ public class BaseScheduleService {
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
+    public int deleteByResourceIds(List<String> resourceIds, String group) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdIn(resourceIds);
+        for (String resourceId : resourceIds) {
+            removeJob(resourceId, group);
+        }
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
 
     public int deleteByWorkspaceId(String workspaceId) {
         ScheduleExample scheduleExample = new ScheduleExample();

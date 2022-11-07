@@ -373,7 +373,7 @@ import {
   testPlanEditFollows,
   testPlanEditRunConfig, testPlanGetEnableScheduleCount, testPlanGetFollow, testPlanGetPrincipal, testPlanHaveExecCase,
   testPlanHaveUiCase, testPlanList, testPlanRun, testPlanRunBatch,
-  testPlanRunSave, testPlanUpdateScheduleEnable
+  testPlanRunSave, testPlanUpdateScheduleEnable, batchDeletePlan
 } from "@/api/remote/plan/test-plan";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -455,6 +455,11 @@ export default {
           name: this.$t('api_test.automation.batch_execute'),
           handleClick: this.handleBatchExecute,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
+        },
+        {
+          name: this.$t('commons.delete_batch'),
+          handleClick: this.handleBatchDelete,
+          permissions: ['PROJECT_TRACK_PLAN:READ+BATCH_DELETE']
         }
       ],
       simpleOperators: [
@@ -619,6 +624,32 @@ export default {
       this.$refs.testPlanLitTable.clear();
       this.$refs.testPlanLitTable.isSelectDataAll(false);
       this.initTableData();
+    },
+    handleBatchDelete() {
+      this.$confirm(this.$t('plan.batch_delete_tip').toString(), this.$t('commons.delete_batch').toString(), {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning',
+      }).then(() => {
+        let ids = [], param = {};
+        param.projectId = getCurrentProjectID();
+        if (this.condition.selectAll) {
+          param.unSelectIds = this.condition.unSelectIds;
+          param.selectAll = true;
+          param.queryTestPlanRequest = this.condition;
+        } else {
+          this.$refs.testPlanLitTable.selectRows.forEach((item) => {
+            ids.push(item.id)
+          });
+        }
+        param.ids = ids;
+        this.cardLoading = batchDeletePlan(param).then(() => {
+          this.refresh();
+          this.$success(this.$t('commons.delete_success'));
+        });
+      }).catch(() => {
+        this.$info(this.$t('commons.delete_cancel'));
+      });
     },
     handleBatchSwitch() {
       let param = [];
