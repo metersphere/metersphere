@@ -2,6 +2,7 @@ package io.metersphere.api.jmeter.utils;
 
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -42,25 +43,27 @@ public class ReportStatusUtil {
      * @param dto jmeter返回
      * @return
      */
-    public static String getStatus(ResultDTO dto, String status) {
-        if (StringUtils.equals(status, ApiReportStatus.ERROR.name())) {
-            return status;
+    public static ResultVO getStatus(ResultDTO dto, ResultVO resultVO) {
+        resultVO.computerTotal(dto.getRequestResults().size());
+        resultVO.computerSuccess(dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count());
+        if (StringUtils.equals(resultVO.getStatus(), ApiReportStatus.ERROR.name())) {
+            return resultVO;
         }
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            return String.valueOf(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS));
+            resultVO.setStatus(String.valueOf(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS)));
         }
         // 过滤掉重试结果后进行统计
         List<RequestResult> requestResults = filterRetryResults(dto.getRequestResults());
         long errorSize = requestResults.stream().filter(requestResult ->
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.ERROR.name())).count();
         // 误报
-        long errorReportResultSize = dto.getRequestResults().stream(). filter(
+        long errorReportResultSize = dto.getRequestResults().stream().filter(
                 requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())).count();
         // 默认状态
-        status = dto.getRequestResults().isEmpty() && StringUtils.isEmpty(status)
+        String status = dto.getRequestResults().isEmpty() && StringUtils.isEmpty(resultVO.getStatus())
                 ? ApiReportStatus.PENDING.name()
-                : StringUtils.defaultIfEmpty(status, ApiReportStatus.SUCCESS.name());
+                : StringUtils.defaultIfEmpty(resultVO.getStatus(), ApiReportStatus.SUCCESS.name());
         if (errorSize > 0) {
             status = ApiReportStatus.ERROR.name();
         } else if (errorReportResultSize > 0) {
@@ -73,18 +76,22 @@ public class ReportStatusUtil {
             LoggerUtil.info("资源 " + dto.getTestId() + " 执行超时", dto.getReportId());
             status = ApiReportStatus.ERROR.name();
         }
-        return status;
+        resultVO.setStatus(status);
+        return resultVO;
     }
 
-    public static String getStatus(ResultDTO dto) {
+    public static ResultVO computedProcess(ResultDTO dto) {
+        ResultVO result = new ResultVO();
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.LOCAL_STATUS_KEY)) {
             // 本地执行状态
-            return String.valueOf(dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY));
+            result = (ResultVO) dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY);
+            return result;
         }
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            return String.valueOf(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS));
+            result = (ResultVO) dto.getArbitraryData().get(CommonConstants.REPORT_STATUS);
+            return result;
         }
-        return getStatus(dto, "");
+        return getStatus(dto, result);
     }
 }
