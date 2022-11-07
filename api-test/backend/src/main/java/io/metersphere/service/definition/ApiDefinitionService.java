@@ -8,8 +8,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
@@ -1908,14 +1908,20 @@ public class ApiDefinitionService {
     }
 
 
-    public ReferenceDTO getReference(ApiScenarioRequest request) {
-        ReferenceDTO dto = new ReferenceDTO();
-        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
-        QueryReferenceRequest planRequest = new QueryReferenceRequest();
-        planRequest.setApiId(request.getId());
-        planRequest.setProjectId(request.getProjectId());
-        dto.setTestPlanList(extTestPlanApiCaseMapper.selectTestPlanByRelevancy(planRequest));
-        return dto;
+    public List<ApiScenarioDTO> getReference(ApiScenarioRequest request) {
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return new ArrayList<>();
+        } else {
+            return extApiScenarioMapper.selectReference(request);
+        }
+    }
+
+    public void getReferenceIds(ApiScenarioRequest request) {
+        ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
+        example.createCriteria().andReferenceIdEqualTo(request.getId()).andReferenceTypeEqualTo(MsTestElementConstants.REF.name());
+        List<ApiScenarioReferenceId> scenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(example);
+        List<String> scenarioIds = scenarioReferenceIds.stream().map(ApiScenarioReferenceId::getApiScenarioId).collect(Collectors.toList());
+        request.setIds(scenarioIds);
     }
 
     public void editApiBath(ApiBatchRequest request) {

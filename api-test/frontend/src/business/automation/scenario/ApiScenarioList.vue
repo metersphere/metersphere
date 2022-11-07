@@ -262,6 +262,7 @@
           :row="scope.row"
           @openSchedule="openSchedule(scope.row)"
           @openScenario="openScenario"
+          @showCaseRef="showScenarioRef"
           v-if="!trashEnable" style="display: contents"/>
       </template>
 
@@ -317,7 +318,16 @@
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
-    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
+    <scenario-delete-confirm ref="apiDeleteConfirmVersion" @handleDelete="_handleDelete"/>
+    <!--  删除场景弹窗  -->
+    <api-delete-confirm
+      :has-ref="hasRef"
+      :show-scenario="showScenario"
+      @showCaseRef="showScenarioRef"
+      @handleDeleteCase="handleDeleteScenario"
+      ref="apiDeleteConfirm"/>
+    <!--  引用场景弹窗  -->
+    <ms-show-reference ref="viewRef" @showCaseRef="showScenarioRef" @openScenario="openScenario"/>
   </div>
 </template>
 
@@ -350,7 +360,7 @@ import {
 import {getMaintainer, getProject} from "@/api/project";
 import {getProjectVersions, versionEnableByProjectId} from "@/api/xpack";
 import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {downloadFile, getUUID, objToStrMap, operationConfirm, strMapToObj} from "metersphere-frontend/src/utils";
+import {downloadFile, getUUID, objToStrMap, strMapToObj} from "metersphere-frontend/src/utils";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {API_SCENARIO_LIST} from "metersphere-frontend/src/utils/constants";
@@ -370,6 +380,7 @@ import {API_SCENARIO_CONFIGS_TRASH, TYPE_TO_C} from "@/business/automation/scena
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
+import ScenarioDeleteConfirm from "@/business/automation/scenario/ScenarioDeleteConfirm";
 import {$error} from "metersphere-frontend/src/plugins/message"
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import {buildNodePath} from "metersphere-frontend/src/model/NodeTree";
@@ -379,6 +390,8 @@ import {usePerformanceStore} from "@/store";
 import {request} from "metersphere-frontend/src/plugins/request"
 import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
 import MsApiRunMode from "@/business/automation/scenario/common/ApiRunMode";
+import ApiDeleteConfirm from "@/business/definition/components/list/ApiDeleteConfirm";
+import MsShowReference from "@/business/definition/components/reference/ShowReference";
 
 const performanceStore = usePerformanceStore();
 export default {
@@ -392,6 +405,9 @@ export default {
     HeaderLabelOperate,
     MsSearch,
     MsApiRunMode,
+    ApiDeleteConfirm,
+    MsShowReference,
+    ScenarioDeleteConfirm,
     MsApiReportStatus: () => import("../report/ApiReportStatus"),
     HeaderCustom: () => import("metersphere-frontend/src/components/head/HeaderCustom"),
     BatchMove: () => import("@/business/commons/BatchMove"),
@@ -630,6 +646,8 @@ export default {
       resultFilters: REPORT_STATUS,
       runRequest: {},
       versionEnable: false,
+      hasRef: false,
+      showScenario: false,
     };
   },
   created() {
@@ -1086,26 +1104,17 @@ export default {
       } else {
         let param = {};
         this.buildBatchParam(param);
+        param.type = 'batch';
+        this.showScenario = false;
+        this.hasRef = false;
         checkBeforeDelete(param).then(response => {
           let checkResult = response.data;
           let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
-          if (!checkResult.deleteFlag) {
-            alertMsg = "";
-            checkResult.checkMsg.forEach(item => {
-              alertMsg += item + ";";
-            });
-            if (alertMsg === "") {
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
-            } else {
-              alertMsg += this.$t('api_test.is_continue') + this.$t('commons.delete') + " ？";
-            }
+          if (checkResult.deleteFlag) {
+            alertMsg = this.$t('api_definition.scenario_is_referenced', [checkResult.refCount]) + ', ' + this.$t('api_test.is_continue') + " ？";
+            this.showScenario = true;
           }
-          operationConfirm(this, alertMsg, () => {
-            removeScenarioToGcByBatch(param).then(() => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
-            });
-          });
+          this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_definition.delete_case'), param, checkResult.checkMsg);
         });
       }
     },
@@ -1234,6 +1243,15 @@ export default {
         this.selectDataRange = dataRange;
         this.selectDataType = dataType;
       }
+      if (this.$route.query && this.$route.params.dataSelectRange === 'ref') {
+        if (this.$route.query.ids) {
+          if (typeof this.$route.query.ids === 'string') {
+            this.condition.ids = [this.$route.query.ids];
+          } else {
+            this.condition.ids = this.$route.query.ids;
+          }
+        }
+      }
     },
     changeSelectDataRangeAll() {
       this.$emit("changeSelectDataRangeAll");
@@ -1249,32 +1267,39 @@ export default {
         let param = {};
         this.buildBatchParam(param);
         param.ids = [row.id];
+        this.showScenario = false;
+        this.hasRef = false;
         checkBeforeDelete(param).then(response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm');
-          if (!checkResult.deleteFlag) {
-            alertMsg = "";
-            checkResult.checkMsg.forEach(item => {
-              alertMsg += item;
-            });
-            if (alertMsg === "") {
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm');
-            } else {
-              alertMsg += this.$t('api_test.is_continue') + this.$t('commons.delete');
-            }
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + '[' + row.name + ']' + '?';
+          if (checkResult.deleteFlag) {
+            alertMsg = '[' + row.name + '] ' + this.$t('api_definition.scenario_is') + (checkResult.scenarioCount > 0 ? this.$t('api_definition.scenario_count', [checkResult.scenarioCount]) : '') +
+              (checkResult.planCount > 0 && checkResult.scenarioCount > 0 ? '、 ' : '') +
+              (checkResult.planCount > 0 ? this.$t('api_definition.plan_count', [checkResult.planCount]) : '') + this.$t('api_test.scenario.reference') + ', ' +
+              this.$t('api_test.is_continue') + " ？";
+            this.hasRef = true;
           }
           //
           getScenarioVersions(row.id).then(response => {
             if (hasLicense() && this.versionEnable && response.data.length > 1) {
               // 删除提供列表删除和全部版本删除
-              this.$refs.apiDeleteConfirm.open(row, alertMsg);
+              this.$refs.apiDeleteConfirmVersion.open(row, alertMsg);
             } else {
-              operationConfirm(this, alertMsg, () => {
-                this._handleDelete(row, false);
-              });
+              this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_scenario.delete'), row, null);
             }
           });
         });
+      }
+    },
+    handleDeleteScenario(row) {
+      this.$refs.apiDeleteConfirm.close();
+      if (row.type === 'batch') {
+        removeScenarioToGcByBatch(row).then(() => {
+          this.$success(this.$t('commons.delete_success'));
+          this.search();
+        });
+      } else {
+        this._handleDelete(row, false);
       }
     },
     _handleDelete(api, deleteCurrentVersion) {
@@ -1282,7 +1307,7 @@ export default {
       if (deleteCurrentVersion) {
         delByScenarioIdAndRefId(api.versionId, api.refId).then(() => {
           this.$success(this.$t('commons.delete_success'));
-          this.$refs.apiDeleteConfirm.close();
+          this.$refs.apiDeleteConfirmVersion.close();
           this.search();
         });
       }
@@ -1293,7 +1318,7 @@ export default {
         param.ids = [api.id];
         removeScenarioToGcByBatch(param).then(() => {
           this.$success(this.$t('commons.delete_success'));
-          this.$refs.apiDeleteConfirm.close();
+          this.$refs.apiDeleteConfirmVersion.close();
           this.search();
         });
       }
@@ -1429,7 +1454,10 @@ export default {
           this.$set(data, "isStop", false);
         }
       }
-    }
+    },
+    showScenarioRef(row) {
+      this.$refs.viewRef.open(row, 'SCENARIO');
+    },
   }
 };
 </script>

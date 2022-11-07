@@ -5,6 +5,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseRelevanceRequest;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.automation.TestPlanDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
@@ -18,10 +20,7 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.ExtendedParameter;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -29,6 +28,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.ServiceUtils;
@@ -769,5 +769,24 @@ public class TestPlanApiCaseService {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(list);
         return testPlanApiCaseMapper.selectByExample(example);
+    }
+
+    //获取case和测试计划引用关系
+    public List<TestPlanDTO> getReference(QueryReferenceRequest request) {
+        if (CollectionUtils.isEmpty(request.getOrders())) {
+            OrderRequest req = new OrderRequest();
+            req.setName("name");
+            req.setType("asc");
+            request.setOrders(new ArrayList<>() {{
+                this.add(req);
+            }});
+        }
+        QueryReferenceRequest planRequest = new QueryReferenceRequest();
+        if (StringUtils.equals(request.getScenarioType(), ReportTypeConstants.API.name())) {
+            planRequest.setApiId(request.getId());
+        } else {
+            planRequest.setScenarioId(request.getId());
+        }
+        return extTestPlanApiCaseMapper.selectTestPlanByRelevancy(planRequest);
     }
 }

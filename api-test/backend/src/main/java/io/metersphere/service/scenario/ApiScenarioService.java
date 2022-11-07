@@ -21,12 +21,10 @@ import io.metersphere.api.parse.scenario.ScenarioImport;
 import io.metersphere.api.parse.scenario.ScenarioImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
-import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.base.mapper.ext.ExtScheduleMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -158,6 +156,10 @@ public class ApiScenarioService {
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
+    @Resource
+    private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -932,7 +934,7 @@ public class ApiScenarioService {
 
     public ReferenceDTO getReference(ApiScenarioRequest request) {
         ReferenceDTO dto = new ReferenceDTO();
-        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
+        //dto.setScenarioList(extApiScenarioMapper.selectReference(request));
         QueryReferenceRequest planRequest = new QueryReferenceRequest();
         planRequest.setScenarioId(request.getId());
         planRequest.setProjectId(request.getProjectId());
@@ -1965,49 +1967,58 @@ public class ApiScenarioService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
         List<String> deleteIds = request.getIds();
         DeleteCheckResult result = new DeleteCheckResult();
-        List<String> checkMsgList = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(deleteIds)) {
-            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds, MsTestElementConstants.REF.name());
+            Map<String, List<String>> scenarioDic = new HashMap<>();
+            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = extApiScenarioReferenceIdMapper.selectReferenceIdByIds(deleteIds);
             if (CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)) {
-                Map<String, List<String>> scenarioDic = new HashMap<>();
                 apiScenarioReferenceIdList.forEach(item -> {
-                    String refreceID = item.getReferenceId();
+                    String referenceId = item.getReferenceId();
                     String scenarioId = item.getApiScenarioId();
-                    if (scenarioDic.containsKey(refreceID)) {
-                        scenarioDic.get(refreceID).add(scenarioId);
+                    if (scenarioDic.containsKey(referenceId)) {
+                        scenarioDic.get(referenceId).add(scenarioId);
                     } else {
                         List<String> list = new ArrayList<>();
                         list.add(scenarioId);
-                        scenarioDic.put(refreceID, list);
+                        scenarioDic.put(referenceId, list);
                     }
                 });
-
-                for (Map.Entry<String, List<String>> entry : scenarioDic.entrySet()) {
-                    String refreceId = entry.getKey();
-                    List<String> scenarioIdList = entry.getValue();
-                    if (CollectionUtils.isNotEmpty(scenarioIdList)) {
-                        String deleteScenarioName = extApiScenarioMapper.selectNameById(refreceId);
-                        List<String> scenarioNames = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
-
-                        if (StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)) {
-                            String nameListStr = StringUtils.SPACE;
-                            for (String name : scenarioNames) {
-                                nameListStr += name + ",";
-                            }
-                            if (nameListStr.length() > 1) {
-                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + StringUtils.SPACE;
-                            }
-                            String msg = deleteScenarioName + StringUtils.SPACE + Translator.get("delete_check_reference_by") + ": " + nameListStr + StringUtils.SPACE;
-                            checkMsgList.add(msg);
-                        }
+            }
+            //测试计划引用
+            List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanApiScenarioMapper.selectByScenarioIds(deleteIds);
+            Map<String, List<String>> planList = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
+                testPlanApiScenarios.forEach(item -> {
+                    String referenceId = item.getApiScenarioId();
+                    String testPlanId = item.getTestPlanId();
+                    if (planList.containsKey(referenceId)) {
+                        planList.get(referenceId).add(testPlanId);
+                    } else {
+                        List<String> list = new ArrayList<>();
+                        list.add(testPlanId);
+                        planList.put(referenceId, list);
+                    }
+                });
+            }
+            if (MapUtils.isNotEmpty(scenarioDic) || MapUtils.isNotEmpty(planList)) {
+                if (StringUtils.equals("batch", request.getType())) {
+                    Map<String, List<String>> map = scenarioDic.entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v2, () -> new HashMap<>(planList)));
+                    result.setRefCount(map.size());
+                    result.setCheckMsg(new ArrayList<>(map.keySet()));
+                } else {
+                    ArrayList<List<String>> scenarioList = new ArrayList<>(scenarioDic.values());
+                    if (CollectionUtils.isNotEmpty(scenarioList)) {
+                        result.setScenarioCount(new TreeSet<String>(scenarioList.get(0)).size());
+                    }
+                    ArrayList<List<String>> testPlanList = new ArrayList<>(planList.values());
+                    if (CollectionUtils.isNotEmpty(testPlanList)) {
+                        result.setPlanCount(new TreeSet<String>(testPlanList.get(0)).size());
                     }
                 }
+                result.setDeleteFlag(scenarioDic.size() > 0 || planList.size() > 0);
             }
         }
-
-        result.setDeleteFlag(checkMsgList.isEmpty());
-        result.setCheckMsg(checkMsgList);
         return result;
     }
 

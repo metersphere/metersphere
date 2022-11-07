@@ -650,7 +650,7 @@ export default {
           this.condition.scenarioCoverage = null;
           break;
         case 'covered':
-          this.condition.apiCoverage = '"unCovered"';
+          this.condition.apiCoverage = '"covered"';
           this.condition.scenarioCoverage = 'covered';
           break;
         case 'notCoveredTestCase':

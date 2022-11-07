@@ -33,4 +33,6 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private String env;
     private Map<String, String> environmentMap;
     private String creator;
+    private String workspaceName;
+    private String workspaceId;
 }
