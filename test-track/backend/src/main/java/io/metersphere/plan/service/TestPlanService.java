@@ -1843,7 +1843,6 @@ public class TestPlanService {
             this.setPlanCaseEnv(testPlanId, runModeConfig);
         } else if (StringUtils.equals(testplanRunRequest.getEnvironmentType(), "GROUP") && StringUtils.isNotBlank(testplanRunRequest.getEnvironmentGroupId())) {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
-            runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
             this.setPlanCaseEnv(testPlanId, runModeConfig);
         }
     }

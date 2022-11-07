@@ -56,7 +56,7 @@
 <script>
 
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {environmentGetALl} from "metersphere-frontend/src/api/environment";
+import {environmentGetALL} from "metersphere-frontend/src/api/environment";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import {getEnvironmentByProjectId} from "@/api/remote/api/api-environment";
@@ -114,7 +114,7 @@ export default {
       this.visible = true;
     },
     getgroups(){
-      environmentGetALl().then(res => {
+      environmentGetALL().then(res => {
         let data = res.data;
         this.groups = data ? data : [];
       })

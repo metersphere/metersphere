@@ -48,7 +48,7 @@ export function addGroupEnvironment(params) {
   return post('/environment/group/add', params);
 }
 
-export function environmentGetALl() {
+export function environmentGetALL() {
   return post('/environment/group/get/all', {});
 }
 
