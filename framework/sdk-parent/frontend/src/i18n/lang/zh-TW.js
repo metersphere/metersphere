@@ -1568,6 +1568,8 @@ const message = {
       config_environment: "配置環境",
       copy_environment: "復製環境",
       environment: "環境",
+      default_environment: "默認環境",
+      choose_new_environment:"選擇新環境",
       environment_type: "環境类型",
       environment_json: "環境配置",
       environment_group_id: "環境組ID",

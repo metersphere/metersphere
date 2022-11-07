@@ -322,18 +322,6 @@ public class TestPlanApiCaseService {
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
         if (request.getConfig() != null) {
-            RunModeConfigDTO config = request.getConfig();
-            if (config != null) {
-                String envType = config.getEnvironmentType();
-                String envGroupId = config.getEnvironmentGroupId();
-                Map<String, String> envMap = config.getEnvMap();
-                if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())) {
-                    setApiCaseEnv(null, request.getPlanIds(), envMap);
-                } else if ((StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
-                    Map<String, String> map = environmentGroupProjectService.getEnvMap(envGroupId);
-                    setApiCaseEnv(null, request.getPlanIds(), map);
-                }
-            }
             return testPlanApiCaseExecuteService.run(request);
         }
         return null;

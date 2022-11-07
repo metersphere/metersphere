@@ -1562,6 +1562,8 @@ const message = {
       config_environment: "Config Environment",
       copy_environment: "copy environment",
       environment: "Environment",
+      default_environment:"Default environment",
+      choose_new_environment:"Choose new environment",
       environment_type: "Environment Type",
       environment_json: "Environment Config",
       environment_group_id: "Environment Group ID",

@@ -4,6 +4,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HttpHeaderUtils;
+import io.metersphere.plan.dto.ExecutionWay;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sechedule.MsScheduleJob;
 import io.metersphere.service.BaseUserService;
@@ -59,7 +60,7 @@ public class TestPlanTestJob extends MsScheduleJob {
 
         // 定时任务指定调用微服务的user
         HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(runUserId));
-        testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(), null, config);
+        testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(), null, ExecutionWay.RUN.name(), config);
         HttpHeaderUtils.clearUser();
     }
 
