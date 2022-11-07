@@ -764,7 +764,7 @@ public class TestPlanService {
         return testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
     }
 
-    public String run(String testPlanID, String projectID, String userId, String triggerMode, String planReportId, String apiRunConfig) {
+    public String run(String testPlanId, String projectId, String userId, String triggerMode, String planReportId,String executionWay, String apiRunConfig) {
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSON.parseObject(apiRunConfig, RunModeConfigDTO.class);
@@ -776,9 +776,10 @@ public class TestPlanService {
         }
 
         //环境参数为空时，依据测试计划保存的环境执行
-        if ((StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId()))
-                || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap()))) {
-            TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanID);
+        if (((StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId()))
+                || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap())))
+                && !StringUtils.equals(executionWay,ExecutionWay.RUN.name())) {
+            TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
             if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
                 try {
                     Map json = JSON.parseMap(testPlanWithBLOBs.getRunModeConfig());
@@ -788,7 +789,7 @@ public class TestPlanService {
                         String envType = testPlanRunRequest.getEnvironmentType();
                         Map<String, String> envMap = testPlanRunRequest.getEnvMap();
                         String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
-                        runModeConfig = getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanID);
+                        runModeConfig = getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
                         if (!testPlanRunRequest.isRunWithinResourcePool()) {
                             runModeConfig.setResourcePoolId(null);
                         }
@@ -803,9 +804,9 @@ public class TestPlanService {
         }
 
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanID, userId, triggerMode, runModeConfig);
+        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanId, userId, triggerMode, runModeConfig);
         //测试计划准备执行，取消测试计划的实际结束时间
-        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
+        extTestPlanMapper.updateActualEndTimeIsNullById(testPlanId);
 
         LoggerUtil.info("预生成测试计划报告【" + reportInfoDTO.getTestPlanReport() != null ? reportInfoDTO.getTestPlanReport().getName() : StringUtils.EMPTY + "】计划报告ID[" + planReportId + "]");
 
@@ -821,7 +822,7 @@ public class TestPlanService {
         if (reportInfoDTO.getPlanScenarioIdMap() != null) {
             //执行场景执行任务
             LoggerUtil.info("开始执行测试计划场景用例 " + planReportId);
-            scenarioReportMap = this.executeScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
+            scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
         }
 
         if (reportInfoDTO.getPerformanceIdMap() != null) {
@@ -833,7 +834,7 @@ public class TestPlanService {
         if (reportInfoDTO.getUiScenarioIdMap() != null) {
             //执行UI场景执行任务
             LoggerUtil.info("开始执行测试计划 UI 场景用例 " + planReportId);
-            uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
+            uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
         }
 
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
@@ -1517,24 +1518,29 @@ public class TestPlanService {
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
         String testPlanId = testplanRunRequest.getTestPlanId();
         RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
-        if (!testplanRunRequest.isRunWithinResourcePool()) {
-            runModeConfig.setResourcePoolId(null);
-        }
+
         String apiRunConfig = JSON.toJSONString(runModeConfig);
         return this.run(testPlanId, testplanRunRequest.getProjectId(),
-                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), apiRunConfig);
+                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(),testplanRunRequest.getExecutionWay(), apiRunConfig);
 
     }
 
     private RunModeConfigDTO getRunModeConfigDTO(TestPlanRunRequest testplanRunRequest, String envType, Map<String, String> envMap, String environmentGroupId, String testPlanId) {
         RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
+        if (!testplanRunRequest.isRunWithinResourcePool()) {
+            runModeConfig.setResourcePoolId(null);
+        }
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
         if (StringUtils.equals(envType, "JSON") && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
-            this.setPlanCaseEnv(testPlanId, runModeConfig);
+            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(),ExecutionWay.RUN.name())){
+                this.setPlanCaseEnv(testPlanId, runModeConfig);
+            }
         } else if (StringUtils.equals(envType, "GROUP") && StringUtils.isNotBlank(environmentGroupId)) {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
-            this.setPlanCaseEnv(testPlanId, runModeConfig);
+            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(),ExecutionWay.RUN.name())){
+                this.setPlanCaseEnv(testPlanId, runModeConfig);
+            }
         }
         runModeConfig.setMode(testplanRunRequest.getMode());
         runModeConfig.setResourcePoolId(testplanRunRequest.getResourcePoolId());
@@ -1827,6 +1833,19 @@ public class TestPlanService {
     public void updateRunModeConfig(TestPlanRunRequest testplanRunRequest) {
         String testPlanId = testplanRunRequest.getTestPlanId();
         updatePlan(testplanRunRequest, testPlanId);
+        RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
+        if (!testplanRunRequest.isRunWithinResourcePool()) {
+            runModeConfig.setResourcePoolId(null);
+        }
+        runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
+        if (StringUtils.equals(testplanRunRequest.getEnvironmentType(), "JSON") && !testplanRunRequest.getEnvMap().isEmpty()) {
+            runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
+            this.setPlanCaseEnv(testPlanId, runModeConfig);
+        } else if (StringUtils.equals(testplanRunRequest.getEnvironmentType(), "GROUP") && StringUtils.isNotBlank(testplanRunRequest.getEnvironmentGroupId())) {
+            runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
+            runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
+            this.setPlanCaseEnv(testPlanId, runModeConfig);
+        }
     }
 
     public boolean haveUiCase(String planId) {

@@ -34,5 +34,8 @@ public class TestPlanRunRequest {
     //ui 测试
     private String browser;
     private boolean headlessEnabled;
+
+    //执行方式：仅保存，保存并执行，仅执行
+    private String executionWay;
 }
 

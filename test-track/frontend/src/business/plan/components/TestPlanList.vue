@@ -315,7 +315,7 @@
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData" :plan-case-ids="[]"
                                     :type="'plan'" :have-u-i-case="haveUICase"/>
     <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refresh="refresh"/>
-    <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
+    <ms-test-plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
                             :plan-id="currentPlanId" :show-save="true" :have-u-i-case="haveUICase"/>
     <test-plan-report-review ref="testCaseReportView"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
@@ -366,13 +366,13 @@ import MsTestPlanScheduleMaintain from "@/business/plan/components/ScheduleMaint
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {operationConfirm} from "metersphere-frontend/src/utils";
-import PlanRunModeWithEnv from "@/business/plan/common/PlanRunModeWithEnv";
+import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {
   getPlanStageOption, testPlanCopy, testPlanDelete, testPlanEdit,
   testPlanEditFollows,
   testPlanEditRunConfig, testPlanGetEnableScheduleCount, testPlanGetFollow, testPlanGetPrincipal, testPlanHaveExecCase,
-  testPlanHaveUiCase, testPlanList, testPlanRunBatch,
+  testPlanHaveUiCase, testPlanList, testPlanRun, testPlanRunBatch,
   testPlanRunSave, testPlanUpdateScheduleEnable
 } from "@/api/remote/plan/test-plan";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -397,7 +397,7 @@ export default {
     MsTestPlanScheduleMaintain,
     MsTableOperator, MsTableOperatorButton,
     MsDialogFooter, MsTableHeader,
-    MsTablePagination, PlanRunModeWithEnv, MsTaskCenter,
+    MsTablePagination, MsTestPlanRunModeWithEnv, MsTaskCenter,
     MsTableColumn,
     MsTable,
     MsTestPlanScheduleBatchSwitch
@@ -829,7 +829,8 @@ export default {
       param.retryNum = config.retryNum;
       param.browser = config.browser;
       param.headlessEnabled = config.headlessEnabled;
-      if (config.isRun === true) {
+      if (config.executionWay === "runAndSave") {
+        param.executionWay = "RUN_SAVE"
         this.$refs.taskCenter.open();
         this.cardLoading = true;
         testPlanRunSave(param)
@@ -838,13 +839,23 @@ export default {
             this.$success(this.$t('commons.run_success'));
           });
 
-      } else {
+      } else if (config.executionWay === "save") {
+        param.executionWay = "SAVE"
         this.cardLoading = true;
         testPlanEditRunConfig(param)
           .then(() => {
             this.cardLoading = false;
             this.initTableData();
             this.$success(this.$t('commons.save_success'));
+          });
+      } else {
+        param.executionWay = "RUN"
+        this.$refs.taskCenter.open();
+        this.cardLoading = true;
+        testPlanRun(param)
+          .then(() => {
+            this.cardLoading = false;
+            this.$success(this.$t('commons.run_success'));
           });
       }
     },

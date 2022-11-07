@@ -52,6 +52,10 @@ export function testPlanRunSave(param) {
   return post(BASE_URL + 'run/save', param);
 }
 
+export function testPlanRun(param) {
+  return post(BASE_URL + 'run', param);
+}
+
 export function testPlanHaveUiCase(id) {
   return get(BASE_URL + `have/ui/case/${id}`);
 }
