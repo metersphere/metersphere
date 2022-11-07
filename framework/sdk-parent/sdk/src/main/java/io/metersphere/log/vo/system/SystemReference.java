@@ -81,8 +81,7 @@ public class SystemReference {
         messageColumns.put("type", "通知类型");
         messageColumns.put("event", "事件");
         messageColumns.put("taskType", "任务类型");
-        messageColumns.put("webhook", "勾子");
-        messageColumns.put("identification", "鉴别");
+        messageColumns.put("webhook", "webhook");
         messageColumns.put("template", "模版");
 
         fieldColumns.put("name", "用户名称");
