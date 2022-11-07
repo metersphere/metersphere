@@ -76,6 +76,7 @@ public class JSONToDocumentUtils {
                 JSONArray array = JSON.parseArray(json);
                 jsonDataFormatting(array, children);
             } else {
+                roots.add(new DocumentElement().newRoot(BasicConstant.ARRAY, children));
                 JSONArray array = JSON.parseArray(json);
                 jsonDataFormatting(array, roots);
             }
@@ -85,6 +86,7 @@ public class JSONToDocumentUtils {
                 JSONObject object = JSON.parseObject(json);
                 jsonDataFormatting(object, children);
             } else {
+                roots.add(new DocumentElement().newRoot(BasicConstant.OBJECT, children));
                 JSONObject object = JSON.parseObject(json);
                 jsonDataFormatting(object, roots);
             }
