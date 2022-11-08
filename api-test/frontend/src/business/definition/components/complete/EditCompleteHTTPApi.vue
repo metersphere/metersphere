@@ -517,7 +517,23 @@ export default {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.apiSyncRuleRelation.showUpdateRule === true && !this.noShowSyncRuleRelation) {
+            if (this.request.authManager && this.beforeRequest.authManager) {
+              let submitRequestAuthManager = JSON.stringify(this.request.authManager);
+              let beforeRequestAuthManager = JSON.stringify(this.beforeRequest.authManager);
+              if ((submitRequestAuthManager !== beforeRequestAuthManager) && !this.noShowSyncRuleRelation) {
+                this.batchSyncApiVisible = true;
+              }
+            }
+            if (this.request.hashTree && this.beforeRequest.hashTree) {
+              let submitRequestHashTree = JSON.stringify(this.request.hashTree);
+              let beforeRequestHashTree = JSON.stringify(this.beforeRequest.hashTree);
+              if ((submitRequestHashTree !== beforeRequestHashTree) && !this.noShowSyncRuleRelation) {
+                this.batchSyncApiVisible = true;
+              }
+            }
+            if (((this.request.connectTimeout !== this.beforeRequest.connectTimeout) || (this.request.responseTimeout !== this.beforeRequest.responseTimeout)
+              || (this.request.followRedirects !== this.beforeRequest.followRedirects) || (this.request.alias !== this.beforeRequest.alias)
+              || this.apiSyncRuleRelation.showUpdateRule === true) && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
             }
             if (this.batchSyncApiVisible !== true) {
