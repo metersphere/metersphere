@@ -56,13 +56,16 @@
                        min-width="120px">
         <template v-slot:default="{row}">
           <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success' || row.lastResult === 'SUCCESS'">
-            {{ $t('api_test.automation.success') }}
+            {{ $t('Success') }}
           </el-link>
           <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail' || row.lastResult === 'FAIL' || row.lastResult === 'ERROR'">
-            {{ $t('api_test.automation.fail') }}
+            {{ $t('Error') }}
           </el-link>
-          <el-link type="info" v-else-if="row.lastResult === 'PENDING' || row.lastResult === 'UnExecute' || !row.lastResult">
-            {{ $t('api_test.home_page.detail_card.unexecute') }}
+          <el-link type="info" v-else-if="row.lastResult === 'PENDING' || row.lastResult === 'UnExecute'">
+            {{ $t('Pending') }}
+          </el-link>
+          <el-link type="info" v-else>
+            {{ row.lastResult }}
           </el-link>
         </template>
       </el-table-column>
