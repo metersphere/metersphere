@@ -894,7 +894,10 @@ export default {
       this.basisData.caseTotal = 0;
     }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
-
+    if(this.basisData.request) {
+      this.httpForm.path = this.basisData.request.path;
+      this.httpForm.method = this.basisData.request.method;
+    }
     definitionFollow(this.basisData.id).then(response => {
       this.httpForm.follows = response.data;
       this.beforeHttpForm.follows = response.data;
