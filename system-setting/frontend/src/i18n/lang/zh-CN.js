@@ -9,7 +9,9 @@ const message = {
   system: {
     environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",
     search_by_environment_name: "根据环境的名称搜索",
-    check_third_project_success: "检查通过"
+    check_third_project_success: "检查通过",
+    api_default_run_message: '为了不影响接口正常执行，请在【 项目设置-应用管理-接口测试 】中配置接口执行的资源池',
+    api_default_run: '接口默认本地执行',
   },
   display: {
     title: '显示设置',

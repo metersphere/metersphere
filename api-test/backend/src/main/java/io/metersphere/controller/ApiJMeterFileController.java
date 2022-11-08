@@ -1,5 +1,6 @@
 package io.metersphere.controller;
 
+import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.service.ApiJMeterFileService;
 import org.springframework.http.HttpHeaders;
@@ -56,6 +57,15 @@ public class ApiJMeterFileController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
+                .body(bytes);
+    }
+
+    @PostMapping("download/files")
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody BodyFileRequest request) {
+        byte[] bytes = apiJmeterFileService.zipFilesToByteArray(request);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getReportId() + ".zip\"")
                 .body(bytes);
     }
 }

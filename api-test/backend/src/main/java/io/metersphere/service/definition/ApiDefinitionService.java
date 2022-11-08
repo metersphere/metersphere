@@ -22,6 +22,7 @@ import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.api.parse.api.ApiDefinitionImportParserFactory;
@@ -166,7 +167,8 @@ public class ApiDefinitionService {
     private ApiCustomFieldService customFieldApiService;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
-
+    @Resource
+    private JMeterService jMeterService;
 
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -2838,6 +2840,11 @@ public class ApiDefinitionService {
      * @return
      */
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        if(request.getConfig() == null ) {
+            request.setConfig(new RunModeConfigDTO());
+        }
+        // 验证是否本地执行
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
         if (!request.isDebug()) {
             String testId = request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ? request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
             String reportName = this.getReportNameByTestId(testId);

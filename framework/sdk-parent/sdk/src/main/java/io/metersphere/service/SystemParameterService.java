@@ -236,6 +236,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.SELENIUM_DOCKER_URL.getValue())) {
                     baseSystemConfigDTO.setSeleniumDockerUrl(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.RUN_MODE.getValue())) {
+                    baseSystemConfigDTO.setRunMode(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;

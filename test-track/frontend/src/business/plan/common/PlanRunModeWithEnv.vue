@@ -6,7 +6,7 @@
     @close="close"
     :visible.sync="runModeVisible"
   >
-    <div class="env-container">
+    <div class="env-container" v-loading="loading">
       <div class="run-env-row wrap">
         <div class="title">{{ $t("commons.environment") }}：</div>
         <div class="content">
@@ -68,6 +68,7 @@
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
+              :disabled="runMode === 'POOL'"
             >
               {{ $t("run_mode.run_with_resource_pool") }}
             </el-checkbox>
@@ -94,6 +95,7 @@
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
+              :disabled="runMode === 'POOL'"
             >
               {{ $t("run_mode.run_with_resource_pool") }}
             </el-checkbox>
@@ -191,17 +193,21 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {strMapToObj} from "metersphere-frontend/src/utils";
 
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {getOwnerProjects} from "@/business/utils/sdk-utils";
+import {getCurrentProjectID, getOwnerProjects} from "@/business/utils/sdk-utils";
 import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
 import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
 import {getApiScenarioEnv, getPlanCaseEnv} from "@/api/remote/plan/test-plan";
+import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
+import {getProjectConfig} from "@/api/project";
 
 export default {
   name: "MsPlanRunModeWithEnv",
   components: {EnvGroupPopover, MsDialogFooter},
   data() {
     return {
+      loading: false,
+      runMode: "",
       btnStyle: {
         width: "260px",
       },
@@ -275,11 +281,33 @@ export default {
       this.testType = testType;
       this.getResourcePools();
       this.getWsProjects();
+      this.query();
+    },
+    query() {
+      this.loading = true;
+      this.result = getSystemBaseSetting().then(response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        } else {
+          this.loading = false;
+        }
+      })
+    },
+    getProjectApplication() {
+      getProjectConfig(getCurrentProjectID(), "").then(res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+        this.loading = false;
+      });
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
     },
     close() {
       this.runConfig = {

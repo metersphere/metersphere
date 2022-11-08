@@ -68,6 +68,7 @@
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
+              :disabled="runMode === 'POOL'"
             >
               {{ $t("run_mode.run_with_resource_pool") }}
             </el-checkbox>
@@ -94,6 +95,7 @@
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
+              :disabled="runMode === 'POOL'"
             >
               {{ $t("run_mode.run_with_resource_pool") }}
             </el-checkbox>
@@ -186,16 +188,19 @@
 </template>
 
 <script>
-import {getOwnerProjects, hasLicense} from "@/business/utils/sdk-utils";
+import {getCurrentProjectID, getOwnerProjects, hasLicense} from "@/business/utils/sdk-utils";
 import {BODY_TYPE as ENV_TYPE} from "@/business/plan/env/ApiTestModel";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import EnvPopover from "@/business/plan/env/EnvPopover";
+import {getProjectConfig} from "@/api/project";
+import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
 
 export default {
   name: "MsPlanRunModeWithEnv",
   components: {EnvPopover, MsDialogFooter},
   data() {
     return {
+      runMode: "",
       btnStyle: {
         width: "260px",
       },
@@ -269,11 +274,33 @@ export default {
       this.testType = testType;
       this.getResourcePools();
       this.getWsProjects();
+      this.query();
+    },
+    query() {
+      this.loading = true;
+      this.result = getSystemBaseSetting().then(response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        } else {
+          this.loading = false;
+        }
+      })
+    },
+    getProjectApplication() {
+      getProjectConfig(getCurrentProjectID(), "").then(res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+        this.loading = false;
+      });
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
     },
     close() {
       this.runConfig = {

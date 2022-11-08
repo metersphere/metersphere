@@ -94,6 +94,29 @@
                                  :unit-options="applyUnitOptions"
                                  @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime, config.shareReport)"
                                  :title="$t('report.report_sharing_link')"/>
+
+                    <!-- 接口测试资源池 -->
+                    <app-manage-item :title="$t('pj.api_run_pool_title')" :prepend-span="8" :middle-span="12"
+                                     :append-span="4" v-if="isPool">
+                      <template #middle>
+                        <el-select v-model="config.resourcePoolId"
+                                   size="mini"
+                                   @change="runModeChange(true, ['RESOURCE_POOL_ID', config.resourcePoolId])">
+                          <el-option
+                            v-for="item in resourcePools"
+                            :key="item.id"
+                            :label="item.name"
+                            :disabled="!item.api"
+                            :value="item.id">
+                          </el-option>
+                        </el-select>
+                      </template>
+                      <template #append>
+                        <el-switch v-model="config.poolEnable"
+                                   @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
+                      </template>
+                    </app-manage-item>
+
                   </el-row>
                 </el-col>
                 <el-col :span="8" class="commons-view-setting">
@@ -301,6 +324,7 @@ import TimingItem from "./TimingItem";
 import {genTcpMockPort} from "../../../api/project";
 import {batchModifyAppSetting, getProjectAppSetting} from "../../../api/app-setting";
 import {PROJECT_APP_SETTING} from "../../../common/js/constants";
+import {getSystemBaseSetting, getTestResourcePools} from "metersphere-frontend/src/api/system";
 
 export default {
   name: "appManage",
@@ -313,6 +337,8 @@ export default {
   data() {
     return {
       activeName: 'test_track',
+      resourcePools: [],
+      isPool: false,
       form: {
         cleanTrackReport: false,
         cleanTrackReportExpr: "",
@@ -381,6 +407,8 @@ export default {
   },
   created() {
     this.init();
+    this.getBase();
+    this.getResourcePools();
     this.isXpack = !!hasLicense();
   },
   computed: {
@@ -389,6 +417,24 @@ export default {
     },
   },
   methods: {
+    getBase() {
+      this.result = getSystemBaseSetting().then(response => {
+        this.isPool = response.data.runMode === 'POOL';
+      })
+    },
+    getResourcePools() {
+      this.result = getTestResourcePools().then(response => {
+        this.resourcePools = response.data;
+      });
+    },
+    runModeChange(value, other) {
+      if (value && !this.config.resourcePoolId) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        this.config.poolEnable = false;
+      } else {
+        this.switchChange("POOL_ENABLE", value, other);
+      }
+    },
     tcpMockSwitchChange(value, other) {
       if (value && this.config.mockTcpPort === 0) {
         genTcpMockPort(this.projectId).then(res => {

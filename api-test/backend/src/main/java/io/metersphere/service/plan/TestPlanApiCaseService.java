@@ -24,6 +24,7 @@ import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.CommonConstants;
+import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
@@ -773,7 +774,7 @@ public class TestPlanApiCaseService {
         request.setBloBs(apiCase);
         request.setReportId(reportId);
         Map<String, Object> extendedParameters = new HashMap<>();
-        extendedParameters.put("SYN_RES", true);
+        extendedParameters.put(ExtendedParameter.SYNC_STATUS, true);
         apiExecuteService.exec(request, extendedParameters);
     }
 }

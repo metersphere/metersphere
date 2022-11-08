@@ -33,4 +33,6 @@ public class ProjectConfig {
     private Boolean openUpdateTime = false;
     private String openUpdateRuleTime;
     private Boolean openUpdateRule;
+    private String resourcePoolId;
+    private Boolean poolEnable = false;
 }

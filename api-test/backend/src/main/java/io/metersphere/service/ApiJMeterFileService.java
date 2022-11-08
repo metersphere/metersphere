@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.api.ApiCaseSerialService;
@@ -308,4 +309,21 @@ public class ApiJMeterFileService {
             return null;
         }
     }
+
+    public byte[] zipFilesToByteArray(BodyFileRequest request) {
+        Map<String, byte[]> files = new LinkedHashMap<>();
+        if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            for (BodyFile bodyFile : request.getBodyFiles()) {
+                File file = new File(bodyFile.getName());
+                if (file != null && file.exists()) {
+                    byte[] fileByte = FileUtils.fileToByte(file);
+                    if (fileByte != null) {
+                        files.put(file.getAbsolutePath(), fileByte);
+                    }
+                }
+            }
+        }
+        return listBytesToZip(files);
+    }
+
 }

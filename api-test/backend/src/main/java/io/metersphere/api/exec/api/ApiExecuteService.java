@@ -23,12 +23,16 @@ import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -65,6 +69,8 @@ public class ApiExecuteService {
     private ObjectMapper mapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -80,6 +86,8 @@ public class ApiExecuteService {
         if (caseWithBLOBs == null) {
             return null;
         }
+        jMeterService.verifyPool(caseWithBLOBs.getProjectId(), new RunModeConfigDTO());
+
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
@@ -232,10 +240,17 @@ public class ApiExecuteService {
         runRequest.setDebug(request.isDebug());
         runRequest.setRunMode(runMode);
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-            this.put("SYN_RES", request.isSyncResult());
+            this.put(ExtendedParameter.SYNC_STATUS, request.isSyncResult());
             this.put("userId", SessionUtils.getUser().getId());
             this.put("userName", SessionUtils.getUser().getName());
         }});
+        // 开始执行
+        if (StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+            runRequest.setPoolId(request.getConfig().getResourcePoolId());
+            BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
+            runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
+        }
         return runRequest;
     }
 

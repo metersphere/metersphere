@@ -247,6 +247,7 @@
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
     <ms-api-case-run-mode-with-env
+      :is-scenario="false"
       :project-id="projectId"
       @handleRunBatch="runBatch"
       @close="initTable"
@@ -304,7 +305,7 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "@/business/commons/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import MsApiCaseRunModeWithEnv from "./ApiCaseRunModeWithEnv";
+import MsApiCaseRunModeWithEnv from "@/business/automation/scenario/common/RunMode";
 import {getUUID, operationConfirm} from "metersphere-frontend/src/utils";
 
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";

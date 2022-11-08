@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.scenario.ApiScenarioImportUtil;
@@ -35,6 +36,7 @@ import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -148,6 +150,8 @@ public class ApiScenarioService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    @Resource
+    private JMeterService jMeterService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -915,6 +919,8 @@ public class ApiScenarioService {
      * @return
      */
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+        request.setConfig(new RunModeConfigDTO());
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
         return apiScenarioExecuteService.debug(request, bodyFiles, scenarioFiles);
     }
 

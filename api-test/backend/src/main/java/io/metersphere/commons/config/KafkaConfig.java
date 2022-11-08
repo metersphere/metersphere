@@ -22,6 +22,7 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
+    public static final String DEBUG_TOPICS_KEY = "MS-API-DEBUG-KEY";
 
     @Resource
     private KafkaProperties kafkaProperties;
@@ -38,11 +39,18 @@ public class KafkaConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic debugTopic() {
+        return TopicBuilder.name(KafkaTopicConstants.DEBUG_TOPICS)
+                .build();
+    }
+
     public static Map<String, Object> getKafka() {
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSize());
+        producerProps.put(DEBUG_TOPICS_KEY, KafkaTopicConstants.DEBUG_TOPICS);
         return producerProps;
     }
 
