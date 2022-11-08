@@ -88,6 +88,13 @@ public class TestPlanController {
         return testPlanService.listTestAllPlan(request);
     }
 
+    @PostMapping("/list/all/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
+    public Pager<List<TestPlanDTO>> planListAll(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanService.planListAll(request));
+    }
+
     @GetMapping("/get/stage/option/{projectId}")
     public List getStageOption(@PathVariable("projectId") String projectId) {
         return testPlanService.getStageOption(projectId);

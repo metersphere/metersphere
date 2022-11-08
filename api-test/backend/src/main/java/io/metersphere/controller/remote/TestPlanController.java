@@ -1,8 +1,8 @@
 package io.metersphere.controller.remote;
 
-import io.metersphere.service.remote.RemoteTestPlanService;
 import io.metersphere.api.dto.QueryTestPlanRequest;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.service.remote.RemoteTestPlanService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +22,11 @@ public class TestPlanController {
         add("test/plan/scenario/case");
     }};
 
+    @PostMapping("/list/all/{goPage}/{pageSize}")
+    public Object planListAll(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
+        return remoteTestPlanService.planListAll("/test/plan", goPage, pageSize, request);
+    }
+
     @GetMapping("/**")
     public List getStageOption(HttpServletRequest request) {
         excludeApi(request.getRequestURI());
@@ -37,6 +42,7 @@ public class TestPlanController {
     /**
      * 解决不同模块路径冲突，导致循环调用
      * todo 待优化
+     *
      * @param url
      */
     public void excludeApi(String url) {
