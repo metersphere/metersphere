@@ -147,6 +147,12 @@ public class TestPlanService {
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
+    @Resource
+    private BaseProjectApplicationService projectApplicationService;
+    public static final String POOL = "POOL";
+
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
@@ -847,7 +853,7 @@ public class TestPlanService {
         if (planReportId == null) {
             planReportId = UUID.randomUUID().toString();
         }
-
+        this.verifyPool(projectId, runModeConfig);
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanId, userId, triggerMode, runModeConfig);
         //测试计划准备执行，取消测试计划的实际结束时间
@@ -888,6 +894,20 @@ public class TestPlanService {
         return planReportId;
     }
 
+    public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
+        // 检查是否禁用了本地执行
+        if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
+            BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
+            if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
+                ProjectConfig config = projectApplicationService.getProjectConfig(projectId);
+                if (config == null || !config.getPoolEnable() || StringUtils.isEmpty(config.getResourcePoolId())) {
+                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+                }
+                runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
+                runConfig.setResourcePoolId(config.getResourcePoolId());
+            }
+        }
+    }
     /**
      * 将测试计划运行时的triggerMode转化为性能测试中辨别更明确的值
      *

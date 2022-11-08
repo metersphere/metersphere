@@ -6,6 +6,7 @@ const message = {
   pj: {
     environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})",
     check_third_project_success: "inspection passed",
+    api_run_pool_title: 'Interface execution resource pool',
   },
   file_manage: {
     my_file: 'My File',

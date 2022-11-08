@@ -6,6 +6,7 @@ const message = {
   pj: {
     environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",
     check_third_project_success: "检查通过",
+    api_run_pool_title: '接口执行资源池',
   },
   file_manage: {
     my_file: '我的文件',

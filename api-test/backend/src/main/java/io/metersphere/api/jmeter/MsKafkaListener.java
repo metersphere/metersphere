@@ -1,11 +1,15 @@
 package io.metersphere.api.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.NamedThreadFactory;
+import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
+    public static final String DEBUG_CONSUME_ID = "ms-api-debug-consume";
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
@@ -61,6 +66,19 @@ public class MsKafkaListener {
             LoggerUtil.error("KAFKA消费失败：", e);
         } finally {
             ack.acknowledge();
+        }
+    }
+
+    @KafkaListener(id = DEBUG_CONSUME_ID, topics = KafkaTopicConstants.DEBUG_TOPICS, groupId = "${spring.kafka.consumer.debug.group-id}")
+    public void debugConsume(ConsumerRecord<?, String> record) {
+        try {
+            LoggerUtil.info("接收到执行结果：", record.key());
+            if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
+                MsgDTO dto = JSON.parseObject(record.value(), MsgDTO.class);
+                WebSocketUtil.sendMessageSingle(dto);
+            }
+        } catch (Exception e) {
+            LoggerUtil.error("KAFKA消费失败：", e);
         }
     }
 

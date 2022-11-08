@@ -19,6 +19,9 @@
             <el-input v-model="formInline.seleniumDockerUrl" :placeholder="$t('system_config.selenium_docker.url_tip')"/>
             <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
           </el-form-item>
+          <el-form-item :label="$t('system.api_default_run')" prop="seleniumDockerUrl">
+            <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -40,7 +43,7 @@ export default {
   name: "BaseSetting",
   data() {
     return {
-      formInline: {},
+      formInline: {runMode: true},
       input: '',
       visible: true,
       showEdit: true,
@@ -75,11 +78,28 @@ export default {
   methods: {
     query() {
       this.loading = getSystemBaseSetting().then(res => {
+        if(!res.data.runMode) {
+          res.data.runMode = 'LOCAL'
+        }
         this.formInline = res.data;
         this.$nextTick(() => {
           this.$refs.formInline.clearValidate();
         })
       });
+    },
+    modeChange(v){
+      if(v === 'POOL'){
+        this.formInline.runMode = 'LOCAL';
+        this.$alert(this.$t('system.api_default_run_message'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.formInline.runMode = v;
+            }
+          }
+        });
+      }
     },
     edit() {
       this.showEdit = false;
@@ -101,6 +121,7 @@ export default {
           {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
           {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
           {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
+          {paramKey: "base.run.mode", paramValue: this.formInline.runMode, type: "text", sort: 5}
         ];
         this.loading = saveSystemBaseSetting(param).then(res => {
           if (res.success) {

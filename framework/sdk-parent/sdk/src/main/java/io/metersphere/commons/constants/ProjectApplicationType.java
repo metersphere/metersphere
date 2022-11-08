@@ -98,5 +98,13 @@ public enum ProjectApplicationType {
     /**
      * 我的工作台-开启待更新规则
      */
-    OPEN_UPDATE_RULE
+    OPEN_UPDATE_RULE,
+    /**
+     * 开启接口测试默认资源池
+     */
+    POOL_ENABLE,
+    /**
+     * 资源池ID
+     */
+    RESOURCE_POOL_ID,
 }

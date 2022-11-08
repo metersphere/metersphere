@@ -13,7 +13,9 @@ import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.service.definition.TcpApiParamService;
@@ -99,7 +101,9 @@ public class ApiScenarioExecuteService {
     @Resource
     protected TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
-    ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         if (LoggerUtil.getLogger().isDebugEnabled()) {
@@ -417,6 +421,12 @@ public class ApiScenarioExecuteService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
         LoggerUtil.info(new MsTestPlan().getJmx(hashTree));
         runRequest.setDebug(true);
+        if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
+            runRequest.setPoolId(request.getConfig().getResourcePoolId());
+            BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
+            runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
+        }
         jMeterService.run(runRequest);
         return request.getId();
     }

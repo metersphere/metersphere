@@ -3,7 +3,7 @@
              :append-to-body='true'
              @close="close">
     <template>
-      <div>
+      <div v-loading="loading">
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('schedule.task_config')" name="first">
             <div class="el-step__icon is-text" style="margin-right: 10px;">
@@ -60,7 +60,7 @@
             </div>
             <div class="ms-mode-div">
               <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-              <el-checkbox v-model="runConfig.runWithinResourcePool">
+              <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="runMode === 'POOL'">
                 {{ $t('run_mode.run_with_resource_pool') }}
               </el-checkbox>
               <el-select style="margin-left: 10px" :disabled="!runConfig.runWithinResourcePool"
@@ -106,8 +106,9 @@ import MsScheduleNotification from "./ScheduleNotification";
 import ScheduleSwitch from "@/business/automation/schedule/ScheduleSwitch";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import EnvPopover from "@/business/automation/scenario/EnvPopover";
-import {getMaintainer, getOwnerProjects} from "@/api/project";
+import {getMaintainer, getOwnerProjects, getProjectConfig} from "@/api/project";
 import {getTestResourcePools} from "@/api/test-resource-pool";
+import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
 
 function defaultCustomValidate() {
   return {pass: true};
@@ -162,6 +163,8 @@ export default {
       }
     };
     return {
+      runMode: "",
+      loading: false,
       scheduleReceiverOptions: [],
       operation: true,
       dialogVisible: false,
@@ -198,6 +201,29 @@ export default {
     }
   },
   methods: {
+    query() {
+      this.loading = true;
+      this.result = getSystemBaseSetting().then(response => {
+        if (!response.data.runMode) {
+          response.data.runMode = 'LOCAL'
+        }
+        this.runMode = response.data.runMode;
+        if (this.runMode === 'POOL') {
+          this.runConfig.runWithinResourcePool = true;
+          this.getProjectApplication();
+        } else {
+          this.loading = false;
+        }
+      })
+    },
+    getProjectApplication() {
+      getProjectConfig(getCurrentProjectID(), "").then(res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+        this.loading = false;
+      });
+    },
     currentUser: () => {
       return getCurrentUser();
     },
@@ -208,8 +234,6 @@ export default {
       return true;
     },
     changeMode() {
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
       this.runConfig.reportType = "iddReport";
       this.runConfig.reportName = "";
     },
@@ -293,6 +317,7 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.getWsProjects();
+      this.query();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {

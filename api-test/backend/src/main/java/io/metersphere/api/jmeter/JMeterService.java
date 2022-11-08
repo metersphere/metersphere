@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 
+import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.engine.EngineFactory;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.utils.ServerConfig;
@@ -8,16 +9,19 @@ import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.config.KafkaConfig;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExtendedParameter;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.NodeDTO;
+import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
+import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.RemakeReportService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -42,12 +46,18 @@ import java.util.List;
 @Service
 public class JMeterService {
     public static final String BASE_URL = "http://%s:%d";
+    public static final String POOL = "POOL";
+
     @Resource
     private JmeterProperties jmeterProperties;
     @Resource
     private RestTemplate restTemplate;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private SystemParameterService systemParameterService;
+    @Resource
+    private BaseProjectApplicationService projectApplicationService;
 
     @PostConstruct
     private void init() {
@@ -112,8 +122,8 @@ public class JMeterService {
         }
 
         if (MapUtils.isNotEmpty(request.getExtendedParameters())
-                && request.getExtendedParameters().containsKey("SYN_RES")
-                && (Boolean) request.getExtendedParameters().get("SYN_RES")) {
+                && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
+                && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS)) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
             addDebugListener(request.getReportId(), request.getHashTree());
         }
@@ -144,8 +154,49 @@ public class JMeterService {
                 apiScenarioReportService.testEnded(request, e.getMessage());
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
+        } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
+                && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
+                && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS))
+                || request.isDebug()) {
+            this.nodeDebug(request);
         } else {
             this.send(request);
+        }
+    }
+
+    private synchronized void nodeDebug(JmeterRunRequestDTO request) {
+        try {
+            if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                request.getExtendedParameters().put(ExtendedParameter.SAVE_RESULT, true);
+            } else if (!request.isDebug()) {
+                request.getExtendedParameters().put(ExtendedParameter.SAVE_RESULT, true);
+            }
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            String uri = null;
+            int index = (int) (Math.random() * resources.size());
+            String configuration = resources.get(index).getConfiguration();
+            if (StringUtils.isNotEmpty(configuration)) {
+                NodeDTO node = com.alibaba.fastjson.JSON.parseObject(configuration, NodeDTO.class);
+                uri = String.format(BASE_URL + "/jmeter/debug", node.getIp(), node.getPort());
+            }
+            if (StringUtils.isEmpty(uri)) {
+                LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
+                MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
+            }
+            request.getExtendedParameters().put(ExtendedParameter.JMX, new MsTestPlan().getJmx(request.getHashTree()));
+            request.setHashTree(null);
+            LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + uri + " 节点执行", request.getReportId());
+            ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
+            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + uri + " 节点执行失败", request.getReportId());
+                LoggerUtil.info(result);
+                MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
+            }
+        } catch (Exception e) {
+            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            remakeReportService.remake(request);
+            LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
+            MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
         }
     }
 
@@ -219,6 +270,21 @@ public class JMeterService {
             return isRunning;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
+        // 检查是否禁用了本地执行
+        if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
+            BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
+            if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
+                ProjectConfig config = projectApplicationService.getProjectConfig(projectId);
+                if (config == null || !config.getPoolEnable() || StringUtils.isEmpty(config.getResourcePoolId())) {
+                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+                }
+                runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
+                runConfig.setResourcePoolId(config.getResourcePoolId());
+            }
         }
     }
 }

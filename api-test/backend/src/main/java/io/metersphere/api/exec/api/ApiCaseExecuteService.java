@@ -9,6 +9,7 @@ import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.service.definition.ApiCaseResultService;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
@@ -66,7 +67,8 @@ public class ApiCaseExecuteService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
-
+    @Resource
+    private JMeterService jMeterService;
 
     /**
      * 测试计划case执行
@@ -275,6 +277,7 @@ public class ApiCaseExecuteService {
         if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
         }
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
 
         if (StringUtils.equals(EnvironmentType.GROUP.toString(), request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));

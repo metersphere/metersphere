@@ -40,6 +40,10 @@ public class WebSocketUtil {
         });
     }
 
+    public static boolean has(String key) {
+        return StringUtils.isNotEmpty(key) && ONLINE_USER_SESSIONS.containsKey(key);
+    }
+
     //当前的Session 移除
     public static void onClose(String reportId) {
         try {
