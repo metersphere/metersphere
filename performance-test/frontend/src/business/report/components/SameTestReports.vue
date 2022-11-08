@@ -4,10 +4,11 @@
              :title="$t('load_test.completed_test_report')" width="60%"
              v-loading="loading"
              :show-close="false"
+             :fullscreen="showFullscreen"
              :visible.sync="loadReportVisible">
 
     <el-header class="header-btn">
-      <ms-dialog-header :enable-cancel="true" @cancel="close" @confirm="handleCompare" btn-size="mini">
+      <ms-dialog-header :enable-cancel="true" @cancel="close" @confirm="handleCompare" @fullScreen="fullScreen" btn-size="mini">
       </ms-dialog-header>
     </el-header>
 
@@ -71,6 +72,7 @@ export default {
       report: {},
       compareReports: [],
       screenHeight: 'calc(100vh - 400px)',
+      showFullscreen:false,
     }
   },
   methods: {
@@ -99,7 +101,6 @@ export default {
         })
     },
     handleCompare() {
-
       let reportIds = [...this.$refs.table.selectIds];
       this.tableData
         .filter(r => reportIds.indexOf(r.id) > -1 && this.report.id !== r.id)
@@ -109,6 +110,9 @@ export default {
       this.close();
       this.$router.push({path: '/performance/report/compare/' + reportIds[0]});
     },
+    fullScreen(){
+      this.showFullscreen = !this.showFullscreen;
+    }
   }
 }
 </script>
