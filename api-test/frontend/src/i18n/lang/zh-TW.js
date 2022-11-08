@@ -48,6 +48,9 @@ const message = {
       relation_case: "關聯CASE",
       relation_scenario: "關聯場景"
     },
+  },
+  automation:{
+    project_no_permission: "當前人操作無此步驟的操作權限",
   }
 }
 
