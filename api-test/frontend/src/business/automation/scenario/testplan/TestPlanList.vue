@@ -34,7 +34,7 @@
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-        prop="userName"
+        prop="principalName"
         :label="$t('test_track.plan.plan_principal')"
         show-overflow-tooltip>
       </el-table-column>
@@ -109,6 +109,8 @@
         </template>
       </el-table-column>
     </el-table>
+    <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
     <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"
                        :with-tip="enableDeleteTip">
       {{ $t('test_track.plan.plan_delete_tip') }}
@@ -135,7 +137,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {_filter, _sort} from "metersphere-frontend/src/utils/tableUtils";
 import EnvPopover from "@/business/automation/scenario/EnvPopover";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {getPlanStageOption, planPage} from "@/api/test-plan";
+import {getPlanStageOption, planPage, testPlanGetPrincipal} from "@/api/test-plan";
 import {getApiScenarioProjectIdByConditions, getScenarioByProjectId} from "@/api/scenario";
 import {getOwnerProjects} from "@/api/project";
 
@@ -277,7 +279,27 @@ export default {
       this.result = planPage(this.currentPage, this.pageSize, this.condition).then(response => {
         let data = response.data;
         this.total = data.itemCount;
-        this.tableData = data;
+        data.listObject.forEach(item => {
+          testPlanGetPrincipal(item.id)
+            .then(res => {
+              let data = res.data;
+              let principal = "";
+              let principalIds = data.map(d => d.id);
+              if (data) {
+                data.forEach(d => {
+                  if (principal !== "") {
+                    principal = principal + "、" + d.name;
+                  } else {
+                    principal = principal + d.name;
+                  }
+                })
+              }
+              this.$set(item, "principalName", principal);
+              // 编辑时初始化id
+              this.$set(item, "principals", principalIds);
+            });
+        });
+        this.tableData = data.listObject;
       });
     },
     buildPagePath(path) {

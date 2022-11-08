@@ -641,6 +641,14 @@ public class TestPlanService {
         return testPlanMapper.selectByExample(example);
     }
 
+    public List<TestPlanDTO> planListAll(QueryTestPlanRequest request) {
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            request.setProjectId(request.getProjectId());
+        }
+        List<TestPlanDTO> testPlanDTOS = extTestPlanMapper.planListAll(request);
+        return testPlanDTOS;
+    }
+
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
@@ -764,7 +772,7 @@ public class TestPlanService {
         return testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
     }
 
-    public String run(String testPlanId, String projectId, String userId, String triggerMode, String planReportId,String executionWay, String apiRunConfig) {
+    public String run(String testPlanId, String projectId, String userId, String triggerMode, String planReportId, String executionWay, String apiRunConfig) {
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSON.parseObject(apiRunConfig, RunModeConfigDTO.class);
@@ -778,7 +786,7 @@ public class TestPlanService {
         //环境参数为空时，依据测试计划保存的环境执行
         if (((StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId()))
                 || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap())))
-                && !StringUtils.equals(executionWay,ExecutionWay.RUN.name())) {
+                && !StringUtils.equals(executionWay, ExecutionWay.RUN.name())) {
             TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
             if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
                 try {
@@ -1525,7 +1533,7 @@ public class TestPlanService {
 
         String apiRunConfig = JSON.toJSONString(runModeConfig);
         return this.run(testPlanId, testplanRunRequest.getProjectId(),
-                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(),testplanRunRequest.getExecutionWay(), apiRunConfig);
+                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), testplanRunRequest.getExecutionWay(), apiRunConfig);
 
     }
 
@@ -1537,12 +1545,12 @@ public class TestPlanService {
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
         if (StringUtils.equals(envType, "JSON") && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
-            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(),ExecutionWay.RUN.name())){
+            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(), ExecutionWay.RUN.name())) {
                 this.setPlanCaseEnv(testPlanId, runModeConfig);
             }
         } else if (StringUtils.equals(envType, "GROUP") && StringUtils.isNotBlank(environmentGroupId)) {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
-            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(),ExecutionWay.RUN.name())){
+            if (!StringUtils.equals(testplanRunRequest.getExecutionWay(), ExecutionWay.RUN.name())) {
                 this.setPlanCaseEnv(testPlanId, runModeConfig);
             }
         }

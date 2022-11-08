@@ -406,6 +406,17 @@
         </where>
         GROUP BY t.test_plan_id
     </select>
+    <select id="planListAll" resultType="io.metersphere.plan.dto.TestPlanDTO">
+        select DISTINCT test_plan.*, project.name as projectName,
+        (select name from user where user.id = test_plan.creator) as userName
+        from test_plan
+        JOIN project on project.id = test_plan.project_id
+        <where>
+            <if test="request.projectId != null">
+                AND test_plan.project_id = #{request.projectId}
+            </if>
+        </where>
+    </select>
     <update id="updateActualEndTimeIsNullById">
         update test_plan
         set actual_end_time = null

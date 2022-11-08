@@ -39,4 +39,13 @@ public class RemoteTestPlanService {
             return new ArrayList();
         }
     }
+
+    public Object planListAll(String url, int goPage, int pageSize, QueryTestPlanRequest request) {
+        try {
+            return microService.postForData(MicroServiceName.TEST_TRACK, url + String.format("/list/all/%s/%s", goPage, pageSize), request);
+        } catch (Exception e) {
+            LogUtil.info("测试计划服务调用失败", e);
+            return new ArrayList();
+        }
+    }
 }
