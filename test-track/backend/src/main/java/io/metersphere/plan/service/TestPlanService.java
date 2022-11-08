@@ -1499,9 +1499,13 @@ public class TestPlanService {
                         .flatMap(Collection::stream)
                         .distinct()
                         .collect(Collectors.toList());
-                envMap.put(projectId, result);
+                if (CollectionUtils.isNotEmpty(result)){
+                    envMap.put(projectId, result);
+                }
             } else {
-                envMap.put(projectId, scenarioEnv.get(projectId));
+                if (CollectionUtils.isNotEmpty(scenarioEnv.get(projectId))){
+                    envMap.put(projectId, scenarioEnv.get(projectId));
+                }
             }
         }
 

@@ -670,7 +670,7 @@ public class TestPlanApiCaseService {
             String caseId = testPlanApiCase.getApiCaseId();
             String envId = testPlanApiCase.getEnvironmentId();
             String projectId = projectCaseIdMap.get(caseId);
-            if (StringUtils.isNotBlank(projectId)) {
+            if (StringUtils.isNotBlank(projectId) && StringUtils.isNotBlank(envId)) {
                 if (envMap.containsKey(projectId)) {
                     List<String> list = envMap.get(projectId);
                     if (!list.contains(envId)) {
@@ -682,6 +682,7 @@ public class TestPlanApiCaseService {
                     envMap.put(projectId, envs);
                 }
             }
+
         });
         return envMap;
     }
