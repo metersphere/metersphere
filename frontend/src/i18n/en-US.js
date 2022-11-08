@@ -1438,6 +1438,7 @@ export default {
       loop_input_val: "Variable prefix",
       loop_message: "There is more than one request in the current cycle and cannot be closed",
       env_message: "Please select the operating environment for the project to which this step belongs in the environment configuration",
+      project_no_permission: "The current person does not have the operation permission for this step",
       debug_message: "The current step is disabled and cannot be debugged",
       request_total: "request",
       request_success: "success",

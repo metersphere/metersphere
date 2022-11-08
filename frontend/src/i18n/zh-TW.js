@@ -1443,6 +1443,7 @@ export default {
       loop_input_val: "變量前綴",
       loop_message: "當前循環下超過一個請求，不能關閉狀態",
       env_message: "請在環境配置中為該步驟所屬項目選擇運行環境",
+      project_no_permission: "當前人操作無此步驟的操作權限",
       debug_message: "當前步驟是禁用狀態不能調試",
       request_total: "請求",
       request_success: "成功",
