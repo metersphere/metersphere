@@ -232,6 +232,7 @@ class Convert {
       objectTemplate.type = "string";
     } else if (isNull(value)) {
       objectTemplate.type = "string";
+      objectTemplate.mock = { mock: ''};
     } else if (isArray(value)) {
       objectTemplate.type = "array";
       objectTemplate["mock"] = undefined;
