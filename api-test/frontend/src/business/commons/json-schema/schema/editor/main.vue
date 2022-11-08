@@ -70,7 +70,7 @@
                           :disabled="disabled"
                           :need-mock="needMock"
                           @editScenarioAdvance="editScenarioAdvance"
-                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
+                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
     <!-- 高级设置-->
     <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')"
@@ -325,6 +325,7 @@ export default {
         } else {
           this.$set(this.pickValue, 'items', [childObj]);
         }
+        this.reloadItems();
 
       } else {
         const name = this._joinName()
@@ -355,7 +356,7 @@ export default {
         }
       } else if (this.parent.type && this.parent.type === 'array') {
         const {items, required} = this.parent
-        delete items[this.pickKey]
+        items.splice(this.pickKey, 1);
         if (required) {
           const pos = required.indexOf(this.pickKey)
           pos >= 0 && required.splice(pos, 1)
