@@ -167,7 +167,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -495,7 +495,7 @@ export default {
       this.$get('/project/getOwnerProjectIds', res => {
         const project = res.data.find(p => p === this.request.projectId);
         if (!project) {
-          this.$warning(this.$t('commons.project_no_permission'));
+          this.$warning(this.$t('api_test.automation.project_no_permission'));
         } else {
           let selectEnvId;
           // 自定义请求
