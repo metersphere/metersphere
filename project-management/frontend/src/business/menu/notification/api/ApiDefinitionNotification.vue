@@ -253,10 +253,6 @@ export default {
           value: 'deleteUserId',
         },
         {
-          label: this.$t('commons.version'),
-          value: 'version',
-        },
-        {
           label: this.$t('api_test.definition.document.order'),
           value: 'order',
         },
@@ -313,10 +309,6 @@ export default {
         {
           label: this.$t('commons.delete_user_id'),
           value: 'deleteUserId',
-        },
-        {
-          label: this.$t('commons.version'),
-          value: 'version',
         },
       ]
     };

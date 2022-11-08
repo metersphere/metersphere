@@ -168,10 +168,6 @@ export default {
           value: 'createUser',
         },
         {
-          label: this.$t('commons.version'),
-          value: 'version',
-        },
-        {
           label: this.$t('commons.delete_time'),
           value: 'deleteTime',
         },
