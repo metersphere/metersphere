@@ -536,31 +536,7 @@ export default {
         let template = data[1];
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields, this.members);
-        // todo 处理高级搜索自定义字段部分
-        this.condition.components = this.condition.components.filter(item => item.custom !== true);
-        let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
-        // 系统字段国际化处理
-        comp.filter(element => {
-          if (element.label === '责任人') {
-            element.label = this.$t('custom_field.case_maintainer')
-          }
-          if (element.label === '用例等级') {
-            element.label = this.$t('custom_field.case_priority')
-          }
-          if (element.label === '用例状态') {
-            element.label = this.$t('custom_field.case_status')
-            // 回收站TAB页处理高级搜索用例状态字段
-            if (this.trashEnable) {
-              element.operator.options = [OPERATORS.IN];
-              element.options = [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}];
-            } else {
-              element.options.forEach(option => {
-                option.text = this.$t(option.text);
-              });
-            }
-          }
-        })
-        this.condition.components.push(...comp);
+        this.initConditionComponents()
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];
         this.typeArr.push({
@@ -576,6 +552,45 @@ export default {
           this.loading = false;
         });
       });
+    },
+    initConditionComponents() {
+      this.condition.components = this.condition.components.filter(item => item.custom !== true);
+      let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
+      let statusOption = null;
+      // 系统字段国际化处理
+      comp = comp.filter(element => {
+        if (element.label === '责任人') {
+          element.label = this.$t('custom_field.case_maintainer')
+        }
+        if (element.label === '用例等级') {
+          element.label = this.$t('custom_field.case_priority')
+        }
+        if (element.label === '用例状态') {
+          element.label = this.$t('custom_field.case_status')
+          // 回收站TAB页处理高级搜索用例状态字段
+          if (this.trashEnable) {
+            element.operator.options = [OPERATORS.IN];
+            element.options = [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}];
+          } else {
+            element.options.forEach(option => option.text = this.$t(option.text));
+          }
+          statusOption = element.options;
+          // 用例状态不走自定义字段的搜索，查询status字段
+          return false;
+        }
+        return true;
+      });
+      if (statusOption) {
+        this.condition.components.forEach((item) => {
+          if (item.key === 'status') {
+            item .options = statusOption;
+          }
+        });
+      } else {
+        // statusOption 为空，则去掉状态选项
+        this.condition.components = this.condition.components.filter((item) => item.key !== 'status');
+      }
+      this.condition.components.push(...comp);
     },
     setTestCaseDefaultValue(template) {
       let testCaseDefaultValue = {};
