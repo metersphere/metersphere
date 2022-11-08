@@ -339,7 +339,6 @@ export default {
         children: 'children',
         label: 'label'
       },
-      init: false,
       refresh: true,
       tableData: [],
       baseOption: {
@@ -471,7 +470,6 @@ export default {
     },
     handleGetCheckOptions(data, reportKey) {
       if (!data || data.length === 0) {
-        this.init = false;
         return;
       }
       let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
@@ -479,8 +477,6 @@ export default {
       this.checkOptions[reportKey] = ['ALL'].concat(yAxisIndex0List);
     },
     getTotalChart() {
-      this.result.loading = true;
-
       this.totalOption = {};
       this.seriesData = [];
       this.baseOption.yAxis = [];
@@ -497,11 +493,9 @@ export default {
         for (let name in this.checkList) {
           promises.push(this.getChart(name, this.checkList[name]));
         }
-        Promise.all(promises).then((res) => {
+        this.result.loading = Promise.all(promises).then((res) => {
           this.handleGetTotalChart(res);
-        }).catch(() => {
-          this.result.loading = false;
-        });
+        })
       }
     },
     handleTemplateGetTotalChart() {
@@ -695,11 +689,14 @@ export default {
       return Array.from(new Set(arr));
     }
   },
+  created() {
+    this.id = this.$route.path.split('/')[4];
+    this.initTableData();
+  },
   watch: {
     '$route'(to) {
-      if (to.name === "perReportView") {
+      if (to.path.startsWith("/performance/report/view/")) {
         this.id = to.path.split('/')[4];
-        this.init = false;
         this.initTableData();
       }
     },
@@ -710,9 +707,6 @@ export default {
         }
         let status = val.status;
         this.id = val.id;
-        if (this.init) {
-          return;
-        }
         if (status === "Running") {
           this.getTotalChart();
         } else if (status === "Completed") {

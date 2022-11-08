@@ -7,7 +7,7 @@
                      @change="getResource(currentInstance)">
             <el-option
               v-for="item in instances"
-              :key="item.ip+item.port"
+              :key="item.ip+item.port+Math.random()"
               :value="item.ip+':'+item.port">
               {{ item.ip }} {{ item.name }}
             </el-option>
