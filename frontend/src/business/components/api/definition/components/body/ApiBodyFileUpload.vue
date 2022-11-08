@@ -9,7 +9,7 @@
          :file-list="parameter.files"
          ref="upload">
 
-         <div class="upload-default">
+         <div class="upload-default" v-if="!isReadOnly">
            <i class="el-icon-plus"/>
          </div>
            <div class="upload-item" slot="file" slot-scope="{file}">
@@ -40,7 +40,11 @@
       parameter: Object,
       default() {
         return {}
-      }
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     methods: {
       handleRemove(file) {

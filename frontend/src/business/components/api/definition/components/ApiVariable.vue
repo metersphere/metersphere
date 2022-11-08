@@ -57,7 +57,7 @@
 
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
-          <ms-api-body-file-upload :parameter="item"/>
+          <ms-api-body-file-upload :parameter="item" :is-read-only="isReadOnly"/>
         </el-col>
 
         <el-col v-if="type === 'body'" class="item kv-select">
