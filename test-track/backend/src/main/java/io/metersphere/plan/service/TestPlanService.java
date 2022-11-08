@@ -1,15 +1,12 @@
 package io.metersphere.plan.service;
 
 import com.google.gson.Gson;
-import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
-import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
@@ -41,7 +38,7 @@ import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
 import io.metersphere.plan.service.remote.ui.PlanUiAutomationService;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.request.ScheduleRequest;
-import io.metersphere.service.*;
+import io.metersphere.service.IssuesService;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
@@ -52,7 +49,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.quartz.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -1772,6 +1768,13 @@ public class TestPlanService {
 
     }
 
+    public List<TestPlanDTO> planListAll(QueryTestPlanRequest request) {
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            request.setProjectId(request.getProjectId());
+        }
+        List<TestPlanDTO> testPlanDTOS = extTestPlanMapper.planListAll(request);
+        return testPlanDTOS;
+    }
 
     private List<TestPlanExecutionQueue> getTestPlanExecutionQueues(TestPlanRunRequest request, Map<String, String> executeQueue) {
         List<TestPlanExecutionQueue> planExecutionQueues = new ArrayList<>();

@@ -7,7 +7,11 @@ export function getPlanStageOption() {
 }
 
 export function planPage(page, pageSize, params) {
-  return post('/test/plan/list/all/', params);
+  return post('/test/plan/list/all/'+ page + '/' + pageSize, params);
+}
+
+export function testPlanGetPrincipal(id) {
+  return get('/test/plan/' + `principal/${id}`);
 }
 
 export function getApiScenarioIdByPlanScenarioId(id) {

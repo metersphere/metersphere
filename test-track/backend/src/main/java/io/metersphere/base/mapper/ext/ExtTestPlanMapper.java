@@ -1,7 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestPlan;
-
 import io.metersphere.dto.ParamsDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.plan.dto.TestPlanDTO;
@@ -39,17 +38,19 @@ public interface ExtTestPlanMapper {
     int updateActualEndTimeIsNullById(String testPlanID);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds")Set<String> planIds);
+    Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds") Set<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanApiCaseCount(@Param("planIds")Set<String> planIds);
+    Map<String, ParamsDTO> testPlanApiCaseCount(@Param("planIds") Set<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanApiScenarioCount(@Param("planIds")Set<String> planIds);
+    Map<String, ParamsDTO> testPlanApiScenarioCount(@Param("planIds") Set<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds")Set<String> planIds);
+    Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds") Set<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds")Set<String> planIds);
+    Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds") Set<String> planIds);
+
+    List<TestPlanDTO> planListAll(@Param("request") QueryTestPlanRequest params);
 }
