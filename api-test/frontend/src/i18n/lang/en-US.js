@@ -48,6 +48,9 @@ const message = {
       relation_case: "Relation CASE",
       relation_scenario: "Relation Scenario"
     },
+  },
+  automation:{
+    project_no_permission: "The current person does not have the operation permission for this step",
   }
 }
 export default {

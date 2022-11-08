@@ -495,64 +495,71 @@ export default {
     run() {
       this.currentScenarioData = undefined;
       this.getParentVariables(this.node);
-      let selectEnvId;
-      // 自定义请求
-      if (this.isApiImport || this.request.isRefEnvironment) {
-        if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
-          if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map
-            && store.scenarioEnvMap.has((this.currentScenario.id + "_" + this.request.projectId))) {
-            selectEnvId = store.scenarioEnvMap.get((this.currentScenario.id + "_" + this.request.projectId));
-            this.environmentMap = this.envMap;
+      getOwnerProjectIds().then(res => {
+        const project = res.data.find(p => p === resource.projectId);
+        if (!project) {
+          this.$warning(this.$t('automation.project_no_permission'));
+        } else {
+          let selectEnvId;
+          // 自定义请求
+          if (this.isApiImport || this.request.isRefEnvironment) {
+            if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
+              if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map
+                && store.scenarioEnvMap.has((this.currentScenario.id + "_" + this.request.projectId))) {
+                selectEnvId = store.scenarioEnvMap.get((this.currentScenario.id + "_" + this.request.projectId));
+                this.environmentMap = this.envMap;
+              }
+              if (!selectEnvId) {
+                this.$warning(this.$t('api_test.automation.env_message'));
+                return false;
+              }
+            }
           }
-          if (!selectEnvId) {
-            this.$warning(this.$t('api_test.automation.env_message'));
+          if (!this.request.enable) {
+            this.$warning(this.$t('api_test.automation.debug_message'));
             return false;
           }
+          this.request.debug = true;
+          this.request.active = true;
+          this.loading = true;
+          this.runData = [];
+          if (selectEnvId) {
+            this.request.useEnvironment = selectEnvId;
+            this.request.environmentId = selectEnvId;
+          }
+          this.request.customizeReq = this.isCustomizeReq;
+          // 场景变量
+          let variables = [];
+          if (this.currentScenario && this.currentScenario.variables) {
+            variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
+          }
+          let debugData = {
+            id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+            variables: variables, referenced: 'Created', headers: this.currentScenario.headers,
+            enableCookieShare: this.enableCookieShare, environmentId: selectEnvId, hashTree: [this.request],
+          };
+          // 合并自身依赖场景变量
+          if (this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables) {
+            if (!debugData.variables || debugData.variables.length === 0) {
+              debugData.variables = this.currentScenarioData.variables;
+            } else if (this.currentScenarioData.variables) {
+              // 同名合并
+              debugData.variables.forEach(data => {
+                this.currentScenarioData.variables.forEach(item => {
+                  if (data.type === item.type && data.name === item.name) {
+                    Object.assign(data, item);
+                  }
+                })
+              });
+            }
+          }
+          this.runData.push(debugData);
+          this.request.requestResult = [];
+          this.request.result = undefined;
+          /*触发执行操作*/
+          this.reportId = getUUID();
         }
-      }
-      if (!this.request.enable) {
-        this.$warning(this.$t('api_test.automation.debug_message'));
-        return false;
-      }
-      this.request.debug = true;
-      this.request.active = true;
-      this.loading = true;
-      this.runData = [];
-      if (selectEnvId) {
-        this.request.useEnvironment = selectEnvId;
-        this.request.environmentId = selectEnvId;
-      }
-      this.request.customizeReq = this.isCustomizeReq;
-      // 场景变量
-      let variables = [];
-      if (this.currentScenario && this.currentScenario.variables) {
-        variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
-      }
-      let debugData = {
-        id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-        variables: variables, referenced: 'Created', headers: this.currentScenario.headers,
-        enableCookieShare: this.enableCookieShare, environmentId: selectEnvId, hashTree: [this.request],
-      };
-      // 合并自身依赖场景变量
-      if (this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables) {
-        if (!debugData.variables || debugData.variables.length === 0) {
-          debugData.variables = this.currentScenarioData.variables;
-        } else if (this.currentScenarioData.variables) {
-          // 同名合并
-          debugData.variables.forEach(data => {
-            this.currentScenarioData.variables.forEach(item => {
-              if (data.type === item.type && data.name === item.name) {
-                Object.assign(data, item);
-              }
-            })
-          });
-        }
-      }
-      this.runData.push(debugData);
-      this.request.requestResult = [];
-      this.request.result = undefined;
-      /*触发执行操作*/
-      this.reportId = getUUID();
+      })
     },
     getParentVariables(node) {
       if (!this.currentScenarioData) {
