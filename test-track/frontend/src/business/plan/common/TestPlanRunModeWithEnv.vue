@@ -162,12 +162,12 @@
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
             {{
-              $t("commons.run")
+              $t("api_test.run")
             }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="run">{{
-                $t("commons.run")
+                $t("api_test.run")
               }}
             </el-dropdown-item>
             <el-dropdown-item command="runAndSave">{{
