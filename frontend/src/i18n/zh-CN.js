@@ -1443,6 +1443,7 @@ export default {
       loop_input_val: "变量前缀",
       loop_message: "当前循环下超过一个请求，不能关闭状态",
       env_message: "请在环境配置中为该步骤所属项目选择运行环境",
+      project_no_permission: "当前操作人无此步骤的操作权限",
       debug_message: "当前步骤是禁用状态不能调试",
       request_total: "请求",
       request_success: "成功",
