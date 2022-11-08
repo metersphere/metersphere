@@ -19,6 +19,7 @@
         <module>domain</module>
         <module>sdk</module>
         <module>xpack-interface</module>
+        <module>jmeter</module>
     </modules>
 
     <build>
