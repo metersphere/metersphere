@@ -91,8 +91,8 @@ export default {
       getProjectApplicationConfig('TRACK_SHARE_REPORT_TIME')
         .then(res => {
           if (res.data) {
-            let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
-            let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
+            let quantity = res.data.typeValue ? res.data.typeValue.substring(0, res.data.typeValue.length - 1) : null;
+            let unit = res.data.typeValue ? res.data.typeValue.substring(res.data.typeValue.length - 1) : null;
             if (unit === 'H') {
               res.data.typeValue = quantity + this.$t('commons.date_unit.hour');
             } else if (unit === 'D') {
@@ -101,6 +101,9 @@ export default {
               res.data.typeValue = quantity + this.$t('commons.workspace_unit') + this.$t('commons.date_unit.month');
             } else if (unit === 'Y') {
               res.data.typeValue = quantity + this.$t('commons.date_unit.year');
+            }
+            if (quantity == null && unit == null) {
+              res.data.typeValue = '24' + this.$t('commons.date_unit.hour');
             }
             this.application = res.data;
           }
