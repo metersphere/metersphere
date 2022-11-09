@@ -426,7 +426,6 @@ public class ApiScenarioReportService {
         if (scenario != null) {
             scenario.setLastResult(resultVO.getStatus());
             scenario.setPassRate(resultVO.computerPassRate());
-            scenario.setPassRate(resultVO.computerPassRate());
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
             if (scenario.getExecuteTimes() != null) {
