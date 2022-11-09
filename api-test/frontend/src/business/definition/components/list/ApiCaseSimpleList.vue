@@ -810,7 +810,7 @@ export default {
       this.condition.redirectFilter = null;
       if (this.selectDataRange == 'thisWeekCount') {
         this.condition.selectThisWeedData = true;
-      } else if (this.selectDataRange === 'executionPassCount' || this.selectDataRange === 'unexecuteCount' || this.selectDataRange === 'executionFailedCount' || this.selectDataRange === 'fakeErrorCount' || this.selectDataRange === 'notSuccessCount') {
+      } else if (this.selectDataRange === 'executionPassCount' || this.selectDataRange === 'unexecuteCount' || this.selectDataRange === 'executionFailedCount' || this.selectDataRange === 'fakeErrorCount' || this.selectDataRange === 'executedCount') {
         this.condition.redirectFilter = this.selectDataRange;
       } else if (this.selectDataRange != null) {
         let selectParamArr = this.selectDataRange.split(":");

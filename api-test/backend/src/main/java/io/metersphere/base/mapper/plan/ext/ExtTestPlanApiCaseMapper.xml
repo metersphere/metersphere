@@ -472,6 +472,11 @@
 
     </select>
 
+    <select id="selectProjectId" resultType="java.lang.String">
+        SELECT project_id FROM test_plan WHERE id IN (
+            SELECT test_plan_id FROM  test_plan_api_case WHERE id = #{0}
+            )
+    </select>
     <select id="selectTestPlanByRelevancy" resultType="io.metersphere.api.dto.automation.TestPlanDTO"
             parameterType="io.metersphere.api.dto.QueryReferenceRequest">
         SELECT * FROM test_plan p

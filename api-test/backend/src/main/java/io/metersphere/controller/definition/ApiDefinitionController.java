@@ -71,11 +71,11 @@ public class ApiDefinitionController {
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
 
-    @PostMapping("/list/week/{goPage}/{pageSize}")
+    @PostMapping("/list/week/{projectId}/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
-    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(request));
+        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(projectId));
     }
 
     @PostMapping("/list/relevance/{goPage}/{pageSize}")

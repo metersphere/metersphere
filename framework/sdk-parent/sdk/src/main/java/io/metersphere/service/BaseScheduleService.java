@@ -221,8 +221,8 @@ public class BaseScheduleService {
         });
     }
 
-    public long countTaskByProjectId(String projectId) {
-        return baseScheduleMapper.countTaskByProjectId(projectId);
+    public List<Schedule> selectScenarioTaskByProjectId(String projectId) {
+        return baseScheduleMapper.selectScenarioTaskByProjectId(projectId);
     }
 
     public long countTaskByProjectIdInThisWeek(String projectId) {

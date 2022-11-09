@@ -19,7 +19,57 @@ const message = {
       json_format_error: "JSON format error"
     }
   },
-  home:{
+  home: {
+    dashboard: {
+      public: {
+        no_data: "No data",
+        load_error: "Load error",
+        this_week: "Week",
+        fake_error: "Fake error",
+        executed_times_in_week: "Executed in week",
+        executed_times: "Executed in history",
+        covered: "Covered",
+        not_covered: "Not covered",
+        executed: "Executed",
+        not_executed: "not executed",
+        pass: "Pass",
+        not_pass: "Not pass",
+        completed: "Completed",
+        underway: "Underway",
+        prepared: "Prepared",
+        running: "Running",
+        execute_complete: "Execute_complete",
+        not_run: "Not run",
+      },
+      api: {
+        title: "Api amount",
+        api_total: "Total",
+        covered_rate: "Api covered rate",
+        completed_rate: "Completed rate",
+        executed_rate: "Executed rate",
+        pass_rate: "Pass rate",
+      },
+      api_case: {
+        title: "Case amount",
+        api_case_total: "Total",
+        covered_rate: "Api covered rate",
+        executed_rate: "Executed rate",
+        pass_rate: "Pass rate",
+      },
+      scenario: {
+        title: "Scenario amount",
+        scenario_total: "Total",
+        covered_rate: "Api covered rate",
+        executed_rate: "Executed rate",
+        pass_rate: "Pass rate",
+      },
+      scenario_schedule: {
+        title: "Schedule scenario amount",
+        running_count: "Running count",
+        scenario_schedule_total: "Total",
+        pass_rate: "Pass rate",
+      }
+    },
     table: {
       index: "Index",
       scenario: "Scenario",

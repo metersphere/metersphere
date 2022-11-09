@@ -20,6 +20,54 @@ const message = {
     }
   },
   home: {
+    dashboard: {
+      public: {
+        no_data: "暂无数据",
+        load_error: "加载失败",
+        this_week: "本周",
+        fake_error: "误报",
+        executed_times_in_week: "本周执行次数",
+        executed_times: "历史执行总次数",
+        covered: "已覆盖",
+        not_covered: "未覆盖",
+        executed: "已执行",
+        not_executed: "未执行",
+        pass: "已通过",
+        not_pass: "未通过",
+        completed: "已完成",
+        underway: "进行中",
+        prepared: "未开始",
+        running: "运行中",
+        execute_complete: "运行完成",
+        not_run: "未运行",
+      },
+      api: {
+        title: "接口数量统计",
+        api_total: "接口数量",
+        covered_rate: "接口覆盖率",
+        completed_rate: "接口完成率",
+      },
+      api_case: {
+        title: "接口用例数量统计",
+        api_case_total: "接口用例数量",
+        covered_rate: "接口覆盖率",
+        executed_rate: "用例执行率",
+        pass_rate: "用例通过率",
+      },
+      scenario: {
+        title: "场景用例数量统计",
+        scenario_total: "场景用例数量",
+        covered_rate: "接口覆盖率",
+        executed_rate: "场景执行率",
+        pass_rate: "执行通过率",
+      },
+      scenario_schedule: {
+        title: "场景定时任务数量统计",
+        running_count: "当前运行数",
+        scenario_schedule_total: "场景定时任务数量",
+        pass_rate: "运行通过率",
+      }
+    },
     table: {
       index: "序号",
       scenario: "场景名称",

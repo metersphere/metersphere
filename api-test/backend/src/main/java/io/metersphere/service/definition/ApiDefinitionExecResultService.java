@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RequestResult;
@@ -18,6 +19,7 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.plan.remote.TestPlanService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -59,6 +61,8 @@ public class ApiDefinitionExecResultService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
+    @Resource
+    private TestPlanService testPlanService;
 
     /**
      * API/CASE 重试结果保留一条
@@ -296,7 +300,11 @@ public class ApiDefinitionExecResultService {
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                         if (apiCase != null) {
-                            apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode);
+                            TestPlan testPlan = testPlanService.get(apiCase.getTestPlanId());
+                            if (testPlan != null) {
+                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, testPlan.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name());
+                            }
+
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);

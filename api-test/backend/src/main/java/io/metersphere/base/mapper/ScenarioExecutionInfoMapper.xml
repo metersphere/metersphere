@@ -7,6 +7,8 @@
     <result column="result" jdbcType="VARCHAR" property="result" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="execute_type" jdbcType="VARCHAR" property="executeType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, source_id, `result`, trigger_mode, create_time
+    id, source_id, `result`, trigger_mode, create_time, project_id, execute_type
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ScenarioExecutionInfoExample" resultMap="BaseResultMap">
     select
@@ -101,9 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ScenarioExecutionInfo">
     insert into scenario_execution_info (id, source_id, `result`, 
-      trigger_mode, create_time)
+      trigger_mode, create_time, project_id, 
+      execute_type)
     values (#{id,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, 
-      #{triggerMode,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT})
+      #{triggerMode,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{executeType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ScenarioExecutionInfo">
     insert into scenario_execution_info
@@ -123,6 +127,12 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="executeType != null">
+        execute_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -139,6 +149,12 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="executeType != null">
+        #{executeType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -166,6 +182,12 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.executeType != null">
+        execute_type = #{record.executeType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -177,7 +199,9 @@
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       `result` = #{record.result,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      execute_type = #{record.executeType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -197,6 +221,12 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="executeType != null">
+        execute_type = #{executeType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -205,7 +235,9 @@
     set source_id = #{sourceId,jdbcType=VARCHAR},
       `result` = #{result,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      execute_type = #{executeType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

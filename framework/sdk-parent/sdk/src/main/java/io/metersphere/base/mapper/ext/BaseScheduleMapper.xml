@@ -39,9 +39,8 @@
         </if>
     </select>
 
-    <select id="countTaskByProjectId" resultType="java.lang.Long">
-        SELECT COUNT(id) AS countNumber
-        FROM `schedule`
+    <select id="selectScenarioTaskByProjectId" resultType="io.metersphere.base.domain.Schedule">
+        SELECT * FROM `schedule`
         WHERE resource_id IN (
             SELECT id FROM api_scenario WHERE project_id = #{0,jdbcType=VARCHAR} AND status != 'Trash' AND latest = 1
         )

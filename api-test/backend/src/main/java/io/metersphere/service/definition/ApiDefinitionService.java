@@ -33,9 +33,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.*;
-import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.enums.ApiTestDataStatus;
-import io.metersphere.commons.enums.FileAssociationTypeEnums;
+import io.metersphere.commons.enums.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.*;
@@ -277,7 +275,7 @@ public class ApiDefinitionService {
         });
     }
 
-    public List<ApiDefinitionResult> weekList(ApiDefinitionRequest request) {
+    public List<ApiDefinitionResult> weekList(String projectId) {
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
         //将日期转化为 00:00:00 的时间戳
@@ -285,16 +283,19 @@ public class ApiDefinitionService {
         try {
             startTime = DateUtils.getDayStartTime(startDay);
         } catch (Exception e) {
+            LogUtil.error("获取日期出错", e);
         }
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
+            ApiDefinitionRequest request = new ApiDefinitionRequest();
+            request.setProjectId(projectId);
             request = this.initRequest(request, true, true);
             request.setNotEqStatus(ApiTestDataStatus.TRASH.getValue());
             List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
             calculateResult(resList, request.getProjectId());
-            calculateResultSce(resList);
-            resList.stream().forEach(item -> item.setApiType("api"));
+            calculateRelationScenario(resList);
+            resList.forEach(item -> item.setApiType("api"));
             return resList;
         }
     }
@@ -391,18 +392,17 @@ public class ApiDefinitionService {
      * @param request
      * @return
      */
-    public ApiDefinitionRequest checkFilterHasCoverage(ApiDefinitionRequest request) {
+    public void checkFilterHasCoverage(ApiDefinitionRequest request) {
         if (StringUtils.isNotEmpty(request.getProjectId())) {
             List<ApiDefinition> definitionList = null;
-            if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), "uncoverage", "coverage")) {
+            if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算没有用例接口的覆盖数量
                 definitionList = this.selectEffectiveIdByProjectIdAndHaveNotCase(request.getProjectId());
             }
-            if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), "uncoverage", "coverage")) {
+            if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算全部用例
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
             }
-
             if (CollectionUtils.isNotEmpty(definitionList)) {
                 //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
                 Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
@@ -412,7 +412,6 @@ public class ApiDefinitionService {
                 }
             }
         }
-        return request;
     }
 
     public ApiDefinition get(String id) {
@@ -502,7 +501,6 @@ public class ApiDefinitionService {
             apiTestCaseService.deleteTestCase(api.getId());
             extApiDefinitionExecResultMapper.deleteByResourceId(api.getId());
             apiDefinitionMapper.deleteByPrimaryKey(api.getId());
-            apiExecutionInfoService.deleteByApiId(api.getId());
             esbApiParamService.deleteByResourceId(api.getId());
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.deleteMockConfigByApiId(api.getId());
@@ -527,7 +525,6 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
         esbApiParamService.deleteByResourceIdIn(apiIds);
-        apiExecutionInfoService.deleteByApiIdList(apiIds);
         apiDefinitionMapper.deleteByExample(example);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
         // 删除附件关系
@@ -2103,8 +2100,6 @@ public class ApiDefinitionService {
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         //删除Api、ApiCase中resourceID被删除了的执行记录
-        apiExecutionInfoService.deleteByApiIdList(apiIds);
-        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
         apiDefinitionMapper.deleteByExample(example);
     }
@@ -2143,16 +2138,13 @@ public class ApiDefinitionService {
         return resList;
     }
 
-    public void calculateResultSce(List<ApiDefinitionResult> resList) {
+    public void calculateRelationScenario(List<ApiDefinitionResult> resList) {
         if (!resList.isEmpty()) {
-            resList.stream().forEach(res -> {
+            resList.forEach(res -> {
                 List<ApiScenario> scenarioList = extApiDefinitionMapper.scenarioList(res.getId());
-                String count = String.valueOf(scenarioList.size());
-                res.setScenarioTotal(count);
-                String[] strings = new String[scenarioList.size()];
-                String[] ids2 = scenarioList.stream().map(ApiScenario::getId).collect(Collectors.toList()).toArray(strings);
-                res.setIds(ids2);
-                res.setScenarioType(ElementConstants.SCENARIO);
+                res.setScenarioTotal(scenarioList.size());
+                List<String> scenarioIdList = scenarioList.stream().map(ApiScenario::getId).collect(Collectors.toList());
+                res.setScenarioIds(scenarioIdList);
             });
         }
     }
@@ -2706,9 +2698,6 @@ public class ApiDefinitionService {
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
-        //删除Api、ApiCase中resourceID被删除了的执行记录
-        apiExecutionInfoService.deleteByApiIdList(ids);
-        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(ids);
 
         ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
         apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
@@ -2840,7 +2829,7 @@ public class ApiDefinitionService {
      * @return
      */
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        if(request.getConfig() == null ) {
+        if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
         }
         // 验证是否本地执行
@@ -3026,5 +3015,28 @@ public class ApiDefinitionService {
 
     public List<BaseCase> getBaseCaseByProjectId(String projectId) {
         return extApiTestCaseMapper.selectBaseCaseByProjectId(projectId);
+    }
+
+    public void setProjectIdInExecutionInfo() {
+        List<ApiExecutionInfo> apiExecutionInfoList = apiExecutionInfoService.selectByProjectIdIsNull();
+        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
+            Map<String, List<ApiExecutionInfo>> groupByApiIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ApiExecutionInfo::getSourceId));
+            List<ApiDefinition> apiDefinitionList = this.selectByIds(new ArrayList<>(groupByApiIdMap.keySet()));
+            if (CollectionUtils.isNotEmpty(apiDefinitionList)) {
+                Map<String, String> apiIdProjectIdMap = apiDefinitionList.stream().collect(Collectors.toMap(ApiDefinition::getId, ApiDefinition::getProjectId));
+                List<String> deleteIdList = new ArrayList<>();
+                for (Map.Entry<String, List<ApiExecutionInfo>> entry : groupByApiIdMap.entrySet()) {
+                    String apiId = entry.getKey();
+                    if (apiIdProjectIdMap.containsKey(apiId)) {
+                        apiExecutionInfoService.updateProjectIdByApiIdAndProjectIdIsNull(apiIdProjectIdMap.get(apiId), ExecutionExecuteTypeEnum.BASIC.name(), apiId);
+                    } else {
+                        deleteIdList.addAll(entry.getValue().stream().map(ApiExecutionInfo::getId).collect(Collectors.toList()));
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(deleteIdList)) {
+                    apiExecutionInfoService.deleteByIds(deleteIdList);
+                }
+            }
+        }
     }
 }

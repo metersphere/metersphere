@@ -634,7 +634,8 @@ export default {
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
-      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+      this.enableOrderDrag = !(this.condition.orders && this.condition.orders.length > 0);
+
       //检查是否只查询本周数据
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
@@ -644,26 +645,26 @@ export default {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
-        case 'notCoverage':
-          this.condition.apiCoverage = 'uncoverage';
+        case 'notCovered':
+          this.condition.apiCoverage = 'unCovered';
           this.condition.scenarioCoverage = null;
           break;
-        case 'coverage':
-          this.condition.apiCoverage = 'coverage';
-          this.condition.scenarioCoverage = null;
+        case 'covered':
+          this.condition.apiCoverage = '"unCovered"';
+          this.condition.scenarioCoverage = 'covered';
           break;
-        case 'unCoverageTestCase':
-          this.condition.apiCaseCoverage = 'uncoverage';
+        case 'notCoveredTestCase':
+          this.condition.apiCaseCoverage = 'unCovered';
           break;
-        case 'coverageTestCase':
-          this.condition.apiCaseCoverage = 'coverage';
+        case 'coveredTestCase':
+          this.condition.apiCaseCoverage = 'covered';
           break;
-        case 'coverageScenario':
-          this.condition.scenarioCoverage = 'coverage';
+        case 'coveredScenario':
+          this.condition.scenarioCoverage = 'covered';
           this.condition.apiCoverage = null;
           break;
-        case 'unCoverageScenario':
-          this.condition.scenarioCoverage = 'uncoverage';
+        case 'notCoveredScenario':
+          this.condition.scenarioCoverage = 'unCovered';
           this.condition.apiCoverage = null;
           break;
         case 'Prepare':

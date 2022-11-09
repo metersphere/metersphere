@@ -396,4 +396,9 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
     </sql>
+    <select id="selectProjectId" resultType="java.lang.String">
+        SELECT project_id FROM test_plan WHERE id IN (
+            SELECT test_plan_id FROM  test_plan_api_scenario WHERE id = #{0}
+        )
+    </select>
 </mapper>

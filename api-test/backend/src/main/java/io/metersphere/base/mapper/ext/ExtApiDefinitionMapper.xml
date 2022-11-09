@@ -419,7 +419,7 @@
     </select>
     <select id="countApiCoverageByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(api.id)                                                         AS countNumber,
-               if(test_case_api.api_definition_id is null, "uncoverage", "coverage") AS groupField
+               if(test_case_api.api_definition_id is null, "unCovered", "covered") AS groupField
         FROM api_definition api
                  left Join (SELECT DISTINCT api_definition_id
                             FROM api_test_case
@@ -797,7 +797,7 @@
             </choose>
             <include refid="filter"/>
 
-            <if test="request.apiCoverage == 'uncoverage'">
+            <if test="request.apiCoverage == 'unCovered'">
                 and
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
                 != 'Trash')
@@ -825,7 +825,7 @@
                 </if>
                 )
             </if>
-            <if test="request.apiCaseCoverage == 'uncoverage' ">
+            <if test="request.apiCaseCoverage == 'unCovered' ">
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
@@ -833,7 +833,7 @@
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
-            <if test="request.scenarioCoverage == 'uncoverage' ">
+            <if test="request.scenarioCoverage == 'unCovered' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
@@ -913,7 +913,7 @@
                 </when>
             </choose>
             <include refid="filter"/>
-            <if test="request.apiCoverage == 'uncoverage' ">
+            <if test="request.apiCoverage == 'unCovered' ">
                 and
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
                 != 'Trash')
@@ -941,7 +941,7 @@
                 </if>
                 )
             </if>
-            <if test="request.apiCaseCoverage == 'uncoverage' ">
+            <if test="request.apiCaseCoverage == 'unCovered' ">
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
@@ -949,7 +949,7 @@
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
-            <if test="request.scenarioCoverage == 'uncoverage' ">
+            <if test="request.scenarioCoverage == 'unCovered' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">

@@ -9,11 +9,16 @@ export default {
     {
       path: 'home',
       name: 'fucHome',
-      component: () => import('@/business/home/ApiTestHome'),
+      component: () => import('@/business/home/ApiHome'),
     },
     {
       path: "automation/report",
       name: "ApiReportList",
+      component: () => import('@/business/automation/report/ApiReportList'),
+    },
+    {
+      path: "automation/report/:redirectID?/:dataType?/:dataSelectRange",
+      name: "ApiReportListWithQuery",
       component: () => import('@/business/automation/report/ApiReportList'),
     },
     {

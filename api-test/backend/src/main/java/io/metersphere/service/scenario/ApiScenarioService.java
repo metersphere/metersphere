@@ -3,7 +3,7 @@ package io.metersphere.service.scenario;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.datacount.response.CoverageDTO;
+import io.metersphere.api.dto.datacount.response.CoveredDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
@@ -30,6 +30,7 @@ import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.utils.mock.MockApiUtils;
@@ -55,6 +56,7 @@ import io.metersphere.service.definition.EsbApiParamService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
+import io.metersphere.service.plan.TestPlanScenarioCaseService;
 import io.metersphere.service.scenario.dto.ApiScenarioParamDto;
 import io.metersphere.xpack.api.service.ApiAutomationRelationshipEdgeService;
 import io.metersphere.xpack.quota.service.QuotaService;
@@ -146,6 +148,8 @@ public class ApiScenarioService {
     private RelationshipEdgeService relationshipEdgeService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
@@ -1712,7 +1716,6 @@ public class ApiScenarioService {
     }
 
     private void deleteScenarioByIds(List<String> scenarioIds) {
-        scenarioExecutionInfoService.deleteByScenarioIdList(scenarioIds);
         ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
         apiScenarioExample.createCriteria().andIdIn(scenarioIds);
         apiScenarioMapper.deleteByExample(apiScenarioExample);
@@ -1744,17 +1747,17 @@ public class ApiScenarioService {
      * @param apiList        接口集合（id / path 必须有数据）
      * @return
      */
-    public CoverageDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
-        CoverageDTO coverage = new CoverageDTO();
+    public CoveredDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
+        CoveredDTO coverage = new CoveredDTO();
         if (CollectionUtils.isEmpty(apiList)) {
             return coverage;
         }
         int urlContainsCount = this.getApiIdInScenario(projectId, scenarioUrlMap, apiList).size();
-        coverage.setCoverage(urlContainsCount);
-        coverage.setNotCoverage(apiList.size() - urlContainsCount);
+        coverage.setCovered(urlContainsCount);
+        coverage.setNotCovered(apiList.size() - urlContainsCount);
         float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
         DecimalFormat df = new DecimalFormat("0.0");
-        coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
+        coverage.setRateOfCovered(df.format(coverageRageNumber) + "%");
         return coverage;
     }
 
@@ -2006,13 +2009,8 @@ public class ApiScenarioService {
         return result;
     }
 
-    public long countExecuteTimesByProjectID(String projectId) {
-        Long result = extApiScenarioMapper.countExecuteTimesByProjectID(projectId);
-        if (result == null) {
-            return 0;
-        } else {
-            return result.longValue();
-        }
+    public long countExecuteTimesByProjectID(String projectId, String triggerMode) {
+        return scenarioExecutionInfoService.countExecuteTimesByProjectID(projectId, triggerMode);
     }
 
     /**
@@ -2079,7 +2077,6 @@ public class ApiScenarioService {
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
         List<String> scenarioIds = apiScenarios.stream().map(ApiScenario::getId).collect(toList());
-        scenarioExecutionInfoService.deleteByScenarioIdList(scenarioIds);
 
         apiScenarioMapper.deleteByExample(example);
         scheduleService.deleteByResourceId(refId, ScheduleGroup.API_SCENARIO_TEST.name());
@@ -2250,5 +2247,52 @@ public class ApiScenarioService {
             }
         });
         return projectEnvMap;
+    }
+    public void setProjectIdInExecutionInfo() {
+        List<ScenarioExecutionInfo> apiExecutionInfoList = scenarioExecutionInfoService.selectByProjectIdIsNull();
+        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
+            Map<String, List<ScenarioExecutionInfo>> groupByScenarioIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ScenarioExecutionInfo::getSourceId));
+            List<ApiScenario> scenarioList = this.selectByIds(new ArrayList<>(groupByScenarioIdMap.keySet()));
+            Map<String, List<ScenarioExecutionInfo>> testPlanScenarioExecutionMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(scenarioList)) {
+                Map<String, String> scenarioIdProjectIdMap = scenarioList.stream().collect(Collectors.toMap(ApiScenario::getId, ApiScenario::getProjectId));
+                for (Map.Entry<String, List<ScenarioExecutionInfo>> entry : groupByScenarioIdMap.entrySet()) {
+                    String apiCaseId = entry.getKey();
+                    if (scenarioIdProjectIdMap.containsKey(apiCaseId)) {
+                        scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(scenarioIdProjectIdMap.get(apiCaseId), ExecutionExecuteTypeEnum.BASIC.name(), apiCaseId);
+                    } else {
+                        testPlanScenarioExecutionMap.put(apiCaseId, entry.getValue());
+                    }
+                }
+            } else {
+                testPlanScenarioExecutionMap = groupByScenarioIdMap;
+            }
+
+            if (MapUtils.isNotEmpty(testPlanScenarioExecutionMap)) {
+                //通过apiCase查询不到的可能是testPlanApiCase
+                List<TestPlanApiScenario> scenarios = testPlanScenarioCaseService.selectByIds(new ArrayList<>(testPlanScenarioExecutionMap.keySet()));
+                Map<String, TestPlanApiScenario> testPlanScenarioMap = new HashMap<>();
+                scenarios.forEach(item -> {
+                    testPlanScenarioMap.put(item.getId(), item);
+                });
+                List<String> deleteIdList = new ArrayList<>();
+                for (Map.Entry<String, List<ScenarioExecutionInfo>> entry : testPlanScenarioExecutionMap.entrySet()) {
+                    String testPlanApiCaseId = entry.getKey();
+                    if (testPlanScenarioMap.containsKey(testPlanApiCaseId)) {
+                        String projectId = testPlanScenarioCaseService.selectProjectId(testPlanScenarioMap.get(testPlanApiCaseId).getTestPlanId());
+                        if (StringUtils.isNotEmpty(projectId)) {
+                            scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), testPlanApiCaseId);
+                        } else {
+                            deleteIdList.addAll(entry.getValue().stream().map(ScenarioExecutionInfo::getId).collect(Collectors.toList()));
+                        }
+                    } else {
+                        deleteIdList.addAll(entry.getValue().stream().map(ScenarioExecutionInfo::getId).collect(Collectors.toList()));
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(deleteIdList)) {
+                    scenarioExecutionInfoService.deleteByIds(deleteIdList);
+                }
+            }
+        }
     }
 }

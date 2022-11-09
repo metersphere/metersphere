@@ -7,4 +7,6 @@ public class CommonConstants {
     public static final String REPORT_STATUS = "REPORT_STATUS";
     public static final String TRIGGER_MODE = "trigger_mode";
 
+    public static final String STATUS = "status";
+
 }

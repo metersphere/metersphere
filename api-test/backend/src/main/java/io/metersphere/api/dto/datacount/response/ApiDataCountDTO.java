@@ -2,6 +2,7 @@ package io.metersphere.api.dto.datacount.response;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.commons.constants.RequestTypeConstants;
+import io.metersphere.commons.enums.ApiHomeFilterEnum;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import lombok.Getter;
@@ -16,112 +17,33 @@ import java.util.List;
 @Getter
 @Setter
 public class ApiDataCountDTO {
-
-    /**
-     * 接口统计
-     */
-    private long allApiDataCountNumber = 0;
-    /**
-     * http接口统计
-     */
-    private long httpApiDataCountNumber = 0;
-    /**
-     * rpc接口统计
-     */
-    private long rpcApiDataCountNumber = 0;
-    /**
-     * tcp接口统计
-     */
-    private long tcpApiDataCountNumber = 0;
-    /**
-     * sql接口统计
-     */
-    private long sqlApiDataCountNumber = 0;
-
-    private String httpCountStr = "";
-    private String rpcCountStr = "";
-    private String tcpCountStr = "";
-    private String sqlCountStr = "";
-
-    /**
-     * 本周新增数量
-     */
-    private long thisWeekAddedCount = 0;
-    /**
-     * 本周执行数量
-     */
-    private long thisWeekExecutedCount = 0;
-    /**
-     * 历史总执行数量
-     */
-    private long executedCount = 0;
-
-    /**
-     * 进行中
-     */
+    private long total = 0;
+    private long httpCount = 0;
+    private long tcpCount = 0;
+    private long rpcCount = 0;
+    private long sqlCount = 0;
+    private long createdInWeek = 0;
+    private long coveredCount = 0;
+    private long notCoveredCount = 0;
     private long runningCount = 0;
-    /**
-     * 未开始
-     */
-    private long notStartedCount = 0;
-    /**
-     * 已完成
-     */
     private long finishedCount = 0;
-    /**
-     * 未覆盖
-     */
-    private long uncoverageCount = 0;
-    /**
-     * 已覆盖
-     */
-    private long coverageCount = 0;
-    /**
-     * 未执行
-     */
-    private long unexecuteCount = 0;
-    /**
-     * 执行失败
-     */
-    private long executionFailedCount = 0;
-    /**
-     * 执行通过
-     */
-    private long executionPassCount = 0;
-    /**
-     * 执行误报
-     */
+    private long notStartedCount = 0;
+    private long executedTimesInWeek = 0;
+    private long executedCount = 0;
+    private long notExecutedCount = 0;
+    private long passCount = 0;
+    private long unPassCount = 0;
     private long fakeErrorCount = 0;
-    /**
-     * 失败
-     */
-    private long failedCount = 0;
-    /**
-     * 成功
-     */
-    private long successCount = 0;
+    private long notRunCount = 0;
 
-    /**
-     * 完成率
-     */
-    private String completionRage = " 0%";
-    /**
-     * 覆盖率
-     */
-    private String coverageRage = " 0%";
-    /**
-     * 通过率
-     */
-    private String passRage = " 0%";
-    /**
-     * 成功率
-     */
-    private String successRage = " 0%";
-
-    /**
-     * 接口覆盖率
-     */
-    private String interfaceCoverage = " 0%";
+    //接口覆盖率
+    private String apiCoveredRate = "0%";
+    //完成率
+    private String completedRate = "0%";
+    //执行率
+    private String executedRate = "0%";
+    //通过率
+    private String passRate = "0%";
 
     /**
      * 对Protocol视角对查询结果进行统计
@@ -133,22 +55,22 @@ public class ApiDataCountDTO {
                 countResultList) {
             switch (countResult.getGroupField().toUpperCase()) {
                 case RequestTypeConstants.DUBBO:
-                    this.rpcApiDataCountNumber += countResult.getCountNumber();
+                    this.rpcCount += countResult.getCountNumber();
                     break;
                 case RequestTypeConstants.HTTP:
-                    this.httpApiDataCountNumber += countResult.getCountNumber();
+                    this.httpCount += countResult.getCountNumber();
                     break;
                 case RequestTypeConstants.SQL:
-                    this.sqlApiDataCountNumber += countResult.getCountNumber();
+                    this.sqlCount += countResult.getCountNumber();
                     break;
                 case RequestTypeConstants.TCP:
-                    this.tcpApiDataCountNumber += countResult.getCountNumber();
+                    this.tcpCount += countResult.getCountNumber();
                     break;
                 default:
                     break;
             }
-            allApiDataCountNumber += countResult.getCountNumber();
         }
+        this.total = this.rpcCount + this.httpCount + this.sqlCount + this.tcpCount;
     }
 
 
@@ -173,26 +95,43 @@ public class ApiDataCountDTO {
     }
 
     public void countApiCoverage(List<ApiDataCountResult> countResultList) {
-
         for (ApiDataCountResult countResult : countResultList) {
-            if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "coverage")) {
-                this.coverageCount += countResult.getCountNumber();
-            } else if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "uncoverage")) {
-                this.uncoverageCount += countResult.getCountNumber();
+            if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), ApiHomeFilterEnum.COVERED)) {
+                this.coveredCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), ApiHomeFilterEnum.NOT_COVERED)) {
+                this.notCoveredCount += countResult.getCountNumber();
             }
         }
     }
 
-    public void countRunResult(List<ApiDataCountResult> countResultByRunResult) {
+    public void countScenarioRunResult(List<ApiDataCountResult> countResultByRunResult) {
         for (ApiDataCountResult countResult : countResultByRunResult) {
-            if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), "notRun", ApiReportStatus.PENDING.name()) || StringUtils.isEmpty(countResult.getGroupField())) {
-                this.unexecuteCount += countResult.getCountNumber();
+            if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiHomeFilterEnum.NOT_RUN,
+                    ApiReportStatus.PENDING.name()) || StringUtils.isEmpty(countResult.getGroupField())) {
+                this.notExecutedCount += countResult.getCountNumber();
             } else if (ApiReportStatus.ERROR.name().equals(countResult.getGroupField())) {
-                this.executionFailedCount += countResult.getCountNumber();
+                this.unPassCount += countResult.getCountNumber();
             } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.FAKE_ERROR.name())) {
                 this.fakeErrorCount += countResult.getCountNumber();
             } else {
-                this.executionPassCount += countResult.getCountNumber();
+                this.passCount += countResult.getCountNumber();
+            }
+        }
+    }
+
+    public void countApiCaseRunResult(List<ExecuteResultCountDTO> executeResultCountDTOList) {
+        for (ExecuteResultCountDTO execResult : executeResultCountDTOList) {
+            if (StringUtils.isEmpty(execResult.getExecResult())) {
+                this.notExecutedCount += execResult.getCount();
+            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ApiTestDataStatus.UNDERWAY.getValue(),
+                    ApiReportStatus.STOPPED.name())) {
+                this.notExecutedCount += execResult.getCount();
+            } else if (StringUtils.equalsIgnoreCase(execResult.getExecResult(), ApiReportStatus.SUCCESS.name())) {
+                this.passCount += execResult.getCount();
+            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ApiReportStatus.FAKE_ERROR.name())) {
+                fakeErrorCount += execResult.getCount();
+            } else {
+                this.unPassCount += execResult.getCount();
             }
         }
     }
@@ -200,19 +139,12 @@ public class ApiDataCountDTO {
     public void countScheduleExecute(List<ApiDataCountResult> allExecuteResult) {
         for (ApiDataCountResult countResult : allExecuteResult) {
             if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), ApiReportStatus.SUCCESS.name())) {
-                this.successCount += countResult.getCountNumber();
-                this.executedCount += countResult.getCountNumber();
+                this.passCount += countResult.getCountNumber();
             } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.ERROR.name())) {
-                this.failedCount += countResult.getCountNumber();
-                this.executedCount += countResult.getCountNumber();
+                this.unPassCount += countResult.getCountNumber();
             } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.FAKE_ERROR.name())) {
                 this.fakeErrorCount += countResult.getCountNumber();
-                this.executedCount += countResult.getCountNumber();
             }
         }
-    }
-
-    public long getAllExecutedResultCount() {
-        return this.unexecuteCount + this.executionFailedCount + this.fakeErrorCount + this.executionPassCount;
     }
 }
