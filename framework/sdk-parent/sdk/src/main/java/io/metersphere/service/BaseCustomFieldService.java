@@ -1,9 +1,8 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.CustomField;
+import io.metersphere.base.domain.CustomFieldExample;
 import io.metersphere.base.mapper.CustomFieldMapper;
-import io.metersphere.base.mapper.CustomFieldTemplateMapper;
-import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.BaseCustomFieldMapper;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.utils.JSON;
@@ -29,11 +28,6 @@ public class BaseCustomFieldService {
 
     @Resource
     CustomFieldMapper customFieldMapper;
-
-    @Resource
-    private ProjectMapper projectMapper;
-    @Resource
-    private CustomFieldTemplateMapper customFieldTemplateMapper;
 
     public CustomField get(String id) {
         return customFieldMapper.selectByPrimaryKey(id);
@@ -108,41 +102,13 @@ public class BaseCustomFieldService {
     }
 
     public CustomField getCustomFieldByName(String projectId, String fieldName) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        if (project == null) {
-            return null;
-        }
-
-        String issueTemplateId = project.getIssueTemplateId();
-        if (StringUtils.isBlank(issueTemplateId)) {
-            return null;
-        }
-
-        CustomFieldTemplateExample customFieldTemplateExample = new CustomFieldTemplateExample();
-        customFieldTemplateExample.createCriteria().andTemplateIdEqualTo(issueTemplateId);
-        List<CustomFieldTemplate> customFieldTemplates = customFieldTemplateMapper.selectByExample(customFieldTemplateExample);
-        if (CollectionUtils.isEmpty(customFieldTemplates)) {
-            return null;
-        }
-
-        List<String> templateFieldIds = customFieldTemplates
-                .stream()
-                .map(CustomFieldTemplate::getFieldId)
-                .collect(Collectors.toList());
-
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria()
                 .andProjectIdEqualTo(projectId)
                 .andNameEqualTo(fieldName);
-
         List<CustomField> customFields = customFieldMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(customFields)) {
-            for (CustomField customField : customFields) {
-                if (templateFieldIds.contains(customField.getId())) {
-                    return customField;
-                }
-            }
-            return null;
+            return customFields.get(0);
         } else {
             example.clear();
             example.createCriteria()
