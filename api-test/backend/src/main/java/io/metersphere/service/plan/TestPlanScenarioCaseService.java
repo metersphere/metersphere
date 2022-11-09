@@ -748,6 +748,9 @@ public class TestPlanScenarioCaseService {
                 Set<String> set = map.keySet();
                 for (String s : set) {
                     String e = map.get(s);
+                    if (StringUtils.isBlank(e)) {
+                        continue;
+                    }
                     if (envMap.containsKey(s)) {
                         List<String> list = envMap.get(s);
                         if (!list.contains(e)) {
