@@ -2,6 +2,7 @@ package io.metersphere.api.jmeter.utils;
 
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
@@ -51,7 +52,8 @@ public class ReportStatusUtil {
         }
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            resultVO.setStatus(String.valueOf(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS)));
+            ResultVO o = (ResultVO) dto.getArbitraryData().get(CommonConstants.REPORT_STATUS);
+            resultVO.setStatus(o.getStatus());
         }
         // 过滤掉重试结果后进行统计
         List<RequestResult> requestResults = filterRetryResults(dto.getRequestResults());
@@ -84,12 +86,12 @@ public class ReportStatusUtil {
         ResultVO result = new ResultVO();
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.LOCAL_STATUS_KEY)) {
             // 本地执行状态
-            result = (ResultVO) dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY);
+            result = JSONUtil.convertValue(dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY), ResultVO.class);
             return result;
         }
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            result = (ResultVO) dto.getArbitraryData().get(CommonConstants.REPORT_STATUS);
+            result = JSONUtil.convertValue(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS), ResultVO.class);
             return result;
         }
         return getStatus(dto, result);
