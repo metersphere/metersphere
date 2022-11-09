@@ -41,6 +41,14 @@ public class JSONUtil {
         }
     }
 
+    public static <T> T convertValue(Object content, Class<T> valueType) {
+        try {
+            return objectMapper.convertValue(content, valueType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String toJSONString(Object value) {
         try {
             return objectMapper.writeValueAsString(value);
