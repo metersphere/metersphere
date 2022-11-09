@@ -64,8 +64,11 @@
           <el-link type="info" v-else-if="row.lastResult === 'PENDING' || row.lastResult === 'UnExecute'">
             {{ $t('Pending') }}
           </el-link>
-          <el-link type="info" v-else>
+          <el-link type="info" v-else-if="row.lastResult">
             {{ row.lastResult }}
+          </el-link>
+          <el-link type="info" v-else>
+            {{ $t('Pending') }}
           </el-link>
         </template>
       </el-table-column>
