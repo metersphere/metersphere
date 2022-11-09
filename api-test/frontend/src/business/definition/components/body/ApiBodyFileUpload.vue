@@ -17,11 +17,12 @@
             :http-request="upload"
             :beforeUpload="uploadValidate"
             ref="uploadLocal">
-            <el-button type="text" :disabled="isReadOnly"> {{ $t('permission.project_file.local_upload') }}</el-button>
+            <el-button type="text" :disabled="isReadOnly"
+                       v-if="!isReadOnly"> {{ $t('permission.project_file.local_upload') }}</el-button>
             <span slot="file"/>
           </el-upload>
         </div>
-        <el-button type="text" @click="associationFile"
+        <el-button type="text" @click="associationFile" v-if="!isReadOnly"
                    :disabled="isReadOnly">{{ $t('permission.project_file.associated_files') }}</el-button>
         <i class="el-icon-plus" slot="reference"/>
       </el-popover>

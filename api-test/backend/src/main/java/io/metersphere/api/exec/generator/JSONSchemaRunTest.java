@@ -4,15 +4,14 @@ package io.metersphere.api.exec.generator;
 import com.google.gson.*;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.EnumPropertyUtil;
-import io.metersphere.commons.utils.JSON;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.util.NumberUtils;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,26 +97,26 @@ public class JSONSchemaRunTest {
         }
     }
 
-    private static void arrayValueOf(String evlValue, List<Object> array) {
+    private static void arrayValueOf(String evlValue, JSONArray array) {
         if (StringUtils.startsWith(evlValue, "@")) {
             String str = ScriptEngineUtils.calculate(evlValue);
             switch (evlValue) {
                 case "@integer":
-                    array.add(NumberUtils.parseNumber(str, Long.class));
+                    array.put(NumberUtils.parseNumber(str, Long.class));
                     break;
                 case "@boolean":
-                    array.add(Boolean.parseBoolean(str));
+                    array.put(Boolean.parseBoolean(str));
                     break;
                 case "@float":
-                    array.add(Float.parseFloat(str));
+                    array.put(Float.parseFloat(str));
                     break;
                 default:
-                    array.add(str);
+                    array.put(str);
                     break;
             }
         } else {
             String value = ScriptEngineUtils.buildFunctionCallString(evlValue);
-            array.add(value);
+            array.put(value);
         }
     }
 
@@ -168,14 +167,14 @@ public class JSONSchemaRunTest {
                 concept.put(propertyName, false);
             }
         } else if (propertyObjType.equals(PropertyConstant.ARRAY)) {
-            List<Object> array = new LinkedList<>();
+            JSONArray array = new JSONArray();
             JsonArray jsonArray = new JsonArray();
             if (object.has(PropertyConstant.ITEMS)) {
                 if (object.get(PropertyConstant.ITEMS).isJsonArray()) {
                     jsonArray = object.get(PropertyConstant.ITEMS).getAsJsonArray();
                 } else {
                     JsonObject itemsObject = object.get(PropertyConstant.ITEMS).getAsJsonObject();
-                    array.add(itemsObject);
+                    array.put(itemsObject);
                 }
             }
 
@@ -190,17 +189,17 @@ public class JSONSchemaRunTest {
                             }
                             if (StringUtils.equalsIgnoreCase(type, PropertyConstant.STRING)) {
                                 String value = itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString();
-                                array.add(value);
+                                array.put(value);
                             } else if (StringUtils.equalsIgnoreCase(type, PropertyConstant.INTEGER)) {
                                 int value = itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsInt();
-                                array.add(value);
+                                array.put(value);
                             } else if (StringUtils.equalsIgnoreCase(type, PropertyConstant.NUMBER)) {
                                 JsonElement valueObj = itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK);
                                 Number value = valueObj.getAsNumber();
                                 if (StringUtils.isNotEmpty(valueObj.getAsString()) && valueObj.getAsString().indexOf(".") != -1) {
-                                    array.add(value.floatValue());
+                                    array.put(value.floatValue());
                                 } else {
-                                    array.add(value.longValue());
+                                    array.put(value.longValue());
                                 }
                             } else {
                                 arrayValueOf(itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString(), array);
@@ -209,12 +208,12 @@ public class JSONSchemaRunTest {
                             arrayValueOf(itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString(), array);
                         }
                     } else if (itemsObject.has(PropertyConstant.TYPE) && (itemsObject.has(PropertyConstant.ENUM) || itemsObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.STRING))) {
-                        array.add(getValue(itemsObject));
+                        array.put(getValue(itemsObject));
                     } else if (itemsObject.has(PropertyConstant.TYPE) && itemsObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.NUMBER)) {
                         if (isMock(itemsObject)) {
                             arrayValueOf(itemsObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString(), array);
                         } else {
-                            array.add(0);
+                            array.put(0);
                         }
                     } else if (itemsObject.has(PropertyConstant.PROPERTIES)) {
                         JSONObject propertyConcept = new JSONObject(true);
@@ -224,16 +223,16 @@ public class JSONSchemaRunTest {
                             JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
                             analyzeProperty(propertyConcept, propertyKey, propertyObj, map);
                         }
-                        array.add(propertyConcept);
+                        array.put(propertyConcept);
 
                     } else if (itemsObject.has(PropertyConstant.TYPE) && itemsObject.get(PropertyConstant.TYPE) instanceof JsonPrimitive) {
                         JSONObject newJsonObj = new JSONObject();
                         analyzeProperty(newJsonObj, propertyName + PropertyConstant.ITEM, itemsObject, map);
-                        array.add(newJsonObj.get(propertyName + PropertyConstant.ITEM));
+                        array.put(newJsonObj.get(propertyName + PropertyConstant.ITEM));
                     }
                 } else if (object.has(PropertyConstant.ITEMS) && object.get(PropertyConstant.ITEMS).isJsonArray()) {
                     JsonArray itemsObjectArray = object.get(PropertyConstant.ITEMS).getAsJsonArray();
-                    array.add(itemsObjectArray);
+                    array.put(itemsObjectArray);
                 }
             }
             concept.put(propertyName, array);

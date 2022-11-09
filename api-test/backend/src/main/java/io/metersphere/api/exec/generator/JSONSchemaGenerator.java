@@ -6,9 +6,9 @@ import io.metersphere.commons.utils.EnumPropertyUtil;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -169,14 +169,14 @@ public class JSONSchemaGenerator {
                 }
             } else if (propertyObjType.equals(PropertyConstant.ARRAY)) {
                 // 先设置空值
-                List<Object> array = new LinkedList<>();
+                JSONArray array = new JSONArray();
                 JsonArray jsonArray = new JsonArray();
                 if (object.has(PropertyConstant.ITEMS)) {
                     if (object.get(PropertyConstant.ITEMS).isJsonArray()) {
                         jsonArray = object.get(PropertyConstant.ITEMS).getAsJsonArray();
                     } else {
                         JsonObject itemsObject = object.get(PropertyConstant.ITEMS).getAsJsonObject();
-                        array.add(itemsObject);
+                        array.put(itemsObject);
                     }
                 }
                 for (int i = 0; i < jsonArray.size(); i++) {
@@ -186,34 +186,34 @@ public class JSONSchemaGenerator {
                             try {
                                 if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.INTEGER)) {
                                     int value = jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsInt();
-                                    array.add(value);
+                                    array.put(value);
                                 } else {
                                     String value = ScriptEngineUtils.buildFunctionCallString(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
-                                    array.add(value);
+                                    array.put(value);
                                 }
                             } catch (Exception e) {
                                 String value = ScriptEngineUtils.buildFunctionCallString(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
-                                array.add(value);
+                                array.put(value);
                             }
                         } else if (jsonObject.has(PropertyConstant.ENUM)) {
-                            array.add(EnumPropertyUtil.analyzeEnumProperty(jsonObject));
+                            array.put(EnumPropertyUtil.analyzeEnumProperty(jsonObject));
                         } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.STRING)) {
                             if (jsonObject.has(PropertyConstant.DEFAULT)) {
-                                array.add(jsonObject.get(PropertyConstant.DEFAULT));
+                                array.put(jsonObject.get(PropertyConstant.DEFAULT));
                             } else if (jsonObject.has(PropertyConstant.MOCK) && jsonObject.get(PropertyConstant.MOCK).getAsJsonObject() != null && StringUtils.isNotEmpty(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString())) {
                                 String value = ScriptEngineUtils.buildFunctionCallString(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
-                                array.add(value);
+                                array.put(value);
                             } else {
-                                array.add(StringUtils.EMPTY);
+                                array.put(StringUtils.EMPTY);
                             }
                         } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.NUMBER)) {
                             if (jsonObject.has(PropertyConstant.DEFAULT)) {
-                                array.add(jsonObject.get(PropertyConstant.DEFAULT));
+                                array.put(jsonObject.get(PropertyConstant.DEFAULT));
                             } else if (jsonObject.has(PropertyConstant.MOCK) && jsonObject.get(PropertyConstant.MOCK).getAsJsonObject() != null && StringUtils.isNotEmpty(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString())) {
                                 String value = ScriptEngineUtils.buildFunctionCallString(jsonObject.get(PropertyConstant.MOCK).getAsJsonObject().get(PropertyConstant.MOCK).getAsString());
-                                array.add(value);
+                                array.put(value);
                             } else {
-                                array.add(0);
+                                array.put(0);
                             }
                         } else if (jsonObject.has(PropertyConstant.PROPERTIES)) {
                             JSONObject propertyConcept = JSONUtil.createJsonObject(true);
@@ -223,16 +223,16 @@ public class JSONSchemaGenerator {
                                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
                                 analyzeProperty(propertyConcept, propertyKey, propertyObj);
                             }
-                            array.add(propertyConcept);
+                            array.put(propertyConcept);
 
                         } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE) instanceof JsonPrimitive) {
                             JSONObject newJsonObj = JSONUtil.createJsonObject(true);
                             analyzeProperty(newJsonObj, propertyName + PropertyConstant.ITEM, jsonObject);
-                            array.add(newJsonObj.get(propertyName + PropertyConstant.ITEM));
+                            array.put(newJsonObj.get(propertyName + PropertyConstant.ITEM));
                         }
                     } else if (object.has(PropertyConstant.ITEMS) && object.get(PropertyConstant.ITEMS).isJsonArray()) {
                         JsonArray itemsObjectArray = object.get(PropertyConstant.ITEMS).getAsJsonArray();
-                        array.add(itemsObjectArray);
+                        array.put(itemsObjectArray);
                     }
                 }
                 concept.put(propertyName, array);

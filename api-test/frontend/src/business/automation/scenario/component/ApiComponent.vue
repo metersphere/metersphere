@@ -496,7 +496,7 @@ export default {
       this.currentScenarioData = undefined;
       this.getParentVariables(this.node);
       getOwnerProjectIds().then(res => {
-        const project = res.data.find(p => p === resource.projectId);
+        const project = res.data.find(p => p === this.request.projectId);
         if (!project) {
           this.$warning(this.$t('automation.project_no_permission'));
         } else {
