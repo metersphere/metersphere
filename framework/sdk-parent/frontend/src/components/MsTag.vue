@@ -1,9 +1,5 @@
 <template>
-  <el-tooltip placement="top" v-if="showTooltip">
-    <div slot="content">{{ content }}</div>
-    <el-tag :type="type" :effect="effect" :color="color" size="mini">{{ content }}</el-tag>
-  </el-tooltip>
-  <el-tag :type="type" :effect="effect" :color="color" size="mini" v-else>{{ content }}</el-tag>
+  <el-tag :type="type" :effect="effect" :color="color" size="mini" >{{ content }}</el-tag>
 </template>
 
 <script>
