@@ -3,7 +3,6 @@ package io.metersphere.service.definition;
 import io.metersphere.base.domain.ApiCaseExecutionInfo;
 import io.metersphere.base.domain.ApiCaseExecutionInfoExample;
 import io.metersphere.base.mapper.ApiCaseExecutionInfoMapper;
-import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -19,11 +18,9 @@ import java.util.UUID;
 public class ApiCaseExecutionInfoService {
     @Resource
     private ApiCaseExecutionInfoMapper apiCaseExecutionInfoMapper;
-    @Resource
-    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Lazy
-    public void insertExecutionInfo(String apiCaseId, String result, String triggerMode) {
+    public void insertExecutionInfo(String apiCaseId, String result, String triggerMode, String projectId, String executeType) {
         if (StringUtils.isNotEmpty(apiCaseId) && StringUtils.isNotEmpty(result)) {
             ApiCaseExecutionInfo executionInfo = new ApiCaseExecutionInfo();
             executionInfo.setResult(result);
@@ -31,28 +28,51 @@ public class ApiCaseExecutionInfoService {
             executionInfo.setId(UUID.randomUUID().toString());
             executionInfo.setCreateTime(System.currentTimeMillis());
             executionInfo.setTriggerMode(triggerMode);
+            executionInfo.setProjectId(projectId);
+            executionInfo.setExecuteType(executeType);
             apiCaseExecutionInfoMapper.insert(executionInfo);
         }
     }
 
-    public void deleteByApiCaseId(String resourceId) {
-        ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-        example.createCriteria().andSourceIdEqualTo(resourceId);
-        apiCaseExecutionInfoMapper.deleteByExample(example);
-    }
 
-    public void deleteByApiCaseIdList(List<String> resourceIdList) {
-        if (CollectionUtils.isNotEmpty(resourceIdList)) {
+    public void deleteByProjectId(String projectId) {
+        if (StringUtils.isNotEmpty(projectId)) {
             ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-            example.createCriteria().andSourceIdIn(resourceIdList);
+            example.createCriteria().andProjectIdEqualTo(projectId);
             apiCaseExecutionInfoMapper.deleteByExample(example);
         }
     }
 
-    public void deleteByApiDefeinitionIdList(List<String> apiIdList) {
-        if (CollectionUtils.isNotEmpty(apiIdList)) {
-            List<String> apiCaseIdList = extApiTestCaseMapper.selectCaseIdsByApiIds(apiIdList);
-            this.deleteByApiCaseIdList(apiCaseIdList);
+    public long countExecutedTimesByProjectId(String projectId) {
+        ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        return apiCaseExecutionInfoMapper.countByExample(example);
+    }
+
+
+    public List<ApiCaseExecutionInfo> selectByProjectIdIsNull() {
+        ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
+        example.createCriteria().andProjectIdIsNull();
+        return apiCaseExecutionInfoMapper.selectByExample(example);
+    }
+
+    public void updateProjectIdBySourceIdAndProjectIdIsNull(String projectId, String executeType, String apiId) {
+        if (StringUtils.isNoneEmpty(projectId, executeType, apiId)) {
+            ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
+            example.createCriteria().andProjectIdIsNull().andSourceIdEqualTo(apiId);
+            ApiCaseExecutionInfo updateModel = new ApiCaseExecutionInfo();
+            updateModel.setProjectId(projectId);
+            updateModel.setExecuteType(executeType);
+
+            apiCaseExecutionInfoMapper.updateByExampleSelective(updateModel, example);
+        }
+    }
+
+    public void deleteByIds(List<String> deleteIdList) {
+        if (CollectionUtils.isNotEmpty(deleteIdList)) {
+            ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
+            example.createCriteria().andIdIn(deleteIdList);
+            apiCaseExecutionInfoMapper.deleteByExample(example);
         }
     }
 }

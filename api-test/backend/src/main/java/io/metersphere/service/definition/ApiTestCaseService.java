@@ -18,6 +18,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.enums.FileAssociationTypeEnums;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -40,6 +41,7 @@ import io.metersphere.xpack.api.service.ApiTestCaseSyncService;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -105,7 +107,6 @@ public class ApiTestCaseService {
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
-
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -330,7 +331,6 @@ public class ApiTestCaseService {
     public void delete(String testId) {
         testPlanApiCaseService.deleteByCaseId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
-        apiCaseExecutionInfoService.deleteByApiCaseId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
@@ -559,7 +559,6 @@ public class ApiTestCaseService {
         }
         deleteFollows(ids);
         testPlanApiCaseService.deleteByCaseIds(ids);
-        apiCaseExecutionInfoService.deleteByApiCaseIdList(ids);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
@@ -568,7 +567,6 @@ public class ApiTestCaseService {
     }
 
     public void deleteBatchByDefinitionId(List<String> definitionIds) {
-        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(definitionIds);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(definitionIds);
         apiTestCaseMapper.deleteByExample(example);
@@ -1239,5 +1237,58 @@ public class ApiTestCaseService {
 
     public int getCaseCountById(String id) {
         return extApiTestCaseMapper.getCaseCountById(id);
+    }
+
+    public long countExecutedTimesByProjectId(String projectId) {
+        return apiCaseExecutionInfoService.countExecutedTimesByProjectId(projectId);
+    }
+
+    public void setProjectIdInExecutionInfo() {
+        List<ApiCaseExecutionInfo> apiExecutionInfoList = apiCaseExecutionInfoService.selectByProjectIdIsNull();
+        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
+            Map<String, List<ApiCaseExecutionInfo>> groupByApiIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ApiCaseExecutionInfo::getSourceId));
+            List<ApiTestCase> apiTestCaseList = this.selectCasesBydIds(new ArrayList<>(groupByApiIdMap.keySet()));
+            Map<String, List<ApiCaseExecutionInfo>> testPlanCaseMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
+                Map<String, String> apiIdProjectIdMap = apiTestCaseList.stream().collect(Collectors.toMap(ApiTestCase::getId, ApiTestCase::getProjectId));
+                for (Map.Entry<String, List<ApiCaseExecutionInfo>> entry : groupByApiIdMap.entrySet()) {
+                    String apiCaseId = entry.getKey();
+                    if (apiIdProjectIdMap.containsKey(apiCaseId)) {
+                        apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(apiIdProjectIdMap.get(apiCaseId), ExecutionExecuteTypeEnum.BASIC.name(), apiCaseId);
+                    } else {
+                        testPlanCaseMap.put(apiCaseId, entry.getValue());
+
+                    }
+                }
+            } else {
+                testPlanCaseMap = groupByApiIdMap;
+            }
+
+            if (MapUtils.isNotEmpty(testPlanCaseMap)) {
+                //通过apiCase查询不到的可能是testPlanApiCase
+                List<TestPlanApiCase> testPlanApiCaseList = testPlanApiCaseService.selectByIds(new ArrayList<>(testPlanCaseMap.keySet()));
+                Map<String, TestPlanApiCase> testPlanApiCaseMap = new HashMap<>();
+                testPlanApiCaseList.forEach(item -> {
+                    testPlanApiCaseMap.put(item.getId(), item);
+                });
+                List<String> deleteIdList = new ArrayList<>();
+                for (Map.Entry<String, List<ApiCaseExecutionInfo>> entry : testPlanCaseMap.entrySet()) {
+                    String testPlanApiCaseId = entry.getKey();
+                    if (testPlanApiCaseMap.containsKey(testPlanApiCaseId)) {
+                        String projectId = testPlanApiCaseService.selectProjectId(testPlanApiCaseMap.get(testPlanApiCaseId).getTestPlanId());
+                        if (StringUtils.isNotEmpty(projectId)) {
+                            apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), testPlanApiCaseId);
+                        } else {
+                            deleteIdList.addAll(entry.getValue().stream().map(ApiCaseExecutionInfo::getId).collect(Collectors.toList()));
+                        }
+                    } else {
+                        deleteIdList.addAll(entry.getValue().stream().map(ApiCaseExecutionInfo::getId).collect(Collectors.toList()));
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(deleteIdList)) {
+                    apiCaseExecutionInfoService.deleteByIds(deleteIdList);
+                }
+            }
+        }
     }
 }

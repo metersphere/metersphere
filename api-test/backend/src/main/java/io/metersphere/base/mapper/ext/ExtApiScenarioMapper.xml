@@ -289,8 +289,8 @@
             <if test="request.executeStatus == 'fakeError' and request.selectDataType != 'schedule' ">
                 and api_scenario.last_result = 'FAKE_ERROR'
             </if>
-            <if test="request.executeStatus == 'notSuccess' and request.selectDataType != 'schedule' ">
-                and api_scenario.last_result IN ('ERROR','FAKE_ERROR')
+            <if test="request.executeStatus == 'executedCount' and request.selectDataType != 'schedule' ">
+                and api_scenario.last_result IN ('SUCCESS','ERROR','FAKE_ERROR')
             </if>
             <if test="request.executeStatus == 'executeFailed' and request.selectDataType == 'schedule' ">
                 AND api_scenario.id IN
@@ -305,10 +305,25 @@
                 (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result =
                 'FAKE_ERROR')
             </if>
-            <if test="request.executeStatus == 'notSuccess' and request.selectDataType == 'schedule' ">
+            <if test="request.executeStatus == 'executedCount' and request.selectDataType == 'schedule' ">
                 AND api_scenario.id IN
                 (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result IN
-                ('FAKE_ERROR','ERROR'))
+                ('SUCCESS','FAKE_ERROR','ERROR'))
+            </if>
+
+            <if test="request.selectDataRange == 'scheduleRunning' ">
+                AND api_scenario.id IN
+                (
+                SELECT resource_id FROM `schedule`
+                WHERE `group` = 'API_SCENARIO_TEST'AND enable IS TRUE
+                )
+            </if>
+            <if test="request.selectDataRange == 'scheduleNotRun' ">
+                AND api_scenario.id IN
+                (
+                SELECT resource_id FROM `schedule`
+                WHERE `group` = 'API_SCENARIO_TEST'AND enable IS FALSE
+                )
             </if>
             <if test="request.notInTestPlan">
                 and api_scenario.id not in (
@@ -716,8 +731,8 @@
             <if test="request.executeStatus == 'fakeError'">
                 and api_scenario.last_result = 'FAKE_ERROR'
             </if>
-            <if test="request.executeStatus == 'notSuccess'">
-                and api_scenario.last_result IN ('ERROR','FAKE_ERROR')
+            <if test="request.executeStatus == 'executedCount'">
+                and api_scenario.last_result IN ('SUCCESS','ERROR','FAKE_ERROR')
             </if>
             <if test="request.notInTestPlan == true ">
                 and api_scenario.id not in (

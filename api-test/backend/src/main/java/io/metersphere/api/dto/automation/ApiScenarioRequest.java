@@ -19,6 +19,7 @@ public class ApiScenarioRequest extends BaseQueryRequest {
     private long scheduleCreateTime = 0;
     private String executeStatus;
     private String selectDataType;
+    private String selectDataRange;
     private boolean notInTestPlan;
     private String reviewId;
     private String versionId;

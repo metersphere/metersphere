@@ -26,21 +26,12 @@
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
         FROM api_case_execution_info
-        WHERE (source_id IN (
+        WHERE source_id IN (
             SELECT testCase.id
             FROM api_test_case testCase
             WHERE testCase.project_id = #{projectId}
         )
-            OR
-               source_id IN (
-                   SELECT id
-                   FROM test_plan_api_case
-                   WHERE api_case_id IN (
-                       SELECT testCase.id
-                       FROM api_test_case testCase
-                       WHERE testCase.project_id = #{projectId})
-               ))
-          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countByTestCaseIDInProject" resultType="java.lang.Long">

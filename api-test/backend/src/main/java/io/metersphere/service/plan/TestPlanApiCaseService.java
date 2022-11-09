@@ -6,12 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseRelevanceRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
-import io.metersphere.api.dto.definition.RunCaseRequest;
-import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
@@ -52,18 +47,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -477,6 +461,7 @@ public class TestPlanApiCaseService {
     /**
      * 从接口定义查询责任人
      * 如果之后接口用例有独立的责任人，则不从接口定义查
+     *
      * @param apiTestCases
      */
     private void buildPrincipal(List<TestPlanFailureApiDTO> apiTestCases) {
@@ -515,6 +500,10 @@ public class TestPlanApiCaseService {
 
     public List<Map> selectStatusForPlanReport(String planId) {
         return extTestPlanApiCaseMapper.selectForPlanReport(planId);
+    }
+
+    public String selectProjectId(String id) {
+        return extTestPlanApiCaseMapper.selectProjectId(id);
     }
 
     public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
@@ -776,5 +765,11 @@ public class TestPlanApiCaseService {
         Map<String, Object> extendedParameters = new HashMap<>();
         extendedParameters.put(ExtendedParameter.SYNC_STATUS, true);
         apiExecuteService.exec(request, extendedParameters);
+    }
+
+    public List<TestPlanApiCase> selectByIds(ArrayList<String> list) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andIdIn(list);
+        return testPlanApiCaseMapper.selectByExample(example);
     }
 }

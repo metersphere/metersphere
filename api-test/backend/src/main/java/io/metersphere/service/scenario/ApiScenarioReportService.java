@@ -15,7 +15,9 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.enums.ApiHomeFilterEnum;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.vo.ResultVO;
@@ -173,6 +175,43 @@ public class ApiScenarioReportService {
                     && request.getFilters().get(CommonConstants.TRIGGER_MODE).contains("API")
                     && !request.getFilters().get(CommonConstants.TRIGGER_MODE).contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())) {
                 request.getFilters().get(CommonConstants.TRIGGER_MODE).add(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
+            }
+
+            if (StringUtils.startsWith(request.getSelectDataRange(), "scheduleExecution")) {
+                if (request.getFilters() == null) {
+                    request.setFilters(new HashMap<>() {{
+                        this.put(CommonConstants.TRIGGER_MODE, new ArrayList<>() {{
+                            this.add(ReportTriggerMode.SCHEDULE.name());
+                        }});
+                    }});
+                } else {
+                    if (request.getFilters().containsKey(CommonConstants.TRIGGER_MODE)
+                            && request.getFilters().get(CommonConstants.TRIGGER_MODE).contains(ReportTriggerMode.SCHEDULE.name())) {
+                        request.getFilters().get(CommonConstants.TRIGGER_MODE).add(ReportTriggerMode.SCHEDULE.name());
+                    } else {
+                        request.getFilters().put(CommonConstants.TRIGGER_MODE, new ArrayList<>() {{
+                            this.add(ReportTriggerMode.SCHEDULE.name());
+                        }});
+                    }
+                }
+                List<String> statusList = request.getFilters().get(CommonConstants.STATUS);
+                if (statusList == null) {
+                    statusList = new ArrayList<>();
+                }
+                switch (request.getSelectDataRange()) {
+                    case ApiHomeFilterEnum.SCHEDULE_EXECUTION_PASS:
+                        statusList.add(ApiReportStatus.SUCCESS.name());
+                        break;
+                    case ApiHomeFilterEnum.SCHEDULE_EXECUTION_FAKE_ERROR:
+                        statusList.add(ApiReportStatus.FAKE_ERROR.name());
+                        break;
+                    case ApiHomeFilterEnum.SCHEDULE_EXECUTION_FAILED:
+                        statusList.add(ApiReportStatus.ERROR.name());
+                        break;
+                }
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    request.getFilters().put(CommonConstants.STATUS, statusList);
+                }
             }
         }
         return request;
@@ -401,7 +440,7 @@ public class ApiScenarioReportService {
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 //场景集合报告，按照集合报告的结果作为场景的最后执行结果
-                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode());
+                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode(), report.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name());
                 isActuator = !StringUtils.equals(report.getActuator(), StorageConstants.LOCAL.name());
             }
         }

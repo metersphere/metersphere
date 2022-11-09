@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.constants.RunModeConstants;
@@ -165,9 +166,9 @@ public class TestResultService {
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                 if (apiScenario != null) {
                     if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                        scenarioExecutionInfoService.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
+                        scenarioExecutionInfoService.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name());
                     } else {
-                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
+                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name());
                     }
                     environment = apiScenarioReportService.getEnvironment(apiScenario);
                     userName = apiAutomationService.getUser(apiScenario.getUserId());

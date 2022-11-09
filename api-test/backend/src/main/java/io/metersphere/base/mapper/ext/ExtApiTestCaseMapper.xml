@@ -467,20 +467,19 @@
             </foreach>
         </if>
         <if test="request.redirectFilter == 'unexecuteCount' ">
-            and (t3.status IS NULL or t3.status = '' or t3.status = 'Prepare' or t3.status = 'Underway' or t3.status =
-            'STOPPED')
+            and (t1.status IS NULL or t1.status NOT IN ('SUCCESS','ERROR','FAKE_ERROR') )
         </if>
         <if test="request.redirectFilter == 'executionPassCount' ">
-            and t3.status = 'success'
+            and t1.status = 'SUCCESS'
         </if>
         <if test="request.redirectFilter == 'executionFailedCount' ">
-            and t3.status = 'error'
+            and t1.status = 'ERROR'
         </if>
         <if test="request.redirectFilter == 'fakeErrorCount' ">
-            and t3.status = 'errorReportResult'
+            and t1.status = 'FAKE_ERROR'
         </if>
-        <if test="request.redirectFilter == 'notSuccessCount' ">
-            and t3.status IN ('error','errorReportResult')
+        <if test="request.redirectFilter == 'executedCount' ">
+            and t1.status IN ('SUCCESS','ERROR','FAKE_ERROR')
         </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">

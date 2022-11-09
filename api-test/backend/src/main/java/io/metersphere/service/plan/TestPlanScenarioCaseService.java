@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanScenarioCaseService {
 
+    @Lazy
     @Resource
     ApiScenarioService apiAutomationService;
     @Resource
@@ -1228,5 +1229,15 @@ public class TestPlanScenarioCaseService {
             return planApiScenario.getApiScenarioId();
         }
         return planScenarioId;
+    }
+
+    public List<TestPlanApiScenario> selectByIds(ArrayList<String> ids) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        return testPlanApiScenarioMapper.selectByExample(example);
+    }
+
+    public String selectProjectId(String testPlanId) {
+        return extTestPlanScenarioCaseMapper.selectProjectId(testPlanId);
     }
 }

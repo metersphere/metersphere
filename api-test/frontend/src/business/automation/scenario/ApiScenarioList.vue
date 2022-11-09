@@ -782,18 +782,19 @@ export default {
         this.condition.projectId = this.projectId;
       }
 
-      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+      this.enableOrderDrag = this.condition.orders.length <= 0;
 
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
       this.condition.executeStatus = null;
+      this.condition.selectDataRange = null;
       this.isRedirectFilter();
       this.condition.selectDataType = this.selectDataType;
       switch (this.selectDataRange) {
-        case 'thisWeekCount':
+        case 'createdInWeek':
           this.condition.selectThisWeedData = true;
           break;
-        case 'unexecuteCount':
+        case 'unExecuteCount':
           this.condition.executeStatus = 'PENDING';
           break;
         case 'executionFailedCount':
@@ -805,8 +806,14 @@ export default {
         case 'executionPassCount':
           this.condition.executeStatus = 'executePass';
           break;
-        case 'notSuccessCount':
-          this.condition.executeStatus = 'notSuccess';
+        case 'executedCount':
+          this.condition.executeStatus = 'executedCount';
+          break;
+        case 'running':
+          this.condition.selectDataRange = 'scheduleRunning';
+          break;
+        case 'notRun':
+          this.condition.selectDataRange = 'scheduleNotRun';
           break;
       }
       if (this.selectDataRange != null) {

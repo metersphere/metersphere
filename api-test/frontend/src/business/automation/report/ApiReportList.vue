@@ -226,7 +226,7 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 160px)',
-      trashActiveDom: 'left',
+      activeDom: 'left',
       userFilters: [],
     }
   },
@@ -236,17 +236,17 @@ export default {
         this.init();
       }
     },
-    trashActiveDom() {
+    activeDom() {
       this.condition.filters = {report_type: []};
       this.search();
     }
   },
   computed: {
     leftActive() {
-      return this.trashActiveDom === 'left';
+      return this.activeDom === 'left';
     },
     rightActive() {
-      return this.trashActiveDom === 'right';
+      return this.activeDom === 'right';
     },
   },
   methods: {
@@ -272,7 +272,10 @@ export default {
         this.condition.orders = [];
         this.condition.orders.push(order);
       }
-      if (this.trashActiveDom === 'left') {
+
+      //解析并处理跳转的参数
+      this.genRedirectParams(this.condition);
+      if (this.activeDom === 'left') {
         this.reportTypeFilters = this.reportScenarioFilters;
         this.result = getReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
           this.setData(res);
@@ -282,6 +285,30 @@ export default {
         this.result = getApiReportPage(this.currentPage, this.pageSize, this.condition).then(res => {
           this.setData(res);
         })
+      }
+    },
+    genRedirectParams(condition) {
+      let selectDataRange = "all";
+      let selectDataType = "all";
+      let routeParamObj = this.$route.params;
+      if (routeParamObj) {
+        selectDataRange = routeParamObj.dataSelectRange;
+        selectDataType = routeParamObj.dataType;
+      }
+
+      if ((this.activeDom === 'left' && selectDataType === 'scenario') || (this.activeDom === 'right' && selectDataType === 'apiCase')) {
+        condition.selectDataType = selectDataType;
+        switch (selectDataRange) {
+          case 'scheduleExecutionPassCount':
+            this.condition.selectDataRange = 'scheduleExecutionPass';
+            break;
+          case 'scheduleExecutionFakeErrorCount':
+            this.condition.selectDataRange = 'scheduleExecutionFakeError';
+            break;
+          case 'scheduleExecutionFailedCount':
+            this.condition.selectDataRange = 'scheduleExecutionFailed';
+            break;
+        }
       }
     },
     setData(response) {
@@ -367,7 +394,7 @@ export default {
             sendParam.selectAllDate = this.isSelectAllDate;
             sendParam.unSelectIds = this.unSelection;
             sendParam = Object.assign(sendParam, this.condition);
-            sendParam.caseType = this.trashActiveDom === 'right' ? 'API' : 'SCENARIO';
+            sendParam.caseType = this.activeDom === 'right' ? 'API' : 'SCENARIO';
             delBatchReport(sendParam).then(() => {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
@@ -413,7 +440,7 @@ export default {
       });
     },
     changeTab(tabType) {
-      this.trashActiveDom = tabType;
+      this.activeDom = tabType;
       if (tabType === 'right') {
         this.condition.components = REPORT_CASE_CONFIGS;
       } else {
