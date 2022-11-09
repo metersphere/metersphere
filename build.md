@@ -5,7 +5,7 @@
 ```bash
 # parent pom 安装到本地仓库, sdk 也进行安装
 ./mvnw install -N
-./mvnw clean install -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface
+./mvnw clean install -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface,framework/sdk-parent/jmeter
 ```
 
 ### 整体打包
