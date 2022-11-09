@@ -71,6 +71,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/plugin-proposal-optional-chaining": "^7.18.9",
     "@vue/cli-plugin-babel": "^5.0.7",
     "@vue/cli-plugin-eslint": "^5.0.7",
     "@vue/cli-service": "^5.0.7",
