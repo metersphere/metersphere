@@ -891,19 +891,8 @@
         select distinct tci.issues_id
         from test_plan_test_case tptc
                  join test_case_issues tci on tptc.id = tci.resource_id
-                 right join test_case
-                            on test_case.id = tci.ref_id
-                 join issues
-                      on tci.issues_id = issues.id
-        where tptc.plan_id = #{planId}
-          and test_case.status != 'Trash'
-        union distinct
-        select distinct tci.issues_id
-        from test_plan_test_case tptc
-                 join test_case_issues tci on tptc.id = tci.resource_id
-                 join issues
-                      on tci.issues_id = issues.id
-        where tptc.plan_id = #{planId}
+                 join issues on tci.issues_id = issues.id
+        where tptc.plan_id = #{planId} and tptc.is_del != 1
     </select>
     <select id="getTestPlanCase" resultType="int">
         select count(s)
