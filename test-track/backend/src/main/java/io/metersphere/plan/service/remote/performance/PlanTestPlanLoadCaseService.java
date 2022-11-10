@@ -1,5 +1,6 @@
 package io.metersphere.plan.service.remote.performance;
 
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -13,6 +14,7 @@ import io.metersphere.plan.request.performance.LoadCaseRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.utils.DiscoveryUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +36,9 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
     private TestPlanService testPlanService;
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
-        try {
+        if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             calculatePlanReport(report, planReportCaseDTOS);
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
