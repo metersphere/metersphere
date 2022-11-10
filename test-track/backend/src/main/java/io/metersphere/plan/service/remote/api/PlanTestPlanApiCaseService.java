@@ -1,5 +1,6 @@
 package io.metersphere.plan.service.remote.api;
 
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
@@ -7,6 +8,7 @@ import io.metersphere.plan.dto.*;
 import io.metersphere.plan.request.api.ApiTestCaseRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.utils.DiscoveryUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -36,15 +38,13 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
      * @return 接口用例的最新执行报告
      */
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
-        try {
+        if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             //计算测试计划中接口用例的相关数据
             calculatePlanReport(report, planReportCaseDTOS);
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
             report.setProjectEnvMap(getPlanProjectEnvMap(idList));
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
