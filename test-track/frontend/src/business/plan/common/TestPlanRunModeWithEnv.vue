@@ -434,12 +434,6 @@ export default {
   width: 163px;
 }
 
-.wrap {
-  display: flex;
-  align-items: center;
-  padding: 5px 10px 5px 10px;
-}
-
 :deep(.content .el-popover__reference) {
   width: 100%;
 }
@@ -448,28 +442,6 @@ export default {
   margin-top: 8px;
 }
 
-.other-title {
-  height: 100%;
-  margin-top: 25px;
-  align-items: flex-start;
-}
-
-.other-content {
-  height: 100%;
-}
-
-.other-row {
-  height: 125px;
-}
-.project-name {
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 150px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
 </style>
 <style  lang="scss" scoped>
 .radio-change:deep(.el-radio__input.is-checked + .el-radio__label) {

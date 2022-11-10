@@ -2219,4 +2219,53 @@ public class ApiScenarioService {
         return extApiScenarioMapper.selectBaseCaseByProjectId(projectId);
     }
 
+    public Map<String, List<String>> getProjectEnvMap(RunScenarioRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+
+        List<String> ids = request.getIds();
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        Map<String, List<String>> projectEnvMap = new HashMap<>();
+        apiScenarios.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getEnvironmentJson())){
+                JSONObject jsonObject = JSONUtil.parseObject(item.getEnvironmentJson());
+                Map<String, Object> projectIdEnvMap = jsonObject.toMap();
+                if (MapUtils.isNotEmpty(projectIdEnvMap)) {
+                    Set<String> projectIds = projectIdEnvMap.keySet();
+                    projectIds.forEach(t->{
+                        List<String> envIds = projectEnvMap.get(t);
+                        if (CollectionUtils.isNotEmpty(envIds)) {
+                            if (!envIds.contains(projectIdEnvMap.get(t).toString())) {
+                                envIds.add(projectIdEnvMap.get(t).toString());
+                            }
+                        } else {
+                            Object o = projectIdEnvMap.get(t);
+                            List<String>envIdList = new ArrayList<>();
+                            envIdList.add(o.toString());
+                            projectEnvMap.put(t,envIdList);
+                        }
+                    });
+                }
+            }
+        });
+        return projectEnvMap;
+    }
+
+    private static void buildMap(Map<String, List<String>> projectEnvMap, MsTestElement testElement) {
+        String projectId = testElement.getProjectId();
+        String environmentId = testElement.getEnvironmentId();
+        if (StringUtils.isNotBlank(projectId) && StringUtils.isNotBlank(environmentId)) {
+            List<String> envIds = projectEnvMap.get(projectId);
+            List<String>envList = new ArrayList<>();
+            envList.add(environmentId);
+            if (CollectionUtils.isEmpty(envIds)){
+                projectEnvMap.put(projectId,envList);
+            } else {
+                if (!envIds.contains(environmentId)){
+                    envIds.add(environmentId);
+                }
+            }
+        }
+    }
 }
