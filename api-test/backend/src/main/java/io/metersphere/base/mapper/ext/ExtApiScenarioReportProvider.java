@@ -18,7 +18,7 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getProjectId())
                     .append("','")
-                    .append(result.getName().replace("\'", "\\'"))
+                    .append(translate(result.getName()))
                     .append("',")
                     .append(result.getCreateTime())
                     .append(",")
@@ -32,7 +32,7 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getExecuteType())
                     .append("','")
-                    .append(result.getScenarioName().replace("\'", "\\'"))
+                    .append(translate(result.getScenarioName()))
                     .append("','")
                     .append(result.getScenarioId())
                     .append("','")
@@ -52,18 +52,22 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getEnvConfig());
             //判断有没有关联的测试报告ID
-            if (StringUtils.isBlank(result.getRelevanceTestPlanReportId())) {
-                sqlList.append("', null");
-            } else {
-                sqlList.append("','")
-                        .append(result.getRelevanceTestPlanReportId())
-                        .append("'");
-            }
+            sqlList.append("','")
+                    .append(StringUtils.defaultIfBlank(result.getRelevanceTestPlanReportId(), "null"))
+                    .append("'");
             sqlList.append(")");
             if (i < list.size() - 1) {
                 sqlList.append(",");
             }
         }
         return sqlList.toString();
+    }
+
+    private String translate(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            name = StringUtils.replace(name, "\'", "\\'");
+            name = StringUtils.replace(name, "${", "$ {");
+        }
+        return name;
     }
 }
