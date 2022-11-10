@@ -17,6 +17,7 @@
             <template v-slot="scope">
               <span v-if="scope.row.type === 'CAS'">CAS</span>
               <span v-if="scope.row.type === 'OIDC'">OIDC</span>
+              <span v-if="scope.row.type === 'OAUTH2'">OAUTH2</span>
             </template>
           </el-table-column>
           <el-table-column prop="status" :label="$t('test_resource_pool.enable_disable')">
@@ -74,6 +75,7 @@
                      @change="changeAuthType(form.type)">
             <el-option key="CAS" value="CAS" label="CAS"/>
             <el-option key="OIDC" value="OIDC" label="OIDC"/>
+            <el-option key="OAUTH2" value="OAUTH2" label="OAUTH2"/>
           </el-select>
         </el-form-item>
 
@@ -176,6 +178,76 @@
             </el-col>
           </el-row>
         </div>
+        <div class="node-line" v-if="form.type === 'OAUTH2'">
+          <el-row>
+            <el-col>
+              <el-form-item label="Auth Endpoint"
+                            :rules="requiredRules">
+                <el-input v-model="form.configuration.authUrl"
+                          placeholder="eg: http://example.com/login/oauth/authorize"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Token Endpoint"
+                            :rules="requiredRules">
+                <el-input v-model="form.configuration.tokenUrl"
+                          placeholder="eg: https://example.com/login/oauth/access_token"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Userinfo Endpoint"
+                            :rules="requiredRules">
+                <el-input v-model="form.configuration.userInfoUrl"
+                          placeholder="eg: https://example.com/user"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Redirect URL"
+                            :rules="requiredRules">
+                <el-input v-model="form.configuration.redirectUrl"
+                          placeholder="eg: http://<metersphere-endpoint>/sso/callback/oauth"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Client ID"
+                            :rules="requiredRules">
+                <el-input v-model="form.configuration.clientId" placeholder="eg: metersphere"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Secret"
+                            :rules="requiredRules">
+                <el-input type="password" v-model="form.configuration.secret" show-password autocomplete="new-password"
+                          placeholder="oauth2 client secret"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Scope" :rules="requiredRules">
+                <el-input v-model="form.configuration.scope"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Property Mapping" :rules="requiredRules">
+                <el-input v-model="form.configuration.mapping"
+                          :placeholder="mappingTip"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
 
       </el-form>
       <template v-slot:footer>
@@ -211,6 +283,7 @@ export default {
       dialogLoading: false,
       dialogVisible: false,
       infoList: [],
+      mappingTip: '{"userid": "uid", "username": "name", "email": "email"}',
       queryPath: "authsource/list",
       condition: {},
       items: [],

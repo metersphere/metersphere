@@ -254,7 +254,7 @@ export default {
 
       sessionStorage.setItem('redirectUrl', redirectUrl);
       sessionStorage.setItem('lastUser', getCurrentUserId());
-      this.$router.push({ name: "login_redirect", path: redirectUrl || '/', query: this.otherQuery});
+      this.$router.push({name: "login_redirect", path: redirectUrl || '/', query: this.otherQuery});
     },
     doLogin() {
       const userStore = useUserStore()
@@ -309,6 +309,14 @@ export default {
         if (source.type === 'OIDC') {
           url = config.authUrl + "?client_id=" + config.clientId + "&redirect_uri=" + redirectUrl +
             "&response_type=code&scope=openid+profile+email&state=" + authId;
+        }
+        if (source.type === 'OAUTH2') {
+          url = config.authUrl
+            + "?client_id=" + config.clientId
+            + "&scope=" + config.scope
+            + "&response_type=code"
+            + "&redirect_uri=" + redirectUrl
+            + "&state=" + authId;
         }
         if (url) {
           window.location.href = url;

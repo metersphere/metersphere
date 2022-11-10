@@ -40,6 +40,14 @@ public class SSOController {
                 .build();
     }
 
+    @GetMapping("callback/oauth")
+    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
+    public Rendering callbackOauth(@RequestParam("code") String code, @RequestParam("state") String authId, WebSession session, Locale locale) throws Exception {
+        Optional<SessionUser> sessionUser = ssoService.exchangeOauth2Token(code, authId, session, locale);
+        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()) + "&_csrf=" + sessionUser.get().getCsrfToken())
+                .build();
+    }
+
     @GetMapping("/callback/cas/{authId}")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering casCallback(@RequestParam("ticket") String ticket, @PathVariable("authId") String authId, WebSession session, Locale locale) throws Exception {
