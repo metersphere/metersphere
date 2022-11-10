@@ -166,12 +166,9 @@
                   :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit"
                   @batchEdit="batchEdit"/>
 
-      <ms-plan-run-mode
-        :type="'apiCase'"
-        :plan-case-ids="testPlanCaseIds"
-        @close="search"
-        @handleRunBatch="handleRunBatch"
-        ref="runMode"/>
+
+      <ms-test-plan-run-mode-with-env @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds" :type="'apiCase'"
+                                      @close="search" />
     </el-card>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
@@ -204,7 +201,6 @@ import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderL
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import {editTestPlanApiCaseOrder, run, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
@@ -221,11 +217,11 @@ import {
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import {getProjectVersions} from "@/business/utils/sdk-utils";
 import {TEST_PLAN_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 
 export default {
   name: "TestPlanApiCaseList",
   components: {
-    MsPlanRunMode,
     MsCreateTimeColumn,
     MsUpdateTimeColumn,
     MsTableColumn,
@@ -241,7 +237,8 @@ export default {
     MsContainer,
     MsBottomContainer,
     MsTaskCenter,
-    MsTestPlanApiStatus
+    MsTestPlanApiStatus,
+    MsTestPlanRunModeWithEnv,
   },
   mounted() {
     this.getVersionOptions();

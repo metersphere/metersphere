@@ -74,6 +74,10 @@ export function apiScenarioEnv(params) {
   return post('/api/automation/env', params);
 }
 
+export function apiScenarioEnvMap(params) {
+  return post('/api/automation/env/map', params);
+}
+
 export function getApiScenarioProjectIdByConditions(params) {
   return post('/api/automation/list-project-ids', params);
 }

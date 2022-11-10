@@ -85,3 +85,7 @@ export function editApiCase(url, file, files, params) {
 export function apiTestCaseCount(param) {
   return post('/api/testcase/case-count',param);
 }
+
+export function getApiCaseEnvironments(param) {
+  return post('/api/testcase/get/env',param);
+}

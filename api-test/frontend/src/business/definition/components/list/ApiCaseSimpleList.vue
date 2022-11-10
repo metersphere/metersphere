@@ -246,12 +246,13 @@
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
-    <ms-api-case-run-mode-with-env
+    <ms-api-run-mode
       :is-scenario="false"
       :project-id="projectId"
+      :run-case-ids="runCaseIds"
       @handleRunBatch="runBatch"
       @close="initTable"
-      ref="batchRun"/>
+      ref="apiBatchRun"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
@@ -305,11 +306,8 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "@/business/commons/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import MsApiCaseRunModeWithEnv from "@/business/automation/scenario/common/RunMode";
 import {getUUID, operationConfirm} from "metersphere-frontend/src/utils";
-
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getBodyUploadFiles} from "@/business/definition/api-definition";
@@ -342,7 +340,7 @@ import SyncSetting from "@/business/definition/util/SyncSetting";
 import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
 import {useApiStore, usePerformanceStore} from "@/store";
 import {REPORT_STATUS} from "@/business/commons/js/commons";
-
+import MsApiRunMode from "@/business/automation/scenario/common/ApiRunMode";
 const performanceStore = usePerformanceStore();
 
 const store = useApiStore();
@@ -370,7 +368,7 @@ export default {
     MsTable,
     MsTableColumn,
     MsRequestResultTail,
-    MsApiCaseRunModeWithEnv,
+    MsApiRunMode,
     MsSearch,
     SyncSetting,
     MsApiReportStatus: () => import("../../../automation/report/ApiReportStatus"),
@@ -683,7 +681,10 @@ export default {
       }
     },
     handleRunBatch() {
-      this.$refs.batchRun.open();
+      this.runCaseIds = Array.from(this.selectRows).map(row => row.id);
+      this.$nextTick(() => {
+        this.$refs.apiBatchRun.open();
+      });
     },
     runBatch(config) {
       let obj = {};
@@ -696,7 +697,7 @@ export default {
       obj.condition.status = "";
       testCaseBatchRun(obj).then(() => {
         this.condition.ids = [];
-        this.$refs.batchRun.close();
+        this.$refs.apiBatchRun.close();
         if (store.currentApiCase) {
           store.currentApiCase.case = true;
         } else {

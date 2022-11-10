@@ -2219,4 +2219,36 @@ public class ApiScenarioService {
         return extApiScenarioMapper.selectBaseCaseByProjectId(projectId);
     }
 
+    public Map<String, List<String>> getProjectEnvMap(RunScenarioRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+
+        List<String> ids = request.getIds();
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        Map<String, List<String>> projectEnvMap = new HashMap<>();
+        apiScenarios.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getEnvironmentJson())){
+                JSONObject jsonObject = JSONUtil.parseObject(item.getEnvironmentJson());
+                Map<String, Object> projectIdEnvMap = jsonObject.toMap();
+                if (MapUtils.isNotEmpty(projectIdEnvMap)) {
+                    Set<String> projectIds = projectIdEnvMap.keySet();
+                    projectIds.forEach(t->{
+                        List<String> envIds = projectEnvMap.get(t);
+                        if (CollectionUtils.isNotEmpty(envIds)) {
+                            if (!envIds.contains(projectIdEnvMap.get(t).toString())) {
+                                envIds.add(projectIdEnvMap.get(t).toString());
+                            }
+                        } else {
+                            Object o = projectIdEnvMap.get(t);
+                            List<String>envIdList = new ArrayList<>();
+                            envIdList.add(o.toString());
+                            projectEnvMap.put(t,envIdList);
+                        }
+                    });
+                }
+            }
+        });
+        return projectEnvMap;
+    }
 }

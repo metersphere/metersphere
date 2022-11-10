@@ -92,6 +92,11 @@ public class ApiTestCaseController {
         return apiTestCaseService.getApiCaseEnvironment(caseId);
     }
 
+    @PostMapping("/get/env")
+    public Map<String, String> getApiCaseEnvironments(@RequestBody List<String> caseIds) {
+        return apiTestCaseService.getApiCaseEnvironments(caseIds);
+    }
+
     @PostMapping("/list-blobs")
     public List<ApiTestCaseInfo> getCaseBLOBs(@RequestBody ApiTestCaseRequest request) {
         List<ApiTestCaseInfo> returnList = apiTestCaseService.findApiTestCaseBLOBs(request);
