@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/automation")
@@ -416,6 +417,10 @@ public class ApiScenarioController {
     @PostMapping(value = "/env")
     public List<String> getEnvProjects(@RequestBody RunScenarioRequest request) {
         return apiAutomationService.getProjects(request);
+    }
+    @PostMapping(value = "/env/map")
+    public Map<String, List<String>> getProjectEnvMap(@RequestBody RunScenarioRequest request) {
+        return apiAutomationService.getProjectEnvMap(request);
     }
 
     /**

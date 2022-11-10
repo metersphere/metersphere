@@ -1055,12 +1055,15 @@ public class ApiTestCaseService {
     }
 
     public Map<String, String> getApiCaseEnvironments(List<String> caseIds) {
+        if (CollectionUtils.isEmpty(caseIds)){
+            return null;
+        }
         List<ParamsDTO> environments = extApiTestCaseMapper.getApiCaseEnvironments(caseIds);
         if (CollectionUtils.isEmpty(environments)) {
             return null;
         }
         try {
-            List<String> envIds = environments.stream().map(ParamsDTO::getValue).collect(Collectors.toList());
+            List<String> envIds = environments.stream().filter(t->StringUtils.isNotBlank(t.getValue()) && !StringUtils.equalsIgnoreCase(t.getValue(),"null")).map(ParamsDTO::getValue).collect(Collectors.toList());
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
             example.createCriteria().andIdIn(envIds);
             List<ApiTestEnvironment> environmentList = apiTestEnvironmentMapper.selectByExample(example);
@@ -1069,7 +1072,7 @@ public class ApiTestCaseService {
             }
             Map<String, String> envMap = environmentList.stream().collect(Collectors.toMap(ApiTestEnvironment::getId, ApiTestEnvironment::getName));
 
-            Map<String, String> caseEnvMap = environments.stream().collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getValue()), HashMap::putAll);
+            Map<String, String> caseEnvMap = environments.stream().filter(t->StringUtils.isNotBlank(t.getValue()) && !StringUtils.equalsIgnoreCase(t.getValue(),"null")).collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getValue()), HashMap::putAll);
             caseEnvMap.forEach((k, v) -> {
                 if (envMap.containsKey(v)) {
                     caseEnvMap.put(k, envMap.get(v));

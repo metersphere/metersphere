@@ -299,11 +299,12 @@
     <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
-    <ms-run-mode
+    <ms-api-run-mode
       :request="runRequest"
+      :project-id="projectId"
       @close="search"
       @handleRunBatch="handleRunBatch"
-      ref="runMode"/>
+      ref="apiBatchRun"/>
     <ms-run :debug="true" :environment="projectEnvMap"
             :reportId="reportId"
             :saved="true"
@@ -377,6 +378,7 @@ import {REPORT_STATUS} from "@/business/commons/js/commons";
 import {usePerformanceStore} from "@/store";
 import {request} from "metersphere-frontend/src/plugins/request"
 import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
+import MsApiRunMode from "@/business/automation/scenario/common/ApiRunMode";
 
 const performanceStore = usePerformanceStore();
 export default {
@@ -389,6 +391,7 @@ export default {
     MsTableColumn,
     HeaderLabelOperate,
     MsSearch,
+    MsApiRunMode,
     MsApiReportStatus: () => import("../report/ApiReportStatus"),
     HeaderCustom: () => import("metersphere-frontend/src/components/head/HeaderCustom"),
     BatchMove: () => import("@/business/commons/BatchMove"),
@@ -407,7 +410,6 @@ export default {
     MsScenarioExtendButtons: () => import("@/business/automation/scenario/ScenarioExtendBtns"),
     MsTestPlanList: () => import("./testplan/TestPlanList"),
     MsTableOperatorButton: () => import("metersphere-frontend/src/components/MsTableOperatorButton"),
-    MsRunMode: () => import("./common/RunMode"),
     MsTaskCenter: () => import("metersphere-frontend/src/components/task/TaskCenter"),
     MsRun: () => import("./DebugRun"),
     MxRelationshipGraphDrawer: () => import("metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer")
@@ -1002,8 +1004,9 @@ export default {
       run.projectId = this.projectId;
       run.condition = this.condition;
       this.runRequest = run;
-      this.$refs.runMode.open();
-
+      this.$nextTick(() => {
+        this.$refs.apiBatchRun.open();
+      });
     },
     openSchedule(row) {
       let run = {};
@@ -1393,9 +1396,6 @@ export default {
                 jmxObj.version = item.version;
                 jmxObjList.push(jmxObj);
               });
-              console.info("000000000");
-              console.info(jmxObjList);
-              console.info("000000000");
               performanceStore.$patch({
                 'scenarioJmxs': {
                   name: 'Scenarios',
