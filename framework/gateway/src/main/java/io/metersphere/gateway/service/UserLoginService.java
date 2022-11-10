@@ -47,6 +47,7 @@ public class UserLoginService {
         switch (request.getAuthenticate()) {
             case "OIDC":
             case "CAS":
+            case "OAuth2":
                 userDTO = loginSsoMode(request.getUsername(), request.getAuthenticate());
                 break;
             case "LDAP":
