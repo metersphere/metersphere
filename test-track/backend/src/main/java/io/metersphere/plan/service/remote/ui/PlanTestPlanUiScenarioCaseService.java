@@ -1,6 +1,7 @@
 package io.metersphere.plan.service.remote.ui;
 
 import io.metersphere.base.domain.TestPlanUiScenario;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
@@ -16,6 +17,7 @@ import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.utils.DiscoveryUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -60,15 +62,12 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     }
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
-        try {
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
 
             TestPlanUiResultReportDTO uiResult = getUiResult(report, planReportCaseDTOS);
 
             report.setUiResult(uiResult);
-
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 

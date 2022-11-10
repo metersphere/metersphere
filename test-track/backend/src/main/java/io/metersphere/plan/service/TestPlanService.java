@@ -1233,12 +1233,9 @@ public class TestPlanService {
         request.setPlanId(planId);
         request.setSaveResponse(saveResponse);
         request.setTestPlanExecuteReportDTO(testPlanExecuteReportDTO);
-        try {
-            // todo 调用失败处理
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             UiPlanReportDTO uiReport = planTestPlanUiScenarioCaseService.getUiReport(request);
             BeanUtils.copyBean(report, uiReport);
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1297,12 +1294,9 @@ public class TestPlanService {
         ApiPlanReportRequest request = new ApiPlanReportRequest();
         request.setConfig(config);
         request.setTestPlanExecuteReportDTO(testPlanExecuteReportDTO);
-        try {
-            // todo 调用失败处理
+        if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             ApiPlanReportDTO apiPlanReport = planTestPlanScenarioCaseService.getApiExecuteReport(request);
             BeanUtils.copyBean(report, apiPlanReport);
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1315,12 +1309,9 @@ public class TestPlanService {
         request.setConfig(config);
         request.setSaveResponse(saveResponse);
         request.setReportIdMap(loadCaseReportMap);
-        try {
-            // todo 调用失败处理
+        if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             LoadPlanReportDTO loadPlanReport = planTestPlanLoadCaseService.getLoadExecuteReport(request);
             BeanUtils.copyBean(report, loadPlanReport);
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1428,11 +1419,8 @@ public class TestPlanService {
 
     public void runReportWithExceptionHandle(TestPlanSimpleReportDTO report, Function<TestPlanSimpleReportDTO, Object> getCaseFunc,
                                              BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
-        try {
-            // todo 服务调用失败
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             setReportCaseFunc.accept(report, getCaseFunc.apply(report));
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1646,12 +1634,9 @@ public class TestPlanService {
     }
 
     public void setPlanCaseEnv(String planId, RunModeConfigDTO runModeConfig) {
-        try {
-            // todo  调用失败
+        if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             planTestPlanApiCaseService.setApiCaseEnv(planId, runModeConfig);
             planTestPlanScenarioCaseService.setScenarioEnv(planId, runModeConfig);
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
     }
 
