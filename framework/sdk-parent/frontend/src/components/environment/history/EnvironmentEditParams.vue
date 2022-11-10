@@ -170,7 +170,7 @@ export default {
 @import "~jsondiffpatch/dist/formatters-styles/html.css";
 @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
 
-.env-history >>> pre {
+.env-history :deep(pre) {
   white-space: normal;
 }
 </style>
