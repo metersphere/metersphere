@@ -84,7 +84,7 @@
         </div>
         <el-divider direction="horizontal" style="width: 100%"/>
         <el-tabs v-model="activeName" @tab-click="init(true)" v-loading="loading">
-          <el-tab-pane :name="tab.id" :label="tab.label" v-for="tab in tabs" :disabled="isDebugHistory">
+          <el-tab-pane :key="tab.id" :name="tab.id" :label="tab.label" v-for="tab in tabs" :disabled="isDebugHistory">
             <span slot="label">
               <el-badge class="ms-badge-item" v-if="showBadge(tab.id) > 0" :value="showBadge(tab.id)">
                 {{ tab.label }}
