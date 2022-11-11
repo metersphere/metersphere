@@ -1321,7 +1321,12 @@ public class ApiDefinitionService {
         }
         APIReportResult reportResult = new APIReportResult();
         reportResult.setStatus(result.getStatus());
-        reportResult.setContent(result.getContent());
+        try {
+            JSONObject content = JSONObject.parseObject(result.getContent());
+            reportResult.setContent(content.toString());
+        } catch (Exception e) {
+            LogUtil.error("解析content失败!", e);
+        }
         return reportResult;
     }
 
