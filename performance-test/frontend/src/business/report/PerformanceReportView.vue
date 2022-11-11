@@ -64,7 +64,7 @@
           <el-col :span="8">
             <div style="float: right;">
               <span class="ms-report-time-desc">
-                {{ $t('report.test_duration', [this.minutes, this.seconds]) }}
+                {{ $t('performance_test.report.test_duration_tips', [hours, minutes, seconds]) }}
               </span>
               <span class="ms-report-time-desc" v-if="startTime !== '0'">
                 {{ $t('report.test_start_time') }}：{{ startTime | datetimeFormat }}
@@ -218,6 +218,7 @@ export default {
       projectName: '',
       startTime: '0',
       endTime: '0',
+      hours: '0',
       minutes: '0',
       seconds: '0',
       title: 'Logging',
@@ -290,7 +291,8 @@ export default {
               this.startTime = data.startTime;
               this.endTime = data.endTime;
               let duration = data.duration;
-              this.minutes = Math.floor(duration / 60);
+              this.hours = Math.floor(duration / 60 / 60);
+              this.minutes = Math.floor(duration / 60 % 60);
               this.seconds = duration % 60;
             }
           })
