@@ -276,16 +276,17 @@ export default {
     showApiPopover() {
       let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
+      this.projectIds.add(currentProjectID);
       getApiCaseEnvironments(this.runCaseIds).then((res) => {
         let data = res.data;
         if (data) {
           this.caseIdEnvNameMap = data;
-          this.projectIds.add(currentProjectID);
         }
         this.$refs.envSelectPopover.open();
       });
     },
     showScenarioPopover() {
+      let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
       apiScenarioEnvMap(this.request).then(res => {
         let data = res.data;
@@ -294,6 +295,9 @@ export default {
           for (let d in data) {
             this.projectIds.add(d);
           }
+        }
+        if (this.projectIds.size===0){
+          this.projectIds.add(currentProjectID);
         }
        this.$refs.envSelectPopover.open();
       });
