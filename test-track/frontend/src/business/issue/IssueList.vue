@@ -1,30 +1,28 @@
 <template>
   <ms-container>
     <ms-main-container>
-
       <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="search" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
-              <el-tooltip v-if="isThirdPart" :content="$t('test_track.issue.update_third_party_bugs')">
-                <ms-table-button icon="el-icon-refresh" v-if="true"
-                                 :content="$t('test_track.issue.sync_bugs')" @click="syncIssues"/>
-              </el-tooltip>
+              <ms-table-button icon="el-icon-refresh" :content="$t('test_track.issue.sync_bugs')" v-if="isThirdPart && hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="syncIssues"/>
+              <ms-table-button icon="el-icon-upload2" :content="$t('commons.import')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="handleImport"/>
+              <ms-table-button icon="el-icon-download" :content="$t('commons.export')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ')" @click="handleExport"/>
             </template>
           </ms-table-header>
         </template>
 
         <ms-table
           v-loading="page.result.loading || loading"
+          row-key="id"
           :data="page.data"
-          :enableSelection="false"
           :condition="page.condition"
           :total="page.total"
           :page-size.sync="page.pageSize"
           :operators="operators"
-          :show-select-all="false"
+          :batch-operators="batchButtons"
           :screen-height="screenHeight"
           :remember-order="true"
           :fields.sync="fields"
@@ -33,139 +31,141 @@
           @filter="search"
           @order="getIssues"
           @handlePageChange="getIssues"
-          ref="table"
-        >
-    <span v-for="(item) in fields" :key="item.key">
-        <ms-table-column width="1">
-        </ms-table-column>
-          <ms-table-column
-            :label="$t('test_track.issue.id')"
-            prop="num"
-            :field="item"
-            sortable
-            min-width="100"
-            :fields-width="fieldsWidth">
-          </ms-table-column>
+          ref="table">
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('test_track.issue.title')"
-            sortable
-            min-width="110"
-            prop="title">
-          </ms-table-column>
+          <span v-for="(item) in fields" :key="item.key">
+            <ms-table-column width="1">
+            </ms-table-column>
+            <ms-table-column
+              :label="$t('test_track.issue.id')"
+              prop="num"
+              :field="item"
+              sortable
+              min-width="100"
+              :fields-width="fieldsWidth">
+            </ms-table-column>
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            :filters="platformFilters"
-            :label="$t('test_track.issue.platform')"
-            min-width="80"
-            prop="platform">
-          </ms-table-column>
+            <ms-table-column
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('test_track.issue.title')"
+              sortable
+              min-width="110"
+              prop="title">
+            </ms-table-column>
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            sortable
-            min-width="110"
-            :label="$t('test_track.issue.platform_status') "
-            prop="platformStatus">
-            <template v-slot="scope">
-              <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
-              <span v-else-if="scope.row.platform ==='Tapd'">{{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'}}</span>
-              <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
-            </template>
-          </ms-table-column>
+            <ms-table-column
+              :field="item"
+              :fields-width="fieldsWidth"
+              :filters="platformFilters"
+              :label="$t('test_track.issue.platform')"
+              min-width="80"
+              prop="platform">
+            </ms-table-column>
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            column-key="creator"
-            :filters="creatorFilters"
-            sortable
-            min-width="100px"
-            :label="$t('custom_field.issue_creator')"
-            prop="creatorName">
-          </ms-table-column>
+            <ms-table-column
+              :field="item"
+              :fields-width="fieldsWidth"
+              sortable
+              min-width="110"
+              :label="$t('test_track.issue.platform_status') "
+              prop="platformStatus">
+              <template v-slot="scope">
+                <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
+                <span v-else-if="scope.row.platform ==='Tapd'">{{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'}}</span>
+                <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
+              </template>
+            </ms-table-column>
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('test_track.issue.issue_resource')"
-            prop="resourceName">
-            <template v-slot="scope">
-              <el-link v-if="scope.row.resourceName" @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
-                {{ scope.row.resourceName }}
-              </el-link>
-              <span v-else>
-              --
-            </span>
-            </template>
-          </ms-table-column>
-        <ms-table-column prop="createTime"
-                         :field="item"
-                         :fields-width="fieldsWidth"
-                         :label="$t('commons.create_time')"
-                         sortable
-                         min-width="180px">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | datetimeFormat }}</span>
-            </template>
-          </ms-table-column >
+            <ms-table-column
+              :field="item"
+              :fields-width="fieldsWidth"
+              column-key="creator"
+              :filters="creatorFilters"
+              sortable
+              min-width="100px"
+              :label="$t('custom_field.issue_creator')"
+              prop="creatorName">
+            </ms-table-column>
 
-          <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
+            <ms-table-column
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('test_track.issue.issue_resource')"
+              prop="resourceName">
+              <template v-slot="scope">
+                <el-link v-if="scope.row.resourceName" @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
+                  {{ scope.row.resourceName }}
+                </el-link>
+                <span v-else>
+                --
+              </span>
+              </template>
+            </ms-table-column>
 
-         <ms-table-column
-           :field="item"
-           :fields-width="fieldsWidth"
-           :label="item.label"
-           prop="caseCount">
-            <template v-slot="scope">
-               <router-link :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
-                 {{scope.row.caseCount}}
-               </router-link>
-            </template>
-         </ms-table-column>
-
-          <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                           :filters="field.name === '状态'? i18nCustomStatus(getCustomFieldFilter(field)) : getCustomFieldFilter(field)"
-                           sortable="custom"
+            <ms-table-column prop="createTime"
                            :field="item"
                            :fields-width="fieldsWidth"
-                           min-width="120"
-                           :label="field.system ? $t(systemNameMap[field.name]) :field.name"
-                           :column-key="generateColumnKey(field)"
-                           :prop="field.name">
-              <template v-slot="scope">
-                <span v-if="field.name === '状态'">
-                  {{getCustomFieldValue(scope.row, field, issueStatusMap[scope.row.status])}}
-                </span>
-                <span v-else-if="field.type === 'richText'">
-                   <el-popover
-                     placement="right"
-                     width="500"
-                     trigger="hover"
-                     popper-class="issues-popover">
-                     <ms-mark-down-text prop="value" :data="{value: getCustomFieldValue(scope.row, field)}" :disabled="true"/>
-                    <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                  </el-popover>
-                </span>
-                <span v-else>
-                  {{getCustomFieldValue(scope.row, field)}}
-                </span>
+                           :label="$t('commons.create_time')"
+                           sortable
+                           min-width="180px">
+              <template v-slot:default="scope">
+                <span>{{ scope.row.createTime | datetimeFormat }}</span>
               </template>
-          </ms-table-column>
+            </ms-table-column >
 
-        </span>
+            <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
+
+            <ms-table-column
+             :field="item"
+             :fields-width="fieldsWidth"
+             :label="item.label"
+             prop="caseCount">
+              <template v-slot="scope">
+                 <router-link :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
+                   {{scope.row.caseCount}}
+                 </router-link>
+              </template>
+            </ms-table-column>
+
+            <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
+                             :filters="field.name === '状态'? i18nCustomStatus(getCustomFieldFilter(field)) : getCustomFieldFilter(field)"
+                             sortable="custom"
+                             :field="item"
+                             :fields-width="fieldsWidth"
+                             min-width="200"
+                             :label="field.system ? $t(systemNameMap[field.name]) :field.name"
+                             :column-key="generateColumnKey(field)"
+                             :prop="field.name">
+                <template v-slot="scope">
+                  <span v-if="field.name === '状态'">
+                    {{getCustomFieldValue(scope.row, field, issueStatusMap[scope.row.status])}}
+                  </span>
+                  <span v-else-if="field.type === 'richText'">
+                     <el-popover
+                       placement="right"
+                       width="500"
+                       trigger="hover"
+                       popper-class="issues-popover">
+                       <ms-mark-down-text prop="value" :data="{value: getCustomFieldValue(scope.row, field)}" :disabled="true"/>
+                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                    </el-popover>
+                  </span>
+                  <span v-else>
+                    {{getCustomFieldValue(scope.row, field)}}
+                  </span>
+                </template>
+            </ms-table-column>
+
+          </span>
         </ms-table>
 
         <ms-table-pagination :change="getIssues" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                              :total="page.total"/>
-
         <issue-edit @refresh="getIssues" ref="issueEdit"/>
         <issue-sync-select @syncConfirm="syncConfirm" ref="issueSyncSelect" />
+        <issue-import @refresh="getIssues" ref="issueImport"/>
+        <issue-export @export="exportIssue" ref="issueExport"/>
       </el-card>
     </ms-main-container>
   </ms-container>
@@ -187,13 +187,15 @@ import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/issue/IssueEdit";
 import IssueSyncSelect from "@/business/issue/IssueSyncSelect";
+import IssueImport from "@/business/issue/components/import/IssueImport";
+import IssueExport from "@/business/issue/components/export/IssueExport";
 import {
   checkSyncIssues,
   getIssuePartTemplateWithProject,
   getIssues,
   syncIssues,
   deleteIssue,
-  getIssuesById
+  getIssuesById, batchDeleteIssue
 } from "@/api/issue";
 import {
   getCustomFieldValue,
@@ -202,7 +204,8 @@ import {
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUserId} from "metersphere-frontend/src/utils/token";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {TEST_TRACK_ISSUE_LIST} from "metersphere-frontend/src/components/search/search-components";
@@ -221,6 +224,8 @@ export default {
     IssueEdit,
     IssueDescriptionTableItem,
     IssueSyncSelect,
+    IssueImport,
+    IssueExport,
     MsTableHeader,
     MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable
   },
@@ -247,6 +252,13 @@ export default {
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
+          permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
+        }
+      ],
+      batchButtons: [
+        {
+          name: this.$t('test_track.issue.batch_delete_issue'),
+          handleClick: this.handleBatchDelete,
           permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
         }
       ],
@@ -308,7 +320,11 @@ export default {
     this.editParam();
   },
   methods: {
-    generateColumnKey,
+    generateColumnKey(field){
+      let columnKey = generateColumnKey(field);
+      return "custom_" + columnKey.substr(columnKey.indexOf("-") + 1);
+    },
+    hasPermission,
     tableDoLayout() {
       if (this.$refs.table) this.$refs.table.doLayout();
     },
@@ -404,6 +420,28 @@ export default {
         this.getIssues();
       })
     },
+    handleBatchDelete() {
+      this.$alert(this.$t('test_track.issue.batch_delete_tip') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleBatchDelete();
+          }
+        }
+      });
+    },
+    _handleBatchDelete() {
+      let selectIds = this.$refs.table.selectIds;
+      if (selectIds.length == 0) {
+        this.$warning(this.$t("test_track.issue.check_select"));
+        return;
+      }
+      batchDeleteIssue({"batchDeleteIds" : selectIds, "batchDeleteAll" : this.page.condition.selectAll})
+        .then(() => {
+          this.$success(this.$t('commons.delete_success'));
+          this.getIssues();
+        })
+    },
     btnDisable(row) {
       if (this.issueTemplate.platform !== row.platform) {
         return true;
@@ -412,6 +450,29 @@ export default {
     },
     syncIssues() {
       this.$refs.issueSyncSelect.open();
+    },
+    handleImport() {
+      this.$refs.issueImport.open();
+    },
+    handleExport() {
+      let exportIds = this.$refs.table.selectIds;
+      if (exportIds.length == 0) {
+        this.$warning(this.$t("test_track.issue.check_select"));
+        return;
+      }
+      this.$refs.issueExport.open();
+    },
+    exportIssue(data) {
+      let param = {
+        "projectId": getCurrentProjectID(),
+        "workspaceId": getCurrentWorkspaceId(),
+        "userId": getCurrentUserId(),
+        "isSelectAll": this.page.condition.selectAll,
+        "exportIds": this.$refs.table.selectIds,
+        "exportFields": data,
+        "orders": getLastTableSortField(this.tableHeaderKey)
+      }
+      this.$fileDownloadPost("/issues/export", param);
     },
     syncConfirm(data) {
       this.loading = true;
@@ -452,5 +513,9 @@ export default {
 
 .el-table {
   cursor: pointer;
+}
+
+:deep(.el-table) {
+  overflow: auto;
 }
 </style>

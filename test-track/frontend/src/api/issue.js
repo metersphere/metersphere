@@ -24,6 +24,10 @@ export function deleteIssue(id) {
   return get(BASE_URL + `delete/${id}`);
 }
 
+export function batchDeleteIssue(param) {
+  return post(BASE_URL + `batchDelete`, param);
+}
+
 export function issueStatusChange(param) {
   return post(BASE_URL + 'change/status', param);
 }

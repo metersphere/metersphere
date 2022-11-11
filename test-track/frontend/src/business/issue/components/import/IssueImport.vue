@@ -1,0 +1,156 @@
+<template>
+  <el-dialog :visible="visible" v-loading="loading" :title="$t('test_track.issue.import_bugs')" @close="cancel" width="35%">
+    <div>
+      <el-row>
+        <span style="color: red">*</span> {{ $t('test_track.issue.import_type') }}
+        <el-select v-model="importType" :placeholder="$t('commons.please_select')" size="mini" class="issue-import-type" clearable>
+          <el-option
+            v-for="item in importOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-tooltip effect="dark" style="margin-left: 10px" placement="right">
+          <div slot="content" v-html="$t('test_track.issue.import_type_tips')"></div>
+          <i class="el-icon-info"></i>
+        </el-tooltip>
+      </el-row>
+
+      <el-row>
+        <el-upload
+          class="issue-upload" drag action="alert"
+          :limit="1"
+          :file-list="uploadFiles"
+          :http-request="handleUpload"
+          :on-remove="handleRemove" accept=".xls, .xlsx">
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+          <div class="el-upload__tip" slot="tip">
+            {{ $t('test_track.issue.import_file_limit_tips') }}
+            <el-link type="primary" class="download-template" @click="downloadIssueImportTemplate">
+              {{ $t('test_track.case.import.download_template') }}
+            </el-link>
+          </div>
+        </el-upload>
+      </el-row>
+
+      <el-row>
+        <ul>
+          <li v-for="errFile in errList" :key="errFile.rowNum">
+            {{ errFile.errMsg }}
+          </li>
+        </ul>
+      </el-row>
+
+      <el-row style="text-align: right; margin-top: 40px">
+        <el-button size="mini" @click="cancel">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" size="mini" @click="save">
+          {{ $t('commons.save') }}
+        </el-button>
+      </el-row>
+    </div>
+  </el-dialog>
+</template>
+
+<script>
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+
+export default {
+  name: "IssueImport",
+  props: ['tabName', 'name'],
+  data() {
+    return {
+      visible:false,
+      loading: false,
+      importType: "",
+      importOptions: [{value: "Update", label: this.$t('commons.cover')}, {value: "Create", label: this.$t('commons.not_cover')}],
+      uploadFiles: [],
+      errList: [],
+    }
+  },
+  created() {
+  },
+  computed: {
+    projectId() {
+      return getCurrentProjectID();
+    }
+  },
+  methods: {
+    open() {
+      this.visible = true;
+    },
+    cancel() {
+      this.visible = false;
+      this.importType = "";
+      this.uploadFiles = [];
+    },
+    handleUpload(file) {
+      this.uploadFiles.push(file.file);
+    },
+    handleRemove(file) {
+      let fileName = file.name ? file.name : file.file.name
+      for (let i = 0; i < this.uploadFiles.length; i++) {
+        let uploadFileName = this.uploadFiles[i].name ? this.uploadFiles[i].name : this.uploadFiles[i].file.name;
+        if (fileName === uploadFileName) {
+          this.uploadFiles.splice(i, 1);
+          break;
+        }
+      }
+    },
+    downloadIssueImportTemplate() {
+      let uri = '/issues/import/template/download/';
+      this.$fileDownload(uri + getCurrentProjectID());
+    },
+    save() {
+      let param = {
+        workspaceId: getCurrentWorkspaceId(),
+        projectId: getCurrentProjectID(),
+        userId: getCurrentUserId(),
+        importType: this.importType
+      };
+      if (this.importType == '') {
+        this.$warning(this.$t('test_track.case.import.import_type_require_tips'))
+        return;
+      }
+      if (this.uploadFiles.length == 0) {
+        this.$warning(this.$t('test_track.case.import.import_file_tips'));
+        return;
+      }
+      this.loading = true;
+      this.$fileUpload('/issues/import', this.uploadFiles[0], param)
+        .then(response => {
+          this.loading = false;
+          let res = response.data;
+          if (res.success) {
+            this.$success(this.$t('test_track.case.import.success'));
+            this.cancel();
+            this.$emit("refresh");
+          } else {
+            this.errList = res.errList;
+          }
+        }).catch((err) => {
+          this.loading = false;
+        });
+    }
+  }
+}
+</script>
+
+<style scoped>
+.issue-import-type {
+  margin-left: 6px;
+}
+
+.issue-upload {
+  margin-left: 75px;
+  margin-top: 20px;
+}
+
+.download-template {
+  margin-left: 220px;
+  top: -15px;
+  font-size: 5px;
+  font-weight: 600;
+}
+</style>

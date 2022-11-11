@@ -18,7 +18,8 @@ public enum CustomFieldType {
     INT("int", false),
     FLOAT("float", false),
     MULTIPLE_INPUT("multipleInput", false),
-    RICH_TEXT("richText", false);
+    RICH_TEXT("richText", false),
+    CASCADING_SELECT("cascadingSelect", false);
 
     private String value;
     private Boolean hasOption;

@@ -66,4 +66,8 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * 取消关联文件应用ID
      */
     private List<String> unRelateFileMetaIds = new ArrayList<>();
+
+    private List<String> batchDeleteIds;
+
+    private Boolean batchDeleteAll;
 }

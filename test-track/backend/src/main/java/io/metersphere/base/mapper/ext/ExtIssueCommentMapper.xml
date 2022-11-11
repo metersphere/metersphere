@@ -12,4 +12,17 @@
         order by issue_comment.update_time desc
     </select>
 
+    <select id="getCommentsByIssueIds" resultType="io.metersphere.dto.IssueCommentDTO"
+            parameterType="java.lang.String">
+        select *, user.name as authorName
+        from issue_comment,
+             user
+        where issue_comment.author = user.id
+          and issue_id in
+        <foreach collection="issueIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by issue_comment.update_time desc
+    </select>
+
 </mapper>

@@ -1,48 +1,56 @@
 package io.metersphere.service;
 
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.util.DateUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtIssueCommentMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
-import io.metersphere.commons.constants.FileAssociationType;
-import io.metersphere.commons.constants.IssueRefType;
-import io.metersphere.commons.constants.IssuesManagePlatform;
-import io.metersphere.commons.constants.IssuesStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
-import io.metersphere.plan.service.TestPlanTestCaseService;
-import io.metersphere.utils.DistinctKeyUtil;
-import io.metersphere.xpack.track.dto.AttachmentSyncType;
-import io.metersphere.xpack.track.dto.*;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.constants.SystemCustomField;
-import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.*;
+import io.metersphere.excel.constants.IssueExportHeadField;
+import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.domain.ExcelResponse;
+import io.metersphere.excel.domain.IssueExcelData;
+import io.metersphere.excel.domain.IssueExcelDataFactory;
+import io.metersphere.excel.handler.IssueTemplateHeadWriteHandler;
+import io.metersphere.excel.listener.IssueExcelListener;
+import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.dto.*;
 import io.metersphere.plan.dto.PlanReportIssueDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.IntegrationRequest;
+import io.metersphere.request.attachment.AttachmentRequest;
+import io.metersphere.request.issues.IssueExportRequest;
+import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.JiraIssueTypeRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
 import io.metersphere.service.issue.domain.jira.JiraIssueType;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
-import io.metersphere.request.attachment.AttachmentRequest;
-import io.metersphere.xpack.track.dto.request.IssuesRequest;
-import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.platform.*;
 import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
+import io.metersphere.utils.DistinctKeyUtil;
+import io.metersphere.xpack.track.dto.*;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -59,7 +67,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -73,6 +83,8 @@ public class IssuesService {
     private BaseIntegrationService baseIntegrationService;
     @Resource
     private TrackProjectService trackProjectService;
+    @Resource
+    private BaseUserService baseUserService;
     @Resource
     private BaseProjectService baseProjectService;
     @Resource
@@ -117,6 +129,8 @@ public class IssuesService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private FileMetadataMapper fileMetadataMapper;
+    @Resource
+    private ExtIssueCommentMapper extIssueCommentMapper;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -474,6 +488,24 @@ public class IssuesService {
         attachmentService.deleteAttachment(request);
     }
 
+    public void batchDelete(IssuesUpdateRequest request) {
+        if (request.getBatchDeleteAll()) {
+            IssuesRequest issuesRequest = new IssuesRequest();
+            issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+            List<IssuesDao> issuesDaos = listByWorkspaceId(issuesRequest);
+            if (CollectionUtils.isNotEmpty(issuesDaos)) {
+                issuesDaos.forEach(issuesDao -> {
+                    delete(issuesDao.getId());
+                });
+            }
+        } else {
+            if (CollectionUtils.isNotEmpty(request.getBatchDeleteIds())) {
+                request.getBatchDeleteIds().forEach(id -> delete(id));
+            }
+        }
+    }
+
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
         try {
             ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
@@ -491,7 +523,7 @@ public class IssuesService {
         request.getOrders().forEach(order -> {
             if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
                 request.setIsCustomSorted(true);
-                request.setCustomFieldId(order.getName().substring(order.getName().indexOf("-") + 1));
+                request.setCustomFieldId(order.getName().replace("custom_", StringUtils.EMPTY));
                 order.setPrefix("cfi");
                 order.setName("value");
             }
@@ -550,6 +582,62 @@ public class IssuesService {
         data.setFields(fields);
     }
 
+    private void buildCustomField(List<IssuesDao> data, Boolean isThirdTemplate, List<CustomFieldDao> customFields) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+
+        Map<String, List<CustomFieldDao>> fieldMap =
+                customFieldIssuesService.getMapByResourceIds(data.stream().map(IssuesDao::getId).collect(Collectors.toList()));
+        try {
+            Map<String, CustomField> fieldMaps = new HashMap<>();
+            if (isThirdTemplate) {
+                fieldMaps = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getId, field -> (CustomField) field));
+            } else {
+                List<CustomFieldDao> customfields = fieldMap.get(data.get(0).getId());
+                if (CollectionUtils.isNotEmpty(customfields) && customfields.size() > 0) {
+                    List<String> ids = customfields.stream().map(CustomFieldDao::getId).collect(Collectors.toList());
+                    List<CustomField> issueFields = baseCustomFieldService.getFieldByIds(ids);
+                    fieldMaps = issueFields.stream().collect(Collectors.toMap(CustomField::getId, field -> field));
+                }
+            }
+
+            for (Map.Entry<String, List<CustomFieldDao>> entry : fieldMap.entrySet()) {
+                for (CustomFieldDao fieldDao : entry.getValue()) {
+                    CustomField customField = fieldMaps.get(fieldDao.getId());
+                    if (customField != null) {
+                        fieldDao.setName(customField.getName());
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+                            fieldDao.setValue(fieldDao.getTextValue());
+                        }
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATE.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue())) {
+                            Date date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd");
+                            String format = DateUtils.format(date, "yyyy/MM/dd");
+                            fieldDao.setValue("\"" + format + "\"");
+                        }
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATETIME.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue())) {
+                            Date date = null;
+                            if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() == 18) {
+                                date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd'T'HH:mm");
+                            } else if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() == 21) {
+                                date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd'T'HH:mm:ss");
+                            } else {
+                                date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY));
+                            }
+                            String format = DateUtils.format(date, "yyyy/MM/dd HH:mm:ss");
+                            fieldDao.setValue("\"" + format + "\"");
+                        }
+                    }
+                }
+            }
+
+            data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+        }
+
+    }
+
     private void handleJiraIssueMdUrl(String workPlaceId, String projectId, List<IssuesDao> issues) {
         issues.forEach(issue -> {
             if (StringUtils.isNotEmpty(issue.getDescription()) && issue.getDescription().contains("platform=Jira&")) {
@@ -574,6 +662,13 @@ public class IssuesService {
     private String replaceJiraMdUrlParam(String url, String workspaceId, String projectId) {
         return url.replaceAll("platform=Jira&",
                 "platform=Jira&project_id=" + projectId + "&workspace_id=" + workspaceId + "&");
+    }
+
+    private Map<String, List<IssueCommentDTO>> getCommentMap(List<IssuesDao> issues) {
+        List<String> issueIds = issues.stream().map(IssuesDao::getId).collect(Collectors.toList());
+        List<IssueCommentDTO> comments = extIssueCommentMapper.getCommentsByIssueIds(issueIds);
+        Map<String, List<IssueCommentDTO>> commentMap = comments.stream().collect(Collectors.groupingBy(IssueCommentDTO::getIssueId));
+        return commentMap;
     }
 
     private Map<String, String> getPlanMap(List<IssuesDao> issues) {
@@ -1097,6 +1192,179 @@ public class IssuesService {
         }
     }
 
+    public void issueImportTemplate(String projectId, HttpServletResponse response) {
+        Map<String, String> userMap = baseUserService.getProjectMemberOption(projectId).stream().collect(Collectors.toMap(User::getId, User::getName));
+        IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(projectId);
+        List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, null);
+        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
+        new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
+                .exportByCustomWriteHandler(response, heads, null, Translator.get("issue_import_template_name"),
+                        Translator.get("issue_import_template_sheet"), headHandler);
+    }
+
+    public ExcelResponse issueImport(IssueImportRequest request, MultipartFile importFile) {
+        if (importFile == null) {
+            MSException.throwException(Translator.get("upload_fail"));
+        }
+        IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
+        List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        Class clazz = new IssueExcelDataFactory().getExcelDataByLocal();
+        IssueExcelListener issueExcelListener = new IssueExcelListener(request, clazz, issueTemplate.getIsThirdTemplate(), customFields);
+        try {
+            EasyExcelFactory.read(importFile.getInputStream(), issueExcelListener).sheet().doRead();
+        } catch (IOException e) {
+            LogUtil.error(e.getMessage(), e);
+            e.printStackTrace();
+        }
+        List<ExcelErrData<IssueExcelData>> errList = issueExcelListener.getErrList();
+        ExcelResponse excelResponse = new ExcelResponse();
+        if (CollectionUtils.isNotEmpty(errList)) {
+            excelResponse.setErrList(errList);
+            excelResponse.setSuccess(Boolean.FALSE);
+        } else {
+            excelResponse.setSuccess(Boolean.TRUE);
+        }
+        return excelResponse;
+    }
+
+    public void issueExport(IssueExportRequest request, HttpServletResponse response) {
+        Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
+        IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
+        List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, request);
+        List<IssuesDao> exportIssues = getExportIssues(request, issueTemplate.getIsThirdTemplate(), customFields);
+        List<IssueExcelData> excelDataList = parseIssueDataToExcelData(exportIssues);
+        List<List<Object>> data = parseExcelDataToList(heads, excelDataList);
+        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
+        new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
+                .exportByCustomWriteHandler(response, heads, data, Translator.get("issue_list_export_excel"),
+                        Translator.get("issue_list_export_excel_sheet"), headHandler);
+    }
+
+    public List<IssuesDao> getExportIssues(IssueExportRequest exportRequest, Boolean isThirdTemplate, List<CustomFieldDao> customFields) {
+        IssuesRequest request = new IssuesRequest();
+        request.setProjectId(exportRequest.getProjectId());
+        request.setWorkspaceId(exportRequest.getWorkspaceId());
+        request.setSelectAll(exportRequest.getIsSelectAll());
+        request.setExportIds(exportRequest.getExportIds());
+        request.setOrders(exportRequest.getOrders());
+        request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
+        request.getOrders().forEach(order -> {
+            if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
+                request.setIsCustomSorted(true);
+                request.setCustomFieldId(order.getName().replace("custom_", StringUtils.EMPTY));
+                order.setPrefix("cfi");
+                order.setName("value");
+            }
+        });
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(request);
+
+        Map<String, Set<String>> caseSetMap = getCaseSetMap(issues);
+        Map<String, User> userMap = getUserMap(issues);
+        Map<String, String> planMap = getPlanMap(issues);
+        Map<String, List<IssueCommentDTO>> commentMap = getCommentMap(issues);
+
+        issues.forEach(item -> {
+            User createUser = userMap.get(item.getCreator());
+            if (createUser != null) {
+                item.setCreatorName(createUser.getName());
+            }
+            String resourceName = planMap.get(item.getResourceId());
+            if (StringUtils.isNotBlank(resourceName)) {
+                item.setResourceName(resourceName);
+            }
+
+            Set<String> caseIdSet = caseSetMap.get(item.getId());
+            if (caseIdSet == null) {
+                caseIdSet = new HashSet<>();
+            }
+            item.setCaseIds(new ArrayList<>(caseIdSet));
+            item.setCaseCount(caseIdSet.size());
+            List<IssueCommentDTO> commentDTOList = commentMap.get(item.getId());
+            if (CollectionUtils.isNotEmpty(commentDTOList) && commentDTOList.size() > 0) {
+                List<String> comments = commentDTOList.stream().map(IssueCommentDTO::getDescription).collect(Collectors.toList());
+                item.setComment(StringUtils.join(comments, ";"));
+            }
+        });
+        buildCustomField(issues, isThirdTemplate, customFields);
+        return issues;
+    }
+
+    private List<IssueExcelData> parseIssueDataToExcelData(List<IssuesDao> exportIssues) {
+        List<IssueExcelData> excelDataList = new ArrayList<>();
+        for (int i = 0; i < exportIssues.size(); i++) {
+            IssuesDao issuesDao = exportIssues.get(i);
+            IssueExcelData excelData = new IssueExcelData();
+            BeanUtils.copyBean(excelData, issuesDao);
+            buildCustomData(issuesDao, excelData);
+            excelDataList.add(excelData);
+        }
+        return excelDataList;
+    }
+
+    private void buildCustomData(IssuesDao issuesDao, IssueExcelData excelData) {
+        if (CollectionUtils.isNotEmpty(issuesDao.getFields())) {
+            Map<String, Object> customData = new LinkedHashMap<>();
+            issuesDao.getFields().forEach(field -> {
+                customData.put(field.getName(), field.getValue());
+            });
+            excelData.setCustomData(customData);
+        }
+    }
+
+    private List<List<Object>> parseExcelDataToList(List<List<String>> heads, List<IssueExcelData> excelDataList) {
+        List<List<Object>> result = new ArrayList<>();
+        IssueExportHeadField[] exportHeadFields = IssueExportHeadField.values();
+        //转化excel头
+        List<String> headList = new ArrayList<>();
+        for (List<String> list : heads) {
+            for (String head : list) {
+                headList.add(head);
+            }
+        }
+
+        for (IssueExcelData data : excelDataList) {
+            List<Object> rowData = new ArrayList<>();
+            Map<String, Object> customData = data.getCustomData();
+            for (String head : headList) {
+                boolean isSystemField = false;
+                for (IssueExportHeadField exportHeadField : exportHeadFields) {
+                    if (StringUtils.equals(head, exportHeadField.getName())) {
+                        rowData.add(exportHeadField.parseExcelDataValue(data));
+                        isSystemField = true;
+                        break;
+                    }
+                }
+                if (!isSystemField) {
+                    // 自定义字段
+                    Object value = customData.get(head);
+                    if (value == null || StringUtils.equals(value.toString(), "null")) {
+                        value = StringUtils.EMPTY;
+                    }
+                    rowData.add(parseCustomFieldValue(value.toString()));
+                }
+            }
+            result.add(rowData);
+        }
+        return result;
+    }
+
+    private IssueTemplateDao getIssueTemplateByProjectId(String projectId) {
+        IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
+        Project project = baseProjectService.getProjectById(projectId);
+        if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Jira.name()) && project.getThirdPartTemplate()) {
+            // 第三方Jira平台
+            issueTemplateDao = getThirdPartTemplate(project.getId());
+            issueTemplateDao.setIsThirdTemplate(Boolean.TRUE);
+        } else {
+            issueTemplateDao = trackIssueTemplateService.getTemplate(projectId);
+            issueTemplateDao.setIsThirdTemplate(Boolean.FALSE);
+        }
+        return issueTemplateDao;
+    }
+
     private void doCheckThirdProjectExist(AbstractIssuePlatform platform, String relateId) {
         if (StringUtils.isBlank(relateId)) {
             MSException.throwException(Translator.get("issue_project_not_exist"));
@@ -1133,5 +1401,37 @@ public class IssuesService {
                 azurePlatform.syncIssuesAttachment(uploadRequest, file, AttachmentSyncType.UPLOAD);
             });
         }
+    }
+
+    private String parseCustomFieldValue(String value) {
+        if (value.contains(",")) {
+            value = value.replaceAll(",", ";");
+        }
+        if (value.contains("\"")) {
+            value = value.replaceAll("\"", StringUtils.EMPTY);
+        }
+        if (value.contains("[") || value.contains("]")) {
+            value = value.replaceAll("]", StringUtils.EMPTY).replaceAll("\\[", StringUtils.EMPTY);
+        }
+        return value;
+    }
+
+    public Issues checkIssueExist(Integer num, String projectId) {
+        IssuesExample example = new IssuesExample();
+        example.createCriteria().andNumEqualTo(num).andProjectIdEqualTo(projectId);
+        List<Issues> issues = issuesMapper.selectByExample(example);
+        return CollectionUtils.isNotEmpty(issues) && issues.size() > 0 ? issues.get(0) : null;
+    }
+
+    public void saveImportData(List<IssuesUpdateRequest> issues) {
+        issues.forEach(issue -> {
+            addIssues(issue, null);
+        });
+    }
+
+    public void updateImportData(List<IssuesUpdateRequest> issues) {
+        issues.forEach(issue -> {
+            updateIssues(issue);
+        });
     }
 }

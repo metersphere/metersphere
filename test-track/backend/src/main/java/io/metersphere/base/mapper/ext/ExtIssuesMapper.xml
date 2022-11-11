@@ -229,7 +229,12 @@
                     #{value}
                 </foreach>
             </if>
-
+            <if test="!request.selectAll and request.exportIds != null and request.exportIds.size > 0">
+                and issues.id in
+                <foreach collection="request.exportIds" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
