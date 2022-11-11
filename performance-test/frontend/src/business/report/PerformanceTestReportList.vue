@@ -121,8 +121,7 @@
               :label="$t('report.test_execute_time')">
               <template v-slot:default="scope">
                 <span v-if="scope.row.status === 'Completed'">
-                  {{ scope.row.minutes }}{{ $t('schedule.cron.minutes') }}
-                  {{ scope.row.seconds }}{{ $t('schedule.cron.seconds') }}
+                 {{ $t('performance_test.report.test_duration', [scope.row.hours, scope.row.minutes, scope.row.seconds]) }}
                 </span>
               </template>
             </ms-table-column>
@@ -307,8 +306,10 @@ export default {
     handleTimeInfo(report) {
       if (report.testStartTime) {
         let duration = report.testDuration;
-        let minutes = Math.floor(duration / 60);
+        let hours = Math.floor(duration / 60 / 60);
+        let minutes = Math.floor(duration / 60 % 60);
         let seconds = duration % 60;
+        this.$set(report, 'hours', hours);
         this.$set(report, 'minutes', minutes);
         this.$set(report, 'seconds', seconds);
       }
@@ -318,10 +319,12 @@ export default {
             let data = res.data.data;
             if (data) {
               let duration = data.duration;
-              let minutes = Math.floor(duration / 60);
+              let hours = Math.floor(duration / 60 / 60);
+              let minutes = Math.floor(duration / 60 % 60);
               let seconds = duration % 60;
               this.$set(report, 'testStartTime', data.startTime);
               this.$set(report, 'testEndTime', data.endTime);
+              this.$set(report, 'hours', hours);
               this.$set(report, 'minutes', minutes);
               this.$set(report, 'seconds', seconds);
             }
