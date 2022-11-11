@@ -447,7 +447,6 @@ export default {
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
-      this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
       this.originalStatus = testCase.status;
       this.setTitleWith();
 
