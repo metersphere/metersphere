@@ -133,6 +133,30 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                         list.add(demandDTO);
                     }
                 }
+                // {"5": {"children": {"51": {}}}, "6": {}}
+                else if (data.startsWith("{\"")) {
+                    Map<String, Map<String, String>> dataMap = JSON.parseMap(data);
+                    Collection<Map<String, String>> values = dataMap.values();
+                    values.forEach(v -> {
+                        Map jsonObject = JSON.parseMap(JSON.toJSONString(v));
+                        DemandDTO demandDTO = new DemandDTO();
+                        demandDTO.setId(jsonObject.get("id").toString());
+                        demandDTO.setName(jsonObject.get("title").toString());
+                        demandDTO.setPlatform(key);
+                        list.add(demandDTO);
+                        if (jsonObject.get("children") != null) {
+                            LinkedHashMap<String, Map<String, String>> children = (LinkedHashMap<String, Map<String, String>>) jsonObject.get("children");
+                            Collection<Map<String, String>> childrenMap = children.values();
+                            childrenMap.forEach(ch -> {
+                                DemandDTO dto = new DemandDTO();
+                                dto.setId(ch.get("id"));
+                                dto.setName(ch.get("title"));
+                                dto.setPlatform(key);
+                                list.add(dto);
+                            });
+                        }
+                    });
+                }
                 // 处理格式 {{"id": {obj}},{"id",{obj}}}
                 else if (data.charAt(0) == '{') {
                     Map dataObject = (Map) obj.get("data");
