@@ -39,12 +39,13 @@
       </template>
     </ms-table-header>
     <el-table v-loading="loading"
+              row-key="id"
               class="basic-config"
               :data="existFiles"
               @select-all="handleSelectAll"
               @select="handleSelectionChange">
 
-      <el-table-column type="selection"/>
+      <el-table-column type="selection" reserve-selection/>
       <el-table-column
         prop="name"
         :label="$t('load_test.file_name')">
