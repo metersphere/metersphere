@@ -8,5 +8,6 @@ import java.util.List;
 
 @Data
 public class IssueTemplateDao extends IssueTemplate {
-    List<CustomFieldDao> customFields;
+    private List<CustomFieldDao> customFields;
+    private Boolean isThirdTemplate;
 }

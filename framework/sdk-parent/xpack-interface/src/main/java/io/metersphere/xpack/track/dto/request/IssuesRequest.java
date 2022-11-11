@@ -59,4 +59,9 @@ public class IssuesRequest extends BaseQueryRequest {
      * 自定义字段ID
      */
     private String customFieldId;
+
+    /**
+     * 缺陷导出勾选ID
+     */
+    private List<String> exportIds;
 }

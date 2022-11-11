@@ -35,4 +35,9 @@ public class IssuesDao extends IssuesWithBLOBs {
     private String fieldName;
     private String fieldType;
     private String fieldValue;
+
+    /**
+     * 导出评论
+     */
+    private String comment;
 }

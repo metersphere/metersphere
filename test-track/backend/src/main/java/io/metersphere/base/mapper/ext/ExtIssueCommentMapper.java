@@ -15,4 +15,11 @@ public interface ExtIssueCommentMapper {
      */
     List<IssueCommentDTO> getComments(@Param("issueId") String issueId);
 
+    /**
+     * 获取多条用例的的评论
+     * @param issueIds
+     * @return
+     */
+    List<IssueCommentDTO> getCommentsByIssueIds(@Param("issueIds") List<String> issueIds);
+
 }
