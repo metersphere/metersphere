@@ -22,6 +22,11 @@
             <artifactId>xpack-interface</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <artifactId>metersphere-platform-plugin-sdk</artifactId>
+            <groupId>io.metersphere</groupId>
+            <version>${platform-plugin-sdk.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

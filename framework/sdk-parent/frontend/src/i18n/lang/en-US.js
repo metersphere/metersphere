@@ -1256,6 +1256,7 @@ const message = {
       jar_file: "Jar Package",
       jar_manage: "JAR package management",
       delete_tip: "The deletion takes effect after the service is restarted",
+      delete_confirm: "Confirm to delete the plugin",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
       upload_limit_size_warn: "Upload file size cannot exceed {0} MB!",

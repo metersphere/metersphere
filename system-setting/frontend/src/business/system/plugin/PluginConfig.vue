@@ -44,7 +44,7 @@
                 :tip="$t('commons.delete')"
                 icon="el-icon-delete"
                 type="danger"
-                @exec="handleDelete(scope.row.id)" v-permission="['SYSTEM_PLUGIN:DEL']"/>
+                @exec="handleDelete(scope.row)" v-permission="['SYSTEM_PLUGIN:DEL']"/>
             </div>
             <div v-else>
               <ms-table-operator-button
@@ -57,7 +57,7 @@
 
       </el-table>
     </el-card>
-    <el-dialog :title="$t('commons.import')" :visible.sync="dialogVisible" @close="close" destroy-on-close>
+    <el-dialog :title="$t('commons.import')" width="900px" :visible.sync="dialogVisible" @close="close" destroy-on-close>
       <ms-jar-config @close="close"/>
     </el-dialog>
     <ms-script-view ref="scriptView"/>
@@ -106,10 +106,19 @@ export default {
         if (res.data) {
           this.format(res.data);
           this.dataMap.forEach((values, key) => {
-            let obj = {id: key, license: values[0].license, name: values[0].sourceName, sourceName: values[0].sourceName, pluginId: key, createUserId: values[0].createUserId, updateTime: values[0].updateTime};
-            obj.children = values;
-            this.tableData.push(obj);
-          })
+            let item = values[0];
+            if (item.scenario === 'api') {
+              let obj = {};
+              Object.assign(obj, item);
+              obj.id = key;
+              obj.pluginId = key;
+              obj.name = item.sourceName;
+              obj.children = values;
+              this.tableData.push(obj);
+            } else {
+              this.tableData.push(item);
+            }
+          });
         }
       })
     },
@@ -131,9 +140,10 @@ export default {
     handleView(row) {
       this.$refs.scriptView.open(row.scriptId);
     },
-    handleDelete(id) {
-      operationConfirm(this, this.$t('api_test.jar_config.delete_tip'), () => {
-        this.loading = delPluginById(id).then(() => {
+    handleDelete(row) {
+      let tip = row.scenario === 'api' ? this.$t('api_test.jar_config.delete_tip') : this.$t('api_test.jar_config.delete_confirm');
+      operationConfirm(this, tip, () => {
+        this.loading = delPluginById(row.scenario, row.id).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.initPlugins();
         });
