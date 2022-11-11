@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
@@ -122,6 +124,35 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                         demandDTO.setPlatform(key);
                         list.add(demandDTO);
                     }
+                }
+                // {"5": {"children": {"51": {}}}, "6": {}}
+                else if (data.startsWith("{\"")) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Map<String, Map<String, String>> dataMap = objectMapper.readValue(data, Map.class);
+                    Collection<Map<String, String>> values = dataMap.values();
+                    values.forEach(v -> {
+                        try {
+                            Map jsonObject = objectMapper.readValue(JSON.toJSONString(v), Map.class);
+                            DemandDTO demandDTO = new DemandDTO();
+                            demandDTO.setId(jsonObject.get("id").toString());
+                            demandDTO.setName(jsonObject.get("title").toString());
+                            demandDTO.setPlatform(key);
+                            list.add(demandDTO);
+                            if (jsonObject.get("children") != null) {
+                                LinkedHashMap<String, Map<String, String>> children = (LinkedHashMap<String, Map<String, String>>) jsonObject.get("children");
+                                Collection<Map<String, String>> childrenMap = children.values();
+                                childrenMap.forEach(ch -> {
+                                    DemandDTO dto = new DemandDTO();
+                                    dto.setId(ch.get("id"));
+                                    dto.setName(ch.get("title"));
+                                    dto.setPlatform(key);
+                                    list.add(dto);
+                                });
+                            }
+                        } catch (JsonProcessingException e) {
+                            LogUtil.error(e);
+                        }
+                    });
                 }
                 // 处理格式 {{"id": {obj}},{"id",{obj}}}
                 else if (data.charAt(0) == '{') {
