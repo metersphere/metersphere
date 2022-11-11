@@ -72,6 +72,9 @@ public class MsHashTreeService {
     public static final String PROJECT_ID = "projectId";
     public static final String ACTIVE = "active";
     public static final String ENV_MAP = "environmentMap";
+    private static final String PRE = "PRE";
+    private static final String POST = "POST";
+    private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -145,9 +148,9 @@ public class MsHashTreeService {
                         Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
                         Map<String, List<JSONObject>> targetGroupMap = ElementUtil.group(refElement.optJSONArray(HASH_TREE));
 
-                        List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get("PRE"), targetGroupMap.get("PRE"));
-                        List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get("POST"), targetGroupMap.get("POST"));
-                        List<JSONObject> rules = ElementUtil.mergeHashTree(groupMap.get("ASSERTIONS"), targetGroupMap.get("ASSERTIONS"));
+                        List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get(PRE), targetGroupMap.get(PRE));
+                        List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get(POST), targetGroupMap.get(POST));
+                        List<JSONObject> rules = ElementUtil.mergeHashTree(groupMap.get(ASSERTIONS), targetGroupMap.get(ASSERTIONS));
                         List<JSONObject> step = new LinkedList<>();
                         if (CollectionUtils.isNotEmpty(pre)) {
                             step.addAll(pre);
