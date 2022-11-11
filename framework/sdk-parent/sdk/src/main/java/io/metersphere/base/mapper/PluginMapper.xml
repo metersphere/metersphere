@@ -6,14 +6,16 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
     <result column="script_id" jdbcType="VARCHAR" property="scriptId" />
-    <result column="jmeter_clazz" jdbcType="VARCHAR" property="jmeterClazz" />
     <result column="clazz_name" jdbcType="VARCHAR" property="clazzName" />
+    <result column="jmeter_clazz" jdbcType="VARCHAR" property="jmeterClazz" />
     <result column="source_path" jdbcType="VARCHAR" property="sourcePath" />
     <result column="source_name" jdbcType="VARCHAR" property="sourceName" />
     <result column="exec_entry" jdbcType="VARCHAR" property="execEntry" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
+    <result column="xpack" jdbcType="BIT" property="xpack" />
+    <result column="scenario" jdbcType="VARCHAR" property="scenario" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.PluginWithBLOBs">
     <result column="form_option" jdbcType="LONGVARCHAR" property="formOption" />
@@ -78,8 +80,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, plugin_id, script_id, jmeter_clazz, clazz_name, source_path, source_name, 
-    exec_entry, create_time, update_time, create_user_id
+    id, `name`, plugin_id, script_id, clazz_name, jmeter_clazz, source_path, source_name,
+    exec_entry, create_time, update_time, create_user_id, xpack, scenario
   </sql>
   <sql id="Blob_Column_List">
     form_option, form_script
@@ -115,7 +117,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -133,16 +135,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.PluginWithBLOBs">
-    insert into plugin (id, `name`, plugin_id, 
-      script_id, jmeter_clazz, clazz_name, 
-      source_path, source_name, exec_entry, 
-      create_time, update_time, create_user_id, 
-      form_option, form_script)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pluginId,jdbcType=VARCHAR}, 
-      #{scriptId,jdbcType=VARCHAR}, #{jmeterClazz,jdbcType=VARCHAR}, #{clazzName,jdbcType=VARCHAR}, 
-      #{sourcePath,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{execEntry,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUserId,jdbcType=VARCHAR}, 
-      #{formOption,jdbcType=LONGVARCHAR}, #{formScript,jdbcType=LONGVARCHAR})
+    insert into plugin (id, `name`, plugin_id,
+      script_id, clazz_name, jmeter_clazz,
+      source_path, source_name, exec_entry,
+      create_time, update_time, create_user_id,
+      xpack, scenario, form_option,
+      form_script)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pluginId,jdbcType=VARCHAR},
+      #{scriptId,jdbcType=VARCHAR}, #{clazzName,jdbcType=VARCHAR}, #{jmeterClazz,jdbcType=VARCHAR},
+      #{sourcePath,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{execEntry,jdbcType=VARCHAR},
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUserId,jdbcType=VARCHAR},
+      #{xpack,jdbcType=BIT}, #{scenario,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARCHAR},
+      #{formScript,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.PluginWithBLOBs">
     insert into plugin
@@ -159,11 +163,11 @@
       <if test="scriptId != null">
         script_id,
       </if>
-      <if test="jmeterClazz != null">
-        jmeter_clazz,
-      </if>
       <if test="clazzName != null">
         clazz_name,
+      </if>
+      <if test="jmeterClazz != null">
+        jmeter_clazz,
       </if>
       <if test="sourcePath != null">
         source_path,
@@ -182,6 +186,12 @@
       </if>
       <if test="createUserId != null">
         create_user_id,
+      </if>
+      <if test="xpack != null">
+        xpack,
+      </if>
+      <if test="scenario != null">
+        scenario,
       </if>
       <if test="formOption != null">
         form_option,
@@ -203,11 +213,11 @@
       <if test="scriptId != null">
         #{scriptId,jdbcType=VARCHAR},
       </if>
-      <if test="jmeterClazz != null">
-        #{jmeterClazz,jdbcType=VARCHAR},
-      </if>
       <if test="clazzName != null">
         #{clazzName,jdbcType=VARCHAR},
+      </if>
+      <if test="jmeterClazz != null">
+        #{jmeterClazz,jdbcType=VARCHAR},
       </if>
       <if test="sourcePath != null">
         #{sourcePath,jdbcType=VARCHAR},
@@ -226,6 +236,12 @@
       </if>
       <if test="createUserId != null">
         #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="xpack != null">
+        #{xpack,jdbcType=BIT},
+      </if>
+      <if test="scenario != null">
+        #{scenario,jdbcType=VARCHAR},
       </if>
       <if test="formOption != null">
         #{formOption,jdbcType=LONGVARCHAR},
@@ -256,11 +272,11 @@
       <if test="record.scriptId != null">
         script_id = #{record.scriptId,jdbcType=VARCHAR},
       </if>
-      <if test="record.jmeterClazz != null">
-        jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
-      </if>
       <if test="record.clazzName != null">
         clazz_name = #{record.clazzName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.jmeterClazz != null">
+        jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
       </if>
       <if test="record.sourcePath != null">
         source_path = #{record.sourcePath,jdbcType=VARCHAR},
@@ -280,6 +296,12 @@
       <if test="record.createUserId != null">
         create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       </if>
+      <if test="record.xpack != null">
+        xpack = #{record.xpack,jdbcType=BIT},
+      </if>
+      <if test="record.scenario != null">
+        scenario = #{record.scenario,jdbcType=VARCHAR},
+      </if>
       <if test="record.formOption != null">
         form_option = #{record.formOption,jdbcType=LONGVARCHAR},
       </if>
@@ -297,14 +319,16 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       plugin_id = #{record.pluginId,jdbcType=VARCHAR},
       script_id = #{record.scriptId,jdbcType=VARCHAR},
-      jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
       clazz_name = #{record.clazzName,jdbcType=VARCHAR},
+      jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
       source_path = #{record.sourcePath,jdbcType=VARCHAR},
       source_name = #{record.sourceName,jdbcType=VARCHAR},
       exec_entry = #{record.execEntry,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      xpack = #{record.xpack,jdbcType=BIT},
+      scenario = #{record.scenario,jdbcType=VARCHAR},
       form_option = #{record.formOption,jdbcType=LONGVARCHAR},
       form_script = #{record.formScript,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -317,14 +341,16 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       plugin_id = #{record.pluginId,jdbcType=VARCHAR},
       script_id = #{record.scriptId,jdbcType=VARCHAR},
-      jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
       clazz_name = #{record.clazzName,jdbcType=VARCHAR},
+      jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
       source_path = #{record.sourcePath,jdbcType=VARCHAR},
       source_name = #{record.sourceName,jdbcType=VARCHAR},
       exec_entry = #{record.execEntry,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      create_user_id = #{record.createUserId,jdbcType=VARCHAR}
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      xpack = #{record.xpack,jdbcType=BIT},
+      scenario = #{record.scenario,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -341,11 +367,11 @@
       <if test="scriptId != null">
         script_id = #{scriptId,jdbcType=VARCHAR},
       </if>
-      <if test="jmeterClazz != null">
-        jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
-      </if>
       <if test="clazzName != null">
         clazz_name = #{clazzName,jdbcType=VARCHAR},
+      </if>
+      <if test="jmeterClazz != null">
+        jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
       </if>
       <if test="sourcePath != null">
         source_path = #{sourcePath,jdbcType=VARCHAR},
@@ -365,6 +391,12 @@
       <if test="createUserId != null">
         create_user_id = #{createUserId,jdbcType=VARCHAR},
       </if>
+      <if test="xpack != null">
+        xpack = #{xpack,jdbcType=BIT},
+      </if>
+      <if test="scenario != null">
+        scenario = #{scenario,jdbcType=VARCHAR},
+      </if>
       <if test="formOption != null">
         form_option = #{formOption,jdbcType=LONGVARCHAR},
       </if>
@@ -379,14 +411,16 @@
     set `name` = #{name,jdbcType=VARCHAR},
       plugin_id = #{pluginId,jdbcType=VARCHAR},
       script_id = #{scriptId,jdbcType=VARCHAR},
-      jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
       clazz_name = #{clazzName,jdbcType=VARCHAR},
+      jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
       source_path = #{sourcePath,jdbcType=VARCHAR},
       source_name = #{sourceName,jdbcType=VARCHAR},
       exec_entry = #{execEntry,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user_id = #{createUserId,jdbcType=VARCHAR},
+      xpack = #{xpack,jdbcType=BIT},
+      scenario = #{scenario,jdbcType=VARCHAR},
       form_option = #{formOption,jdbcType=LONGVARCHAR},
       form_script = #{formScript,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -396,14 +430,16 @@
     set `name` = #{name,jdbcType=VARCHAR},
       plugin_id = #{pluginId,jdbcType=VARCHAR},
       script_id = #{scriptId,jdbcType=VARCHAR},
-      jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
       clazz_name = #{clazzName,jdbcType=VARCHAR},
+      jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
       source_path = #{sourcePath,jdbcType=VARCHAR},
       source_name = #{sourceName,jdbcType=VARCHAR},
       exec_entry = #{execEntry,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      create_user_id = #{createUserId,jdbcType=VARCHAR}
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      xpack = #{xpack,jdbcType=BIT},
+      scenario = #{scenario,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

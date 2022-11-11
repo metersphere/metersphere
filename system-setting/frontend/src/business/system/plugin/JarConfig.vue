@@ -1,27 +1,44 @@
 <template>
-  <el-form :model="currentConfig" :rules="rules" label-width="105px" v-loading="loading" ref="form">
+  <el-form
+    v-loading="loading"
+    label-width="105px"
+    :model="currentConfig"
+    :rules="rules"
+    ref="form">
     <el-row>
-      <el-upload
-        class="jar-upload"
-        drag
-        action="#"
-        :http-request="upload"
-        :limit="1"
-        :beforeUpload="uploadValidate"
-        :on-remove="handleRemove"
-        :on-exceed="handleExceed"
-        :file-list="fileList"
-        ref="fileUpload">
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-        <div class="el-upload__tip" slot="tip">{{ $t('api_test.jar_config.upload_tip') }}</div>
-      </el-upload>
-
-      <el-col>
-        <div class="buttons">
-          <el-button type="primary" size="small" @click="save()">{{ $t('commons.confirm') }}</el-button>
-        </div>
+      <el-col :span="11">
+        <el-form-item label="使用场景">
+          <el-select size="small" v-model="currentConfig.scenario" clearable>
+            <el-option v-for="item in scenarioOptions" :key="item.id" :label="item.text" :value="item.value"/>
+          </el-select>
+        </el-form-item>
       </el-col>
+
+      <el-col :span="1">
+        <el-divider direction="vertical"/>
+      </el-col>
+
+      <el-col :span="12">
+        <el-upload
+          class="jar-upload"
+          drag
+          action="#"
+          :http-request="upload"
+          :limit="1"
+          :beforeUpload="uploadValidate"
+          :on-remove="handleRemove"
+          :on-exceed="handleExceed"
+          :file-list="fileList"
+          ref="fileUpload">
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+          <div class="el-upload__tip" slot="tip">{{ $t('api_test.jar_config.upload_tip') }}</div>
+        </el-upload>
+      </el-col>
+
+      <div class="buttons">
+        <el-button type="primary" size="small" @click="save()">{{ $t('commons.confirm') }}</el-button>
+      </div>
 
     </el-row>
   </el-form>
@@ -40,7 +57,12 @@ export default {
         name: '',
         description: '',
         fileName: '',
+        scenario: 'api'
       },
+      scenarioOptions: [
+        {text: '接口测试', value: 'api'},
+        {text: '平台对接', value: "platform"},
+      ],
       rules: {
         name: [
           {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
@@ -115,7 +137,7 @@ export default {
           this.$warning(this.$t('commons.please_upload'));
           return;
         }
-        this.loading = addPlugin(this.fileList[0]).then(() => {
+        this.loading = addPlugin(this.currentConfig.scenario, this.fileList[0]).then(() => {
           this.$success(this.$t('organization.integration.successful_operation'));
           this.$emit("close");
           this.fileList = [];

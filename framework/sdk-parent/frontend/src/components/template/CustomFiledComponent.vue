@@ -105,10 +105,21 @@
                        :default-open="defaultOpen"
                        :data="data" :disabled="disabled"/>
 
-    <el-input class="custom-with"
-              @input="handleChange"
+      <el-input v-else-if="data.type === 'password'"
+                v-model="data[prop]"
+                class="custom-with"
+                auto-complete="new-password"
+                show-password
+                :disabled="disabled"
+                @input="handleChange"/>
+
+    <el-input v-else
+              v-model="data[prop]"
+              class="custom-with"
+              maxlength="450"
+              show-word-limit
               :disabled="disabled"
-              v-else v-model="data[prop]" maxlength="450" show-word-limit/>
+              @input="handleChange"/>
 
   </span>
 

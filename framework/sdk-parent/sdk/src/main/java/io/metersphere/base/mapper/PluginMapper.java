@@ -3,9 +3,8 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.Plugin;
 import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface PluginMapper {
     long countByExample(PluginExample example);
