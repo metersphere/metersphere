@@ -480,25 +480,18 @@ public class TestPlanService {
     public void checkStatus(String testPlanId) { //  检查执行结果，自动更新计划状态
         List<String> statusList = new ArrayList<>();
         statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanId));
-        try {
+
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             statusList.addAll(planTestPlanApiCaseService.getExecResultByPlanId(testPlanId));
-        } catch (MSException e) {
-            LogUtil.error(e);
-        }
-        try {
             statusList.addAll(planTestPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
-        try {
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
             statusList.addAll(planTestPlanLoadCaseService.getExecResultByPlanId(testPlanId));
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
-        try {
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             statusList.addAll(planTestPlanUiScenarioCaseService.getExecResultByPlanId(testPlanId));
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
 
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
@@ -638,12 +631,13 @@ public class TestPlanService {
     }
 
     private void startRelevance(PlanCaseRelevanceRequest request, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
-        try {
-            relevanceTestCaseTest(apiCaseIds, request.getPlanId(), planTestPlanApiCaseService::relevanceByTestIds);
-            relevanceTestCaseTest(scenarioIds, request.getPlanId(), planTestPlanScenarioCaseService::relevanceByTestIds);
-            relevanceTestCaseTest(performanceIds, request.getPlanId(), planTestPlanLoadCaseService::relevanceByTestIds);
-        } catch (MSException e) {
-            LogUtil.error(e);
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            planTestPlanApiCaseService.relevanceByTestIds(apiCaseIds, request.getPlanId());
+            planTestPlanScenarioCaseService.relevanceByTestIds(scenarioIds, request.getPlanId());
+        }
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            planTestPlanLoadCaseService.relevanceByTestIds(performanceIds, request.getPlanId());
         }
     }
 
@@ -658,14 +652,6 @@ public class TestPlanService {
             if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
                 scenarioIds.add(l.getTestId());
             }
-        }
-    }
-
-    public void relevanceTestCaseTest(List<String> ids, String planId, BiConsumer<List<String>, String> relevanceByTestIds) {
-        try {
-            relevanceByTestIds.accept(ids, planId);
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
@@ -908,6 +894,7 @@ public class TestPlanService {
             }
         }
     }
+
     /**
      * 将测试计划运行时的triggerMode转化为性能测试中辨别更明确的值
      *
@@ -1145,12 +1132,6 @@ public class TestPlanService {
             }
             sqlSession.flushStatements();
 
-            try {
-                planTestPlanApiCaseService.copyPlan(sourcePlanId, targetPlanId);
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
-
             Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
 
             if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
@@ -1269,11 +1250,9 @@ public class TestPlanService {
         request.setConfig(config);
         request.setPlanId(planId);
         request.setSaveResponse(saveResponse);
-        try {
+        if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             ApiPlanReportDTO apiReport = planTestPlanScenarioCaseService.getApiReport(request);
             BeanUtils.copyBean(report, apiReport);
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1282,11 +1261,9 @@ public class TestPlanService {
         request.setConfig(config);
         request.setPlanId(planId);
         request.setSaveResponse(saveResponse);
-        try {
+        if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             LoadPlanReportDTO loadPlanReport = planTestPlanLoadCaseService.getLoadReport(request);
             BeanUtils.copyBean(report, loadPlanReport);
-        } catch (MSException e) {
-            LogUtil.error(e);
         }
     }
 
@@ -1562,11 +1539,11 @@ public class TestPlanService {
                         .flatMap(Collection::stream)
                         .distinct()
                         .collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(result)){
+                if (CollectionUtils.isNotEmpty(result)) {
                     envMap.put(projectId, result);
                 }
             } else {
-                if (CollectionUtils.isNotEmpty(scenarioEnv.get(projectId))){
+                if (CollectionUtils.isNotEmpty(scenarioEnv.get(projectId))) {
                     envMap.put(projectId, scenarioEnv.get(projectId));
                 }
             }
