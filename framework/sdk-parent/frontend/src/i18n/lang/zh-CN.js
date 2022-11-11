@@ -1266,6 +1266,7 @@ const message = {
       jar_file: "jar包",
       jar_manage: "JAR包管理",
       delete_tip: "删除需重启服务后生效",
+      delete_confirm: "确认删除插件",
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
       upload_limit_size_warn: "上传文件大小不能超过 {0} MB!",

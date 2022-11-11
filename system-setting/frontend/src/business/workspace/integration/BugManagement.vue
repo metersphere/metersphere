@@ -2,12 +2,15 @@
   <div class="header-title" v-loading="loading">
     <div>
       <div>{{ $t('organization.integration.select_defect_platform') }}</div>
-      <el-radio-group v-model="platform" style="margin-top: 10px" @change="change">
+      <el-radio-group v-model="platform" style="margin-top: 10px">
+        <span v-for="config in platformConfigs" :key="config.key">
+           <el-radio :label="config.label">
+            <img class="platform" :src="'/platform/plugin/resource/' + config.id + '?fileName=' + config.image"
+                 alt="Jira"/>
+          </el-radio>
+        </span>
         <el-radio label="Tapd">
           <img class="platform" src="/assets/tapd.png" alt="Tapd"/>
-        </el-radio>
-        <el-radio label="Jira">
-          <img class="platform" src="/assets/jira.png" alt="Jira"/>
         </el-radio>
         <el-radio label="Zentao">
           <img class="zentao_platform" src="/assets/zentao.jpg" alt="Zentao"/>
@@ -19,9 +22,15 @@
     </div>
 
     <tapd-setting v-if="tapdEnable" ref="tapdSetting"/>
-    <jira-setting v-if="jiraEnable" ref="jiraSetting"/>
     <zentao-setting v-if="zentaoEnable" ref="zentaoSetting"/>
     <azuredevops-setting v-if="azuredevopsEnable" ref="azureDevopsSetting"/>
+
+    <div v-for="config in platformConfigs" :key="config.key">
+      <platform-config
+        :config="config"
+        v-if="config.key === platform"
+      />
+    </div>
   </div>
 </template>
 
@@ -30,46 +39,43 @@ import TapdSetting from '@/business/workspace/integration/TapdSetting';
 import JiraSetting from '@/business/workspace/integration/JiraSetting';
 import ZentaoSetting from '@/business/workspace/integration/ZentaoSetting';
 import AzuredevopsSetting from '@/business/workspace/integration/AzureDevopsSetting';
-import {AZURE_DEVOPS, JIRA, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
+import {AZURE_DEVOPS, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
+import PlatformConfig from "@/business/workspace/integration/PlatformConfig";
+import {getIntegrationInfo} from "@/api/platform-plugin";
 
 export default {
   name: "BugManagement",
-  components: {TapdSetting, JiraSetting, ZentaoSetting, AzuredevopsSetting},
+  components: {PlatformConfig, TapdSetting, JiraSetting, ZentaoSetting, AzuredevopsSetting},
   data() {
     return {
-      tapdEnable: true,
-      jiraEnable: false,
-      zentaoEnable: false,
-      azuredevopsEnable: false,
       loading: false,
-      platform: TAPD
+      platformConfigs: [],
+      platform: TAPD,
     }
   },
-  methods: {
-    change(platform) {
-      if (platform === TAPD) {
-        this.tapdEnable = true;
-        this.jiraEnable = false;
-        this.zentaoEnable = false;
-        this.azuredevopsEnable = false;
-      } else if (platform === JIRA) {
-        this.tapdEnable = false;
-        this.jiraEnable = true;
-        this.zentaoEnable = false;
-        this.azuredevopsEnable = false;
-      } else if (platform === ZEN_TAO) {
-        this.tapdEnable = false;
-        this.jiraEnable = false;
-        this.zentaoEnable = true;
-        this.azuredevopsEnable = false;
-      } else if (platform === AZURE_DEVOPS) {
-        this.tapdEnable = false;
-        this.jiraEnable = false;
-        this.zentaoEnable = false;
-        this.azuredevopsEnable = true;
-      }
-    }
-  }
+  created() {
+    this.platformConfigs = [];
+
+    getIntegrationInfo()
+      .then((r) => {
+        this.platformConfigs = r.data;
+      });
+
+    this.platform = TAPD;
+    this.platformConfigs[0].key;
+  },
+  computed: {
+    tapdEnable() {
+      return this.platform === TAPD;
+    },
+    zentaoEnable() {
+      return this.platform === ZEN_TAO;
+    },
+    azuredevopsEnable() {
+      return this.platform === AZURE_DEVOPS;
+    },
+  },
+  methods: {}
 }
 </script>
 

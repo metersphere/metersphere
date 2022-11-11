@@ -384,76 +384,6 @@ public class PluginExample {
             return (Criteria) this;
         }
 
-        public Criteria andJmeterClazzIsNull() {
-            addCriterion("jmeter_clazz is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzIsNotNull() {
-            addCriterion("jmeter_clazz is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzEqualTo(String value) {
-            addCriterion("jmeter_clazz =", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzNotEqualTo(String value) {
-            addCriterion("jmeter_clazz <>", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzGreaterThan(String value) {
-            addCriterion("jmeter_clazz >", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzGreaterThanOrEqualTo(String value) {
-            addCriterion("jmeter_clazz >=", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzLessThan(String value) {
-            addCriterion("jmeter_clazz <", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzLessThanOrEqualTo(String value) {
-            addCriterion("jmeter_clazz <=", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzLike(String value) {
-            addCriterion("jmeter_clazz like", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzNotLike(String value) {
-            addCriterion("jmeter_clazz not like", value, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzIn(List<String> values) {
-            addCriterion("jmeter_clazz in", values, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzNotIn(List<String> values) {
-            addCriterion("jmeter_clazz not in", values, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzBetween(String value1, String value2) {
-            addCriterion("jmeter_clazz between", value1, value2, "jmeterClazz");
-            return (Criteria) this;
-        }
-
-        public Criteria andJmeterClazzNotBetween(String value1, String value2) {
-            addCriterion("jmeter_clazz not between", value1, value2, "jmeterClazz");
-            return (Criteria) this;
-        }
-
         public Criteria andClazzNameIsNull() {
             addCriterion("clazz_name is null");
             return (Criteria) this;
@@ -521,6 +451,76 @@ public class PluginExample {
 
         public Criteria andClazzNameNotBetween(String value1, String value2) {
             addCriterion("clazz_name not between", value1, value2, "clazzName");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzIsNull() {
+            addCriterion("jmeter_clazz is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzIsNotNull() {
+            addCriterion("jmeter_clazz is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzEqualTo(String value) {
+            addCriterion("jmeter_clazz =", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotEqualTo(String value) {
+            addCriterion("jmeter_clazz <>", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzGreaterThan(String value) {
+            addCriterion("jmeter_clazz >", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzGreaterThanOrEqualTo(String value) {
+            addCriterion("jmeter_clazz >=", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLessThan(String value) {
+            addCriterion("jmeter_clazz <", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLessThanOrEqualTo(String value) {
+            addCriterion("jmeter_clazz <=", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLike(String value) {
+            addCriterion("jmeter_clazz like", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotLike(String value) {
+            addCriterion("jmeter_clazz not like", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzIn(List<String> values) {
+            addCriterion("jmeter_clazz in", values, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotIn(List<String> values) {
+            addCriterion("jmeter_clazz not in", values, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzBetween(String value1, String value2) {
+            addCriterion("jmeter_clazz between", value1, value2, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotBetween(String value1, String value2) {
+            addCriterion("jmeter_clazz not between", value1, value2, "jmeterClazz");
             return (Criteria) this;
         }
 
@@ -921,6 +921,136 @@ public class PluginExample {
 
         public Criteria andCreateUserIdNotBetween(String value1, String value2) {
             addCriterion("create_user_id not between", value1, value2, "createUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackIsNull() {
+            addCriterion("xpack is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackIsNotNull() {
+            addCriterion("xpack is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackEqualTo(Boolean value) {
+            addCriterion("xpack =", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackNotEqualTo(Boolean value) {
+            addCriterion("xpack <>", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackGreaterThan(Boolean value) {
+            addCriterion("xpack >", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("xpack >=", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackLessThan(Boolean value) {
+            addCriterion("xpack <", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackLessThanOrEqualTo(Boolean value) {
+            addCriterion("xpack <=", value, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackIn(List<Boolean> values) {
+            addCriterion("xpack in", values, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackNotIn(List<Boolean> values) {
+            addCriterion("xpack not in", values, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackBetween(Boolean value1, Boolean value2) {
+            addCriterion("xpack between", value1, value2, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andXpackNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("xpack not between", value1, value2, "xpack");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIsNull() {
+            addCriterion("scenario is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIsNotNull() {
+            addCriterion("scenario is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioEqualTo(String value) {
+            addCriterion("scenario =", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNotEqualTo(String value) {
+            addCriterion("scenario <>", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioGreaterThan(String value) {
+            addCriterion("scenario >", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioGreaterThanOrEqualTo(String value) {
+            addCriterion("scenario >=", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioLessThan(String value) {
+            addCriterion("scenario <", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioLessThanOrEqualTo(String value) {
+            addCriterion("scenario <=", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioLike(String value) {
+            addCriterion("scenario like", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNotLike(String value) {
+            addCriterion("scenario not like", value, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIn(List<String> values) {
+            addCriterion("scenario in", values, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNotIn(List<String> values) {
+            addCriterion("scenario not in", values, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioBetween(String value1, String value2) {
+            addCriterion("scenario between", value1, value2, "scenario");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNotBetween(String value1, String value2) {
+            addCriterion("scenario not between", value1, value2, "scenario");
             return (Criteria) this;
         }
     }

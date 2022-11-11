@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class Plugin implements Serializable {
@@ -14,9 +13,9 @@ public class Plugin implements Serializable {
 
     private String scriptId;
 
-    private String jmeterClazz;
-
     private String clazzName;
+
+    private String jmeterClazz;
 
     private String sourcePath;
 
@@ -29,6 +28,10 @@ public class Plugin implements Serializable {
     private Long updateTime;
 
     private String createUserId;
+
+    private Boolean xpack;
+
+    private String scenario;
 
     private static final long serialVersionUID = 1L;
 }

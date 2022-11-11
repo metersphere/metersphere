@@ -19,12 +19,12 @@ public class PluginController {
     @Resource
     private PluginService pluginService;
 
-    @PostMapping("/add")
-    public String create(@RequestPart(value = "file", required = false) MultipartFile file) {
+    @PostMapping("/add/{scenario}")
+    public void create(@RequestPart(value = "file", required = false) MultipartFile file, @PathVariable String scenario) {
         if (file == null) {
             MSException.throwException("上传文件/执行入口为空");
         }
-        return pluginService.editPlugin(file);
+        pluginService.addPlugin(file, scenario);
     }
 
     @GetMapping("/list")
@@ -37,14 +37,13 @@ public class PluginController {
         return pluginService.get(id);
     }
 
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable String id) {
-        return pluginService.delete(id);
+    @GetMapping("/delete/{scenario}/{id}")
+    public void delete(@PathVariable String scenario, @PathVariable String id) {
+        pluginService.delete(scenario, id);
     }
 
     @PostMapping("/custom/method")
     public Object customMethod(@RequestBody PluginRequest request) {
         return pluginService.customMethod(request);
     }
-
 }
