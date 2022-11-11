@@ -8,22 +8,23 @@ export function getPluginPageByName(name) {
   return get(`/plugin/list?name=${name}`);
 }
 
-export function delPluginById(pluginId) {
-  return get(`/plugin/delete/${pluginId}`);
+export function delPluginById(scenario, pluginId) {
+  return get(`/plugin/delete/${scenario}/${pluginId}`);
 }
 
 export function getPluginById(pluginId) {
   return get(`/plugin/get/${pluginId}`);
 }
 
-export function addPlugin(file) {
+export function addPlugin(scenario, file) {
   let formData = new FormData();
   if (file) {
     formData.append("file", file);
   }
+  let url = '/plugin/add/' + scenario;
   let config = {
     method: 'POST',
-    url: '/plugin/add',
+    url:  url,
     data: formData,
     headers: {
       'Content-Type': undefined

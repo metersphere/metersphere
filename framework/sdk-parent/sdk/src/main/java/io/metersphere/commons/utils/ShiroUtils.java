@@ -8,6 +8,7 @@ public class ShiroUtils {
 
         filterChainDefinitionMap.put("/resource/md/get/**", "anon");
         filterChainDefinitionMap.put("/resource/ui/get/**", "anon");
+        filterChainDefinitionMap.put("/platform/plugin/resource/**", "anon");
         filterChainDefinitionMap.put("/attachment/preview/**", "anon");
         filterChainDefinitionMap.put("/*.worker.js", "anon");
         filterChainDefinitionMap.put("/*.html", "anon");
