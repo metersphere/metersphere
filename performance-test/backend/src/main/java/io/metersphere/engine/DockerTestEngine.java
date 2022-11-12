@@ -8,9 +8,8 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.controller.handler.ResultHolder;
 import io.metersphere.dto.NodeDTO;
-import io.metersphere.engine.request.StartTestRequest;
+import io.metersphere.request.StartTestRequest;
 import io.metersphere.i18n.Translator;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class DockerTestEngine extends AbstractEngine {

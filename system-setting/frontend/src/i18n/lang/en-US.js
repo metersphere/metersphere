@@ -12,6 +12,10 @@ const message = {
     check_third_project_success: "inspection passed",
     api_default_run_message: 'In order not to affect the normal execution of the interface, please configure the resource pool for interface execution in [Project Settings - Application Management - Interface Test]',
     api_default_run: 'The interface is executed locally by default',
+    test_resource_pool: {
+      edit_job_template: "Edit Job Template",
+      edit_job_template_tip: "The Kubernetes Job template is a text in YAML format that defines the running parameters of the Job. You can edit the Job template here.",
+    }
   },
   display: {
     title: 'Theme',

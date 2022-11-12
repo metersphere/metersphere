@@ -12,6 +12,10 @@ const message = {
     check_third_project_success: "检查通过",
     api_default_run_message: '为了不影响接口正常执行，请在【 项目设置-应用管理-接口测试 】中配置接口执行的资源池',
     api_default_run: '接口默认本地执行',
+    test_resource_pool: {
+      edit_job_template: "编辑Job模版",
+      edit_job_template_tip: "Kubernetes Job模版是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模版。",
+    }
   },
   display: {
     title: '显示设置',
