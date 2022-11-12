@@ -28,7 +28,9 @@ public class ApiDataCountDTO {
     private long runningCount = 0;
     private long finishedCount = 0;
     private long notStartedCount = 0;
+    //本周执行次数
     private long executedTimesInWeek = 0;
+    //历史执行总次数
     private long executedCount = 0;
     private long notExecutedCount = 0;
     private long passCount = 0;
@@ -117,6 +119,15 @@ public class ApiDataCountDTO {
                 this.passCount += countResult.getCountNumber();
             }
         }
+    }
+
+    /**
+     * 获取执行过的数据数
+     *
+     * @return
+     */
+    public long getExecutedData() {
+        return this.unPassCount + this.fakeErrorCount + this.passCount;
     }
 
     public void countApiCaseRunResult(List<ExecuteResultCountDTO> executeResultCountDTOList) {

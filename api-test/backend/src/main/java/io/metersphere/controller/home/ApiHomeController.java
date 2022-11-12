@@ -117,7 +117,7 @@ public class ApiHomeController {
             DecimalFormat coveredRateFormat = new DecimalFormat("0.0");
             apiCountResult.setPassRate(coveredRateFormat.format(coveredRateNumber) + "%");
 
-            float executedRateNumber = (float) apiCountResult.getExecutedCount() * 100 / apiCountResult.getTotal();
+            float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / apiCountResult.getTotal();
             DecimalFormat executedRateFormat = new DecimalFormat("0.0");
             apiCountResult.setExecutedRate(executedRateFormat.format(executedRateNumber) + "%");
         } else {
@@ -137,6 +137,7 @@ public class ApiHomeController {
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
+        //所有执行次数
         long executedCount = apiAutomationService.countExecuteTimesByProjectID(projectId, null);
         apiCountResult.setExecutedCount(executedCount);
         //未执行、未通过、已通过
@@ -148,7 +149,7 @@ public class ApiHomeController {
             float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / executedCount;
             apiCountResult.setPassRate(df.format(coveredRateNumber) + "%");
             //执行率
-            float executedRateNumber = (float) apiCountResult.getExecutedCount() * 100 / apiCountResult.getTotal();
+            float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / apiCountResult.getTotal();
             apiCountResult.setExecutedRate(df.format(executedRateNumber) + "%");
         }
 
