@@ -12,6 +12,7 @@ import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.DataFormattingUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.BaseScheduleService;
@@ -97,8 +98,8 @@ public class ApiHomeController {
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
         long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
-        long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId);
-        apiCountResult.setExecutedCount(executedCount);
+        long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId, ExecutionExecuteTypeEnum.BASIC.name());
+        apiCountResult.setExecutedTimes(executedCount);
         //未覆盖 已覆盖： 统计当前接口下是否含有案例
         List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId);
         apiCountResult.countApiCoverage(countResultByApiCoverageList);
@@ -113,7 +114,7 @@ public class ApiHomeController {
         apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
         if (apiCountResult.getExecutedCount() > 0) {
             //通过率
-            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / apiCountResult.getExecutedCount();
+            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / apiCountResult.getTotal();
             DecimalFormat coveredRateFormat = new DecimalFormat("0.0");
             apiCountResult.setPassRate(coveredRateFormat.format(coveredRateNumber) + "%");
 
@@ -138,15 +139,15 @@ public class ApiHomeController {
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
         //所有执行次数
-        long executedCount = apiAutomationService.countExecuteTimesByProjectID(projectId, null);
-        apiCountResult.setExecutedCount(executedCount);
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, null);
+        apiCountResult.setExecutedTimes(executedTimes);
         //未执行、未通过、已通过
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
         apiCountResult.countScenarioRunResult(countResultByRunResult);
         DecimalFormat df = new DecimalFormat("0.0");
-        if (executedCount != 0) {
+        if (apiCountResult.getExecutedData() != 0) {
             //通过率
-            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / executedCount;
+            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / apiCountResult.getTotal();
             apiCountResult.setPassRate(df.format(coveredRateNumber) + "%");
             //执行率
             float executedRateNumber = (float) apiCountResult.getExecutedData() * 100 / apiCountResult.getTotal();
@@ -180,16 +181,15 @@ public class ApiHomeController {
         apiCountResult.setCreatedInWeek(taskCountInThisWeek);
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
-        long executedCount = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name());
-        apiCountResult.setExecutedCount(executedCount);
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name());
+        apiCountResult.setExecutedTimes(executedTimes);
         //统计 失败 成功 以及总数
         List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
         apiCountResult.countScheduleExecute(allExecuteResult);
-        long allCount = apiCountResult.getExecutedCount();
-        if (allCount != 0) {
-            float coveredRateNumber = (float) apiCountResult.getPassCount() * 100 / allCount;
+        if (executedTimes != 0) {
+            float passRateNumber = (float) apiCountResult.getPassCount() * 100 / executedTimes;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setPassRate(df.format(coveredRateNumber) + "%");
+            apiCountResult.setPassRate(df.format(passRateNumber) + "%");
         }
 
         //当前运行数、运行中、未运行

@@ -13,7 +13,7 @@
           <span class="main-info-card-title">{{ $t("home.dashboard.public.executed_times") }}</span>
           <div class="common-amount">
             <span class="addition-num">
-              {{ countData.executedCount }}
+              {{ countData.executedTimes }}
             </span>
           </div>
         </div>
