@@ -31,6 +31,8 @@ public class ApiDataCountDTO {
     //本周执行次数
     private long executedTimesInWeek = 0;
     //历史执行总次数
+    private long executedTimes = 0;
+    //执行的数据数
     private long executedCount = 0;
     private long notExecutedCount = 0;
     private long passCount = 0;
@@ -119,6 +121,7 @@ public class ApiDataCountDTO {
                 this.passCount += countResult.getCountNumber();
             }
         }
+        this.executedCount = this.unPassCount + this.fakeErrorCount + this.passCount;
     }
 
     /**
@@ -127,7 +130,7 @@ public class ApiDataCountDTO {
      * @return
      */
     public long getExecutedData() {
-        return this.unPassCount + this.fakeErrorCount + this.passCount;
+        return this.executedCount;
     }
 
     public void countApiCaseRunResult(List<ExecuteResultCountDTO> executeResultCountDTOList) {
@@ -145,6 +148,7 @@ public class ApiDataCountDTO {
                 this.unPassCount += execResult.getCount();
             }
         }
+        this.executedCount = this.unPassCount + this.fakeErrorCount + this.passCount;
     }
 
     public void countScheduleExecute(List<ApiDataCountResult> allExecuteResult) {
@@ -153,7 +157,7 @@ public class ApiDataCountDTO {
                 this.passCount += countResult.getCountNumber();
             } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.ERROR.name())) {
                 this.unPassCount += countResult.getCountNumber();
-            } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.FAKE_ERROR.name())) {
+            } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.FAKE_ERROR.name(), "errorReportResult")) {
                 this.fakeErrorCount += countResult.getCountNumber();
             }
         }
