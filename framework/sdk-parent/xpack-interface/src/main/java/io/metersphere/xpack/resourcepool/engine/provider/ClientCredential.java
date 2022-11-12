@@ -13,4 +13,5 @@ public class ClientCredential {
     private Integer podThreadLimit;
     private String apiImage;
     private String deployName;
+    private String jobTemplate;
 }
