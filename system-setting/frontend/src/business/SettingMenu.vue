@@ -1,6 +1,7 @@
 <template>
   <el-menu menu-trigger="click" :default-active="$route.path"
            :default-openeds="opends"
+           :key="menuKey"
            router class="setting">
     <el-submenu index="1" v-permission="systemPermission">
       <template v-slot:title>
@@ -27,11 +28,10 @@
 
 <script>
 import Setting from "@/router/modules/setting";
-import {LicenseKey} from 'metersphere-frontend/src/utils/constants';
-import {hasLicense} from 'metersphere-frontend/src/utils/permission';
+import {hasLicense, hasPermission} from 'metersphere-frontend/src/utils/permission';
+import {useUserStore} from "@/store";
 
-const component = null;
-
+const userStore = useUserStore();
 
 export default {
   name: "MsSettingMenu",
@@ -54,7 +54,7 @@ export default {
       return menus;
     };
     return {
-      opends: ['0','1','2'],
+      opends: ['0', '1', '2'],
       systems: getMenus('system'),
       workspaces: getMenus('workspace'),
       project: getMenus('project'),
@@ -66,32 +66,15 @@ export default {
       ],
       workspacePermission: ['WORKSPACE_USER:READ', 'WORKSPACE_SERVICE:READ',
         'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ',
-        'WORKSPACE_OPERATING_LOG:READ']
+        'WORKSPACE_OPERATING_LOG:READ'],
+      menuKey: 0
     };
   },
-  methods: {
-    valid() {
-      Promise.all([component.default.valid(this)]).then(() => {
-        let license = localStorage.getItem(LicenseKey);
-        if (license !== "valid") {
-          this.systems.forEach(item => {
-            if (item.valid === true) {
-              this.systems.splice(this.systems.indexOf(item), 1);
-            }
-          });
-          this.workspaces.forEach(item => {
-            if (item.valid === true) {
-              this.workspaces.splice(this.workspaces.indexOf(item), 1);
-            }
-          });
-        }
-      });
-    }
-  },
+  methods: {},
   mounted() {
-    if (component != null) {
-      this.valid();
-    }
+    userStore.$subscribe((mutation, state) => {
+      this.menuKey++;
+    });
   },
 };
 </script>
