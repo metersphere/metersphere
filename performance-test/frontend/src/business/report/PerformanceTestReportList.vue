@@ -70,7 +70,7 @@
               sortable
               :field="item"
               :fields-width="fieldsWidth"
-              min-width="65"
+              min-width="100"
               :label="$t('report.max_users')">
             </ms-table-column>
             <ms-table-column
@@ -82,6 +82,7 @@
               :label="$t('report.response_time')">
             </ms-table-column>
             <ms-table-column
+              min-width="100"
               prop="tps"
               sortable
               :field="item"
@@ -89,7 +90,7 @@
               label="TPS">
             </ms-table-column>
             <ms-table-column
-              min-width="100"
+              min-width="120"
               :field="item"
               sortable
               :fields-width="fieldsWidth"
@@ -101,7 +102,7 @@
               </template>
             </ms-table-column>
             <ms-table-column
-              min-width="100"
+              min-width="120"
               show-overflow-tooltip
               :field="item"
               sortable
@@ -110,17 +111,18 @@
               :label="$t('report.test_end_time')">
               <template v-slot:default="scope">
                 <span v-if="scope.row.status === 'Completed'">{{ scope.row.testEndTime | datetimeFormat }}</span>
+                <span v-else>-</span>
               </template>
             </ms-table-column>
             <ms-table-column
-              min-width="90"
+              min-width="120"
               prop="testDuration"
               :field="item"
               sortable
               :fields-width="fieldsWidth"
               :label="$t('report.test_execute_time')">
               <template v-slot:default="scope">
-                <span v-if="scope.row.status === 'Completed'">
+                <span>
                  {{ $t('performance_test.report.test_duration', [scope.row.hours, scope.row.minutes, scope.row.seconds]) }}
                 </span>
               </template>
