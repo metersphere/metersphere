@@ -14,6 +14,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
+import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.ApiExecutionQueueService;
@@ -196,6 +197,9 @@ public class ApiScenarioSerialService {
             }
             if (caseWithBLOBs != null) {
                 String data = caseWithBLOBs.getRequest();
+                // 检查执行内容合规性
+                PerformInspectionUtil.countMatches(data, caseWithBLOBs.getId());
+
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());

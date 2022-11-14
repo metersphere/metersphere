@@ -10,6 +10,7 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
+import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.service.ApiCaseResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
@@ -222,6 +223,8 @@ public class ApiCaseExecuteService {
         example.createCriteria().andIdIn(request.getIds());
         List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
+        // 检查执行内容合规性
+        PerformInspectionUtil.caseInspection(caseList);
         // 环境检查
         if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
             this.checkEnv(caseList);
