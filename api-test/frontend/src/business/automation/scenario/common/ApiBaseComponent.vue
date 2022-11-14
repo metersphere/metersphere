@@ -50,7 +50,7 @@
 
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini"
-                     :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
+                     :disabled="data.refEnable || !showVersion || isDeleted"/>
         </el-tooltip>
 
         <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
