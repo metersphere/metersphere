@@ -64,7 +64,7 @@ public class ReportStatusUtil {
         // 默认状态
         String status = dto.getRequestResults().isEmpty() && StringUtils.isEmpty(resultVO.getStatus())
                 ? ApiReportStatus.PENDING.name()
-                : ApiReportStatus.SUCCESS.name();
+                : StringUtils.defaultIfEmpty(resultVO.getStatus(), ApiReportStatus.SUCCESS.name());
 
         if (errorSize > 0) {
             status = ApiReportStatus.ERROR.name();
