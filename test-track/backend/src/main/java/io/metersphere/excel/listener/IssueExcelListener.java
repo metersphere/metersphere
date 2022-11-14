@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -42,10 +43,11 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     private Class dataClass;
     private IssueImportRequest request;
-    private Boolean isThirdPlatform = false;
+    private Boolean isThirdPlatform;
     private Map<Integer, String> headMap;
-    private List<CustomFieldDao> customFields = new ArrayList<>();
+    private List<CustomFieldDao> customFields;
     private IssuesService issuesService;
+    private Map<String, String> memberMap;
     /**
      * excel表头字段字典值
      */
@@ -66,12 +68,13 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
     protected List<IssueExcelData> updateList = new ArrayList<>();
     protected List<ExcelErrData<IssueExcelData>> errList = new ArrayList<>();
 
-    public IssueExcelListener(IssueImportRequest request, Class clazz, Boolean isThirdPlatform, List<CustomFieldDao> customFields) {
+    public IssueExcelListener(IssueImportRequest request, Class clazz, Boolean isThirdPlatform, List<CustomFieldDao> customFields, Map<String, String> memberMap) {
         this.request = request;
         this.dataClass = clazz;
         this.isThirdPlatform = isThirdPlatform;
         this.customFields = customFields;
         this.issuesService = CommonBeanFactory.getBean(IssuesService.class);
+        this.memberMap = memberMap;
     }
 
     @Override
@@ -83,9 +86,9 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
             issueExcelData = this.parseDataToModel(data);
             // EXCEL校验, 如果不是第三方模板则需要校验
             errMsg = new StringBuilder(!isThirdPlatform ? ExcelValidateHelper.validateEntity(issueExcelData) : StringUtils.EMPTY);
-            //自定义校验规则
+            // 校验自定义字段
             if (StringUtils.isEmpty(errMsg)) {
-                validate(issueExcelData, errMsg);
+                validateCustomField(issueExcelData, errMsg);
             }
         } catch (Exception e) {
             errMsg = new StringBuilder(Translator.get("parse_data_error"));
@@ -177,8 +180,29 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         }
     }
 
-    public void validate(IssueExcelData data, StringBuilder errMsg) {
-        // TODO 校验自定义字段的数据是否合法
+    public void validateCustomField(IssueExcelData data, StringBuilder errMsg) {
+        Map<String, List<CustomFieldDao>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(CustomFieldDao::getName));
+        data.getCustomData().forEach((k, v) -> {
+            List<CustomFieldDao> customFieldDaos = customFieldMap.get(k);
+            if (CollectionUtils.isNotEmpty(customFieldDaos) && customFieldDaos.size() > 0) {
+                CustomFieldDao customFieldDao = customFieldDaos.get(0);
+                String type = customFieldDao.getType();
+                Boolean required = customFieldDao.getRequired();
+                String options = StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue()) ?
+                        this.memberMap.toString() : customFieldDao.getOptions();
+                if (required && StringUtils.isEmpty(v.toString())) {
+                    errMsg.append(k).append(Translator.get("can_not_be_null")).append(";");
+                } else if (StringUtils.isNotEmpty(v.toString()) && isSelect(type) && !isOptionInclude(v, options)) {
+                    errMsg.append(k).append(Translator.get("options_not_exist")).append(";");
+                } else if (StringUtils.isNotEmpty(v.toString()) && isIllegalFormat(type, v.toString())) {
+                    errMsg.append(k).append(Translator.get("format_error")).append(";");
+                }
+            } else {
+                if (!exportFieldsContains(k)) {
+                    errMsg.append(k).append(Translator.get("excel_field_not_exist")).append(";");
+                }
+            }
+        });
     }
 
     private IssueExcelData parseDataToModel(Map<Integer, String> rowData) {
@@ -309,7 +333,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                                 CustomFieldType.CHECKBOX.getValue(), CustomFieldType.MULTIPLE_INPUT.getValue(),
                                 CustomFieldType.MULTIPLE_MEMBER.getValue(), CustomFieldType.CASCADING_SELECT.getValue())) {
                             if (!v.toString().contains("[")) {
-                                v = List.of("\"" + v.toString() + "\"");
+                                v = List.of("\"" + v + "\"");
                             }
                             customFieldResourceDTO.setValue(v.toString());
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATE.getValue())) {
@@ -352,5 +376,52 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
 
     private String getPlatformId(String issueId) {
         return issuesService.getIssue(issueId).getPlatformId();
+    }
+
+    private Boolean isSelect(String type) {
+        return StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue(), CustomFieldType.RADIO.getValue(),
+                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(),
+                CustomFieldType.CASCADING_SELECT.getValue(), CustomFieldType.MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue());
+    }
+
+    private Boolean isIllegalFormat(String type, String value) {
+        try {
+            if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATE.getValue())) {
+                DateUtils.parseDate(value, "yyyy/MM/dd");
+            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATETIME.getValue())) {
+                DateUtils.parseDate(value);
+            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.INT.getValue())) {
+                Integer.parseInt(value);
+            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
+                Float.parseFloat(value);
+            }
+            return Boolean.FALSE;
+        } catch (Exception e) {
+            return Boolean.TRUE;
+        }
+    }
+
+    private Boolean isOptionInclude(Object value, String options) {
+        AtomicReference<Boolean> isInclude = new AtomicReference<>(Boolean.TRUE);
+        if (value instanceof List) {
+            ((List<?>) value).forEach(item -> {
+                String s = item.toString().replaceAll("\"", StringUtils.EMPTY);
+                if (!StringUtils.contains(options, s))  {
+                    isInclude.set(Boolean.FALSE);
+                }
+            });
+        } else {
+            isInclude.set(StringUtils.contains(options, value.toString()));
+        }
+        return isInclude.get();
+    }
+
+    public Boolean exportFieldsContains(String name) {
+        for (IssueExportHeadField issueExportHeadField : IssueExportHeadField.values()) {
+            if (StringUtils.equals(name, issueExportHeadField.getName())) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 }
