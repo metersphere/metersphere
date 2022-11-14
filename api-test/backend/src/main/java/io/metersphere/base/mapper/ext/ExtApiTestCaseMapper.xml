@@ -1243,4 +1243,31 @@
             AND api_definition_id = #{apiId}
         </where>
     </select>
+
+    <select id="selectApiBasicInfoByCaseId" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id, project_id, name, version_id
+        FROM api_definition
+        WHERE id IN (
+            SELECT api_definition_id FROM api_test_case WHERE id = #{0}
+            )
+    </select>
+
+    <select id="selectApiCaseBasicInfoById" resultType="io.metersphere.api.dto.ApiCaseBasicInfoDTO">
+        SELECT apiCase.id,apiCase.project_id,api.version_id
+        FROM api_definition api
+        INNER JOIN api_test_case apiCase ON api.id = apiCase.api_definition_id
+        WHERE apiCase.id  = #{0}
+    </select>
+
+    <select id="selectSourceIdByProjectIdIsNull" resultType="java.lang.String">
+        SELECT DISTINCT source_id
+        FROM  api_case_execution_info
+        WHERE  project_id IS NULL
+    </select>
+
+    <select id="countSourceIdByProjectIdIsNull" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT source_id)
+        FROM api_case_execution_info
+        WHERE project_id IS NULL
+    </select>
 </mapper>

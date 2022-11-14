@@ -107,4 +107,8 @@ public interface ExtApiScenarioMapper {
     List<ApiScenarioDTO> relevanceScenarioList(@Param("request") ApiScenarioRequest request);
 
     List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
+
+    List<String> selectScenarioIdInExecutionInfoByProjectIdIsNull();
+
+    long countSourceIdByProjectIdIsNull();
 }

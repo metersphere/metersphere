@@ -6,6 +6,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -63,6 +64,8 @@ public class ApiDefinitionExecResultService {
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     /**
      * API/CASE 重试结果保留一条
@@ -302,7 +305,9 @@ public class ApiDefinitionExecResultService {
                         if (apiCase != null) {
                             TestPlan testPlan = testPlanService.get(apiCase.getTestPlanId());
                             if (testPlan != null) {
-                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, testPlan.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name());
+                                ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
+                                String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
+                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, testPlan.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
                             }
 
                             apiCase.setStatus(status);

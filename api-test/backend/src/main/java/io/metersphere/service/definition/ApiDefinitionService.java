@@ -75,6 +75,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -3017,26 +3018,33 @@ public class ApiDefinitionService {
         return extApiTestCaseMapper.selectBaseCaseByProjectId(projectId);
     }
 
+    @Async
     public void setProjectIdInExecutionInfo() {
-        List<ApiExecutionInfo> apiExecutionInfoList = apiExecutionInfoService.selectByProjectIdIsNull();
-        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
-            Map<String, List<ApiExecutionInfo>> groupByApiIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ApiExecutionInfo::getSourceId));
-            List<ApiDefinition> apiDefinitionList = this.selectByIds(new ArrayList<>(groupByApiIdMap.keySet()));
-            if (CollectionUtils.isNotEmpty(apiDefinitionList)) {
-                Map<String, String> apiIdProjectIdMap = apiDefinitionList.stream().collect(Collectors.toMap(ApiDefinition::getId, ApiDefinition::getProjectId));
-                List<String> deleteIdList = new ArrayList<>();
-                for (Map.Entry<String, List<ApiExecutionInfo>> entry : groupByApiIdMap.entrySet()) {
-                    String apiId = entry.getKey();
-                    if (apiIdProjectIdMap.containsKey(apiId)) {
-                        apiExecutionInfoService.updateProjectIdByApiIdAndProjectIdIsNull(apiIdProjectIdMap.get(apiId), ExecutionExecuteTypeEnum.BASIC.name(), apiId);
-                    } else {
-                        deleteIdList.addAll(entry.getValue().stream().map(ApiExecutionInfo::getId).collect(Collectors.toList()));
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(deleteIdList)) {
-                    apiExecutionInfoService.deleteByIds(deleteIdList);
+        long lastCount = 0;
+        long allSourceIdCount = apiExecutionInfoService.countSourceIdByProjectIdIsNull();
+        //分批进行查询更新处理
+        int pageSize = 1000;
+        while (allSourceIdCount > 0) {
+            if (allSourceIdCount == lastCount) {
+                //数据无法再更新时跳出循环
+                break;
+            } else {
+                lastCount = allSourceIdCount;
+            }
+            PageHelper.startPage(0, pageSize, false);
+            List<String> sourceIdAboutProjectIdIsNull = apiExecutionInfoService.selectSourceIdByProjectIdIsNull();
+            PageHelper.clearPage();
+            //批量更新
+            for (String apiId : sourceIdAboutProjectIdIsNull) {
+                ApiDefinition apiDefinition = this.get(apiId);
+                if (apiDefinition != null) {
+                    apiExecutionInfoService.updateProjectIdByApiIdAndProjectIdIsNull(apiDefinition.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), apiDefinition.getVersionId(), apiId);
+                } else {
+                    apiExecutionInfoService.deleteBySourceIdAndProjectIdIsNull(apiId);
                 }
             }
+            allSourceIdCount = apiExecutionInfoService.countSourceIdByProjectIdIsNull();
         }
+
     }
 }

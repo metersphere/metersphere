@@ -2,6 +2,7 @@ package io.metersphere.service.definition;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
@@ -41,7 +42,6 @@ import io.metersphere.xpack.api.service.ApiTestCaseSyncService;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +51,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -1243,52 +1244,47 @@ public class ApiTestCaseService {
         return apiCaseExecutionInfoService.countExecutedTimesByProjectId(projectId, executeType);
     }
 
+    @Async
     public void setProjectIdInExecutionInfo() {
-        List<ApiCaseExecutionInfo> apiExecutionInfoList = apiCaseExecutionInfoService.selectByProjectIdIsNull();
-        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
-            Map<String, List<ApiCaseExecutionInfo>> groupByApiIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ApiCaseExecutionInfo::getSourceId));
-            List<ApiTestCase> apiTestCaseList = this.selectCasesBydIds(new ArrayList<>(groupByApiIdMap.keySet()));
-            Map<String, List<ApiCaseExecutionInfo>> testPlanCaseMap = new HashMap<>();
-            if (CollectionUtils.isNotEmpty(apiTestCaseList)) {
-                Map<String, String> apiIdProjectIdMap = apiTestCaseList.stream().collect(Collectors.toMap(ApiTestCase::getId, ApiTestCase::getProjectId));
-                for (Map.Entry<String, List<ApiCaseExecutionInfo>> entry : groupByApiIdMap.entrySet()) {
-                    String apiCaseId = entry.getKey();
-                    if (apiIdProjectIdMap.containsKey(apiCaseId)) {
-                        apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(apiIdProjectIdMap.get(apiCaseId), ExecutionExecuteTypeEnum.BASIC.name(), apiCaseId);
-                    } else {
-                        testPlanCaseMap.put(apiCaseId, entry.getValue());
-
-                    }
-                }
+        long lastCount = 0;
+        long allSourceIdCount = apiCaseExecutionInfoService.countSourceIdByProjectIdIsNull();
+        //分批进行查询更新处理
+        int pageSize = 1000;
+        while (allSourceIdCount > 0) {
+            if (allSourceIdCount == lastCount) {
+                //数据无法再更新时跳出循环
+                break;
             } else {
-                testPlanCaseMap = groupByApiIdMap;
+                lastCount = allSourceIdCount;
             }
-
-            if (MapUtils.isNotEmpty(testPlanCaseMap)) {
-                //通过apiCase查询不到的可能是testPlanApiCase
-                List<TestPlanApiCase> testPlanApiCaseList = testPlanApiCaseService.selectByIds(new ArrayList<>(testPlanCaseMap.keySet()));
-                Map<String, TestPlanApiCase> testPlanApiCaseMap = new HashMap<>();
-                testPlanApiCaseList.forEach(item -> {
-                    testPlanApiCaseMap.put(item.getId(), item);
-                });
-                List<String> deleteIdList = new ArrayList<>();
-                for (Map.Entry<String, List<ApiCaseExecutionInfo>> entry : testPlanCaseMap.entrySet()) {
-                    String testPlanApiCaseId = entry.getKey();
-                    if (testPlanApiCaseMap.containsKey(testPlanApiCaseId)) {
-                        String projectId = testPlanApiCaseService.selectProjectId(testPlanApiCaseMap.get(testPlanApiCaseId).getTestPlanId());
-                        if (StringUtils.isNotEmpty(projectId)) {
-                            apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), testPlanApiCaseId);
+            PageHelper.startPage(0, pageSize, false);
+            List<String> sourceIdAboutProjectIdIsNull = apiCaseExecutionInfoService.selectSourceIdByProjectIdIsNull();
+            PageHelper.clearPage();
+            //批量更新
+            for (String sourceId : sourceIdAboutProjectIdIsNull) {
+                ApiCaseBasicInfoDTO apiCaseBasicInfoDTO = this.selectApiCaseBasicInfoById(sourceId);
+                if (apiCaseBasicInfoDTO != null) {
+                    apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(apiCaseBasicInfoDTO.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), apiCaseBasicInfoDTO.getVersionId(), sourceId);
+                } else {
+                    TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(sourceId);
+                    if (testPlanApiCase != null) {
+                        String projectId = testPlanApiCaseService.selectProjectId(sourceId);
+                        apiCaseBasicInfoDTO = this.selectApiCaseBasicInfoById(testPlanApiCase.getApiCaseId());
+                        if (StringUtils.isNotEmpty(projectId) && apiCaseBasicInfoDTO != null) {
+                            apiCaseExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiCaseBasicInfoDTO.getVersionId(), sourceId);
                         } else {
-                            deleteIdList.addAll(entry.getValue().stream().map(ApiCaseExecutionInfo::getId).collect(Collectors.toList()));
+                            apiCaseExecutionInfoService.deleteBySourceIdAndProjectIsNull(sourceId);
                         }
                     } else {
-                        deleteIdList.addAll(entry.getValue().stream().map(ApiCaseExecutionInfo::getId).collect(Collectors.toList()));
+                        apiCaseExecutionInfoService.deleteBySourceIdAndProjectIsNull(sourceId);
                     }
                 }
-                if (CollectionUtils.isNotEmpty(deleteIdList)) {
-                    apiCaseExecutionInfoService.deleteByIds(deleteIdList);
-                }
             }
+            allSourceIdCount = apiCaseExecutionInfoService.countSourceIdByProjectIdIsNull();
         }
+    }
+
+    private ApiCaseBasicInfoDTO selectApiCaseBasicInfoById(String id) {
+        return extApiTestCaseMapper.selectApiCaseBasicInfoById(id);
     }
 }

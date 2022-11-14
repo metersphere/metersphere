@@ -79,8 +79,9 @@
             </div>
           </template>
         </el-table>
-        <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                             :total="total"/>
+        <home-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                               layout="prev, pager, next"
+                               :total="total"/>
       </div>
     </div>
   </div>
@@ -91,15 +92,15 @@ import {definitionWeekList} from "@/api/definition";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {API_STATUS} from "@/business/definition/model/JsonData";
 import ApiStatus from "@/business/definition/components/list/ApiStatus";
-import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import BasicStatuslabel from "@/business/home/components/BasicStatusLabel";
+import HomeTablePagination from "@/business/home/components/table/HomeTablePagination";
+import BasicStatusLabel from "@/business/home/components/BasicStatusLabel";
 import BasicStatus from "@/business/home/components/BasicStatusLabel";
 
 export default {
   name: "UpdatedApiList",
   components: {
     BasicStatus,
-    BasicStatuslabel, ApiStatus, MsTablePagination
+    BasicStatusLabel, ApiStatus, HomeTablePagination
   },
   data() {
     return {
@@ -108,7 +109,7 @@ export default {
       loading: false,
       tableData: [],
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 5,
       total: 0,
       status: API_STATUS,
     }

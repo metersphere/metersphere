@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-card">
-    <el-card shadow="hover" class="box-card" style="height: 100%">
+    <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">
         <span class="dashboard-title">{{ $t('home.dashboard.scenario.title') }}</span>
       </div>

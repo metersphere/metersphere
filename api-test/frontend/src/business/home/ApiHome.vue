@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color:#E5E5E5;overflow: auto">
+  <div style="background-color:#F5F6F7;overflow: auto">
     <ms-container>
       <ms-main-container style="padding: 0px">
         <div class="api-home-layout">
@@ -142,6 +142,7 @@ export default {
 .api-home-layout :deep(.main-info-card) {
   height: 197px;
   width: 100%;
+  color: #646A73;
   background-color: #FFFFFF;
   box-sizing: border-box;
   border: 1px solid #DEE0E3;
@@ -157,6 +158,7 @@ export default {
   line-height: 22px;
   font-size: 14px;
   font-weight: 400;
+  color: #646A73;
 }
 
 .api-home-layout :deep(.addition-info-text) {
@@ -184,5 +186,4 @@ export default {
   color: #1F2329;
   line-height: 22px;
 }
-
 </style>

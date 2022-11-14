@@ -1052,4 +1052,17 @@
         </where>
         and api_scenario.status!='Trash'
     </select>
+
+    <select id="selectScenarioIdInExecutionInfoByProjectIdIsNull" resultType="java.lang.String">
+        SELECT DISTINCT source_id
+        FROM scenario_execution_info
+        WHERE project_id IS NULL
+    </select>
+
+    <select id="countSourceIdByProjectIdIsNull" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT source_id)
+        FROM scenario_execution_info
+        WHERE project_id IS NULL
+    </select>
+
 </mapper>

@@ -78,12 +78,14 @@ export default {
   font-size: 20px;
   font-weight: 500;
   line-height: 28px;
+  color: #1F2329;
 }
 
 .main-num {
   font-size: 32px;
   font-weight: 500;
   line-height: 40px;
+  color: #1F2329;
 }
 
 .common-amount-button {
