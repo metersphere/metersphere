@@ -74,6 +74,7 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
         if (BooleanUtils.isTrue(context.getHead())) {
             sheet = context.getWriteSheetHolder().getSheet();
             drawingPatriarch = sheet.createDrawingPatriarch();
+            // 设置表头内容
             headCommentIndexMap.forEach(this::setComment);
         }
     }

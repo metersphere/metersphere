@@ -495,13 +495,13 @@ public class IssuesService {
             issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
             List<IssuesDao> issuesDaos = listByWorkspaceId(issuesRequest);
             if (CollectionUtils.isNotEmpty(issuesDaos)) {
-                issuesDaos.forEach(issuesDao -> {
+                issuesDaos.parallelStream().forEach(issuesDao -> {
                     delete(issuesDao.getId());
                 });
             }
         } else {
             if (CollectionUtils.isNotEmpty(request.getBatchDeleteIds())) {
-                request.getBatchDeleteIds().forEach(id -> delete(id));
+                request.getBatchDeleteIds().parallelStream().forEach(id -> delete(id));
             }
         }
     }
@@ -610,17 +610,19 @@ public class IssuesService {
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
                             fieldDao.setValue(fieldDao.getTextValue());
                         }
-                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATE.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue())) {
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATE.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue()) && !StringUtils.equals(fieldDao.getValue(), "null")) {
                             Date date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd");
                             String format = DateUtils.format(date, "yyyy/MM/dd");
                             fieldDao.setValue("\"" + format + "\"");
                         }
-                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATETIME.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue())) {
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATETIME.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue()) && !StringUtils.equals(fieldDao.getValue(), "null")) {
                             Date date = null;
                             if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() == 18) {
                                 date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd'T'HH:mm");
                             } else if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() == 21) {
                                 date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd'T'HH:mm:ss");
+                            } else if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() > 21) {
+                                date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY).substring(0, 19), "yyyy-MM-dd'T'HH:mm:ss");
                             } else {
                                 date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY));
                             }
@@ -1194,9 +1196,12 @@ public class IssuesService {
 
     public void issueImportTemplate(String projectId, HttpServletResponse response) {
         Map<String, String> userMap = baseUserService.getProjectMemberOption(projectId).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(projectId);
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        // 根据自定义字段获取表头
         List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, null);
+        // 导出空模板, heads->表头, headHandler->表头处理
         IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
         new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
                 .exportByCustomWriteHandler(response, heads, null, Translator.get("issue_import_template_name"),
@@ -1207,16 +1212,21 @@ public class IssuesService {
         if (importFile == null) {
             MSException.throwException(Translator.get("upload_fail"));
         }
+        Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        // 获取本地EXCEL数据对象
         Class clazz = new IssueExcelDataFactory().getExcelDataByLocal();
-        IssueExcelListener issueExcelListener = new IssueExcelListener(request, clazz, issueTemplate.getIsThirdTemplate(), customFields);
+        // IssueExcelListener读取file内容
+        IssueExcelListener issueExcelListener = new IssueExcelListener(request, clazz, issueTemplate.getIsThirdTemplate(), customFields, userMap);
         try {
             EasyExcelFactory.read(importFile.getInputStream(), issueExcelListener).sheet().doRead();
         } catch (IOException e) {
             LogUtil.error(e.getMessage(), e);
             e.printStackTrace();
         }
+        // 获取错误信息并返回
         List<ExcelErrData<IssueExcelData>> errList = issueExcelListener.getErrList();
         ExcelResponse excelResponse = new ExcelResponse();
         if (CollectionUtils.isNotEmpty(errList)) {
@@ -1230,24 +1240,33 @@ public class IssuesService {
 
     public void issueExport(IssueExportRequest request, HttpServletResponse response) {
         Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        // 根据自定义字段获取表头内容
         List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, request);
+        // 获取导出缺陷列表
         List<IssuesDao> exportIssues = getExportIssues(request, issueTemplate.getIsThirdTemplate(), customFields);
+        // 解析issue对象数据->excel对象数据
         List<IssueExcelData> excelDataList = parseIssueDataToExcelData(exportIssues);
+        // 解析excel对象数据->excel列表数据
         List<List<Object>> data = parseExcelDataToList(heads, excelDataList);
+        // 导出EXCEL
         IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
+        // heads-> 表头内容, data -> 导出EXCEL列表数据, headHandler -> 表头处理
         new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
                 .exportByCustomWriteHandler(response, heads, data, Translator.get("issue_list_export_excel"),
                         Translator.get("issue_list_export_excel_sheet"), headHandler);
     }
 
     public List<IssuesDao> getExportIssues(IssueExportRequest exportRequest, Boolean isThirdTemplate, List<CustomFieldDao> customFields) {
+        // 根据列表条件获取符合缺陷集合
         IssuesRequest request = new IssuesRequest();
         request.setProjectId(exportRequest.getProjectId());
         request.setWorkspaceId(exportRequest.getWorkspaceId());
         request.setSelectAll(exportRequest.getIsSelectAll());
         request.setExportIds(exportRequest.getExportIds());
+        // 列表排序
         request.setOrders(exportRequest.getOrders());
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         request.getOrders().forEach(order -> {
@@ -1266,6 +1285,7 @@ public class IssuesService {
         Map<String, String> planMap = getPlanMap(issues);
         Map<String, List<IssueCommentDTO>> commentMap = getCommentMap(issues);
 
+        // 设置creator, caseCount, commnet
         issues.forEach(item -> {
             User createUser = userMap.get(item.getCreator());
             if (createUser != null) {
@@ -1288,6 +1308,7 @@ public class IssuesService {
                 item.setComment(StringUtils.join(comments, ";"));
             }
         });
+        // 解析自定义字段
         buildCustomField(issues, isThirdTemplate, customFields);
         return issues;
     }
@@ -1424,13 +1445,13 @@ public class IssuesService {
     }
 
     public void saveImportData(List<IssuesUpdateRequest> issues) {
-        issues.forEach(issue -> {
+        issues.parallelStream().forEach(issue -> {
             addIssues(issue, null);
         });
     }
 
     public void updateImportData(List<IssuesUpdateRequest> issues) {
-        issues.forEach(issue -> {
+        issues.parallelStream().forEach(issue -> {
             updateIssues(issue);
         });
     }
