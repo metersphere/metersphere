@@ -52,77 +52,31 @@
             size="small"
             style="width: 100%"/>
         </div>
-        <div >
-          <!-- 串行 -->
-          <div
-            class="mode-row"
-            v-if="runConfig.mode === 'serial' && testType === 'API'"
-          >
-            <el-checkbox
-              v-model="runConfig.runWithinResourcePool"
-              style="padding-right: 10px"
-              class="radio-change"
-              :disabled="runMode === 'POOL'"
-            >
-              {{ $t("run_mode.run_with_resource_pool") }}
-            </el-checkbox><br/>
-            <el-select
-              :disabled="!runConfig.runWithinResourcePool"
-              v-model="runConfig.resourcePoolId"
-              size="mini"
-              style="width:100%; margin-top: 8px"
-            >
-              <el-option
-                v-for="item in resourcePools"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
-              </el-option>
-            </el-select>
-          </div>
-          <!-- 并行 -->
-          <div
-            class="mode-row"
-            v-if="runConfig.mode === 'parallel' && testType === 'API'"
-          >
-            <el-checkbox
-              v-model="runConfig.runWithinResourcePool"
-              style="padding-right: 10px"
-              class="radio-change"
-              :disabled="runMode === 'POOL'"
-            >
-              {{ $t("run_mode.run_with_resource_pool") }}
-            </el-checkbox><br/>
-            <el-select
-              :disabled="!runConfig.runWithinResourcePool"
-              v-model="runConfig.resourcePoolId"
-              size="mini"
-              style="width:100%; margin-top: 8px"
-            >
-              <el-option
-                v-for="item in resourcePools"
-                :key="item.id"
-                :label="item.name"
-                :disabled="!item.api"
-                :value="item.id"
-              >
-              </el-option>
-            </el-select>
-          </div>
-
-          <!-- 失败停止 -->
-          <div class="mode-row" v-if="runConfig.mode === 'serial'">
-            <el-checkbox v-model="runConfig.onSampleError" class="radio-change">{{
-                $t("api_test.fail_to_stop")
-              }}
-            </el-checkbox>
-          </div>
-
+        <div class="mode-row">
+          <el-checkbox v-model="runConfig.runWithinResourcePool"
+                        :disabled="runMode === 'POOL'">
+            {{ $t('run_mode.run_with_resource_pool') }}
+          </el-checkbox><br/>
+          <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini" class="mode-row" style="width: 100%">
+            <el-option
+              v-for="item in resourcePools"
+              :key="item.id"
+              :label="item.name"
+              :disabled="!item.api"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </div>
+        <!-- 失败停止 -->
+        <div class="mode-row" v-if="runConfig.mode === 'serial'">
+          <el-checkbox v-model="runConfig.onSampleError" class="radio-change">{{
+              $t("api_test.fail_to_stop")
+            }}
+          </el-checkbox>
+        </div>
         </div>
       </div>
 
-    </div>
     <template v-slot:footer>
       <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
     </template>
