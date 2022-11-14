@@ -17,5 +17,7 @@ public class ApiExecutionInfo implements Serializable {
 
     private String executeType;
 
+    private String version;
+
     private static final long serialVersionUID = 1L;
 }

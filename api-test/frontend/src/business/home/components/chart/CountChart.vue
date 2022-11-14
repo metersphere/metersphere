@@ -134,7 +134,7 @@ export default {
         },
         title: {
           text: "{mainTitle|" + this.$t("home.dashboard.api.api_total") + "}\n\n{number|" + this.getAmount() + "}\n\n",
-          subtext: this.$t("home.dashboard.public.this_week") + "：+" + this.apiData.createdInWeek + " >",
+          subtext: this.$t("home.dashboard.public.this_week") + "：+" + formatNumber(this.apiData.createdInWeek) + " >",
           top: "center",
           left: "center",
           textStyle: {
@@ -157,7 +157,7 @@ export default {
             color: "#1F2329",
             fontSize: 12,
             width: 105,
-            ellipsis: '... >',
+            ellipsis: '...',
             overflow: "truncate",
           },
           itemGap: -60,
@@ -165,7 +165,7 @@ export default {
         series: [
           {
             type: 'pie',
-            radius: ['75%', '96%'],
+            radius: ['70%', '96%'],
             avoidLabelOverlap: false,
             hoverAnimation: true,
             label: {

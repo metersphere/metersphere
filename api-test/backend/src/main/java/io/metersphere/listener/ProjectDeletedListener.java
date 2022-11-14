@@ -6,7 +6,10 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportStructureMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.service.definition.ApiCaseExecutionInfoService;
+import io.metersphere.service.definition.ApiExecutionInfoService;
 import io.metersphere.service.ext.ExtApiScheduleService;
+import io.metersphere.service.scenario.ApiScenarioExecutionInfoService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -39,11 +42,11 @@ public class ProjectDeletedListener {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiExecutionInfoMapper apiExecutionInfoMapper;
+    private ApiExecutionInfoService apiExecutionInfoService;
     @Resource
-    private ApiCaseExecutionInfoMapper apiCaseExecutionInfoMapper;
+    private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
-    private ScenarioExecutionInfoMapper scenarioExecutionInfoMapper;
+    private ApiScenarioExecutionInfoService apiScenarioExecutionInfoService;
 
     public static final String CONSUME_ID = "project-deleted";
 
@@ -79,17 +82,9 @@ public class ProjectDeletedListener {
     }
 
     private void deleteExecutionInfo(String projectId) {
-        ApiExecutionInfoExample apiExecutionInfoExample = new ApiExecutionInfoExample();
-        apiExecutionInfoExample.createCriteria().andProjectIdEqualTo(projectId);
-        apiExecutionInfoMapper.deleteByExample(apiExecutionInfoExample);
-
-        ApiCaseExecutionInfoExample apiCaseExecutionInfoExample = new ApiCaseExecutionInfoExample();
-        apiCaseExecutionInfoExample.createCriteria().andProjectIdEqualTo(projectId);
-        apiCaseExecutionInfoMapper.deleteByExample(apiCaseExecutionInfoExample);
-
-        ScenarioExecutionInfoExample scenarioExecutionInfoExample = new ScenarioExecutionInfoExample();
-        scenarioExecutionInfoExample.createCriteria().andProjectIdEqualTo(projectId);
-        scenarioExecutionInfoMapper.deleteByExample(scenarioExecutionInfoExample);
+        apiExecutionInfoService.deleteByProjectId(projectId);
+        apiCaseExecutionInfoService.deleteByProjectId(projectId);
+        apiScenarioExecutionInfoService.deleteByProjectId(projectId);
     }
 
     private void delReport(String projectId) {

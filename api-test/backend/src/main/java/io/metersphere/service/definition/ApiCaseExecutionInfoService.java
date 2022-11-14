@@ -3,7 +3,7 @@ package io.metersphere.service.definition;
 import io.metersphere.base.domain.ApiCaseExecutionInfo;
 import io.metersphere.base.domain.ApiCaseExecutionInfoExample;
 import io.metersphere.base.mapper.ApiCaseExecutionInfoMapper;
-import org.apache.commons.collections.CollectionUtils;
+import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -18,9 +18,11 @@ import java.util.UUID;
 public class ApiCaseExecutionInfoService {
     @Resource
     private ApiCaseExecutionInfoMapper apiCaseExecutionInfoMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Lazy
-    public void insertExecutionInfo(String apiCaseId, String result, String triggerMode, String projectId, String executeType) {
+    public void insertExecutionInfo(String apiCaseId, String result, String triggerMode, String projectId, String executeType, String version) {
         if (StringUtils.isNotEmpty(apiCaseId) && StringUtils.isNotEmpty(result)) {
             ApiCaseExecutionInfo executionInfo = new ApiCaseExecutionInfo();
             executionInfo.setResult(result);
@@ -30,6 +32,7 @@ public class ApiCaseExecutionInfoService {
             executionInfo.setTriggerMode(triggerMode);
             executionInfo.setProjectId(projectId);
             executionInfo.setExecuteType(executeType);
+            executionInfo.setVersion(version);
             apiCaseExecutionInfoMapper.insert(executionInfo);
         }
     }
@@ -49,30 +52,29 @@ public class ApiCaseExecutionInfoService {
         return apiCaseExecutionInfoMapper.countByExample(example);
     }
 
-
-    public List<ApiCaseExecutionInfo> selectByProjectIdIsNull() {
-        ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-        example.createCriteria().andProjectIdIsNull();
-        return apiCaseExecutionInfoMapper.selectByExample(example);
-    }
-
-    public void updateProjectIdBySourceIdAndProjectIdIsNull(String projectId, String executeType, String apiId) {
-        if (StringUtils.isNoneEmpty(projectId, executeType, apiId)) {
+    public void updateProjectIdBySourceIdAndProjectIdIsNull(String projectId, String executeType, String version, String sourceId) {
+        if (StringUtils.isNoneEmpty(projectId, executeType, sourceId)) {
             ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-            example.createCriteria().andProjectIdIsNull().andSourceIdEqualTo(apiId);
+            example.createCriteria().andProjectIdIsNull().andSourceIdEqualTo(sourceId);
             ApiCaseExecutionInfo updateModel = new ApiCaseExecutionInfo();
             updateModel.setProjectId(projectId);
             updateModel.setExecuteType(executeType);
-
+            updateModel.setVersion(version);
             apiCaseExecutionInfoMapper.updateByExampleSelective(updateModel, example);
         }
     }
 
-    public void deleteByIds(List<String> deleteIdList) {
-        if (CollectionUtils.isNotEmpty(deleteIdList)) {
-            ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-            example.createCriteria().andIdIn(deleteIdList);
-            apiCaseExecutionInfoMapper.deleteByExample(example);
-        }
+    public List<String> selectSourceIdByProjectIdIsNull() {
+        return extApiTestCaseMapper.selectSourceIdByProjectIdIsNull();
+    }
+
+    public void deleteBySourceIdAndProjectIsNull(String sourceId) {
+        ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
+        example.createCriteria().andProjectIdIsNull().andSourceIdEqualTo(sourceId);
+        apiCaseExecutionInfoMapper.deleteByExample(example);
+    }
+
+    public long countSourceIdByProjectIdIsNull() {
+        return extApiTestCaseMapper.countSourceIdByProjectIdIsNull();
     }
 }

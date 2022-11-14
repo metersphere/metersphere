@@ -33,7 +33,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiComputeResult> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
-//    int removeToGc(@Param("ids") List<String> ids);
+    //    int removeToGc(@Param("ids") List<String> ids);
 
     int removeToGcByExample(ApiDefinitionExampleWithOperation example);
 
@@ -106,4 +106,8 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinition> selectApiBaseInfoByProjectIdAndProtocolAndStatus(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("versionId") String versionId, @Param("status") String status);
 
     void updateNoModuleApiToDefaultModule(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("status") String status, @Param("versionId") String versionId, @Param("moduleId") String moduleId);
+
+    List<String> selectApiIdInExecutionInfoByProjectIdIsNull();
+
+    long countSourceIdByProjectIdIsNull();
 }

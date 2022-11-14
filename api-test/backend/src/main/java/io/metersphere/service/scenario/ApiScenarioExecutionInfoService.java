@@ -1,8 +1,12 @@
 package io.metersphere.service.scenario;
 
+import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ScenarioExecutionInfo;
 import io.metersphere.base.domain.ScenarioExecutionInfoExample;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ScenarioExecutionInfoMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,9 +24,13 @@ import java.util.UUID;
 public class ApiScenarioExecutionInfoService {
     @Resource
     private ScenarioExecutionInfoMapper scenarioExecutionInfoMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
 
     @Lazy
-    public void insertExecutionInfo(String scenarioId, String result, String triggerMode, String projectId, String executeType) {
+    public void insertExecutionInfo(String scenarioId, String result, String triggerMode, String projectId, String executeType, String version) {
         if (StringUtils.isNotEmpty(scenarioId) && StringUtils.isNotEmpty(result)) {
             ScenarioExecutionInfo executionInfo = new ScenarioExecutionInfo();
             executionInfo.setResult(result);
@@ -32,15 +40,25 @@ public class ApiScenarioExecutionInfoService {
             executionInfo.setTriggerMode(triggerMode);
             executionInfo.setProjectId(projectId);
             executionInfo.setExecuteType(executeType);
+            executionInfo.setVersion(version);
             scenarioExecutionInfoMapper.insert(executionInfo);
+        }
+    }
+
+    public void insertExecutionInfoByScenarioList(List<ApiScenario> apiScenarios, String status, String triggerMode, String projectId, String executeType) {
+        for (ApiScenario apiScenario : apiScenarios) {
+            this.insertExecutionInfo(apiScenario.getId(), status, triggerMode, projectId, executeType, apiScenario.getVersionId());
         }
     }
 
     public void insertExecutionInfoByScenarioIds(String scenarioIdJsonString, String status, String triggerMode, String projectId, String executeType) {
         try {
             List<String> scenarioIdList = JSON.parseArray(scenarioIdJsonString, String.class);
-            for (String scenarioId : scenarioIdList) {
-                this.insertExecutionInfo(scenarioId, status, triggerMode, projectId, executeType);
+            if (CollectionUtils.isNotEmpty(scenarioIdList)) {
+                ApiScenarioExample example = new ApiScenarioExample();
+                example.createCriteria().andIdIn(scenarioIdList);
+                List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+                this.insertExecutionInfoByScenarioList(apiScenarios, status, triggerMode, projectId, executeType);
             }
         } catch (Exception e) {
             LogUtil.error("解析场景ID的JSON" + scenarioIdJsonString + "失败！", e);
@@ -55,31 +73,22 @@ public class ApiScenarioExecutionInfoService {
         }
     }
 
-
-    public List<ScenarioExecutionInfo> selectByProjectIdIsNull() {
-        ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
-        example.createCriteria().andProjectIdIsNull();
-        return scenarioExecutionInfoMapper.selectByExample(example);
-    }
-
-    public void updateProjectIdBySourceIdAndProjectIdIsNull(String projectId, String executeType, String apiId) {
+    public void updateProjectIdBySourceIdAndProjectIdIsNull(String projectId, String executeType, String version, String apiId) {
         if (StringUtils.isNoneEmpty(projectId, executeType, apiId)) {
             ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
             example.createCriteria().andProjectIdIsNull().andSourceIdEqualTo(apiId);
             ScenarioExecutionInfo updateModel = new ScenarioExecutionInfo();
             updateModel.setProjectId(projectId);
             updateModel.setExecuteType(executeType);
-
+            updateModel.setVersion(version);
             scenarioExecutionInfoMapper.updateByExampleSelective(updateModel, example);
         }
     }
 
-    public void deleteByIds(List<String> deleteIdList) {
-        if (CollectionUtils.isNotEmpty(deleteIdList)) {
-            ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
-            example.createCriteria().andIdIn(deleteIdList);
-            scenarioExecutionInfoMapper.deleteByExample(example);
-        }
+    public void deleteBySourceIdAndProjectIdIsNull(String sourceId) {
+        ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andProjectIdIsNull();
+        scenarioExecutionInfoMapper.deleteByExample(example);
     }
 
     public long countExecuteTimesByProjectID(String projectId, String triggerMode) {
@@ -90,5 +99,13 @@ public class ApiScenarioExecutionInfoService {
             criteria.andTriggerModeEqualTo(triggerMode);
         }
         return scenarioExecutionInfoMapper.countByExample(example);
+    }
+
+    public List<String> selectSourceIdByProjectIdIsNull() {
+        return extApiScenarioMapper.selectScenarioIdInExecutionInfoByProjectIdIsNull();
+    }
+
+    public long countSourceIdByProjectIdIsNull() {
+        return extApiScenarioMapper.countSourceIdByProjectIdIsNull();
     }
 }

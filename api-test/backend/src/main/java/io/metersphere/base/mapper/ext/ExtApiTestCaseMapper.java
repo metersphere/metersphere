@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.api.dto.ApiCaseBasicInfoDTO;
 import io.metersphere.api.dto.ApiCountChartResult;
 import io.metersphere.api.dto.ApiCountRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -99,4 +100,12 @@ public interface ExtApiTestCaseMapper {
     List<BaseCase> selectBaseCaseByProjectId(@Param("projectId") String projectId);
 
     int getCaseCountById(String id);
+
+    ApiDefinition selectApiBasicInfoByCaseId(String id);
+
+    ApiCaseBasicInfoDTO selectApiCaseBasicInfoById(String ids);
+
+    List<String> selectSourceIdByProjectIdIsNull();
+
+    long countSourceIdByProjectIdIsNull();
 }

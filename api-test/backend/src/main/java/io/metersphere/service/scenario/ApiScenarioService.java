@@ -1,5 +1,6 @@
 package io.metersphere.service.scenario;
 
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -74,6 +75,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -2226,12 +2228,12 @@ public class ApiScenarioService {
         List<ApiScenarioWithBLOBs> apiScenarios = apiScenarioMapper.selectByExampleWithBLOBs(example);
         Map<String, List<String>> projectEnvMap = new HashMap<>();
         apiScenarios.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getEnvironmentJson())){
+            if (StringUtils.isNotBlank(item.getEnvironmentJson())) {
                 JSONObject jsonObject = JSONUtil.parseObject(item.getEnvironmentJson());
                 Map<String, Object> projectIdEnvMap = jsonObject.toMap();
                 if (MapUtils.isNotEmpty(projectIdEnvMap)) {
                     Set<String> projectIds = projectIdEnvMap.keySet();
-                    projectIds.forEach(t->{
+                    projectIds.forEach(t -> {
                         List<String> envIds = projectEnvMap.get(t);
                         if (CollectionUtils.isNotEmpty(envIds)) {
                             if (!envIds.contains(projectIdEnvMap.get(t).toString())) {
@@ -2239,9 +2241,9 @@ public class ApiScenarioService {
                             }
                         } else {
                             Object o = projectIdEnvMap.get(t);
-                            List<String>envIdList = new ArrayList<>();
+                            List<String> envIdList = new ArrayList<>();
                             envIdList.add(o.toString());
-                            projectEnvMap.put(t,envIdList);
+                            projectEnvMap.put(t, envIdList);
                         }
                     });
                 }
@@ -2249,51 +2251,55 @@ public class ApiScenarioService {
         });
         return projectEnvMap;
     }
-    public void setProjectIdInExecutionInfo() {
-        List<ScenarioExecutionInfo> apiExecutionInfoList = scenarioExecutionInfoService.selectByProjectIdIsNull();
-        if (CollectionUtils.isNotEmpty(apiExecutionInfoList)) {
-            Map<String, List<ScenarioExecutionInfo>> groupByScenarioIdMap = apiExecutionInfoList.stream().collect(Collectors.groupingBy(ScenarioExecutionInfo::getSourceId));
-            List<ApiScenario> scenarioList = this.selectByIds(new ArrayList<>(groupByScenarioIdMap.keySet()));
-            Map<String, List<ScenarioExecutionInfo>> testPlanScenarioExecutionMap = new HashMap<>();
-            if (CollectionUtils.isNotEmpty(scenarioList)) {
-                Map<String, String> scenarioIdProjectIdMap = scenarioList.stream().collect(Collectors.toMap(ApiScenario::getId, ApiScenario::getProjectId));
-                for (Map.Entry<String, List<ScenarioExecutionInfo>> entry : groupByScenarioIdMap.entrySet()) {
-                    String apiCaseId = entry.getKey();
-                    if (scenarioIdProjectIdMap.containsKey(apiCaseId)) {
-                        scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(scenarioIdProjectIdMap.get(apiCaseId), ExecutionExecuteTypeEnum.BASIC.name(), apiCaseId);
-                    } else {
-                        testPlanScenarioExecutionMap.put(apiCaseId, entry.getValue());
-                    }
-                }
-            } else {
-                testPlanScenarioExecutionMap = groupByScenarioIdMap;
-            }
 
-            if (MapUtils.isNotEmpty(testPlanScenarioExecutionMap)) {
-                //通过apiCase查询不到的可能是testPlanApiCase
-                List<TestPlanApiScenario> scenarios = testPlanScenarioCaseService.selectByIds(new ArrayList<>(testPlanScenarioExecutionMap.keySet()));
-                Map<String, TestPlanApiScenario> testPlanScenarioMap = new HashMap<>();
-                scenarios.forEach(item -> {
-                    testPlanScenarioMap.put(item.getId(), item);
-                });
-                List<String> deleteIdList = new ArrayList<>();
-                for (Map.Entry<String, List<ScenarioExecutionInfo>> entry : testPlanScenarioExecutionMap.entrySet()) {
-                    String testPlanApiCaseId = entry.getKey();
-                    if (testPlanScenarioMap.containsKey(testPlanApiCaseId)) {
-                        String projectId = testPlanScenarioCaseService.selectProjectId(testPlanScenarioMap.get(testPlanApiCaseId).getTestPlanId());
-                        if (StringUtils.isNotEmpty(projectId)) {
-                            scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), testPlanApiCaseId);
+    @Async
+    public void setProjectIdInExecutionInfo() {
+        long lastCount = 0;
+        long allSourceIdCount = scenarioExecutionInfoService.countSourceIdByProjectIdIsNull();
+        //分批进行查询更新处理
+        int pageSize = 1000;
+        while (allSourceIdCount > 0) {
+            if (allSourceIdCount == lastCount) {
+                //数据无法再更新时跳出循环
+                break;
+            } else {
+                lastCount = allSourceIdCount;
+            }
+            PageHelper.startPage(0, pageSize, false);
+            List<String> sourceIdAboutProjectIdIsNull = scenarioExecutionInfoService.selectSourceIdByProjectIdIsNull();
+            PageHelper.clearPage();
+            //批量更新
+            for (String sourceId : sourceIdAboutProjectIdIsNull) {
+                ApiScenario scenario = this.selectApiScenarioById(sourceId);
+                if (scenario != null) {
+                    scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(scenario.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), scenario.getVersionId(), sourceId);
+                } else {
+                    TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.get(sourceId);
+                    if (testPlanApiScenario != null) {
+                        String projectId = testPlanScenarioCaseService.selectProjectId(testPlanApiScenario.getTestPlanId());
+                        scenario = this.selectApiScenarioById(testPlanApiScenario.getApiScenarioId());
+                        if (StringUtils.isNotEmpty(projectId) && scenario != null) {
+                            scenarioExecutionInfoService.updateProjectIdBySourceIdAndProjectIdIsNull(projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), scenario.getVersionId(), sourceId);
                         } else {
-                            deleteIdList.addAll(entry.getValue().stream().map(ScenarioExecutionInfo::getId).collect(Collectors.toList()));
+                            scenarioExecutionInfoService.deleteBySourceIdAndProjectIdIsNull(sourceId);
                         }
                     } else {
-                        deleteIdList.addAll(entry.getValue().stream().map(ScenarioExecutionInfo::getId).collect(Collectors.toList()));
+                        scenarioExecutionInfoService.deleteBySourceIdAndProjectIdIsNull(sourceId);
                     }
                 }
-                if (CollectionUtils.isNotEmpty(deleteIdList)) {
-                    scenarioExecutionInfoService.deleteByIds(deleteIdList);
-                }
             }
+            allSourceIdCount = scenarioExecutionInfoService.countSourceIdByProjectIdIsNull();
+        }
+    }
+
+    private ApiScenario selectApiScenarioById(String id) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdEqualTo(id);
+        List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(scenarioList)) {
+            return null;
+        } else {
+            return scenarioList.get(0);
         }
     }
 }

@@ -9,6 +9,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="execute_type" jdbcType="VARCHAR" property="executeType" />
+    <result column="version" jdbcType="VARCHAR" property="version" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, source_id, `result`, trigger_mode, create_time, project_id, execute_type
+    id, source_id, `result`, trigger_mode, create_time, project_id, execute_type, version
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiCaseExecutionInfoExample" resultMap="BaseResultMap">
     select
@@ -104,10 +105,10 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiCaseExecutionInfo">
     insert into api_case_execution_info (id, source_id, `result`, 
       trigger_mode, create_time, project_id, 
-      execute_type)
+      execute_type, version)
     values (#{id,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, 
       #{triggerMode,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
-      #{executeType,jdbcType=VARCHAR})
+      #{executeType,jdbcType=VARCHAR}, #{version,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiCaseExecutionInfo">
     insert into api_case_execution_info
@@ -133,6 +134,9 @@
       <if test="executeType != null">
         execute_type,
       </if>
+      <if test="version != null">
+        version,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +159,9 @@
       </if>
       <if test="executeType != null">
         #{executeType,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.executeType != null">
         execute_type = #{record.executeType,jdbcType=VARCHAR},
       </if>
+      <if test="record.version != null">
+        version = #{record.version,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +211,8 @@
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      execute_type = #{record.executeType,jdbcType=VARCHAR}
+      execute_type = #{record.executeType,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="executeType != null">
         execute_type = #{executeType,jdbcType=VARCHAR},
       </if>
+      <if test="version != null">
+        version = #{version,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -237,7 +251,8 @@
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      execute_type = #{executeType,jdbcType=VARCHAR}
+      execute_type = #{executeType,jdbcType=VARCHAR},
+      version = #{version,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
