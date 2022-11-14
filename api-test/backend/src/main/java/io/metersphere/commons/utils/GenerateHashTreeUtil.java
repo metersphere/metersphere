@@ -123,6 +123,9 @@ public class GenerateHashTreeUtil {
     }
 
     public static HashTree generateHashTree(ApiScenarioWithBLOBs item, Map<String, String> planEnvMap, JmeterRunRequestDTO runRequest) {
+        // 检查执行内容合规性
+        PerformInspectionUtil.countMatches(item.getScenarioDefinition(), item.getId());
+
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
         if (!runRequest.getPool().isPool()) {
