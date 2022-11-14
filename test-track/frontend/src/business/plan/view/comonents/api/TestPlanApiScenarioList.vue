@@ -470,6 +470,7 @@ export default {
         param.condition = selectParam.condition;
         param.triggerMode = "BATCH";
         param.requestOriginator = "TEST_PLAN";
+        param.projectId = this.projectId;
         testPlanScenarioCaseRun(param)
           .then(() => {
             this.$message(this.$t('commons.run_message'));
@@ -485,6 +486,7 @@ export default {
       this.buildExecuteParam(param, row);
       param.triggerMode = "MANUAL";
       param.requestOriginator = "TEST_PLAN";
+      param.projectId = this.projectId;
       param.config = {
         mode: "serial"
       };

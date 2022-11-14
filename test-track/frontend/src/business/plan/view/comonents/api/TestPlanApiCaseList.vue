@@ -624,7 +624,7 @@ export default {
       });
     },
     handleRunBatch(config) {
-      let obj = {planIds: this.testPlanCaseIds, config: config, triggerMode: "BATCH"};
+      let obj = {planIds: this.testPlanCaseIds, config: config, triggerMode: "BATCH",projectId: getCurrentProjectID()};
       testPlanApiCaseRun(obj)
         .then(() => {
           this.$message(this.$t('commons.run_message'));
