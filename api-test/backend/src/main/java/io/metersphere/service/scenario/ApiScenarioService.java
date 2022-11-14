@@ -2048,6 +2048,7 @@ public class ApiScenarioService {
     }
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
+        jMeterService.verifyPool(request.getProjectId(), request.getConfig());
         return apiScenarioExecuteService.run(request);
     }
 

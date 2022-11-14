@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.ApiScenarioReportResult;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.plan.*;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
@@ -103,6 +104,8 @@ public class TestPlanScenarioCaseService {
     private ApiScenarioModuleService apiScenarioModuleService;
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private JMeterService jMeterService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -272,6 +275,8 @@ public class TestPlanScenarioCaseService {
                 this.setScenarioEnv(new ArrayList<>(), planCaseIdList, testPlanScenarioRequest.getConfig());
             }
         }
+        jMeterService.verifyPool(testPlanScenarioRequest.getProjectId(), testPlanScenarioRequest.getConfig());
+
         planCaseIdList.forEach(item -> {
             idStr.append("\"").append(item).append("\"").append(",");
         });

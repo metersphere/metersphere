@@ -11,6 +11,7 @@ import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.api.ApiExecuteService;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -88,12 +89,8 @@ public class TestPlanApiCaseService {
     private ApiExecuteService apiExecuteService;
     @Resource
     private TestPlanService testPlanService;
-
-    public TestPlanApiCase getInfo(String caseId, String testPlanId) {
-        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-        example.createCriteria().andApiCaseIdEqualTo(caseId).andTestPlanIdEqualTo(testPlanId);
-        return testPlanApiCaseMapper.selectByExample(example).get(0);
-    }
+    @Resource
+    private JMeterService jMeterService;
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
@@ -299,7 +296,7 @@ public class TestPlanApiCaseService {
             ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
             testCaseExample.createCriteria().andIdIn(nodes.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList()));
             List<ApiTestCase> testCases = apiTestCaseMapper.selectByExample(testCaseExample);
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(testCases)) {
+            if (CollectionUtils.isNotEmpty(testCases)) {
                 List<String> names = testCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
                 OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), testCases.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
                 return JSON.toJSONString(details);
@@ -316,6 +313,7 @@ public class TestPlanApiCaseService {
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
         if (request.getConfig() != null) {
+            jMeterService.verifyPool(request.getProjectId(), request.getConfig());
             return testPlanApiCaseExecuteService.run(request);
         }
         return null;
