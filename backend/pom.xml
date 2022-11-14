@@ -526,7 +526,7 @@
                         <artifactItem>
                             <groupId>io.metersphere</groupId>
                             <artifactId>metersphere-jmeter-functions</artifactId>
-                            <version>1.4</version>
+                            <version>1.5</version>
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>

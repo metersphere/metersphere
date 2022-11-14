@@ -9,7 +9,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -21,10 +20,11 @@ import java.util.Map;
  * 2021/5/13 6:24 下午
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class ApiEnvironmentRunningParamService {
     @Resource
     ApiTestEnvironmentMapper testEnvironmentMapper;
+    @Resource
+    ApiTestEnvironmentService testEnvironmentService;
 
     public void addParam(String environmentId, Map<String, String> varMap) {
         if (MapUtils.isEmpty(varMap)) {
@@ -114,7 +114,7 @@ public class ApiEnvironmentRunningParamService {
             }
             if (envNeedUpdate) {
                 environment.setConfig(configObj.toJSONString());
-                testEnvironmentMapper.updateByPrimaryKeyWithBLOBs(environment);
+                testEnvironmentService.updateByPrimaryKeyWithBLOBs(environment);
             }
 
         } catch (Exception ex) {

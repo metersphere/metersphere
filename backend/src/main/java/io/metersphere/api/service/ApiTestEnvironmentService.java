@@ -89,6 +89,10 @@ public class ApiTestEnvironmentService {
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
     }
 
+    public void updateByPrimaryKeyWithBLOBs(ApiTestEnvironmentWithBLOBs apiTestEnvironment) {
+        apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
+    }
+
     public String add(ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs) {
         apiTestEnvironmentWithBLOBs.setId(UUID.randomUUID().toString());
         checkEnvironmentExist(apiTestEnvironmentWithBLOBs);
