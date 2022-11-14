@@ -10,28 +10,24 @@ import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.service.definition.ApiCaseResultService;
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.scenario.ApiScenarioReportStructureService;
-import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.ApiDefinitionExecResultUtil;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
+import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.definition.ApiCaseResultService;
+import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
@@ -288,6 +284,8 @@ public class ApiCaseExecuteService {
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         List<ApiTestCaseWithBLOBs> caseList = extApiTestCaseMapper.unTrashCaseListByIds(request.getIds());
+        // 检查执行内容合规性
+        PerformInspectionUtil.caseInspection(caseList);
 
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
         Map<String, List<String>> testCaseEnvMap = new HashMap<>();

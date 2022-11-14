@@ -119,6 +119,7 @@ public class ApiExecuteService {
 
     public MsExecResponseDTO exec(RunCaseRequest request, Map<String, Object> extendedParameters) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
+        PerformInspectionUtil.countMatches(testCaseWithBLOBs.getRequest(), testCaseWithBLOBs.getId());
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
             request.setCaseId(request.getReportId());
@@ -232,9 +233,10 @@ public class ApiExecuteService {
         // 加载自定义JAR
         NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        if (LoggerUtil.getLogger().isDebugEnabled()) {
-            LoggerUtil.debug("生成执行JMX内容【 " + request.getTestElement().getJmx(hashTree) + " 】");
-        }
+        String jmx = request.getTestElement().getJmx(hashTree);
+        LoggerUtil.info("生成执行JMX内容【 " + jmx + " 】");
+        // 检查执行内容合规性
+        PerformInspectionUtil.inspection(jmx, testId, 4);
 
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
         runRequest.setDebug(request.isDebug());
@@ -255,6 +257,7 @@ public class ApiExecuteService {
     }
 
     public HashTree generateHashTree(RunCaseRequest request, ApiTestCaseWithBLOBs testCaseWithBLOBs) throws Exception {
+        PerformInspectionUtil.countMatches(testCaseWithBLOBs.getRequest(), testCaseWithBLOBs.getId());
         JSONObject elementObj = JSONUtil.parseObject(testCaseWithBLOBs.getRequest());
         ElementUtil.dataFormatting(elementObj);
 
