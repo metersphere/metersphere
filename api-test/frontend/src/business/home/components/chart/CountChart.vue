@@ -83,10 +83,19 @@ export default {
   },
   computed: {
     options() {
-      let protocolData = [{value: 0}];
-      let colorArr = ['#DEE0E3'];
+      let dataIsNotEmpty = false;
+      let protocolData = [
+        {value: 0, name: 'HTTP'},
+        {value: 0, name: 'RPC'},
+        {value: 0, name: 'TCP'},
+        {value: 0, name: 'SQL'},
+      ];
+      let borderWidth = 0;
+      let colorArr = ['#DEE0E3', '#DEE0E3', '#DEE0E3', '#DEE0E3'];
       if (this.getTotal() > 0) {
-        colorArr = ['#AA4FBF', '#FFD131', '#10CECE', '#4261F6',]
+        colorArr = ['#AA4FBF', '#FFD131', '#10CECE', '#4261F6',];
+        borderWidth = 3;
+        dataIsNotEmpty = true;
         protocolData = [
           {value: this.apiData.httpCount, name: 'HTTP'},
           {value: this.apiData.rpcCount, name: 'RPC'},
@@ -102,6 +111,7 @@ export default {
         legend: {
           orient: 'vertical',
           icon: "rect",
+          selectedMode: dataIsNotEmpty,
           itemGap: 16,
           left: '45%',
           y: 'center',
@@ -117,13 +127,13 @@ export default {
                 fontSize: 14,
                 color: '#646A73',
                 fontWeight: 400,
-                align: 'center',
+                width: 50,
+                align: 'left',
                 lineHeight: 22,
-                padding: [0, 0, 0, 4]
               },
               num: {
                 fontSize: 14,
-                align: 'left',
+                align: 'right',
                 lineHeight: 22,
                 color: '#646A73',
                 fontWeight: 500,
@@ -138,10 +148,6 @@ export default {
               return item.name === name
             });
             let value = singleData[0].value;
-            if (name !== 'HTTP') {
-              name += "  ";
-            }
-            name += " \t";
             return [`{protocol|${name}}`, `{num|${value}}`].join("");
           }
         },
@@ -183,13 +189,14 @@ export default {
             radius: ['70%', '96%'],
             center: ['92px', '50%'],
             avoidLabelOverlap: false,
-            hoverAnimation: true,
+            hoverAnimation: dataIsNotEmpty,
+            legendHoverLink: false,
             label: {
               show: false,
             },
             itemStyle: {
               borderColor: "#FFF",
-              borderWidth: 3,
+              borderWidth: borderWidth,
               borderRadius: 1,
             },
             labelLine: {
@@ -207,52 +214,4 @@ export default {
 
 <style scoped>
 
-.count-row {
-  padding: 8px 0px 8px 0px;
-}
-
-.count-title {
-  color: #646A73;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.count-value {
-  color: #646A73;
-  float: right;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ms-point-http {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-  display: inline-block;
-  background-color: #AA4FBF;
-}
-
-.ms-point-rpc {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-  display: inline-block;
-  background-color: #FFD131;
-}
-
-.ms-point-tcp {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-  display: inline-block;
-  background-color: #10CECE;
-}
-
-.ms-point-sql {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-  display: inline-block;
-  background-color: #4261F6;
-}
 </style>

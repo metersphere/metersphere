@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 24px">
+  <div style="margin: 24px" class="update-api-table">
     <span class="table-title">
       {{ $t('api_test.home_page.new_case_list.title') }}
     </span>
@@ -12,24 +12,24 @@
       </div>
       <div v-show="!loadError">
         <el-table border :data="tableData" class="adjust-table table-content" height="233px"
+                  @row-click="clickRow"
                   header-cell-class-name="home-table-cell"
+
                   v-loading="loading" element-loading-background="#FFFFFF">
           <!--ID-->
           <el-table-column prop="num" :label="$t('home.new_case.index')" width="100"
                            show-overflow-tooltip>
             <template v-slot:default="{row}">
-              <el-link type="info" @click="redirectPage('api','api','edit:' + row.id)">
-                {{ row.num }}
-              </el-link>
+              {{ row.num }}
             </template>
           </el-table-column>
           <!--名称-->
           <el-table-column prop="name" :label="$t('commons.name')"
                            show-overflow-tooltip min-width="170">
             <template v-slot:default="{row}">
-              <el-link type="info" @click="redirectPage('api','api','edit:' + row.id)">
+              <span class="redirectColumn">
                 {{ row.name }}
-              </el-link>
+              </span>
             </template>
           </el-table-column>
           <!--路径-->
@@ -93,13 +93,11 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {API_STATUS} from "@/business/definition/model/JsonData";
 import ApiStatus from "@/business/definition/components/list/ApiStatus";
 import HomeTablePagination from "@/business/home/components/table/HomeTablePagination";
-import BasicStatusLabel from "@/business/home/components/BasicStatusLabel";
-import BasicStatus from "@/business/home/components/BasicStatusLabel";
+import BasicStatusLabel from "metersphere-frontend/src/components/BasicStatusLabel";
 
 export default {
   name: "UpdatedApiList",
   components: {
-    BasicStatus,
     BasicStatusLabel, ApiStatus, HomeTablePagination
   },
   data() {
@@ -118,6 +116,11 @@ export default {
     this.search();
   },
   methods: {
+    clickRow(row, column, event) {
+      if (column.property !== 'caseTotal' && column.property !== 'scenarioTotal') {
+        this.redirectPage('api', 'api', 'edit:' + row.id);
+      }
+    },
     search() {
       let projectId = getCurrentProjectID();
       this.loading = true;
@@ -160,4 +163,7 @@ export default {
   float: left;
 }
 
+.update-api-table :deep(.el-table__body tr:hover ) {
+  cursor: pointer;
+}
 </style>
