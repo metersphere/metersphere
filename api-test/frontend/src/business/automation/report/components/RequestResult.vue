@@ -40,7 +40,7 @@
           <!-- 请求响应时间 -->
           <el-col :span="3">
             <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
-              {{ request.responseResult.responseTime }}
+              {{ request.responseResult.responseTime }} ms
             </div>
           </el-col>
           <el-col :span="2">
