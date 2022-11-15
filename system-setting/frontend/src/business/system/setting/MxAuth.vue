@@ -388,7 +388,11 @@ export default {
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
       let info = this.form.configuration;
       for (let key in info) {
-        if (info[key] != '0' && !info[key]) {
+        // Oauth2 logoutUrl 非必填
+        if (this.form.type === 'OAuth2' && key === 'logoutUrl') {
+          continue;
+        }
+        if (info[key] !== '0' && !info[key]) {
           resultValidate.validate = false;
           return resultValidate;
         }
