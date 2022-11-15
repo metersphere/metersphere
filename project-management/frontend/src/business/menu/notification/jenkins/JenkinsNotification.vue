@@ -30,7 +30,7 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import NotificationTable from "metersphere-frontend/src/components/notification/NotificationTable";
-import {searchNoticeByType} from "../../../../api/notification";
+import {searchNoticeByType} from "@/api/notification";
 import MxNoticeTemplate from "metersphere-frontend/src/components/MxNoticeTemplate";
 
 const TASK_TYPE = 'JENKINS_TASK';
@@ -82,10 +82,14 @@ export default {
         this.jenkinsTask = response.data;
         // 上报通知数
         this.$emit("noticeSize", {module: 'jenkins', data: this.jenkinsTask, taskType: TASK_TYPE});
+        this.jenkinsTask.forEach(jenkinsTask => {
+          this.handleReceivers(jenkinsTask);
+        });
       })
     },
     handleAddTaskModel() {
       let Task = {};
+      Task.receiverOptions = this.jenkinsReceiverOptions;
       Task.event = '';
       Task.userIds = [];
       Task.type = '';
@@ -113,6 +117,13 @@ export default {
     },
     handleReceivers(row) {
       row.receiverOptions = JSON.parse(JSON.stringify(this.jenkinsReceiverOptions));
+    }
+  },
+  watch: {
+    jenkinsReceiverOptions(value) {
+      if (value && value.length > 0) {
+        this.initForm();
+      }
     }
   }
 };
