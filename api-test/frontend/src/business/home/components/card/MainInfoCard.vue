@@ -23,9 +23,7 @@
               <span class="main-info-card-title">{{ $t("home.dashboard.public.this_week") }}</span>
               <div class="common-amount">
                 <el-button class="common-amount-button" @click="redirect('createdInWeek')">
-                  <span type="num" class="addition-num">
-                    +{{ countData.createdInWeek }}
-                  </span>
+                  +{{ countData.createdInWeek }}
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
                 </el-button>
               </div>
@@ -34,9 +32,7 @@
               <span class="main-info-card-title">{{ $t("home.dashboard.public.fake_error") }}</span>
               <div class="common-amount">
                 <el-button class="common-amount-button" @click="redirect('fakeError')">
-                <span class="addition-num">
                   {{ countData.fakeErrorCount }}
-                </span>
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
                 </el-button>
               </div>
@@ -91,12 +87,13 @@ export default {
 .common-amount-button {
   padding: 0 4px 0 4px;
   border: 0;
-  margin: 0 -4px 0 -8px;
+  margin: 0 -4px 0 -4px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 28px;
+  color: #1F2329;
 }
 
-.common-amount-button :deep(.addition-num) {
-  margin: 0 -4px 0 4px;
-}
 
 .main-info-card-right {
   height: 12px;
@@ -111,6 +108,14 @@ export default {
 .common-amount-button:hover img {
   transform: translateY(-999999px);
   filter: drop-shadow(#783887 0px 999999px);
+}
+
+.common-amount-button:focus {
+  color: #783887;
+}
+
+.common-amount-button:hover {
+  color: #783887;
 }
 
 </style>

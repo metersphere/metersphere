@@ -46,9 +46,13 @@ public class ApiCaseExecutionInfoService {
         }
     }
 
-    public long countExecutedTimesByProjectId(String projectId, String executeType) {
+    public long countExecutedTimesByProjectIdAndVersion(String projectId, String executeType, String version) {
         ApiCaseExecutionInfoExample example = new ApiCaseExecutionInfoExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andExecuteTypeEqualTo(executeType);
+        ApiCaseExecutionInfoExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId).andExecuteTypeEqualTo(executeType);
+        if (StringUtils.isNotEmpty(version)) {
+            criteria.andVersionEqualTo(version);
+        }
         return apiCaseExecutionInfoMapper.countByExample(example);
     }
 

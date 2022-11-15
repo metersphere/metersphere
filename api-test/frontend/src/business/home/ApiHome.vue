@@ -186,4 +186,8 @@ export default {
   color: #1F2329;
   line-height: 22px;
 }
+
+.api-home-layout :deep(.el-card) {
+  border: 0;
+}
 </style>

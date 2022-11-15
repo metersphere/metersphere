@@ -358,41 +358,37 @@
         SELECT count(id) AS countNumber
         FROM scenario_execution_info
         WHERE create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
-          AND (
-                    source_id in (
-                    SELECT id
-                    FROM api_scenario
-                    WHERE project_id = #{projectId}
-                ) or
-                    source_id in (
-                        select id
-                        FROM test_plan_api_scenario
-                        WHERE api_scenario_id in (SELECT id
-                                                  FROM api_scenario
-                                                  WHERE project_id = #{projectId})
-                    )
-            )
+          AND project_id = #{projectId}
+        <if test="version != null">
+            AND version = #{version}
+        </if>
     </select>
 
     <select id="countByProjectIdAndCreateAndByScheduleInThisWeek" resultType="java.lang.Long">
-        SELECT count(ar.id) AS countNumber
-        FROM scenario_execution_info ar
+        SELECT count(id) AS countNumber
+        FROM scenario_execution_info
         WHERE trigger_mode = 'SCHEDULE'
           AND source_id IN (SELECT id
                             FROM api_scenario
                             WHERE project_id = #{projectId}
                               AND latest = 1)
+        <if test="version != null">
+            AND version = #{version}
+        </if>
           AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, result AS groupField
-        FROM scenario_execution_info ar
+        FROM scenario_execution_info
         WHERE trigger_mode = 'SCHEDULE'
           AND source_id IN (SELECT id
                             FROM api_scenario
                             WHERE project_id = #{projectId}
                               AND latest = 1)
+        <if test="version != null">
+            AND version = #{version}
+        </if>
         GROUP BY groupField;
     </select>
     <select id="selectLastReportByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">

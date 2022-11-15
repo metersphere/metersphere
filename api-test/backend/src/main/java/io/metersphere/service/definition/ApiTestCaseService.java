@@ -1240,8 +1240,8 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.getCaseCountById(id);
     }
 
-    public long countExecutedTimesByProjectId(String projectId, String executeType) {
-        return apiCaseExecutionInfoService.countExecutedTimesByProjectId(projectId, executeType);
+    public long countExecutedTimesByProjectId(String projectId, String executeType, String version) {
+        return apiCaseExecutionInfoService.countExecutedTimesByProjectIdAndVersion(projectId, executeType, version);
     }
 
     @Async

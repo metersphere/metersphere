@@ -718,7 +718,7 @@ public class ApiScenarioReportService {
         return ids;
     }
 
-    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId) {
+    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId, String version) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -727,11 +727,11 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public long countByProjectIdAndCreateInThisWeek(String projectId) {
+    public long countByProjectIdAndCreateInThisWeek(String projectId, String version) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -740,12 +740,12 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId) {
-        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId);
+    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId, String version) {
+        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId, version);
     }
 
     public List<ApiScenarioReport> selectLastReportByIds(List<String> ids) {

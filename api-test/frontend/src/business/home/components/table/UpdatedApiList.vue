@@ -7,7 +7,7 @@
       <div v-show="loadError"
            style="width: 100%; height: 300px; display: flex; flex-direction: column;     justify-content: center;align-items: center">
         <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load.svg"/>
+             src="/assets/figma/icon_load_error.svg"/>
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
       <div v-show="!loadError">
@@ -51,7 +51,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')"
-                           width="100">
+                           width="120">
             <template v-slot:default="{row}">
               <el-link style="color: #783887;width: 100%;" type="info" :underline="false"
                        @click="redirectPage( 'api', 'apiTestCase', 'singleList:' + row.id)">
@@ -61,7 +61,7 @@
           </el-table-column>
           <el-table-column prop="scenarioTotal"
                            :label="$t('home.new_case.relation_scenario')"
-                           width="100">
+                           width="140">
             <template v-slot:default="{row}">
               <el-link style="color: #783887;width: 100%;" type="info"
                        @click="redirectPage('scenario', 'scenario','list:' +row.scenarioIds)">

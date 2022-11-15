@@ -48,6 +48,7 @@ public class ApiHomeController {
 
     @GetMapping("/api/count/{projectId}")
     public ApiDataCountDTO apiCount(@PathVariable String projectId) {
+
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         List<ApiDataCountResult> countResultByProtocolList = apiDefinitionService.countProtocolByProjectID(projectId);
         apiCountResult.countProtocol(countResultByProtocolList);
@@ -96,9 +97,9 @@ public class ApiHomeController {
         //本周创建、本周执行、总执行
         long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
-        long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId);
+        long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId, null);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
-        long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId, ExecutionExecuteTypeEnum.BASIC.name());
+        long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId, ExecutionExecuteTypeEnum.BASIC.name(), null);
         apiCountResult.setExecutedTimes(executedCount);
         //未覆盖 已覆盖： 统计当前接口下是否含有案例
         List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId);
@@ -136,10 +137,10 @@ public class ApiHomeController {
         //统计覆盖率
         long dateCountByCreateInThisWeek = apiAutomationService.countScenarioByProjectIDAndCreatInThisWeek(projectId);
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
-        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId, null);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
         //所有执行次数
-        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, null);
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, null, null);
         apiCountResult.setExecutedTimes(executedTimes);
         //未执行、未通过、已通过
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
@@ -172,6 +173,7 @@ public class ApiHomeController {
 
     @GetMapping("/schedule/task/count/{projectId}")
     public ApiDataCountDTO scheduleTaskCount(@PathVariable String projectId) {
+
         List<Schedule> allScenarioScheduleList = baseScheduleService.selectScenarioTaskByProjectId(projectId);
 
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
@@ -179,12 +181,12 @@ public class ApiHomeController {
         apiCountResult.setTotal(allTaskCount);
         long taskCountInThisWeek = baseScheduleService.countTaskByProjectIdInThisWeek(projectId);
         apiCountResult.setCreatedInWeek(taskCountInThisWeek);
-        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, null);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
-        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name());
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name(), null);
         apiCountResult.setExecutedTimes(executedTimes);
         //统计 失败 成功 以及总数
-        List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
+        List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId, null);
         apiCountResult.countScheduleExecute(allExecuteResult);
         if (executedTimes != 0) {
             float passRateNumber = (float) apiCountResult.getPassCount() * 100 / executedTimes;

@@ -1,45 +1,11 @@
 <template>
   <div v-if="reloadOver">
     <el-row type="flex" justify="left" align="left">
-      <div style="height: 184px;width: 184px;margin-left: 30px;margin-right: 30px;">
+      <div style="height: 184px;width: 100%;margin-left: 30px;margin-right: 30px;">
         <ms-chart :options="options"
                   :height="184"
-                  :width="184"
+                  width="100%"
                   :autoresize="true"/>
-      </div>
-
-      <!--   总数统计      -->
-      <div style="margin: auto;width: 260px;padding-right: 30px">
-        <div class="count-row">
-          <div>
-            <span class="ms-point-http"/>
-            <span class="count-title">HTTP</span>
-            <span class="count-value">
-              {{ formatAmount(apiData.httpCount) }}
-            </span>
-          </div>
-        </div>
-        <div class="count-row">
-          <span class="ms-point-rpc"/>
-          <span class="count-title">RPC</span>
-          <span class="count-value">
-              {{ formatAmount(apiData.rpcCount) }}
-            </span>
-        </div>
-        <div class="count-row">
-          <span class="ms-point-tcp"/>
-          <span class="count-title">TCP</span>
-          <span class="count-value">
-              {{ formatAmount(apiData.tcpCount) }}
-            </span>
-        </div>
-        <div class="count-row">
-          <span class="ms-point-sql"/>
-          <span class="count-title">SQL</span>
-          <span class="count-value">
-              {{ formatAmount(apiData.sqlCount) }}
-            </span>
-        </div>
       </div>
     </el-row>
   </div>
@@ -70,6 +36,7 @@ export default {
     }
   },
   created() {
+    this.reload();
   },
   methods: {
     reload() {
@@ -132,16 +99,64 @@ export default {
         tooltip: {
           trigger: 'item'
         },
+        legend: {
+          orient: 'vertical',
+          icon: "rect",
+          itemGap: 16,
+          left: '45%',
+          y: 'center',
+          itemHeight: 8,
+          itemWidth: 8, //修改icon图形大小
+          itemStyle: {
+            borderWidth: 0.1
+          },
+          textStyle: {
+            align: 'right',
+            rich: {
+              protocol: {
+                fontSize: 14,
+                color: '#646A73',
+                fontWeight: 400,
+                align: 'center',
+                lineHeight: 22,
+                padding: [0, 0, 0, 4]
+              },
+              num: {
+                fontSize: 14,
+                align: 'left',
+                lineHeight: 22,
+                color: '#646A73',
+                fontWeight: 500,
+                padding: [0, 0, 0, 140]
+              }
+            }
+          },
+          data: protocolData,
+          formatter: function (name) {
+            //通过name获取到数组对象中的单个对象
+            let singleData = protocolData.filter(function (item) {
+              return item.name === name
+            });
+            let value = singleData[0].value;
+            if (name !== 'HTTP') {
+              name += "  ";
+            }
+            name += " \t";
+            return [`{protocol|${name}}`, `{num|${value}}`].join("");
+          }
+        },
         title: {
           text: "{mainTitle|" + this.$t("home.dashboard.api.api_total") + "}\n\n{number|" + this.getAmount() + "}\n\n",
           subtext: this.$t("home.dashboard.public.this_week") + "：+" + formatNumber(this.apiData.createdInWeek) + " >",
           top: "center",
-          left: "center",
+          left: "86px",
+          textAlign: 'center',
           textStyle: {
             rich: {
               mainTitle: {
                 color: '#646A73',
                 fontSize: 12,
+                align: 'center'
               },
               number: {
                 fontSize: this.pieChartStyle.amountFontSize,
@@ -166,6 +181,7 @@ export default {
           {
             type: 'pie',
             radius: ['70%', '96%'],
+            center: ['92px', '50%'],
             avoidLabelOverlap: false,
             hoverAnimation: true,
             label: {
