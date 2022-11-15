@@ -83,7 +83,9 @@ export default {
         }
         this.formInline = res.data;
         this.$nextTick(() => {
-          this.$refs.formInline.clearValidate();
+          if (this.$refs.formInline) {
+            this.$refs.formInline.clearValidate();
+          }
         })
       });
     },
