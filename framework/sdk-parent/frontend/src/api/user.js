@@ -5,8 +5,8 @@ export function login(url, data) {
   return post(url, data)
 }
 
-export function logout() {
-  return get("/signout")
+export function logout(sessionId) {
+  return sessionId ? get("/signout?X-AUTH-TOKEN=" + sessionId) : get("/signout");
 }
 
 export function isLogin() {

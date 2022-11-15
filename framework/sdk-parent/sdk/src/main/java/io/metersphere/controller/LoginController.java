@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
@@ -90,8 +92,8 @@ public class LoginController {
 
     @GetMapping(value = "/signout")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
-    public ResultHolder logout() throws Exception {
-        ssoLogoutService.logout(SecurityUtils.getSubject().getSession());
+    public ResultHolder logout(@RequestParam(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId, HttpServletResponse response) throws Exception {
+        ssoLogoutService.logout(sessionId, response);
         SecurityUtils.getSubject().logout();
         return ResultHolder.success(StringUtils.EMPTY);
     }

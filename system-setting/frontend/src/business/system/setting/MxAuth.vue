@@ -247,6 +247,13 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row>
+            <el-col>
+              <el-form-item label="Logout Endpoint">
+                <el-input v-model="form.configuration.logoutUrl"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </div>
 
       </el-form>

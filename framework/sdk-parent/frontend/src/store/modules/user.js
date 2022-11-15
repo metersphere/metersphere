@@ -110,9 +110,11 @@ export default {
     },
 
     userLogout() {
+      let user = JSON.parse(localStorage.getItem(TokenKey));
+      let sessionId = user ? user.sessionId : null;
       clearSessionStorage();
       return new Promise((resolve, reject) => {
-        logout().then(() => {
+        logout(sessionId).then(() => {
           location.href = '/#/login';
           location.reload();
           resolve();
