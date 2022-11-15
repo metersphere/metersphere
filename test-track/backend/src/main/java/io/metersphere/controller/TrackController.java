@@ -47,6 +47,13 @@ public class TrackController {
             statistics.setReviewRage(df.format(reviewed) + "%");
         }
 
+        long reviewedTotal = statistics.getPassCount() + statistics.getUnPassCount();
+        if (reviewedTotal != 0) {
+            float reviewPass = (float) statistics.getPassCount() * 100 / (statistics.getPassCount() + statistics.getUnPassCount());
+            DecimalFormat df = new DecimalFormat("0.0");
+            statistics.setReviewPassRage(df.format(reviewPass) + "%");
+        }
+
         statistics.setP0CountStr("P0&nbsp;&nbsp;<br/><br/>" + statistics.getP0CaseCountNumber());
         statistics.setP1CountStr("P1&nbsp;&nbsp;<br/><br/>" + statistics.getP1CaseCountNumber());
         statistics.setP2CountStr("P2&nbsp;&nbsp;<br/><br/>" + statistics.getP2CaseCountNumber());

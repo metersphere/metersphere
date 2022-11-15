@@ -715,7 +715,10 @@ export default {
           break;
         case 'notReviewed':
           this.condition.filters.review_status = ['Prepare'];
-          break;
+          break
+        case 'reviewed':
+          this.condition.filters.review_status = ['UnPass', 'Pass'];
+          break
         case 'reviewSuccess':
           this.condition.filters.review_status = ['Pass'];
           break;

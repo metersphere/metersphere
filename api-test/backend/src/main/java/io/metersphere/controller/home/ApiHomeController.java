@@ -1,12 +1,16 @@
 package io.metersphere.controller.home;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.DubboProvider;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.RegistryCenter;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.CoveredDTO;
 import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
+import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.base.domain.ApiDefinition;
@@ -15,6 +19,8 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.DataFormattingUtil;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.service.BaseScheduleService;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.definition.ApiDefinitionService;
@@ -26,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -220,5 +227,29 @@ public class ApiHomeController {
         Map<String, List<String>> projectEnvMap = apiDefinitionService.selectEnvironmentByHashTree(runRequest.getProjectId(), runRequest.getTestElement());
         returnDTO.setProjectEnvMap(projectEnvMap);
         return returnDTO;
+    }
+
+    @GetMapping("/failure/case/about/plan/{projectId}/{selectFunctionCase}/{limitNumber}/{goPage}/{pageSize}")
+    public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable boolean selectFunctionCase,
+                                                              @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
+
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, selectFunctionCase, limitNumber);
+        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
+        for (int dataIndex = 0; dataIndex < selectDataList.size(); dataIndex++) {
+            ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
+            dataDTO.setSortIndex(dataIndex + 1);
+            ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
+            dataDTO.setCaseID(selectData.getTestCaseID());
+            dataDTO.setCaseName(selectData.getCaseName());
+            dataDTO.setTestPlan(selectData.getTestPlan());
+            dataDTO.setFailureTimes(selectData.getFailureTimes());
+            dataDTO.setTestPlanId(selectData.getTestPlanId());
+            dataDTO.setCaseType(selectData.getCaseType());
+            dataDTO.setId(selectData.getId());
+            dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
+            returnList.add(dataDTO);
+        }
+        return PageUtils.setPageInfo(page, returnList);
     }
 }

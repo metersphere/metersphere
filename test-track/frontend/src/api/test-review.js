@@ -3,8 +3,8 @@ import {buildPagePath} from "@/api/base-network";
 
 const BASE_URL = '/test/case/review/';
 
-export function getRelateTestCaseReview(param) {
-  return post(BASE_URL + 'list/all/relate', param);
+export function getRelateTestCaseReview(currentPage, pageSize, param) {
+  return post(BASE_URL + 'list/all/relate/' + currentPage + "/" + pageSize, param);
 }
 
 export function testReviewApiCaseList(page, param) {

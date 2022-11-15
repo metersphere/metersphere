@@ -1,113 +1,129 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px 5px;">
+  <el-card class="table-card" shadow="never" body-style="padding:10px 5px;">
     <div slot="header">
       <span class="title">
         {{ $t('test_track.home.relevance_case') }}
       </span>
     </div>
-    <!--数值统计-->
-    <el-container>
-      <el-aside width="120px">
-        <count-rectangle-chart :content="relevanceCountData.allRelevanceCaseCount"/>
-      </el-aside>
-      <el-main style="padding-left: 0px;padding-right: 0px;display: block">
-        <div style="width:200px;float:right;margin:0 auto;overflow: auto">
-          <el-row align="right">
-            <el-col :span="8"
-                    style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="relevanceCountData.apiCaseCountStr"></div>
-            </el-col>
-            <el-col :span="8"
-                    style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="relevanceCountData.scenarioCaseStr"></div>
-            </el-col>
-            <el-col :span="8" style="">
-              <div class="count-info-div" v-html="relevanceCountData.performanceCaseCountStr"></div>
+
+    <div v-loading="loading" element-loading-background="#FFFFFF">
+      <div v-show="loadError"
+           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
+        <img style="height: 100px;width: 100px;"
+             src="/assets/figma/icon_load_error.svg"/>
+        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+      </div>
+      <div v-show="!loadError">
+        <div class="main-info">
+          <relevance-count-chart :relevance-data="relevanceData" ref="countChart" @redirectPage="redirectPage"/>
+        </div>
+        <div class="addition-info">
+          <el-row :gutter="24" style="margin: 0">
+            <el-col :span="24" style="padding-left: 0">
+              <hover-card
+                :title="$t('test_track.home.coverage')"
+                :main-info="relevanceData.coverageRage"
+                :tool-tip="coverRangeToolTip"
+              >
+                <!--未覆盖、已覆盖-->
+                <template v-slot:mouseOut>
+                  <div style="margin:16px 0px 0px 16px">
+                    <el-row>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.relevance_dashboard.not_cover') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num" @click="redirectPage('uncoverage')">
+                            {{ formatAmount(relevanceData.uncoverageCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.relevance_dashboard.cover') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num" @click="redirectPage('coverage')">
+                            {{ formatAmount(relevanceData.coverageCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </template>
+              </hover-card>
             </el-col>
           </el-row>
         </div>
-      </el-main>
-    </el-container>
-
-    <!-- 本周新增-->
-    <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;font-size: 14px">
-        <el-row>
-          <el-col>
-            {{ $t('api_test.home_page.api_details_card.this_week_add') }}
-            <el-link type="info" @click="redirectPage('thisWeekRelevanceCount')" target="_blank" style="color: #000000">
-              {{ relevanceCountData.thisWeekAddedCount }}
-            </el-link>
-            {{ $t('api_test.home_page.unit_of_measurement') }}
-          </el-col>
-        </el-row>
-      </el-header>
-      <el-main style="padding:0px">
-        <el-row>
-          <el-col :span="8">&nbsp;</el-col>
-        </el-row>
-      </el-main>
-    </el-container>
-
-    <!--   用例覆盖率率   -->
-    <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
-        <el-row>
-          <span style="float: left">
-            {{ $t('test_track.home.coverage') + ":" }}&nbsp;&nbsp;
-          </span>
-          <span style="font-size: 14px">
-            <b>{{ relevanceCountData.coverageRage }}</b>
-            <el-tooltip placement="top" class="info-tool-tip">
-              <div slot="content">{{ $t('api_test.home_page.formula.testplan_coverage') }}</div>
-              <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
-            </el-tooltip>
-          </span>
-        </el-row>
-      </el-header>
-      <el-main style="padding:0px">
-        <el-row>
-          <el-col :span="12">
-            <span class="default-property">
-              {{ $t('api_test.home_page.detail_card.uncoverage') }}
-              <el-link class="rows-count-number" @click="redirectPage('uncoverage')" target="_blank">
-                <b>
-                {{ relevanceCountData.uncoverageCount }}
-                </b>
-              </el-link>
-            </span>
-          </el-col>
-          <el-col :span="12">
-              <span class="main-property" style="float: right">
-                {{ $t('api_test.home_page.detail_card.coverage') }}
-                <el-link class="rows-count-number" @click="redirectPage('coverage')" target="_blank">
-                  <b>
-                  {{ relevanceCountData.coverageCount }}
-                  </b>
-                </el-link>
-              </span>
-          </el-col>
-        </el-row>
-      </el-main>
-    </el-container>
+      </div>
+    </div>
   </el-card>
 </template>
 
 <script>
-import CountRectangleChart from "metersphere-frontend/src/components/chart/CountRectangleChart";
+import relevanceCountChart from "@/business/home/components/chart/RelevanceCountChart";
+import hoverCard from "@/business/home/components/card/HoverCard";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getTrackRelevanceCount} from "@/api/track";
+import {formatNumber} from "@/api/track"
 
 export default {
   name: "RelevanceCaseCard",
-  components: {CountRectangleChart},
-  props: {
-    relevanceCountData: {},
-  },
+  components: {relevanceCountChart, hoverCard},
   data() {
     return {
-      result: {}
+      loading: false,
+      loadError: false,
+      coverRangeToolTip: this.$t('api_test.home_page.formula.testplan_coverage'),
+      relevanceData: {
+        allCaseCountNumber: 0,
+        allRelevanceCaseCount: 0,
+        apiCaseCount: 0,
+        apiCaseCountStr: "",
+        coverageCount: 0,
+        coverageRage: "0%",
+        p0CaseCountNumber: 0,
+        p1CaseCountNumber: 0,
+        p2CaseCountNumber: 0,
+        p3CaseCountNumber: 0,
+        passCount: 0,
+        performanceCaseCount: 0,
+        performanceCaseCountStr: "",
+        prepareCount: 0,
+        reviewRage: " 0%",
+        reviewPassRage: " 0%",
+        scenarioCaseCount: 0,
+        scenarioCaseStr: "",
+        thisWeekAddedCount: 0,
+        unPassCount: 0,
+        uncoverageCount: 0
+      },
     }
   },
+  activated() {
+    this.search();
+  },
   methods: {
+    search() {
+      this.loading = true;
+      this.loadError = false;
+      let selectProjectId = getCurrentProjectID();
+      getTrackRelevanceCount(selectProjectId)
+        .then(r => {
+          this.loading = false;
+          this.loadError = false;
+          this.trackData = r.data;
+          this.relevanceData = r.data;
+        }).catch(() => {
+          this.loading = false;
+          this.loadError = true;
+          this.$refs.countChart.reload();
+        });
+    },
+    formatAmount(number) {
+      return formatNumber(number);
+    },
     redirectPage(clickType) {
       this.$emit("redirectPage", "testCase", "relationCase", clickType);
     }

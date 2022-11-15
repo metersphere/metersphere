@@ -12,11 +12,23 @@ export function getTrackCaseBar(selectProjectId) {
   return get("/track/case/bar/" + selectProjectId);
 }
 
-export function getTrackRunningTask(selectProjectId, param) {
-  return post("/task/center/runningTask/" + selectProjectId, param);
+export function getTrackRunningTask(selectProjectId, currentPage, pageSize, param) {
+  return post("/task/center/runningTask/" + selectProjectId + "/" + currentPage + "/" + pageSize, param);
 }
 
 export function getTrackBugCount(selectProjectId) {
   return get("/track/bug/count/" + selectProjectId);
+}
+
+export function formatNumber(param) {
+  let num = (param || 0).toString(), result = '';
+  while (num.length > 3) {
+    result = ',' + num.slice(-3) + result;
+    num = num.slice(0, num.length - 3);
+  }
+  if (num) {
+    result = num + result;
+  }
+  return result;
 }
 

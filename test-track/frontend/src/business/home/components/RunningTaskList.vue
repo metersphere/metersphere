@@ -1,72 +1,74 @@
 <template>
-  <el-card class="table-card" v-loading="loading" body-style="padding:10px;">
+  <el-card class="table-card" shadow="never">
     <template v-slot:header>
-      <span class="title">
+      <span class="table-title">
         {{ $t('api_test.home_page.running_task_list.title') }}
       </span>
     </template>
-    <ms-table
-      :enable-selection="false"
-      :condition="condition"
-      :data="tableData"
-      @refresh="search"
-      screen-height="300px">
-      <el-table-column prop="index" :label="$t('home.table.index')" width="80"
-                       show-overflow-tooltip/>
-      <el-table-column prop="name" :label="$t('commons.name')" width="200">
-        <template v-slot:default="{row}">
-          <!-- 若为只读用户不可点击之后跳转-->
-          <span v-if="isReadOnly">
+    <div v-loading="loading" element-loading-background="#FFFFFF">
+      <div v-show="loadError"
+           style="width: 100%; height: 300px; display: flex; flex-direction: column;     justify-content: center;align-items: center">
+        <img style="height: 100px;width: 100px;"
+             src="/assets/figma/icon_load_error.svg"/>
+        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+      </div>
+      <div v-show="!loadError">
+        <el-table
+          :enable-selection="false"
+          :condition="condition"
+          :data="tableData"
+          :header-cell-style="{backgroundColor: '#F5F6F7'}"
+          @refresh="search" height="224px">
+          <el-table-column prop="index" :label="$t('home.table.index')" fixed show-overflow-tooltip/>
+          <el-table-column prop="name" :label="$t('commons.name')" fixed>
+            <template v-slot:default="{row}">
+              <!-- 若为只读用户不可点击之后跳转-->
+              <span v-if="isReadOnly">
             {{ row.name }}
           </span>
-          <el-link v-else type="info" @click="redirect(row)">
-            {{ row.name }}
-          </el-link>
-        </template>
-      </el-table-column>
-      <ms-table-column
-        prop="taskType"
-        :filters="typeFilters"
-        :label="$t('home.table.task_type')" width="120">
-        <template v-slot:default="scope">
-          <ms-tag v-if="scope.row.taskGroup == 'API_SCENARIO_TEST'" type="success" effect="plain"
-                  :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
-          <ms-tag v-if="scope.row.taskGroup == 'TEST_PLAN_TEST'" type="warning" effect="plain"
-                  :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
-          <ms-tag v-if="scope.row.taskGroup == 'SWAGGER_IMPORT'" type="danger" effect="plain"
-                  :content="$t('api_test.home_page.running_task_list.swagger_schedule')"/>
-        </template>
-      </ms-table-column>
-      <el-table-column prop="rule" :label="$t('home.table.run_rule')" width="120"
-                       show-overflow-tooltip/>
-      <el-table-column width="100" :label="$t('home.table.task_status')">
-        <template v-slot:default="scope">
-          <div>
-            <el-switch
-              :disabled="isReadOnly"
-              v-model="scope.row.taskStatus"
-              class="captcha-img"
-              @change="closeTaskConfirm(scope.row)"
-            ></el-switch>
-          </div>
-        </template>
-
-
-      </el-table-column>
-      <el-table-column width="170" :label="$t('home.table.next_execution_time')">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="creator" :label="$t('home.table.create_user')"
-                       width="100" show-overflow-tooltip/>
-      <el-table-column width="170" :label="$t('home.table.update_time')">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.updateTime | datetimeFormat }}</span>
-        </template>
-      </el-table-column>
-
-    </ms-table>
+              <el-link v-else type="info" @click="redirect(row)">
+                {{ row.name }}
+              </el-link>
+            </template>
+          </el-table-column>
+          <ms-table-column
+            prop="taskType"
+            :filters="typeFilters"
+            :label="$t('home.table.task_type')" fixed>
+            <template v-slot:default="scope">
+              <basic-task-type-label :value="scope.row.taskGroup"></basic-task-type-label>
+            </template>
+          </ms-table-column>
+          <el-table-column prop="rule" :label="$t('home.table.run_rule')" fixed show-overflow-tooltip/>
+          <el-table-column fixed :label="$t('home.table.task_status')">
+            <template v-slot:default="scope">
+              <div>
+                <el-switch
+                  :disabled="isReadOnly"
+                  v-model="scope.row.taskStatus"
+                  class="captcha-img"
+                  @change="closeTaskConfirm(scope.row)"
+                ></el-switch>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column fixed :label="$t('home.table.next_execution_time')">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="creator" :label="$t('home.table.create_user')"
+                           fixed show-overflow-tooltip/>
+          <el-table-column fixed :label="$t('home.table.update_time')">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | datetimeFormat }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <home-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
+                         :total="total"/>
+      </div>
+    </div>
   </el-card>
 </template>
 
@@ -77,14 +79,12 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {getTrackRunningTask} from "@/api/track";
 import {updatePlanSchedule} from "@/api/remote/plan/test-plan";
+import HomePagination from "@/business/home/components/pagination/HomePagination";
+import BasicTaskTypeLabel from "@/business/home/components/table/BasicTaskTypeLabel";
 
 export default {
   name: "MsRunningTaskList",
-  components: {
-    MsTableColumn,
-    MsTable,
-    MsTag
-  },
+  components: { MsTableColumn, MsTable, MsTag, HomePagination, BasicTaskTypeLabel },
   props: {
     callFrom: String,
   },
@@ -94,6 +94,10 @@ export default {
       tableData: [],
       visible: false,
       loading: false,
+      loadError: false,
+      currentPage: 1,
+      pageSize: 5,
+      total: 0,
       typeFilters: [],
       condition: {
         filters: {}
@@ -126,14 +130,19 @@ export default {
       }
       if (this.projectId) {
         this.loading = true;
-        getTrackRunningTask(this.projectId, this.condition)
+        this.loadError = false;
+        getTrackRunningTask(this.projectId, this.currentPage, this.pageSize, this.condition)
           .then((r) => {
             this.loading = false;
-            this.tableData = r.data;
+            this.loadError = false;
+            this.total = r.data.itemCount;
+            this.tableData = r.data.listObject;
+          }).catch(() => {
+            this.loading = false;
+            this.loadError = true;
           });
       }
     },
-
     closeTaskConfirm(row) {
       let flag = row.taskStatus;
       row.taskStatus = !flag; //保持switch点击前的状态
@@ -174,6 +183,12 @@ export default {
 </script>
 
 <style scoped>
+.table-title {
+  color: #1F2329;
+  font-weight: 500;
+  font-size: 18px!important;
+  line-height: 26px;
+}
 
 .el-table {
   cursor: pointer;
@@ -182,5 +197,4 @@ export default {
 .el-card :deep( .el-card__header ) {
   border-bottom: 0px solid #EBEEF5;
 }
-
 </style>

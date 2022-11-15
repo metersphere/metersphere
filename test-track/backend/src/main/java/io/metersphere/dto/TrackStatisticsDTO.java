@@ -91,6 +91,10 @@ public class TrackStatisticsDTO {
      */
     private String reviewRage = " 0%";
     /**
+     * 评审通过率
+     */
+    private String reviewPassRage = " 0%";
+    /**
      * 未评审
      */
     private long prepareCount = 0;
