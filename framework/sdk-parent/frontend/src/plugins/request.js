@@ -102,6 +102,12 @@ instance.interceptors.response.use(response => {
 }, error => {
   let msg;
   if (error.response) {
+    // 判断错误标记
+    if (error.response.status === 402) {
+      if (error.response.headers['redirect']) {
+        window.open(error.response.headers['redirect']);
+      }
+    }
     checkAuth(error.response);
     checkPermission(error.response);
     msg = error.response.data.message || error.response.data;
