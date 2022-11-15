@@ -91,12 +91,15 @@ public class ApiScenarioExecutionInfoService {
         scenarioExecutionInfoMapper.deleteByExample(example);
     }
 
-    public long countExecuteTimesByProjectID(String projectId, String triggerMode) {
+    public long countExecuteTimesByProjectID(String projectId, String triggerMode, String version) {
         ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
         ScenarioExecutionInfoExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdEqualTo(projectId);
         if (StringUtils.isNotEmpty(triggerMode)) {
             criteria.andTriggerModeEqualTo(triggerMode);
+        }
+        if (StringUtils.isNotEmpty(version)) {
+            criteria.andVersionEqualTo(version);
         }
         return scenarioExecutionInfoMapper.countByExample(example);
     }

@@ -1,11 +1,11 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Param;
@@ -24,7 +24,7 @@ public interface ExtApiDefinitionExecResultMapper {
     ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceIdAndType(String resourceId, String type);
 
 
-    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     long countByTestCaseIDInProject(String projectId);
 

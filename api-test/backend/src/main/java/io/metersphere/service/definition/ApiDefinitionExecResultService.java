@@ -343,13 +343,13 @@ public class ApiDefinitionExecResultService {
         apiDefinitionExecResultMapper.deleteByExample(example);
     }
 
-    public long countByTestCaseIDInProjectAndExecutedInThisWeek(String projectId) {
+    public long countByTestCaseIDInProjectAndExecutedInThisWeek(String projectId, String version) {
         Date firstTime = DateUtils.getWeedFirstTimeAndLastTime(new Date()).get("firstTime");
         Date lastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date()).get("lastTime");
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 

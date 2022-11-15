@@ -31,6 +31,9 @@
             FROM api_test_case testCase
             WHERE testCase.project_id = #{projectId}
         )
+        <if test="version != null">
+            AND version = #{version}
+        </if>
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 

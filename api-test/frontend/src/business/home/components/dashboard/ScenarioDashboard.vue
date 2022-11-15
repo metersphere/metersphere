@@ -8,7 +8,7 @@
         <div v-show="loadError"
              style="width: 100%; height: 300px; display: flex; flex-direction: column;     justify-content: center;align-items: center">
           <img style="height: 100px;width: 100px;"
-               src="/assets/figma/icon_load.svg"/>
+               src="/assets/figma/icon_load_error.svg"/>
           <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
         </div>
         <div v-show="!loadError">

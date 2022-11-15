@@ -2011,8 +2011,8 @@ public class ApiScenarioService {
         return result;
     }
 
-    public long countExecuteTimesByProjectID(String projectId, String triggerMode) {
-        return scenarioExecutionInfoService.countExecuteTimesByProjectID(projectId, triggerMode);
+    public long countExecuteTimesByProjectID(String projectId, String triggerMode, String version) {
+        return scenarioExecutionInfoService.countExecuteTimesByProjectID(projectId, triggerMode, version);
     }
 
     /**
