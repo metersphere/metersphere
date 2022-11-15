@@ -1,6 +1,9 @@
 package io.metersphere.task.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.commons.utils.CronUtils;
+import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.TaskInfoResult;
 import io.metersphere.request.BaseQueryRequest;
@@ -44,8 +47,10 @@ public class TaskController {
         return taskService.getRunningTasks(request);
     }
 
-    @PostMapping("/runningTask/{projectID}")
-    public List<TaskInfoResult> runningTask(@PathVariable String projectID, @RequestBody BaseQueryRequest request) {
+    @PostMapping("/runningTask/{projectID}/{goPage}/{pageSize}")
+    public Pager<List<TaskInfoResult> >runningTask(@PathVariable String projectID, @PathVariable int goPage, @PathVariable int pageSize,
+                                            @RequestBody BaseQueryRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         List<TaskInfoResult> resultList = taskService.findRunningTaskInfoByProjectID(projectID, request);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :
@@ -56,7 +61,7 @@ public class TaskController {
                 taskInfo.setNextExecutionTime(nextExecutionTime.getTime());
             }
         }
-        return resultList;
+        return PageUtils.setPageInfo(page, resultList);
     }
 
     @PostMapping(value = "/stop/batch")

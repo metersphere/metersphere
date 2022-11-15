@@ -373,7 +373,7 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFunctionCase, startTime.getTime());
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFunctionCase, startTime.getTime(), limitNumber);
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 

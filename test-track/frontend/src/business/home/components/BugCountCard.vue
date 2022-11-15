@@ -1,114 +1,195 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
+  <el-card class="table-card" shadow="never" body-style="padding:10px 5px;">
     <div slot="header">
       <span class="title">
         {{ $t('test_track.home.bug_count') }}
       </span>
     </div>
-    <el-container>
-      <el-aside width="120px">
-        <count-rectangle-chart :content="bugTotalSize"/>
-        <div>
-          {{ $t('test_track.home.percentage') }}
-          <span class="rage">
-              {{ rage }}
-            </span>
-        </div>
-      </el-aside>
 
-      <el-table border :data="tableData" class="adjust-table table-content" height="300">
-        <el-table-column prop="index" :label="$t('test_track.home.serial_number')"
-                         width="60" show-overflow-tooltip/>
-        <el-table-column prop="planName" :label="$t('test_track.home.test_plan_name')"
-                         width="130" show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <el-link type="info" @click="goPlan(scope.row.planId)">
-              {{ scope.row.planName }}
-            </el-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="160" show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | datetimeFormat }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="status"
-          column-key="status"
-          :label="$t('test_track.plan.plan_status')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-          <span @click.stop="clickt = 'stop'">
-            <plan-status-table-item :value="scope.row.status"/>
-          </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="caseSize" :label="$t('test_track.home.case_size')"
-                         show-overflow-tooltip/>
-        <el-table-column prop="bugSize" :label="$t('test_track.home.bug_size')"
-                         show-overflow-tooltip/>
-        <el-table-column prop="passRage" :label="$t('test_track.home.passing_rate')"
-                         show-overflow-tooltip/>
-      </el-table>
-    </el-container>
+    <div v-loading="loading" element-loading-background="#FFFFFF">
+      <div v-show="loadError"
+           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
+        <img style="height: 100px;width: 100px;"
+             src="/assets/figma/icon_load_error.svg"/>
+        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+      </div>
+      <div v-show="!loadError">
+        <div class="main-info">
+          <bug-count-chart :bug-data="bugData" ref="countChart" @redirectPage="redirectPage"/>
+        </div>
+        <div class="addition-info">
+          <el-row :gutter="16" style="margin: 0">
+            <el-col :span="12" style="padding-left: 0">
+              <hover-card
+                :title="$t('home.bug_dashboard.un_closed_range')"
+                :main-info="bugData.unClosedRage"
+                :tool-tip="unClosedBugRangeToolTip"
+              >
+                <!--遗留缺陷、所有缺陷-->
+                <template v-slot:mouseOut>
+                  <div style="margin:16px 0px 0px 16px">
+                    <el-row>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.bug_dashboard.un_closed_count') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num">
+                            {{ formatAmount(bugData.bugUnclosedCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.bug_dashboard.total_count') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num">
+                            {{ formatAmount(bugData.bugTotalCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </template>
+              </hover-card>
+            </el-col>
+
+            <el-col :span="12" style="padding-left: 0">
+              <hover-card
+                :title="$t('home.bug_dashboard.un_closed_bug_case_range')"
+                :main-info="bugData.bugCaseRage"
+                :tool-tip="unClosedBugCaseRangeToolTip"
+              >
+                <!--遗留缺陷、所有缺陷-->
+                <template v-slot:mouseOut>
+                  <div style="margin:16px 0px 0px 16px">
+                    <el-row>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.bug_dashboard.un_closed_count') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num">
+                            {{ formatAmount(bugData.bugUnclosedCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                      <el-col :span="12">
+                        <span class="addition-info-title">
+                          {{ $t('home.bug_dashboard.case_count') }}
+                        </span>
+                        <div class="common-amount">
+                          <el-link class="addition-info-num">
+                            {{ formatAmount(bugData.caseTotalCount) }}
+                          </el-link>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                </template>
+              </hover-card>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+    </div>
   </el-card>
 </template>
 
 <script>
+import bugCountChart from "@/business/home/components/chart/BugCountChart";
+import hoverCard from "@/business/home/components/card/HoverCard";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
-import CountRectangleChart from "metersphere-frontend/src/components/chart/CountRectangleChart";
 import {getTrackBugCount} from "@/api/track";
+import {formatNumber} from "@/api/track"
 
 export default {
   name: "BugCountCard",
-  components: {
-    CountRectangleChart,
-    PlanStatusTableItem
-  },
+  components: {bugCountChart, hoverCard},
   data() {
     return {
-      tableData: [],
-      result: {},
-      bugTotalSize: 0,
-      rage: '0%'
+      loading: false,
+      loadError: false,
+      unClosedBugRangeToolTip: this.$t('home.bug_dashboard.un_closed_range_tips'),
+      unClosedBugCaseRangeToolTip: this.$t('home.bug_dashboard.un_closed_bug_case_range_tips'),
+      bugData: {
+        bugCaseRage:" 0%",
+        bugTotalCount: 0,
+        bugUnclosedCount: 0,
+        caseTotalCount: 0,
+        unClosedRage:" 0%",
+        unClosedP0Size: 0,
+        unClosedP1Size: 0,
+        unClosedP2Size: 0,
+        unClosedP3Size: 0,
+      },
     }
-  },
-  methods: {
-    init() {
-      getTrackBugCount(getCurrentProjectID())
-        .then((res) => {
-          let data = res.data;
-          this.tableData = data.list;
-          this.bugTotalSize = data.bugTotalSize;
-          this.rage = data.rage;
-        });
-    },
-    goPlan(id) {
-      if (!id) {
-        return;
-      }
-      this.$router.push('/track/plan/view/' + id);
-    }
-  },
-  created() {
-    this.init()
   },
   activated() {
-    this.init()
+    this.search();
+  },
+  methods: {
+    search() {
+      this.loading = true;
+      this.loadError = false;
+      let selectProjectId = getCurrentProjectID();
+      getTrackBugCount(selectProjectId)
+        .then(r => {
+          this.loading = false;
+          this.loadError = false;
+          this.bugData = r.data;
+        }).catch(() => {
+        this.loading = false;
+        this.loadError = true;
+        this.$refs.countChart.reload();
+      })
+    },
+    formatAmount(number) {
+      return formatNumber(number);
+    },
+    redirectPage(clickType) {
+      this.$emit("redirectPage", "testCase", "relationCase", clickType);
+    }
   }
 }
 </script>
 
 <style scoped>
 
+.detail-container {
+  margin-top: 30px;
+}
+
+.default-property {
+  font-size: 14px
+}
+
+.main-property {
+  color: #F39021;
+  font-size: 14px
+}
+
 .el-card :deep( .el-card__header ) {
   border-bottom: 0px solid #EBEEF5;
 }
 
-.rage {
+.count-info-div {
+  margin: 3px;
+}
+
+.count-info-div :deep( p ) {
+  font-size: 10px;
+}
+
+.info-tool-tip {
+  position: absolute;
+  top: 0;
+}
+
+.rows-count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
-  font-size: 18px;
-  color: var(--count_number);
+  font-size: 14px;
+  color: var(--count_number) !important;
 }
 </style>

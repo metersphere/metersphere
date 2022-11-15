@@ -440,7 +440,7 @@ public class TestCaseReviewService {
 
         request.setWorkspaceId(workspaceId);
         request.setProjectId(projectId);
-        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), workspaceId, projectId));
+        request.setReviewIds(relateRequest.getReviewIds());
 
         List<TestReviewDTOWithMetric> testReviews = extTestCaseReviewMapper.listRelate(request);
 
@@ -475,6 +475,10 @@ public class TestCaseReviewService {
             });
         }
         return testReviews;
+    }
+
+    public void setReviewIds(ReviewRelateRequest request) {
+        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(SessionUtils.getUserId(), request.getWorkspaceId(), request.getProjectId()));
     }
 
     private String getReviewName(List<String> userIds, String projectId) {

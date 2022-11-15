@@ -121,4 +121,16 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
         Map<String, String> statusMap = customFieldIssues.stream().collect(Collectors.toMap(CustomFieldIssues::getResourceId, CustomFieldIssues::getValue));
         return statusMap;
     }
+
+    public Map<String, String> getIssueDegreeMap(List<String> issueIds, String projectId) {
+        if (CollectionUtils.isEmpty(issueIds)) {
+            return new HashMap<>(0);
+        }
+        CustomField customField = baseCustomFieldService.getCustomFieldByName(projectId, SystemCustomField.ISSUE_DEGREE);
+        CustomFieldIssuesExample example = new CustomFieldIssuesExample();
+        example.createCriteria().andFieldIdEqualTo(customField.getId()).andResourceIdIn(issueIds);
+        List<CustomFieldIssues> customFieldIssues = customFieldIssuesMapper.selectByExample(example);
+        Map<String, String> statusMap = customFieldIssues.stream().collect(Collectors.toMap(CustomFieldIssues::getResourceId, CustomFieldIssues::getValue));
+        return statusMap;
+    }
 }

@@ -139,9 +139,11 @@ public class TestCaseReviewController {
         testCaseReviewService.editTestReviewStatus(reviewId);
     }
 
-    @PostMapping("/list/all/relate")
-    public List<TestReviewDTOWithMetric> listRelateAll(@RequestBody ReviewRelateRequest request) {
-        return testCaseReviewService.listRelateAll(request);
+    @PostMapping("/list/all/relate/{goPage}/{pageSize}")
+    public Pager<List<TestReviewDTOWithMetric>> listRelateAll(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReviewRelateRequest request) {
+        testCaseReviewService.setReviewIds(request);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseReviewService.listRelateAll(request));
     }
 
     @PostMapping("/edit/follows")
