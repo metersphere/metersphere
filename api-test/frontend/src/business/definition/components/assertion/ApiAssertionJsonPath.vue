@@ -114,7 +114,9 @@ export default {
       this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
     },
     copyRow() {
-      this.list.splice(this.index + 1, 0, this.getJSONPath());
+      let jsonPath = new JSONPath(this.jsonPath);
+      jsonPath.description = jsonPath.expression + " expect: " + (jsonPath.expect ? jsonPath.expect : '');
+      this.list.splice(this.index + 1, 0, jsonPath);
     }
   }
 }
