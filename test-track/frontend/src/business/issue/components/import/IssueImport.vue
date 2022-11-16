@@ -84,6 +84,7 @@ export default {
       this.visible = false;
       this.importType = "";
       this.uploadFiles = [];
+      this.errList = [];
     },
     handleUpload(file) {
       this.uploadFiles.push(file.file);
@@ -103,22 +104,32 @@ export default {
       this.$fileDownload(uri + getCurrentProjectID());
     },
     save() {
+      if (this.importType === '') {
+        this.$warning(this.$t('test_track.case.import.import_type_require_tips'))
+        return;
+      }
+      if (this.uploadFiles.length === 0) {
+        this.$warning(this.$t('test_track.case.import.import_file_tips'));
+        return;
+      }
+      let uploadFile = this.uploadFiles[0]
+      let suffix = uploadFile.name.substring(uploadFile.name.lastIndexOf('.') + 1);
+      if (suffix !== 'xls' && suffix !== 'xlsx') {
+        this.$warning(this.$t('test_track.case.import.upload_limit_format'));
+        return;
+      }
+      if (uploadFile.size / 1024 / 1024 > 100) {
+        this.$warning(this.$t('test_track.case.import.upload_limit_size'));
+        return;
+      }
       let param = {
         workspaceId: getCurrentWorkspaceId(),
         projectId: getCurrentProjectID(),
         userId: getCurrentUserId(),
         importType: this.importType
       };
-      if (this.importType == '') {
-        this.$warning(this.$t('test_track.case.import.import_type_require_tips'))
-        return;
-      }
-      if (this.uploadFiles.length == 0) {
-        this.$warning(this.$t('test_track.case.import.import_file_tips'));
-        return;
-      }
       this.loading = true;
-      this.$fileUpload('/issues/import', this.uploadFiles[0], param)
+      this.$fileUpload('/issues/import', uploadFile, param)
         .then(response => {
           this.loading = false;
           let res = response.data;
