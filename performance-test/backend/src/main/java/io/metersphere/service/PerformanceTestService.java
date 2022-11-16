@@ -835,7 +835,7 @@ public class PerformanceTestService {
         try {
             LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
             Map advancedConfig = JSON.parseObject(report.getAdvancedConfiguration(), Map.class);
-            if (advancedConfig.get("granularity") != null) {
+            if (advancedConfig.get("granularity") != null && StringUtils.isNotEmpty(advancedConfig.get("granularity").toString())) {
                 return (int) advancedConfig.get("granularity") * 1000;// 单位是ms
             }
             AtomicReference<Integer> maxDuration = new AtomicReference<>(0);
