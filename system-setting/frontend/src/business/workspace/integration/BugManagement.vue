@@ -53,7 +53,7 @@ export default {
       platform: TAPD,
     }
   },
-  created() {
+  activated() {
     this.platformConfigs = [];
 
     getIntegrationInfo()
@@ -62,7 +62,6 @@ export default {
       });
 
     this.platform = TAPD;
-    this.platformConfigs[0].key;
   },
   computed: {
     tapdEnable() {

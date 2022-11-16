@@ -1,6 +1,6 @@
 // 模板
 import i18n from "../i18n";
-import {AZURE_DEVOPS, JIRA, LOCAL, TAPD, ZEN_TAO} from "./constants";
+import {AZURE_DEVOPS, LOCAL, TAPD, ZEN_TAO} from "./constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'input', text: 'workspace.custom_filed.input'},
@@ -68,7 +68,6 @@ export function CASE_TYPE_OPTION(){
 export const ISSUE_PLATFORM_OPTION = [
   {value: LOCAL, text: 'Local'},
   {value: TAPD, text: 'Tapd'},
-  {value: JIRA, text: 'JIRA'},
   {value: ZEN_TAO, text: 'Zentao'},
   {value: AZURE_DEVOPS, text: 'Azure Devops'},
 ];

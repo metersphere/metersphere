@@ -17,8 +17,6 @@ import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.AddProjectRequest;
-import io.metersphere.request.JiraIssueType;
-import io.metersphere.request.JiraIssueTypeRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.member.AddMemberRequest;
 import io.metersphere.request.member.QueryMemberRequest;
@@ -137,11 +135,6 @@ public class ProjectController {
     @GetMapping("/service/integration/all")
     public List<ServiceIntegration> getAll() {
         return projectService.getAllServiceIntegration();
-    }
-
-    @PostMapping("/issues/jira/issuetype")
-    public List<JiraIssueType> getJiraIssueType(@RequestBody JiraIssueTypeRequest request) {
-        return projectService.getJiraIssueType(request);
     }
 
     @PostMapping("/member/add")
