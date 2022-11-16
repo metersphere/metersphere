@@ -93,7 +93,7 @@ export default {
       let borderWidth = 0;
       let colorArr = ['#DEE0E3', '#DEE0E3', '#DEE0E3', '#DEE0E3'];
       if (this.getTotal() > 0) {
-        colorArr = ['#AA4FBF', '#FFD131', '#10CECE', '#4261F6',];
+        colorArr = ['#AA4FBF', '#FAD355', '#14E1C6', '#4E83FD',];
         borderWidth = 3;
         dataIsNotEmpty = true;
         protocolData = [
