@@ -161,6 +161,24 @@
             #{value}
         </foreach>
     </select>
+
+    <select id="getThisWeekIssueCount" resultType="java.lang.Long">
+        select count(*) from issues where project_id = #{projectId} and date_sub(curdate(), interval 7 day) &lt;= from_unixtime(round(create_time / 1000, 0)) and id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
+
+    <select id="getTestPlanThisWeekIssue" resultType="java.lang.String">
+        select distinct tci.issues_id
+        from test_plan_test_case tptc
+        join test_plan tp on tp.id = tptc.plan_id
+        join test_case_issues tci on tptc.id = tci.resource_id
+        join issues on tci.issues_id = issues.id
+        where tptc.is_del != 1 and date_sub(curdate(), interval 7 day) &lt;= from_unixtime(round(issues.create_time / 1000, 0))
+          and tp.project_id = #{projectId}
+    </select>
+
     <select id="getIssueCustomFields" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select cfi.field_id           as fieldId,
                cf.type fieldType,
@@ -226,6 +244,12 @@
             <if test="request.notInIds != null and request.notInIds.size() > 0">
                 and issues.id not in
                 <foreach collection="request.notInIds" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
+            <if test="request.thisWeekUnClosedIssue and request.thisWeekUncloseIds != null and request.thisWeekUncloseIds.size() > 0">
+                and issues.id in
+                <foreach collection="request.thisWeekUncloseIds" item="value" separator="," open="(" close=")">
                     #{value}
                 </foreach>
             </if>

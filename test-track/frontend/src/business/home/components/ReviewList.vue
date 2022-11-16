@@ -104,7 +104,10 @@ export default {
         });
     },
     intoPlan(row) {
-      this.$router.push('/track/review/view/' + row.id);
+      let home = this.$router.resolve('/track/review/view/' + row.id);
+      if (home) {
+        window.open(home.href, '_blank');
+      }
     },
     searchMyCreator(data) {
       if (data === 'true') {
