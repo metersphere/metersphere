@@ -51,10 +51,14 @@ public class ExtApiScenarioReportProvider {
                     .append(result.getReportType())
                     .append("','")
                     .append(result.getEnvConfig());
-            //判断有没有关联的测试报告ID
-            sqlList.append("','")
-                    .append(StringUtils.defaultIfBlank(result.getRelevanceTestPlanReportId(), "null"))
-                    .append("'");
+            //判断有没有关联的测试报告ID. 要注意如果赋null的话前后不能有 ' '，否则会变成字符串'null'
+            if (StringUtils.isBlank(result.getRelevanceTestPlanReportId())) {
+                sqlList.append("', null");
+            } else {
+                sqlList.append("','")
+                        .append(result.getRelevanceTestPlanReportId())
+                        .append("'");
+            }
             sqlList.append(")");
             if (i < list.size() - 1) {
                 sqlList.append(",");
