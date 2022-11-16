@@ -52,6 +52,7 @@
                              :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
 
             <ms-tip-button v-if="test.isNeedUpdate"
+                           v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
                            class="sync-btn" type="primary" size="small" circle
                            icon="el-icon-connection"
                            @click="syncScenario"
