@@ -314,7 +314,9 @@ export default {
       listenGoBack(this.close);
       this.activeName = 'first';
       this.getResourcePools();
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     query() {

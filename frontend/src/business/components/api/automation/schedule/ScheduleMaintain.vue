@@ -96,7 +96,7 @@
 <script>
 import {
   getCurrentProjectID,
-  getCurrentUser, getCurrentWorkspaceId,
+  getCurrentUser, getCurrentWorkspaceId, hasLicense,
   listenGoBack, objToStrMap,
   removeGoBackListener, strMapToObj
 } from "@/common/js/utils";
@@ -344,7 +344,9 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.getWsProjects();
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {

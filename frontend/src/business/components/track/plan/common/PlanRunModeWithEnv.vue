@@ -153,7 +153,9 @@ export default {
       }
       this.runModeVisible = true;
       this.testType = testType;
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
       this.getResourcePools();
       this.getWsProjects();
     },

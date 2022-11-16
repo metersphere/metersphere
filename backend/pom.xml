@@ -164,7 +164,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
             <exclusions>
                 <exclusion>
                     <artifactId>netty</artifactId>
