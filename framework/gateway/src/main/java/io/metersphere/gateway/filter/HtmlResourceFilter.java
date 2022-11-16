@@ -2,11 +2,10 @@ package io.metersphere.gateway.filter;
 
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -20,7 +19,7 @@ import java.util.HashMap;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
 @Component
-public class HtmlResourceFilter implements GatewayFilter, Ordered {
+public class HtmlResourceFilter implements GlobalFilter, Ordered {
 
     private static final String HTTP_SCHEME = "http";
     private static final HashMap<String, String> NoCacheHeaders = new HashMap<>();
@@ -43,11 +42,7 @@ public class HtmlResourceFilter implements GatewayFilter, Ordered {
                     }
                     try {
                         ServerHttpResponse response = exchange.getResponse();
-                        if (response == null) {
-                            // maybe backend service is unavailable or other scenario?
-                            return;
-                        }
-                        if (exchange.getRequest().getMethod() == HttpMethod.GET && response.getHeaders().getContentType() == MediaType.TEXT_HTML && response.getStatusCode() == HttpStatus.OK) {
+                        if (MediaType.TEXT_HTML.equals(response.getHeaders().getContentType()) && HttpStatus.OK.equals(response.getStatusCode())) {
                             response.getHeaders().setAll(NoCacheHeaders);
                         }
                     } catch (Exception e) {
