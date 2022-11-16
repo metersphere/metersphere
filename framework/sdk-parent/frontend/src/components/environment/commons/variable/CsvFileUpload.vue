@@ -1,7 +1,7 @@
 <template>
     <span>
       <el-row>
-        <el-col :span="18">
+        <el-col :span="17">
           <el-upload
             action="#"
             class="api-body-upload"
@@ -57,7 +57,7 @@
             </div>
           </el-upload>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="7">
           <el-button size="small" style="margin: 3px 5px" @click="download">下载</el-button>
         </el-col>
       </el-row>
@@ -261,7 +261,7 @@ export default {
 
 .api-body-upload :deep(.el-upload-list__item) {
   height: 30px;
-  width: auto;
+  width: 68%;
   padding: 2px 5px;
   margin-bottom: 0px;
 }
