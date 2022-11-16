@@ -1,9 +1,9 @@
 package io.metersphere.api.jmeter;
 
-import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.commons.constants.KafkaTopicConstants;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.NamedThreadFactory;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.service.ApiExecutionQueueService;
@@ -74,7 +74,7 @@ public class MsKafkaListener {
         try {
             LoggerUtil.info("接收到执行结果：", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
-                MsgDTO dto = JSON.parseObject(record.value(), MsgDTO.class);
+                MsgDTO dto = JSONUtil.parseObject(record.value(), MsgDTO.class);
                 WebSocketUtil.sendMessageSingle(dto);
             }
         } catch (Exception e) {

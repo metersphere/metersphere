@@ -23,6 +23,7 @@ import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.xpack.api.service.ApiPoolDebugService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -58,11 +59,14 @@ public class JMeterService {
     private SystemParameterService systemParameterService;
     @Resource
     private BaseProjectApplicationService projectApplicationService;
+    @Resource
+    private RemakeReportService remakeReportService;
+    @Resource
+    private ExecThreadPoolExecutor execThreadPoolExecutor;
 
     @PostConstruct
     private void init() {
         String JMETER_HOME = getJmeterHome();
-
         String JMETER_PROPERTIES = JMETER_HOME + "/bin/jmeter.properties";
         JMeterUtils.loadJMeterProperties(JMETER_PROPERTIES);
         JMeterUtils.setJMeterHome(JMETER_HOME);
@@ -150,8 +154,7 @@ public class JMeterService {
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
-                RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-                apiScenarioReportService.testEnded(request, e.getMessage());
+                remakeReportService.testEnded(request, e.getMessage());
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -166,34 +169,15 @@ public class JMeterService {
 
     private synchronized void nodeDebug(JmeterRunRequestDTO request) {
         try {
-            if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                request.getExtendedParameters().put(ExtendedParameter.SAVE_RESULT, true);
-            } else if (!request.isDebug()) {
-                request.getExtendedParameters().put(ExtendedParameter.SAVE_RESULT, true);
-            }
-            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
-            String uri = null;
-            int index = (int) (Math.random() * resources.size());
-            String configuration = resources.get(index).getConfiguration();
-            if (StringUtils.isNotEmpty(configuration)) {
-                NodeDTO node = com.alibaba.fastjson.JSON.parseObject(configuration, NodeDTO.class);
-                uri = String.format(BASE_URL + "/jmeter/debug", node.getIp(), node.getPort());
-            }
-            if (StringUtils.isEmpty(uri)) {
-                LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
-                MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
-            }
-            request.getExtendedParameters().put(ExtendedParameter.JMX, new MsTestPlan().getJmx(request.getHashTree()));
-            request.setHashTree(null);
-            LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + uri + " 节点执行", request.getReportId());
-            ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
-            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + uri + " 节点执行失败", request.getReportId());
-                LoggerUtil.info(result);
-                MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
+            ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
+            if (apiPoolDebugService != null) {
+                List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+                request.getExtendedParameters().put(ExtendedParameter.JMX, new MsTestPlan().getJmx(request.getHashTree()));
+                request.setHashTree(null);
+                apiPoolDebugService.run(request, resources);
             }
         } catch (Exception e) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            LoggerUtil.error(e);
             remakeReportService.remake(request);
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
             MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
@@ -212,7 +196,6 @@ public class JMeterService {
             }
             if (config == null) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
-                RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
                 return;
             }
@@ -221,13 +204,11 @@ public class JMeterService {
             LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + config.getUrl() + " 节点执行", request.getReportId());
             ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败", request.getReportId());
                 LoggerUtil.info(result.getBody());
             }
         } catch (Exception e) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(request);
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
         }
@@ -240,7 +221,7 @@ public class JMeterService {
         } else if (request.getHashTree() != null) {
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
-            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
+            execThreadPoolExecutor.addTask(request);
         }
     }
 
@@ -275,7 +256,8 @@ public class JMeterService {
 
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
         // 检查是否禁用了本地执行
-        if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
+        if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())
+                && CommonBeanFactory.getBean(ApiPoolDebugService.class) != null) {
             BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
             if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
                 ProjectConfig config = projectApplicationService.getProjectConfig(projectId);

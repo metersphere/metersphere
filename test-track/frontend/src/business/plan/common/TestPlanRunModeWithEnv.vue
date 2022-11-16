@@ -292,7 +292,9 @@ export default {
       this.getResourcePools();
       this.getWsProjects();
       this.showPopover();
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
     },
     query() {
       this.loading = true;
