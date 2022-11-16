@@ -129,6 +129,7 @@ export function getAll() {
   allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_non_test_elements'));
   allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_generative_controller'));
   allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_threads'));
+  allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_timer'));
   return allArray;
 }
 

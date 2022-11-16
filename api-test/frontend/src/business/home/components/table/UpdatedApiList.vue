@@ -50,22 +50,24 @@
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
-          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')"
-                           width="120">
+          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="120">
             <template v-slot:default="{row}">
               <el-link style="color: #783887;width: 100%;" type="info" :underline="false"
                        @click="redirectPage( 'api', 'apiTestCase', 'singleList:' + row.id)">
+                <span style="float: right">
                 {{ row.caseTotal }}
+                </span>
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="scenarioTotal"
-                           :label="$t('home.new_case.relation_scenario')"
+          <el-table-column prop="scenarioTotal" :label="$t('home.new_case.relation_scenario')" align="right"
                            width="140">
             <template v-slot:default="{row}">
-              <el-link style="color: #783887;width: 100%;" type="info"
+              <el-link style="color: #783887;width: 100%;" type="info" :underline="false"
                        @click="redirectPage('scenario', 'scenario','list:' +row.scenarioIds)">
+                <span style="float: right">
                 {{ row.scenarioTotal }}
+                </span>
               </el-link>
             </template>
           </el-table-column>
@@ -80,7 +82,7 @@
           </template>
         </el-table>
         <home-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                               layout="prev, pager, next"
+                               layout="prev, pager, next, sizes"
                                :total="total"/>
       </div>
     </div>
@@ -165,5 +167,10 @@ export default {
 
 .update-api-table :deep(.el-table__body tr:hover ) {
   cursor: pointer;
+}
+
+.update-api-table :deep(.el-table .cell) {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 </style>
