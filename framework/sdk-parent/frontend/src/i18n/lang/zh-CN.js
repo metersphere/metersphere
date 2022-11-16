@@ -781,7 +781,8 @@ const message = {
       input_azure_url: '请输入 Azure Devops 地址',
       input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
-      jira_prompt_information: '该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息'
+      jira_prompt_information: '该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息',
+      jira_information: 'Jira 信息'
     }
   },
   project: {

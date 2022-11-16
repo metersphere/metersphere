@@ -28,6 +28,11 @@ public class PlatformPluginController {
         return platformPluginService.getProjectInfo(key);
     }
 
+    @GetMapping("/account/info")
+    public Object getAccountInfoList() {
+        return platformPluginService.getAccountInfoList();
+    }
+
     @GetMapping("/resource/{pluginId}")
     public void getPluginResource(@PathVariable("pluginId") String pluginId, @RequestParam("fileName") String fileName, HttpServletResponse response) {
         platformPluginService.getPluginResource(pluginId, fileName, response);
@@ -37,9 +42,15 @@ public class PlatformPluginController {
     public void validateIntegration(@PathVariable("pluginId") String pluginId, @RequestBody Map config) {
         platformPluginService.validateIntegration(pluginId, config);
     }
+
     @PostMapping("/project/validate/{pluginId}")
     public void validateProjectConfig(@PathVariable("pluginId") String pluginId, @RequestBody Map config) {
         platformPluginService.validateProjectConfig(pluginId, config);
+    }
+
+    @PostMapping("/account/validate/{pluginId}")
+    public void validateAccountConfig(@PathVariable("pluginId") String pluginId, @RequestBody Map config) {
+        platformPluginService.validateAccountConfig(pluginId, config);
     }
 
     @PostMapping("/project/option")

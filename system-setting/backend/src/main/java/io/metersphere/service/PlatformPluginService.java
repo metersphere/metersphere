@@ -109,6 +109,21 @@ public class PlatformPluginService {
         return null;
     }
 
+    public List getAccountInfoList() {
+        List<PluginWithBLOBs> plugins = basePluginService.getPlugins(PluginScenario.platform.name());
+        List<Map> configs = new ArrayList<>();
+        plugins.forEach(item -> configs.add(getFrontendMetaDataConfig(item, "accountConfig")));
+
+        // 过滤掉服务集成中没有的
+        List<ServiceIntegration> integrations = baseIntegrationService.getAll(SessionUtils.getCurrentWorkspaceId());
+        return configs.stream()
+                .filter(config ->
+                        integrations.stream()
+                                .filter(integration -> StringUtils.equals(integration.getPlatform(), config.get("key").toString()))
+                                .collect(Collectors.toList()).size() > 0
+                ).collect(Collectors.toList());
+    }
+
     public List<SelectOption> getProjectOption(PlatformProjectOptionRequest request) {
         IntegrationRequest integrationRequest = new IntegrationRequest();
         BeanUtils.copyBean(integrationRequest, request);
@@ -131,10 +146,10 @@ public class PlatformPluginService {
 
     public Map getFrontendMetaDataConfig(PluginWithBLOBs plugin, String configName) {
         Map metaData = JSON.parseMap(plugin.getFormScript());
-        Map serviceIntegration = (Map) metaData.get(configName);
-        serviceIntegration.put("id", metaData.get("id"));
-        serviceIntegration.put("key", metaData.get("key"));
-        return serviceIntegration;
+        Map config = (Map) metaData.get(configName);
+        config.put("id", metaData.get("id"));
+        config.put("key", metaData.get("key"));
+        return config;
     }
 
     public void getImage(InputStream in, HttpServletResponse response) {
@@ -181,13 +196,23 @@ public class PlatformPluginService {
     }
 
     public void validateProjectConfig(String pluginId, Map projectConfig) {
+        Platform platform = getPlatformByPluginId(pluginId);
+        platform.validateProjectConfig(JSON.toJSONString(projectConfig));
+    }
+
+    private Platform getPlatformByPluginId(String pluginId) {
         PluginMetaInfo pluginMetaInfo = pluginManager.getPluginMetaInfo(pluginId);
         IntegrationRequest integrationRequest = new IntegrationRequest();
         integrationRequest.setPlatform(pluginMetaInfo.getKey());
         integrationRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         ServiceIntegration serviceIntegration = baseIntegrationService.get(integrationRequest);
         Platform platform = getPlatFormInstance(pluginId, serviceIntegration.getConfiguration());
-        platform.validateProjectConfig(JSON.toJSONString(projectConfig));
+        return platform;
+    }
+
+    public void validateAccountConfig(String pluginId, Map accountConfig) {
+        Platform platform = getPlatformByPluginId(pluginId);
+        platform.validateUserConfig(JSON.toJSONString(accountConfig));
     }
 
     public List<SelectOption> getPlatformOptions() {
