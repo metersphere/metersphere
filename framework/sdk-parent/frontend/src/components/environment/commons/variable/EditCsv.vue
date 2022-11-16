@@ -19,7 +19,7 @@
           <el-col :span="5" style="margin-top: 5px">
             <span>{{ $t('variables.add_file') }}</span>
           </el-col>
-          <el-col :span="19">
+          <el-col :span="10">
             <ms-csv-file-upload :parameter="editData"/>
           </el-col>
         </el-row>
