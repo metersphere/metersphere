@@ -26,8 +26,6 @@
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackCaseBar} from "@/api/track";
-import {useStore} from "@/store";
-
 
 export default {
   name: "CaseMaintenance",
@@ -67,7 +65,6 @@ export default {
       });
       let yAxis1 = data.filter(d => d.groupName === 'FUNCTIONCASE').map(d => [d.xAxis, d.yAxis]);
       let yAxis2 = data.filter(d => d.groupName === 'RELEVANCECASE').map(d => [d.xAxis, d.yAxis]);
-      let store = useStore();
       let option = {
         tooltip: {
           trigger: 'axis',
@@ -77,7 +74,10 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: xAxis
+          data: xAxis,
+          axisTick:{
+            show:false // 不显示坐标轴刻度线
+          },
         },
         yAxis: {
           type: 'value',
@@ -89,9 +89,12 @@ export default {
           }
         },
         legend: {
-          data: [this.$t('test_track.home.function_case_count'), this.$t('test_track.home.relevance_case_count')],
-          orient: 'vertical',
-          right: '80',
+          itemWidth: 8,
+          itemHeight: 8,
+          data: [{icon: 'rect', name: this.$t('test_track.home.function_case_count')}, {icon: 'rect', name: this.$t('test_track.home.relevance_case_count')}],
+          orient: 'horizontal',
+          left: '30',
+          top: '10'
         },
         series: [
           {
@@ -100,7 +103,8 @@ export default {
             type: 'bar',
             barWidth: 16,
             itemStyle: {
-              color: '#783887'
+              color: '#AA4FBF',
+              barBorderRadius: [2, 2, 0, 0]
             }
           },
           {
@@ -108,7 +112,10 @@ export default {
             data: yAxis2,
             type: 'bar',
             barWidth: 16,
-            color: '#F9CB2E'
+            itemStyle: {
+              color: '#F9CB2E',
+              barBorderRadius: [2, 2, 0, 0]
+            }
           }]
       };
       this.caseOption = option;

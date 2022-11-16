@@ -17,30 +17,27 @@
           :enable-selection="false"
           :condition="condition"
           :data="tableData"
-          :header-cell-style="{backgroundColor: '#F5F6F7'}"
-          @refresh="search" height="224px">
-          <el-table-column prop="index" :label="$t('home.table.index')" fixed show-overflow-tooltip/>
-          <el-table-column prop="name" :label="$t('commons.name')" fixed>
+          :header-cell-style="{ backgroundColor: '#F5F6F7' }"
+          @refresh="search" max-height="224px">
+          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip/>
+          <el-table-column prop="name" :label="$t('commons.name')">
             <template v-slot:default="{row}">
               <!-- 若为只读用户不可点击之后跳转-->
               <span v-if="isReadOnly">
-            {{ row.name }}
-          </span>
+                {{ row.name }}
+              </span>
               <el-link v-else type="info" @click="redirect(row)">
                 {{ row.name }}
               </el-link>
             </template>
           </el-table-column>
-          <ms-table-column
-            prop="taskType"
-            :filters="typeFilters"
-            :label="$t('home.table.task_type')" fixed>
+          <ms-table-column prop="taskType" :label="$t('home.table.task_type')" :filters="typeFilters">
             <template v-slot:default="scope">
               <basic-task-type-label :value="scope.row.taskGroup"></basic-task-type-label>
             </template>
           </ms-table-column>
-          <el-table-column prop="rule" :label="$t('home.table.run_rule')" fixed show-overflow-tooltip/>
-          <el-table-column fixed :label="$t('home.table.task_status')">
+          <el-table-column prop="rule" :label="$t('home.table.run_rule')" show-overflow-tooltip/>
+          <el-table-column :label="$t('home.table.task_status')">
             <template v-slot:default="scope">
               <div>
                 <el-switch
@@ -52,18 +49,25 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column fixed :label="$t('home.table.next_execution_time')">
+          <el-table-column :label="$t('home.table.next_execution_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="creator" :label="$t('home.table.create_user')"
-                           fixed show-overflow-tooltip/>
-          <el-table-column fixed :label="$t('home.table.update_time')">
+          <el-table-column prop="creator" :label="$t('home.table.create_user')" show-overflow-tooltip/>
+          <el-table-column :label="$t('home.table.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
+          <template #empty>
+            <div
+              style="width: 100%;height: 144px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+              <img style="height: 100px;width: 100px;margin-bottom: 8px"
+                   src="/assets/figma/icon_none.svg"/>
+              <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
+            </div>
+          </template>
         </el-table>
         <home-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
                          :total="total"/>
@@ -80,7 +84,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import {getTrackRunningTask} from "@/api/track";
 import {updatePlanSchedule} from "@/api/remote/plan/test-plan";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
-import BasicTaskTypeLabel from "@/business/home/components/table/BasicTaskTypeLabel";
+import BasicTaskTypeLabel from "metersphere-frontend/src/components/BasicTaskTypeLabel";
 
 export default {
   name: "MsRunningTaskList",
@@ -171,10 +175,6 @@ export default {
         this.$emit('redirectPage', 'api', 'api', {param});
       }
     }
-  },
-
-  created() {
-    this.search();
   },
   activated() {
     this.search();

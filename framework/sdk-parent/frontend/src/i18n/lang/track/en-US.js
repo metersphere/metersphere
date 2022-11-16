@@ -354,7 +354,7 @@ export default {
     case_count: "Statistics of the number of use cases",
     relevance_case: "Related Case",
     case_maintenance: "Use case person responsible distribution",
-    bug_count: "Statistics of remaining defects",
+    bug_count: "Statistics of test plan remaining defects",
     case_review: "Use case review",
     review_rate: "Reviewed",
     coverage: "Coverage",

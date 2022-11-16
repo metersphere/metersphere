@@ -14,9 +14,9 @@
       </div>
       <div v-show="!loadError">
         <el-table :data="tableData" class="adjust-table table-content"
-                  :header-cell-style="{backgroundColor: '#F5F6F7'}" height="224px">
-          <el-table-column prop="sortIndex" :label="$t('home.case.index')" fixed show-overflow-tooltip/>
-          <el-table-column prop="caseName" :label="$t('home.case.case_name')" fixed>
+                  :header-cell-style="{backgroundColor: '#F5F6F7'}" max-height="224px">
+          <el-table-column prop="sortIndex" :label="$t('home.case.index')" show-overflow-tooltip/>
+          <el-table-column prop="caseName" :label="$t('home.case.case_name')">
             <template v-slot:default="{row}">
               <el-link type="info" @click="redirect(row.caseType,row.id)"
                        :disabled="(row.caseType === 'apiCase' && apiCaseReadOnly) || (row.caseType === 'scenario' && apiScenarioReadOnly) ||
@@ -25,27 +25,27 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="caseType"
-            column-key="caseType"
-            :label="$t('home.case.case_type')"
-            fixed
-            show-overflow-tooltip>
+          <el-table-column prop="caseType" :label="$t('home.case.case_type')" show-overflow-tooltip column-key="caseType">
             <template v-slot:default="scope">
               <basic-case-type-label :value="scope.row.caseType"></basic-case-type-label>
             </template>
           </el-table-column>
           <el-table-column prop="testPlan" :label="$t('home.case.test_plan')">
             <template v-slot:default="{row}">
-              <div>
-                <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)">
-                  {{ row.testPlan }}
-                </el-link>
-              </div>
+              <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)">
+                {{ row.testPlan }}
+              </el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="failureTimes" :label="$t('home.case.failure_times')"
-                           fixed show-overflow-tooltip/>
+          <el-table-column prop="failureTimes" :label="$t('home.case.failure_times')" show-overflow-tooltip/>
+          <template #empty>
+            <div
+              style="width: 100%;height: 144px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+              <img style="height: 100px;width: 100px;margin-bottom: 8px"
+                   src="/assets/figma/icon_none.svg"/>
+              <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
+            </div>
+          </template>
         </el-table>
         <home-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
                          :total="total"/>
@@ -60,14 +60,12 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {homeTestPlanFailureCaseGet} from "@/api/remote/api/api-home";
 import {hasPermission} from "@/business/utils/sdk-utils";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
-import BasicCaseTypeLabel from "@/business/home/components/table/BasicCaseTypeLabel";
+import BasicCaseTypeLabel from "metersphere-frontend/src/components/BasicCaseTypeLabel";
 
 export default {
   name: "MsFailureTestCaseList",
 
-  components: {
-    MsTag, HomePagination, BasicCaseTypeLabel
-  },
+  components: { MsTag, HomePagination, BasicCaseTypeLabel },
 
   data() {
     return {
@@ -122,15 +120,12 @@ export default {
       }
     }
   },
-  created() {
+  activated() {
     this.search();
     this.testCaseReadOnly = !hasPermission('PROJECT_TRACK_CASE:READ');
     this.apiCaseReadOnly = !hasPermission('PROJECT_API_DEFINITION:READ');
     this.apiScenarioReadOnly = !hasPermission('PROJECT_API_SCENARIO:READ');
     this.loadCaseReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ');
-  },
-  activated() {
-    this.search();
   }
 }
 </script>

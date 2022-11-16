@@ -357,7 +357,7 @@ export default {
     case_count: "用例数量统计",
     relevance_case: "关联用例数量统计",
     case_maintenance: "用例责任人分布",
-    bug_count: "遗留缺陷统计",
+    bug_count: "测试计划遗留缺陷统计",
     case_review: "用例评审",
     review_rate: "评审率",
     coverage: "覆盖率",
