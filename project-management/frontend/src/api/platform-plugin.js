@@ -1,16 +1,8 @@
 import {post, get} from "metersphere-frontend/src/plugins/request";
 const BASE_URL = "/platform/plugin/";
 
-export function getIntegrationInfo() {
-  return get(BASE_URL + 'integration/info');
-}
-
 export function getPlatformProjectInfo(key) {
   return key ? get(BASE_URL + `project/info/${key}`) : new Promise(r => r({}));
-}
-
-export function validateServiceIntegration(pluginId, config) {
-  return post(BASE_URL + `integration/validate/${pluginId}`, config);
 }
 
 export function validateProjectConfig(pluginId, config) {

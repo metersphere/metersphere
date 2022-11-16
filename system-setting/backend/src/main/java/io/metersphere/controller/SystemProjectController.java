@@ -2,7 +2,6 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -17,14 +16,13 @@ import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
-import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.MicroService;
 import io.metersphere.service.SystemProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -130,10 +128,5 @@ public class SystemProjectController {
     @PostMapping("/check/third/project")
     public void checkThirdProjectExist(@RequestBody Project project) {
         microService.postForData(MicroServiceName.TEST_TRACK, "/issues/check/third/project", project);
-    }
-
-    @PostMapping("/issues/jira/issuetype")
-    public Object getJiraIssueType(@RequestBody Object request) {
-        return microService.postForData(MicroServiceName.TEST_TRACK, "/issues/jira/issuetype", request);
     }
 }
