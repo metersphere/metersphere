@@ -359,6 +359,9 @@ export default {
             this.$router.push({
               path: '/performance/test/edit/' + data.data.id,
             });
+          } else {
+            this.$refs.basicConfig.uploadList = [];
+            this.getTest(this.test.id);
           }
           this.getVersionHistory();
         })
