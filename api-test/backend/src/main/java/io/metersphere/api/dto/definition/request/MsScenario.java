@@ -26,7 +26,6 @@ import io.metersphere.service.MsHashTreeService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jorphan.collections.HashTree;
@@ -230,7 +229,7 @@ public class MsScenario extends MsTestElement {
         if (JSONObject.NULL.equals(orgElement) || targetElement == null) {
             return orgElement;
         }
-        if (BooleanUtils.isFalse(orgElement.optBoolean(MsHashTreeService.ENABLE))) {
+        if (!orgElement.optBoolean(MsHashTreeService.ENABLE)) {
             orgElement.put(MsHashTreeService.ENABLE, false);
         } else {
             orgElement.put(MsHashTreeService.ENABLE, targetElement.isEnable());

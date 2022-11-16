@@ -19,7 +19,6 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -229,11 +228,14 @@ public class MsHashTreeService {
         if (orgElement == null || targetElement == null) {
             return orgElement;
         }
-        if (BooleanUtils.isFalse(orgElement.optBoolean(ENABLE))) {
+        if (!orgElement.optBoolean(ENABLE)) {
             orgElement.put(ENABLE, false);
             orgElement.put(REF_ENABLE, true);
         } else {
             orgElement.put(ENABLE, targetElement.optBoolean(ENABLE));
+        }
+        if (targetElement.optBoolean(REF_ENABLE)) {
+            orgElement.put(REF_ENABLE, targetElement.optBoolean(REF_ENABLE));
         }
         try {
             if (orgElement.has(HASH_TREE)) {
