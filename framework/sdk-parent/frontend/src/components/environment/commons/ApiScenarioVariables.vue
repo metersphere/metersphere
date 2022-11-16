@@ -202,6 +202,7 @@ export default {
 
     },
     changeType(data) {
+      data.value = '';
       if (!data.delimiter || (!data.files && data.files.length === 0) || !data.quotedData) {
         data.delimiter = ',';
         data.files = [];
