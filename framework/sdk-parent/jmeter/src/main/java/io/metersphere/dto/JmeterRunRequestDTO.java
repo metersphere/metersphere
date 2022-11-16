@@ -58,6 +58,12 @@ public class JmeterRunRequestDTO {
      * 执行脚本
      */
     private HashTree hashTree;
+
+    /**
+     * Node 执行脚本
+     */
+    private String jmxScript;
+
     /**
      * 并发数
      */

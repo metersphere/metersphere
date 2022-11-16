@@ -172,7 +172,7 @@ public class JMeterService {
             ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
             if (apiPoolDebugService != null) {
                 List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
-                request.getExtendedParameters().put(ExtendedParameter.JMX, new MsTestPlan().getJmx(request.getHashTree()));
+                request.setJmxScript(new MsTestPlan().getJmx(request.getHashTree()));
                 request.setHashTree(null);
                 apiPoolDebugService.run(request, resources);
             }

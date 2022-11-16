@@ -231,7 +231,7 @@ public class ApiExecuteService {
             runMode = ApiRunMode.API_PLAN.name();
         }
         // 加载自定义JAR
-        NewDriverManager.loadJar(request);
+        List<String> projectIds = NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String jmx = request.getTestElement().getJmx(hashTree);
         LoggerUtil.info("生成执行JMX内容【 " + jmx + " 】");
@@ -246,6 +246,9 @@ public class ApiExecuteService {
             this.put("userId", SessionUtils.getUser().getId());
             this.put("userName", SessionUtils.getUser().getName());
         }});
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_ID, JSON.toJSONString(projectIds));
+        }
         // 开始执行
         if (StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
