@@ -1,9 +1,7 @@
 package io.metersphere.remote.service;
 
-import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.metadata.service.FileManagerService;
-import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.service.BasePluginService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -14,19 +12,11 @@ import java.io.OutputStream;
 
 @Service
 public class PlatformPluginService {
-
     @Resource
-    FileManagerService fileManagerService;
-
-    public static final String DIR_PATH = "system/plugin";
+    BasePluginService basePluginService;
 
     public void getPluginResource(String pluginId, String name, HttpServletResponse response) {
-        FileRequest request = new FileRequest();
-        request.setProjectId(DIR_PATH + "/" + pluginId);
-        request.setFileName(name);
-        request.setStorage(StorageConstants.MINIO.name());
-        InputStream inputStream = fileManagerService.downloadFileAsStream(request);
-        getImage(inputStream, response);
+        getImage(basePluginService.getPluginResource(pluginId, name), response);
     }
 
     public void getImage(InputStream in, HttpServletResponse response) {

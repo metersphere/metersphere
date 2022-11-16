@@ -39,4 +39,20 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+
+    @Bean
+    public NewTopic platformPluginAddTopic() {
+        return TopicBuilder.name(KafkaTopicConstants.PLATFORM_PLUGIN_ADD)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic platformPluginDeleteTopic() {
+        return TopicBuilder.name(KafkaTopicConstants.PLATFORM_PLUGIN_DELETED)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
+    }
 }
