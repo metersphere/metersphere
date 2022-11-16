@@ -188,6 +188,7 @@ export default {
       if (this.form) {
         this.$set(this.form, this.data.name, this.data[this.prop]);
       }
+      this.$emit('change', this.data.name);
       this.$forceUpdate();
     },
   }

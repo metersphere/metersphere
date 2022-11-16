@@ -46,11 +46,6 @@ export function getAllServiceIntegration() {
   return get('/service/integration/all');
 }
 
-
-export function getJiraIssueType(param) {
-  return post('/project/issues/jira/issuetype', param);
-}
-
 export function getFieldTemplateCaseOption(projectId) {
   return get(`/project/field/template/case/option/${projectId}`);
 }

@@ -26,10 +26,10 @@
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
                            :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
-                           :platformOptions="issueOptions" :project-id="form.id"
+                           :platformOptions="platformOptions" :project-id="form.id"
                            ref="issueTemplate"/>
 
-          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'"
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira' && thirdPartTemplateSupport"
                        v-model="form.thirdPartTemplate" style="margin-left: 10px">
             {{ $t('test_track.issue.use_third_party') }}
           </el-checkbox>
@@ -51,13 +51,15 @@
           </el-button>
         </el-form-item>
 
-        <project-jira-config :result="jiraResult" v-if="jira" :label-width="labelWidth" :form="form" ref="jiraConfig">
-          <template #checkBtn>
-            <el-button @click="check" type="primary" class="checkButton">
-              {{ $t('test_track.issue.check_id_exist') }}
-            </el-button>
-          </template>
-        </project-jira-config>
+        <project-platform-config
+          v-if="form.platform === 'Jira'"
+          :result="jiraResult"
+          :platform-key="form.platform"
+          :label-width="labelWidth"
+          :project-config="platformConfig"
+          ref="platformConfig"
+        />
+
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
           <el-button @click="check" type="primary" class="checkButton">
@@ -103,7 +105,7 @@ import {
   getCurrentUserId,
   getCurrentWorkspaceId
 } from "metersphere-frontend/src/utils/token";
-import {AZURE_DEVOPS, JIRA, PROJECT_ID, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
+import {AZURE_DEVOPS, PROJECT_ID, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
 import {PROJECT_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import TemplateSelect from "./TemplateSelect";
@@ -115,7 +117,6 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {ISSUE_PLATFORM_OPTION} from "metersphere-frontend/src/utils/table-constants";
-import ProjectJiraConfig from "./ProjectJiraConfig";
 import {
   getAllServiceIntegration,
   checkThirdPlatformProject,
@@ -124,11 +125,13 @@ import {
   saveProject
 } from "../../../api/project";
 import {updateInfo} from "metersphere-frontend/src/api/user";
+import {getPlatformOption, getPlatformProjectInfo, getThirdPartTemplateSupportPlatform} from "@/api/platform-plugin";
+import ProjectPlatformConfig from "@/business/workspace/project/ProjectPlatformConfig";
 
 export default {
   name: "EditProject",
   components: {
-    ProjectJiraConfig,
+    ProjectPlatformConfig,
     MsInstructionsIcon,
     TemplateSelect,
     MsTableButton,
@@ -148,6 +151,7 @@ export default {
       jiraResult: {
         loading: false
       },
+      platformProjectConfigs: [],
       btnTips: this.$t('project.create'),
       title: this.$t('project.create'),
       condition: {components: PROJECT_CONFIGS},
@@ -167,9 +171,10 @@ export default {
         ],
       },
       platformOptions: [],
-      issueOptions: [],
       issueTemplateId: "",
       ableEdit: true,
+      platformConfig: {},
+      thirdPartTemplateSupportPlatforms: []
     };
   },
   props: {
@@ -188,15 +193,15 @@ export default {
     tapd() {
       return this.showPlatform(TAPD);
     },
-    jira() {
-      return this.showPlatform(JIRA);
-    },
     zentao() {
       return this.showPlatform(ZEN_TAO);
     },
     azuredevops() {
       return this.showPlatform(AZURE_DEVOPS);
     },
+    thirdPartTemplateSupport() {
+      return this.thirdPartTemplateSupportPlatforms.indexOf(this.form.platform) > -1;
+    }
   },
   inject: ['reload'],
   destroyed() {
@@ -226,6 +231,10 @@ export default {
       if (this.$refs.apiTemplate) {
         this.$refs.apiTemplate.getTemplateOptions();
       }
+      getThirdPartTemplateSupportPlatform()
+        .then((r) => {
+          this.thirdPartTemplateSupportPlatforms = r.data;
+        });
     },
     thirdPartTemplateChange(val) {
       if (val)
@@ -237,38 +246,32 @@ export default {
       listenGoBack(this.handleClose);
       if (row) {
         this.title = this.$t('project.edit');
-        row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {
-          jiraIssueTypeId: null,
-          jiraStoryTypeId: null
-        };
-        // 兼容性处理
-        if (!row.issueConfigObj.jiraIssueTypeId) {
-          row.issueConfigObj.jiraIssueTypeId = null;
-        }
-        if (!row.issueConfigObj.jiraStoryTypeId) {
-          row.issueConfigObj.jiraStoryTypeId = null;
-        }
+        this.platformConfig = row.issueConfig ? JSON.parse(row.issueConfig) : {};
         this.form = Object.assign({}, row);
         this.issueTemplateId = row.issueTemplateId;
-      } else {
-        this.form = {issueConfigObj: {jiraIssueTypeId: null, jiraStoryTypeId: null}};
       }
-      if (this.$refs.jiraConfig) {
-        this.$refs.jiraConfig.getIssueTypeOption(this.form);
-      }
-      this.platformOptions = [];
-      this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
-      this.loading = getAllServiceIntegration().then(res => {
-        let data = res.data;
-        let platforms = data.map(d => d.platform);
-        this.filterPlatformOptions(platforms, TAPD);
-        this.filterPlatformOptions(platforms, JIRA);
-        this.filterPlatformOptions(platforms, ZEN_TAO);
-        this.filterPlatformOptions(platforms, AZURE_DEVOPS);
-        this.issueOptions = this.platformOptions;
-      }).catch(() => {
-        this.ableEdit = false;
-      })
+
+      getPlatformOption()
+        .then((r) => {
+          this.platformOptions = [];
+          this.platformOptions.push(...r.data);
+          this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
+          this.loading = getAllServiceIntegration().then(res => {
+            let data = res.data;
+            let platforms = data.map(d => d.platform);
+            this.filterPlatformOptions(platforms, TAPD);
+            this.filterPlatformOptions(platforms, ZEN_TAO);
+            this.filterPlatformOptions(platforms, AZURE_DEVOPS);
+          }).catch(() => {
+            this.ableEdit = false;
+          })
+        });
+    },
+    getPlatformProjectInfo() {
+      getPlatformProjectInfo()
+        .then((r) => {
+          this.platformProjectConfigs = r.data;
+        });
     },
     filterPlatformOptions(platforms, platform) {
       if (platforms.indexOf(platform) === -1) {
@@ -285,24 +288,34 @@ export default {
         if (!valid || !this.ableEdit) {
           return false;
         }
-
-        let protocol = document.location.protocol;
-        protocol = protocol.substring(0, protocol.indexOf(":"));
-        this.form.protocal = protocol;
-        this.form.workspaceId = getCurrentWorkspaceId();
-        this.form.createUser = getCurrentUserId();
-        this.form.issueConfig = JSON.stringify(this.form.issueConfigObj);
-        if (this.issueTemplateId !== this.form.issueTemplateId) {
-          // 更换缺陷模版移除字段
-          localStorage.removeItem("ISSUE_LIST");
+        let projectConfig = this.$refs.platformConfig;
+        if (projectConfig) {
+          projectConfig.validate()
+            .then(() => {
+              this.form.issueConfig = JSON.stringify(projectConfig.form);
+              this.handleSave()
+            });
+        } else {
+          this.handleSave();
         }
+      });
+    },
+    handleSave() {
+      let protocol = document.location.protocol;
+      protocol = protocol.substring(0, protocol.indexOf(":"));
+      this.form.protocal = protocol;
+      this.form.workspaceId = getCurrentWorkspaceId();
+      this.form.createUser = getCurrentUserId();
+      if (this.issueTemplateId !== this.form.issueTemplateId) {
+        // 更换缺陷模版移除字段
+        localStorage.removeItem("ISSUE_LIST");
+      }
 
-        let promise = this.form.id ? modifyProject(this.form) : saveProject(this.form);
-        this.loading = promise.then(() => {
-          this.createVisible = false;
-          this.$success(this.$t('commons.save_success'));
-          this.reload();
-        });
+      let promise = this.form.id ? modifyProject(this.form) : saveProject(this.form);
+      this.loading = promise.then(() => {
+        this.createVisible = false;
+        this.$success(this.$t('commons.save_success'));
+        this.reload();
       });
     },
     handleDelete(project) {

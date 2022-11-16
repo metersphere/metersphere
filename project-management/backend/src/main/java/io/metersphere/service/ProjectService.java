@@ -428,10 +428,6 @@ public class ProjectService {
         microService.postForData(MicroServiceName.TEST_TRACK, "/issues/check/third/project", project);
     }
 
-    public List<JiraIssueType> getJiraIssueType(JiraIssueTypeRequest request) {
-        return microService.postForDataArray(MicroServiceName.TEST_TRACK, "/issues/jira/issuetype", request, JiraIssueType.class);
-    }
-
     public void addOrUpdateCleanUpSchedule(AddProjectRequest project) {
         Boolean cleanTrackReport = project.getCleanTrackReport();
         Boolean cleanApiReport = project.getCleanApiReport();

@@ -56,17 +56,17 @@
 
 <script>
 import BugManageBtn from "./BugManageBtn";
-import {getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {JIRA} from "metersphere-frontend/src/utils/constants";
+import {getCurrentUser} from "metersphere-frontend/src/utils/token";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsPersonRouter from "metersphere-frontend/src/components/personal/PersonRouter";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import {
-  authServiceIntegration,
   delServiceIntegration,
   getServiceIntegration,
   saveServiceIntegration
 } from "../../../api/workspace";
+import {validateServiceIntegration} from "@/api/platform-plugin";
+import {getPlatformFormRules} from "@/business/workspace/integration/platform";
 
 export default {
   name: "PlatformConfig",
@@ -93,19 +93,11 @@ export default {
   },
   methods: {
     init() {
-      let rules = {};
-       this.config.formItems.forEach(item => {
-         rules[item.name] = {
-          required: item.required,
-          message: item.i18n ? this.$t(item.message) : item.message,
-          trigger: ['change', 'blur']
-        }
-      });
-      this.rules = rules;
+      this.rules = getPlatformFormRules(this.config);
 
       const {lastWorkspaceId} = getCurrentUser();
       let param = {};
-      param.platform = JIRA;
+      param.platform = this.config.key;
       param.workspaceId = lastWorkspaceId;
       this.$parent.loading = getServiceIntegration(param).then(res => {
         let data = res.data;
@@ -116,7 +108,7 @@ export default {
           this.form = form;
           // 设置默认值
           this.config.formItems.forEach(item => {
-            item.defaultValue = this.form[item.name];
+            this.$set(item, 'defaultValue', this.form[item.name]);
           });
         } else {
           this.clear();
@@ -156,36 +148,30 @@ export default {
       });
     },
     testConnection() {
-      if (this.form.account && this.form.password) {
-        // todo 插件改造
-        this.$parent.loading = authServiceIntegration(getCurrentWorkspaceId(), JIRA).then(() => {
-          this.$success(this.$t('organization.integration.verified'));
-        });
-      } else {
-        this.$warning(this.$t('organization.integration.not_integrated'));
-        return false;
-      }
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          this.$parent.loading = validateServiceIntegration(this.config.id, this.form).then(() => {
+            this.$success(this.$t('organization.integration.verified'));
+          });
+        }
+      });
     },
     cancelIntegration() {
-      if (this.form.account && this.form.password) {
-        this.$alert(this.$t('organization.integration.cancel_confirm') + JIRA + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              const {lastWorkspaceId} = getCurrentUser();
-              let param = {};
-              param.workspaceId = lastWorkspaceId;
-              param.platform = this.config.key;
-              this.$parent.loading = delServiceIntegration(param).then(() => {
-                this.$success(this.$t('organization.integration.successful_operation'));
-                this.init('');
-              });
-            }
+      this.$alert(this.$t('organization.integration.cancel_confirm') + this.config.key + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            const {lastWorkspaceId} = getCurrentUser();
+            let param = {};
+            param.workspaceId = lastWorkspaceId;
+            param.platform = this.config.key;
+            this.$parent.loading = delServiceIntegration(param).then(() => {
+              this.$success(this.$t('organization.integration.successful_operation'));
+              this.init('');
+            });
           }
-        });
-      } else {
-        this.$warning(this.$t('organization.integration.not_integrated'));
-      }
+        }
+      });
     },
     reloadPassInput() {
       this.showInput = false;
