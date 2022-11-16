@@ -99,7 +99,9 @@ export default {
       this.regex.description = this.regex.subject + " has: " + this.regex.expression;
     },
     copyRow() {
-      this.list.splice(this.index + 1, 0, this.getRegex());
+      let regex = new Regex(this.regex);
+      regex.description = regex.subject + " has: " + regex.expression;
+      this.list.splice(this.index + 1, 0, regex);
     }
   }
 }
