@@ -76,7 +76,7 @@
               <el-switch v-model="scope.row.enable" size="mini"/>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button icon="el-icon-delete" type="danger" circle size="mini" style="margin-left: 10px"
-                         @click="remove(scope.row)" v-if="scope.row.name"/>
+                         @click="remove(scope.row)" v-if="isDisable(scope.row)"/>
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top-start">
               <el-button icon="el-icon-setting" circle size="mini" style="margin-left: 10px"
@@ -247,9 +247,11 @@ export default {
       operationConfirm(this, this.$t('api_test.environment.variables_delete_info') + " ？", () => {
         let ids = this.$refs.variableTable.selectRows;
         ids.forEach(row => {
-          if (row.name) {
-            const index = this.variables.findIndex(d => d.name === row.name);
-            this.variables.splice(index, 1);
+          if (row.id) {
+            const index = this.variables.findIndex(d => d.id === row.id);
+            if (index !== this.variables.length - 1) {
+              this.variables.splice(index, 1);
+            }
           }
         });
         this.sortParameters();
@@ -276,8 +278,9 @@ export default {
     openSetting(data) {
       this.$refs.apiVariableSetting.open(data);
     },
-    isDisable: function (index) {
-      return this.items.length - 1 === index;
+    isDisable: function (row) {
+      const index = this.variables.findIndex(d => d.name === row.name);
+      return this.variables.length - 1 !== index;
     },
     _handleBatchVars(data) {
       let params = data.split("\n");
