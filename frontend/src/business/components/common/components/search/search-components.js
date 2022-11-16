@@ -270,7 +270,7 @@ export const CREATOR = {
     }
   },
   options: { // 异步获取候选项
-    url: "/user/ws/current/member/list",
+    url: "/user/project/member/list",
     labelKey: "name",
     valueKey: "id",
     showLabel: option => {
