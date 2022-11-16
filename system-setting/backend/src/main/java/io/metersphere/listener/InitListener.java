@@ -14,7 +14,7 @@ public class InitListener implements ApplicationRunner {
     private PlatformPluginService platformPluginService;
 
     @Override
-    public void run(ApplicationArguments applicationArguments) throws Exception {
+    public void run(ApplicationArguments applicationArguments) {
         platformPluginService.loadPlatFormPlugins();
     }
 }
