@@ -373,7 +373,7 @@ public class ApiTestCaseService {
 
     public void checkNameExist(SaveApiTestCaseRequest request) {
         if (hasSameCase(request)) {
-            MSException.throwException(Translator.get("load_test_already_exists") + ": " + request.getName());
+            MSException.throwException(Translator.get("case_name_is_already_exist") + ": " + request.getName());
         }
     }
 
