@@ -11,34 +11,25 @@
       <!--   总数统计      -->
       <div style="margin: auto;width: 260px;padding-right: 30px">
         <div class="count-row">
-          <span class="ms-point-p3"/>
-          <span class="count-title">P3</span>
+          <span class="ms-point-new"/>
+          <span class="count-title">{{ $t('test_track.issue.status_new') }}</span>
           <span class="count-value">
-              {{ formatAmount(bugData.unClosedP3Size) }}
+              {{ formatAmount(bugData.newCount) }}
           </span>
         </div>
         <div class="count-row">
-          <span class="ms-point-p2"/>
-          <span class="count-title">P2</span>
+          <span class="ms-point-resolved"/>
+          <span class="count-title">{{ $t('test_track.issue.status_resolved') }}</span>
           <span class="count-value">
-              {{ formatAmount(bugData.unClosedP2Size) }}
+              {{ formatAmount(bugData.resolvedCount) }}
           </span>
         </div>
         <div class="count-row">
-          <span class="ms-point-p1"/>
-          <span class="count-title">P1</span>
+          <span class="ms-point-rejected"/>
+          <span class="count-title">{{ $t('test_track.issue.status_rejected') }}</span>
           <span class="count-value">
-              {{ formatAmount(bugData.unClosedP1Size) }}
+              {{ formatAmount(bugData.rejectedCount) }}
             </span>
-        </div>
-        <div class="count-row">
-          <div>
-            <span class="ms-point-p0"/>
-            <span class="count-title">P0</span>
-            <span class="count-value">
-              {{ formatAmount(bugData.unClosedP0Size) }}
-            </span>
-          </div>
         </div>
       </div>
     </el-row>
@@ -49,6 +40,7 @@
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {formatNumber} from "@/api/track";
+import {getCurrentProjectID} from "@/business/utils/sdk-utils";
 
 export default {
   name: "CountChart",
@@ -80,17 +72,14 @@ export default {
     },
     getTotal() {
       let total = 0;
-      if (this.bugData.unClosedP0Size) {
-        total += this.bugData.unClosedP0Size;
+      if (this.bugData.newCount) {
+        total += this.bugData.newCount;
       }
-      if (this.bugData.unClosedP1Size) {
-        total += this.bugData.unClosedP1Size;
+      if (this.bugData.resolvedCount) {
+        total += this.bugData.resolvedCount;
       }
-      if (this.bugData.unClosedP2Size) {
-        total += this.bugData.unClosedP2Size;
-      }
-      if (this.bugData.unClosedP3Size) {
-        total += this.bugData.unClosedP3Size;
+      if (this.bugData.rejectedCount) {
+        total += this.bugData.rejectedCount;
       }
       return total;
     },
@@ -119,12 +108,11 @@ export default {
       let protocolData = [{value: 0}];
       let colorArr = ['#DEE0E3'];
       if (this.getTotal() > 0) {
-        colorArr = ['#F54A45', '#FFD131', '#C1A9C8', '#10CECE',]
+        colorArr = ['#AA4FBF', '#14E1C6', '#FAD355',]
         protocolData = [
-          {value: this.bugData.unClosedP3Size, name: 'P3'},
-          {value: this.bugData.unClosedP2Size, name: 'P2'},
-          {value: this.bugData.unClosedP1Size, name: 'P1'},
-          {value: this.bugData.unClosedP0Size, name: 'P0'},
+          {value: this.bugData.newCount, name: this.$t('test_track.issue.status_new')},
+          {value: this.bugData.resolvedCount, name: this.$t('test_track.issue.status_resolved')},
+          {value: this.bugData.rejectedCount, name: this.$t('test_track.issue.status_rejected')},
         ];
       }
       let optionData = {
@@ -134,7 +122,7 @@ export default {
         },
         title: {
           text: "{mainTitle|" + this.$t("home.bug_dashboard.un_closed_bug_count") + "}\n\n{number|" + this.getAmount() + "}\n\n",
-          // subtext: this.$t("home.dashboard.public.this_week") + ": +" + this.relevanceData.thisWeekAddedCount + " >",
+          subtext: this.$t("home.dashboard.public.this_week") + ": +" + this.bugData.thisWeekCount + " >",
           top: "center",
           left: "center",
           textStyle: {
@@ -152,14 +140,14 @@ export default {
               },
             }
           },
-          // sublink: "/#/track/case/all/" + getUUID() + "/case/thisWeekRelevanceCount",
-          // subtextStyle: {
-          //   color: "#1F2329",
-          //   fontSize: 12,
-          //   width: 105,
-          //   ellipsis: '... >',
-          //   overflow: "truncate",
-          // },
+          sublink: "/#/track/issue/" + getUUID() + "/" + getCurrentProjectID() + "/thisWeekUnClosedIssue",
+          subtextStyle: {
+            color: "#1F2329",
+            fontSize: 12,
+            width: 105,
+            ellipsis: '... >',
+            overflow: "truncate",
+          },
           itemGap: -60,
         },
         series: [
@@ -208,35 +196,27 @@ export default {
   font-weight: 500;
 }
 
-.ms-point-p3 {
+.ms-point-rejected {
   height: 8px;
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #F54A45;
+  background-color: #FAD355;
 }
 
-.ms-point-p2 {
+.ms-point-resolved {
   height: 8px;
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #FFD131;
+  background-color: #14E1C6;
 }
 
-.ms-point-p1 {
+.ms-point-new {
   height: 8px;
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #C1A9C8;
-}
-
-.ms-point-p0 {
-  height: 8px;
-  width: 8px;
-  margin-right: 8px;
-  display: inline-block;
-  background-color: #10CECE;
+  background-color: #AA4FBF;
 }
 </style>

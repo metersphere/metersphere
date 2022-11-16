@@ -37,7 +37,7 @@ export default {
       component: () => import('@/business/report/TestPlanReport'),
     },
     {
-      path: 'issue/:id?/:projectId?',
+      path: 'issue/:id?/:projectId?/:dataSelectRange?',
       name: 'issueManagement',
       component: () => import('@/business/issue/IssueList.vue'),
     },

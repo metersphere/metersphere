@@ -466,7 +466,7 @@ export default {
     status_active: '激活',
     status_delete: '刪除',
     status_in_progress: '接受/處理',
-    status_rejected: '拒絕',
+    status_rejected: '已拒絕',
     status_upcoming: '待辦',
     status_reopened: '重新打開',
     please_choose_current_owner: "請選擇處理人",

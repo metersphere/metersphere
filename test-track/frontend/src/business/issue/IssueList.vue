@@ -267,7 +267,8 @@ export default {
       userFilter: [],
       isThirdPart: false,
       creatorFilters: [],
-      loading: false
+      loading: false,
+      dataSelectRange: ""
     };
   },
   watch: {
@@ -276,6 +277,9 @@ export default {
     },
   },
   activated() {
+    if (this.$route.params.dataSelectRange) {
+      this.dataSelectRange = this.$route.params.dataSelectRange;
+    }
     this.page.result.loading = true;
     this.$nextTick(() => {
       // 解决错位问题
@@ -376,6 +380,9 @@ export default {
       this.getIssues();
     },
     getIssues() {
+      if (this.dataSelectRange === 'thisWeekUnClosedIssue') {
+        this.page.condition.thisWeekUnClosedIssue = true;
+      }
       this.page.condition.projectId = this.projectId;
       this.page.condition.workspaceId= this.workspaceId;
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
