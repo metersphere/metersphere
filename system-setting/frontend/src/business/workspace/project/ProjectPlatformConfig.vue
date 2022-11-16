@@ -38,7 +38,7 @@ import {
   getPlatformProjectOption,
   validateProjectConfig,
 } from "@/api/platform-plugin";
-import {getPlatformFormRules} from "@/business/workspace/integration/platform";
+import {getPlatformFormRules} from "metersphere-frontend/src/utils/platform";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 
 export default {
@@ -62,7 +62,6 @@ export default {
   },
   data() {
     return {
-      issueTypes: [],
       form: {},
       rules: {},
       config: {}

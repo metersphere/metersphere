@@ -66,7 +66,7 @@ import {
   saveServiceIntegration
 } from "../../../api/workspace";
 import {validateServiceIntegration} from "@/api/platform-plugin";
-import {getPlatformFormRules} from "@/business/workspace/integration/platform";
+import {getPlatformFormRules} from "metersphere-frontend/src/utils/platform";
 
 export default {
   name: "PlatformConfig",

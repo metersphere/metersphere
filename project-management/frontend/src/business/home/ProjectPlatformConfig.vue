@@ -39,7 +39,7 @@ import {
   validateProjectConfig,
 } from "@/api/platform-plugin";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
-import {getPlatformFormRules} from "@/business/home/platform";
+import {getPlatformFormRules} from "metersphere-frontend/src/utils/platform";
 
 export default {
   name: "ProjectPlatformConfig",
