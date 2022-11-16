@@ -5,6 +5,7 @@ import io.metersphere.api.PluginMetaInfo;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.base.mapper.PluginMapper;
+import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
@@ -18,6 +19,7 @@ import io.metersphere.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +45,8 @@ public class PlatformPluginService {
     private PluginMapper pluginMapper;
     @Resource
     private BaseIntegrationService baseIntegrationService;
+    @Resource
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     private PlatformPluginManager pluginManager;
 
@@ -52,6 +56,7 @@ public class PlatformPluginService {
         }
         String id = UUID.randomUUID().toString();
 
+        PluginManagerUtil.uploadPlugin(id, file);
         PluginManagerUtil.loadPlugin(id, pluginManager, file);
         PluginMetaInfo pluginMetaInfo = pluginManager.getImplInstance(id, PluginMetaInfo.class);
 
@@ -74,6 +79,8 @@ public class PlatformPluginService {
         plugin.setCreateUserId(SessionUtils.getUserId());
         plugin.setXpack(pluginMetaInfo.isXpack());
         plugin.setScenario(PluginScenario.platform.name());
+        // 初始化项目默认节点
+        kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_ADD, id);
         return plugin;
     }
 
@@ -171,11 +178,13 @@ public class PlatformPluginService {
     public void delete(String id) {
         pluginMapper.deleteByPrimaryKey(id);
         try {
+            // 删除文件
             pluginManager.getClassLoader(id).getStorageStrategy().delete();
-            pluginManager.deletePlugin(id);
+            kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, id);
         } catch (IOException e) {
             LogUtil.error(e);
         }
+        this.unload(id);
     }
 
     public Platform getPlatFormInstance(String pluginId, Map IntegrationConfig) {
@@ -236,5 +245,22 @@ public class PlatformPluginService {
                 .filter(PluginMetaInfo::isThirdPartTemplateSupport)
                 .map(PluginMetaInfo::getKey)
                 .collect(Collectors.toList());
+    }
+
+    public void loadPlugin(String pluginId) {
+        if (pluginManager.getClassLoader(pluginId) == null) {
+            // 如果没有加载才加载
+            InputStream pluginJar = basePluginService.getPluginJar(pluginId);
+            PluginManagerUtil.loadPlugin(pluginId, pluginManager, pluginJar);
+        }
+    }
+
+
+    /**
+     * 卸载插件
+     * @param pluginId
+     */
+    public void unload(String pluginId) {
+        pluginManager.deletePlugin(pluginId);
     }
 }
