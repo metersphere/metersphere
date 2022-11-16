@@ -774,7 +774,8 @@ const message = {
       input_azure_url: 'Please enter Azure Devops Url',
       input_azure_id: 'Please enter Azure Organization ID',
       use_tip_azure: 'Azure Devops URL+PersonalAccessTokens(User Settings-Personal Access Tokens-New Token)',
-      jira_prompt_information: 'This information is the user authentication information for submitting defects through Jira. If it is not filled in, the default information configured in the workspace will be used'
+      jira_prompt_information: 'This information is the user authentication information for submitting defects through Jira. If it is not filled in, the default information configured in the workspace will be used',
+      jira_information: 'Jira information'
     }
   },
   project: {
