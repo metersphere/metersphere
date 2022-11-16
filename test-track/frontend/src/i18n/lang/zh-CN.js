@@ -31,6 +31,7 @@ const message = {
       public: {
         this_week: "本周",
         load_error: "加载失败",
+        no_data: "暂无数据",
       },
       case_finished_review_pass_tip: "已评审通过的案例/所有完成评审的案例*100%"
     },

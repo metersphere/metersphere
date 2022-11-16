@@ -6,8 +6,17 @@
       <el-tag v-if="value === 'Underway'" class="status-label underway">
         {{ $t('test_track.plan.plan_status_running') }}
       </el-tag>
+      <el-tag v-if="value === 'Finished'" class="status-label finished">
+        {{ $t('test_track.plan.plan_status_finished') }}
+      </el-tag>
       <el-tag v-if="value === 'Completed'" class="status-label completed">
         {{ $t('test_track.plan.plan_status_completed') }}
+      </el-tag>
+      <el-tag v-if="value === 'Trash'" class="status-label trash">
+        {{ $t('test_track.plan.plan_status_trash') }}
+      </el-tag>
+      <el-tag v-if="value === 'Archived'" class="status-label archived">
+        {{ $t('test_track.plan.plan_status_archived') }}
       </el-tag>
   </span>
 </template>
@@ -48,5 +57,20 @@ export default {
 .prepare {
   background-color: rgba(31, 35, 41, 0.1);
   color: #646A73;
+}
+
+.finished {
+  background-color: rgba(0, 214, 185, 0.2);
+  color: #078372;
+}
+
+.trash {
+  background-color: rgba(245, 74, 69, 0.2);
+  color: #D83931;
+}
+
+.archived {
+  background-color: rgba(255, 136, 0, 0.2);
+  color: #DE7802;
 }
 </style>

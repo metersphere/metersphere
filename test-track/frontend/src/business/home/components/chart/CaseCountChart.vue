@@ -119,7 +119,7 @@ export default {
       let protocolData = [{value: 0}];
       let colorArr = ['#DEE0E3'];
       if (this.getTotal() > 0) {
-        colorArr = ['#AA4FBF', '#FFD131', '#10CECE', '#4261F6',]
+        colorArr = ['#F76964', '#FFD131', '#AA4FBF', '#10CECE']
         protocolData = [
           {value: this.trackData.p0CaseCountNumber, name: 'P0'},
           {value: this.trackData.p1CaseCountNumber, name: 'P1'},
@@ -212,7 +212,7 @@ export default {
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #AA4FBF;
+  background-color: #F76964;
 }
 
 .ms-point-p1 {
@@ -228,7 +228,7 @@ export default {
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #10CECE;
+  background-color: #AA4FBF;
 }
 
 .ms-point-p3 {
@@ -236,6 +236,6 @@ export default {
   width: 8px;
   margin-right: 8px;
   display: inline-block;
-  background-color: #4261F6;
+  background-color: #14E1C6;
 }
 </style>

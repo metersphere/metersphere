@@ -31,6 +31,7 @@ const message = {
       public: {
         this_week: "This week ",
         load_error: "Loading failure",
+        no_data: "No data",
       },
       case_finished_review_pass_tip: "Reviewed cases/All reviewed cases *100%"
     },

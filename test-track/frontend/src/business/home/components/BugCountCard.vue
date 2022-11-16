@@ -18,8 +18,8 @@
           <bug-count-chart :bug-data="bugData" ref="countChart" @redirectPage="redirectPage"/>
         </div>
         <div class="addition-info">
-          <el-row :gutter="16" style="margin: 0">
-            <el-col :span="12" style="padding-left: 0">
+          <el-row :gutter="24" style="margin: 0">
+            <el-col :span="24" style="padding-left: 0">
               <hover-card
                 :title="$t('home.bug_dashboard.un_closed_range')"
                 :main-info="bugData.unClosedRage"
@@ -46,42 +46,6 @@
                         <div class="common-amount">
                           <el-link class="addition-info-num">
                             {{ formatAmount(bugData.bugTotalCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </template>
-              </hover-card>
-            </el-col>
-
-            <el-col :span="12" style="padding-left: 0">
-              <hover-card
-                :title="$t('home.bug_dashboard.un_closed_bug_case_range')"
-                :main-info="bugData.bugCaseRage"
-                :tool-tip="unClosedBugCaseRangeToolTip"
-              >
-                <!--遗留缺陷、所有缺陷-->
-                <template v-slot:mouseOut>
-                  <div style="margin:16px 0px 0px 16px">
-                    <el-row>
-                      <el-col :span="12">
-                        <span class="addition-info-title">
-                          {{ $t('home.bug_dashboard.un_closed_count') }}
-                        </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num">
-                            {{ formatAmount(bugData.bugUnclosedCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                      <el-col :span="12">
-                        <span class="addition-info-title">
-                          {{ $t('home.bug_dashboard.case_count') }}
-                        </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num">
-                            {{ formatAmount(bugData.caseTotalCount) }}
                           </el-link>
                         </div>
                       </el-col>
