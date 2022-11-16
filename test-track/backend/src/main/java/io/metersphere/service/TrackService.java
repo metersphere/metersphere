@@ -118,19 +118,20 @@ public class TrackService {
         int index = 1;
         int totalUnClosedPlanBugSize = 0;
         int totalPlanBugSize = 0;
-        int totalCaseSize = 0;
-        int unClosedP0Size = 0;
-        int unClosedP1Size = 0;
-        int unClosedP2Size = 0;
-        int unClosedP3Size = 0;
+        int newCount = 0;
+        int resolvedCount = 0;
+        int rejectedCount = 0;
+        int unKnownCount = 0;
+        int thisWeekCount = 0;
         for (TestPlan plan : plans) {
             Map<String, Integer> bugSizeMap = getPlanBugSize(plan.getId(), projectId);
             int planBugSize = bugSizeMap.get("total");
             int unClosedPlanBugSize = bugSizeMap.get("unClosed");
-            unClosedP0Size += bugSizeMap.get("p0Size");
-            unClosedP1Size += bugSizeMap.get("p1Size");
-            unClosedP2Size += bugSizeMap.get("p2Size");
-            unClosedP3Size += bugSizeMap.get("p3Size");
+            newCount += bugSizeMap.get("newCount");
+            resolvedCount += bugSizeMap.get("resolvedCount");
+            rejectedCount += bugSizeMap.get("rejectedCount");
+            unKnownCount += bugSizeMap.get("unKnownCount");
+            thisWeekCount += bugSizeMap.get("thisWeekCount");
             totalUnClosedPlanBugSize += unClosedPlanBugSize;
             totalPlanBugSize += planBugSize;
             // bug为0不记录
@@ -144,32 +145,25 @@ public class TrackService {
             testPlanBug.setCreateTime(plan.getCreateTime());
             testPlanBug.setStatus(plan.getStatus());
             testPlanBug.setPlanId(plan.getId());
-
-            int planCaseSize = getPlanCaseSize(plan.getId());
-            totalCaseSize += planCaseSize;
-            testPlanBug.setCaseSize(planCaseSize);
-
+            testPlanBug.setCaseSize(getPlanCaseSize(plan.getId()));
             testPlanBug.setBugSize(unClosedPlanBugSize);
             double planPassRage = getPlanPassRage(plan.getId());
             testPlanBug.setPassRage(planPassRage + "%");
             list.add(testPlanBug);
-
         }
         bugStatistics.setList(list);
         bugStatistics.setBugUnclosedCount(totalUnClosedPlanBugSize);
         bugStatistics.setBugTotalCount(totalPlanBugSize);
-        bugStatistics.setCaseTotalCount(totalCaseSize);
 
         float rage = totalPlanBugSize == 0 ? 0 : (float) totalUnClosedPlanBugSize * 100 / totalPlanBugSize;
         DecimalFormat df = new DecimalFormat("0.0");
         bugStatistics.setUnClosedRage(df.format(rage) + "%");
 
-        float caseRange = totalCaseSize == 0 ? 0 : (float) totalUnClosedPlanBugSize * 100 / totalCaseSize;
-        bugStatistics.setBugCaseRage(df.format(caseRange) + "%");
-        bugStatistics.setUnClosedP0Size(unClosedP0Size);
-        bugStatistics.setUnClosedP1Size(unClosedP1Size);
-        bugStatistics.setUnClosedP2Size(unClosedP2Size);
-        bugStatistics.setUnClosedP3Size(unClosedP3Size);
+        bugStatistics.setNewCount(newCount);
+        bugStatistics.setResolvedCount(resolvedCount);
+        bugStatistics.setRejectedCount(rejectedCount);
+        bugStatistics.setUnKnownCount(unKnownCount);
+        bugStatistics.setThisWeekCount(thisWeekCount);
         return bugStatistics;
     }
 
@@ -180,18 +174,16 @@ public class TrackService {
 
     private Map<String, Integer> getPlanBugSize(String planId, String projectId) {
         List<String> issueIds = extTestCaseMapper.getTestPlanBug(planId);
-
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
-        Map<String, String> degreeMap = customFieldIssuesService.getIssueDegreeMap(issueIds, projectId);
         Map<String, Integer> bugSizeMap = new HashMap<>();
-
         bugSizeMap.put("total", issueIds.size());
 
         // 缺陷是否有状态
-        List<String> unClosedIds = new ArrayList<>();
+        List<String> unClosedIds;
         if (MapUtils.isEmpty(statusMap)) {
             unClosedIds = issueIds;
             bugSizeMap.put("unClosed", issueIds.size());
+            bugSizeMap.put("newCount", issueIds.size());
         } else {
             unClosedIds = issueIds.stream()
                     .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
@@ -199,34 +191,33 @@ public class TrackService {
             bugSizeMap.put("unClosed", unClosedIds.size());
         }
 
+        int thisWeekCount = 0;
+        if (CollectionUtils.isNotEmpty(unClosedIds)) {
+            thisWeekCount = extIssuesMapper.getThisWeekIssueCount(unClosedIds, projectId).intValue();
+        }
+        bugSizeMap.put("thisWeekCount", thisWeekCount);
         // 如果没有严重程度字段
-        int p0Size = 0;
-        int p1Size = 0;
-        int p2Size = 0;
-        int p3Size = 0;
-        if (MapUtils.isEmpty(degreeMap)) {
-            bugSizeMap.put("p0Size", unClosedIds.size());
-        } else {
-            for (String unClosedId : unClosedIds) {
-                String degree = degreeMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
-                if (StringUtils.equalsIgnoreCase(degree, "P0")) {
-                    p0Size += 1;
-                } else if (StringUtils.equalsIgnoreCase(degree, "P1")) {
-                    p1Size += 1;
-                } else if (StringUtils.equalsIgnoreCase(degree, "P2")) {
-                    p2Size += 1;
-                } else if (StringUtils.equalsIgnoreCase(degree, "P3")) {
-                    p3Size += 1;
-                } else {
-                    p0Size += 1;
-                }
+        int newCount = 0;
+        int resolvedCount = 0;
+        int rejectedCount = 0;
+        int unKnownCount = 0;
+        for (String unClosedId : unClosedIds) {
+            String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
+            if (StringUtils.equalsIgnoreCase(status, "new")) {
+                newCount += 1;
+            } else if (StringUtils.equalsIgnoreCase(status, "resolved")) {
+                resolvedCount += 1;
+            } else if (StringUtils.equalsIgnoreCase(status, "rejected")) {
+                rejectedCount += 1;
+            } else {
+                unKnownCount += 1;
             }
         }
 
-        bugSizeMap.put("p0Size", p0Size);
-        bugSizeMap.put("p1Size", p1Size);
-        bugSizeMap.put("p2Size", p2Size);
-        bugSizeMap.put("p3Size", p3Size);
+        bugSizeMap.put("newCount", newCount);
+        bugSizeMap.put("resolvedCount", resolvedCount);
+        bugSizeMap.put("rejectedCount", rejectedCount);
+        bugSizeMap.put("unKnownCount", unKnownCount);
         return bugSizeMap;
     }
 

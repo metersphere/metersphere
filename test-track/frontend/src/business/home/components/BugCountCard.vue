@@ -83,10 +83,11 @@ export default {
         bugUnclosedCount: 0,
         caseTotalCount: 0,
         unClosedRage:" 0%",
-        unClosedP0Size: 0,
-        unClosedP1Size: 0,
-        unClosedP2Size: 0,
-        unClosedP3Size: 0,
+        newCount: 0,
+        resolvedCount: 0,
+        rejectedCount: 0,
+        unKnownCount: 0,
+        thisWeekCount: 0
       },
     }
   },

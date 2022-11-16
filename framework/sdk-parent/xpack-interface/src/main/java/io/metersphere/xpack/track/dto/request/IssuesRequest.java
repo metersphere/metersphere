@@ -64,4 +64,13 @@ public class IssuesRequest extends BaseQueryRequest {
      * 缺陷导出勾选ID
      */
     private List<String> exportIds;
+
+    /**
+     * 本周遗留缺陷
+     */
+    private Boolean thisWeekUnClosedIssue = false;
+    /**
+     * 本周遗留缺陷ID
+     */
+    private List<String> thisWeekUncloseIds;
 }

@@ -51,7 +51,7 @@ const message = {
       cover: "已覆盖",
     },
     bug_dashboard: {
-      un_closed_bug_count: "遗留缺陷",
+      un_closed_bug_count: "遗留缺陷数",
       un_closed_range: "遗留率",
       un_closed_range_tips: "未关闭缺陷/所有关联的缺陷*100%",
       un_closed_bug_case_range: "遗留缺陷占比",
