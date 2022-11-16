@@ -31,16 +31,19 @@ public class NewDriverManager {
         return files.stream().map(FileMetadata::getPath).collect(Collectors.toList());
     }
 
-    public static void loadJar(RunDefinitionRequest request) {
+    public static List<String> loadJar(RunDefinitionRequest request) {
         // 加载自定义JAR
         MsTestPlan testPlan = (MsTestPlan) request.getTestElement();
         List<String> projectIds = new ArrayList<>();
         projectIds.add(request.getProjectId());
         if (MapUtils.isNotEmpty(request.getEnvironmentMap())) {
             request.getEnvironmentMap().forEach((k, v) -> {
-                projectIds.add(k);
+                if (!projectIds.contains(k)) {
+                    projectIds.add(k);
+                }
             });
         }
         testPlan.setJarPaths(getJars(projectIds));
+        return projectIds;
     }
 }

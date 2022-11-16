@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.base.domain.TestResource;
-import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
@@ -60,7 +59,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             String path = "api/start";
             if (runRequest.getHashTree() != null) {
                 path = "debug";
-                runRequest.getExtendedParameters().put(ExtendedParameter.JMX, new MsTestPlan().getJmx(runRequest.getHashTree()));
+                runRequest.setJmxScript(new MsTestPlan().getJmx(runRequest.getHashTree()));
                 runRequest.setHashTree(null);
                 LoggerUtil.info("进入DEBUG执行模式", runRequest.getReportId());
             }

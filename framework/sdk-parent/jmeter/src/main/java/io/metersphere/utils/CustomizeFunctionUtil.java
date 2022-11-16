@@ -31,6 +31,7 @@ public class CustomizeFunctionUtil {
             JMeterContext context = JMeterContextService.getContext();
             if (StringUtils.isNotEmpty(pathStr) && context != null) {
                 List<String> jarPaths = JsonUtils.parseObject(pathStr, List.class);
+                LoggerUtil.info(testPlan.getName() + "加载JAR:", jarPaths);
                 if (CollectionUtils.isNotEmpty(jarPaths)) {
                     // 初始化类加载器
                     GroovyClassLoader loader = MsClassLoader.getDynamic(jarPaths);
