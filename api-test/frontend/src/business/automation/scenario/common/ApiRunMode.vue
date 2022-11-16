@@ -95,6 +95,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
 import EnvSelectPopover from "@/business/automation/scenario/EnvSelectPopover";
 import {getApiCaseEnvironments} from "@/api/api-test-case";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "ApiRunMode",
@@ -149,7 +150,9 @@ export default {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
       this.showPopover();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },

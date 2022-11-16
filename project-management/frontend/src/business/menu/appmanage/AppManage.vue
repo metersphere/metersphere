@@ -97,7 +97,7 @@
 
                     <!-- 接口测试资源池 -->
                     <app-manage-item :title="$t('pj.api_run_pool_title')" :prepend-span="8" :middle-span="12"
-                                     :append-span="4" v-if="isPool">
+                                     :append-span="4" v-if="isPool && isXpack">
                       <template #middle>
                         <el-select v-model="config.resourcePoolId"
                                    size="mini"
