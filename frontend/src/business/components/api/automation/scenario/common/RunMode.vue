@@ -81,7 +81,7 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {ENV_TYPE} from "@/common/js/constants";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 
 export default {
@@ -134,7 +134,9 @@ export default {
   methods: {
     open() {
       this.runModeVisible = true;
-      this.query();
+      if(hasLicense()) {
+        this.query();
+      }
       this.getResourcePools();
       this.getWsProjects();
       this.runConfig.environmentType = ENV_TYPE.JSON;
