@@ -1455,4 +1455,17 @@ public class IssuesService {
             updateIssues(issue);
         });
     }
+
+    public void setThisWeekUnclosedIds(IssuesRequest request) {
+        List<String> issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
+        Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
+        if (MapUtils.isEmpty(statusMap)) {
+            request.setThisWeekUncloseIds(issueIds);
+        } else {
+            List<String> unClosedIds = issueIds.stream()
+                    .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                    .collect(Collectors.toList());
+            request.setThisWeekUncloseIds(unClosedIds);
+        }
+    }
 }

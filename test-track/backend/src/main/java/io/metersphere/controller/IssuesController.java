@@ -48,6 +48,9 @@ public class IssuesController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
+        if (request.getThisWeekUnClosedIssue()) {
+            issuesService.setThisWeekUnclosedIds(request);
+        }
         Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, issuesService.list(request));
     }

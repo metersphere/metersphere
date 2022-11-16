@@ -89,12 +89,13 @@ export default {
       let home;
       switch (page) {
         case "testCase":
-          this.$router.push({
-            path: '/track/case/all/' + uuid + '/' + dataType + '/' + selectType
+          home = this.$router.resolve({
+            name: 'testCaseRedirect',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           })
           break;
         case "testPlanEdit":
-          this.$router.push('/track/plan/view/' + selectType)
+          home = this.$router.resolve('/track/plan/view/' + selectType)
           break;
         case "scenarioWithQuery":
           home = this.$router.resolve('/api/automation/' + uuid + "/" + dataType + "/" + selectType);
