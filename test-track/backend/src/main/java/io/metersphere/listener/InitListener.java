@@ -23,10 +23,13 @@ public class InitListener implements ApplicationRunner {
     private TestReviewTestCaseService testReviewTestCaseService;
     @Resource
     private CustomFieldResourceCompatibleService customFieldResourceCompatibleService;
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
         this.initOnceOperate();
+        platformPluginService.loadPlatFormPlugins();
     }
 
     /**
