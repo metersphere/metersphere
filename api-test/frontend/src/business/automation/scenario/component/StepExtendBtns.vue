@@ -43,11 +43,11 @@
       :visible.sync="dialogVisible" width="400px">
       <ul>
         <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if='showEnableScenario'>
-          <el-checkbox v-model="data.environmentEnable" @change="checkEnv" :disabled="data.disabled">
+          <el-checkbox v-model="data.environmentEnable" @change="checkEnv">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
         </el-tooltip>
-        <el-checkbox v-model="data.variableEnable" :disabled="data.disabled">
+        <el-checkbox v-model="data.variableEnable">
           {{ $t('commons.variable_scene') }}
         </el-checkbox>
       </ul>
@@ -95,6 +95,9 @@ export default {
   },
   mounted() {
     this.allSamplers = this.filter.get('DEFINITION');
+  },
+  created() {
+    console.log(this.data)
   },
   methods: {
     handleCommand(cmd) {
