@@ -34,7 +34,7 @@
                           {{ $t('home.case_review_dashboard.not_review') }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('notReviewed')">
+                          <el-link class="addition-info-num" @click="redirectPage('notReviewed')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(trackData.prepareCount) }}
                           </el-link>
                         </div>
@@ -44,7 +44,7 @@
                           {{ $t('home.case_review_dashboard.finished_review') }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('reviewed')">
+                          <el-link class="addition-info-num" @click="redirectPage('reviewed')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(trackData.passCount + trackData.unPassCount) }}
                           </el-link>
                         </div>
@@ -70,7 +70,7 @@
                           {{ $t("home.case_review_dashboard.not_pass") }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('UnPass')">
+                          <el-link class="addition-info-num" @click="redirectPage('UnPass')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(trackData.unPassCount) }}
                           </el-link>
                         </div>
@@ -80,7 +80,7 @@
                           {{ $t("home.case_review_dashboard.pass") }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('Pass')">
+                          <el-link class="addition-info-num" @click="redirectPage('Pass')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(trackData.passCount) }}
                           </el-link>
                         </div>
@@ -103,6 +103,7 @@ import hoverCard from "@/business/home/components/card/HoverCard";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "CaseCountCard",
@@ -162,6 +163,9 @@ export default {
       return formatNumber(number);
     },
     redirectPage(clickType) {
+      if (!hasPermission('PROJECT_TRACK_CASE:READ')) {
+        return;
+      }
       this.$emit("redirectPage", "testCase", "case", clickType);
     }
   }

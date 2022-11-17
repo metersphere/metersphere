@@ -18,6 +18,7 @@
                 <main-info-card :title="$t('home.dashboard.scenario_schedule.title')" :count-data="scenarioScheduleData"
                                 redirect-page-name="scenario"
                                 redirect-data-type="schedule"
+                                :link-permission="['PROJECT_API_SCENARIO:READ']"
                                 @redirectPage="redirectPage"
                                 :is-execute-info="false"/>
               </el-col>
@@ -46,7 +47,7 @@
                               {{ $t("home.dashboard.public.running") }}
                             </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'schedule', 'running', null)">
                               {{ formatAmount(scenarioScheduleData.runningCount) }}
                             </el-link>
@@ -57,7 +58,7 @@
                               {{ $t("home.dashboard.public.not_run") }}
                             </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'schedule', 'notRun', null)">
                               {{ formatAmount(scenarioScheduleData.notRunCount) }}
                             </el-link>
@@ -84,7 +85,7 @@
                               {{ $t("home.dashboard.public.pass") }}
                             </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_REPORT:READ']"
                                      @click="redirectPage('scenarioReport', 'scenario', 'scheduleExecutionPassCount', null)">
                               {{ formatAmount(scenarioScheduleData.passCount) }}
                             </el-link>
@@ -95,7 +96,7 @@
                               {{ $t("home.dashboard.public.not_pass") }}
                             </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_REPORT:READ']"
                                      @click="redirectPage('scenarioReport', 'scenario', 'scheduleExecutionFailedCount', null)">
                               {{ formatAmount(scenarioScheduleData.unPassCount) }}
                             </el-link>

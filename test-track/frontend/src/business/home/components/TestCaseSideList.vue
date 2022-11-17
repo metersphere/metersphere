@@ -62,6 +62,7 @@ import StatusTableItem from "../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "TestCaseSideList",
@@ -90,7 +91,10 @@ export default {
       });
     },
     editTestCase(row, event, column) {
-      this.$router.push('/track/plan/view/edit/' + row.id)
+      if (!hasPermission('PROJECT_TRACK_PLAN:READ')) {
+        return;
+      }
+      this.$router.push('/track/plan/view/edit/' + row.id);
     }
   }
 }

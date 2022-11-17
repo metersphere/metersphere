@@ -19,6 +19,7 @@
                                 :is-execute-info="false"
                                 redirect-page-name="api"
                                 redirect-data-type="apiTestCase"
+                                :link-permission="['PROJECT_API_DEFINITION:READ']"
                                 @redirectPage="redirectPage"/>
               </el-col>
               <el-col :span=" 12
@@ -46,7 +47,7 @@
                           {{ $t("home.dashboard.public.covered") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'api', 'coveredTestCase', null)">
                               {{ formatAmount(apiCaseData.coveredCount) }}
                             </el-link>
@@ -57,7 +58,7 @@
                           {{ $t("home.dashboard.public.not_covered") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'api', 'notCoveredTestCase', null)">
                               {{ formatAmount(apiCaseData.notCoveredCount) }}
                             </el-link>
@@ -84,7 +85,7 @@
                           {{ $t("home.dashboard.public.executed") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'apiTestCase', 'executedCount', null)">
                               {{ formatAmount(apiCaseData.executedCount) }}
                             </el-link>
@@ -95,7 +96,7 @@
                           {{ $t("home.dashboard.public.not_executed") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'apiTestCase', 'unexecuteCount', null)">
                               {{ formatAmount(apiCaseData.notExecutedCount) }}
                             </el-link>
@@ -122,7 +123,7 @@
                           {{ $t("home.dashboard.public.pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'apiTestCase', 'executionPassCount', null)">
                               {{ formatAmount(apiCaseData.passCount) }}
                             </el-link>
@@ -133,7 +134,7 @@
                             {{ $t("home.dashboard.public.not_pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'apiTestCase', 'executionFailedCount', null)">
                               {{ formatAmount(apiCaseData.unPassCount) }}
                             </el-link>

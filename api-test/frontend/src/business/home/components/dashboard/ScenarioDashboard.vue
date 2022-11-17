@@ -18,11 +18,13 @@
                 <main-info-card :title="$t('home.dashboard.scenario.title')" :count-data="scenarioData"
                                 redirect-page-name="scenario"
                                 redirect-data-type="scenario"
+                                :link-permission="['PROJECT_API_SCENARIO:READ']"
                                 @redirectPage="redirectPage"
                                 :is-execute-info="false"/>
               </el-col>
               <el-col :span="12">
-                <main-info-card :title="$t('home.dashboard.public.executed_times_in_week')" :count-data="scenarioData"
+                <main-info-card :link-permission="['PROJECT_API_SCENARIO:READ']"
+                                :title="$t('home.dashboard.public.executed_times_in_week')" :count-data="scenarioData"
                                 :is-execute-info="true"/>
               </el-col>
             </el-row>
@@ -45,7 +47,7 @@
                           {{ $t("home.dashboard.public.covered") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'api', 'coveredScenario', null)">
                               {{ formatAmount(scenarioData.coveredCount) }}
                             </el-link>
@@ -56,7 +58,7 @@
                           {{ $t("home.dashboard.public.not_covered") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                                      @click="redirectPage('api', 'api', 'notCoveredScenario', null)">
                               {{ formatAmount(scenarioData.notCoveredCount) }}
                             </el-link>
@@ -83,7 +85,7 @@
                           {{ $t("home.dashboard.public.executed") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'scenario', 'executedCount', null)">
                               {{ formatAmount(scenarioData.executedCount) }}
                             </el-link>
@@ -94,7 +96,7 @@
                           {{ $t("home.dashboard.public.not_executed") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'scenario', 'unExecuteCount', null)">
                               {{ formatAmount(scenarioData.notExecutedCount) }}
                             </el-link>
@@ -121,7 +123,7 @@
                           {{ $t("home.dashboard.public.pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'scenario', 'executionPassCount', null)">
                               {{ formatAmount(scenarioData.passCount) }}
                             </el-link>
@@ -132,7 +134,7 @@
                           {{ $t("home.dashboard.public.not_pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num"
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                                      @click="redirectPage('scenario', 'scenario', 'executionFailedCount', null)">
                               {{ formatAmount(scenarioData.unPassCount) }}
                             </el-link>
