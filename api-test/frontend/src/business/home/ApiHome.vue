@@ -183,7 +183,7 @@ export default {
   border: 1px solid rgba(31, 35, 41, 0.15);
   border-right-width: 0;
   border-left-width: 0;
-  color: #1F2329;
+  color: #646A73;
   line-height: 22px;
 }
 
