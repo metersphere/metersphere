@@ -81,7 +81,7 @@
           <ms-table-column
             prop="projectName"
             :label="$t('group.belong_project')"
-            :filters="projectFilters"
+            :filters="projectPlanFilters"
             column-key="projectId"
             width="200"
           >
@@ -99,7 +99,7 @@
 </template>
 <script>
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import {getOwnerProjectIds, getProject, getUserWorkspace, projectRelated} from "@/api/project";
+import {apiProjectRelated, getOwnerProjectIds, getProject, getUserWorkspace, projectRelated} from "@/api/project";
 import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {getDefinitionReference, getPlanReference} from "@/api/definition";
@@ -124,7 +124,8 @@ export default {
       projectList: [],
       screenHeight: 'calc(100vh - 400px)',
       condition: {},
-      type: ''
+      type: '',
+      projectPlanFilters: [],
     };
   },
   components: {
@@ -149,10 +150,7 @@ export default {
         userId: getCurrentUserId(),
         workspaceId: getCurrentWorkspaceId(),
       }).then(res => {
-        let data = res.data ? res.data : [];
-        this.projectList = data.map((e) => {
-          return {text: e.name, value: e.id};
-        });
+        this.projectList = res.data ? res.data : [];
       });
     },
     /**
@@ -202,7 +200,7 @@ export default {
             this.workspaceFilters.map(item => {
               workspaceIds.push(item.value);
             })
-            projectRelated({
+            apiProjectRelated({
               userId: getCurrentUserId(),
               workspaceIds: workspaceIds,
             }).then(res => {
@@ -220,7 +218,7 @@ export default {
         getPlanReference(this.currentPage, this.pageSize, this.condition).then(res => {
           let data = res.data || [];
           this.total = data.itemCount || 0;
-          this.projectFilters = this.projectList.filter(project => {
+          this.projectPlanFilters = this.projectList.filter(project => {
             return data.listObject.find(i => i.projectId === project.id)
           }).map((e) => {
             return {text: e.name, value: e.id};
