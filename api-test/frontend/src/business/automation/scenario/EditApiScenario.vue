@@ -381,12 +381,14 @@
 
 <script>
 import {getPluginList} from "@/api/plugin";
-import {getMaintainer} from "@/api/project";
+import {getMaintainer, getOwnerProjects} from "@/api/project";
 import {
   delByScenarioIdAndRefId,
+  execStop,
   getApiScenarioEnv,
   getFollowByScenarioId,
   getScenarioVersions,
+  getScenarioWithBLOBsById,
   setScenarioDomain,
   updateScenarioFollows
 } from "@/api/scenario";
@@ -396,32 +398,20 @@ import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
 import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "./Setting";
 import {KeyValue} from "@/business/definition/model/ApiTestModel";
 
-import {
-  getCurrentProjectID,
-  getCurrentUser
-} from "metersphere-frontend/src/utils/token";
-import {
-  getUUID,
-  objToStrMap,
-  strMapToObj
-} from "metersphere-frontend/src/utils";
-import {
-  hasPermission,
-  hasLicense
-} from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
+import {getUUID, objToStrMap, strMapToObj} from "metersphere-frontend/src/utils";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import OutsideClick from "./common/outside-click";
 import {
   getReportMessageSocket,
-  savePreciseEnvProjectIds,
-  saveScenario,
   handleCtrlREvent,
   handleCtrlSEvent,
+  savePreciseEnvProjectIds,
+  saveScenario,
 } from "@/business/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import {mergeRequestDocumentData} from "@/business/definition/api-definition";
-import {execStop, getScenarioWithBLOBsById} from "@/api/scenario";
-import {getOwnerProjects} from "@/api/project";
 import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
 import {useApiStore} from "@/store";
 
@@ -587,7 +577,8 @@ export default {
       newCreateTime: 0,
       oldCreateTime: 0,
       oldUserName: '',
-      debugReportId: ""
+      debugReportId: "",
+      isPreventReClick: false,
     }
   },
   created() {
@@ -1603,6 +1594,9 @@ export default {
       }
     },
     editScenario() {
+      if (this.isPreventReClick) {
+        return;
+      }
       this.mergeScenario(this.scenarioDefinition);
       if (!document.getElementById("inputDelay")) {
         return;
@@ -1623,8 +1617,10 @@ export default {
                   this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
                 }
               }
+              this.isPreventReClick = true;
               saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
+                this.isPreventReClick = false;
                 this.path = "/api/automation/update";
                 store.pluginFiles = [];
                 if (response.data) {

@@ -105,6 +105,7 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
       success(response.data);
     }
   }, error => {
+    _this.isPreventReClick = false;
     _this.errorRefresh();
   })
 }

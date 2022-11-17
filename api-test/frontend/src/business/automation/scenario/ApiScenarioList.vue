@@ -1114,7 +1114,7 @@ export default {
             alertMsg = this.$t('api_definition.scenario_is_referenced', [checkResult.refCount]) + ', ' + this.$t('api_test.is_continue') + " ？";
             this.showScenario = true;
           }
-          this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_definition.delete_case'), param, checkResult.checkMsg);
+          this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_scenario.delete'), param, checkResult.checkMsg);
         });
       }
     },
