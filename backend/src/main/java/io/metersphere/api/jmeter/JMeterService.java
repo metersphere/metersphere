@@ -9,19 +9,19 @@ import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.JvmInfoDTO;
+import io.metersphere.dto.NodeDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.service.ProjectApplicationService;
-import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -46,7 +46,6 @@ import java.util.List;
 @Service
 public class JMeterService {
     public static final String BASE_URL = "http://%s:%d";
-    public static final String POOL = "POOL";
 
     @Resource
     private JmeterProperties jmeterProperties;
@@ -54,11 +53,6 @@ public class JMeterService {
     private RestTemplate restTemplate;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-    @Resource
-    private SystemParameterService systemParameterService;
-
-    @Resource
-    private ProjectApplicationService projectApplicationService;
     @Resource
     private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
@@ -242,18 +236,10 @@ public class JMeterService {
         }
     }
 
-    public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
-        // 检查是否禁用了本地执行
-        if (runConfig != null && StringUtils.isNotBlank(projectId) && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
-            BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
-            if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
-                ProjectConfig config = projectApplicationService.getProjectConfig(projectId);
-                if (config == null || !config.getPoolEnable() || StringUtils.isEmpty(config.getResourcePoolId())) {
-                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
-                }
-                runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
-                runConfig.setResourcePoolId(config.getResourcePoolId());
-            }
+    public void verifyPool(String projectId, RunModeConfigDTO runModeConfigDTO) {
+        ApiPoolDebugService debugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
+        if (debugService != null) {
+            debugService.verifyPool(projectId, runModeConfigDTO);
         }
     }
 }
