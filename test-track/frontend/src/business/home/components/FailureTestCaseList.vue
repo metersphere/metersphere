@@ -32,7 +32,7 @@
           </el-table-column>
           <el-table-column prop="testPlan" :label="$t('home.case.test_plan')">
             <template v-slot:default="{row}">
-              <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)">
+              <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)" v-permission-disable="['PROJECT_TRACK_PLAN:READ']">
                 {{ row.testPlan }}
               </el-link>
             </template>

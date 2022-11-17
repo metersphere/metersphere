@@ -34,7 +34,7 @@
                           {{ $t('home.relevance_dashboard.not_cover') }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('uncoverage')">
+                          <el-link class="addition-info-num" @click="redirectPage('uncoverage')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(relevanceData.uncoverageCount) }}
                           </el-link>
                         </div>
@@ -44,7 +44,7 @@
                           {{ $t('home.relevance_dashboard.cover') }}
                         </span>
                         <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('coverage')">
+                          <el-link class="addition-info-num" @click="redirectPage('coverage')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
                             {{ formatAmount(relevanceData.coverageCount) }}
                           </el-link>
                         </div>

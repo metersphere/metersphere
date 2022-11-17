@@ -15,6 +15,7 @@
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 import {formatNumber} from "@/api/home";
 import {getUUID} from "metersphere-frontend/src/utils";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "CountChart",
@@ -173,7 +174,7 @@ export default {
               },
             }
           },
-          sublink: "/#/api/definition/" + getUUID() + "/api/thisWeekCount",
+          sublink: hasPermission('PROJECT_API_DEFINITION:READ') ? "/#/api/definition/" + getUUID() + "/api/thisWeekCount" : "",
           subtextStyle: {
             color: "#1F2329",
             fontSize: 12,

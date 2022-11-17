@@ -22,7 +22,7 @@
             <el-col :span="12">
               <span class="main-info-card-title">{{ $t("home.dashboard.public.this_week") }}</span>
               <div class="common-amount">
-                <el-button class="common-amount-button" @click="redirect('createdInWeek')">
+                <el-button class="common-amount-button" v-permission-disable="linkPermission" @click="redirect('createdInWeek')">
                   +{{ countData.createdInWeek }}
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
                 </el-button>
@@ -31,7 +31,7 @@
             <el-col :span="12">
               <span class="main-info-card-title">{{ $t("home.dashboard.public.fake_error") }}</span>
               <div class="common-amount">
-                <el-button class="common-amount-button" @click="redirect('fakeError')">
+                <el-button class="common-amount-button" v-permission-disable="linkPermission" @click="redirect('fakeError')">
                   {{ countData.fakeErrorCount }}
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
                 </el-button>
@@ -54,6 +54,7 @@ export default {
     countData: Object,
     redirectPageName: String,
     redirectDataType: String,
+    linkPermission: []
   },
   methods: {
     redirect(seletDataType) {
