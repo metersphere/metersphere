@@ -9,6 +9,7 @@
       :group="group"
       @click="onClick"
       @datazoom="datazoom"
+      v-on="$listeners"
       :watch-shallow="watchShallow"
       :manual-update="manualUpdate"
       :autoresize="autoresize" id="chartsShow"/>
