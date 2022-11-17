@@ -49,3 +49,7 @@ export function getUserWorkspace() {
 export function projectRelated(params) {
   return post('/project/list/related', params);
 }
+
+export function apiProjectRelated(params) {
+  return post('/api/project/list/related', params);
+}

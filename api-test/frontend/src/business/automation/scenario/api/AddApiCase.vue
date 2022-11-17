@@ -6,7 +6,8 @@
     <el-form :model="httpForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="httpForm"
              v-if="!loading">
       <el-form-item :label="$t('api_definition.case_name')" prop="name">
-        <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('api_definition.case_name')"/>
+        <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('api_definition.case_name')"
+                  show-word-limit maxlength="100"/>
       </el-form-item>
     </el-form>
     <template v-slot:footer>
