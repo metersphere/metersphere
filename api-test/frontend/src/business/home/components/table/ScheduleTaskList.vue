@@ -61,13 +61,13 @@
                            show-overflow-tooltip>
           </el-table-column>
           <!--下次更新时间-->
-          <el-table-column :label="$t('home.table.update_time')" width="170" align="right">
+          <el-table-column :label="$t('home.table.update_time')" width="170">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
           <!--更新时间-->
-          <el-table-column :label="$t('home.table.next_execution_time')" width="170" align="right">
+          <el-table-column :label="$t('home.table.next_execution_time')" width="170">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
