@@ -275,6 +275,7 @@ export default {
 .ms-aside-right {
   flex: 1;
   height: calc(100vh);
+  background-color: #F5F6F7;
 }
 
 .ms-right-fixed {
