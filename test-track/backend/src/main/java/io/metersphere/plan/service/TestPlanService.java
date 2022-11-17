@@ -47,6 +47,7 @@ import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.xpack.api.service.ApiPoolDebugService;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -889,16 +890,9 @@ public class TestPlanService {
 
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
         // 检查是否禁用了本地执行
-        if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
-            BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
-            if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
-                ProjectConfig config = projectApplicationService.getProjectConfig(projectId);
-                if (config == null || !config.getPoolEnable() || StringUtils.isEmpty(config.getResourcePoolId())) {
-                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
-                }
-                runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
-                runConfig.setResourcePoolId(config.getResourcePoolId());
-            }
+        ApiPoolDebugService debugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
+        if (debugService != null) {
+            debugService.verifyPool(projectId, runConfig);
         }
     }
 
