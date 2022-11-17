@@ -18,7 +18,16 @@
       <el-tag v-if="value === 'Archived'" class="status-label archived">
         {{ $t('test_track.plan.plan_status_archived') }}
       </el-tag>
+
+    <!--Api首页中的两种定时任务-->
+    <el-tag v-if="value === 'API_SCENARIO_TEST'" class="status-label schedule-task-scenario">
+       {{ $t('commons.scenario_case') }}
+    </el-tag>
+    <el-tag v-if="value === 'SWAGGER_IMPORT'" class="status-label schedule-task-swagger">
+      {{ $t('api_test.home_page.running_task_list.swagger_schedule') }}
+    </el-tag>
   </span>
+
 </template>
 
 <script>
@@ -72,5 +81,15 @@ export default {
 .archived {
   background-color: rgba(255, 136, 0, 0.2);
   color: #DE7802;
+}
+
+.schedule-task-scenario {
+  background: rgba(52, 199, 36, 0.2);
+  color: #2EA121;
+}
+
+.schedule-task-swagger {
+  background: rgba(0, 214, 185, 0.2);
+  color: #078372;
 }
 </style>
