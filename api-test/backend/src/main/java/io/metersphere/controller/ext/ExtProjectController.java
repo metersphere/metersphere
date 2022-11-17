@@ -55,7 +55,7 @@ public class ExtProjectController {
         extProjectApplicationService.updateCurrentUserByResourceId(resourceId);
     }
 
-    @PostMapping("/list/related")
+    @PostMapping("/api/project/list/related")
     public List<ProjectDTO> getUserProject(@RequestBody ApiProjectRequest request) {
         return extProjectApplicationService.getUserProject(request);
     }
