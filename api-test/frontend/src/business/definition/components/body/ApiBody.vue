@@ -190,9 +190,10 @@ export default {
           this.assignKey(to, from, key);
         }
       }
+      let property = ['description', 'maxLength', 'minLength', 'pattern', 'format', 'enum', 'default'];
       // 清除多出部分属性
       for (let key in to) {
-        if (!this.hasOwnProperty.call(from, key) && key !== 'description') {
+        if (!this.hasOwnProperty.call(from, key) && property.indexOf(key) === -1) {
           delete to[key]
         }
       }
