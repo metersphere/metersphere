@@ -22,35 +22,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
-        <!--  webdriver -->
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>jmeter-plugins-webdriver</artifactId>
-            <version>${jmeter-plugins-webdriver.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.jmeter</groupId>
-                    <artifactId>ApacheJMeter_core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-nop</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>geronimo-spec-javamail</artifactId>
-                    <groupId>geronimo-spec</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- jmeter执行机 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
