@@ -20,8 +20,13 @@
             </el-col>
           </el-row>
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px;background-color: #FFFFFF;">
+            <el-col style="background-color: #FFFFFF;">
               <updated-api-list @redirectPage="redirectPage"/>
+            </el-col>
+          </el-row>
+          <el-row style="margin-top: 16px">
+            <el-col style="background-color: #FFFFFF;">
+              <schedule-task-list @redirectPage="redirectPage"/>
             </el-col>
           </el-row>
         </div>
@@ -39,7 +44,8 @@ import ApiDashboard from "@/business/home/components/dashboard/ApiDashboard";
 import ApiCaseDashboard from "@/business/home/components/dashboard/ApiCaseDashboard";
 import ScenarioDashboard from "@/business/home/components/dashboard/ScenarioDashboard";
 import ScenarioScheduleDashboard from "@/business/home/components/dashboard/ScenarioScheduleDashboard";
-import updatedApiList from "@/business/home/components/table/UpdatedApiList";
+import UpdatedApiList from "@/business/home/components/table/UpdatedApiList";
+import ScheduleTaskList from "@/business/home/components/table/ScheduleTaskList";
 
 export default {
   name: "ApiHome",
@@ -51,7 +57,8 @@ export default {
     MsMainContainer,
     ScenarioDashboard,
     ScenarioScheduleDashboard,
-    updatedApiList
+    UpdatedApiList,
+    ScheduleTaskList
   },
 
   data() {
@@ -189,5 +196,28 @@ export default {
 
 .api-home-layout :deep(.el-card) {
   border: 0;
+}
+
+.api-home-layout :deep(.table-title) {
+  color: #1F2329;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.api-home-layout :deep(.el-table__row), .adjust-table :deep(.el-table__row .el-link) {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: #1F2329;
+}
+
+.api-home-layout :deep(.el-table__body tr:hover ) {
+  cursor: pointer;
+}
+
+.api-home-layout :deep(.el-table .cell) {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 </style>
