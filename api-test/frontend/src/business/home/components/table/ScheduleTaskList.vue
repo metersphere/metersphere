@@ -1,7 +1,7 @@
 <template>
   <div style="margin: 24px" class="update-api-table">
     <span class="table-title">
-      {{ $t('api_test.home_page.new_case_list.title') }}
+      {{ $t('api_test.home_page.running_task_list.title') }}
     </span>
     <div style="margin-top: 16px;" v-loading="loading" element-loading-background="#FFFFFF">
       <div v-show="loadError"
@@ -13,60 +13,63 @@
       <div v-show="!loadError">
         <el-table border :data="tableData" class="adjust-table table-content" style="min-height: 228px"
                   @row-click="clickRow"
-                  header-cell-class-name="home-table-cell" element-loading-background="#FFFFFF">
-          <!--ID-->
-          <el-table-column prop="num" :label="$t('home.new_case.index')" width="100"
+                  header-cell-class-name="home-table-cell"
+                  element-loading-background="#FFFFFF">
+          <!--序号-->
+          <el-table-column prop="index" :label="$t('home.new_case.index')" width="50"
                            show-overflow-tooltip>
             <template v-slot:default="{row}">
-              {{ row.num }}
+              {{ row.index }}
             </template>
           </el-table-column>
           <!--名称-->
           <el-table-column prop="name" :label="$t('commons.name')"
-                           show-overflow-tooltip min-width="170">
+                           show-overflow-tooltip min-width="200">
             <template v-slot:default="{row}">
               <span class="redirectColumn">
                 {{ row.name }}
               </span>
             </template>
           </el-table-column>
-          <!--路径-->
-          <el-table-column prop="path" :label="$t('home.new_case.path')" min-width="260"
+          <!--任务类型-->
+          <el-table-column prop="taskGroup" :label="$t('home.table.task_type')" min-width="100"
                            show-overflow-tooltip>
-          </el-table-column>
-          <!--状态-->
-          <el-table-column prop="status" :label="$t('home.new_case.api_status')" width="100">
             <template v-slot:default="scope">
               <span class="el-dropdown-link">
-                <basic-status-label :value="scope.row.status"/>
+                <basic-status-label :value="scope.row.taskGroup"/>
               </span>
             </template>
           </el-table-column>
-          <!--更新时间-->
-          <el-table-column :label="$t('home.new_case.update_time')" min-width="170">
+
+          <!--任务状态-->
+          <el-table-column prop="status" :label="$t('home.table.task_status')" width="100">
+            <template v-slot:default="scope">
+              <div>
+                <el-switch
+                  v-model="scope.row.taskStatus"
+                  class="captcha-img"
+                  @change="closeTaskConfirm(scope.row)"
+                ></el-switch>
+              </div>
+            </template>
+          </el-table-column>
+          <!--创建人-->
+          <el-table-column prop="creator" :label="$t('home.table.create_user')"
+                           width="100" show-overflow-tooltip/>
+          <!--运行规则-->
+          <el-table-column prop="rule" :label="$t('home.table.run_rule')" min-width="150"
+                           show-overflow-tooltip>
+          </el-table-column>
+          <!--下次更新时间-->
+          <el-table-column :label="$t('home.table.update_time')" width="170" align="right">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
-          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="120">
-            <template v-slot:default="{row}">
-              <el-link style="color: #783887;width: 100%;" type="info" :underline="false" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
-                       @click="redirectPage( 'api', 'apiTestCase', 'singleList:' + row.id)">
-                <span style="float: right">
-                {{ row.caseTotal }}
-                </span>
-              </el-link>
-            </template>
-          </el-table-column>
-          <el-table-column prop="scenarioTotal" :label="$t('home.new_case.relation_scenario')" align="right"
-                           width="140">
-            <template v-slot:default="{row}">
-              <el-link style="color: #783887;width: 100%;" type="info" :underline="false" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
-                       @click="redirectPage('scenario', 'scenario','list:' +row.scenarioIds)">
-                <span style="float: right">
-                {{ row.scenarioTotal }}
-                </span>
-              </el-link>
+          <!--更新时间-->
+          <el-table-column :label="$t('home.table.next_execution_time')" width="170" align="right">
+            <template v-slot:default="scope">
+              {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
 
@@ -88,16 +91,16 @@
 </template>
 
 <script>
-import {definitionWeekList} from "@/api/definition";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {API_STATUS} from "@/business/definition/model/JsonData";
 import ApiStatus from "@/business/definition/components/list/ApiStatus";
 import HomeTablePagination from "@/business/home/components/table/HomeTablePagination";
 import BasicStatusLabel from "metersphere-frontend/src/components/BasicStatusLabel";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {operationConfirm} from "metersphere-frontend/src/utils";
+import {getRunningTask} from "@/api/home";
+import {scheduleDisable} from "@/api/schedule";
 
 export default {
-  name: "UpdatedApiList",
+  name: "ScheduleTask",
   components: {
     BasicStatusLabel, ApiStatus, HomeTablePagination
   },
@@ -110,27 +113,30 @@ export default {
       currentPage: 1,
       pageSize: 5,
       total: 0,
-      status: API_STATUS,
+      condition: {
+        filters: {}
+      }
     }
   },
   activated() {
     this.search();
   },
   methods: {
-    clickRow(row, column, event) {
-      if (column.property !== 'caseTotal' && column.property !== 'scenarioTotal') {
-        if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
-          return;
+    clickRow(row, column) {
+      if (column.property !== 'status') {
+        if (row.taskGroup === 'API_SCENARIO_TEST') {
+          this.redirectPage('scenario', 'scenario', 'edit:' + row.scenarioId);
+        } else if (row.taskGroup === 'SWAGGER_IMPORT') {
+          this.redirectPage('api', 'swagger');
         }
-        this.redirectPage('api', 'api', 'edit:' + row.id);
       }
     },
     search() {
       let projectId = getCurrentProjectID();
       this.loading = true;
       this.loadError = false;
-
-      this.result = definitionWeekList(projectId, this.currentPage, this.pageSize).then(response => {
+      this.condition.filters.task_type = ['SWAGGER_IMPORT', 'API_SCENARIO_TEST'];
+      this.result = getRunningTask(projectId, this.currentPage, this.pageSize, this.condition).then(response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
         this.loading = false;
@@ -142,7 +148,21 @@ export default {
     },
     redirectPage(redirectPage, dataType, selectRange) {
       this.$emit('redirectPage', redirectPage, dataType, selectRange, null);
-    }
+    },
+    closeTaskConfirm(row) {
+      let flag = row.taskStatus;
+      row.taskStatus = !flag; //保持switch点击前的状态
+      operationConfirm(this, this.$t('api_test.home_page.running_task_list.confirm.close_title'), () => {
+        this.updateTask(row);
+      });
+    },
+    updateTask(taskRow) {
+      this.loading = true;
+      this.loadError = false;
+      this.result = scheduleDisable(taskRow).then(() => {
+        this.search();
+      });
+    },
   }
 }
 </script>
@@ -151,5 +171,9 @@ export default {
 .update-api-table :deep(.el-link--inner) {
   width: 100%;
   float: left;
+}
+
+.update-api-table :deep(.status-label) {
+  width: 68px;
 }
 </style>

@@ -26,11 +26,7 @@
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
         FROM api_case_execution_info
-        WHERE source_id IN (
-            SELECT testCase.id
-            FROM api_test_case testCase
-            WHERE testCase.project_id = #{projectId}
-        )
+        WHERE project_id = #{projectId}
         <if test="version != null">
             AND version = #{version}
         </if>

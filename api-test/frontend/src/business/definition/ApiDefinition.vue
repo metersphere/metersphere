@@ -282,7 +282,7 @@ import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 import {PROJECT_ID, WORKSPACE_ID} from "metersphere-frontend/src/utils/constants";
 import {useApiStore} from "@/store";
 import {buildTree} from "metersphere-frontend/src/model/NodeTree";
-import {createMockConfig, getMockApiParams, getTcpMockInfo, mockExpectConfig} from "@/api/api-mock";
+import {createMockConfig, getMockApiParams, mockExpectConfig} from "@/api/api-mock";
 import MockEditDrawer from "@/business/definition/components/mock/MockEditDrawer";
 
 const store = useApiStore();
@@ -407,36 +407,32 @@ export default {
     this.$nextTick(() => {
       let routeParamObj = this.$route.params;
       if (routeParamObj) {
-        let dataRange = routeParamObj.dataSelectRange;
-        if (dataRange && dataRange.length > 0) {
-          this.activeDom = 'middle';
-        }
-        let dataType = routeParamObj.dataType;
-        if (dataType) {
-          if (dataType === "api") {
-            this.activeDom = 'left';
-          } else {
+        if (routeParamObj.dataType === 'swagger') {
+          this.openSwaggerScheduleTab();
+        } else {
+          let dataRange = routeParamObj.dataSelectRange;
+          if (dataRange && dataRange.length > 0) {
             this.activeDom = 'middle';
           }
+          let dataType = routeParamObj.dataType;
+          if (dataType) {
+            if (dataType === "api") {
+              this.activeDom = 'left';
+            } else {
+              this.activeDom = 'middle';
+            }
+          }
+          this.selectNodeIds = [];
         }
-        this.selectNodeIds = [];
       } else {
         let dataType = this.$route.params.dataType;
         if (dataType) {
-          if (dataType === "api") {
+          if (dataType === 'swagger') {
+            this.openSwaggerScheduleTab();
+          } else if (dataType === "api") {
             this.activeDom = 'left';
           } else {
             this.activeDom = 'middle';
-          }
-        }
-        if (this.$route.params.dataSelectRange) {
-          let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
-          if (item) {
-            let type = item.taskGroup.toString();
-            if (type === "SWAGGER_IMPORT") {
-              this.openSwaggerScheduleTab();
-              this.param = item;
-            }
           }
         }
       }
@@ -453,10 +449,6 @@ export default {
       this.handleCommand("CLOSE_ALL");
     },
     selectNodeIds() {
-      if (!this.trashEnable) {
-        this.apiDefaultTab = "default";
-      }
-
     },
     redirectID() {
       this.renderComponent = false;
@@ -464,7 +456,6 @@ export default {
         // 在 DOM 中添加 my-component 组件
         this.renderComponent = true;
       });
-
     },
     '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
       if (to.path.indexOf('/api/definition') === -1) {

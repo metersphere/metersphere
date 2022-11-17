@@ -31,6 +31,9 @@ export function genPerformanceTestXml(file, files, params) {
   return fileUpload(url, file, files, params);
 }
 
+export function getRunningTask(selectProjectId, currentPage, pageSize, param) {
+  return post("/task/center/runningTask/" + selectProjectId + "/" + currentPage + "/" + pageSize, param);
+}
 
 export function formatNumber(param) {
   let num = (param || 0).toString(), result = '';
