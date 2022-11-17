@@ -370,7 +370,8 @@ public class IssueTemplateService extends TemplateBaseService {
                         .filter(item -> StringUtils.equals(item.getId(), sourceCustomFieldTemplate.getFieldId()))
                         .collect(Collectors.toList()).get(0);
                 CustomFieldExample example = new CustomFieldExample();
-                example.createCriteria().andNameEqualTo(sourceCustomField.getName()).andSystemEqualTo(sourceCustomField.getSystem())
+                example.createCriteria().andNameEqualTo(sourceCustomField.getName())
+                        .andSceneEqualTo(sourceCustomField.getScene()).andSystemEqualTo(sourceCustomField.getSystem())
                         .andProjectIdEqualTo(targetProjectId);
                 List<CustomField> targetCustomFields = customFieldMapper.selectByExample(example);
                 if (CollectionUtils.isEmpty(targetCustomFields)) {
@@ -383,6 +384,22 @@ public class IssueTemplateService extends TemplateBaseService {
                     tarCustomField.setCreateUser(SessionUtils.getUserId());
                     tarCustomField.setProjectId(targetProjectId);
                     customFieldRecords.add(tarCustomField);
+                    if (sourceCustomField.getSystem()) {
+                        // 系统字段未查到, 则为全局模板Gloal字段
+                        CustomFieldExample customFieldExample = new CustomFieldExample();
+                        customFieldExample.createCriteria().andNameEqualTo(sourceCustomField.getName())
+                                .andSceneEqualTo(sourceCustomField.getScene()).andSystemEqualTo(sourceCustomField.getSystem())
+                                .andProjectIdEqualTo("global");
+                        List<CustomField> customFields = customFieldMapper.selectByExample(customFieldExample);
+
+                        CustomFieldDao customFieldDao = new CustomFieldDao();
+                        BeanUtils.copyBean(customFieldDao, tarCustomField);
+                        if (CollectionUtils.isNotEmpty(customFields)) {
+                            customFieldDao.setOriginGlobalId(customFields.get(0).getId());
+                        }
+                        // 新增系统字段, 需处理默认模板
+                        handleSystemFieldCreate(customFieldDao);
+                    }
                 } else {
                     // 否则按照复制模式进行设置
                     BeanUtils.copyBean(tarCustomField, targetCustomFields.get(0));
