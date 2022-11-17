@@ -32,7 +32,8 @@
                           {{ $t('home.dashboard.public.covered') }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('api', 'api', 'covered', null)">
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                                     @click="redirectPage('api', 'api', 'covered', null)">
                               {{ formatAmount(apiData.coveredCount) }}
                             </el-link>
                           </div>
@@ -42,7 +43,8 @@
                           {{ $t('home.dashboard.public.not_covered') }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('api', 'api', 'notCovered', null)">
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                                     @click="redirectPage('api', 'api', 'notCovered', null)">
                               {{ formatAmount(apiData.notCoveredCount) }}
                             </el-link>
                           </div>
@@ -68,7 +70,7 @@
                           {{ $t("home.dashboard.public.completed") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('api', 'api', 'Completed', null)">
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']" @click="redirectPage('api', 'api', 'Completed', null)">
                               {{ formatAmount(apiData.finishedCount) }}
                             </el-link>
                           </div>
@@ -78,7 +80,7 @@
                           {{ $t("home.dashboard.public.underway") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('api', 'api', 'Underway', null)">
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']" @click="redirectPage('api', 'api', 'Underway', null)">
                               {{ formatAmount(apiData.runningCount) }}
                             </el-link>
                           </div>
@@ -88,7 +90,7 @@
                           {{ $t("home.dashboard.public.prepared") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('api', 'api', 'Prepare', null)">
+                            <el-link class="addition-info-num" v-permission-disable="['PROJECT_API_DEFINITION:READ']" @click="redirectPage('api', 'api', 'Prepare', null)">
                               {{ formatAmount(apiData.notStartedCount) }}
                             </el-link>
                           </div>

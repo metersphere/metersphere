@@ -85,6 +85,7 @@ import {getTrackRunningTask} from "@/api/track";
 import {updatePlanSchedule} from "@/api/remote/plan/test-plan";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import BasicTaskTypeLabel from "metersphere-frontend/src/components/BasicTaskTypeLabel";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "MsRunningTaskList",
@@ -168,10 +169,19 @@ export default {
     },
     redirect(param) {
       if (param.taskGroup === 'TEST_PLAN_TEST') {
+        if (!hasPermission('PROJECT_TRACK_PLAN:READ')) {
+          return;
+        }
         this.$emit('redirectPage', 'testPlanEdit', '', param.scenarioId);
       } else if (param.taskGroup === 'API_SCENARIO_TEST') {
+        if (!hasPermission('PROJECT_API_SCENARIO:READ')) {
+          return;
+        }
         this.$emit('redirectPage', 'scenario', 'scenario', 'edit:' + param.scenarioId);
       } else if (param.taskGroup === 'SWAGGER_IMPORT') {
+        if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
+          return;
+        }
         this.$emit('redirectPage', 'api', 'api', {param});
       }
     }
