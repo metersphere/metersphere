@@ -17,14 +17,14 @@ export default {
       component: () => import('@/business/automation/report/ApiReportList'),
     },
     {
-      path: "automation/report/:redirectID?/:dataType?/:dataSelectRange",
-      name: "ApiReportListWithQuery",
-      component: () => import('@/business/automation/report/ApiReportList'),
-    },
-    {
       path: "automation/report/view/:reportId",
       name: "ApiScenarioReportView",
       component: () => import('@/business/automation/report/ApiReportView'),
+    },
+    {
+      path: "automation/report/:redirectID?/:dataType?/:dataSelectRange",
+      name: "ApiReportListWithQuery",
+      component: () => import('@/business/automation/report/ApiReportList'),
     },
     {
       path: "definition/report/view/:reportId",
