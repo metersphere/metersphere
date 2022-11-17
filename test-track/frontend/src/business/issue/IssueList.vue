@@ -548,6 +548,13 @@ export default {
         getIssuesById(id).then((response) => {
           this.handleEdit(response.data)
         });
+      } else {
+        let type = this.$route.query.type;
+        if (type === 'create') {
+          this.$nextTick(() => {
+            this.handleCreate()
+          });
+        }
       }
     }
   }
