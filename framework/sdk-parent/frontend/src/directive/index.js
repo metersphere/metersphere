@@ -4,6 +4,7 @@ import Drag from "./drag";
 import directive from './loading/directive';
 import service from './loading/index';
 import modules from "./module";
+import NoPermissionDisable from "./permission/permission-disable";
 
 
 export const onceLinkClick = {
@@ -36,6 +37,7 @@ export default {
   install(Vue) {
     Vue.directive('click-outside', ClickOutside);
     Vue.directive('permission', Permission.hasPermissions);
+    Vue.directive('permission-disable', NoPermissionDisable.hasPermissions);
     Vue.directive('xpack', Permission.hasLicense);
     Vue.directive('preventLinkReClick', onceLinkClick);
     Vue.directive('preventReClick', onceClick);

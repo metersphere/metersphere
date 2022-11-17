@@ -61,6 +61,7 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/s
 import {getRelateTestCaseReview} from "@/api/test-review";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import BasicStatusLabel from "metersphere-frontend/src/components/BasicStatusLabel";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "ReviewList",
@@ -104,6 +105,9 @@ export default {
         });
     },
     intoPlan(row) {
+      if (!hasPermission('PROJECT_TRACK_REVIEW:READ')) {
+        return;
+      }
       let home = this.$router.resolve('/track/review/view/' + row.id);
       if (home) {
         window.open(home.href, '_blank');

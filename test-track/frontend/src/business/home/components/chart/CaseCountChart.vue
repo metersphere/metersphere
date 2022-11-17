@@ -49,6 +49,7 @@
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {formatNumber} from "@/api/track";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "CaseCountChart",
@@ -152,7 +153,7 @@ export default {
               },
             }
           },
-          sublink: "/#/track/case/all/" + getUUID() + "/case/thisWeekCount",
+          sublink: hasPermission('PROJECT_TRACK_CASE:READ') ? "/#/track/case/all/" + getUUID() + "/case/thisWeekCount" : '',
           subtextStyle: {
             color: "#1F2329",
             fontSize: 12,

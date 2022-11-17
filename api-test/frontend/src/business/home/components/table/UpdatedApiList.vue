@@ -52,7 +52,7 @@
           </el-table-column>
           <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="120">
             <template v-slot:default="{row}">
-              <el-link style="color: #783887;width: 100%;" type="info" :underline="false"
+              <el-link style="color: #783887;width: 100%;" type="info" :underline="false" v-permission-disable="['PROJECT_API_DEFINITION:READ']"
                        @click="redirectPage( 'api', 'apiTestCase', 'singleList:' + row.id)">
                 <span style="float: right">
                 {{ row.caseTotal }}
@@ -63,7 +63,7 @@
           <el-table-column prop="scenarioTotal" :label="$t('home.new_case.relation_scenario')" align="right"
                            width="140">
             <template v-slot:default="{row}">
-              <el-link style="color: #783887;width: 100%;" type="info" :underline="false"
+              <el-link style="color: #783887;width: 100%;" type="info" :underline="false" v-permission-disable="['PROJECT_API_SCENARIO:READ']"
                        @click="redirectPage('scenario', 'scenario','list:' +row.scenarioIds)">
                 <span style="float: right">
                 {{ row.scenarioTotal }}
@@ -96,6 +96,7 @@ import {API_STATUS} from "@/business/definition/model/JsonData";
 import ApiStatus from "@/business/definition/components/list/ApiStatus";
 import HomeTablePagination from "@/business/home/components/table/HomeTablePagination";
 import BasicStatusLabel from "metersphere-frontend/src/components/BasicStatusLabel";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "UpdatedApiList",
@@ -120,6 +121,9 @@ export default {
   methods: {
     clickRow(row, column, event) {
       if (column.property !== 'caseTotal' && column.property !== 'scenarioTotal') {
+        if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
+          return;
+        }
         this.redirectPage('api', 'api', 'edit:' + row.id);
       }
     },
