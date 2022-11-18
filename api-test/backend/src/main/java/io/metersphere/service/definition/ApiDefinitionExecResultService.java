@@ -303,13 +303,12 @@ public class ApiDefinitionExecResultService {
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                         if (apiCase != null) {
-                            TestPlan testPlan = testPlanService.get(apiCase.getTestPlanId());
-                            if (testPlan != null) {
+                            if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("projectId")) {
+                                String projectId = dto.getExtendedParameters().get("projectId").toString();
                                 ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
                                 String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
-                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, testPlan.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
+                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
                             }
-
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);

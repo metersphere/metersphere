@@ -1768,26 +1768,14 @@ public class ApiScenarioService {
     public List<String> getApiIdInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
         List<String> apiIdList = new ArrayList<>();
         if (MapUtils.isNotEmpty(scenarioUrlMap) && CollectionUtils.isNotEmpty(apiList)) {
-            ProjectApplication urlRepeatableConfig = baseProjectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
-            boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
             for (ApiDefinition model : apiList) {
                 if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
                     Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
                     if (stepIdAndUrlMap != null) {
-                        if (isUrlRepeatable) {
-                            String url = stepIdAndUrlMap.get(model.getId());
-                            if (StringUtils.isNotEmpty(url)) {
-                                boolean urlMatched = MockApiUtils.isUrlMatch(model.getPath(), url);
-                                if (urlMatched) {
-                                    apiIdList.add(model.getId());
-                                }
-                            }
-                        } else {
-                            Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
-                            boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
-                            if (matchedUrl) {
-                                apiIdList.add(model.getId());
-                            }
+                        Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
+                        boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
+                        if (matchedUrl) {
+                            apiIdList.add(model.getId());
                         }
                     }
                 } else {
@@ -2194,7 +2182,7 @@ public class ApiScenarioService {
                 if (returnMap.containsKey(method)) {
                     returnMap.get(method).put(item.getReferenceId(), item.getUrl());
                 } else {
-                    Map<String, String> urlMap = new HashMap() {{
+                    Map<String, String> urlMap = new HashMap<>() {{
                         this.put(item.getReferenceId(), item.getUrl());
                     }};
                     returnMap.put(method, urlMap);
