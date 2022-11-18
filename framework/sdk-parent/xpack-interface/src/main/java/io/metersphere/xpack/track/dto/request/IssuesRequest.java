@@ -66,11 +66,19 @@ public class IssuesRequest extends BaseQueryRequest {
     private List<String> exportIds;
 
     /**
-     * 本周遗留缺陷
+     * 本周测试计划遗留缺陷
      */
-    private Boolean thisWeekUnClosedIssue = false;
+    private Boolean thisWeekUnClosedTestPlanIssue = false;
     /**
-     * 本周遗留缺陷ID
+     * 测试计划遗留的缺陷
      */
-    private List<String> thisWeekUncloseIds;
+    private Boolean unClosedTestPlanIssue = false;
+    /**
+     * 测试计划关联所有缺陷
+     */
+    private Boolean allTestPlanIssue = false;
+    /**
+     * 过滤缺陷ID
+     */
+    private List<String> filterIds;
 }

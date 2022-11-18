@@ -179,6 +179,15 @@
           and tp.project_id = #{projectId}
     </select>
 
+    <select id="getTestPlanIssue" resultType="java.lang.String">
+        select distinct tci.issues_id
+        from test_plan_test_case tptc
+                 join test_plan tp on tp.id = tptc.plan_id
+                 join test_case_issues tci on tptc.id = tci.resource_id
+                 join issues on tci.issues_id = issues.id
+        where tptc.is_del != 1 and tp.project_id = #{projectId}
+    </select>
+
     <select id="getIssueCustomFields" resultType="io.metersphere.xpack.track.dto.IssuesDao">
         select cfi.field_id           as fieldId,
                cf.type fieldType,
@@ -247,9 +256,9 @@
                     #{value}
                 </foreach>
             </if>
-            <if test="request.thisWeekUnClosedIssue and request.thisWeekUncloseIds != null and request.thisWeekUncloseIds.size() > 0">
+            <if test="request.filterIds != null and request.filterIds.size() > 0">
                 and issues.id in
-                <foreach collection="request.thisWeekUncloseIds" item="value" separator="," open="(" close=")">
+                <foreach collection="request.filterIds" item="value" separator="," open="(" close=")">
                     #{value}
                 </foreach>
             </if>

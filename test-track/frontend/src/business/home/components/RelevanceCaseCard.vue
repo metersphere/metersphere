@@ -1,81 +1,85 @@
 <template>
-  <el-card class="table-card" shadow="never" body-style="padding:10px 5px;">
-    <div slot="header">
-      <span class="title">
-        {{ $t('test_track.home.relevance_case') }}
-      </span>
-    </div>
-
-    <div v-loading="loading" element-loading-background="#FFFFFF">
-      <div v-show="loadError"
-           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
-        <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load_error.svg"/>
-        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+  <div class="dashboard-card">
+    <el-card shadow="never" class="box-card" style="height: 100%">
+      <div slot="header" class="clearfix">
+        <span class="dashboard-title">{{ $t('test_track.home.relevance_case') }}</span>
       </div>
-      <div v-show="!loadError">
-        <div class="main-info">
-          <relevance-count-chart :relevance-data="relevanceData" ref="countChart" @redirectPage="redirectPage"/>
+
+      <div v-loading="loading" element-loading-background="#FFFFFF">
+        <div v-show="loadError"
+             style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center">
+          <img style="height: 100px;width: 100px;"
+               src="/assets/figma/icon_load_error.svg"/>
+          <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
         </div>
-        <div class="addition-info">
-          <el-row :gutter="24" style="margin: 0">
-            <el-col :span="24" style="padding-left: 0">
-              <hover-card
-                :title="$t('test_track.home.coverage')"
-                :main-info="relevanceData.coverageRage"
-                :tool-tip="coverRangeToolTip"
-              >
-                <!--未覆盖、已覆盖-->
-                <template v-slot:mouseOut>
-                  <div style="margin:16px 0px 0px 16px">
-                    <el-row>
-                      <el-col :span="12">
+        <div v-show="!loadError">
+          <div class="main-info">
+            <count-chart :chart-data="relevanceData.chartData" :main-title="chartMainTitle"
+                         :week-count="relevanceData.thisWeekAddedCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
+          </div>
+          <div class="addition-info">
+            <el-row :gutter="24" style="margin: 0">
+              <el-col :span="24" style="padding-left: 0">
+                <hover-card
+                  :title="$t('test_track.home.coverage')"
+                  :main-info="relevanceData.coverageRage"
+                  :tool-tip="coverRangeToolTip"
+                >
+                  <!--未覆盖、已覆盖-->
+                  <template v-slot:mouseOut>
+                    <div style="margin:16px 0px 0px 16px">
+                      <el-row>
+                        <el-col :span="12">
                         <span class="addition-info-title">
                           {{ $t('home.relevance_dashboard.not_cover') }}
                         </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('uncoverage')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
-                            {{ formatAmount(relevanceData.uncoverageCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                      <el-col :span="12">
+                          <div class="common-amount">
+                            <el-link class="addition-info-num" @click="redirectPage('uncoverage')">
+                              {{ formatAmount(relevanceData.uncoverageCount) }}
+                            </el-link>
+                          </div>
+                        </el-col>
+                        <el-col :span="12">
                         <span class="addition-info-title">
                           {{ $t('home.relevance_dashboard.cover') }}
                         </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num" @click="redirectPage('coverage')" v-permission-disable="['PROJECT_TRACK_CASE:READ']">
-                            {{ formatAmount(relevanceData.coverageCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </template>
-              </hover-card>
-            </el-col>
-          </el-row>
+                          <div class="common-amount">
+                            <el-link class="addition-info-num" @click="redirectPage('coverage')">
+                              {{ formatAmount(relevanceData.coverageCount) }}
+                            </el-link>
+                          </div>
+                        </el-col>
+                      </el-row>
+                    </div>
+                  </template>
+                </hover-card>
+              </el-col>
+            </el-row>
+          </div>
         </div>
       </div>
-    </div>
-  </el-card>
+    </el-card>
+  </div>
 </template>
 
 <script>
-import relevanceCountChart from "@/business/home/components/chart/RelevanceCountChart";
+import countChart from "@/business/home/components/chart/CountChart";
 import hoverCard from "@/business/home/components/card/HoverCard";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackRelevanceCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
+import {getUUID} from "metersphere-frontend/src/utils";
 
 export default {
   name: "RelevanceCaseCard",
-  components: {relevanceCountChart, hoverCard},
+  components: {countChart, hoverCard},
   data() {
     return {
       loading: false,
       loadError: false,
       coverRangeToolTip: this.$t('api_test.home_page.formula.testplan_coverage'),
+      chartMainTitle: this.$t("home.relevance_dashboard.relevance_case_count"),
+      chartRedirectLink: "/#/track/case/all/" + getUUID() + "/case/thisWeekRelevanceCount",
       relevanceData: {
         allCaseCountNumber: 0,
         allRelevanceCaseCount: 0,
@@ -97,7 +101,8 @@ export default {
         scenarioCaseStr: "",
         thisWeekAddedCount: 0,
         unPassCount: 0,
-        uncoverageCount: 0
+        uncoverageCount: 0,
+        chartData: {}
       },
     }
   },
