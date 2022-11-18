@@ -2,7 +2,9 @@ package io.metersphere.listener;
 
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ModuleNode;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiModuleMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.BaseModuleNodeMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
@@ -25,6 +27,8 @@ public class ProjectCreatedListener {
     private BaseModuleNodeMapper baseModuleNodeMapper;
     @Resource
     private ApiModuleMapper apiModuleMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.PROJECT_CREATED_TOPIC, groupId = "${spring.application.name}")
@@ -35,9 +39,13 @@ public class ProjectCreatedListener {
     }
 
     private void initProjectDefaultNode(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return;
+        }
         ModuleNode record = new ModuleNode();
         record.setId(UUID.randomUUID().toString());
-        record.setCreateUser(SessionUtils.getUserId());
+        record.setCreateUser(project.getCreateUser());
         record.setPos(1.0);
         record.setLevel(1);
         record.setCreateTime(System.currentTimeMillis());
