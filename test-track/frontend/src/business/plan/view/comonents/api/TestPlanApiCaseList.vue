@@ -515,6 +515,8 @@ export default {
         .then(() => {
           this.runningReport.add(reportId);
           this.$refs.apiCaseResult.open(reportId);
+        },error =>{
+          this.rowLoading = "";
         });
     },
     handleTestEnd(reportId) {
