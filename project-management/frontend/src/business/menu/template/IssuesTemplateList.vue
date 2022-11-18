@@ -76,7 +76,7 @@
       :total="total"/>
 
     <issue-template-copy ref="templateCopy" @refresh="initTableData"/>
-    <issue-template-edit ref="templateEdit" @refresh="initTableData"/>
+    <issue-template-edit :platform-option="platformFilters" ref="templateEdit" @refresh="initTableData"/>
     <ms-delete-confirm :title="$t('commons.template_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
   </el-card>
 </template>
@@ -95,6 +95,7 @@ import IssueTemplateEdit from "./IssueTemplateEdit";
 import {deleteIssueFieldTemplateById, getIssueFieldTemplatePages} from "../../../api/template";
 import MsDeleteConfirm from "metersphere-frontend/src/components/MsDeleteConfirm";
 import IssueTemplateCopy from "./IssueTemplateCopy";
+import {getPlatformOption} from "@/api/platform-plugin";
 
 export default {
   name: "IssuesTemplateList",
@@ -102,7 +103,7 @@ export default {
     IssueTemplateEdit,
     IssueTemplateCopy,
     MsTableHeader,
-    MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable , MsDeleteConfirm
+    MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable, MsDeleteConfirm
   },
   data() {
     return {
@@ -113,9 +114,9 @@ export default {
       currentPage: 1,
       result: {},
       loading: false,
+      platformOptions: [],
       issuePlatformMap: {
         Local: 'Metersphere',
-        Jira: 'JIRA',
         Tapd: 'Tapd',
         Zentao: '禅道',
         AzureDevops: 'Azure Devops',
@@ -135,6 +136,10 @@ export default {
     };
   },
   created() {
+    getPlatformOption()
+      .then((r) => {
+        this.platformOptions = r.data;
+      });
     this.initTableData();
   },
   computed: {
@@ -142,7 +147,12 @@ export default {
       return ISSUE_TEMPLATE_LIST;
     },
     platformFilters() {
-      return ISSUE_PLATFORM_OPTION;
+      this.platformOptions.forEach(item => {
+        this.issuePlatformMap[item.value] = item.text;
+      });
+      let options = [...ISSUE_PLATFORM_OPTION];
+      options.push(...this.platformOptions);
+      return options;
     },
     tableHeight() {
       return document.documentElement.clientHeight - 200;

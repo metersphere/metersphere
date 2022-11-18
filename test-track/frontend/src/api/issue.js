@@ -4,7 +4,7 @@ import {getUUID} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProject} from "./project";
-import {JIRA, LOCAL} from "metersphere-frontend/src/utils/constants";
+import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {getIssueTemplate} from "./custom-field-template";
 import {$success, $warning} from "metersphere-frontend/src/plugins/message";
 import i18n from "../i18n";
@@ -212,8 +212,8 @@ export function getPlatformTransitions(param) {
   return post('/issues/platform/transitions', param);
 }
 
-export function enableThirdPartTemplate(currentProject) {
-  return currentProject && currentProject.thirdPartTemplate && currentProject.platform === JIRA;
+export function enableThirdPartTemplate(projectId) {
+  return get(BASE_URL + '/third/part/template/enable/' + projectId);
 }
 
 export function buildIssues(page) {
@@ -230,18 +230,21 @@ export function buildIssues(page) {
 export function getIssuePartTemplateWithProject(callback) {
   getCurrentProject().then((response) => {
     let currentProject = response.data;
-    if (enableThirdPartTemplate(currentProject)) {
-      getIssueThirdPartTemplate()
-        .then((template) => {
-          if (callback)
-            callback(template, currentProject);
-        });
-    } else {
-      getIssueTemplate()
-        .then((template) => {
-          if (callback)
-            callback(template, currentProject);
-        });
-    }
+    enableThirdPartTemplate(currentProject.id)
+      .then((r) => {
+        if (r.data) {
+          getIssueThirdPartTemplate()
+            .then((template) => {
+              if (callback)
+                callback(template, currentProject);
+            });
+        } else {
+          getIssueTemplate()
+            .then((template) => {
+              if (callback)
+                callback(template, currentProject);
+            });
+        }
+      });
   });
 }

@@ -49,7 +49,6 @@ import draggable from 'vuedraggable';
 import TemplateComponentEditHeader
   from "./ext/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import {ISSUE_PLATFORM_OPTION} from "metersphere-frontend/src/utils/table-constants";
 import CustomFieldFormList from "./CustomFieldFormList";
 import CustomFieldRelateList from "./CustomFieldRelateList";
 import FieldTemplateEdit from "./FieldTemplateEdit";
@@ -90,10 +89,10 @@ export default {
       url: '',
     };
   },
+  props: {
+    platformOption: Array
+  },
   computed: {
-    platformOption() {
-      return ISSUE_PLATFORM_OPTION;
-    },
     isSystem() {
       return this.form.system;
     }

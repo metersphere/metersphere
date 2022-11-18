@@ -1,6 +1,6 @@
 package io.metersphere.utils;
 
-import im.metersphere.loader.PluginManager;
+import im.metersphere.plugin.loader.PluginManager;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;

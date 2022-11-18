@@ -8,16 +8,17 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.utils.MetadataUtils;
+import io.metersphere.platform.domain.SyncIssuesAttachmentRequest;
 import io.metersphere.request.attachment.AttachmentRequest;
-import io.metersphere.xpack.track.dto.request.IssuesRequest;
-import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.issue.platform.IssueFactory;
 import io.metersphere.xmind.utils.FileUtil;
+import io.metersphere.xpack.track.dto.AttachmentSyncType;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -35,7 +36,7 @@ import javax.annotation.Resource;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 /**
  * @author songcc
@@ -68,6 +69,8 @@ public class AttachmentService {
     private BaseUserService baseUserService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    PlatformPluginService platformPluginService;
 
     public void uploadAttachment(AttachmentRequest request, MultipartFile file) {
         // 附件上传的前置校验
@@ -98,11 +101,16 @@ public class AttachmentService {
             IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
             updateRequest.setPlatformId(issues.getPlatformId());
             File uploadFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-            Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
-                    .syncIssuesAttachment(updateRequest, uploadFile, AttachmentSyncType.UPLOAD);
+
+            if (PlatformPluginService.isPluginPlatform(issues.getPlatform())) {
+                syncIssuesAttachment(issues, uploadFile, AttachmentSyncType.UPLOAD);
+            } else {
+                IssuesRequest issuesRequest = new IssuesRequest();
+                issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
+                        .syncIssuesAttachment(updateRequest, uploadFile, AttachmentSyncType.UPLOAD);
+            }
         }
     }
 
@@ -119,11 +127,16 @@ public class AttachmentService {
                 IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
                 updateRequest.setPlatformId(issues.getPlatformId());
                 File deleteFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
-                IssuesRequest issuesRequest = new IssuesRequest();
-                issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
-                        .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
+
+                if (PlatformPluginService.isPluginPlatform(issues.getPlatform())) {
+                    syncIssuesAttachment(issues, deleteFile, AttachmentSyncType.DELETE);
+                } else {
+                    IssuesRequest issuesRequest = new IssuesRequest();
+                    issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                    Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
+                            .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
+                }
             }
         }
 
@@ -178,15 +191,29 @@ public class AttachmentService {
                     IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
                     updateRequest.setPlatformId(issues.getPlatformId());
                     File refFile = downloadMetadataFile(metadataRefId, fileMetadata.getName());
-                    IssuesRequest issuesRequest = new IssuesRequest();
-                    issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                    Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
-                            .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
+
+                    if (PlatformPluginService.isPluginPlatform(issues.getPlatform())) {
+                        syncIssuesAttachment(issues, refFile, AttachmentSyncType.UPLOAD);
+                    } else {
+                        IssuesRequest issuesRequest = new IssuesRequest();
+                        issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                        issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                        Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
+                                .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
+                    }
                     FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
                 }
             });
         }
+    }
+
+    public void syncIssuesAttachment(IssuesWithBLOBs issues, File refFile, AttachmentSyncType attachmentSyncType) {
+        SyncIssuesAttachmentRequest attachmentRequest = new SyncIssuesAttachmentRequest();
+        attachmentRequest.setPlatformId(issues.getPlatformId());
+        attachmentRequest.setFile(refFile);
+        attachmentRequest.setSyncType(attachmentSyncType.syncOperateType());
+        platformPluginService.getPlatform(issues.getPlatform())
+                .syncIssuesAttachment(attachmentRequest);
     }
 
     public List<FileAttachmentMetadata> listMetadata(AttachmentRequest request) {
@@ -276,12 +303,17 @@ public class AttachmentService {
                     IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
                     updateRequest.setPlatformId(issues.getPlatformId());
                     File refFile = downloadMetadataFile(metadataRefId, fileMetadata.getName());
-                    IssuesRequest issuesRequest = new IssuesRequest();
-                    issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                    Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
-                            .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
-                    FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
+
+                    if (PlatformPluginService.isPluginPlatform(issues.getPlatform())) {
+                        syncIssuesAttachment(issues, refFile, AttachmentSyncType.UPLOAD);
+                    } else {
+                        IssuesRequest issuesRequest = new IssuesRequest();
+                        issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                        issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                        Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
+                                .syncIssuesAttachment(updateRequest, refFile, AttachmentSyncType.UPLOAD);
+                        FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
+                    }
                 }
             });
             sqlSession.flushStatements();
@@ -301,11 +333,16 @@ public class AttachmentService {
                 IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
                 updateRequest.setPlatformId(issues.getPlatformId());
                 File deleteFile = new File(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileAttachmentMetadata.getName());
-                IssuesRequest issuesRequest = new IssuesRequest();
-                issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
-                        .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
+
+                if (PlatformPluginService.isPluginPlatform(issues.getPlatform())) {
+                    syncIssuesAttachment(issues, deleteFile, AttachmentSyncType.UPLOAD);
+                } else {
+                    IssuesRequest issuesRequest = new IssuesRequest();
+                    issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                    Objects.requireNonNull(IssueFactory.createPlatform(issues.getPlatform(), issuesRequest))
+                            .syncIssuesAttachment(updateRequest, deleteFile, AttachmentSyncType.DELETE);
+                }
             });
         }
         AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
