@@ -381,7 +381,11 @@ export default {
     },
     getIssues() {
       if (this.dataSelectRange === 'thisWeekUnClosedIssue') {
-        this.page.condition.thisWeekUnClosedIssue = true;
+        this.page.condition.thisWeekUnClosedTestPlanIssue = true;
+      } else if (this.dataSelectRange === 'unClosedRelatedTestPlan') {
+        this.page.condition.unClosedTestPlanIssue = true;
+      } else if (this.dataSelectRange === 'AllRelatedTestPlan') {
+        this.page.condition.allTestPlanIssue = true;
       }
       this.page.condition.projectId = this.projectId;
       this.page.condition.workspaceId= this.workspaceId;

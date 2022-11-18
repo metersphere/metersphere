@@ -5,3 +5,8 @@ export const TEST_CASE_STATUS_MAP = {
   'Completed': i18n.t('test_track.plan.plan_status_completed'),
   'Trash': i18n.t('test_track.plan.plan_status_trash')
 }
+
+export const DASHBOARD_CHART_COLOR = [
+  '#AA4FBF', '#FFD131', '#10CECE', '#4E83FD',
+  '#935AF6', '#50CEFB', '#FFA53D', '#62D256',
+  ];

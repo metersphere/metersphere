@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" shadow="never" v-loading="loading" body-style="padding:10px;">
+  <el-card class="table-card" shadow="never" v-loading="loading">
     <template v-slot:header>
       <span class="table-title">
         {{ $t('api_test.home_page.failed_case_list.title') }}
@@ -14,8 +14,8 @@
       </div>
       <div v-show="!loadError">
         <el-table :data="tableData" class="adjust-table table-content"
-                  :header-cell-style="{backgroundColor: '#F5F6F7'}" max-height="224px">
-          <el-table-column type="index" :label="$t('home.case.index')" show-overflow-tooltip/>
+                  header-cell-class-name="home-table-cell" max-height="226px">
+          <el-table-column type="index" :label="$t('home.case.index')" width="100" show-overflow-tooltip/>
           <el-table-column prop="caseName" :label="$t('home.case.case_name')">
             <template v-slot:default="{row}">
               <el-link type="info" @click="redirect(row.caseType,row.id)"

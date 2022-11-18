@@ -1,15 +1,21 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.domain.TestPlanExample;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.constants.IssueStatus;
+import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.BugStatistics;
 import io.metersphere.dto.TestPlanBugCount;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TrackCountResult;
+import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.xpack.track.dto.IssuesDao;
@@ -36,6 +42,8 @@ public class TrackService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private CustomFieldIssuesService customFieldIssuesService;
+    @Resource
+    private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private TestPlanService testPlanService;
 
@@ -110,27 +118,21 @@ public class TrackService {
     }
 
     public BugStatistics getBugStatistics(String projectId) {
+        List<TestPlanBugCount> list = new ArrayList<>();
+        BugStatistics bugStatistics = new BugStatistics();
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         List<TestPlan> plans = testPlanMapper.selectByExample(example);
-        List<TestPlanBugCount> list = new ArrayList<>();
-        BugStatistics bugStatistics = new BugStatistics();
+        List<String> planIds = plans.stream().map(TestPlan::getId).collect(Collectors.toList());
         int index = 1;
         int totalUnClosedPlanBugSize = 0;
         int totalPlanBugSize = 0;
-        int newCount = 0;
-        int resolvedCount = 0;
-        int rejectedCount = 0;
-        int unKnownCount = 0;
         int thisWeekCount = 0;
+        Map<String, Integer> bugStatusMap = getPlanBugStatusSize(planIds, projectId);
         for (TestPlan plan : plans) {
             Map<String, Integer> bugSizeMap = getPlanBugSize(plan.getId(), projectId);
             int planBugSize = bugSizeMap.get("total");
             int unClosedPlanBugSize = bugSizeMap.get("unClosed");
-            newCount += bugSizeMap.get("newCount");
-            resolvedCount += bugSizeMap.get("resolvedCount");
-            rejectedCount += bugSizeMap.get("rejectedCount");
-            unKnownCount += bugSizeMap.get("unKnownCount");
             thisWeekCount += bugSizeMap.get("thisWeekCount");
             totalUnClosedPlanBugSize += unClosedPlanBugSize;
             totalPlanBugSize += planBugSize;
@@ -138,7 +140,6 @@ public class TrackService {
             if (unClosedPlanBugSize == 0) {
                 continue;
             }
-
             TestPlanBugCount testPlanBug = new TestPlanBugCount();
             testPlanBug.setIndex(index++);
             testPlanBug.setPlanName(plan.getName());
@@ -158,12 +159,8 @@ public class TrackService {
         float rage = totalPlanBugSize == 0 ? 0 : (float) totalUnClosedPlanBugSize * 100 / totalPlanBugSize;
         DecimalFormat df = new DecimalFormat("0.0");
         bugStatistics.setUnClosedRage(df.format(rage) + "%");
-
-        bugStatistics.setNewCount(newCount);
-        bugStatistics.setResolvedCount(resolvedCount);
-        bugStatistics.setRejectedCount(rejectedCount);
-        bugStatistics.setUnKnownCount(unKnownCount);
         bugStatistics.setThisWeekCount(thisWeekCount);
+        bugStatistics.setChartData(bugStatusMap);
         return bugStatistics;
     }
 
@@ -177,13 +174,11 @@ public class TrackService {
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
         Map<String, Integer> bugSizeMap = new HashMap<>();
         bugSizeMap.put("total", issueIds.size());
-
         // 缺陷是否有状态
         List<String> unClosedIds;
         if (MapUtils.isEmpty(statusMap)) {
             unClosedIds = issueIds;
             bugSizeMap.put("unClosed", issueIds.size());
-            bugSizeMap.put("newCount", issueIds.size());
         } else {
             unClosedIds = issueIds.stream()
                     .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
@@ -196,29 +191,59 @@ public class TrackService {
             thisWeekCount = extIssuesMapper.getThisWeekIssueCount(unClosedIds, projectId).intValue();
         }
         bugSizeMap.put("thisWeekCount", thisWeekCount);
-        // 如果没有严重程度字段
-        int newCount = 0;
-        int resolvedCount = 0;
-        int rejectedCount = 0;
-        int unKnownCount = 0;
-        for (String unClosedId : unClosedIds) {
-            String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
-            if (StringUtils.equalsIgnoreCase(status, "new")) {
-                newCount += 1;
-            } else if (StringUtils.equalsIgnoreCase(status, "resolved")) {
-                resolvedCount += 1;
-            } else if (StringUtils.equalsIgnoreCase(status, "rejected")) {
-                rejectedCount += 1;
-            } else {
-                unKnownCount += 1;
-            }
-        }
-
-        bugSizeMap.put("newCount", newCount);
-        bugSizeMap.put("resolvedCount", resolvedCount);
-        bugSizeMap.put("rejectedCount", rejectedCount);
-        bugSizeMap.put("unKnownCount", unKnownCount);
         return bugSizeMap;
+    }
+
+    private Map<String, Integer> getPlanBugStatusSize(List<String> planIds, String projectId) {
+        CustomField customField = baseCustomFieldService.getCustomFieldByName(projectId, SystemCustomField.ISSUE_STATUS);
+        JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
+        Map<String, Integer> bugStatusMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(planIds)) {
+            planIds.forEach(planId -> {
+                List<String> issueIds = extTestCaseMapper.getTestPlanBug(planId);
+                Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
+                if (MapUtils.isEmpty(statusMap)) {
+                    Integer count = bugStatusMap.get(Translator.get("new"));
+                    if (count == null) {
+                        bugStatusMap.put(Translator.get("new"), issueIds.size());
+                    } else {
+                        count += issueIds.size();
+                        bugStatusMap.put(Translator.get("new"), count);
+                    }
+                } else {
+                    List<String> unClosedIds = issueIds.stream()
+                            .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                            .collect(Collectors.toList());
+                    for (String unClosedId : unClosedIds) {
+                        String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
+                        IssueStatus statusEnum = IssueStatus.getEnumByName(status);
+                        if (statusEnum != null) {
+                            Integer count = bugStatusMap.get(Translator.get(statusEnum.getI18nKey()));
+                            if (count == null) {
+                                bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), 1);
+                            } else {
+                                count += 1;
+                                bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), count);
+                            }
+                        } else {
+                            statusArray.forEach(item -> {
+                                JSONObject statusObj = (JSONObject) item;
+                                if (StringUtils.equals(status, statusObj.get("value").toString())) {
+                                    Integer count = bugStatusMap.get(statusObj.get("text").toString());
+                                    if (count == null) {
+                                        bugStatusMap.put(statusObj.get("text").toString(), 1);
+                                    } else {
+                                        count += 1;
+                                        bugStatusMap.put(statusObj.get("text").toString(), count);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
+        return bugStatusMap;
     }
 
     private int getAllUnClosedBugSize(String projectId) {

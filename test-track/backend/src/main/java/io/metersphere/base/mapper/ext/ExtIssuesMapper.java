@@ -48,4 +48,6 @@ public interface ExtIssuesMapper {
     Long getThisWeekIssueCount(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     List<String> getTestPlanThisWeekIssue(String projectId);
+
+    List<String> getTestPlanIssue(String projectId);
 }

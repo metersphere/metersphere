@@ -6,8 +6,8 @@
       </span>
 
       <div class="btn-group">
-        <ms-table-button icon="" :class="!showMyCreator ? 'hover' : 'reviewedBtn'" :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator('false')" style="border-color: #FFFFFF"/>
-        <ms-table-button icon="" :class="showMyCreator ? 'hover' : 'createBtn'" :content="$t('test_track.review.my_create')" @click="searchMyCreator('true')" style="border-color: #FFFFFF; margin-left: 3px"/>
+        <ms-table-button icon="" :class="!showMyCreator ? 'hover reviewedBtn' : 'reviewedBtn'" :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator('false')" style="border-color: #FFFFFF"/>
+        <ms-table-button icon="" :class="showMyCreator ? 'hover createBtn' : 'createBtn'" :content="$t('test_track.review.my_create')" @click="searchMyCreator('true')" style="border-color: #FFFFFF; margin-left: 3px"/>
       </div>
     </div>
     <div v-loading="loading" element-loading-background="#FFFFFF">
@@ -19,8 +19,8 @@
       </div>
       <div v-show="!loadError">
         <el-table class="adjust-table" :data="tableData" @row-click="intoPlan"
-          :header-cell-style="{backgroundColor: '#F5F6F7'}" max-height="224px">
-          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip />
+                  header-cell-class-name="home-table-cell" max-height="226px">
+          <el-table-column type="index" width="100" :label="$t('home.table.index')" show-overflow-tooltip />
           <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip />
           <el-table-column prop="status" :label="$t('test_track.plan.plan_status')">
             <template v-slot:default="scope">
@@ -146,26 +146,59 @@ export default {
   border: 1px solid #BBBFC4;
   border-radius: 4px;
   margin: 1px;
+  width: 182px;
+  height: 30px;
 }
 
 :deep(button.el-button.el-button--mini.is-plain.hover) {
   background: rgba(120, 56, 135, 0.1);
   border-radius: 4px;
   color: #783887;
+  background-color: rgba(120, 56, 135, 0.1);
   font-weight: 500;
 }
 
-.reviewedBtn.el-button--mini.is-plain:hover {
+:deep(button.el-button.el-button--mini.is-plain.createBtn) {
+  width: 100px;
+  height: 24px;
+  position: relative;
+  left: 4px;
+  top: 4px;
+}
+
+:deep(button.el-button.el-button--mini.is-plain.reviewedBtn) {
+  width: 72px;
+  height: 24px;
+  position: relative;
+  left: 4px;
+  top: 4px;
+}
+
+:deep(.reviewedBtn.el-button--mini.is-plain:hover) {
   background: rgba(120, 56, 135, 0.1);
   border-radius: 4px;
   color: #783887;
   font-weight: 400;
 }
 
-.createBtn.el-button--mini.is-plain:hover {
+:deep(.createBtn.el-button--mini.is-plain:hover) {
   background: rgba(120, 56, 135, 0.1);
   border-radius: 4px;
   color: #783887;
   font-weight: 400;
+}
+
+:deep(button.el-button.el-button--mini.is-plain span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  position: relative;
+  right: 3px;
+  bottom: 8px;
 }
 </style>
