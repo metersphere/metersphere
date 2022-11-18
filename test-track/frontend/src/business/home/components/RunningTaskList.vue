@@ -17,9 +17,9 @@
           :enable-selection="false"
           :condition="condition"
           :data="tableData"
-          :header-cell-style="{ backgroundColor: '#F5F6F7' }"
-          @refresh="search" max-height="224px">
-          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip/>
+          @refresh="search"
+          header-cell-class-name="home-table-cell" max-height="226px">
+          <el-table-column type="index" width="100" :label="$t('home.table.index')" show-overflow-tooltip/>
           <el-table-column prop="name" :label="$t('commons.name')">
             <template v-slot:default="{row}">
               <!-- 若为只读用户不可点击之后跳转-->

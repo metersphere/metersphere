@@ -29,14 +29,14 @@ const message = {
     },
     dashboard: {
       public: {
-        this_week: "This week ",
+        this_week: "Week ",
         load_error: "Loading failure",
         no_data: "No data",
       },
       case_finished_review_pass_tip: "Reviewed cases/All reviewed cases *100%"
     },
     case_review_dashboard: {
-      case_count: "Case count",
+      case_count: "Case",
       not_review: "Not reviewed",
       finished_review: "Reviewed",
       not_pass: "Not pass",
@@ -46,18 +46,18 @@ const message = {
       api_case: "Api case",
       scenario_case: "Scenario case",
       performance_case: "Performance case",
-      relevance_case_count: "Relevance case count",
+      relevance_case_count: "Relevance case",
       not_cover: "Not cover",
       cover: "Cover",
     },
     bug_dashboard: {
-      un_closed_bug_count: "Unclosed bug count",
-      un_closed_range: "Unclosed bug range",
+      un_closed_bug_count: "Unclosed bug",
+      un_closed_range: "Unclosed bug rate",
       un_closed_range_tips: "Unclosed bugs/all associated bugs *100%",
-      un_closed_bug_case_range: "Unclosed bug case range",
+      un_closed_bug_case_range: "Unclosed bug case rate",
       un_closed_bug_case_range_tips: "Unclosed bugs/all associated cases *100%",
-      un_closed_count: "Unclosed bug count",
-      total_count: "Bug total",
+      un_closed_count: "Unclosed bug",
+      total_count: "All related bug",
       case_count: "Case count",
     }
   },

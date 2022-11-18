@@ -1,7 +1,7 @@
 <template>
-  <div style="background-color:#F5F6F7">
+  <div style="background-color:#F5F6F7; overflow: auto">
     <ms-container>
-      <ms-main-container style="overflow-y: hidden">
+      <ms-main-container style="padding: 0px">
         <div class="track-home-layout">
           <el-row :gutter="16">
             <el-col :span="12">
@@ -14,7 +14,7 @@
 
           <el-row :gutter="16" style="margin-top: 16px">
             <el-col :span="12">
-              <bug-count-card />
+              <bug-count-card @redirectPage="redirectPage"/>
             </el-col>
             <el-col :span="12">
               <case-maintenance />
@@ -22,19 +22,19 @@
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="background-color: #FFFFFF;">
+            <el-col style="height: 369px; background-color: #FFFFFF;">
               <ms-failure-test-case-list :select-function-case="true" @redirectPage="redirectPage"/>
             </el-col>
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="background-color: #FFFFFF;">
+            <el-col style="height: 369px; background-color: #FFFFFF;">
               <review-list/>
             </el-col>
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="background-color: #FFFFFF;">
+            <el-col style="height: 369px; background-color: #FFFFFF;">
               <ms-running-task-list :call-from="'track_home'" @redirectPage="redirectPage"/>
             </el-col>
           </el-row>
@@ -55,7 +55,6 @@ import BugCountCard from "./components/BugCountCard";
 import ReviewList from "./components/ReviewList";
 import MsRunningTaskList from "./components/RunningTaskList";
 import {getUUID} from "metersphere-frontend/src/utils";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import MsFailureTestCaseList from "@/business/home/components/FailureTestCaseList";
 
 require('echarts/lib/component/legend');
@@ -75,11 +74,6 @@ export default {
   data() {
     return {
     }
-  },
-  computed: {
-    projectId() {
-      return getCurrentProjectID();
-    },
   },
   methods: {
     redirectPage(page, dataType, selectType, title) {
@@ -103,6 +97,8 @@ export default {
         case "api":
           home = this.$router.resolve('/api/definition/' + uuid + "/" + dataType + "/" + selectType);
           break;
+        case "issue":
+          home = this.$router.resolve('/track/issue/' + uuid + "/" + dataType + "/" + selectType);
       }
       if (home) {
         window.open(home.href, '_blank');
@@ -192,5 +188,9 @@ export default {
   border-left-width: 0;
   color: #1F2329;
   line-height: 22px;
+}
+
+.track-home-layout :deep(.el-card) {
+  border: 0;
 }
 </style>

@@ -1,12 +1,15 @@
 package io.metersphere.dto;
 
 import io.metersphere.excel.converter.TestReviewCaseStatus;
+import io.metersphere.i18n.Translator;
 import io.metersphere.request.testcase.TrackCount;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用例数量统计数据
@@ -107,33 +110,31 @@ public class TrackStatisticsDTO {
      */
     private long unPassCount = 0;
 
+    /**
+     * 面板数据
+     */
+    private Map<String, Integer> chartData;
+
 
     /**
      * 按照 Priority 统计
      * @param trackCountResults 统计结果
      */
     public void countPriority(List<TrackCountResult> trackCountResults) {
+        Map<String, Integer> chartData = new HashMap<>();
         for (TrackCountResult countResult : trackCountResults) {
             if (StringUtils.isNotBlank(countResult.getGroupField())) {
-                switch (countResult.getGroupField().toUpperCase()){
-                    case TrackCount.P0:
-                        this.p0CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P1:
-                        this.p1CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P2:
-                        this.p2CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P3:
-                        this.p3CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    default:
-                        break;
+                Integer count = chartData.get(countResult.getGroupField());
+                if (count == null) {
+                    chartData.put(countResult.getGroupField(), (int) countResult.getCountNumber());
+                } else {
+                    count += (int) countResult.getCountNumber();
+                    chartData.put(countResult.getGroupField(), count);
                 }
             }
             this.allCaseCountNumber += countResult.getCountNumber();
         }
+        this.chartData = chartData;
     }
 
     public void countStatus(List<TrackCountResult> statusResults) {
@@ -149,24 +150,38 @@ public class TrackStatisticsDTO {
     }
 
     public void countRelevance(List<TrackCountResult> relevanceResults) {
+        Map<String, Integer> chartData = new HashMap<>();
         for (TrackCountResult countResult : relevanceResults) {
-            switch (countResult.getGroupField()){
-                case TrackCount.TESTCASE:
-                    this.apiCaseCount += countResult.getCountNumber();
-                    this.allRelevanceCaseCount += countResult.getCountNumber();
-                    break;
-                case TrackCount.PERFORMANCE:
-                    this.performanceCaseCount += countResult.getCountNumber();
-                    this.allRelevanceCaseCount += countResult.getCountNumber();
-                    break;
-                case TrackCount.AUTOMATION:
-                    this.scenarioCaseCount += countResult.getCountNumber();
-                    this.allRelevanceCaseCount += countResult.getCountNumber();
-                    break;
-                default:
-                    break;
+            if (StringUtils.equalsIgnoreCase(TrackCount.TESTCASE, countResult.getGroupField())) {
+                Integer count = chartData.get(Translator.get("api_case"));
+                if (count == null) {
+                    chartData.put(Translator.get("api_case"), (int) countResult.getCountNumber());
+                } else {
+                    count += (int) countResult.getCountNumber();
+                    chartData.put(Translator.get("api_case"), count);
+                }
             }
+            if (StringUtils.equalsIgnoreCase(TrackCount.PERFORMANCE, countResult.getGroupField())) {
+                Integer count = chartData.get(Translator.get("performance_case"));
+                if (count == null) {
+                    chartData.put(Translator.get("performance_case"), (int) countResult.getCountNumber());
+                } else {
+                    count += (int) countResult.getCountNumber();
+                    chartData.put(Translator.get("performance_case"), count);
+                }
+            }
+            if (StringUtils.equalsIgnoreCase(TrackCount.AUTOMATION, countResult.getGroupField())) {
+                Integer count = chartData.get(Translator.get("scenario_case"));
+                if (count == null) {
+                    chartData.put(Translator.get("scenario_case"), (int) countResult.getCountNumber());
+                } else {
+                    count += (int) countResult.getCountNumber();
+                    chartData.put(Translator.get("scenario_case"), count);
+                }
+            }
+            this.allRelevanceCaseCount += countResult.getCountNumber();
         }
+        this.chartData = chartData;
     }
 
     public void countCoverage(List<TrackCountResult> coverageResults) {
