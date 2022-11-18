@@ -446,7 +446,10 @@ export default {
       rows.forEach(row => {
         this.planCaseIds.push(row.id);
       })
-      this.$refs.runMode.open('API');
+      //防止this.planCaseIds没有及时绑定
+      this.$nextTick(()=>{
+        this.$refs.runMode.open('API');
+      })
     },
     orderBySelectRows(rows) {
       let selectIds = Array.from(rows).map(row => row.id);
