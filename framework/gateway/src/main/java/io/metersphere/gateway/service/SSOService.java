@@ -3,6 +3,7 @@ package io.metersphere.gateway.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.metersphere.base.domain.AuthSource;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -303,8 +304,8 @@ public class SSOService {
             user.setSource(authSource.getType());
             userLoginService.createOssUser(user);
         } else {
-            if (StringUtils.equals(u.getEmail(), email) && !StringUtils.equals(u.getId(), userid)) {
-                MSException.throwException("email already exists!");
+            if (!StringUtils.equals(u.getSource(), UserSource.OAuth2.name())) {
+                MSException.throwException("user already exist, user source type is " + u.getSource());
             }
         }
 
