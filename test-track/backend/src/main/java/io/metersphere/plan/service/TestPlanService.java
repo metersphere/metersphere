@@ -51,6 +51,7 @@ import io.metersphere.xpack.api.service.ApiPoolDebugService;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1799,9 +1800,13 @@ public class TestPlanService {
 
         for (String id : ids) {
             TestPlanWithBLOBs testPlan = testPlanMap.get(id);
+
             String planReportId = UUID.randomUUID().toString();
             //创建测试报告
             RunModeConfigDTO runModeConfigDTO = JSON.parseObject(testPlan.getRunModeConfig(), RunModeConfigDTO.class);
+            runModeConfigDTO = ObjectUtils.isEmpty(runModeConfigDTO) ? new RunModeConfigDTO() : runModeConfigDTO;
+            this.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
+
             this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode(), runModeConfigDTO);
             //测试计划准备执行，取消测试计划的实际结束时间
             extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());

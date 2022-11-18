@@ -35,6 +35,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -127,6 +128,8 @@ public class ApiExecuteService {
             request.setReportId(request.getTestPlanId());
         }
         LoggerUtil.info("开始执行单条用例【 " + testCaseWithBLOBs.getId() + " 】", request.getReportId());
+        RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+        jMeterService.verifyPool(testCaseWithBLOBs.getProjectId(), runModeConfigDTO);
 
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
@@ -135,10 +138,18 @@ public class ApiExecuteService {
                 if (LoggerUtil.getLogger().isDebugEnabled()) {
                     LoggerUtil.debug("生成jmx文件：" + ElementUtil.hashTreeToString(jmeterHashTree));
                 }
+
                 // 调用执行方法
                 JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), jmeterHashTree);
                 if (MapUtils.isNotEmpty(extendedParameters)) {
                     runRequest.setExtendedParameters(extendedParameters);
+                }
+                if (StringUtils.isNotBlank(runModeConfigDTO.getResourcePoolId())) {
+                    runRequest.setPoolId(runModeConfigDTO.getResourcePoolId());
+                    BooleanPool pool = GenerateHashTreeUtil.isResourcePool(runModeConfigDTO.getResourcePoolId());
+                    runRequest.setPool(pool);
+                    BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
+                    runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
                 }
                 jMeterService.run(runRequest);
             } catch (Exception ex) {

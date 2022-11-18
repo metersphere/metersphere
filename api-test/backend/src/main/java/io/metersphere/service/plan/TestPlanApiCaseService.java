@@ -745,6 +745,7 @@ public class TestPlanApiCaseService {
         if (apiCase == null) {
             MSException.throwException("用例已经被删除");
         }
+
         String reportName = apiCase.getName();
         ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, ApiReportStatus.RUNNING.name(), reportId, Objects.requireNonNull(SessionUtils.getUser()).getId());
         result.setName(reportName);
