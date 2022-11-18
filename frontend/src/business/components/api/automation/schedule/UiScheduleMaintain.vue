@@ -6,10 +6,6 @@
       <div>
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('schedule.task_config')" name="first">
-            <div class="el-step__icon is-text" style="margin-right: 10px;">
-              <div class="el-step__icon-inner">1</div>
-            </div>
-            <span>{{ $t('schedule.edit_timer_task') }}</span>
             <el-form :model="form" :rules="rules" ref="from" style="margin-top: 10px;" class="ms-el-form-item__error">
 
               <el-form-item :label="$t('commons.schedule_cron_title')"
@@ -43,69 +39,11 @@
             <div class="el-step__icon is-text" style="margin-right: 10px;">
               <div class="el-step__icon-inner">2</div>
             </div>
-            <span>{{ $t('load_test.runtime_config') }}</span>
-            <div class="ms-mode-div">
-              <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
-              <el-radio-group v-model="runConfig.mode" @change="changeMode">
-                <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
-                <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
-              </el-radio-group>
-            </div>
-
-            <div style="margin-top: 10px;">
-              <span class="ms-mode-span">{{ $t("ui.browser") }}：</span>
-              <el-select
-                size="mini"
-                v-model="runConfig.browser"
-                style="margin-right: 30px; width: 150px"
-              >
-                <el-option
-                  v-for="b in browsers"
-                  :key="b.value"
-                  :value="b.value"
-                  :label="b.label"
-                ></el-option>
-              </el-select>
-            </div>
-
-            <div class="ms-mode-div" style="margin-top: 10px">
-              <el-row>
-                <el-col :span="3">
-                  <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-                </el-col>
-                <el-col :span="18">
-                  <div>
-                    <el-checkbox v-model="runConfig.headlessEnabled">
-                      {{ $t("ui.performance_mode") }}
-                    </el-checkbox>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-
-            <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
-              <el-row>
-                <el-col :span="3">
-                  &nbsp;
-                </el-col>
-                <el-col :span="18">
-                  <div>
-                    <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-
-
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
                        ref="crontab"/>
             </el-dialog>
-          </el-tab-pane>
-          <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-            <ms-schedule-notification :test-id="testId"
-                                      :schedule-receiver-options="scheduleReceiverOptions"/>
           </el-tab-pane>
         </el-tabs>
       </div>
