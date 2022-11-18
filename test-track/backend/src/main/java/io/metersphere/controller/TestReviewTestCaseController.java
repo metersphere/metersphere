@@ -36,14 +36,14 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/delete")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
     public int deleteTestCase(@RequestBody DeleteRelevanceRequest request) {
         return testReviewTestCaseService.deleteTestCase(request);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
     public void deleteTestCaseBatch(@RequestBody TestReviewCaseBatchRequest request) {
         testReviewTestCaseService.deleteTestCaseBatch(request);
