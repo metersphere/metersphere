@@ -294,6 +294,15 @@ public class ApiScenarioExecuteService {
                 if (MapUtils.isEmpty(runModeConfig.getEnvMap())) {
                     apiCaseExecuteService.setRunModeConfigEnvironment(runModeConfig, planEnvMap);
                 }
+                //对报告的envMap做过滤，过滤多余的key
+                Map<String, String> diffEnvMap = new HashMap<>();
+                Map<String, String> envMap = runModeConfig.getEnvMap();
+                planEnvMap.forEach((k,v)->{
+                    if (envMap.get(k)!=null){
+                        diffEnvMap.put(k,envMap.get(k));
+                    }
+                });
+                runModeConfig.setEnvMap(diffEnvMap);
                 report.setEnvConfig(JSON.toJSONString(runModeConfig));
             }
             // 生成文档结构
