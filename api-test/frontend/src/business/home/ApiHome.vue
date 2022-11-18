@@ -139,15 +139,15 @@ export default {
 }
 
 .api-home-layout :deep(.dashboard-card) {
-  height: 392px;
+  height: 408px;
 }
 
 .api-home-layout :deep(.main-info) {
-  height: 197px;
+  height: 208px;
 }
 
 .api-home-layout :deep(.main-info-card) {
-  height: 197px;
+  height: 208px;
   width: 100%;
   color: #646A73;
   background-color: #FFFFFF;
