@@ -20,9 +20,9 @@ public interface ExtApiScenarioReportMapper {
 
     long countByProjectID(String projectId);
 
-    long countByProjectIdAndCreateInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countByProjectIdAndCreateInThisWeek(@Param("projectId") String projectId, @Param("executeType") String executeType, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
-    long countByProjectIdAndCreateAndByScheduleInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countByProjectIdAndCreateAndByScheduleInThisWeek(@Param("projectId") String projectId, @Param("executeType") String executeType, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(@Param("projectId") String projectId, @Param("version") String version);
 

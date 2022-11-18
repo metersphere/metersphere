@@ -718,7 +718,7 @@ public class ApiScenarioReportService {
         return ids;
     }
 
-    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId, String version) {
+    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId, String executeType, String version) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -727,11 +727,11 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, executeType, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public long countByProjectIdAndCreateInThisWeek(String projectId, String version) {
+    public long countByProjectIdAndCreateInThisWeek(String projectId, String executeType, String version) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -740,7 +740,7 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, executeType, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 

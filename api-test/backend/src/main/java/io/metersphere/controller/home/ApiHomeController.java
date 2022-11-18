@@ -144,10 +144,10 @@ public class ApiHomeController {
         //统计覆盖率
         long dateCountByCreateInThisWeek = apiAutomationService.countScenarioByProjectIDAndCreatInThisWeek(projectId);
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
-        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId, null);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId, ExecutionExecuteTypeEnum.BASIC.name(), null);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
         //所有执行次数
-        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, null, null);
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, null, ExecutionExecuteTypeEnum.BASIC.name(), null);
         apiCountResult.setExecutedTimes(executedTimes);
         //未执行、未通过、已通过
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
@@ -188,9 +188,9 @@ public class ApiHomeController {
         apiCountResult.setTotal(allTaskCount);
         long taskCountInThisWeek = baseScheduleService.countTaskByProjectIdInThisWeek(projectId);
         apiCountResult.setCreatedInWeek(taskCountInThisWeek);
-        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, null);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, ExecutionExecuteTypeEnum.BASIC.name(), null);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
-        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name(), null);
+        long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name(), ExecutionExecuteTypeEnum.BASIC.name(), null);
         apiCountResult.setExecutedTimes(executedTimes);
         //统计 失败 成功 以及总数
         List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId, null);
@@ -233,7 +233,7 @@ public class ApiHomeController {
 
     @GetMapping("/failure/case/about/plan/{projectId}/{selectFunctionCase}/{limitNumber}/{goPage}/{pageSize}")
     public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable boolean selectFunctionCase,
-                                                              @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
+                                                                     @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
 
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, selectFunctionCase, limitNumber);
