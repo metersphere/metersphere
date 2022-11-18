@@ -295,14 +295,14 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         Map<String, List<CustomFieldDao>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(CustomFieldDao::getName));
         issueExcelData.getCustomData().forEach((k, v) -> {
             try {
-                List<CustomFieldDao> customFieldDaos = customFieldMap.get(k);
-                if (CollectionUtils.isNotEmpty(customFieldDaos) && customFieldDaos.size() > 0) {
-                    CustomFieldDao customFieldDao = customFieldDaos.get(0);
+                List<CustomFieldDao> customFieldDaoList = customFieldMap.get(k);
+                if (CollectionUtils.isNotEmpty(customFieldDaoList) && customFieldDaoList.size() > 0) {
+                    CustomFieldDao customFieldDao = customFieldDaoList.get(0);
                     String type = customFieldDao.getType();
-                    // addfield
+                    // add field
                     CustomFieldResourceDTO customFieldResourceDTO = new CustomFieldResourceDTO();
                     customFieldResourceDTO.setFieldId(customFieldDao.getId());
-                    // requestfield
+                    // request field
                     CustomFieldItemDTO customFieldItemDTO = new CustomFieldItemDTO();
                     BeanUtils.copyBean(customFieldItemDTO, customFieldDao);
                     if (StringUtils.isEmpty(v.toString())) {

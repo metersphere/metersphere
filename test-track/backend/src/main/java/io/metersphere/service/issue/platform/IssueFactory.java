@@ -16,8 +16,6 @@ public class IssueFactory {
     public static IssuesPlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
         if (StringUtils.equals(IssuesManagePlatform.Tapd.toString(), platform)) {
             return new TapdPlatform(addIssueRequest);
-        } else if (StringUtils.equals(IssuesManagePlatform.Jira.toString(), platform)) {
-            return new JiraPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.Zentao.toString(), platform)) {
             return new ZentaoPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.AzureDevops.toString(), platform)) {
@@ -45,16 +43,5 @@ public class IssueFactory {
             }
         });
         return platforms;
-    }
-
-    public static Map<String, IssuesPlatform> createPlatformsForMap(List<String> types, IssuesRequest addIssueRequest) {
-        Map<String, IssuesPlatform> platformMap = new HashMap<>();
-        types.forEach(type -> {
-            IssuesPlatform abstractIssuePlatform = createPlatform(type, addIssueRequest);
-            if (abstractIssuePlatform != null) {
-                platformMap.put(type, abstractIssuePlatform);
-            }
-        });
-        return platformMap;
     }
 }

@@ -1,6 +1,6 @@
 package io.metersphere.service.plugin;
 
-import im.metersphere.storage.StorageStrategy;
+import im.metersphere.plugin.storage.StorageStrategy;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.metadata.service.FileManagerService;

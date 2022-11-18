@@ -1,10 +1,9 @@
 package io.metersphere.service.wapper;
 
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.PlatformPluginService;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
-import io.metersphere.service.issue.platform.IssueFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,8 @@ public class IssueProxyResourceService {
 
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     /**
      * http 代理
@@ -37,8 +38,9 @@ public class IssueProxyResourceService {
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(workspaceId);
-            return IssueFactory.createPlatform(platform, issuesRequest)
+            return platformPluginService.getPlatform(platform)
                     .proxyForGet(url, byte[].class);
+
         }
         return restTemplate.exchange(url, HttpMethod.GET, null, byte[].class);
     }
