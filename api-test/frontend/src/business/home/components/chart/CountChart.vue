@@ -1,9 +1,9 @@
 <template>
   <div v-if="reloadOver">
     <el-row type="flex" justify="left" align="left">
-      <div style="height: 184px;width: 100%;margin-left: 30px;margin-right: 30px;">
+      <div style="height: 208px;width: 100%;margin-left: 26px;margin-right: 30px;">
         <ms-chart :options="options"
-                  :height="184"
+                  :height="208"
                   width="100%"
                   :autoresize="true"/>
       </div>
@@ -114,7 +114,7 @@ export default {
           icon: "rect",
           selectedMode: dataIsNotEmpty,
           itemGap: 16,
-          left: '45%',
+          left: '50%',
           y: 'center',
           itemHeight: 8,
           itemWidth: 8, //修改icon图形大小
@@ -156,7 +156,7 @@ export default {
           text: "{mainTitle|" + this.$t("home.dashboard.api.api_total") + "}\n\n{number|" + this.getAmount() + "}\n\n",
           subtext: this.$t("home.dashboard.public.this_week") + "：+" + formatNumber(this.apiData.createdInWeek) + " >",
           top: "center",
-          left: "86px",
+          left: "100px",
           textAlign: 'center',
           textStyle: {
             rich: {
@@ -187,8 +187,8 @@ export default {
         series: [
           {
             type: 'pie',
-            radius: ['70%', '96%'],
-            center: ['92px', '50%'],
+            radius: [75, 100],
+            center: ['104px', '50%'],
             avoidLabelOverlap: false,
             hoverAnimation: dataIsNotEmpty,
             legendHoverLink: false,
