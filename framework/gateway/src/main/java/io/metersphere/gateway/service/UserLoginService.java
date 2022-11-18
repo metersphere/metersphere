@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.GroupResourceDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserGroupPermissionDTO;
@@ -233,7 +234,9 @@ public class UserLoginService {
     public UserDTO getLoginUser(String userId, List<String> list) {
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andSourceIn(list);
-        if (userMapper.countByExample(example) == 0) {
+        long count = userMapper.countByExample(example);
+        if (count == 0) {
+            LogUtil.error("get login user error, userid is {}, sources is {}", userId, list);
             return null;
         }
         return getUserDTO(userId);
