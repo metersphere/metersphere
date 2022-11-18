@@ -34,4 +34,9 @@ public class UserService {
         }
         return JSON.parseObject(JSON.toJSONString(platformInfo), UserDTO.PlatformInfo.class);
     }
+
+    public String getCurrentPlatformInfoStr(String workspaceId) {
+        UserDTO.PlatformInfo currentPlatformInfo = getCurrentPlatformInfo(workspaceId);
+        return currentPlatformInfo == null ? null : JSON.toJSONString(currentPlatformInfo);
+    }
 }

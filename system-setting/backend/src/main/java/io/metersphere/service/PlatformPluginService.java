@@ -1,7 +1,7 @@
 package io.metersphere.service;
 
-import io.metersphere.api.Platform;
-import io.metersphere.api.PluginMetaInfo;
+import io.metersphere.platform.api.Platform;
+import io.metersphere.platform.api.PluginMetaInfo;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.base.mapper.PluginMapper;
@@ -11,11 +11,9 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.domain.GetOptionRequest;
-import io.metersphere.domain.PlatformRequest;
-import io.metersphere.domain.SelectOption;
+import io.metersphere.platform.domain.*;
 import io.metersphere.dto.PlatformProjectOptionRequest;
-import io.metersphere.loader.PlatformPluginManager;
+import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
 import org.apache.commons.lang3.StringUtils;
