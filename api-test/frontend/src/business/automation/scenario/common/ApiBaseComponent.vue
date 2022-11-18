@@ -1,79 +1,141 @@
 <template>
-  <el-card :style="{'border-color':colorStyle}" class="ms-base-card">
+  <el-card :style="{ 'border-color': colorStyle }" class="ms-base-card">
     <div class="ms-base-header" @click="active(data)">
       <slot name="beforeHeaderLeft">
-        <div v-if="data.index" class="el-step__icon is-text"
-             :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner" :key="forceRerenderIndex">{{ data.index }}</div>
+        <div
+          v-if="data.index"
+          class="el-step__icon is-text"
+          :style="{ color: color, 'background-color': backgroundColor }"
+        >
+          <div class="el-step__icon-inner" :key="forceRerenderIndex">
+            {{ data.index }}
+          </div>
         </div>
-        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{
-            title
-          }}
+        <el-tag
+          class="ms-left-btn"
+          size="small"
+          :style="{ color: color, 'background-color': backgroundColor }"
+          >{{ title }}
         </el-tag>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       </slot>
 
       <span v-show="!isMax">
         <slot name="headerLeft">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)"
-             v-if="data.type!='scenario' && !isMax " @click.stop/>
+          <i
+            class="icon el-icon-arrow-right"
+            :class="{ 'is-active': data.active }"
+            @click="active(data)"
+            v-if="data.type != 'scenario' && !isMax"
+            @click.stop
+          />
           <span @click.stop v-if="isShowInput && isShowNameInput">
-            <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
-                      @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"
-                      :disabled="data.disabled"/>
+            <el-input
+              :draggable="draggable"
+              size="mini"
+              v-model="data.name"
+              class="name-input"
+              @focus="active(data)"
+              @blur="isShowInput = false"
+              :placeholder="$t('commons.input_name')"
+              ref="nameEdit"
+              :disabled="data.disabled"
+            />
           </span>
 
-          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)"
-                @mouseleave="leave($event)" v-else>
-            <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
-               v-show="data.referenced!='REF' && !data.disabled"/>
-              <span>{{ data.name }}</span>
-            <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{
-                getMethod()
-              }}</el-tag>
-            <slot name="afterTitle"/>
+          <span
+            :class="showVersion ? 'scenario-unscroll' : 'scenario-version'"
+            id="moveout"
+            @mouseenter="enter($event)"
+            @mouseleave="leave($event)"
+            v-else
+          >
+            <i
+              class="el-icon-edit"
+              style="cursor: pointer"
+              @click="editName"
+              v-show="data.referenced != 'REF' && !data.disabled"
+            />
+            <span>{{ data.name }}</span>
+            <el-tag
+              size="mini"
+              v-if="data.method && !data.pluginId"
+              style="margin-left: 1rem"
+              >{{ getMethod() }}</el-tag
+            >
+            <slot name="afterTitle" />
           </span>
         </slot>
       </span>
       <span v-show="isMax">
         <slot name="headerLeft">
-            <span class="ms-step-name-width">{{ data.name }}</span>
+          <span class="ms-step-name-width">{{ data.name }}</span>
         </slot>
       </span>
 
-      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop
-           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
+      <div
+        v-if="!ifFromVariableAdvance"
+        class="header-right"
+        @click.stop
+        v-permission="[
+          'PROJECT_API_SCENARIO:READ+EDIT',
+          'PROJECT_API_SCENARIO:READ+CREATE',
+          'PROJECT_API_SCENARIO:READ+COPY',
+        ]"
+      >
         <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
 
         <slot name="button" v-if="showVersion"></slot>
 
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini"
-                     :disabled="data.refEnable || !showVersion || isDeleted"/>
+        <el-tooltip
+          :content="$t('test_resource_pool.enable_disable')"
+          placement="top"
+          v-if="showBtn"
+        >
+          <el-switch
+            v-model="data.enable"
+            class="enable-switch"
+            size="mini"
+            :disabled="data.refEnable || !showVersion || isDeleted"
+          />
         </el-tooltip>
 
-        <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
-                   style="padding: 5px"
-                   :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
+        <el-button
+          v-if="showVersion && showCopy"
+          size="mini"
+          icon="el-icon-copy-document"
+          circle
+          @click="copyRow"
+          style="padding: 5px"
+          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"
+        />
 
-        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle
-                   @click="remove"
-                   :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
+        <el-button
+          v-show="isSingleButton"
+          size="mini"
+          icon="el-icon-delete"
+          type="danger"
+          style="padding: 5px"
+          circle
+          @click="remove"
+          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"
+        />
 
-        <step-extend-btns style="display: contents"
-                          :data="data"
-                          :environmentType="environmentType"
-                          :environmentGroupId="environmentGroupId"
-                          :envMap="envMap"
-                          :is-scenario="true"
-                          @enable="enable"
-                          @copy="copyRow"
-                          @remove="remove"
-                          @openScenario="openScenario"
-                          v-show="isMoreButton"/>
+        <step-extend-btns
+          style="display: contents"
+          :data="data"
+          :environmentType="environmentType"
+          :environmentGroupId="environmentGroupId"
+          :envMap="envMap"
+          :is-scenario="true"
+          @enable="enable"
+          @copy="copyRow"
+          @remove="remove"
+          @openScenario="openScenario"
+          v-show="isMoreButton"
+        />
       </div>
-
     </div>
     <!--最大化不显示具体内容-->
     <div v-if="!isMax">
@@ -92,26 +154,25 @@
         </div>
       </el-collapse-transition>
     </div>
-
   </el-card>
 </template>
 
 <script>
 import StepExtendBtns from "../component/StepExtendBtns";
-import {STEP} from "../Setting";
-import {useApiStore} from "@/store";
+import { STEP } from "../Setting";
+import { useApiStore } from "@/store";
 
 let store = useApiStore();
 
 export default {
   name: "ApiBaseComponent",
-  components: {StepExtendBtns},
+  components: { StepExtendBtns },
   data() {
     return {
       isShowInput: false,
       colorStyle: "",
-      stepFilter: new STEP,
-    }
+      stepFilter: new STEP(),
+    };
   },
   props: {
     draggable: Boolean,
@@ -134,32 +195,32 @@ export default {
     data: {
       type: Object,
       default() {
-        return {}
+        return {};
       },
     },
     color: {
       type: String,
       default() {
-        return "#B8741A"
-      }
+        return "#B8741A";
+      },
     },
     backgroundColor: {
       type: String,
       default() {
-        return "#F9F1EA"
-      }
+        return "#F9F1EA";
+      },
     },
     showCollapse: {
       type: Boolean,
       default() {
-        return true
-      }
+        return true;
+      },
     },
     isShowNameInput: {
       type: Boolean,
       default() {
-        return true
-      }
+        return true;
+      },
     },
     title: String,
     ifFromVariableAdvance: {
@@ -171,20 +232,23 @@ export default {
     envMap: Map,
     showEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showCopy: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isDeleted: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   watch: {
-    'selectStep'() {
-      if (store.selectStep && store.selectStep.resourceId === this.data.resourceId) {
+    selectStep() {
+      if (
+        store.selectStep &&
+        store.selectStep.resourceId === this.data.resourceId
+      ) {
         this.colorStyle = this.color;
       } else {
         this.colorStyle = "";
@@ -200,7 +264,10 @@ export default {
         this.$refs.nameEdit.focus();
       });
     }
-    if (this.data && this.stepFilter.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
+    if (
+      this.data &&
+      this.stepFilter.get("AllSamplerProxy").indexOf(this.data.type) != -1
+    ) {
       if (!this.data.method) {
         this.data.method = this.data.protocol;
       }
@@ -214,21 +281,45 @@ export default {
       return store.forceRerenderIndex;
     },
     isSingleButton() {
-      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
-        return (this.innerStep && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1)
+      if (
+        this.data.type === "ConstantTimer" ||
+        this.data.type === "Assertions"
+      ) {
+        return (
+          this.innerStep &&
+          this.showVersion &&
+          this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1
+        );
       }
-      return (this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1);
+      return (
+        this.showVersion &&
+        this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1
+      );
     },
     isMoreButton() {
-      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
-        return (!this.innerStep || this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+      if (
+        this.data.type === "ConstantTimer" ||
+        this.data.type === "Assertions"
+      ) {
+        return (
+          !this.innerStep ||
+          (this.showBtn &&
+            (!this.data.disabled || this.data.root) &&
+            this.showVersion &&
+            this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) === -1)
+        );
       }
-      return (this.showBtn && (!this.data.disabled || this.data.root || this.isDeleted) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+      return (
+        this.showBtn &&
+        (!this.data.disabled || this.data.root || this.isDeleted) &&
+        this.showVersion &&
+        this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) === -1
+      );
     },
   },
   methods: {
     active() {
-      this.$emit('active');
+      this.$emit("active");
     },
     getMethod() {
       if (this.data.protocol === "HTTP") {
@@ -240,13 +331,13 @@ export default {
       }
     },
     copyRow() {
-      this.$emit('copy');
+      this.$emit("copy");
     },
     remove() {
-      this.$emit('remove');
+      this.$emit("remove");
     },
     openScenario(data) {
-      this.$emit('openScenario', data);
+      this.$emit("openScenario", data);
     },
     editName() {
       this.isShowInput = true;
@@ -256,28 +347,26 @@ export default {
     },
     enter($event) {
       if (this.showVersion) {
-        $event.currentTarget.className = "scenario-name"
+        $event.currentTarget.className = "scenario-name";
       } else {
-        $event.currentTarget.className = "scenario-version"
+        $event.currentTarget.className = "scenario-version";
       }
     },
     leave($event) {
       if (this.showVersion) {
-        $event.currentTarget.className = "scenario-unscroll"
+        $event.currentTarget.className = "scenario-unscroll";
       } else {
-        $event.currentTarget.className = "scenario-version"
+        $event.currentTarget.className = "scenario-version";
       }
     },
     enable() {
       this.data.enable = !this.data.enable;
-    }
-  }
-}
-
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .icon.is-active {
   transform: rotate(90deg);
 }
