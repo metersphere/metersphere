@@ -1,82 +1,86 @@
 <template>
-  <el-card class="table-card" shadow="never" body-style="padding:10px 5px;">
-    <div slot="header">
-      <span class="title">
-        {{ $t('test_track.home.bug_count') }}
-      </span>
-    </div>
-
-    <div v-loading="loading" element-loading-background="#FFFFFF">
-      <div v-show="loadError"
-           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
-        <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load_error.svg"/>
-        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+  <div class="dashboard-card">
+    <el-card shadow="never" class="box-card" style="height: 100%">
+      <div slot="header" class="clearfix">
+        <span class="dashboard-title">{{ $t('test_track.home.bug_count') }}</span>
       </div>
-      <div v-show="!loadError">
-        <div class="main-info">
-          <bug-count-chart :bug-data="bugData" ref="countChart" @redirectPage="redirectPage"/>
+
+      <div v-loading="loading" element-loading-background="#FFFFFF">
+        <div v-show="loadError"
+             style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center">
+          <img style="height: 100px;width: 100px;"
+               src="/assets/figma/icon_load_error.svg"/>
+          <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
         </div>
-        <div class="addition-info">
-          <el-row :gutter="24" style="margin: 0">
-            <el-col :span="24" style="padding-left: 0">
-              <hover-card
-                :title="$t('home.bug_dashboard.un_closed_range')"
-                :main-info="bugData.unClosedRage"
-                :tool-tip="unClosedBugRangeToolTip"
-              >
-                <!--遗留缺陷、所有缺陷-->
-                <template v-slot:mouseOut>
-                  <div style="margin:16px 0px 0px 16px">
-                    <el-row>
-                      <el-col :span="12">
+        <div v-show="!loadError">
+          <div class="main-info">
+            <count-chart :chart-data="bugData.chartData" :main-title="chartMainTitle"
+                         :week-count="bugData.thisWeekAddedCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
+          </div>
+          <div class="addition-info">
+            <el-row :gutter="24" style="margin: 0">
+              <el-col :span="24" style="padding-left: 0">
+                <hover-card
+                  :title="$t('home.bug_dashboard.un_closed_range')"
+                  :main-info="bugData.unClosedRage"
+                  :tool-tip="unClosedBugRangeToolTip"
+                >
+                  <!--遗留缺陷、所有缺陷-->
+                  <template v-slot:mouseOut>
+                    <div style="margin:16px 0px 0px 16px">
+                      <el-row>
+                        <el-col :span="12">
                         <span class="addition-info-title">
                           {{ $t('home.bug_dashboard.un_closed_count') }}
                         </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num">
-                            {{ formatAmount(bugData.bugUnclosedCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                      <el-col :span="12">
+                          <div class="common-amount">
+                            <el-link class="addition-info-num" @click="redirectPage('unClosedRelatedTestPlan')">
+                              {{ formatAmount(bugData.bugUnclosedCount) }}
+                            </el-link>
+                          </div>
+                        </el-col>
+                        <el-col :span="12">
                         <span class="addition-info-title">
                           {{ $t('home.bug_dashboard.total_count') }}
                         </span>
-                        <div class="common-amount">
-                          <el-link class="addition-info-num">
-                            {{ formatAmount(bugData.bugTotalCount) }}
-                          </el-link>
-                        </div>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </template>
-              </hover-card>
-            </el-col>
-          </el-row>
+                          <div class="common-amount">
+                            <el-link class="addition-info-num" @click="redirectPage('AllRelatedTestPlan')">
+                              {{ formatAmount(bugData.bugTotalCount) }}
+                            </el-link>
+                          </div>
+                        </el-col>
+                      </el-row>
+                    </div>
+                  </template>
+                </hover-card>
+              </el-col>
+            </el-row>
+          </div>
         </div>
       </div>
-    </div>
-  </el-card>
+    </el-card>
+  </div>
 </template>
 
 <script>
-import bugCountChart from "@/business/home/components/chart/BugCountChart";
+import countChart from "@/business/home/components/chart/CountChart";
 import hoverCard from "@/business/home/components/card/HoverCard";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackBugCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
+import {getUUID} from "metersphere-frontend/src/utils";
 
 export default {
   name: "BugCountCard",
-  components: {bugCountChart, hoverCard},
+  components: {countChart, hoverCard},
   data() {
     return {
       loading: false,
       loadError: false,
       unClosedBugRangeToolTip: this.$t('home.bug_dashboard.un_closed_range_tips'),
       unClosedBugCaseRangeToolTip: this.$t('home.bug_dashboard.un_closed_bug_case_range_tips'),
+      chartMainTitle: this.$t("home.bug_dashboard.un_closed_bug_count"),
+      chartRedirectLink: "/#/track/issue/" + getUUID() + "/" + getCurrentProjectID() + "/thisWeekUnClosedIssue",
       bugData: {
         bugCaseRage:" 0%",
         bugTotalCount: 0,
@@ -87,7 +91,8 @@ export default {
         resolvedCount: 0,
         rejectedCount: 0,
         unKnownCount: 0,
-        thisWeekCount: 0
+        thisWeekCount: 0,
+        chartData: {}
       },
     }
   },
@@ -114,7 +119,8 @@ export default {
       return formatNumber(number);
     },
     redirectPage(clickType) {
-      this.$emit("redirectPage", "testCase", "relationCase", clickType);
+      let currentProjectId = getCurrentProjectID();
+      this.$emit("redirectPage", "issue", currentProjectId, clickType);
     }
   }
 }

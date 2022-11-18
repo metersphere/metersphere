@@ -1456,16 +1456,26 @@ public class IssuesService {
         });
     }
 
-    public void setThisWeekUnclosedIds(IssuesRequest request) {
-        List<String> issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
+    public void setFilterIds(IssuesRequest request) {
+        List<String> issueIds = new ArrayList<>();
+        if (request.getThisWeekUnClosedTestPlanIssue()) {
+            issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
+        } else if (request.getAllTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
+            issueIds = extIssuesMapper.getTestPlanIssue(request.getProjectId());
+        }
+
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
         if (MapUtils.isEmpty(statusMap)) {
-            request.setThisWeekUncloseIds(issueIds);
+            request.setFilterIds(issueIds);
         } else {
-            List<String> unClosedIds = issueIds.stream()
-                    .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
-                    .collect(Collectors.toList());
-            request.setThisWeekUncloseIds(unClosedIds);
+            if (request.getThisWeekUnClosedTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
+                List<String> unClosedIds = issueIds.stream()
+                        .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                        .collect(Collectors.toList());
+                request.setFilterIds(unClosedIds);
+            } else {
+                request.setFilterIds(issueIds);
+            }
         }
     }
 }

@@ -1,25 +1,25 @@
 <template>
-  <el-card class="table-card" shadow="never" body-style="padding:10px;">
-    <div slot="header">
-      <span class="title">
-        {{ $t('test_track.home.case_maintenance') }}
-      </span>
-    </div>
+  <div class="dashboard-card">
+    <el-card shadow="never" class="box-card" style="height: 100%">
+      <div slot="header" class="clearfix">
+        <span class="dashboard-title">{{ $t('test_track.home.case_maintenance') }}</span>
+      </div>
 
-    <div v-loading="loading" element-loading-background="#FFFFFF">
-      <div v-show="loadError"
-           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
-        <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load_error.svg"/>
-        <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+      <div v-loading="loading" element-loading-background="#FFFFFF">
+        <div v-show="loadError"
+             style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
+          <img style="height: 100px;width: 100px;"
+               src="/assets/figma/icon_load_error.svg"/>
+          <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
+        </div>
+        <div v-show="!loadError">
+          <el-container>
+            <ms-chart ref="chart1" :options="caseOption" :autoresize="true" style="width: 100%;height: 323px;"></ms-chart>
+          </el-container>
+        </div>
       </div>
-      <div v-show="!loadError">
-        <el-container>
-          <ms-chart ref="chart1" :options="caseOption" :autoresize="true" style="width: 100%;height: 323px"></ms-chart>
-        </el-container>
-      </div>
-    </div>
-  </el-card>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -88,12 +88,21 @@ export default {
             show: false
           }
         },
+        grid: {
+          left: 0,
+          containLabel: true,
+          bottom: 24,
+          top: 60,
+          right: 24,
+          width: 600,
+          height: 250
+        },
         legend: {
           itemWidth: 8,
           itemHeight: 8,
           data: [{icon: 'rect', name: this.$t('test_track.home.function_case_count')}, {icon: 'rect', name: this.$t('test_track.home.relevance_case_count')}],
           orient: 'horizontal',
-          left: '30',
+          left: '0',
           top: '10'
         },
         series: [
