@@ -51,6 +51,7 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1794,21 +1795,21 @@ public class TestPlanService {
                     apiBaseInfoChanged = true;
                 }
             }
-            if(report.getFunctionAllCases() == null || report.getIssueList() == null){
+            if (report.getFunctionAllCases() == null || report.getIssueList() == null) {
                 buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
                 apiBaseInfoChanged = true;
             }
-            if(report.getApiAllCases() == null && report.getScenarioAllCases() == null){
+            if (report.getApiAllCases() == null && report.getScenarioAllCases() == null) {
                 buildApiReport(report, config, testPlanExecuteReportDTO);
                 apiBaseInfoChanged = true;
             }
-            if(report.getLoadAllCases()  == null){
+            if (report.getLoadAllCases() == null) {
                 buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
                 apiBaseInfoChanged = true;
             }
             returnDTO.setTestPlanSimpleReportDTO(report);
 
-            if(apiBaseInfoChanged){
+            if (apiBaseInfoChanged) {
                 testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
                 returnDTO.setApiBaseInfoChanged(true);
             }
@@ -2266,6 +2267,11 @@ public class TestPlanService {
 
         for (String id : ids) {
             TestPlanWithBLOBs testPlan = testPlanMap.get(id);
+            RunModeConfigDTO runModeConfigDTO = JSON.parseObject(testPlan.getRunModeConfig(), RunModeConfigDTO.class);
+            runModeConfigDTO = ObjectUtils.isEmpty(runModeConfigDTO) ? new RunModeConfigDTO() : runModeConfigDTO;
+            jMeterService.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
+            testPlan.setRunModeConfig(JSON.toJSONString(runModeConfigDTO));
+
             String planReportId = UUID.randomUUID().toString();
             //创建测试报告
             this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode());

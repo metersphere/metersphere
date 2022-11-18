@@ -281,6 +281,16 @@ export default {
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
+        let isDelPool = true;
+        this.resourcePools.forEach(item =>{
+          if(item.id === this.config.resourcePoolId){
+            isDelPool = false;
+          }
+        })
+        if(isDelPool){
+          this.config.resourcePoolId = undefined;
+          this.config.poolEnable = false;
+        }
       });
     },
     tcpMockSwitchChange(value, other) {
