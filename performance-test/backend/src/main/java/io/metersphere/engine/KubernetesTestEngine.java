@@ -92,6 +92,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             kubernetesProvider.deployJmeter(request, clientCredential);
         } catch (Exception e) {
             LogUtil.error(e);
+            MSException.throwException("kubernetes deploy jmeter error please check the yaml file");
         }
     }
 
