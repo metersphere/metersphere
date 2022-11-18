@@ -11,19 +11,16 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldItemDTO;
-import io.metersphere.xpack.track.dto.IssueSyncRequest;
-import io.metersphere.xpack.track.dto.IssueTemplateDao;
-import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.request.IntegrationRequest;
-import io.metersphere.xpack.track.dto.EditTestCaseRequest;
-import io.metersphere.xpack.track.dto.request.IssuesRequest;
-import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.service.*;
-import io.metersphere.xpack.track.issue.IssuesPlatform;
 import io.metersphere.service.issue.domain.ProjectIssueConfig;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
+import io.metersphere.xpack.track.dto.*;
+import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
+import io.metersphere.xpack.track.issue.IssuesPlatform;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -654,4 +651,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return null;
     }
 
+    @Override
+    public List<IssuesDao> getIssue(IssuesRequest request) {
+        return null;
+    }
 }

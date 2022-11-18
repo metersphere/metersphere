@@ -2,19 +2,17 @@ package io.metersphere.service.issue.platform;
 
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
-
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.request.testcase.TestCaseBatchRequest;
+import io.metersphere.xpack.track.dto.AttachmentSyncType;
 import io.metersphere.xpack.track.dto.DemandDTO;
-import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
-import io.metersphere.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -27,16 +25,6 @@ public class LocalPlatform extends LocalAbstractPlatform {
 
     public LocalPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
-    }
-
-    @Override
-    public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        String projectId = issuesRequest.getProjectId();
-        issuesRequest.setPlatform(IssuesManagePlatform.Local.toString());
-        if (StringUtils.isNotBlank(projectId)) {
-            return extIssuesMapper.getIssues(issuesRequest);
-        }
-        return extIssuesMapper.getIssuesByCaseId(issuesRequest);
     }
 
     @Override

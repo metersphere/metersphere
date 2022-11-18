@@ -1,7 +1,7 @@
 package io.metersphere.controller.remote;
 
 import io.metersphere.remote.service.PlatformPluginService;
-import io.metersphere.remote.service.SystemSettingService;
+import io.metersphere.service.remote.SystemSettingService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

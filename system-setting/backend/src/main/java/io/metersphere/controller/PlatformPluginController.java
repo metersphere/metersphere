@@ -1,6 +1,6 @@
 package io.metersphere.controller;
 
-import io.metersphere.domain.SelectOption;
+import io.metersphere.platform.domain.SelectOption;
 import io.metersphere.dto.PlatformProjectOptionRequest;
 import io.metersphere.service.PlatformPluginService;
 import org.springframework.web.bind.annotation.*;
