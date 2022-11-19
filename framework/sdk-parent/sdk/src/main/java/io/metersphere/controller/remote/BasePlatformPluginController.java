@@ -1,6 +1,6 @@
 package io.metersphere.controller.remote;
 
-import io.metersphere.service.remote.SystemSettingService;
+import io.metersphere.service.remote.BaseSystemSettingService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -12,17 +12,17 @@ import javax.servlet.http.HttpServletRequest;
 public class BasePlatformPluginController {
 
     @Resource
-    SystemSettingService systemSettingService;
+    BaseSystemSettingService baseSystemSettingService;
 
     @PostMapping("/**")
     public Object list(HttpServletRequest request, @RequestBody Object param) {
         String url = request.getRequestURI().replace("/global", "");
-        return systemSettingService.post(url, param);
+        return baseSystemSettingService.post(url, param);
     }
 
     @GetMapping("/**")
     public Object get(HttpServletRequest request) {
         String url = request.getRequestURI().replace("/global", "");
-        return systemSettingService.get(url);
+        return baseSystemSettingService.get(url);
     }
 }
