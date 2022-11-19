@@ -1,7 +1,7 @@
 package io.metersphere.controller.remote;
 
 import io.metersphere.remote.service.PlatformPluginService;
-import io.metersphere.service.remote.SystemSettingService;
+import io.metersphere.service.remote.BaseSystemSettingService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -14,18 +14,18 @@ import javax.servlet.http.HttpServletResponse;
 })
 public class SystemSettingController {
     @Resource
-    SystemSettingService systemSettingService;
+    BaseSystemSettingService baseSystemSettingService;
     @Resource
     PlatformPluginService platformPluginService;
 
     @PostMapping("/**")
     public Object list(HttpServletRequest request, @RequestBody Object param) {
-        return systemSettingService.post(request, param);
+        return baseSystemSettingService.post(request, param);
     }
 
     @GetMapping("/**")
     public Object get(HttpServletRequest request) {
-        return systemSettingService.get(request);
+        return baseSystemSettingService.get(request);
     }
 
     @GetMapping("/resource/{pluginId}")
