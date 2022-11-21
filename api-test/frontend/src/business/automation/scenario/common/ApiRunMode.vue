@@ -4,26 +4,28 @@
     :title="$t('load_test.runtime_config')"
     width="550px"
     @close="close"
-    :visible.sync="runModeVisible">
+    :visible.sync="runModeVisible"
+  >
     <div class="env-container">
       <div>
         <div>{{ $t("commons.environment") }}：</div>
-        <env-select-popover :project-ids="projectIds"
-                            :project-list="projectList"
-                            :case-id-env-name-map="caseIdEnvNameMap"
-                            :is-scenario="isScenario"
-                            :project-env-map="projectEnvListMap"
-                            :group-id="runConfig.environmentGroupId"
-                            @setProjectEnvMap="setProjectEnvMap"
-                            @setEnvGroup="setEnvGroup"
-                            ref="envSelectPopover"
-                            class="mode-row"
+        <env-select-popover
+          :project-ids="projectIds"
+          :project-list="projectList"
+          :case-id-env-name-map="caseIdEnvNameMap"
+          :is-scenario="isScenario"
+          :project-env-map="projectEnvListMap"
+          :group-id="runConfig.environmentGroupId"
+          @setProjectEnvMap="setProjectEnvMap"
+          @setEnvGroup="setEnvGroup"
+          ref="envSelectPopover"
+          class="mode-row"
         ></env-select-popover>
       </div>
 
       <div>
         <div class="mode-row">{{ $t("run_mode.title") }}：</div>
-        <div >
+        <div>
           <el-radio-group
             v-model="runConfig.mode"
             @change="changeMode"
@@ -40,66 +42,84 @@
         <div class="mode-row">{{ $t("run_mode.other_config") }}：</div>
         <div class="mode-row">
           <el-radio-group v-model="runConfig.reportType">
-            <el-radio label="iddReport">{{ $t("run_mode.idd_report") }}</el-radio>
-            <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
+            <el-radio label="iddReport">{{
+              $t("run_mode.idd_report")
+            }}</el-radio>
+            <el-radio label="setReport">{{
+              $t("run_mode.set_report")
+            }}</el-radio>
           </el-radio-group>
         </div>
-        <div class="ms-mode-span-label" style="margin-top: 8px" v-if="runConfig.reportType === 'setReport'">{{ $t("run_mode.report_name") }}：</div>
+        <div
+          class="ms-mode-span-label"
+          style="margin-top: 8px"
+          v-if="runConfig.reportType === 'setReport'"
+        >
+          {{ $t("run_mode.report_name") }}：
+        </div>
         <div class="mode-row" v-if="runConfig.reportType === 'setReport'">
           <el-input
             v-model="runConfig.reportName"
             :placeholder="$t('commons.input_content')"
             size="small"
-            style="width: 100%"/>
+            style="width: 100%"
+          />
         </div>
         <div class="mode-row">
-          <el-checkbox v-model="runConfig.runWithinResourcePool"
-                        :disabled="runMode === 'POOL'">
-            {{ $t('run_mode.run_with_resource_pool') }}
-          </el-checkbox><br/>
-          <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini" class="mode-row" style="width: 100%">
+          <el-checkbox
+            v-model="runConfig.runWithinResourcePool"
+            :disabled="runMode === 'POOL'"
+          >
+            {{ $t("run_mode.run_with_resource_pool") }} </el-checkbox
+          ><br />
+          <el-select
+            :disabled="!runConfig.runWithinResourcePool"
+            v-model="runConfig.resourcePoolId"
+            size="mini"
+            class="mode-row"
+            style="width: 100%"
+          >
             <el-option
               v-for="item in resourcePools"
               :key="item.id"
               :label="item.name"
               :disabled="!item.api"
-              :value="item.id">
+              :value="item.id"
+            >
             </el-option>
           </el-select>
         </div>
         <!-- 失败停止 -->
         <div class="mode-row" v-if="runConfig.mode === 'serial'">
-          <el-checkbox v-model="runConfig.onSampleError" class="radio-change">{{
-              $t("api_test.fail_to_stop")
-            }}
+          <el-checkbox v-model="runConfig.onSampleError" class="radio-change"
+            >{{ $t("api_test.fail_to_stop") }}
           </el-checkbox>
         </div>
-        </div>
       </div>
+    </div>
 
     <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
+      <ms-dialog-footer @cancel="close" @confirm="handleRunBatch" />
     </template>
   </el-dialog>
 </template>
 
-
 <script>
-import {apiScenarioEnvMap} from "@/api/scenario";
+import { apiScenarioEnvMap } from "@/api/scenario";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {strMapToObj} from "metersphere-frontend/src/utils";
-import {getOwnerProjects, getProjectConfig} from "@/api/project";
-import {getTestResourcePools} from "@/api/test-resource-pool";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
+import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import { strMapToObj } from "metersphere-frontend/src/utils";
+import { getOwnerProjects, getProjectConfig } from "@/api/project";
+import { getTestResourcePools } from "@/api/test-resource-pool";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import { getSystemBaseSetting } from "metersphere-frontend/src/api/system";
 import EnvSelectPopover from "@/business/automation/scenario/EnvSelectPopover";
-import {getApiCaseEnvironments} from "@/api/api-test-case";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { getApiCaseEnvironments } from "@/api/api-test-case";
+import { hasLicense } from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "ApiRunMode",
-  components: {MsDialogFooter, EnvSelectPopover},
+  components: { MsDialogFooter, EnvSelectPopover },
   data() {
     return {
       runMode: "",
@@ -116,24 +136,24 @@ export default {
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
-        environmentType: ENV_TYPE.JSON
+        environmentType: ENV_TYPE.JSON,
       },
       projectEnvListMap: {},
       projectList: [],
       projectIds: new Set(),
-      caseIdEnvNameMap:{},
+      caseIdEnvNameMap: {},
     };
   },
   props: {
-    runCaseIds:Array,
+    runCaseIds: Array,
     request: Object,
     isScenario: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   watch: {
-    'runConfig.runWithinResourcePool'() {
+    "runConfig.runWithinResourcePool"() {
       if (!this.runConfig.runWithinResourcePool) {
         this.runConfig = {
           mode: this.runConfig.mode,
@@ -143,14 +163,14 @@ export default {
           resourcePoolId: null,
         };
       }
-    }
+    },
   },
   methods: {
     open() {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
-      if(hasLicense()) {
+      if (hasLicense()) {
         this.query();
       }
       this.showPopover();
@@ -170,47 +190,57 @@ export default {
         resourcePoolId: null,
       };
       this.runModeVisible = false;
-      this.$emit('close');
+      this.$emit("close");
     },
     getWsProjects() {
-      getOwnerProjects().then(res => {
+      getOwnerProjects().then((res) => {
         this.projectList = res.data;
-      })
+      });
     },
     handleRunBatch() {
-      if ((this.runConfig.mode === 'serial' || this.runConfig.mode === 'parallel') && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
-        this.$warning(this.$t('commons.input_name'));
+      if (
+        (this.runConfig.mode === "serial" ||
+          this.runConfig.mode === "parallel") &&
+        this.runConfig.reportType === "setReport" &&
+        this.runConfig.reportName.trim() === ""
+      ) {
+        this.$warning(this.$t("commons.input_name"));
         return;
       }
-      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
-        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+      if (
+        this.runConfig.runWithinResourcePool &&
+        this.runConfig.resourcePoolId == null
+      ) {
+        this.$warning(
+          this.$t("workspace.env_group.please_select_run_within_resource_pool")
+        );
         return;
       }
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },
     getResourcePools() {
-      this.result = getTestResourcePools().then(response => {
+      this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
       });
     },
     query() {
       this.loading = true;
-      this.result = getSystemBaseSetting().then(response => {
+      this.result = getSystemBaseSetting().then((response) => {
         if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
+          response.data.runMode = "LOCAL";
         }
         this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
+        if (this.runMode === "POOL") {
           this.runConfig.runWithinResourcePool = true;
           this.getProjectApplication();
         } else {
           this.loading = false;
         }
-      })
+      });
     },
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), "").then(res => {
+      getProjectConfig(getCurrentProjectID(), "").then((res) => {
         if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
           this.runConfig.resourcePoolId = res.data.resourcePoolId;
         }
@@ -245,7 +275,7 @@ export default {
     showScenarioPopover() {
       let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
-      apiScenarioEnvMap(this.request).then(res => {
+      apiScenarioEnvMap(this.request).then((res) => {
         let data = res.data;
         this.projectEnvListMap = data;
         if (data) {
@@ -253,10 +283,10 @@ export default {
             this.projectIds.add(d);
           }
         }
-        if (this.projectIds.size===0){
+        if (this.projectIds.size === 0) {
           this.projectIds.add(currentProjectID);
         }
-       this.$refs.envSelectPopover.open();
+        this.$refs.envSelectPopover.open();
       });
     },
   },
@@ -283,14 +313,12 @@ export default {
 }
 
 .ms-mode-span-label:before {
-  content: '*';
-  color: #F56C6C;
+  content: "*";
+  color: #f56c6c;
 }
-
 </style>
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 .radio-change:deep(.el-radio__input.is-checked + .el-radio__label) {
   color: #606266 !important;
 }
-
 </style>

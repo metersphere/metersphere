@@ -6,22 +6,47 @@
     <div class="kv-row" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox">
-          <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="item.enable"
-                 :disabled="isDisable(index) || isReadOnly"/>
+          <input
+            type="checkbox"
+            v-if="!isDisable(index)"
+            @change="change"
+            :value="item.uuid"
+            v-model="item.enable"
+            :disabled="isDisable(index) || isReadOnly"
+          />
         </el-col>
 
         <el-col>
-          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly"
-                                 v-model="item.name" size="small" maxlength="200" @change="change"
-                                 :placeholder="$t('api_test.variable_name')" show-word-limit/>
+          <ms-api-variable-input
+            :show-copy="showCopy"
+            :show-variable="showVariable"
+            :is-read-only="isReadOnly"
+            v-model="item.name"
+            size="small"
+            maxlength="200"
+            @change="change"
+            :placeholder="$t('api_test.variable_name')"
+            show-word-limit
+          />
         </el-col>
         <el-col>
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
-                    :placeholder="$t('api_test.value')" show-word-limit/>
+          <el-input
+            :disabled="isReadOnly"
+            v-model="item.value"
+            size="small"
+            @change="change"
+            :placeholder="$t('api_test.value')"
+            show-word-limit
+          />
         </el-col>
         <el-col class="kv-delete">
-          <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
-                     :disabled="isDisable(index) || isReadOnly"/>
+          <el-button
+            size="mini"
+            class="el-icon-delete-solid"
+            circle
+            @click="remove(index)"
+            :disabled="isDisable(index) || isReadOnly"
+          />
         </el-col>
       </el-row>
     </div>
@@ -29,36 +54,36 @@
 </template>
 
 <script>
-import {KeyValue} from "../../definition/model/ApiTestModel";
+import { KeyValue } from "../../definition/model/ApiTestModel";
 import MsApiVariableInput from "./ApiVariableInput";
 
 export default {
   name: "MsApiScenarioVariables",
-  components: {MsApiVariableInput},
+  components: { MsApiVariableInput },
   props: {
     description: String,
     items: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showVariable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showCopy: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   data() {
-    return {}
+    return {};
   },
   methods: {
     remove: function (index) {
       if (this.items) {
         this.items.splice(index, 1);
-        this.$emit('change', this.items);
+        this.$emit("change", this.items);
       }
     },
     change: function () {
@@ -77,22 +102,22 @@ export default {
         });
       }
       if (isNeedCreate) {
-        this.items.push(new KeyValue({enable: true}));
+        this.items.push(new KeyValue({ enable: true }));
       }
-      this.$emit('change', this.items);
+      this.$emit("change", this.items);
       // TODO 检查key重复
     },
     isDisable: function (index) {
       return this.items.length - 1 === index;
-    }
+    },
   },
 
   created() {
     if (this.items.length === 0) {
-      this.items.push(new KeyValue({enable: true}));
+      this.items.push(new KeyValue({ enable: true }));
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

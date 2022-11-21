@@ -1,15 +1,19 @@
 <template>
   <div>
-    <api-document-anchor :share-page="sharePage" :pageHeaderHeight="pageHeaderHeight" :project-id="projectId"
-                         :module-ids="moduleIds" :document-id="documentId" ref="documentAnchor"/>
+    <api-document-anchor
+      :share-page="sharePage"
+      :pageHeaderHeight="pageHeaderHeight"
+      :project-id="projectId"
+      :module-ids="moduleIds"
+      :document-id="documentId"
+      ref="documentAnchor"
+    />
   </div>
-
 </template>
 
 <script>
-
 import ApiDocumentAnchor from "@/business/definition/components/document/ApiDocumentAnchor";
-import {getShareId} from "@/api/share";
+import { getShareId } from "@/api/share";
 
 export default {
   name: "Document",
@@ -23,7 +27,7 @@ export default {
       pageHeaderHeight: 100,
       sharePage: true,
       moduleIds: [],
-    }
+    };
   },
   props: {
     activeDom: String,
@@ -43,11 +47,9 @@ export default {
       if (this.$refs.documentAnchor) {
         this.$refs.documentAnchor.initApiDocSimpleList();
       }
-    }
+    },
   },
-}
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

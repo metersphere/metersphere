@@ -1,67 +1,95 @@
 <template>
-  <div style="line-height: 20px;">
+  <div style="line-height: 20px">
     <div class="template-title">
-      <span class="nav-font">{{ $t('api_test.request.processor.code_template') }}</span>
-      <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-               target="componentReferenceDoc" style="margin-left: 30px; margin-bottom: 3px;"
-               type="primary"><span style="font-size: 13px;">{{ $t('commons.reference_documentation') }}</span>
+      <span class="nav-font">{{
+        $t("api_test.request.processor.code_template")
+      }}</span>
+      <el-link
+        href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+        target="componentReferenceDoc"
+        style="margin-left: 30px; margin-bottom: 3px"
+        type="primary"
+        ><span style="font-size: 13px">{{
+          $t("commons.reference_documentation")
+        }}</span>
       </el-link>
     </div>
     <div v-for="(menu, index) in menus" :key="index">
       <span class="link-type" v-if="!menu.hideScript">
-        <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
-           @click="active(menu)" :class="{'is-active': menu.open}"></i>
-        <span @click="active(menu)" class="nav-menu-title nav-font">{{ menu.title }}</span>
+        <i
+          class="icon el-icon-arrow-right"
+          style="font-weight: bold; margin-right: 2px"
+          @click="active(menu)"
+          :class="{ 'is-active': menu.open }"
+        ></i>
+        <span @click="active(menu)" class="nav-menu-title nav-font">{{
+          menu.title
+        }}</span>
       </span>
 
       <el-collapse-transition>
         <div v-if="menu.open">
-          <div v-for="(child, key) in menu.children" :key="key" class="func-div">
-            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">
+          <div
+            v-for="(child, key) in menu.children"
+            :key="key"
+            class="func-div"
+          >
+            <el-link
+              :disabled="child.disabled"
+              @click="handleClick(child)"
+              class="func-link nav-font"
+            >
               {{ child.title }}
             </el-link>
           </div>
         </div>
       </el-collapse-transition>
     </div>
-    <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
+    <custom-function-relate
+      ref="customFunctionRelate"
+      @addCustomFuncScript="handleCodeTemplate"
+    />
     <!--接口列表-->
-    <api-func-relevance @save="apiSave" :is-test-plan="false" :is-script="true" @close="apiClose"
-                        ref="apiFuncRelevance"/>
+    <api-func-relevance
+      @save="apiSave"
+      :is-test-plan="false"
+      :is-script="true"
+      @close="apiClose"
+      ref="apiFuncRelevance"
+    />
   </div>
-
 </template>
 
 <script>
 import ApiFuncRelevance from "./ApiFuncRelevance";
 import CustomFunctionRelate from "./CustomFunctionRelate";
-import {getCodeTemplate} from "./custom-function";
-import {SCRIPT_MENU} from "./script-menu";
+import { getCodeTemplate } from "./custom-function";
+import { SCRIPT_MENU } from "./script-menu";
 
 export default {
   name: "ScriptNavMenu",
   components: {
     ApiFuncRelevance,
-    CustomFunctionRelate
+    CustomFunctionRelate,
   },
   data() {
     return {
-      value: true
-    }
+      value: true,
+    };
   },
   props: {
     language: {
       type: String,
       default() {
-        return "beanshell"
-      }
+        return "beanshell";
+      },
     },
     menus: {
       type: Array,
       default() {
-        return SCRIPT_MENU
-      }
-    }
+        return SCRIPT_MENU;
+      },
+    },
   },
   methods: {
     apiSave(data, env) {
@@ -101,11 +129,11 @@ export default {
             }
           }
           let param = this._parseRequestObj(dt);
-          param['host'] = host;
-          param['domain'] = domain;
-          param['port'] = port;
-          param['protocol'] = protocol;
-          code += '\n' + getCodeTemplate(this.language, param);
+          param["host"] = host;
+          param["domain"] = domain;
+          param["port"] = port;
+          param["protocol"] = protocol;
+          code += "\n" + getCodeTemplate(this.language, param);
         }
       }
       this.handleCodeTemplate(code);
@@ -130,14 +158,14 @@ export default {
       let headers = request.headers;
       let rest = request.rest;
       if (rest && rest.length > 0) {
-        rest.forEach(r => {
+        rest.forEach((r) => {
           if (r.enable) {
             requestRest.set(r.name, r.value);
           }
-        })
+        });
       }
       if (headers && headers.length > 0) {
-        headers.forEach(header => {
+        headers.forEach((header) => {
           if (header.name) {
             requestHeaders.set(header.name, header.value);
           }
@@ -145,17 +173,17 @@ export default {
       }
       let args = request.arguments;
       if (args && args.length) {
-        args.forEach(arg => {
+        args.forEach((arg) => {
           if (arg.name) {
             requestArguments.set(arg.name, arg.value);
           }
-        })
+        });
       }
       let body = request.body;
-      if (body.type === 'XML') {
+      if (body.type === "XML") {
         requestBody = body.raw;
         bodyType = "xml";
-      } else if (body.type === 'Raw') {
+      } else if (body.type === "Raw") {
         requestBody = body.raw;
         bodyType = "raw";
       } else if (body.json) {
@@ -163,11 +191,11 @@ export default {
         bodyType = "json";
       } else if (body.kvs) {
         bodyType = "kvs";
-        body.kvs.forEach(arg => {
+        body.kvs.forEach((arg) => {
           if (arg.name) {
             requestBodyKvs.set(arg.name, arg.value);
           }
-        })
+        });
       }
       return {
         requestPath,
@@ -177,12 +205,10 @@ export default {
         requestBodyKvs,
         bodyType,
         requestArguments,
-        requestRest
-      }
+        requestRest,
+      };
     },
-    apiClose() {
-
-    },
+    apiClose() {},
     handleClick(obj) {
       let code = "";
       if (obj.command) {
@@ -192,10 +218,21 @@ export default {
         }
       } else {
         // todo 优化
-        if (this.language !== 'beanshell' && this.language !== 'groovy') {
-          if (obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
-            obj.title === this.$t('api_test.request.processor.code_hide_report_length')) {
-            this.$warning(this.$t('commons.no_corresponding') + " " + this.language + " " + this.$t('commons.code_template') + "！");
+        if (this.language !== "beanshell" && this.language !== "groovy") {
+          if (
+            obj.title ===
+              this.$t("api_test.request.processor.code_add_report_length") ||
+            obj.title ===
+              this.$t("api_test.request.processor.code_hide_report_length")
+          ) {
+            this.$warning(
+              this.$t("commons.no_corresponding") +
+                " " +
+                this.language +
+                " " +
+                this.$t("commons.code_template") +
+                "！"
+            );
             return;
           }
         }
@@ -205,17 +242,17 @@ export default {
     },
     _handleCommand(command) {
       switch (command) {
-        case 'custom_function':
+        case "custom_function":
           this.$refs.customFunctionRelate.open(this.language);
           return "";
-        case 'api_definition':
+        case "api_definition":
           this.$refs.apiFuncRelevance.open();
           return "";
-        case 'new_api_request': {
+        case "new_api_request": {
           // requestObj为空则生产默认模版
           let headers = new Map();
-          headers.set('Content-type', 'application/json');
-          return getCodeTemplate(this.language, {requestHeaders: headers});
+          headers.set("Content-type", "application/json");
+          return getCodeTemplate(this.language, { requestHeaders: headers });
         }
         default:
           return "";
@@ -227,13 +264,12 @@ export default {
       } else {
         this.$set(menu, "open", !menu.open);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .template-title {
   margin-bottom: 4px;
   font-weight: bold;

@@ -9,28 +9,38 @@
       :placeholder="$t('api_test.value')"
       value-key="name"
       highlight-first-item
-      @select="change">
-      <i slot="suffix" v-if="!disabled && needMock" class="el-input__icon el-icon-edit pointer"
-         @click="advanced(mock)"></i>
+      @select="change"
+    >
+      <i
+        slot="suffix"
+        v-if="!disabled && needMock"
+        class="el-input__icon el-icon-edit pointer"
+        @click="advanced(mock)"
+      ></i>
     </el-autocomplete>
-    <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition"
-                             :current-item="mock" ref="variableAdvance"/>
-
+    <ms-api-variable-advance
+      :show-mock-vars="showMockVars"
+      :scenario-definition="scenarioDefinition"
+      :current-item="mock"
+      ref="variableAdvance"
+    />
   </div>
 </template>
 
 <script>
-import {JMETER_FUNC, MOCKJS_FUNC} from "metersphere-frontend/src/utils/constants";
+import {
+  JMETER_FUNC,
+  MOCKJS_FUNC,
+} from "metersphere-frontend/src/utils/constants";
 import MsApiVariableAdvance from "@/business/definition/components/ApiVariableAdvance";
 
 export default {
-  name: 'MsMock',
-  components: {MsApiVariableAdvance},
+  name: "MsMock",
+  components: { MsApiVariableAdvance },
   props: {
     schema: {
       type: Object,
-      default: () => {
-      }
+      default: () => {},
     },
     disabled: Boolean,
     scenarioDefinition: Array,
@@ -38,27 +48,33 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     needMock: {
       type: Boolean,
       default() {
         return true;
-      }
-    }
+      },
+    },
   },
   data() {
     return {
-      mock: {mock: ""}
-    }
+      mock: { mock: "" },
+    };
   },
   created() {
-    if (this.schema.mock && Object.prototype.toString.call(this.schema.mock).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+    if (
+      this.schema.mock &&
+      Object.prototype.toString
+        .call(this.schema.mock)
+        .match(/\[object (\w+)\]/)[1]
+        .toLowerCase() === "object"
+    ) {
       this.mock = this.schema.mock;
     } else {
       this.schema.mock = this.mock;
     }
-    if (this.schema.type === 'object') {
+    if (this.schema.type === "object") {
       this.schema.mock = undefined;
     }
     this.mock.mock = this.mock.mock + "";
@@ -68,64 +84,63 @@ export default {
       handler(newValue, oldValue) {
         this.schema.mock = this.mock;
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     funcSearch(queryString, cb) {
       let results = [];
       if (!this.showMockVars) {
         let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        results = queryString
+          ? funcs.filter(this.funcFilter(queryString))
+          : funcs;
       }
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
     funcFilter(queryString) {
       return (func) => {
-        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+        return func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1;
       };
     },
-    change: function () {
-    },
+    change: function () {},
     advanced(item) {
       this.mock = item;
       // 冒泡到父组件，调用父组件的参数设置打开方法
       if (this.scenarioDefinition != undefined) {
-        this.$emit('editScenarioAdvance', this.mock);
+        this.$emit("editScenarioAdvance", this.mock);
       } else {
         this.$refs.variableAdvance.open();
       }
     },
     showEdit() {
-      this.$emit('showEdit')
+      this.$emit("showEdit");
     },
     handleChange(e) {
-      this.$emit('change', e)
+      this.$emit("change", e);
     },
     querySearchAsync(queryString, cb) {
-      const arr = this.mock || []
+      const arr = this.mock || [];
       const results = queryString
         ? arr.filter(this.createStateFilter(queryString))
-        : arr
+        : arr;
 
-      cb(results)
+      cb(results);
     },
     createStateFilter(queryString) {
-      return state => {
+      return (state) => {
         return (
           state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
-        )
-      }
+        );
+      };
     },
     editScenarioAdvance(data) {
-      this.$emit('editScenarioAdvance', data);
+      this.$emit("editScenarioAdvance", data);
     },
-  }
-}
+  },
+};
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

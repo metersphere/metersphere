@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "TestBeanGUI",
       testclass: "JDBCPreProcessor",
       testname: "JDBC PreProcessor",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class JDBCPreProcessor extends PostProcessor {
@@ -34,5 +34,5 @@ export default class JDBCPreProcessor extends PostProcessor {
 }
 
 export const schema = {
-  JDBCPreProcessor: JDBCPreProcessor
-}
+  JDBCPreProcessor: JDBCPreProcessor,
+};

@@ -15,17 +15,14 @@ const OutsideClick = {
 
     // 给当前元素绑定个私有变量，方便在unbind中可以解除事件监听
     el.__vueClickOutside__ = documentHandler;
-    document.addEventListener('click', documentHandler);
+    document.addEventListener("click", documentHandler);
   },
-  update() {
-  },
+  update() {},
   unbind(el, binding) {
     // 解除事件监听
-    document.removeEventListener('click', el.__vueClickOutside__);
+    document.removeEventListener("click", el.__vueClickOutside__);
     delete el.__vueClickOutside__;
   },
 };
 
 export default OutsideClick;
-
-

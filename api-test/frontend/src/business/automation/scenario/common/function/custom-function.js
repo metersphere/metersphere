@@ -2,8 +2,8 @@ export const FUNC_TEMPLATE = {
   beanshell: "",
   groovy: "",
   python: "",
-  javascript: ""
-}
+  javascript: "",
+};
 
 export function getCodeTemplate(language, requestObj) {
   switch (language) {
@@ -26,13 +26,21 @@ export function getCodeTemplate(language, requestObj) {
 
 function groovyCode(requestObj) {
   let {
-    requestHeaders = new Map(), requestBody = "", requestPath = "", domain = "", port = "",
-    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map(),
+    requestHeaders = new Map(),
+    requestBody = "",
+    requestPath = "",
+    domain = "",
+    port = "",
+    requestMethod = "",
+    host = "",
+    protocol = "",
+    requestArguments = new Map(),
+    requestRest = new Map(),
     requestBodyKvs = new Map(),
-    bodyType
+    bodyType,
   } = requestObj;
   let requestUrl = "";
-  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+  if (requestMethod.toLowerCase() === "get" && requestBodyKvs) {
     //如果是get方法要将kv值加入argument中
     for (let [k, v] of requestBodyKvs) {
       requestArguments.set(k, v);
@@ -42,25 +50,26 @@ function groovyCode(requestObj) {
   let path = getMockPath(domain, port, host);
   requestPath = path + replaceRestParams(requestPath, requestRest);
   if (protocol && host && requestPath) {
-    requestUrl = protocol + "://" + domain + (port ? ":" + port : "") + requestPath;
+    requestUrl =
+      protocol + "://" + domain + (port ? ":" + port : "") + requestPath;
   }
   let body = JSON.stringify(requestBody);
-  if (requestMethod === 'POST' && bodyType === 'kvs') {
-    body = "\"";
+  if (requestMethod === "POST" && bodyType === "kvs") {
+    body = '"';
     for (let [k, v] of requestBodyKvs) {
-      if (body !== "\"") {
+      if (body !== '"') {
         body += "&";
       }
       body += k + "=" + v;
     }
-    body += "\"";
+    body += '"';
   }
 
-  if (bodyType && bodyType.toUpperCase() === 'RAW') {
+  if (bodyType && bodyType.toUpperCase() === "RAW") {
     requestHeaders.set("Content-type", "text/plain");
   }
   let headers = getGroovyHeaders(requestHeaders);
-  let obj = {requestUrl, requestMethod, headers, body};
+  let obj = { requestUrl, requestMethod, headers, body };
   return _groovyCodeTemplate(obj);
 }
 
@@ -77,15 +86,15 @@ function pythonCode(requestObj) {
     requestArguments = new Map(),
     requestBodyKvs = new Map(),
     bodyType,
-    requestRest = new Map()
+    requestRest = new Map(),
   } = requestObj;
   let connType = "HTTPConnection";
-  if (protocol === 'https') {
+  if (protocol === "https") {
     connType = "HTTPSConnection";
   }
   let headers = getHeaders(requestHeaders);
   requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
-  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+  if (requestMethod.toLowerCase() === "get" && requestBodyKvs) {
     for (let [k, v] of requestBodyKvs) {
       requestArguments.set(k, v);
     }
@@ -93,7 +102,17 @@ function pythonCode(requestObj) {
   requestPath = getRequestPath(requestArguments, requestPath);
   let path = getMockPath(domain, port, host);
   requestPath = path + replaceRestParams(requestPath, requestRest);
-  let obj = {requestBody, headers, requestPath, requestMethod, requestBodyKvs, bodyType, connType, domain, port};
+  let obj = {
+    requestBody,
+    headers,
+    requestPath,
+    requestMethod,
+    requestBodyKvs,
+    bodyType,
+    connType,
+    domain,
+    port,
+  };
   return _pythonCodeTemplate(obj);
 }
 
@@ -107,7 +126,7 @@ function jsCode(requestObj) {
 
 function getRequestPath(requestArgs, requestPath) {
   if (requestArgs.size > 0) {
-    requestPath = requestPath + "?"
+    requestPath = requestPath + "?";
     let index = 1;
     for (let [k, v] of requestArgs) {
       if (index !== 1) {
@@ -131,7 +150,7 @@ function getHeaders(requestHeaders) {
     headers += `'${k}':'${v}'`;
     index++;
   }
-  headers = headers + "}"
+  headers = headers + "}";
   return headers;
 }
 
@@ -146,22 +165,37 @@ function getGroovyHeaders(requestHeaders) {
     headers += `'${k}':'${v}'`;
     index++;
   }
-  headers = headers + "]"
+  headers = headers + "]";
   return headers;
 }
 
 function _pythonCodeTemplate(obj) {
-  let {requestBody, requestBodyKvs, bodyType, headers, requestPath, requestMethod, connType, domain, port} = obj;
+  let {
+    requestBody,
+    requestBodyKvs,
+    bodyType,
+    headers,
+    requestPath,
+    requestMethod,
+    connType,
+    domain,
+    port,
+  } = obj;
   let reqBody = obj.requestBody;
-  if (requestMethod.toLowerCase() === 'post' && obj.bodyType === 'kvs' && obj.requestBodyKvs) {
-    reqBody = 'urllib.urlencode({';
+  if (
+    requestMethod.toLowerCase() === "post" &&
+    obj.bodyType === "kvs" &&
+    obj.requestBodyKvs
+  ) {
+    reqBody = "urllib.urlencode({";
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
       reqBody += `\'${k}\':\'${v}\'`;
     }
     reqBody += `})`;
-    if (headers === '{}') {
-      headers = '{\'Content-type\': \'application/x-www-form-urlencoded\', \'Accept\': \'text/plain\'}';
+    if (headers === "{}") {
+      headers =
+        "{'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}";
     }
   }
 
@@ -183,13 +217,13 @@ log.info(data)
 }
 
 function _groovyCodeTemplate(obj) {
-  let {requestUrl, requestMethod, headers, body} = obj;
+  let { requestUrl, requestMethod, headers, body } = obj;
   let params = `[
                 'url': '${requestUrl}',
                 'method': '${requestMethod}', // POST/GET
                 'headers': ${headers}, // 请求headers 例：{'Content-type':'application/json'}
                 'data': ${body} // 参数
-                ]`
+                ]`;
   return `import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
@@ -230,7 +264,7 @@ function _beanshellTemplate(obj) {
     domain = "",
     host = "",
     port = "",
-    requestRest = new Map()
+    requestRest = new Map(),
   } = obj;
 
   let path = getMockPath(domain, port, host);
@@ -241,7 +275,9 @@ function _beanshellTemplate(obj) {
                 .setPath("${requestPath}")
                 `;
   // http 请求类型
-  let method = requestMethod.toLowerCase().replace(/^\S/, s => s.toUpperCase());
+  let method = requestMethod
+    .toLowerCase()
+    .replace(/^\S/, (s) => s.toUpperCase());
   let httpMethodCode = `Http${method} request = new Http${method}(uri);`;
   // 设置参数
   for (let [k, v] of requestArguments) {
@@ -253,9 +289,8 @@ function _beanshellTemplate(obj) {
     }
   }
 
-
   let postKvsParam = "";
-  if (method === 'Post') {
+  if (method === "Post") {
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
       postKvsParam += `nameValueList.add(new BasicNameValuePair("${k}", "${v}"));\r\n`;
@@ -277,7 +312,7 @@ function _beanshellTemplate(obj) {
   // 设置请求头
   let setHeader = "";
   for (let [k, v] of requestHeaders) {
-    setHeader = setHeader + `request.setHeader("${k}", "${v}");` + '\n';
+    setHeader = setHeader + `request.setHeader("${k}", "${v}");` + "\n";
   }
   try {
     requestBody = JSON.stringify(requestBody);
@@ -287,7 +322,10 @@ function _beanshellTemplate(obj) {
   let postMethodCode = "";
   if (requestMethod === "POST") {
     if (bodyType === "kvs") {
-      postMethodCode = postKvsParam + "\r\n" + `request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));`;
+      postMethodCode =
+        postKvsParam +
+        "\r\n" +
+        `request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));`;
     } else {
       postMethodCode = `request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));`;
     }
@@ -327,7 +365,7 @@ response = httpclient.execute(request);
 if (response.getStatusLine().getStatusCode() == 200) {
     String content = EntityUtils.toString(response.getEntity(), "UTF-8");
     log.info(content);
-}`
+}`;
 }
 
 function _jsTemplate(obj) {
@@ -343,7 +381,7 @@ function _jsTemplate(obj) {
     port = "",
     requestBodyKvs = new Map(),
     bodyType = "",
-    requestRest = new Map()
+    requestRest = new Map(),
   } = obj;
   let url = "";
   requestPath = replaceRestParams(requestPath, requestRest);
@@ -354,7 +392,7 @@ function _jsTemplate(obj) {
   } else if (protocol && domain) {
     url = protocol + "://" + domain + requestPath;
   }
-  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+  if (requestMethod.toLowerCase() === "get" && requestBodyKvs) {
     //如果是get方法要将kv值加入argument中
     for (let [k, v] of requestBodyKvs) {
       requestArguments.set(k, v);
@@ -368,25 +406,25 @@ function _jsTemplate(obj) {
   }
 
   let connStr = "";
-  if (bodyType && bodyType.toUpperCase() === 'RAW') {
+  if (bodyType && bodyType.toUpperCase() === "RAW") {
     requestHeaders.set("Content-type", "text/plain");
   }
   for (let [k, v] of requestHeaders) {
-    connStr += `conn.setRequestProperty("${k}","${v}");` + '\n';
+    connStr += `conn.setRequestProperty("${k}","${v}");` + "\n";
   }
 
-  if (requestMethod === 'POST' && bodyType === 'kvs') {
-    requestBody = "\"";
+  if (requestMethod === "POST" && bodyType === "kvs") {
+    requestBody = '"';
     for (let [k, v] of requestBodyKvs) {
-      if (requestBody !== "\"") {
+      if (requestBody !== '"') {
         requestBody += "&";
       }
       requestBody += k + "=" + v;
     }
-    requestBody += "\"";
+    requestBody += '"';
   }
   let postParamExecCode = "";
-  if (requestBody && requestBody !== "" && requestBody !== "\"\"") {
+  if (requestBody && requestBody !== "" && requestBody !== '""') {
     postParamExecCode = `
 var opt = new java.io.DataOutputStream(conn.getOutputStream());
 var t = (new java.lang.String(parameterData)).getBytes("utf-8");
@@ -395,7 +433,6 @@ opt.flush();
 opt.close();
     `;
   }
-
 
   return `var urlStr = "${url}"; // 请求地址
 var requestMethod = "${requestMethod}"; // 请求类型
@@ -432,7 +469,7 @@ function replaceRestParams(path, restMap) {
         let temp = str.substr(1);
         let param = temp.substring(0, temp.length - 1);
         if (str && restMap.has(param)) {
-          path = path.replace(new RegExp(str, 'g'), restMap.get(param));
+          path = path.replace(new RegExp(str, "g"), restMap.get(param));
         }
       } catch (e) {
         // nothing

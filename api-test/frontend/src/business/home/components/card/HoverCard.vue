@@ -1,14 +1,21 @@
 <template>
-  <div class="hover-card-main"
-       @mouseleave="isHover=false">
+  <div class="hover-card-main" @mouseleave="isHover = false">
     <transition name="el-zoom-in-top">
       <div v-show="!isHover" class="transition-box">
-        <div style="margin:16px 0 0 16px">
+        <div style="margin: 16px 0 0 16px">
           <span class="addition-info-title"> {{ title }}</span>
-          <el-tooltip class="item" effect="dark" :content="toolTip" placement="top">
-            <img style="height: 14px;width: 14px;margin-left: 4px" src="/assets/figma/icon_question.svg"/>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="toolTip"
+            placement="top"
+          >
+            <img
+              style="height: 14px; width: 14px; margin-left: 4px"
+              src="/assets/figma/icon_question.svg"
+            />
           </el-tooltip>
-          <div class="common-amount" @mouseenter="isHover=true">
+          <div class="common-amount" @mouseenter="isHover = true">
             <span class="addition-info-text">
               {{ mainInfo }}
             </span>
@@ -30,42 +37,42 @@ export default {
   data() {
     return {
       isHover: false,
-    }
+    };
   },
   props: {
     title: String,
     mainInfo: [String, Number],
     toolTip: String,
   },
-  methods: {}
-}
+  methods: {},
+};
 </script>
 
 <style scoped>
 .hover-card-main {
   box-sizing: border-box;
   height: 86px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   position: relative;
 }
 
 .transition-box {
   height: 100%;
   width: 100%;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   box-sizing: border-box;
   position: absolute;
-  border: 1px solid #DEE0E3;
+  border: 1px solid #dee0e3;
   border-radius: 4px;
 }
 
 .transition-box-hover {
   height: 100%;
   width: 100%;
-  background-color: #F5F6F7;
+  background-color: #f5f6f7;
   box-sizing: border-box;
   position: absolute;
-  border: 1px solid #DEE0E3;
+  border: 1px solid #dee0e3;
   border-radius: 4px;
 }
 </style>

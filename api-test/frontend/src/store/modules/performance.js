@@ -7,7 +7,5 @@ export default {
   persist: {
     storage: sessionStorage,
   },
-  getters: {
-
-  },
-}
+  getters: {},
+};

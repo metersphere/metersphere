@@ -1,48 +1,102 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('project.code_segment.code_segment')" :visible.sync="visible"
-             :destroy-on-close="true"
-             @close="close" width="60%" top="10vh" v-loading="result" append-to-body class="customFunc">
+  <el-dialog
+    :close-on-click-modal="false"
+    :title="$t('project.code_segment.code_segment')"
+    :visible.sync="visible"
+    :destroy-on-close="true"
+    @close="close"
+    width="60%"
+    top="10vh"
+    v-loading="result"
+    append-to-body
+    class="customFunc"
+  >
     <div>
       <el-alert
         :title="$t('project.code_segment.relate_tip')"
         type="info"
-        style="width: 350px;float: left;"
-        :closable="false" show-icon>
+        style="width: 350px; float: left"
+        :closable="false"
+        show-icon
+      >
       </el-alert>
-      <ms-table-search-bar :condition.sync="condition" @change="init" class="search-bar"
-                           :tip="$t('project.code_segment.search')"/>
-      <el-table border class="adjust-table" :data="data" style="width: 100%" ref="table"
-                highlight-current-row @current-change="handleCurrentChange">
-        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
-        <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
+      <ms-table-search-bar
+        :condition.sync="condition"
+        @change="init"
+        class="search-bar"
+        :tip="$t('project.code_segment.search')"
+      />
+      <el-table
+        border
+        class="adjust-table"
+        :data="data"
+        style="width: 100%"
+        ref="table"
+        highlight-current-row
+        @current-change="handleCurrentChange"
+      >
+        <el-table-column
+          prop="name"
+          :label="$t('commons.name')"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="description"
+          :label="$t('commons.description')"
+          show-overflow-tooltip
+        >
           <template v-slot:default="scope">
             <pre>{{ scope.row.description }}</pre>
           </template>
         </el-table-column>
         <el-table-column prop="tags" :label="$t('api_test.automation.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0; margin-right: 2px">
+            <ms-tag
+              v-for="(itemName, index) in scope.row.tags"
+              :key="index"
+              type="success"
+              effect="plain"
+              :content="itemName"
+              style="margin-left: 0; margin-right: 2px"
+            >
             </ms-tag>
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="$t('project.code_segment.language')" show-overflow-tooltip/>
-        <el-table-column prop="createTime"
-                         :label="$t('commons.create_time')"
-                         show-overflow-tooltip>
+        <el-table-column
+          prop="type"
+          :label="$t('project.code_segment.language')"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="createTime"
+          :label="$t('commons.create_time')"
+          show-overflow-tooltip
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
+      <ms-table-pagination
+        :change="init"
+        :current-page.sync="currentPage"
+        :page-size.sync="pageSize"
+        :total="total"
+      />
     </div>
 
     <template v-slot:footer>
-      <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
-      <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px;">
-        {{ $t('commons.confirm') }}
+      <el-button @click="close" size="medium">{{
+        $t("commons.cancel")
+      }}</el-button>
+      <el-button
+        type="primary"
+        @click="submit"
+        size="medium"
+        style="margin-left: 10px"
+      >
+        {{ $t("commons.confirm") }}
       </el-button>
     </template>
   </el-dialog>
@@ -53,9 +107,9 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
-import {funcList, getFuncById} from "@/api/custom-func";
+import { funcList, getFuncById } from "@/api/custom-func";
 
 export default {
   name: "CustomFunctionRelate",
@@ -64,7 +118,7 @@ export default {
     MsTag,
     MsTableOperator,
     MsTableOperatorButton,
-    MsTableSearchBar
+    MsTableSearchBar,
   },
   data() {
     return {
@@ -75,9 +129,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 155px)',
-      currentRow: {}
-    }
+      screenHeight: "calc(100vh - 155px)",
+      currentRow: {},
+    };
   },
   methods: {
     init(language) {
@@ -85,16 +139,20 @@ export default {
         this.condition.type = language;
       }
       this.condition.projectId = getCurrentProjectID();
-      this.result = funcList(this.currentPage, this.pageSize, this.condition).then(res => {
+      this.result = funcList(
+        this.currentPage,
+        this.pageSize,
+        this.condition
+      ).then((res) => {
         let tableData = res.data;
-        const {itemCount, listObject} = tableData;
+        const { itemCount, listObject } = tableData;
         this.total = itemCount;
         this.data = listObject;
-        this.data.forEach(item => {
+        this.data.forEach((item) => {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
-        })
+        });
       });
     },
     open(language) {
@@ -109,26 +167,27 @@ export default {
     },
     submit() {
       if (!this.currentRow) {
-        this.$warning(this.$t('project.code_segment.select_tip'));
+        this.$warning(this.$t("project.code_segment.select_tip"));
         return;
       }
-      this.result = getFuncById(this.currentRow.id).then(res => {
+      this.result = getFuncById(this.currentRow.id).then((res) => {
         if (!res.data) {
-          this.$warning(this.$t('project.code_segment.none_content'))
+          this.$warning(this.$t("project.code_segment.none_content"));
         }
-        let {script} = res.data;
+        let { script } = res.data;
         this.$emit("addCustomFuncScript", script);
         this.close();
       });
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
 pre {
   margin: 0 0;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    Arial, sans-serif;
 }
 
 .search-bar {

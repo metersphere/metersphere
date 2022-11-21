@@ -1,16 +1,20 @@
 <template>
   <div class="main-info-card">
-    <div style="margin:16px">
+    <div style="margin: 16px">
       <span class="main-info-card-title">
         {{ title }}
       </span>
-      <div style="margin-top: 4px;height: 40px">
-        <span v-if="isExecuteInfo" class="addition-num">{{ countData.executedTimesInWeek }}</span>
+      <div style="margin-top: 4px; height: 40px">
+        <span v-if="isExecuteInfo" class="addition-num">{{
+          countData.executedTimesInWeek
+        }}</span>
         <span v-else class="main-num">{{ countData.total }}</span>
       </div>
       <div style="margin-top: 32px">
         <div v-if="isExecuteInfo">
-          <span class="main-info-card-title">{{ $t("home.dashboard.public.executed_times") }}</span>
+          <span class="main-info-card-title">{{
+            $t("home.dashboard.public.executed_times")
+          }}</span>
           <div class="common-amount">
             <span class="addition-num">
               {{ countData.executedTimes }}
@@ -20,27 +24,46 @@
         <div v-else>
           <el-row>
             <el-col :span="12">
-              <span class="main-info-card-title">{{ $t("home.dashboard.public.this_week") }}</span>
+              <span class="main-info-card-title">{{
+                $t("home.dashboard.public.this_week")
+              }}</span>
               <div class="common-amount">
-                <el-button class="common-amount-button" v-permission-disable="linkPermission" @click="redirect('createdInWeek')">
+                <el-button
+                  class="common-amount-button"
+                  v-permission-disable="linkPermission"
+                  @click="redirect('createdInWeek')"
+                >
                   +{{ countData.createdInWeek }}
-                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
+                  <img
+                    class="main-info-card-right"
+                    src="/assets/figma/icon_right_outlined.svg"
+                    alt=""
+                  />
                 </el-button>
               </div>
             </el-col>
             <el-col :span="12">
-              <span class="main-info-card-title">{{ $t("home.dashboard.public.fake_error") }}</span>
+              <span class="main-info-card-title">{{
+                $t("home.dashboard.public.fake_error")
+              }}</span>
               <div class="common-amount">
-                <el-button class="common-amount-button" v-permission-disable="linkPermission" @click="redirect('fakeError')">
+                <el-button
+                  class="common-amount-button"
+                  v-permission-disable="linkPermission"
+                  @click="redirect('fakeError')"
+                >
                   {{ countData.fakeErrorCount }}
-                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="">
+                  <img
+                    class="main-info-card-right"
+                    src="/assets/figma/icon_right_outlined.svg"
+                    alt=""
+                  />
                 </el-button>
               </div>
             </el-col>
           </el-row>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -54,14 +77,20 @@ export default {
     countData: Object,
     redirectPageName: String,
     redirectDataType: String,
-    linkPermission: []
+    linkPermission: [],
   },
   methods: {
     redirect(seletDataType) {
-      this.$emit('redirectPage', this.redirectPageName, this.redirectDataType, seletDataType, null);
-    }
-  }
-}
+      this.$emit(
+        "redirectPage",
+        this.redirectPageName,
+        this.redirectDataType,
+        seletDataType,
+        null
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -75,14 +104,14 @@ export default {
   font-size: 20px;
   font-weight: 500;
   line-height: 28px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
 .main-num {
   font-size: 32px;
   font-weight: 500;
   line-height: 40px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
 .common-amount-button {
@@ -92,9 +121,8 @@ export default {
   font-size: 20px;
   font-weight: 500;
   line-height: 28px;
-  color: #1F2329;
+  color: #1f2329;
 }
-
 
 .main-info-card-right {
   height: 12px;
@@ -118,5 +146,4 @@ export default {
 .common-amount-button:hover {
   color: #783887;
 }
-
 </style>

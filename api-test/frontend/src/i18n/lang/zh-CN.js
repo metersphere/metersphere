@@ -1,6 +1,6 @@
 import el from "element-ui/lib/locale/lang/zh-CN"; // 加载element的内容
 import fu from "fit2cloud-ui/src/locale/lang/zh-CN"; // 加载fit2cloud的内容
-import mf from "metersphere-frontend/src/i18n/lang/zh-CN"
+import mf from "metersphere-frontend/src/i18n/lang/zh-CN";
 
 const message = {
   api_case: {
@@ -76,7 +76,7 @@ const message = {
         running_count: "当前运行数",
         scenario_schedule_total: "场景定时任务数量",
         pass_rate: "运行通过率",
-      }
+      },
     },
     table: {
       index: "序号",
@@ -104,17 +104,17 @@ const message = {
       api_status: "状态",
       update_time: "更新时间",
       relation_case: "关联CASE",
-      relation_scenario: "关联场景"
+      relation_scenario: "关联场景",
     },
   },
-  automation:{
+  automation: {
     project_no_permission: "当前操作人无此步骤的操作权限",
-  }
-}
+  },
+};
 
 export default {
   ...el,
   ...fu,
   ...mf,
-  ...message
+  ...message,
 };

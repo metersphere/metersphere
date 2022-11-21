@@ -21,12 +21,14 @@ export class BasicProp extends Prop {
   }
 
   toJson() {
-    if (this.value  && this.value !== "") {
+    if (this.value && this.value !== "") {
       let json = super.toJson();
-      json.elements = [{
-        "type": "text",
-        "text": "" + this.value
-      }]
+      json.elements = [
+        {
+          type: "text",
+          text: "" + this.value,
+        },
+      ];
       return json;
     }
   }
@@ -40,7 +42,9 @@ export class IntProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements ? parseInt(options.elements[0].text) : undefined;
+    this.value = options.elements
+      ? parseInt(options.elements[0].text)
+      : undefined;
   }
 }
 
@@ -52,7 +56,9 @@ export class LongProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements ? parseInt(options.elements[0].text) : undefined;
+    this.value = options.elements
+      ? parseInt(options.elements[0].text)
+      : undefined;
   }
 }
 
@@ -64,7 +70,9 @@ class BoolProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements ? options.elements[0].text === 'true' : undefined;
+    this.value = options.elements
+      ? options.elements[0].text === "true"
+      : undefined;
   }
 }
 
@@ -80,7 +88,6 @@ export class StringProp extends BasicProp {
   }
 }
 
-
 /**
  * value: name/value 对象
  */
@@ -89,20 +96,20 @@ export class ObjProp extends Prop {
     super(options);
     if (options.elements) {
       this.value = {};
-      options.elements.forEach(e => {
+      options.elements.forEach((e) => {
         if (e.name === "name") {
           this.key = e.elements[0].text;
-          this.value.name = new BasicProp(e)
+          this.value.name = new BasicProp(e);
         } else {
           this.value.value = new ObjValue(e);
         }
-      })
+      });
     }
   }
 
   toJson() {
     let json = super.toJson();
-    if (this.value ) {
+    if (this.value) {
       json.elements = [];
       if (this.value.name) json.elements.push(this.value.name.toJson());
       if (this.value.value) json.elements.push(this.value.value.toJson());
@@ -115,20 +122,20 @@ export class ObjValue extends Element {
   constructor(options = {}) {
     super(options);
     if (options.elements) {
-      this.value = {}
-      options.elements.forEach(e => {
+      this.value = {};
+      options.elements.forEach((e) => {
         this.value[e.name] = new BasicProp(e);
-      })
+      });
     }
   }
 
   toJson() {
     let json = super.toJson();
-    if (this.value ) {
+    if (this.value) {
       json.elements = [];
-      Object.keys(this.value).forEach(v => {
+      Object.keys(this.value).forEach((v) => {
         json.elements.push(this.value[v].toJson());
-      })
+      });
     }
     return json;
   }
@@ -142,7 +149,7 @@ export class CollectionProp extends Prop {
     super(options);
     this.elements = [];
     if (options.elements) {
-      options.elements.forEach(e => {
+      options.elements.forEach((e) => {
         let prop;
         switch (e.name) {
           case "intProp":
@@ -162,7 +169,7 @@ export class CollectionProp extends Prop {
             break;
         }
         this.add(prop);
-      })
+      });
     }
   }
 
@@ -186,12 +193,12 @@ export class CollectionProp extends Prop {
     let json = super.toJson();
     if (this.elements && this.elements.length > 0) {
       json.elements = [];
-      this.elements.forEach(v => {
+      this.elements.forEach((v) => {
         let element = v.toJson();
-        if (element ) {
+        if (element) {
           json.elements.push(element);
         }
-      })
+      });
     }
     return json;
   }
@@ -261,9 +268,9 @@ export class ElementProp extends Prop {
     let keys = Object.keys(this.elements);
     if (keys.length > 0) {
       json.elements = [];
-      keys.forEach(key => {
+      keys.forEach((key) => {
         let element = this.elements[key].toJson();
-        if (element ) {
+        if (element) {
           json.elements.push(element);
         }
       });
@@ -275,7 +282,7 @@ export class ElementProp extends Prop {
 export const getProps = function (elements) {
   let props = {};
   if (elements) {
-    elements.forEach(e => {
+    elements.forEach((e) => {
       let type = e.name;
       let name;
       if (e.attributes && e.attributes.name) {
@@ -309,66 +316,64 @@ export const getProps = function (elements) {
     });
   }
   return props;
-}
+};
 
 export const basicProp = function (type, name, value) {
   let options = {
     type: "element",
     attributes: {
-      name: name
-    }
-  }
-  if (value ) {
+      name: name,
+    },
+  };
+  if (value) {
     options.elements = [
       {
         type: "text",
-        text: "" + value
-      }
-    ]
+        text: "" + value,
+      },
+    ];
   }
   return new type(options);
-}
+};
 
 export const intProp = function (name, value) {
-  return basicProp(IntProp, name, value)
-}
+  return basicProp(IntProp, name, value);
+};
 
 export const longProp = function (name, value) {
-  return basicProp(LongProp, name, value)
-}
+  return basicProp(LongProp, name, value);
+};
 
 export const boolProp = function (name, value) {
-  return basicProp(BoolProp, name, value)
-}
+  return basicProp(BoolProp, name, value);
+};
 
 export const stringProp = function (name, value) {
-  return basicProp(StringProp, name, value)
-}
+  return basicProp(StringProp, name, value);
+};
 
 export const collectionProp = function (name) {
   let options = {
-    "type": "element",
-    "name": "collectionProp",
-    "attributes": {
-      "name": name
+    type: "element",
+    name: "collectionProp",
+    attributes: {
+      name: name,
     },
-    elements: []
+    elements: [],
   };
   return new CollectionProp(options);
-}
+};
 
 export const elementProp = function (name, elementType, attributes) {
   let options = {
-    "type": "element",
-    "name": "elementProp",
-    "attributes": {
-      "name": name,
-      "elementType": elementType,
-      ...attributes
+    type: "element",
+    name: "elementProp",
+    attributes: {
+      name: name,
+      elementType: elementType,
+      ...attributes,
     },
-    elements: []
+    elements: [],
   };
   return new ElementProp(options);
-}
-
-
+};

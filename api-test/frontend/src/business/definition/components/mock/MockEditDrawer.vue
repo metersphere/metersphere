@@ -1,5 +1,11 @@
 <template>
-  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom" ref="mockDrawer">
+  <ms-drawer
+    :size="60"
+    @close="close"
+    :visible="showDrawer"
+    direction="bottom"
+    ref="mockDrawer"
+  >
     <template v-slot:header>
       <mock-config-header
         :mock-expect-config="mockExpectConfig"
@@ -9,37 +15,55 @@
     </template>
     <div>
       <!--  期望详情 -->
-      <p class="tip">{{ $t('api_test.mock.request_condition') }}</p>
-      <el-form :model="mockExpectConfig" :rules="rule" ref="mockExpectForm" label-width="80px" label-position="right">
-
+      <p class="tip">{{ $t("api_test.mock.request_condition") }}</p>
+      <el-form
+        :model="mockExpectConfig"
+        :rules="rule"
+        ref="mockExpectForm"
+        label-width="80px"
+        label-position="right"
+      >
         <div class="card">
           <div class="base-info">
             <el-row>
               <tcp-params
-                v-if="isTcp" :show-operation-col="true"
-                :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
+                v-if="isTcp"
+                :show-operation-col="true"
+                :request="mockExpectConfig.request"
+                style="margin: 10px 10px"
+                ref="tcpParam"
+              ></tcp-params>
               <mock-request-param
                 v-else
                 :isShowEnable="false"
                 :referenced="true"
                 :is-read-only="false"
                 :api-params="apiParams"
-                :request="mockExpectConfig.request.params"/>
+                :request="mockExpectConfig.request.params"
+              />
             </el-row>
 
-            <el-row style="margin-top: 10px;">
+            <el-row style="margin-top: 10px">
               <el-col :span="12">
-                <p class="tip">{{ $t('api_test.mock.rsp_param') }}</p>
+                <p class="tip">{{ $t("api_test.mock.rsp_param") }}</p>
               </el-col>
               <el-col :span="12">
-                <el-button class="ms-right-buttion" size="small" @click="addPostScript">
-                  +{{ $t('api_test.definition.request.post_script') }}
+                <el-button
+                  class="ms-right-buttion"
+                  size="small"
+                  @click="addPostScript"
+                >
+                  +{{ $t("api_test.definition.request.post_script") }}
                 </el-button>
               </el-col>
             </el-row>
             <el-row>
-              <mock-response-param :api-id="apiId" :is-tcp="isTcp"
-                                   :response="mockExpectConfig.response.responseResult" ref="mockResponseParam"/>
+              <mock-response-param
+                :api-id="apiId"
+                :is-tcp="isTcp"
+                :response="mockExpectConfig.response.responseResult"
+                ref="mockResponseParam"
+              />
             </el-row>
           </div>
         </div>
@@ -48,22 +72,27 @@
   </ms-drawer>
 </template>
 <script>
-
 import MsDrawer from "metersphere-frontend/src/components/MsDrawer";
-import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
+import { REQUEST_HEADERS } from "metersphere-frontend/src/utils/constants";
 import MockRowVariables from "@/business/definition/components/mock/MockRowVariables";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MockConfigHeader from "@/business/definition/components/mock/MockConfigHeader";
 import MockRequestParam from "@/business/definition/components/mock/Components/MockRequestParam";
 import MockResponseParam from "@/business/definition/components/mock/Components/MockResponseParam";
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from "metersphere-frontend/src/utils";
 import TcpParams from "@/business/definition/components/request/tcp/TcpParams";
-import {updateMockExpectConfig} from "@/api/api-mock";
+import { updateMockExpectConfig } from "@/api/api-mock";
 
 export default {
-  name: 'MockEditDrawer',
+  name: "MockEditDrawer",
   components: {
-    MsDrawer, MockConfigHeader, MockRowVariables, MsCodeEdit, MockRequestParam, MockResponseParam, TcpParams
+    MsDrawer,
+    MockConfigHeader,
+    MockRowVariables,
+    MsCodeEdit,
+    MockRequestParam,
+    MockResponseParam,
+    TcpParams,
   },
   props: {
     apiParams: Object,
@@ -72,7 +101,7 @@ export default {
     isTcp: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
@@ -94,11 +123,11 @@ export default {
             arguments: [],
             rest: [],
             body: {
-              type: 'Form Data',
+              type: "Form Data",
               binary: [],
               kvs: [],
-            }
-          }
+            },
+          },
         },
         response: {
           httpCode: "",
@@ -111,27 +140,49 @@ export default {
             rest: [],
             body: {
               xmlHeader: 'version="1.0" encoding="UTF-8"',
-              type: 'JSON',
-              binary: []
-            }
-          }
+              type: "JSON",
+              binary: [],
+            },
+          },
         },
       },
       rule: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t("test_track.case.input_name"),
+            trigger: "blur",
+          },
+          {
+            max: 100,
+            message: this.$t("test_track.length_less_than") + "100",
+            trigger: "blur",
+          },
         ],
         response: {
-          httpCode: [{required: true, message: this.$t('api_test.mock.rule.input_code'), trigger: 'blur'},],
-          delayed: [{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},],
+          httpCode: [
+            {
+              required: true,
+              message: this.$t("api_test.mock.rule.input_code"),
+              trigger: "blur",
+            },
+          ],
+          delayed: [
+            {
+              required: true,
+              message: this.$t("test_track.case.input_name"),
+              trigger: "blur",
+            },
+          ],
         },
       },
     };
   },
   watch: {},
   created() {
-    this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
+    this.mockExpectConfig = JSON.parse(
+      JSON.stringify(this.baseMockExpectConfig)
+    );
   },
   computed: {},
   methods: {
@@ -142,11 +193,12 @@ export default {
       return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
     },
     open(param) {
-      this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
+      this.mockExpectConfig = JSON.parse(
+        JSON.stringify(this.baseMockExpectConfig)
+      );
       if (param) {
         this.mockExpectConfig = param;
         if (!this.mockExpectConfig.request.params) {
-
           let requestParamsObj = {
             rest: [],
             headers: [],
@@ -159,15 +211,19 @@ export default {
           };
           this.$set(this.mockExpectConfig.request, "params", requestParamsObj);
 
-          if (this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData) {
+          if (
+            this.mockExpectConfig.request.jsonParam &&
+            this.mockExpectConfig.request.jsonData
+          ) {
             this.mockExpectConfig.request.params.body.type = "JSON";
-            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.request.jsonData;
+            this.mockExpectConfig.request.params.body.raw =
+              this.mockExpectConfig.request.jsonData;
           } else if (this.mockExpectConfig.request.variables) {
             this.mockExpectConfig.request.params.body.type = "Form Data";
             let headerItem = {};
             headerItem.enable = true;
             this.mockExpectConfig.request.params.headers.push(headerItem);
-            this.mockExpectConfig.request.variables.forEach(item => {
+            this.mockExpectConfig.request.variables.forEach((item) => {
               this.mockExpectConfig.request.params.arguments.push({
                 description: "",
                 type: "text",
@@ -199,12 +255,16 @@ export default {
             body: {
               type: "Raw",
               raw: this.mockExpectConfig.response.body,
-              binary: []
-            }
+              binary: [],
+            },
           };
-          this.$set(this.mockExpectConfig.response, "responseResult", responseResultObj);
+          this.$set(
+            this.mockExpectConfig.response,
+            "responseResult",
+            responseResultObj
+          );
           if (this.mockExpectConfig.response.httpHeads) {
-            this.mockExpectConfig.response.httpHeads.forEach(item => {
+            this.mockExpectConfig.response.httpHeads.forEach((item) => {
               this.mockExpectConfig.response.responseResult.headers.push({
                 enable: true,
                 name: item.name,
@@ -212,7 +272,6 @@ export default {
               });
             });
           }
-
         }
       }
       this.showDrawer = true;
@@ -233,18 +292,20 @@ export default {
     },
     cleanMockExpectConfig() {
       this.showHeadTable = false;
-      this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
+      this.mockExpectConfig = JSON.parse(
+        JSON.stringify(this.baseMockExpectConfig)
+      );
       this.$nextTick(function () {
         this.showHeadTable = true;
       });
     },
     uploadMockExpectConfig(clearForm) {
       let param = this.mockExpectConfig;
-      if (!param.name || param.name === '') {
-        this.$error(this.$t('test_track.case.input_name'));
+      if (!param.name || param.name === "") {
+        this.$error(this.$t("test_track.case.input_name"));
         return false;
       } else if (param.name.length > 100) {
-        this.$error(this.$t('test_track.length_less_than') + 100);
+        this.$error(this.$t("test_track.length_less_than") + 100);
         return false;
       }
 
@@ -257,19 +318,19 @@ export default {
       }
       let obj = {
         request: param.request.params,
-        response: param.response.responseResult
+        response: param.response.responseResult,
       };
       let bodyFiles = this.getBodyUploadFiles(obj);
-      updateMockExpectConfig(param, null, bodyFiles).then(response => {
+      updateMockExpectConfig(param, null, bodyFiles).then((response) => {
         let returnData = response.data;
         this.mockExpectConfig.id = returnData.id;
-        this.$emit('refreshMockInfo', param.mockConfigId);
+        this.$emit("refreshMockInfo", param.mockConfigId);
         if (clearForm) {
           this.cleanMockExpectConfig();
         }
         this.$message({
-          type: 'success',
-          message: this.$t('commons.save_success'),
+          type: "success",
+          message: this.$t("commons.save_success"),
         });
         this.close();
       });
@@ -281,9 +342,9 @@ export default {
       let response = data.response;
       if (request.body) {
         if (request.body.kvs) {
-          request.body.kvs.forEach(param => {
+          request.body.kvs.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -296,9 +357,9 @@ export default {
           });
         }
         if (request.body.binary) {
-          request.body.binary.forEach(param => {
+          request.body.binary.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -313,9 +374,9 @@ export default {
       }
       if (response.body) {
         if (response.body.kvs) {
-          response.body.kvs.forEach(param => {
+          response.body.kvs.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -328,9 +389,9 @@ export default {
           });
         }
         if (response.body.binary) {
-          response.body.binary.forEach(param => {
+          response.body.binary.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -355,12 +416,11 @@ export default {
         }
       });
     },
-  }
+  },
 };
 </script>
 
 <style scoped>
-
 .ms-drawer :deep(.ms-drawer-body) {
   margin-top: 40px;
 }
@@ -374,7 +434,7 @@ export default {
   float: right;
   margin: 6px 0px 8px 30px;
   color: #783887;
-  background-color: #F2ECF3;
-  border: #F2ECF3;
+  background-color: #f2ecf3;
+  border: #f2ecf3;
 }
 </style>

@@ -2,28 +2,34 @@
   <div>
     <el-radio-group v-model="body.type" size="mini">
       <el-radio :disabled="isReadOnly" :label="type.JSON" @change="modeChange">
-        {{ $t('api_test.definition.request.body_json') }}
+        {{ $t("api_test.definition.request.body_json") }}
       </el-radio>
       <el-radio :disabled="isReadOnly" label="fromApi" @change="modeChange">
-        {{ $t('commons.follow_api') }}
+        {{ $t("commons.follow_api") }}
       </el-radio>
       <el-radio :disabled="isReadOnly" :label="type.XML" @change="modeChange">
-        {{ $t('api_test.definition.request.body_xml') }}
+        {{ $t("api_test.definition.request.body_xml") }}
       </el-radio>
       <el-radio :disabled="isReadOnly" :label="type.RAW" @change="modeChange">
-        {{ $t('api_test.definition.request.body_raw') }}
+        {{ $t("api_test.definition.request.body_raw") }}
       </el-radio>
     </el-radio-group>
     <div class="ms-body" v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
+        <el-switch
+          active-text="JSON-SCHEMA"
+          v-model="body.format"
+          @change="formatChange"
+          active-value="JSON-SCHEMA"
+        />
       </div>
       <ms-json-code-edit
-        v-if="body.format==='JSON-SCHEMA'"
+        v-if="body.format === 'JSON-SCHEMA'"
         :body="body"
         :show-mock-vars="true"
         :need-mock="needMock"
-        ref="jsonCodeEdit"/>
+        ref="jsonCodeEdit"
+      />
       <ms-code-edit
         v-else-if="codeEditActive && loadIsOver"
         :read-only="isReadOnly"
@@ -31,7 +37,8 @@
         :modes="modes"
         :mode="'json'"
         height="90%"
-        ref="codeEdit"/>
+        ref="codeEdit"
+      />
     </div>
 
     <div class="ms-body" v-if="body.type == 'fromApi'">
@@ -42,11 +49,16 @@
         :mode="'text'"
         v-if="loadIsOver"
         height="90%"
-        ref="fromApiCodeEdit"/>
+        ref="fromApiCodeEdit"
+      />
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <el-input v-model="body.xmlHeader" size="small" style="width: 400px;margin-bottom: 5px"/>
+      <el-input
+        v-model="body.xmlHeader"
+        size="small"
+        style="width: 400px; margin-bottom: 5px"
+      />
       <ms-code-edit
         :read-only="isReadOnly"
         :data.sync="body.xmlRaw"
@@ -54,7 +66,8 @@
         :mode="'xml'"
         v-if="loadIsOver"
         height="90%"
-        ref="codeEdit"/>
+        ref="codeEdit"
+      />
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
@@ -64,17 +77,18 @@
         :modes="modes"
         v-if="loadIsOver"
         height="90%"
-        ref="codeEdit"/>
+        ref="codeEdit"
+      />
     </div>
 
-    <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
+    <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
   </div>
 </template>
 
 <script>
-import {getMockApiResponse} from "@/api/api-mock";
+import { getMockApiResponse } from "@/api/api-mock";
 import MsApiKeyValue from "@/business/definition/components/ApiKeyValue";
-import {BODY_TYPE, KeyValue} from "@/business/definition/model/ApiTestModel";
+import { BODY_TYPE, KeyValue } from "@/business/definition/model/ApiTestModel";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsJsonCodeEdit from "@/business/commons/json-schema/JsonSchemaEditor";
 import MsDropdown from "@/business/commons/MsDropdown";
@@ -100,36 +114,36 @@ export default {
     headers: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShowEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     usePostScript: {
       type: Boolean,
-      default: false
+      default: false,
     },
     needMock: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   data() {
     return {
       loadIsOver: true,
       type: BODY_TYPE,
-      modes: ['text', 'json', 'xml', 'html'],
+      modes: ["text", "json", "xml", "html"],
       jsonSchema: "JSON",
       codeEditActive: true,
       hasOwnProperty: Object.prototype.hasOwnProperty,
-      propIsEnumerable: Object.prototype.propertyIsEnumerable
+      propIsEnumerable: Object.prototype.propertyIsEnumerable,
     };
   },
 
   watch: {
-    'body.raw'() {
-      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
+    "body.raw"() {
+      if (this.body.format !== "JSON-SCHEMA" && this.body.raw) {
         try {
           const MsConvert = new Convert();
           let data = MsConvert.format(JSON.parse(this.body.raw));
@@ -142,28 +156,28 @@ export default {
       }
     },
 
-    'body.xmlRaw'() {
+    "body.xmlRaw"() {
       if (!this.body.xmlRaw) {
-        this.body.xmlRaw = '';
+        this.body.xmlRaw = "";
       }
     },
 
-    'body.scriptObject'() {
+    "body.scriptObject"() {
       if (!this.body.scriptObject) {
         this.body.scriptObject = {};
       }
     },
 
-    'body.xmlHeader'() {
+    "body.xmlHeader"() {
       if (!this.body.xmlHeader) {
-        this.body.xmlHeader = '';
+        this.body.xmlHeader = "";
       }
     },
   },
   methods: {
     isObj(x) {
       let type = typeof x;
-      return x !== null && (type === 'object' || type === 'function');
+      return x !== null && (type === "object" || type === "function");
     },
     toObject(val) {
       if (val === null || val === undefined) {
@@ -225,14 +239,14 @@ export default {
     formatChange() {
       const MsConvert = new Convert();
 
-      if (this.body.format === 'JSON-SCHEMA') {
+      if (this.body.format === "JSON-SCHEMA") {
         if (this.body.raw && !this.body.jsonSchema) {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
         }
       } else {
         if (this.body.jsonSchema) {
           MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
-            this.$set(this.body, 'raw', result);
+            this.$set(this.body, "raw", result);
             this.reloadCodeEdit();
           });
         }
@@ -261,7 +275,7 @@ export default {
       });
     },
     selectApiResponse() {
-      getMockApiResponse(this.apiId).then(response => {
+      getMockApiResponse(this.apiId).then((response) => {
         let apiResponse = response.data;
         if (apiResponse && apiResponse.returnData) {
           this.body.apiRspRaw = apiResponse.returnData;
@@ -271,22 +285,24 @@ export default {
     },
     setContentType(value) {
       let isType = false;
-      this.headers.forEach(item => {
+      this.headers.forEach((item) => {
         if (item.name === "Content-Type") {
           item.value = value;
           isType = true;
         }
-      })
+      });
       if (!isType) {
-        this.headers.unshift(new KeyValue({name: "Content-Type", value: value}));
-        this.$emit('headersChange');
+        this.headers.unshift(
+          new KeyValue({ name: "Content-Type", value: value })
+        );
+        this.$emit("headersChange");
       }
     },
     removeContentType() {
       for (let index in this.headers) {
         if (this.headers[index].name === "Content-Type") {
           this.headers.splice(index, 1);
-          this.$emit('headersChange');
+          this.$emit("headersChange");
           return;
         }
       }
@@ -313,29 +329,31 @@ export default {
       if (data) {
         let params = data.split("\n");
         let keyValues = [];
-        params.forEach(item => {
+        params.forEach((item) => {
           if (item) {
             let line = [];
             line[0] = item.substring(0, item.indexOf(":"));
             line[1] = item.substring(item.indexOf(":") + 1, item.length);
             let required = false;
-            keyValues.push(new KeyValue({
-              name: line[0],
-              required: required,
-              value: line[1],
-              description: line[2],
-              type: "text",
-              valid: false,
-              file: false,
-              encode: true,
-              enable: true,
-              contentType: "text/plain"
-            }));
+            keyValues.push(
+              new KeyValue({
+                name: line[0],
+                required: required,
+                value: line[1],
+                description: line[2],
+                type: "text",
+                valid: false,
+                file: false,
+                encode: true,
+                enable: true,
+                contentType: "text/plain",
+              })
+            );
           }
-        })
-        keyValues.forEach(item => {
+        });
+        keyValues.forEach((item) => {
           this.format(this.body.kvs, item);
-        })
+        });
       }
     },
   },
@@ -344,23 +362,23 @@ export default {
       this.body.type = BODY_TYPE.FORM_DATA;
     }
     if (this.body.kvs) {
-      this.body.kvs.forEach(param => {
+      this.body.kvs.forEach((param) => {
         if (!param.type) {
-          param.type = 'text';
+          param.type = "text";
         }
       });
     }
     if (!this.body.xmlRaw) {
-      this.body.xmlRaw = '';
+      this.body.xmlRaw = "";
     }
     if (!this.body.scriptObject) {
       this.body.scriptObject = {};
     }
     if (!this.body.xmlHeader) {
-      this.body.xmlHeader = '';
+      this.body.xmlHeader = "";
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

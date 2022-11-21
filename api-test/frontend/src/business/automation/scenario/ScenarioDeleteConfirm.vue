@@ -6,14 +6,14 @@
     width="30%"
   >
     <el-radio-group v-model="deleteCurrentVersion">
-      <el-radio :label="true">{{ $t('commons.delete_current_version') }}</el-radio>
-      <el-radio :label="false">{{ $t('commons.delete_all_version') }}</el-radio>
+      <el-radio :label="true">{{
+        $t("commons.delete_current_version")
+      }}</el-radio>
+      <el-radio :label="false">{{ $t("commons.delete_all_version") }}</el-radio>
     </el-radio-group>
 
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="close"
-        @confirm="handleDelete">
+      <ms-dialog-footer @cancel="close" @confirm="handleDelete">
       </ms-dialog-footer>
     </template>
   </el-dialog>
@@ -24,13 +24,13 @@ import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 
 export default {
   name: "ListItemDeleteConfirm",
-  components: {MsDialogFooter},
+  components: { MsDialogFooter },
   data() {
     return {
       deleteApiVisible: false,
       title: null,
       deleteCurrentVersion: true,
-      api: {}
+      api: {},
     };
   },
   methods: {
@@ -44,12 +44,10 @@ export default {
       this.deleteApiVisible = false;
     },
     handleDelete() {
-      this.$emit('handleDelete', this.api, this.deleteCurrentVersion);
+      this.$emit("handleDelete", this.api, this.deleteCurrentVersion);
     },
-  }
+  },
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

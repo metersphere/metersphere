@@ -1,31 +1,73 @@
 <template>
   <div v-loading="loading">
     <div class="kv-row item" v-for="(item, index) in data" :key="index">
-      <el-row type="flex" :gutter="20" justify="space-between" align="middle" :style="item.style">
-        <div class="box" v-if="item.box"/>
+      <el-row
+        type="flex"
+        :gutter="20"
+        justify="space-between"
+        align="middle"
+        :style="item.style"
+      >
+        <div class="box" v-if="item.box" />
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly"/>
+          <el-checkbox
+            v-if="!isDisable(index)"
+            v-model="item.enable"
+            :disabled="isReadOnly"
+          />
         </el-col>
-        <span style="margin-left: 10px" v-else/>
+        <span style="margin-left: 10px" v-else />
         <el-col class="item">
-          <input class="el-input el-input__inner" v-if="!suggestions" :disabled="isReadOnly" v-model="item.name"
-                 size="small" maxlength="200" show-word-limit :style="item.style"/>
-          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
-                           show-word-limit :style="item.style"/>
+          <input
+            class="el-input el-input__inner"
+            v-if="!suggestions"
+            :disabled="isReadOnly"
+            v-model="item.name"
+            size="small"
+            maxlength="200"
+            show-word-limit
+            :style="item.style"
+          />
+          <el-autocomplete
+            :disabled="isReadOnly"
+            :maxlength="400"
+            v-if="suggestions"
+            v-model="item.name"
+            size="small"
+            show-word-limit
+            :style="item.style"
+          />
         </el-col>
         <el-col v-if="showRequired">
-          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.required" size="small"
-                 :style="item.style"/>
+          <input
+            class="el-input el-input__inner"
+            :disabled="isReadOnly"
+            v-model="item.required"
+            size="small"
+            :style="item.style"
+          />
         </el-col>
         <el-col class="item">
-          <input class="el-input el-input__inner" :disabled="isReadOnly" v-model="item.value" size="small"
-                 show-word-limit :style="item.style"/>
+          <input
+            class="el-input el-input__inner"
+            :disabled="isReadOnly"
+            v-model="item.value"
+            size="small"
+            show-word-limit
+            :style="item.style"
+          />
         </el-col>
         <el-col class="item" v-if="showDesc">
-          <input class="el-input el-input__inner" v-model="item.description" size="small" maxlength="200"
-                 :style="item.style"
-                 :disabled="isReadOnly"
-                 :placeholder="$t('commons.description')" show-word-limit/>
+          <input
+            class="el-input el-input__inner"
+            v-model="item.description"
+            size="small"
+            maxlength="200"
+            :style="item.style"
+            :disabled="isReadOnly"
+            :placeholder="$t('commons.description')"
+            show-word-limit
+          />
         </el-col>
       </el-row>
     </div>
@@ -48,12 +90,12 @@ export default {
     items: Array,
     isReadOnly: {
       type: Boolean,
-      default: true
+      default: true,
     },
     suggestions: Array,
     needMock: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showDesc: Boolean,
     showRequired: {
@@ -69,7 +111,7 @@ export default {
       currentItem: {},
       isSelectAll: true,
       data: [],
-    }
+    };
   },
   watch: {
     isSelectAll: function (to, from) {
@@ -82,26 +124,26 @@ export default {
     format: function (to, from) {
       this.formatItem();
       this.reload();
-    }
+    },
   },
   methods: {
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     isDisable: function (index) {
       return this.items.length - 1 === index;
     },
 
     selectAll() {
-      this.items.forEach(item => {
+      this.items.forEach((item) => {
         item.enable = true;
       });
     },
     invertSelect() {
-      this.items.forEach(item => {
+      this.items.forEach((item) => {
         item.enable = false;
       });
     },
@@ -110,9 +152,11 @@ export default {
       if (this.items && this.items.length > 0) {
         for (let i in this.items) {
           let item = this.items[i];
-          item.required = item.required ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
+          item.required = item.required
+            ? this.$t("commons.selector.required")
+            : this.$t("commons.selector.not_required");
           let itemMap = new Map(Object.entries(item));
-          let newObj = new Map()
+          let newObj = new Map();
           let itemStr = JSON.stringify(item);
           if (itemStr.indexOf("--name") !== -1) {
             itemStr = itemStr.replaceAll("--", "");
@@ -139,19 +183,22 @@ export default {
             this.data.push(item);
             item["box"] = true;
             newObj["style"] = background_old;
-            newObj["required"] = newObj.required === this.$t('commons.selector.required') ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
+            newObj["required"] =
+              newObj.required === this.$t("commons.selector.required")
+                ? this.$t("commons.selector.required")
+                : this.$t("commons.selector.not_required");
             this.data.push(newObj);
           } else {
             this.data.push(item);
           }
         }
       }
-    }
+    },
   },
   created() {
     this.formatItem();
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

@@ -5,16 +5,26 @@
         <el-row>
           <div class="tip" style="float: left">
             <span>{{ title }}</span>
-            <span v-if="remarks" style="font-weight: 400;font-size: smaller;background: #F1F0F0;margin-left: 5px;">
+            <span
+              v-if="remarks"
+              style="
+                font-weight: 400;
+                font-size: smaller;
+                background: #f1f0f0;
+                margin-left: 5px;
+              "
+            >
               {{ remarks }}
             </span>
           </div>
           <div class="right-button">
             <el-link v-if="active" @click="changeActive">
-              {{ $t('api_test.definition.document.close') }} <i class="el-icon-arrow-up"/>
+              {{ $t("api_test.definition.document.close") }}
+              <i class="el-icon-arrow-up" />
             </el-link>
             <el-link v-if="!active" @click="changeActive">
-              {{ $t('api_test.definition.document.open') }} <i class="el-icon-arrow-down"/>
+              {{ $t("api_test.definition.document.open") }}
+              <i class="el-icon-arrow-down" />
             </el-link>
           </div>
         </el-row>
@@ -23,37 +33,51 @@
             <div v-if="!showSlotComponent">
               <div v-if="isText">
                 <div class="showDataDiv">
-                  <br/>
-                  <p style="margin: 0px 20px;"
-                     v-html="stringData">
-                  </p>
-                  <br/>
+                  <br />
+                  <p style="margin: 0px 20px" v-html="stringData"></p>
+                  <br />
                 </div>
               </div>
-              <div v-else-if="tableData.length===0">
+              <div v-else-if="tableData.length === 0">
                 <div class="simpleFontClass" style="margin-top: 10px">
-                  {{ $t('api_test.definition.document.data_set.none') }}
+                  {{ $t("api_test.definition.document.data_set.none") }}
                 </div>
               </div>
               <div v-else>
-                <el-table border :show-header="true" row-key="id" :row-class-name="getRowClassName"
-                          :data="tableData" :class="getTableClass()" ref="expandTable">
-                  <el-table-column v-for="item in tableColumnArr" :key="item.id"
-                                   :prop="item.prop"
-                                   :label="item.label"
-                                   show-overflow-tooltip>
+                <el-table
+                  border
+                  :show-header="true"
+                  row-key="id"
+                  :row-class-name="getRowClassName"
+                  :data="tableData"
+                  :class="getTableClass()"
+                  ref="expandTable"
+                >
+                  <el-table-column
+                    v-for="item in tableColumnArr"
+                    :key="item.id"
+                    :prop="item.prop"
+                    :label="item.label"
+                    show-overflow-tooltip
+                  >
                   </el-table-column>
-                  <el-table-column type="expand" v-if="tableCanExpand" :label="getCollapseOption()"
-                                   width="80px">
+                  <el-table-column
+                    type="expand"
+                    v-if="tableCanExpand"
+                    :label="getCollapseOption()"
+                    width="80px"
+                  >
                     <template slot="header">
                       <el-button type="text" size="mini" @click="expandAllRows">
                         <span :id="tableExpandButtonId">
-                        {{ expandTitle }}
+                          {{ expandTitle }}
                         </span>
                       </el-button>
                     </template>
                     <template v-slot:default="scope">
-                      <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
+                      <table-advanced-setting
+                        :table-data="scope.row"
+                      ></table-advanced-setting>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -69,15 +93,13 @@
 </template>
 
 <script>
-
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {getUUID} from "metersphere-frontend/src/utils";
-import tableAdvancedSetting
-  from "@/business/definition/components/document/components/plugin/TableAdvancedSetting";
+import { getCurrentUser } from "metersphere-frontend/src/utils/token";
+import { getUUID } from "metersphere-frontend/src/utils";
+import tableAdvancedSetting from "@/business/definition/components/document/components/plugin/TableAdvancedSetting";
 
 export default {
   name: "ApiInfoCollapse",
-  components: {tableAdvancedSetting},
+  components: { tableAdvancedSetting },
   data() {
     return {
       active: true,
@@ -87,10 +109,22 @@ export default {
       tableExpandButtonId: "docTableExpandBtn" + getUUID(),
       expandTitle: this.$t("commons.expand_all"),
       tableColumnArr: [
-        {id: 1, prop: "name", label: this.$t('api_definition.document.name')},
-        {id: 2, prop: "isRequired", label: this.$t('api_definition.document.is_required')},
-        {id: 3, prop: "value", label: this.$t('api_definition.document.value')},
-        {id: 4, prop: "description", label: this.$t('api_definition.document.desc')},
+        { id: 1, prop: "name", label: this.$t("api_definition.document.name") },
+        {
+          id: 2,
+          prop: "isRequired",
+          label: this.$t("api_definition.document.is_required"),
+        },
+        {
+          id: 3,
+          prop: "value",
+          label: this.$t("api_definition.document.value"),
+        },
+        {
+          id: 4,
+          prop: "description",
+          label: this.$t("api_definition.document.desc"),
+        },
       ],
     };
   },
@@ -104,14 +138,14 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     isText: Boolean,
     stringData: {
       type: String,
       default() {
         return "{}";
-      }
+      },
     },
   },
   activated() {
@@ -141,7 +175,7 @@ export default {
   computed: {
     showSlotComponent() {
       return this.isRequest || this.isResponse;
-    }
+    },
   },
   watch: {
     stringData() {
@@ -152,42 +186,43 @@ export default {
         let expand = this.expandAllRow;
         if (this.tableData) {
           this.$nextTick(() => {
-            this.tableData.forEach(i => {
+            this.tableData.forEach((i) => {
               if (i.hasAdvancedSetting) {
-                this.$refs.expandTable.toggleRowExpansion(i, expand)
+                this.$refs.expandTable.toggleRowExpansion(i, expand);
               }
             });
             this.$refs.expandTable.doLayout();
-          })
+          });
         }
       }
-      this.expandTitle = this.expandAllRow ? this.$t("commons.close_all") : this.$t("commons.expand_all");
+      this.expandTitle = this.expandAllRow
+        ? this.$t("commons.close_all")
+        : this.$t("commons.expand_all");
       let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
       tableHeaderDom.innerText = this.expandTitle;
-
-    }
+    },
   },
   methods: {
-    getRowClassName({row, rowIndex}) {
-      let classname = 'autofix-table-row ';
+    getRowClassName({ row, rowIndex }) {
+      let classname = "autofix-table-row ";
       // 通过判断给不需要展开行功能的数据设置样式，通过样式去隐藏展开行图标
       if (!row.hasAdvancedSetting) {
-        classname += ' hide-expand'
+        classname += " hide-expand";
       }
       return classname;
     },
     isNotEmptyValue(value) {
-      return value && value !== '';
+      return value && value !== "";
     },
     rowHasAdvancedSetting(tableData) {
       let hasAdvancedSetting = false;
-      if (this.isNotEmptyValue(tableData['min'])) {
+      if (this.isNotEmptyValue(tableData["min"])) {
         hasAdvancedSetting = true;
-      } else if (this.isNotEmptyValue(tableData['max'])) {
+      } else if (this.isNotEmptyValue(tableData["max"])) {
         hasAdvancedSetting = true;
-      } else if (tableData['urlEncode']) {
+      } else if (tableData["urlEncode"]) {
         hasAdvancedSetting = true;
-      } else if (this.isNotEmptyValue(tableData['description'])) {
+      } else if (this.isNotEmptyValue(tableData["description"])) {
         hasAdvancedSetting = true;
       }
       return hasAdvancedSetting;
@@ -203,9 +238,9 @@ export default {
     },
     getCollapseOption() {
       if (this.expandAllRow) {
-        return this.$t('api_test.definition.document.close');
+        return this.$t("api_test.definition.document.close");
       } else {
-        return this.$t('api_test.definition.document.open');
+        return this.$t("api_test.definition.document.open");
       }
     },
     expandAllRows() {
@@ -213,7 +248,7 @@ export default {
     },
     getJsonArr(jsonString) {
       let returnJsonArr = [];
-      if (jsonString === '无' || jsonString === null) {
+      if (jsonString === "无" || jsonString === null) {
         return returnJsonArr;
       }
       try {
@@ -249,7 +284,6 @@ export default {
 </script>
 
 <style scoped>
-
 .apiInfoRow {
   margin: 10px 10px;
 }
@@ -274,22 +308,22 @@ export default {
   width: auto;
 }
 
-.document-table :deep( .el-table__row) {
+.document-table :deep(.el-table__row) {
   font-size: 12px;
   font-weight: initial;
 }
 
-.document-table :deep( .has-gutter) {
+.document-table :deep(.has-gutter) {
   font-size: 12px;
   color: #404040;
 }
 
-.document-table :deep( td ){
-  border-right: 0px solid #EBEEF5
+.document-table :deep(td) {
+  border-right: 0px solid #ebeef5;
 }
 
 /*修改展开按钮时不旋转*/
-.document-table :deep( .el-table__expand-icon ){
+.document-table :deep(.el-table__expand-icon) {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
@@ -303,8 +337,8 @@ export default {
 }
 
 .document-table :deep(th) {
-  background-color: #FAFAFA;
-  border-right: 0px solid #EBEEF5
+  background-color: #fafafa;
+  border-right: 0px solid #ebeef5;
 }
 
 /*通过样式隐藏图标*/
@@ -353,10 +387,9 @@ export default {
 }
 
 .showDataDiv {
-  background-color: #F5F7F9;
+  background-color: #f5f7f9;
   margin: 10px 10px;
   max-height: 300px;
   overflow: auto;
 }
-
 </style>

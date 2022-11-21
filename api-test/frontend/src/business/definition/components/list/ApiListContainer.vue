@@ -1,10 +1,20 @@
 <template>
   <div v-if="isShow">
     <el-button-group v-if="isShowChangeButton">
-      <el-button plain class="ms-relevance-api-btn" :class="{active: isApiListEnable}" @click="apiChange('api')">
+      <el-button
+        plain
+        class="ms-relevance-api-btn"
+        :class="{ active: isApiListEnable }"
+        @click="apiChange('api')"
+      >
         API
       </el-button>
-      <el-button plain class="ms-relevance-case-btn" :class="{active: !isApiListEnable}" @click="caseChange('case')">
+      <el-button
+        plain
+        class="ms-relevance-case-btn"
+        :class="{ active: !isApiListEnable }"
+        @click="caseChange('case')"
+      >
         CASE
       </el-button>
     </el-button-group>
@@ -14,7 +24,6 @@
 </template>
 
 <script>
-
 export default {
   name: "ApiListContainer",
   data() {
@@ -26,26 +35,25 @@ export default {
     isApiListEnable: Boolean,
     isShowChangeButton: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   methods: {
     apiChange() {
-      this.$emit('isApiListEnableChange', true);
+      this.$emit("isApiListEnableChange", true);
     },
     caseChange() {
-      this.$emit('isApiListEnableChange', false);
+      this.$emit("isApiListEnableChange", false);
     },
-  }
+  },
 };
 </script>
 
 <style scoped>
-
 .active {
   border: solid 1px #6d317c;
-  background-color: #7C3985;
-  color: #FFFFFF;
+  background-color: #7c3985;
+  color: #ffffff;
 }
 
 .ms-relevance-api-btn {
@@ -59,6 +67,4 @@ export default {
   height: 32px;
   padding: 1px;
 }
-
-
 </style>

@@ -1,11 +1,20 @@
 <template>
-  <el-dialog :title="this.$t('test_track.case.select_catalog')"
-             :visible.sync="dialogVisible"
-             :before-close="close"
-             :destroy-on-close="true" width="600px"
-             v-loading="loading" append-to-body class="batch-move">
+  <el-dialog
+    :title="this.$t('test_track.case.select_catalog')"
+    :visible.sync="dialogVisible"
+    :before-close="close"
+    :destroy-on-close="true"
+    width="600px"
+    v-loading="loading"
+    append-to-body
+    class="batch-move"
+  >
     <div>
-      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"/>
+      <el-input
+        :placeholder="$t('test_track.module.search')"
+        v-model="filterText"
+        size="small"
+      />
       <el-tree
         class="filter-tree node-tree"
         :data="treeNodes"
@@ -15,14 +24,15 @@
         highlight-current
         style="overflow: auto"
         @node-click="nodeClick"
-        ref="tree">
-        <template v-slot:default="{node}">
+        ref="tree"
+      >
+        <template v-slot:default="{ node }">
           <span>
             <span class="node-icon">
-              <i class="el-icon-folder"/>
+              <i class="el-icon-folder" />
             </span>
             <span class="node-title" v-if="node.label === 'DEF_MODULE'">
-              {{ $t('commons.module_title') }}
+              {{ $t("commons.module_title") }}
             </span>
             <span class="node-title" v-else>{{ node.label }}</span>
           </span>
@@ -30,23 +40,21 @@
       </el-tree>
     </div>
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="close"
-        @confirm="save"/>
+      <ms-dialog-footer @cancel="close" @confirm="save" />
     </template>
   </el-dialog>
 </template>
 
 <script>
-import {getFileModules} from "metersphere-frontend/src/api/file-metadata";
+import { getFileModules } from "metersphere-frontend/src/api/file-metadata";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {buildTree} from "metersphere-frontend/src/model/NodeTree";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import { buildTree } from "metersphere-frontend/src/model/NodeTree";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
 
 export default {
   name: "MsFileBatchMove",
   components: {
-    MsDialogFooter
+    MsDialogFooter,
   },
   data() {
     return {
@@ -56,7 +64,7 @@ export default {
       currentKey: "",
       filterText: "",
       loading: false,
-    }
+    };
   },
   props: {
     publicEnable: {
@@ -67,7 +75,7 @@ export default {
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
-    }
+    },
   },
   methods: {
     open(treeNodes, fileIds) {
@@ -78,12 +86,15 @@ export default {
     init() {
       this.dialogVisible = true;
       this.loading = true;
-      this.result = getFileModules(getCurrentProjectID()).then(response => {
+      this.result = getFileModules(getCurrentProjectID()).then((response) => {
         if (response.data != undefined && response.data != null) {
           this.treeNodes = response.data;
-          this.treeNodes.forEach(node => {
-            node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name
-            buildTree(node, {path: ''});
+          this.treeNodes.forEach((node) => {
+            node.name =
+              node.name === "DEF_MODULE"
+                ? this.$t("commons.module_title")
+                : node.name;
+            buildTree(node, { path: "" });
           });
           this.loading = false;
         }
@@ -94,7 +105,7 @@ export default {
       this.dialogVisible = false;
     },
     refresh() {
-      this.$emit('refreshModule');
+      this.$emit("refreshModule");
     },
     close() {
       this.filterText = "";
@@ -108,9 +119,9 @@ export default {
     },
     nodeClick() {
       this.currentKey = this.$refs.tree.getCurrentKey();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -126,5 +137,4 @@ export default {
 .batch-move {
   min-height: 500px;
 }
-
 </style>

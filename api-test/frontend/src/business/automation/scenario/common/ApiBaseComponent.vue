@@ -306,7 +306,8 @@ export default {
           (this.showBtn &&
             (!this.data.disabled || this.data.root) &&
             this.showVersion &&
-            this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) === -1)
+            this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) ===
+              -1)
         );
       }
       return (

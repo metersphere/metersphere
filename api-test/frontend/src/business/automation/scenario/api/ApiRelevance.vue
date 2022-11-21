@@ -3,7 +3,8 @@
     :is-across-space="isAcrossSpace"
     @setProject="setProject"
     :dialog-title="$t('api_test.definition.api_import')"
-    ref="baseRelevance">
+    ref="baseRelevance"
+  >
     <template v-slot:aside>
       <ms-api-module
         @nodeSelectEvent="nodeChange"
@@ -13,7 +14,8 @@
         :is-relevance="true"
         :is-read-only="true"
         :select-project-id="projectId"
-        ref="nodeTree"/>
+        ref="nodeTree"
+      />
     </template>
 
     <scenario-relevance-api-list
@@ -26,10 +28,15 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
       @selectCountChange="setSelectCounts"
-      ref="apiList">
+      ref="apiList"
+    >
       <template v-slot:version>
-        <mx-version-select v-xpack :project-id="projectId" :default-version="currentVersion"
-                           @changeVersion="currentVersionChange"/>
+        <mx-version-select
+          v-xpack
+          :project-id="projectId"
+          :default-version="currentVersion"
+          @changeVersion="currentVersionChange"
+        />
       </template>
     </scenario-relevance-api-list>
 
@@ -43,33 +50,53 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
       @selectCountChange="setSelectCounts"
-      ref="apiCaseList">
+      ref="apiCaseList"
+    >
       <template v-slot:version>
-        <mx-version-select v-xpack :project-id="projectId" :default-version="currentVersion"
-                           @changeVersion="currentVersionChange"/>
+        <mx-version-select
+          v-xpack
+          :project-id="projectId"
+          :default-version="currentVersion"
+          @changeVersion="currentVersionChange"
+        />
       </template>
     </scenario-relevance-case-list>
 
     <template v-slot:headerBtn>
       <!--  显示数量    -->
-      <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+      <table-select-count-bar
+        :count="selectCounts"
+        style="float: left; margin: 5px"
+      />
 
-      <el-button size="mini" icon="el-icon-refresh" @click="refresh"/>
-      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
-        {{ $t('commons.copy') }}
+      <el-button size="mini" icon="el-icon-refresh" @click="refresh" />
+      <el-button
+        type="primary"
+        @click="copy"
+        :loading="buttonIsWorking"
+        @keydown.enter.native.prevent
+        size="mini"
+      >
+        {{ $t("commons.copy") }}
       </el-button>
-      <el-button v-if="!isApiListEnable" type="primary" :loading="buttonIsWorking" @click="reference" size="mini"
-                 @keydown.enter.native.prevent>
-        {{ $t('api_test.scenario.reference') }}
+      <el-button
+        v-if="!isApiListEnable"
+        type="primary"
+        :loading="buttonIsWorking"
+        @click="reference"
+        size="mini"
+        @keydown.enter.native.prevent
+      >
+        {{ $t("api_test.scenario.reference") }}
       </el-button>
     </template>
   </test-case-relevance-base>
 </template>
 
 <script>
-import {getApiCaseWithBLOBs} from "@/api/api-test-case";
-import {apiListBatch} from "@/api/definition";
-import {getProjectVersions} from "@/api/xpack";
+import { getApiCaseWithBLOBs } from "@/api/api-test-case";
+import { apiListBatch } from "@/api/definition";
+import { getProjectVersions } from "@/api/xpack";
 import ScenarioRelevanceCaseList from "./RelevanceCaseList";
 import MsApiModule from "../../../definition/components/module/ApiModule";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
@@ -78,26 +105,31 @@ import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer
 import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "@/business/commons/RelevanceDialog";
 import TestCaseRelevanceBase from "@/business/commons/TestCaseRelevanceBase";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import TableSelectCountBar from "@/business/automation/scenario/api/TableSelectCountBar";
 
 export default {
   name: "ApiRelevance",
   components: {
-    MxVersionSelect: () => import("metersphere-frontend/src/components/version/MxVersionSelect"),
+    MxVersionSelect: () =>
+      import("metersphere-frontend/src/components/version/MxVersionSelect"),
     TableSelectCountBar,
     TestCaseRelevanceBase,
     RelevanceDialog,
     ScenarioRelevanceApiList,
-    MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList
+    MsMainContainer,
+    MsAsideContainer,
+    MsContainer,
+    MsApiModule,
+    ScenarioRelevanceCaseList,
   },
   props: {
     isAcrossSpace: {
       type: Boolean,
       default() {
         return false;
-      }
-    }
+      },
+    },
   },
   data() {
     return {
@@ -119,7 +151,7 @@ export default {
       this.refresh();
       this.$refs.nodeTree.list(this.projectId);
       this.getVersionOptions();
-    }
+    },
   },
   methods: {
     changeButtonLoadingType() {
@@ -128,50 +160,55 @@ export default {
     },
     reference() {
       this.buttonIsWorking = true;
-      this.save('REF');
+      this.save("REF");
     },
     copy() {
       this.buttonIsWorking = true;
-      this.save('Copy');
+      this.save("Copy");
     },
     save(reference) {
       if (this.isApiListEnable) {
         let apis = this.$refs.apiList.selectRows;
-        apis.forEach(api => {
+        apis.forEach((api) => {
           api.projectId = this.projectId;
         });
         let params = this.$refs.apiList.getConditions();
-        this.result = apiListBatch(params).then((response) => {
-          let apis = response.data;
-          if (apis.length === 0) {
-            this.$warning('请选择接口');
+        this.result = apiListBatch(params).then(
+          (response) => {
+            let apis = response.data;
+            if (apis.length === 0) {
+              this.$warning("请选择接口");
+              this.buttonIsWorking = false;
+            } else {
+              this.$emit("save", apis, "API", reference);
+              this.$refs.baseRelevance.close();
+            }
+          },
+          (error) => {
             this.buttonIsWorking = false;
-          } else {
-            this.$emit('save', apis, 'API', reference);
-            this.$refs.baseRelevance.close();
           }
-        }, (error) => {
-          this.buttonIsWorking = false;
-        });
-
+        );
       } else {
         let params = this.$refs.apiCaseList.getConditions();
-        this.result = getApiCaseWithBLOBs(params).then((response) => {
-          let apiCases = response.data;
-          if (apiCases.length === 0) {
-            this.$warning('请选择案例');
+        this.result = getApiCaseWithBLOBs(params).then(
+          (response) => {
+            let apiCases = response.data;
+            if (apiCases.length === 0) {
+              this.$warning("请选择案例");
+              this.buttonIsWorking = false;
+            } else {
+              this.$emit("save", apiCases, "CASE", reference);
+              this.$refs.baseRelevance.close();
+            }
+          },
+          (error) => {
             this.buttonIsWorking = false;
-          } else {
-            this.$emit('save', apiCases, 'CASE', reference);
-            this.$refs.baseRelevance.close();
           }
-        }, (error) => {
-          this.buttonIsWorking = false;
-        });
+        );
       }
     },
     close() {
-      this.$emit('close');
+      this.$emit("close");
       this.refresh();
       this.$refs.relevanceDialog.close();
     },
@@ -211,14 +248,16 @@ export default {
         if (!this.projectId) {
           return;
         }
-        getProjectVersions(this.projectId).then(response => {
+        getProjectVersions(this.projectId).then((response) => {
           if (currentVersion) {
-            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
-              return {text: u.name, value: u.id};
-            });
+            this.versionFilters = response.data
+              .filter((u) => u.id === currentVersion)
+              .map((u) => {
+                return { text: u.name, value: u.id };
+              });
           } else {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
+            this.versionFilters = response.data.map((u) => {
+              return { text: u.name, value: u.id };
             });
           }
         });
@@ -227,7 +266,7 @@ export default {
     setSelectCounts(data) {
       this.selectCounts = data;
     },
-  }
+  },
 };
 </script>
 

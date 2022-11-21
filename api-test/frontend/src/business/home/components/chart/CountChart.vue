@@ -1,11 +1,20 @@
 <template>
   <div v-if="reloadOver">
     <el-row type="flex" justify="left" align="left">
-      <div style="height: 208px;width: 100%;margin-left: 26px;margin-right: 30px;">
-        <ms-chart :options="options"
-                  :height="208"
-                  width="100%"
-                  :autoresize="true"/>
+      <div
+        style="
+          height: 208px;
+          width: 100%;
+          margin-left: 26px;
+          margin-right: 30px;
+        "
+      >
+        <ms-chart
+          :options="options"
+          :height="208"
+          width="100%"
+          :autoresize="true"
+        />
       </div>
     </el-row>
   </div>
@@ -13,20 +22,20 @@
 
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
-import {formatNumber} from "@/api/home";
-import {getUUID} from "metersphere-frontend/src/utils";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import { formatNumber } from "@/api/home";
+import { getUUID } from "metersphere-frontend/src/utils";
+import { hasPermission } from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "CountChart",
-  components: {MsChart},
+  components: { MsChart },
   props: {
     apiData: Object,
     totalTime: Number,
     isExport: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
@@ -34,7 +43,7 @@ export default {
       pieChartStyle: {
         amountFontSize: 32,
       },
-    }
+    };
   },
   created() {
     this.reload();
@@ -80,90 +89,99 @@ export default {
     },
     formatAmount(param) {
       return formatNumber(param);
-    }
+    },
   },
   computed: {
     options() {
       let dataIsNotEmpty = false;
       let protocolData = [
-        {value: 0, name: 'HTTP'},
-        {value: 0, name: 'RPC'},
-        {value: 0, name: 'TCP'},
-        {value: 0, name: 'SQL'},
+        { value: 0, name: "HTTP" },
+        { value: 0, name: "RPC" },
+        { value: 0, name: "TCP" },
+        { value: 0, name: "SQL" },
       ];
       let borderWidth = 0;
-      let colorArr = ['#DEE0E3', '#DEE0E3', '#DEE0E3', '#DEE0E3'];
+      let colorArr = ["#DEE0E3", "#DEE0E3", "#DEE0E3", "#DEE0E3"];
       if (this.getTotal() > 0) {
-        colorArr = ['#AA4FBF', '#FAD355', '#14E1C6', '#4E83FD',];
+        colorArr = ["#AA4FBF", "#FAD355", "#14E1C6", "#4E83FD"];
         borderWidth = 3;
         dataIsNotEmpty = true;
         protocolData = [
-          {value: this.apiData.httpCount, name: 'HTTP'},
-          {value: this.apiData.rpcCount, name: 'RPC'},
-          {value: this.apiData.tcpCount, name: 'TCP'},
-          {value: this.apiData.sqlCount, name: 'SQL'},
+          { value: this.apiData.httpCount, name: "HTTP" },
+          { value: this.apiData.rpcCount, name: "RPC" },
+          { value: this.apiData.tcpCount, name: "TCP" },
+          { value: this.apiData.sqlCount, name: "SQL" },
         ];
       }
       let optionData = {
         color: colorArr,
         tooltip: {
-          trigger: 'item'
+          trigger: "item",
         },
         legend: {
-          orient: 'vertical',
+          orient: "vertical",
           icon: "rect",
           selectedMode: dataIsNotEmpty,
           itemGap: 16,
-          left: '50%',
-          y: 'center',
+          left: "50%",
+          y: "center",
           itemHeight: 8,
           itemWidth: 8, //修改icon图形大小
           itemStyle: {
-            borderWidth: 0.1
+            borderWidth: 0.1,
           },
           textStyle: {
-            align: 'right',
+            align: "right",
             rich: {
               protocol: {
                 fontSize: 14,
-                color: '#646A73',
+                color: "#646A73",
                 fontWeight: 400,
                 width: 50,
-                align: 'left',
+                align: "left",
                 lineHeight: 22,
               },
               num: {
                 fontSize: 14,
-                align: 'right',
+                align: "right",
                 lineHeight: 22,
-                color: '#646A73',
+                color: "#646A73",
                 fontWeight: 500,
-                padding: [0, 0, 0, 140]
-              }
-            }
+                padding: [0, 0, 0, 140],
+              },
+            },
           },
           data: protocolData,
           formatter: function (name) {
             //通过name获取到数组对象中的单个对象
             let singleData = protocolData.filter(function (item) {
-              return item.name === name
+              return item.name === name;
             });
             let value = singleData[0].value;
             return [`{protocol|${name}}`, `{num|${value}}`].join("");
-          }
+          },
         },
         title: {
-          text: "{mainTitle|" + this.$t("home.dashboard.api.api_total") + "}\n\n{number|" + this.getAmount() + "}\n\n",
-          subtext: this.$t("home.dashboard.public.this_week") + "：+" + formatNumber(this.apiData.createdInWeek) + " >",
+          text:
+            "{mainTitle|" +
+            this.$t("home.dashboard.api.api_total") +
+            "}\n\n{number|" +
+            this.getAmount() +
+            "}\n\n",
+          subtext:
+            this.$t("home.dashboard.public.this_week") +
+            "：+" +
+            formatNumber(this.apiData.createdInWeek) +
+            " >",
           top: "center",
           left: "100px",
-          textAlign: 'center',
+          textAlign: "center",
           textStyle: {
             rich: {
               mainTitle: {
-                color: '#646A73',
+                color: "#646A73",
                 fontSize: 12,
-                align: 'center'
+                align: "center",
               },
               number: {
                 fontSize: this.pieChartStyle.amountFontSize,
@@ -172,23 +190,25 @@ export default {
                 fontFamily: "PinfFang SC",
                 margin: "112px 0px 0px 2px0",
               },
-            }
+            },
           },
-          sublink: hasPermission('PROJECT_API_DEFINITION:READ') ? "/#/api/definition/" + getUUID() + "/api/thisWeekCount" : "",
+          sublink: hasPermission("PROJECT_API_DEFINITION:READ")
+            ? "/#/api/definition/" + getUUID() + "/api/thisWeekCount"
+            : "",
           subtextStyle: {
             color: "#1F2329",
             fontSize: 12,
             width: 105,
-            ellipsis: '...',
+            ellipsis: "...",
             overflow: "truncate",
           },
           itemGap: -60,
         },
         series: [
           {
-            type: 'pie',
+            type: "pie",
             radius: [75, 100],
-            center: ['104px', '50%'],
+            center: ["104px", "50%"],
             avoidLabelOverlap: false,
             hoverAnimation: dataIsNotEmpty,
             legendHoverLink: false,
@@ -201,18 +221,16 @@ export default {
               borderRadius: 1,
             },
             labelLine: {
-              show: false
+              show: false,
             },
             data: protocolData,
-          }
-        ]
+          },
+        ],
       };
       return optionData;
     },
   },
-}
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

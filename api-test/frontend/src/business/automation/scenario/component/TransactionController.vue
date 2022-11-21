@@ -11,29 +11,46 @@
     color="#783887"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.automation.transaction_controller')">
+    :title="$t('api_test.automation.transaction_controller')"
+  >
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
-         <i class="el-icon-loading" style="font-size: 16px"/>
-         {{ $t('commons.testing') }}
-       </span>
-      <span class="ms-step-debug-code" :class="node.data.code ==='ERROR'?'ms-req-error':'ms-req-success'" v-if="!loading &&!node.data.testing && node.data.debug">
+        <i class="el-icon-loading" style="font-size: 16px" />
+        {{ $t("commons.testing") }}
+      </span>
+      <span
+        class="ms-step-debug-code"
+        :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
+        v-if="!loading && !node.data.testing && node.data.debug"
+      >
         {{ getCode() }}
       </span>
     </template>
 
     <template v-slot:headerLeft>
-      <el-input draggable size="mini" v-model="controller.name" style="width: 20%" :placeholder="$t('api_test.automation.transaction_controller')"/>
-      <el-checkbox v-model="controller.generateParentSample"
-                   @change="changeGenerateParantSample"
-                   :disabled="controller.disabled" class="ms-btn">
+      <el-input
+        draggable
+        size="mini"
+        v-model="controller.name"
+        style="width: 20%"
+        :placeholder="$t('api_test.automation.transaction_controller')"
+      />
+      <el-checkbox
+        v-model="controller.generateParentSample"
+        @change="changeGenerateParantSample"
+        :disabled="controller.disabled"
+        class="ms-btn"
+      >
         Generate Parent Sample
       </el-checkbox>
-      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.disabled">
+      <el-checkbox
+        v-model="controller.includeTimers"
+        @change="changeIncludeTimers"
+        :disabled="controller.disabled"
+      >
         Include Timers
       </el-checkbox>
     </template>
-
   </api-base-component>
 </template>
 
@@ -42,7 +59,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 
 export default {
   name: "MsTransactionController",
-  components: {ApiBaseComponent},
+  components: { ApiBaseComponent },
   props: {
     controller: {},
     node: {},
@@ -74,47 +91,45 @@ export default {
       this.reload();
     },
   },
-  created() {
-
-  },
+  created() {},
   data() {
     return {
       loading: false,
       operators: {
         EQ: {
           label: "commons.adv_search.operators.equals",
-          value: "=="
+          value: "==",
         },
         NE: {
           label: "commons.adv_search.operators.not_equals",
-          value: "!="
+          value: "!=",
         },
         LIKE: {
           label: "commons.adv_search.operators.like",
-          value: "=~"
+          value: "=~",
         },
         NOT_LIKE: {
           label: "commons.adv_search.operators.not_like",
-          value: "!~"
+          value: "!~",
         },
         GT: {
           label: "commons.adv_search.operators.gt",
-          value: ">"
+          value: ">",
         },
         LT: {
           label: "commons.adv_search.operators.lt",
-          value: "<"
+          value: "<",
         },
         IS_EMPTY: {
           label: "commons.adv_search.operators.is_empty",
-          value: "is empty"
+          value: "is empty",
         },
         IS_NOT_EMPTY: {
           label: "commons.adv_search.operators.is_not_empty",
-          value: "is not empty"
-        }
-      }
-    }
+          value: "is not empty",
+        },
+      },
+    };
   },
   methods: {
     reload() {
@@ -125,19 +140,19 @@ export default {
     },
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
-        if (this.node.data.code && this.node.data.code === 'ERROR') {
-          return 'error';
+        if (this.node.data.code && this.node.data.code === "ERROR") {
+          return "error";
         } else {
-          return 'success';
+          return "success";
         }
       }
-      return '';
+      return "";
     },
     remove() {
-      this.$emit('remove', this.controller, this.node);
+      this.$emit("remove", this.controller, this.node);
     },
     copyRow() {
-      this.$emit('copyRow', this.controller, this.node);
+      this.$emit("copyRow", this.controller, this.node);
     },
     change(value) {
       if (value.indexOf("empty") > 0 && !!this.controller.value) {
@@ -146,19 +161,22 @@ export default {
     },
     changeGenerateParantSample(value) {
       this.controller.generateParentSample = value;
-      this.$emit('refReload', this.controller, this.controller);
+      this.$emit("refReload", this.controller, this.controller);
     },
     changeIncludeTimers(value) {
       this.controller.includeTimers = value;
-      this.$emit('refReload', this.controller, this.controller);
+      this.$emit("refReload", this.controller, this.controller);
     },
   },
   computed: {
     hasEmptyOperator() {
-      return !!this.controller.operator && this.controller.operator.indexOf("empty") > 0;
-    }
-  }
-}
+      return (
+        !!this.controller.operator &&
+        this.controller.operator.indexOf("empty") > 0
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -172,11 +190,11 @@ export default {
 }
 
 .ms-req-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-req-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-step-debug-code {

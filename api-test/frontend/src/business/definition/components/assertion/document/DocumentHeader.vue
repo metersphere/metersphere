@@ -3,13 +3,18 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
         <el-select v-model="document.type" size="small">
-          <el-option label="JSON" value="JSON"/>
-          <el-option label="XML" value="XML"/>
+          <el-option label="JSON" value="JSON" />
+          <el-option label="XML" value="XML" />
         </el-select>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
-          {{ $t('api_test.request.assertions.add') }}
+        <el-button
+          :disabled="isReadOnly"
+          type="primary"
+          size="mini"
+          @click="add"
+        >
+          {{ $t("api_test.request.assertions.add") }}
         </el-button>
       </el-col>
     </el-row>
@@ -17,8 +22,7 @@
 </template>
 
 <script>
-
-import {AssertionDocument} from "@/business/definition/model/ApiTestModel";
+import { AssertionDocument } from "@/business/definition/model/ApiTestModel";
 
 export default {
   name: "DocumentHeader",
@@ -30,14 +34,17 @@ export default {
     callback: Function,
     isReadOnly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   methods: {
     add() {
-      let obj = new AssertionDocument({id: "root"});
-      if (this.document.type === "JSON" && this.document.data.json.length === 0) {
+      let obj = new AssertionDocument({ id: "root" });
+      if (
+        this.document.type === "JSON" &&
+        this.document.data.json.length === 0
+      ) {
         this.document.data.json.push(obj);
       }
       if (this.document.type === "XML" && this.document.data.xml.length === 0) {
@@ -45,19 +52,12 @@ export default {
       }
       this.callback();
     },
-    remove() {
-    },
-    change(value) {
-
-    },
-    input(value) {
-
-    },
-    validate() {
-
-    }
-  }
-}
+    remove() {},
+    change(value) {},
+    input(value) {},
+    validate() {},
+  },
+};
 </script>
 
 <style scoped>

@@ -1,37 +1,52 @@
 <template>
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
-      <project-change :project-name="currentProject"/>
+      <project-change :project-name="currentProject" />
       <el-col :span="14">
-        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='currentPath'>
-
-          <el-menu-item :index="'/api/home'" v-permission="['PROJECT_API_HOME:READ']">
+        <el-menu
+          class="header-menu"
+          :unique-opened="true"
+          mode="horizontal"
+          router
+          :default-active="currentPath"
+        >
+          <el-menu-item
+            :index="'/api/home'"
+            v-permission="['PROJECT_API_HOME:READ']"
+          >
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item :index="'/api/definition'" v-permission="['PROJECT_API_DEFINITION:READ']">
+          <el-menu-item
+            :index="'/api/definition'"
+            v-permission="['PROJECT_API_DEFINITION:READ']"
+          >
             {{ $t("i18n.definition") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/automation'" v-permission="['PROJECT_API_SCENARIO:READ']">
+          <el-menu-item
+            :index="'/api/automation'"
+            v-permission="['PROJECT_API_SCENARIO:READ']"
+          >
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/automation/report'" v-permission="['PROJECT_API_REPORT:READ']">
+          <el-menu-item
+            :index="'/api/automation/report'"
+            v-permission="['PROJECT_API_REPORT:READ']"
+          >
             {{ $t("i18n.report") }}
           </el-menu-item>
         </el-menu>
       </el-col>
 
       <el-col :span="10">
-        <ms-header-right-menus/>
+        <ms-header-right-menus />
       </el-col>
     </el-row>
   </div>
-
 </template>
 
 <script>
-
 import MsRecentList from "metersphere-frontend/src/components/head/RecentList";
 import MsShowAll from "metersphere-frontend/src/components/head/ShowAll";
 import MsCreateButton from "metersphere-frontend/src/components/head/CreateButton";
@@ -40,26 +55,32 @@ import MsHeaderRightMenus from "metersphere-frontend/src/components/layout/Heade
 
 export default {
   name: "MsApiHeaderMenus",
-  components: {MsCreateButton, MsShowAll, MsRecentList, ProjectChange, MsHeaderRightMenus},
+  components: {
+    MsCreateButton,
+    MsShowAll,
+    MsRecentList,
+    ProjectChange,
+    MsHeaderRightMenus,
+  },
   data() {
     return {
-      currentPath: '',
+      currentPath: "",
       isRouterAlive: true,
-      apiTestProjectPath: '',
-      currentProject: ''
+      apiTestProjectPath: "",
+      currentProject: "",
     };
   },
   watch: {
-    '$route': {
+    $route: {
       immediate: true,
       handler(to) {
         let path = to.path.split("/", 4);
-        this.currentPath = '/' + path[1] + '/' + path[2];
+        this.currentPath = "/" + path[1] + "/" + path[2];
         if (path[3] === "report") {
-          this.currentPath = this.currentPath + '/' + path[3];
+          this.currentPath = this.currentPath + "/" + path[3];
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     reload() {
@@ -69,20 +90,15 @@ export default {
       });
     },
   },
-  mounted() {
-
-  },
-  beforeDestroy() {
-
-  }
+  mounted() {},
+  beforeDestroy() {},
 };
-
 </script>
 
 <style scoped>
 #menu-bar {
-  border-bottom: 1px solid #E6E6E6;
-  background-color: #FFF;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #fff;
 }
 
 .menu-divider {

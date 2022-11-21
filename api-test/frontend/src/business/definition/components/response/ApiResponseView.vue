@@ -2,7 +2,8 @@
   <ms-request-result
     :report-id="reportId"
     :is-test-plan="isTestPlan"
-    :response="response"/>
+    :response="response"
+  />
 </template>
 
 <script>
@@ -10,31 +11,28 @@ import MsRequestResult from "./RequestResultTail";
 
 export default {
   name: "ApiResponseView",
-  components: {MsRequestResult},
+  components: { MsRequestResult },
   computed: {
     reportId() {
-      return this.getRouteParam('reportId');
+      return this.getRouteParam("reportId");
     },
     isTestPlan() {
-      return this.getRouteParam('isTestPlan');
+      return this.getRouteParam("isTestPlan");
     },
     response() {
-      return this.getRouteParam('response');
+      return this.getRouteParam("response");
     },
   },
   methods: {
     getRouteParam(name) {
       if (this.$route) {
-        return this.$route.params[name]
+        return this.$route.params[name];
       } else {
         return null;
       }
-    }
-  }
-}
-
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

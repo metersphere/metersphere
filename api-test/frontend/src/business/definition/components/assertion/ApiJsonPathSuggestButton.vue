@@ -1,13 +1,24 @@
 <template>
   <span class="json-path-suggest-button">
-    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop :disabled="isReadOnly"
-               v-if="showSuggestButton">
+    <el-button
+      size="mini"
+      type="primary"
+      @click="$emit('open')"
+      @click.stop
+      :disabled="isReadOnly"
+      v-if="showSuggestButton"
+    >
       {{ openTip }}
     </el-button>
-    <el-button size="mini" type="danger" @click="$emit('clear')" :disabled="isReadOnly">
+    <el-button
+      size="mini"
+      type="danger"
+      @click="$emit('clear')"
+      :disabled="isReadOnly"
+    >
       {{ clearTip }}
     </el-button>
-    </span>
+  </span>
 </template>
 
 <script>
@@ -20,14 +31,12 @@ export default {
     showSuggestButton: {
       type: Boolean,
       default: true,
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .json-path-suggest-button {
 }
-
 </style>

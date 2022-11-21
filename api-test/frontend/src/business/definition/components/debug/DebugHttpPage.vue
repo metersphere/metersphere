@@ -1,89 +1,156 @@
 <template>
-
   <div class="card-container">
     <el-card class="card-content">
-      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+      <el-form
+        :model="debugForm"
+        :rules="rules"
+        ref="debugForm"
+        :inline="true"
+        label-position="right"
+      >
+        <p class="tip">{{ $t("test_track.plan_view.base_info") }}</p>
 
         <el-form-item :label="$t('api_report.request')" prop="url">
-          <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="debugForm.url"
-                    class="ms-http-input" size="small" :disabled="testCase!=undefined" @blur="urlChange">
-            <el-select v-model="debugForm.method" slot="prepend" style="width: 100px" size="small">
-              <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
+          <el-input
+            :placeholder="$t('api_test.definition.request.path_all_info')"
+            v-model="debugForm.url"
+            class="ms-http-input"
+            size="small"
+            :disabled="testCase != undefined"
+            @blur="urlChange"
+          >
+            <el-select
+              v-model="debugForm.method"
+              slot="prepend"
+              style="width: 100px"
+              size="small"
+            >
+              <el-option
+                v-for="item in reqOptions"
+                :key="item.id"
+                :label="item.label"
+                :value="item.id"
+              />
             </el-select>
           </el-input>
         </el-form-item>
 
         <el-form-item>
           <el-button size="small" type="primary" @click="stop" v-if="isStop">
-            {{ $t('report.stop_btn') }}
+            {{ $t("report.stop_btn") }}
           </el-button>
           <div v-else>
-            <el-dropdown split-button type="primary" class="ms-api-button" @click="handleCommand"
-                         @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
-              {{ $t('commons.test') }}
+            <el-dropdown
+              split-button
+              type="primary"
+              class="ms-api-button"
+              @click="handleCommand"
+              @command="handleCommand"
+              size="small"
+              v-if="testCase === undefined && !scenario"
+            >
+              {{ $t("commons.test") }}
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="save_as">{{
-                    $t('api_test.definition.request.save_as_case')
-                  }}
+                <el-dropdown-item command="save_as"
+                  >{{ $t("api_test.definition.request.save_as_case") }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
-              {{ $t('commons.test') }}
+            <el-button
+              v-if="scenario"
+              size="small"
+              type="primary"
+              @click="handleCommand"
+            >
+              {{ $t("commons.test") }}
             </el-button>
-            <el-button size="small" type="primary" @click.stop @click="generate"
-                       style="margin-left: 10px"
-                       v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
-              {{ $t('commons.generate_test_data') }}
+            <el-button
+              size="small"
+              type="primary"
+              @click.stop
+              @click="generate"
+              style="margin-left: 10px"
+              v-if="
+                hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') &&
+                hasLicense()
+              "
+            >
+              {{ $t("commons.generate_test_data") }}
             </el-button>
           </div>
-
         </el-form-item>
       </el-form>
       <div v-loading="loading">
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <p class="tip">{{ $t("api_test.definition.request.req_param") }}</p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="request.headers" :request="request"
-                             :response="responseData" ref="apiRequestForm"/>
+        <ms-api-request-form
+          :isShowEnable="true"
+          :definition-test="true"
+          :headers="request.headers"
+          :request="request"
+          :response="responseData"
+          ref="apiRequestForm"
+        />
 
         <!-- HTTP 请求返回数据 -->
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult"/>
+        <p class="tip">{{ $t("api_test.definition.request.res_param") }}</p>
+        <ms-request-result-tail
+          v-if="!loading"
+          :response="responseData"
+          ref="debugResult"
+        />
         <!-- 执行组件 -->
-        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
-                ref="runTest"/>
+        <ms-run
+          :debug="true"
+          :reportId="reportId"
+          :isStop="isStop"
+          :run-data="runData"
+          @runRefresh="runRefresh"
+          ref="runTest"
+        />
       </div>
     </el-card>
 
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')">
-        {{ $t('commons.save') }}
+      <el-button
+        style="float: right; margin: 20px"
+        type="primary"
+        @click="handleCommand('save_as_api')"
+      >
+        {{ $t("commons.save") }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list :currentApi="debugForm" @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
+    <ms-api-case-list
+      :currentApi="debugForm"
+      @refreshModule="refreshModule"
+      :loaded="false"
+      ref="caseList"
+    />
   </div>
 </template>
 
 <script>
-import {getApiReportDetail} from "@/api/definition-report";
+import { getApiReportDetail } from "@/api/definition-report";
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseResult from "../response/ResponseResult";
 import MsRequestMetric from "../response/RequestMetric";
-import {getUUID} from "metersphere-frontend/src/utils";
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import { getUUID } from "metersphere-frontend/src/utils";
+import { getCurrentUser } from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
 import MsResponseText from "../response/ResponseText";
 import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
+import { createComponent } from "../jmeter/components";
+import { REQ_METHOD } from "../../model/JsonData";
 import MsRequestResultTail from "../response/RequestResultTail";
-import {KeyValue} from "../../model/ApiTestModel";
+import { KeyValue } from "../../model/ApiTestModel";
 import MsApiCaseList from "../case/EditApiCase";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {mergeRequestDocumentData} from "@/business/definition/api-definition";
-import {execStop} from "@/api/scenario";
+import { TYPE_TO_C } from "@/business/automation/scenario/Setting";
+import { mergeRequestDocumentData } from "@/business/definition/api-definition";
+import { execStop } from "@/api/scenario";
 
 export default {
   name: "ApiConfig",
@@ -94,7 +161,7 @@ export default {
     MsRequestMetric,
     MsResponseText,
     MsRun,
-    MsApiCaseList
+    MsApiCaseList,
   },
   props: {
     currentProtocol: String,
@@ -107,22 +174,33 @@ export default {
         new URL(this.debugForm.url);
         callback();
       } catch (e) {
-        callback(this.$t('api_test.request.url_invalid'));
+        callback(this.$t("api_test.request.url_invalid"));
       }
     };
     return {
       rules: {
-        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+        method: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_maintainer"),
+            trigger: "change",
+          },
+        ],
         url: [
-          {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
+          {
+            max: 500,
+            required: true,
+            message: this.$t("commons.input_limit", [1, 500]),
+            trigger: "blur",
+          },
           /*
                       {validator: validateURL, trigger: 'blur'}
           */
         ],
       },
-      debugForm: {method: REQ_METHOD[0].id, environmentId: ""},
+      debugForm: { method: REQ_METHOD[0].id, environmentId: "" },
       options: [],
-      responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
+      responseData: { type: "HTTP", responseResult: {}, subRequestResults: [] },
       loading: false,
       debugResultId: "",
       runData: [],
@@ -131,13 +209,13 @@ export default {
       createCase: "",
       request: {},
       isStop: false,
-    }
+    };
   },
   created() {
     if (this.testCase) {
       if (this.testCase.id) {
         // 执行结果信息
-        getApiReportDetail(this.testCase.id).then(response => {
+        getApiReportDetail(this.testCase.id).then((response) => {
           if (response.data) {
             let data = JSON.parse(response.data.content);
             this.responseData = data;
@@ -159,11 +237,12 @@ export default {
   },
   watch: {
     debugResultId() {
-      this.getResult()
+      this.getResult();
     },
   },
   methods: {
-    hasPermission, hasLicense,
+    hasPermission,
+    hasLicense,
     generate() {
       this.$refs.apiRequestForm.generate();
     },
@@ -171,7 +250,7 @@ export default {
       mergeRequestDocumentData(this.request);
       if (e === "save_as") {
         this.saveAs();
-      } else if (e === 'save_as_api') {
+      } else if (e === "save_as_api") {
         this.saveAsApi();
       } else {
         this.runDebug();
@@ -181,14 +260,14 @@ export default {
       this.isStop = false;
       execStop(this.reportId).then(() => {
         this.loading = false;
-        this.$success(this.$t('report.test_stop_success'));
+        this.$success(this.$t("report.test_stop_success"));
       });
     },
     createHttp() {
       this.request = createComponent("HTTPSamplerProxy");
     },
     runDebug() {
-      this.$refs['debugForm'].validate((valid) => {
+      this.$refs["debugForm"].validate((valid) => {
         if (valid) {
           this.loading = true;
           this.isStop = true;
@@ -200,10 +279,10 @@ export default {
           /*触发执行操作*/
           this.reportId = getUUID().substring(0, 8);
         }
-      })
+      });
     },
     refreshModule() {
-      this.$emit('refreshModule');
+      this.$emit("refreshModule");
     },
     runRefresh(data) {
       this.responseData = data;
@@ -214,7 +293,7 @@ export default {
       }
     },
     saveAsApi() {
-      this.$refs['debugForm'].validate((valid) => {
+      this.$refs["debugForm"].validate((valid) => {
         if (valid) {
           this.debugForm.id = null;
           this.request.id = getUUID();
@@ -222,11 +301,11 @@ export default {
           this.debugForm.userId = getCurrentUser().id;
           this.debugForm.status = "Underway";
           this.debugForm.protocol = this.currentProtocol;
-          this.$emit('saveAs', this.debugForm);
+          this.$emit("saveAs", this.debugForm);
         } else {
           return false;
         }
-      })
+      });
     },
     compatibleHistory(stepArray) {
       if (stepArray) {
@@ -234,8 +313,14 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          if (
+            stepArray[i] &&
+            stepArray[i].authManager &&
+            !stepArray[i].authManager.clazzName
+          ) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
+              stepArray[i].authManager.type
+            );
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.compatibleHistory(stepArray[i].hashTree);
@@ -244,7 +329,7 @@ export default {
       }
     },
     saveAs() {
-      this.$refs['debugForm'].validate((valid) => {
+      this.$refs["debugForm"].validate((valid) => {
         if (valid) {
           this.request.id = getUUID();
           this.request.method = this.debugForm.method;
@@ -258,42 +343,49 @@ export default {
           this.debugForm.saved = true;
           // 历史数据兼容处理
           if (this.debugForm.request) {
-            this.debugForm.request.clazzName = TYPE_TO_C.get(this.debugForm.request.type);
+            this.debugForm.request.clazzName = TYPE_TO_C.get(
+              this.debugForm.request.type
+            );
             this.compatibleHistory(this.debugForm.request.hashTree);
           }
           this.$refs.caseList.saveApiAndCase(this.debugForm);
         } else {
           return false;
         }
-      })
+      });
     },
     urlChange() {
       if (!this.debugForm.url) return;
       let url = this.getURL(this.debugForm.url);
       if (url && url.pathname) {
-        if (this.debugForm.url.indexOf('?') != -1) {
-          this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
+        if (this.debugForm.url.indexOf("?") != -1) {
+          this.debugForm.url = decodeURIComponent(
+            this.debugForm.url.substr(0, this.debugForm.url.indexOf("?"))
+          );
         }
         this.debugForm.path = url.pathname;
       } else {
         this.debugForm.path = url;
       }
-
     },
     getURL(urlStr) {
       try {
         let url = new URL(urlStr);
         if (url.search && url.search.length > 1) {
           let params = url.search.substr(1).split("&");
-          params.forEach(param => {
+          params.forEach((param) => {
             if (param) {
               let keyValues = param.split("=");
               if (keyValues) {
-                this.request.arguments.splice(0, 0, new KeyValue({
-                  name: keyValues[0],
-                  required: false,
-                  value: keyValues[1]
-                }));
+                this.request.arguments.splice(
+                  0,
+                  0,
+                  new KeyValue({
+                    name: keyValues[0],
+                    required: false,
+                    value: keyValues[1],
+                  })
+                );
               }
             }
           });
@@ -303,8 +395,8 @@ export default {
         return urlStr;
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

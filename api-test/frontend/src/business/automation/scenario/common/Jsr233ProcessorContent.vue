@@ -2,24 +2,42 @@
   <div>
     <el-row type="flex" :gutter="10">
       <el-col :span="codeSpan" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
-                      :read-only="isReadOnly"
-                      :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
-                      ref="codeEdit"/>
+        <ms-code-edit
+          v-if="isCodeEditAlive"
+          :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
+          :read-only="isReadOnly"
+          :data.sync="jsr223ProcessorData.script"
+          theme="eclipse"
+          :modes="['java', 'python']"
+          ref="codeEdit"
+        />
       </el-col>
-      <div style="width: 14px;margin-right: 5px;">
-        <div style="height: 12px;width: 12px; line-height:12px;">
-          <i :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
-             class="show-menu"
-             @click="switchMenu"></i>
+      <div style="width: 14px; margin-right: 5px">
+        <div style="height: 12px; width: 12px; line-height: 12px">
+          <i
+            :class="
+              showMenu
+                ? 'el-icon-remove-outline'
+                : 'el-icon-circle-plus-outline'
+            "
+            class="show-menu"
+            @click="switchMenu"
+          ></i>
         </div>
       </div>
       <el-col :span="menuSpan" class="script-index" v-if="isReadOnly !== true">
-        <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages"
-                     style="margin-bottom: 5px;margin-left: 15px;"
-                     @command="languageChange"/>
-        <script-nav-menu ref="scriptNavMenu" :language="jsr223ProcessorData.scriptLanguage" :menus="codeTemplates"
-                         @handleCode="handleCodeTemplate"/>
+        <ms-dropdown
+          :default-command="jsr223ProcessorData.scriptLanguage"
+          :commands="languages"
+          style="margin-bottom: 5px; margin-left: 15px"
+          @command="languageChange"
+        />
+        <script-nav-menu
+          ref="scriptNavMenu"
+          :language="jsr223ProcessorData.scriptLanguage"
+          :menus="codeTemplates"
+          @handleCode="handleCodeTemplate"
+        />
       </el-col>
     </el-row>
   </div>
@@ -32,126 +50,145 @@ import ScriptNavMenu from "./function/ScriptNavMenu";
 
 export default {
   name: "Jsr233ProcessorContent",
-  components: {MsDropdown, MsCodeEdit, ScriptNavMenu},
+  components: { MsDropdown, MsCodeEdit, ScriptNavMenu },
   data() {
     return {
       jsr223ProcessorData: {},
       codeTemplates: [
         {
-          title: this.$t('project.code_segment.api_test'),
+          title: this.$t("project.code_segment.api_test"),
           children: [
             {
-              title: this.$t('project.code_segment.import_api_test'),
+              title: this.$t("project.code_segment.import_api_test"),
               command: "api_definition",
             },
             {
-              title: this.$t('project.code_segment.new_api_test'),
+              title: this.$t("project.code_segment.new_api_test"),
               command: "new_api_request",
-            }
-          ]
+            },
+          ],
         },
         {
-          title: this.$t('project.code_segment.custom_value'),
+          title: this.$t("project.code_segment.custom_value"),
           children: [
             {
-              title: this.$t('api_test.request.processor.code_template_get_variable'),
+              title: this.$t(
+                "api_test.request.processor.code_template_get_variable"
+              ),
               value: 'vars.get("variable_name")',
             },
             {
-              title: this.$t('api_test.request.processor.code_template_set_variable'),
+              title: this.$t(
+                "api_test.request.processor.code_template_set_variable"
+              ),
               value: 'vars.put("variable_name", "variable_value")',
             },
             {
-              title: this.$t('api_test.request.processor.code_template_get_response_header'),
-              value: 'prev.getResponseHeaders()',
-              disabled: this.isPreProcessor
+              title: this.$t(
+                "api_test.request.processor.code_template_get_response_header"
+              ),
+              value: "prev.getResponseHeaders()",
+              disabled: this.isPreProcessor,
             },
             {
-              title: this.$t('api_test.request.processor.code_template_get_response_code'),
-              value: 'prev.getResponseCode()',
-              disabled: this.isPreProcessor
+              title: this.$t(
+                "api_test.request.processor.code_template_get_response_code"
+              ),
+              value: "prev.getResponseCode()",
+              disabled: this.isPreProcessor,
             },
             {
-              title: this.$t('api_test.request.processor.code_template_get_response_result'),
-              value: 'prev.getResponseDataAsString()',
-              disabled: this.isPreProcessor
+              title: this.$t(
+                "api_test.request.processor.code_template_get_response_result"
+              ),
+              value: "prev.getResponseDataAsString()",
+              disabled: this.isPreProcessor,
             },
-          ]
+          ],
         },
         {
-          title: this.$t('project.code_segment.project_env'),
+          title: this.$t("project.code_segment.project_env"),
           children: [
             {
-              title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
-              value: 'vars.put(${__metersphere_env_id}+"key","value");\n' + 'vars.put("key","value")',
+              title: this.$t(
+                "api_test.request.processor.param_environment_set_global_variable"
+              ),
+              value:
+                'vars.put(${__metersphere_env_id}+"key","value");\n' +
+                'vars.put("key","value")',
             },
-          ]
+          ],
         },
         {
-          title: this.$t('project.code_segment.code_segment'),
+          title: this.$t("project.code_segment.code_segment"),
           children: [
             {
-              title: this.$t('project.code_segment.insert_segment'),
+              title: this.$t("project.code_segment.insert_segment"),
               command: "custom_function",
-            }
-          ]
+            },
+          ],
         },
         {
-          title: this.$t('project.code_segment.exception_handle'),
+          title: this.$t("project.code_segment.exception_handle"),
           children: [
             {
-              title: this.$t('project.code_segment.stop_test'),
-              value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());'
+              title: this.$t("project.code_segment.stop_test"),
+              value:
+                "ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());",
             },
-          ]
+          ],
         },
         {
-          title: this.$t('project.code_segment.report_handle'),
+          title: this.$t("project.code_segment.report_handle"),
           hideScript: this.isHideScript(),
           children: [
             {
-              title: this.$t('api_test.request.processor.code_add_report_length'),
-              value: 'String report = ctx.getCurrentSampler().getRequestData();\n' +
-                'if(report!=null){\n' +
-                '    //补足8位长度，前置补0\n' +
+              title: this.$t(
+                "api_test.request.processor.code_add_report_length"
+              ),
+              value:
+                "String report = ctx.getCurrentSampler().getRequestData();\n" +
+                "if(report!=null){\n" +
+                "    //补足8位长度，前置补0\n" +
                 '    String reportlengthStr = String.format("%08d",report.length());\n' +
-                '    report = reportlengthStr+report;\n' +
-                '    ctx.getCurrentSampler().setRequestData(report);\n' +
-                '}',
+                "    report = reportlengthStr+report;\n" +
+                "    ctx.getCurrentSampler().setRequestData(report);\n" +
+                "}",
             },
             {
-              title: this.$t('api_test.request.processor.code_hide_report_length'),
-              value: '//Get response data\n' +
-                'String returnData = prev.getResponseDataAsString();\n' +
-                'if(returnData!=null&&returnData.length()>8){\n' +
-                '//remove 8 report length \n' +
-                '    String subStringData = returnData.substring(8,returnData.length());\n' +
+              title: this.$t(
+                "api_test.request.processor.code_hide_report_length"
+              ),
+              value:
+                "//Get response data\n" +
+                "String returnData = prev.getResponseDataAsString();\n" +
+                "if(returnData!=null&&returnData.length()>8){\n" +
+                "//remove 8 report length \n" +
+                "    String subStringData = returnData.substring(8,returnData.length());\n" +
                 '    if(subStringData.startsWith("<")){\n' +
-                '        returnData = subStringData;\n' +
-                '        prev.setResponseData(returnData);\n' +
-                '    }\n' +
-                '}',
+                "        returnData = subStringData;\n" +
+                "        prev.setResponseData(returnData);\n" +
+                "    }\n" +
+                "}",
               disabled: this.isPreProcessor,
             },
-          ]
-        }
+          ],
+        },
       ],
       isCodeEditAlive: true,
-      languages: [
-        'beanshell', "python", "groovy", "javascript"
-      ],
+      languages: ["beanshell", "python", "groovy", "javascript"],
       codeEditModeMap: {
-        beanshell: 'java',
-        python: 'python',
-        groovy: 'java',
-        nashornScript: 'javascript',
-        rhinoScript: 'javascript',
-        javascript: 'javascript',
+        beanshell: "java",
+        python: "python",
+        groovy: "java",
+        nashornScript: "javascript",
+        rhinoScript: "javascript",
+        javascript: "javascript",
       },
       codeSpan: 20,
       menuSpan: 4,
       showMenu: true,
-    }
+    };
   },
   created() {
     this.jsr223ProcessorData = this.jsr223Processor;
@@ -159,8 +196,7 @@ export default {
   props: {
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     jsr223Processor: {
       type: Object,
@@ -168,15 +204,14 @@ export default {
     protocol: String,
     isPreProcessor: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     node: {},
   },
   watch: {
     jsr223Processor() {
       this.reload();
-    }
+    },
   },
   methods: {
     addTemplate(template) {
@@ -184,13 +219,13 @@ export default {
         this.jsr223ProcessorData.script = "";
       }
       this.jsr223ProcessorData.script += template.value;
-      if (this.jsr223ProcessorData.scriptLanguage === 'beanshell') {
-        this.jsr223ProcessorData.script += ';';
+      if (this.jsr223ProcessorData.scriptLanguage === "beanshell") {
+        this.jsr223ProcessorData.script += ";";
       }
       this.reload();
     },
     isHideScript() {
-      return this.protocol !== 'TCP';
+      return this.protocol !== "TCP";
     },
     reload() {
       this.isCodeEditAlive = false;
@@ -201,8 +236,9 @@ export default {
       this.$emit("languageChange");
     },
     addCustomFuncScript(script) {
-      this.jsr223ProcessorData.script = this.jsr223ProcessorData.script ?
-        this.jsr223ProcessorData.script + '\n\n' + script : script;
+      this.jsr223ProcessorData.script = this.jsr223ProcessorData.script
+        ? this.jsr223ProcessorData.script + "\n\n" + script
+        : script;
       this.reload();
     },
     switchMenu() {
@@ -220,8 +256,8 @@ export default {
         this.$refs.codeEdit.insert(code);
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -268,5 +304,4 @@ export default {
 .show-menu:hover {
   color: #935aa1;
 }
-
 </style>

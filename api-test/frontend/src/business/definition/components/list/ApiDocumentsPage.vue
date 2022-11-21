@@ -1,19 +1,23 @@
 <template>
   <div>
-    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable"
-                         :project-id="projectId" :module-ids="moduleIds" :version-id="versionId"
-                         ref="documentAnchor"/>
+    <api-document-anchor
+      :is-share-page="isSharePage"
+      :trash-enable="trashEnable"
+      :project-id="projectId"
+      :module-ids="moduleIds"
+      :version-id="versionId"
+      ref="documentAnchor"
+    />
   </div>
 </template>
 
 <script>
-
 import ApiDocumentAnchor from "@/business/definition/components/document/ApiDocumentAnchor";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    ApiDocumentAnchor
+    ApiDocumentAnchor,
   },
   data() {
     return {
@@ -34,6 +38,4 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

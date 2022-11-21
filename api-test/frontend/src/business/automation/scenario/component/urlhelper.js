@@ -1,7 +1,10 @@
 export function getUrl(d) {
   let url = "/#";
   let resourceId = d.sourceId;
-  if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
+  if (
+    resourceId &&
+    (resourceId.startsWith('"') || resourceId.startsWith("["))
+  ) {
     resourceId = JSON.parse(d.sourceId);
   }
   if (resourceId instanceof Array) {
@@ -13,52 +16,82 @@ export function getUrl(d) {
   }
   switch (d.type) {
     case "HTTPSamplerProxy":
-      switch (d.refType){
-        case "API":
-          url += "/api/definition?resourceId=" + resourceId;
-        break;
-        case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
-        break;
-      }
-      break;
-    case "JDBCSampler":
-      switch (d.refType){
+      switch (d.refType) {
         case "API":
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
+          url +=
+            "/api/definition?caseId=" +
+            d.id +
+            "&projectId=" +
+            d.projectId +
+            "&workspaceId=" +
+            d.workspaceId;
+          break;
+      }
+      break;
+    case "JDBCSampler":
+      switch (d.refType) {
+        case "API":
+          url += "/api/definition?resourceId=" + resourceId;
+          break;
+        case "CASE":
+          url +=
+            "/api/definition?caseId=" +
+            d.id +
+            "&projectId=" +
+            d.projectId +
+            "&workspaceId=" +
+            d.workspaceId;
           break;
       }
       break;
     case "DebugSampler":
-      switch (d.refType){
+      switch (d.refType) {
         case "API":
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
+          url +=
+            "/api/definition?caseId=" +
+            d.id +
+            "&projectId=" +
+            d.projectId +
+            "&workspaceId=" +
+            d.workspaceId;
           break;
       }
       break;
     case "DubboSampler":
-      switch (d.refType){
+      switch (d.refType) {
         case "API":
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
+          url +=
+            "/api/definition?caseId=" +
+            d.id +
+            "&projectId=" +
+            d.projectId +
+            "&workspaceId=" +
+            d.workspaceId;
           break;
       }
       break;
     case "TCPSampler":
-      switch (d.refType){
+      switch (d.refType) {
         case "API":
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
+          url +=
+            "/api/definition?caseId=" +
+            d.id +
+            "&projectId=" +
+            d.projectId +
+            "&workspaceId=" +
+            d.workspaceId;
           break;
       }
       break;

@@ -2,35 +2,75 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col class="assertion-select">
-        <el-select :disabled="isReadOnly" class="assertion-item" v-model="subject" size="small"
-                   :placeholder="$t('api_test.request.assertions.select_subject')">
-          <el-option label="Response Code" :value="subjects.RESPONSE_CODE"/>
-          <el-option label="Response Headers" :value="subjects.RESPONSE_HEADERS"/>
-          <el-option label="Response Data" :value="subjects.RESPONSE_DATA"/>
+        <el-select
+          :disabled="isReadOnly"
+          class="assertion-item"
+          v-model="subject"
+          size="small"
+          :placeholder="$t('api_test.request.assertions.select_subject')"
+        >
+          <el-option label="Response Code" :value="subjects.RESPONSE_CODE" />
+          <el-option
+            label="Response Headers"
+            :value="subjects.RESPONSE_HEADERS"
+          />
+          <el-option label="Response Data" :value="subjects.RESPONSE_DATA" />
         </el-select>
       </el-col>
       <el-col class="assertion-select">
-        <el-select :disabled="isReadOnly" class="assertion-item" v-model="condition" size="small"
-                   :placeholder="$t('api_test.request.assertions.select_condition')">
-          <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
-          <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
-          <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
-          <el-option :label="$t('api_test.request.assertions.start_with')" value="START_WITH"/>
-          <el-option :label="$t('api_test.request.assertions.end_with')" value="END_WITH"/>
+        <el-select
+          :disabled="isReadOnly"
+          class="assertion-item"
+          v-model="condition"
+          size="small"
+          :placeholder="$t('api_test.request.assertions.select_condition')"
+        >
+          <el-option
+            :label="$t('api_test.request.assertions.contains')"
+            value="CONTAINS"
+          />
+          <el-option
+            :label="$t('api_test.request.assertions.not_contains')"
+            value="NOT_CONTAINS"
+          />
+          <el-option
+            :label="$t('api_test.request.assertions.equals')"
+            value="EQUALS"
+          />
+          <el-option
+            :label="$t('api_test.request.assertions.start_with')"
+            value="START_WITH"
+          />
+          <el-option
+            :label="$t('api_test.request.assertions.end_with')"
+            value="END_WITH"
+          />
         </el-select>
       </el-col>
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="value" maxlength="200" size="small" show-word-limit
-                  :placeholder="$t('api_test.request.assertions.value')"/>
+        <el-input
+          :disabled="isReadOnly"
+          v-model="value"
+          maxlength="200"
+          size="small"
+          show-word-limit
+          :placeholder="$t('api_test.request.assertions.value')"
+        />
       </el-col>
       <el-col class="assertion-checkbox">
         <el-checkbox v-model="assumeSuccess" :disabled="isReadOnly">
-          {{ $t('api_test.request.assertions.ignore_status') }}
+          {{ $t("api_test.request.assertions.ignore_status") }}
         </el-checkbox>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" v-if="showAddButton" type="primary" size="small" @click="add">
-          {{ $t('api_test.request.assertions.add') }}
+        <el-button
+          :disabled="isReadOnly"
+          v-if="showAddButton"
+          type="primary"
+          size="small"
+          @click="add"
+        >
+          {{ $t("api_test.request.assertions.add") }}
         </el-button>
       </el-col>
     </el-row>
@@ -38,7 +78,7 @@
 </template>
 
 <script>
-import {Regex, ASSERTION_REGEX_SUBJECT} from "../../model/ApiTestModel";
+import { Regex, ASSERTION_REGEX_SUBJECT } from "../../model/ApiTestModel";
 
 export default {
   name: "MsApiAssertionText",
@@ -48,12 +88,12 @@ export default {
     callback: Function,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showAddButton: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   data() {
@@ -62,8 +102,8 @@ export default {
       subject: "",
       condition: "",
       assumeSuccess: false,
-      value: ""
-    }
+      value: "",
+    };
   },
 
   methods: {
@@ -97,15 +137,14 @@ export default {
           break;
       }
       return new Regex({
-          subject: this.subject,
-          expression: expression,
-          description: description,
-          assumeSuccess: this.assumeSuccess
-        }
-      );
-    }
-  }
-}
+        subject: this.subject,
+        expression: expression,
+        description: description,
+        assumeSuccess: this.assumeSuccess,
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>

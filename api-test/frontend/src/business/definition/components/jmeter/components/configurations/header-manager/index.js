@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "HeaderPanel",
       testclass: "HeaderManager",
       testname: "HeaderManager",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class HeaderManager extends Configuration {
@@ -20,5 +20,5 @@ export default class HeaderManager extends Configuration {
 }
 
 export const schema = {
-  HeaderManager: HeaderManager
-}
+  HeaderManager: HeaderManager,
+};

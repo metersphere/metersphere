@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "ViewResultsFullVisualizer",
       testclass: "ResultCollector",
       testname: "View Results Tree",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export const TYPE = "ResultCollector";
@@ -21,5 +21,5 @@ export default class ResultCollector extends HashTreeElement {
 }
 
 export const schema = {
-  ResultCollector: ResultCollector
-}
+  ResultCollector: ResultCollector,
+};

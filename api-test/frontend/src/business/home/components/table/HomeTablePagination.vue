@@ -10,7 +10,8 @@
         :page-sizes="pageSizes"
         :page-size="pageSize"
         :layout="layout"
-        :total="total">
+        :total="total"
+      >
       </el-pagination>
     </div>
   </el-row>
@@ -23,41 +24,41 @@ export default {
     page: Object,
     currentPage: {
       type: Number,
-      default: 1
+      default: 1,
     },
     pageSize: {
       type: Number,
-      default: 5
+      default: 5,
     },
     layout: {
       type: String,
       default() {
-        return 'total, sizes, prev, pager, next, jumper';
-      }
+        return "total, sizes, prev, pager, next, jumper";
+      },
     },
     pageSizes: {
       type: Array,
       default: function () {
-        return [5, 10, 20, 50]
-      }
+        return [5, 10, 20, 50];
+      },
     },
     total: {
       type: Number,
-      default: 0
+      default: 0,
     },
-    change: Function
+    change: Function,
   },
   methods: {
     handleSizeChange: function (size) {
-      this.$emit('update:pageSize', size)
+      this.$emit("update:pageSize", size);
       this.change();
     },
     handleCurrentChange(current) {
-      this.$emit('update:currentPage', current)
+      this.$emit("update:currentPage", current);
       this.change();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -66,9 +67,9 @@ export default {
 }
 
 .home-table-page :deep(.el-pagination.is-background .el-pager li) {
-  background-color: #FFFFFF;
-  color: #1F2329;
-  border: 1px solid #BBBFC4;
+  background-color: #ffffff;
+  color: #1f2329;
+  border: 1px solid #bbbfc4;
   width: 28px;
   height: 28px;
   box-sizing: border-box;
@@ -78,15 +79,16 @@ export default {
   line-height: 26px;
 }
 
-.home-table-page :deep(.el-pagination.is-background .el-pager li:not(.disabled).active) {
-  background-color: #FFFFFF;
+.home-table-page
+  :deep(.el-pagination.is-background .el-pager li:not(.disabled).active) {
+  background-color: #ffffff;
   color: #783887;
   border: 1px solid #783887;
 }
 
-.home-table-page :deep(.el-pagination.is-background .btn-next,) {
-  background-color: #FFFFFF;
-  border: 1px solid #BBBFC4;
+.home-table-page :deep(.el-pagination.is-background .btn-next, ) {
+  background-color: #ffffff;
+  border: 1px solid #bbbfc4;
   width: 28px;
   height: 28px;
   box-sizing: border-box;
@@ -97,8 +99,8 @@ export default {
 }
 
 .home-table-page :deep(.el-pagination.is-background .btn-prev) {
-  background-color: #FFFFFF;
-  border: 1px solid #BBBFC4;
+  background-color: #ffffff;
+  border: 1px solid #bbbfc4;
   width: 28px;
   height: 28px;
   box-sizing: border-box;

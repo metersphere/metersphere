@@ -1,25 +1,52 @@
 <template>
   <div v-loading="isReloadData || result">
     <div class="jdbc-class">
-      <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="request.disabled"
-               style="margin: 10px">
+      <el-form
+        :model="request"
+        :rules="rules"
+        ref="request"
+        label-width="100px"
+        :disabled="request.disabled"
+        style="margin: 10px"
+      >
         <el-row>
           <el-col :span="8">
-            <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
-              <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
-                         :placeholder="$t('api_test.definition.request.run_env')"
-                         @change="environmentChange" clearable :disabled="isReadOnly">
-                <el-option v-for="(environment, index) in environments" :key="index"
-                           :label="environment.name"
-                           :value="environment.id"/>
-                <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
-                  {{ $t('api_test.environment.environment_config') }}
+            <el-form-item
+              prop="environmentId"
+              :label="$t('api_test.definition.request.run_env')"
+            >
+              <el-select
+                v-model="request.environmentId"
+                size="small"
+                class="ms-htt-width"
+                :placeholder="$t('api_test.definition.request.run_env')"
+                @change="environmentChange"
+                clearable
+                :disabled="isReadOnly"
+              >
+                <el-option
+                  v-for="(environment, index) in environments"
+                  :key="index"
+                  :label="environment.name"
+                  :value="environment.id"
+                />
+                <el-button
+                  class="environment-button"
+                  size="small"
+                  type="primary"
+                  @click="openEnvironmentConfig"
+                >
+                  {{ $t("api_test.environment.environment_config") }}
                 </el-button>
                 <template v-slot:empty>
                   <div class="empty-environment">
-                    <el-button class="environment-button" size="small" type="primary"
-                               @click="openEnvironmentConfig">
-                      {{ $t('api_test.environment.environment_config') }}
+                    <el-button
+                      class="environment-button"
+                      size="small"
+                      type="primary"
+                      @click="openEnvironmentConfig"
+                    >
+                      {{ $t("api_test.environment.environment_config") }}
                     </el-button>
                   </div>
                 </template>
@@ -27,38 +54,83 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId"
-                          style="margin-left: 10px">
-              <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
-                <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id"
-                           :label="item.name"/>
+            <el-form-item
+              :label="$t('api_test.request.sql.dataSource')"
+              prop="dataSourceId"
+              style="margin-left: 10px"
+            >
+              <el-select
+                v-model="request.dataSourceId"
+                size="small"
+                @change="reload"
+                :disabled="request.disabled"
+              >
+                <el-option
+                  v-for="(item, index) in databaseConfigsOptions"
+                  :key="index"
+                  :value="item.id"
+                  :label="item.name"
+                />
               </el-select>
             </el-form-item>
-
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-              <el-input-number :disabled="request.disabled" size="small" v-model="request.queryTimeout"
-                               :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+            <el-form-item
+              :label="$t('api_test.request.sql.timeout')"
+              prop="queryTimeout"
+              style="margin-left: 10px"
+            >
+              <el-input-number
+                :disabled="request.disabled"
+                size="small"
+                v-model="request.queryTimeout"
+                :placeholder="$t('commons.millisecond')"
+                :max="1000 * 10000000"
+                :min="0"
+              />
             </el-form-item>
           </el-col>
         </el-row>
 
-
-        <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
-          <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small"/>
+        <el-form-item
+          :label="$t('api_test.request.sql.result_variable')"
+          prop="resultVariable"
+        >
+          <el-input
+            v-model="request.resultVariable"
+            maxlength="500"
+            show-word-limit
+            size="small"
+          />
         </el-form-item>
 
-        <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
-          <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
+        <el-form-item
+          :label="$t('api_test.request.sql.variable_names')"
+          prop="variableNames"
+        >
+          <el-input
+            v-model="request.variableNames"
+            maxlength="500"
+            show-word-limit
+            size="small"
+          />
         </el-form-item>
 
         <el-tabs v-model="activeName" class="ms-sql-tabs">
-          <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
-            <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
-                                       :description="$t('api_test.scenario.kv_description')"/>
+          <el-tab-pane
+            :label="$t('api_test.scenario.variables')"
+            name="variables"
+          >
+            <ms-api-scenario-variables
+              :is-read-only="isReadOnly"
+              :items="request.variables"
+              :description="$t('api_test.scenario.kv_description')"
+            />
           </el-tab-pane>
-          <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
+          <el-tab-pane
+            :label="$t('api_test.request.sql.sql_script')"
+            name="sql"
+          >
             <ms-code-edit
               :height="120"
               :read-only="isReadOnly"
@@ -66,15 +138,18 @@
               :data.sync="request.query"
               theme="eclipse"
               mode="sql"
-              ref="codeEdit"/>
+              ref="codeEdit"
+            />
           </el-tab-pane>
         </el-tabs>
       </el-form>
     </div>
 
-
     <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+    <api-environment-config
+      ref="environmentConfig"
+      @close="environmentConfigClose"
+    />
   </div>
 </template>
 
@@ -84,13 +159,13 @@ import MsApiExtract from "@/business/definition/components/extract/ApiExtract";
 import ApiRequestMethodSelect from "@/business/definition/components/collapse/ApiRequestMethodSelect";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsApiScenarioVariables from "@/business/definition/components/ApiScenarioVariables";
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
+import { parseEnvironment } from "@/business/environment/model/EnvironmentModel";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getUUID, objToStrMap} from "metersphere-frontend/src/utils";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import { getUUID, objToStrMap } from "metersphere-frontend/src/utils";
 import MsJsr233Processor from "@/business/automation/scenario/component/Jsr233Processor";
-import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
-import {useApiStore} from "@/store";
+import { getEnvironmentByProjectId } from "metersphere-frontend/src/api/environment";
+import { useApiStore } from "@/store";
 
 const store = useApiStore();
 export default {
@@ -99,7 +174,10 @@ export default {
     MsJsr233Processor,
     MsApiScenarioVariables,
     MsCodeEdit,
-    ApiRequestMethodSelect, MsApiExtract, MsApiKeyValue, ApiEnvironmentConfig
+    ApiRequestMethodSelect,
+    MsApiExtract,
+    MsApiKeyValue,
+    ApiEnvironmentConfig,
   },
   props: {
     request: {},
@@ -112,7 +190,7 @@ export default {
     scenarioId: String,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   data() {
@@ -124,7 +202,7 @@ export default {
       isReloadData: false,
       activeName: "variables",
       rules: {},
-    }
+    };
   },
   created() {
     this.getEnvironments();
@@ -142,20 +220,20 @@ export default {
   },
   watch: {
     // 场景环境监听
-    'storeScenarioEnvMap': {
+    storeScenarioEnvMap: {
       handler(v) {
         this.getEnvironments();
       },
-      deep: true
+      deep: true,
     },
     // 接口/用例 右上角公共环境监听
-    'storeUseEnvironment': function () {
+    storeUseEnvironment: function () {
       if (!this.scenarioId) {
         this.getEnvironments(store.useEnvironment);
       }
     },
     // 接口/用例 自身环境监听
-    'request.environmentId': function () {
+    "request.environmentId": function () {
       if (!this.scenarioId) {
         this.setStep(undefined, undefined, this.request.targetDataSourceName);
       }
@@ -174,43 +252,41 @@ export default {
       this.reload();
     },
     reload() {
-      this.isReloadData = true
+      this.isReloadData = true;
       this.$nextTick(() => {
-        this.isReloadData = false
-      })
+        this.isReloadData = false;
+      });
     },
     validate() {
-      this.$refs['request'].validate((valid) => {
+      this.$refs["request"].validate((valid) => {
         if (valid) {
-          this.$emit('callback');
+          this.$emit("callback");
         }
-      })
+      });
     },
     saveApi() {
       this.basisData.method = this.basisData.protocol;
-      this.$emit('saveApi', this.basisData);
+      this.$emit("saveApi", this.basisData);
     },
-    runTest() {
-
-    },
+    runTest() {},
     itselfEnvironment(environmentId) {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      this.result = getEnvironmentByProjectId(id).then(response => {
+      this.result = getEnvironmentByProjectId(id).then((response) => {
         this.environments = response.data;
         let targetDataSourceName = this.request.targetDataSourceName;
-        this.environments.forEach(environment => {
+        this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
           if (environment.id === this.request.environmentId) {
             if (environment.config && environment.config.databaseConfigs) {
-              environment.config.databaseConfigs.forEach(item => {
+              environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
                   targetDataSourceName = item.name;
                 }
               });
             }
           }
-        })
+        });
         if (environmentId) {
           this.request.environmentId = environmentId;
         }
@@ -220,9 +296,13 @@ export default {
     getEnvironments(environmentId) {
       let envId = "";
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      let scenarioEnvId = this.scenarioId !== "" ? (this.scenarioId + "_" + id) : id;
-      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map
-        && store.scenarioEnvMap.has(scenarioEnvId)) {
+      let scenarioEnvId =
+        this.scenarioId !== "" ? this.scenarioId + "_" + id : id;
+      if (
+        store.scenarioEnvMap &&
+        store.scenarioEnvMap instanceof Map &&
+        store.scenarioEnvMap.has(scenarioEnvId)
+      ) {
         envId = store.scenarioEnvMap.get(scenarioEnvId);
       }
       if (!this.scenarioId && !this.request.customizeReq) {
@@ -232,29 +312,43 @@ export default {
       this.environments = [];
       // 场景开启自身环境
       if (this.request.environmentEnable && this.request.refEevMap) {
-        let obj = Object.prototype.toString.call(this.request.refEevMap).match(/\[object (\w+)\]/)[1].toLowerCase();
-        if (obj !== 'object' && obj !== "map") {
-          this.request.refEevMap = objToStrMap(JSON.parse(this.request.refEevMap));
-        } else if (obj === 'object' && obj !== "map") {
+        let obj = Object.prototype.toString
+          .call(this.request.refEevMap)
+          .match(/\[object (\w+)\]/)[1]
+          .toLowerCase();
+        if (obj !== "object" && obj !== "map") {
+          this.request.refEevMap = objToStrMap(
+            JSON.parse(this.request.refEevMap)
+          );
+        } else if (obj === "object" && obj !== "map") {
           this.request.refEevMap = objToStrMap(this.request.refEevMap);
         }
-        if (this.request.refEevMap instanceof Map && this.request.refEevMap.has(id)) {
+        if (
+          this.request.refEevMap instanceof Map &&
+          this.request.refEevMap.has(id)
+        ) {
           envId = this.request.refEevMap.get(id);
         }
       }
-      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+      if (
+        envId === this.request.originalEnvironmentId &&
+        this.request.originalDataSourceId
+      ) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       let targetDataSourceName = "";
       let currentEnvironment = {};
-      this.result = getEnvironmentByProjectId(id).then(response => {
+      this.result = getEnvironmentByProjectId(id).then((response) => {
         this.environments = response.data;
-        this.environments.forEach(environment => {
+        this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
-          if (environment.id === this.request.environmentId && environment.id !== envId) {
+          if (
+            environment.id === this.request.environmentId &&
+            environment.id !== envId
+          ) {
             if (environment.config && environment.config.databaseConfigs) {
-              environment.config.databaseConfigs.forEach(item => {
+              environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
                   targetDataSourceName = item.name;
                 }
@@ -273,14 +367,18 @@ export default {
       this.$refs.environmentConfig.open(getCurrentProjectID());
     },
     setStep(envId, currentEnvironment, targetDataSourceName) {
-      let envs = this.environments.filter(item => this.request && item.id === this.request.environmentId);
+      let envs = this.environments.filter(
+        (item) => this.request && item.id === this.request.environmentId
+      );
       if (envs && envs.length === 0) {
-        let id = this.request.projectId ? this.request.projectId : this.projectId;
-        this.result = getEnvironmentByProjectId(id).then(response => {
+        let id = this.request.projectId
+          ? this.request.projectId
+          : this.projectId;
+        this.result = getEnvironmentByProjectId(id).then((response) => {
           this.environments = response.data;
-          this.environments.forEach(environment => {
+          this.environments.forEach((environment) => {
             parseEnvironment(environment);
-          })
+          });
           this.initDataSource(envId, currentEnvironment, targetDataSourceName);
         });
       } else {
@@ -300,8 +398,12 @@ export default {
         }
       }
       let flag = false;
-      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
-        currentEnvironment.config.databaseConfigs.forEach(item => {
+      if (
+        currentEnvironment &&
+        currentEnvironment.config &&
+        currentEnvironment.config.databaseConfigs
+      ) {
+        currentEnvironment.config.databaseConfigs.forEach((item) => {
           if (item.id === this.request.dataSourceId) {
             flag = true;
           }
@@ -313,7 +415,8 @@ export default {
           this.databaseConfigsOptions.push(item);
         });
         if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
-          this.request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
+          this.request.dataSourceId =
+            currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }
@@ -343,21 +446,19 @@ export default {
       }
       this.databaseConfigsOptions = [];
       if (environment.config && environment.config.databaseConfigs) {
-        environment.config.databaseConfigs.forEach(item => {
+        environment.config.databaseConfigs.forEach((item) => {
           this.databaseConfigsOptions.push(item);
-        })
+        });
       }
     },
     environmentConfigClose() {
       this.getEnvironments();
     },
-  }
-
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .ms-sql-tabs {
   min-height: 160px;
 }
@@ -388,9 +489,9 @@ export default {
 }
 
 .jdbc-class {
-  border: 1px #DCDFE6 solid;
+  border: 1px #dcdfe6 solid;
   height: 100%;
   border-radius: 4px;
-  width: 100%
+  width: 100%;
 }
 </style>

@@ -2,22 +2,22 @@
   <span></span>
 </template>
 <script>
-import {baseSocket} from "@/api/base-network";
-import {apiDebug} from "@/api/definition";
-import {strMapToObj} from "metersphere-frontend/src/utils";
-import {getBodyUploadFiles} from "../api-definition";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import { baseSocket } from "@/api/base-network";
+import { apiDebug } from "@/api/definition";
+import { strMapToObj } from "metersphere-frontend/src/utils";
+import { getBodyUploadFiles } from "../api-definition";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
 import ThreadGroup from "./jmeter/components/thread-group";
 import TestPlan from "./jmeter/components/test-plan";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
+import { TYPE_TO_C } from "@/business/automation/scenario/Setting";
 
 export default {
-  name: 'MsRun',
+  name: "MsRun",
   components: {},
   props: {
     editCaseRequest: {
       type: Boolean,
-      default: false
+      default: false,
     },
     debug: Boolean,
     reportId: String,
@@ -30,10 +30,10 @@ export default {
     return {
       result: false,
       loading: false,
-      requestResult: {responseResult: {}},
+      requestResult: { responseResult: {} },
       reqNumber: 0,
-      websocket: {}
-    }
+      websocket: {},
+    };
   },
 
   watch: {
@@ -42,10 +42,14 @@ export default {
       this.socketSync();
     },
     isStop() {
-      if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
+      if (
+        !this.isStop &&
+        this.websocket &&
+        this.websocket.close instanceof Function
+      ) {
         this.websocket.close();
       }
-    }
+    },
   },
   methods: {
     socketSync() {
@@ -54,8 +58,8 @@ export default {
       this.websocket.onerror = this.onError;
     },
     onError() {
-      this.$emit('runRefresh', "");
-      this.$error(this.$t('api_test.automation.rerun_warning'));
+      this.$emit("runRefresh", "");
+      this.$error(this.$t("api_test.automation.rerun_warning"));
     },
     onMessages(e) {
       // 确认连接建立成功，开始执行
@@ -67,13 +71,13 @@ export default {
         try {
           let data = e.data.substring(7);
           this.websocket.close();
-          this.$emit('runRefresh', JSON.parse(data));
+          this.$emit("runRefresh", JSON.parse(data));
         } catch (e) {
           this.websocket.close();
-          this.$emit('runRefresh', "");
+          this.$emit("runRefresh", "");
         }
       } else if (e.data === "MS_TEST_END") {
-        this.$emit('runRefresh', "");
+        this.$emit("runRefresh", "");
       }
     },
     sort(stepArray) {
@@ -85,11 +89,22 @@ export default {
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
             stepArray[i].document = {
               type: "JSON",
-              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+              data: {
+                xmlFollowAPI: false,
+                jsonFollowAPI: false,
+                json: [],
+                xml: [],
+              },
             };
           }
-          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          if (
+            stepArray[i] &&
+            stepArray[i].authManager &&
+            !stepArray[i].authManager.clazzName
+          ) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
+              stepArray[i].authManager.type
+            );
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
@@ -115,13 +130,13 @@ export default {
       threadGroup.clazzName = TYPE_TO_C.get(threadGroup.type);
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
-      this.runData.forEach(item => {
+      this.runData.forEach((item) => {
         item.projectId = projectId;
         if (!item.clazzName) {
           item.clazzName = TYPE_TO_C.get(item.type);
         }
         threadGroup.hashTree.push(item);
-      })
+      });
       this.sort(testPlan.hashTree);
       this.requestResult.reportId = this.reportId;
       let reqObj = {
@@ -130,7 +145,7 @@ export default {
         type: this.type,
         clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type),
         projectId: projectId,
-        environmentMap: strMapToObj(this.envMap)
+        environmentMap: strMapToObj(this.envMap),
       };
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
       reqObj.editCaseRequest = this.editCaseRequest;
@@ -147,13 +162,16 @@ export default {
       if (!this.debug) {
         reqObj.syncResult = true;
       }
-      apiDebug(null, bodyFiles, reqObj).then(response => {
-        this.requestResult = response.data;
-        this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
-      }, error => {
-        this.$emit('errorRefresh', {});
-      });
-    }
-  }
-}
+      apiDebug(null, bodyFiles, reqObj).then(
+        (response) => {
+          this.requestResult = response.data;
+          this.$emit("autoCheckStatus"); //   执行结束后，自动更新计划状态
+        },
+        (error) => {
+          this.$emit("errorRefresh", {});
+        }
+      );
+    },
+  },
+};
 </script>

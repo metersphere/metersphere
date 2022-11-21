@@ -1,46 +1,63 @@
 <template>
-  <el-header style="width: 100% ;padding: 0px">
+  <el-header style="width: 100%; padding: 0px">
     <el-card>
       <el-row>
         <el-col :span="1">
-          <el-tag size="mini"
-                  :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}"
-                  class="api-el-tag">
+          <el-tag
+            size="mini"
+            :style="{
+              'background-color': getColor(true, api.method),
+              border: getColor(true, api.method),
+            }"
+            class="api-el-tag"
+          >
             {{ api.method }}
           </el-tag>
         </el-col>
         <el-col :span="9">
-          <div class="variable-combine"> {{ api.name }}</div>
+          <div class="variable-combine">{{ api.name }}</div>
         </el-col>
         <el-col :span="8">
-          <div class="variable-combine" style="margin-left: 10px">{{ api.path === null ? " " : api.path }}</div>
+          <div class="variable-combine" style="margin-left: 10px">
+            {{ api.path === null ? " " : api.path }}
+          </div>
         </el-col>
         <el-col :span="4">
           <ms-environment-select
             :project-id="projectId"
             :is-read-only="isReadOnly"
-            :useEnvironment='useEnvironment'
-            @setEnvironment="setEnvironment" ref="environmentSelect"
-            v-if="api.protocol==='HTTP' || api.protocol ==='TCP'"/>
+            :useEnvironment="useEnvironment"
+            @setEnvironment="setEnvironment"
+            ref="environmentSelect"
+            v-if="api.protocol === 'HTTP' || api.protocol === 'TCP'"
+          />
         </el-col>
         <el-col :span="2">
           <!-- 保存操作 -->
-          <el-button v-if="!isXpack || !showUpdateRule"
-                     type="primary" size="small"
-                     @click="saveTestCase()"
-                     v-prevent-re-click
-                     v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
+          <el-button
+            v-if="!isXpack || !showUpdateRule"
+            type="primary"
+            size="small"
+            @click="saveTestCase()"
+            v-prevent-re-click
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
+          >
             {{ saveButtonText }}
           </el-button>
-          <el-dropdown v-else
-                       style="margin-left: -15px"
-                       v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-                       split-button type="primary" size="small" @click="saveTestCase" @command="handleCommand">
-            {{ $t('commons.save') }}
+          <el-dropdown
+            v-else
+            style="margin-left: -15px"
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+            split-button
+            type="primary"
+            size="small"
+            @click="saveTestCase"
+            @command="handleCommand"
+          >
+            {{ $t("commons.save") }}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="openSyncRule">{{
-                  $t('commons.save') + '&' + $t('workstation.sync_setting')
-                }}
+              <el-dropdown-item command="openSyncRule"
+                >{{ $t("commons.save") + "&" + $t("workstation.sync_setting") }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -48,28 +65,29 @@
       </el-row>
     </el-card>
   </el-header>
-
 </template>
 
 <script>
-
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsEnvironmentSelect from "./MsEnvironmentSelect";
-import {API_METHOD_COLOUR} from "../../model/JsonData";
+import { API_METHOD_COLOUR } from "../../model/JsonData";
 import ApiCaseItem from "@/business/definition/components/case/ApiCaseItem";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "ApiCaseHeader",
-  components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig, ApiCaseItem},
+  components: { MsEnvironmentSelect, MsTag, ApiEnvironmentConfig, ApiCaseItem },
   data() {
     return {
       methodColorMap: new Map(API_METHOD_COLOUR),
-      saveButtonText: this.$t('commons.save'),
+      saveButtonText: this.$t("commons.save"),
       isXpack: false,
-      showUpdateRule: false
-    }
+      showUpdateRule: false,
+    };
   },
   props: {
     api: Object,
@@ -82,27 +100,27 @@ export default {
     condition: {
       type: Object,
       default() {
-        return {}
+        return {};
       },
     },
     apiCase: {
       type: Object,
       default() {
-        return {}
+        return {};
       },
-    }
+    },
   },
   mounted() {
-    window.addEventListener('keydown', this.keyDown)
+    window.addEventListener("keydown", this.keyDown);
   },
   beforeDestroy() {
-    window.removeEventListener('keydown', this.keyDown) // 在页面销毁的时候记得解除
-    this.$EventBus.$off('showXpackCaseBtn');
+    window.removeEventListener("keydown", this.keyDown); // 在页面销毁的时候记得解除
+    this.$EventBus.$off("showXpackCaseBtn");
   },
   created() {
     this.isXpack = !!hasLicense();
     if (this.isXpack) {
-      this.$EventBus.$on('showXpackCaseBtn', showUpdateRule => {
+      this.$EventBus.$on("showXpackCaseBtn", (showUpdateRule) => {
         this.handleXpackCaseBtnChange(showUpdateRule);
       });
     }
@@ -112,7 +130,7 @@ export default {
   },
   methods: {
     keyDown(e) {
-      if (hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')) {
+      if (hasPermission("PROJECT_API_DEFINITION:READ+EDIT_CASE")) {
         if (!(e.keyCode === 83 && (e.ctrlKey || e.metaKey))) {
           return;
         }
@@ -125,14 +143,14 @@ export default {
     },
     setEnvironment(data) {
       if (data) {
-        this.$emit('setEnvironment', data.id);
+        this.$emit("setEnvironment", data.id);
       }
     },
     open() {
       this.$refs.searchBar.open();
     },
     addCase() {
-      this.$emit('addCase');
+      this.$emit("addCase");
       this.refreshEnvironment();
     },
     getColor(enable, method) {
@@ -141,23 +159,22 @@ export default {
       }
     },
     saveTestCase() {
-      this.$emit("saveCase")
+      this.$emit("saveCase");
     },
     handleCommand(command) {
-      if (command === 'openSyncRule') {
-        this.$EventBus.$emit('showXpackCaseSet', false);
+      if (command === "openSyncRule") {
+        this.$EventBus.$emit("showXpackCaseSet", false);
         this.saveTestCase();
       }
     },
     handleXpackCaseBtnChange(showUpdateRule) {
       this.showUpdateRule = showUpdateRule;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .el-card-btn {
   float: right;
   top: 20px;

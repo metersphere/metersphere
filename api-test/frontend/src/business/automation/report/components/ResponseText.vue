@@ -2,30 +2,58 @@
   <div class="text-container">
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
-        <el-tab-pane :class="'body-pane'" :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-          <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
-          <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
+        <el-tab-pane
+          :class="'body-pane'"
+          :label="$t('api_test.definition.request.response_body')"
+          name="body"
+          class="pane"
+        >
+          <ms-sql-result-table v-if="isSqlType" :body="response.body" />
+          <ms-code-edit
+            v-if="!isSqlType"
+            :mode="mode"
+            :read-only="true"
+            :data="response.body"
+            :modes="modes"
+            ref="codeEdit"
+          />
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
+        <el-tab-pane
+          :label="$t('api_test.definition.request.response_header')"
+          name="headers"
+          class="pane"
+        >
           <pre>{{ response.headers }}</pre>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-          <ms-assertion-results :assertions="response.assertions"/>
+        <el-tab-pane
+          :label="$t('api_report.assertions')"
+          name="assertions"
+          class="pane assertions"
+        >
+          <ms-assertion-results :assertions="response.assertions" />
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+        <el-tab-pane
+          :label="$t('api_test.request.extract.label')"
+          name="label"
+          class="pane"
+        >
           <pre>{{ response.vars }}</pre>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
+        <el-tab-pane
+          :label="$t('api_report.request_body')"
+          name="request_body"
+          class="pane"
+        >
           <div class="ms-div">
-            {{ $t('api_test.request.address') }} :
+            {{ $t("api_test.request.address") }} :
             <pre>{{ request.url }}</pre>
           </div>
           <div class="ms-div">
-            {{ $t('api_test.scenario.headers') }} :
+            {{ $t("api_test.scenario.headers") }} :
             <pre>{{ request.headers }}</pre>
           </div>
           <div class="ms-div">
@@ -36,13 +64,28 @@
             Body :
             <pre>{{ request.body }}</pre>
           </div>
-
         </el-tab-pane>
 
-        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
+        <el-tab-pane
+          v-if="activeName == 'body'"
+          :disabled="true"
+          name="mode"
+          class="pane assertions"
+        >
           <template v-slot:label>
-            <ms-dropdown v-if="request.method==='SQL'" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
-            <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
+            <ms-dropdown
+              v-if="request.method === 'SQL'"
+              :commands="sqlModes"
+              :default-command="mode"
+              @command="sqlModeChange"
+            />
+            <ms-dropdown
+              v-else
+              :commands="modes"
+              :default-command="mode"
+              @command="modeChange"
+              ref="modeDropdown"
+            />
           </template>
         </el-tab-pane>
       </el-tabs>
@@ -54,7 +97,12 @@
 import MsAssertionResults from "./AssertionResults";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsDropdown from "../../../../business/commons/MsDropdown";
-import {BODY_FORMAT, RequestFactory, Request, SqlRequest} from "../../../../business/definition/model/ApiTestModel";
+import {
+  BODY_FORMAT,
+  RequestFactory,
+  Request,
+  SqlRequest,
+} from "../../../../business/definition/model/ApiTestModel";
 import MsSqlResultTable from "./SqlResultTable";
 
 export default {
@@ -78,10 +126,10 @@ export default {
     return {
       isActive: true,
       activeName: "body",
-      modes: ['text', 'json', 'xml', 'html'],
-      sqlModes: ['text', 'table'],
-      mode: BODY_FORMAT.TEXT
-    }
+      modes: ["text", "json", "xml", "html"],
+      sqlModes: ["text", "table"],
+      mode: BODY_FORMAT.TEXT,
+    };
   },
 
   methods: {
@@ -93,7 +141,7 @@ export default {
     },
     sqlModeChange(mode) {
       this.mode = mode;
-    }
+    },
   },
 
   mounted() {
@@ -107,14 +155,18 @@ export default {
 
   computed: {
     isSqlType() {
-      return ((this.requestType === RequestFactory.TYPES.SQL || this.request.method === RequestFactory.TYPES.SQL) && this.response.responseCode === '200' && this.mode === 'table');
-    }
-  }
-}
+      return (
+        (this.requestType === RequestFactory.TYPES.SQL ||
+          this.request.method === RequestFactory.TYPES.SQL) &&
+        this.response.responseCode === "200" &&
+        this.mode === "table"
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .body-pane {
   padding: 10px !important;
   background: white !important;
@@ -137,7 +189,7 @@ export default {
 }
 
 .text-container .pane {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   padding: 1px 0;
   height: 250px;
   overflow-y: auto;

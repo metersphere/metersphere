@@ -2,19 +2,54 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="xPath2.expression" maxlength="500" size="small" show-word-limit
-                  :placeholder="$t('api_test.request.extract.xpath_expression')"/>
+        <el-input
+          :disabled="isReadOnly"
+          v-model="xPath2.expression"
+          maxlength="500"
+          size="small"
+          show-word-limit
+          :placeholder="$t('api_test.request.extract.xpath_expression')"
+        />
       </el-col>
       <el-col class="assertion-btn">
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
-          <el-switch v-model="xPath2.enable" class="enable-switch" size="mini" :disabled="isReadOnly"
-                     style="width: 30px;margin-right:10px"/>
+        <el-tooltip
+          :content="$t('test_resource_pool.enable_disable')"
+          placement="top"
+          v-if="edit"
+        >
+          <el-switch
+            v-model="xPath2.enable"
+            class="enable-switch"
+            size="mini"
+            :disabled="isReadOnly"
+            style="width: 30px; margin-right: 10px"
+          />
         </el-tooltip>
-        <el-button :disabled="isReadOnly" size="mini" icon="el-icon-copy-document" circle @click="copyRow" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
-                   v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
-          {{ $t('api_test.request.assertions.add') }}
+        <el-button
+          :disabled="isReadOnly"
+          size="mini"
+          icon="el-icon-copy-document"
+          circle
+          @click="copyRow"
+          v-if="edit"
+        />
+        <el-button
+          :disabled="isReadOnly"
+          type="danger"
+          size="mini"
+          icon="el-icon-delete"
+          circle
+          @click="remove"
+          v-if="edit"
+        />
+        <el-button
+          :disabled="isReadOnly"
+          type="primary"
+          size="mini"
+          @click="add"
+          v-else
+        >
+          {{ $t("api_test.request.assertions.add") }}
         </el-button>
       </el-col>
     </el-row>
@@ -22,7 +57,7 @@
 </template>
 
 <script>
-import {XPath2} from "../../model/ApiTestModel";
+import { XPath2 } from "../../model/ApiTestModel";
 
 export default {
   name: "MsApiAssertionXPath2",
@@ -31,19 +66,19 @@ export default {
     xPath2: {
       default: () => {
         return new XPath2();
-      }
+      },
     },
     edit: {
       type: Boolean,
-      default: false
+      default: false,
     },
     index: Number,
     list: Array,
     callback: Function,
     isReadOnly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   methods: {
@@ -59,9 +94,9 @@ export default {
     },
     copyRow() {
       this.list.splice(this.index + 1, 0, this.getXPath2());
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

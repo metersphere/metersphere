@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "ArgumentsPanel",
       testclass: "Arguments",
       testname: "Arguments",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class Arguments extends Configuration {
@@ -20,5 +20,5 @@ export default class Arguments extends Configuration {
 }
 
 export const schema = {
-  Arguments: Arguments
-}
+  Arguments: Arguments,
+};

@@ -1,20 +1,25 @@
 <template>
-  <ms-api-report :report-id="reportId" :share-id="shareId" :is-share="isShare" :is-plan="true"
-                 :show-cancel-button="false"></ms-api-report>
+  <ms-api-report
+    :report-id="reportId"
+    :share-id="shareId"
+    :is-share="isShare"
+    :is-plan="true"
+    :show-cancel-button="false"
+  ></ms-api-report>
 </template>
 
 <script>
-import {getShareId} from "@/api/share";
-import {getShareInfo} from "@/api/share";
+import { getShareId } from "@/api/share";
+import { getShareInfo } from "@/api/share";
 import MsApiReport from "@/business/automation/report/ApiReportDetail";
 
 export default {
   name: "ShareApiReportTemplate",
-  components: {MsApiReport},
+  components: { MsApiReport },
   data() {
     return {
-      reportId: '',
-      shareId: '',
+      reportId: "",
+      shareId: "",
       isShare: true,
     };
   },
@@ -22,10 +27,10 @@ export default {
     this.shareId = getShareId();
     getShareInfo(this.shareId).then((res) => {
       if (!res.data) {
-        this.$error('连接已失效，请重新获取!');
+        this.$error("连接已失效，请重新获取!");
         return;
       }
-      if (res.data.shareType === 'API_REPORT') {
+      if (res.data.shareType === "API_REPORT") {
         this.reportId = res.data.customData;
       }
     });
@@ -33,5 +38,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

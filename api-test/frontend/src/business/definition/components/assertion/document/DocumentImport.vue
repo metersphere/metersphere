@@ -6,30 +6,35 @@
     append-to-body
     show-close
     :close-on-click-modal="false"
-    @closed="handleClose">
+    @closed="handleClose"
+  >
     <div style="height: 400px">
       <ms-code-edit
         :mode="mode"
-        :data.sync="json" theme="eclipse" :modes="[]"
-        ref="codeEdit"/>
+        :data.sync="json"
+        theme="eclipse"
+        :modes="[]"
+        ref="codeEdit"
+      />
     </div>
     <span slot="footer" class="dialog-footer">
-     <ms-dialog-footer
-       @cancel="importVisible = false"
-       @confirm="saveConfirm"/>
+      <ms-dialog-footer
+        @cancel="importVisible = false"
+        @confirm="saveConfirm"
+      />
     </span>
   </el-dialog>
 </template>
 
 <script>
-import {jsonGenerator} from "@/api/definition";
-import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
+import { jsonGenerator } from "@/api/definition";
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import json5 from 'json5';
+import json5 from "json5";
 
 export default {
   name: "MsDocumentImport",
-  components: {MsDialogFooter, MsCodeEdit},
+  components: { MsDialogFooter, MsCodeEdit },
   data() {
     return {
       importVisible: false,
@@ -40,10 +45,9 @@ export default {
   },
   watch: {},
   props: {
-    document: {}
+    document: {},
   },
-  created() {
-  },
+  created() {},
   methods: {
     openOneClickOperation() {
       this.mode = this.document.type.toLowerCase();
@@ -58,11 +62,13 @@ export default {
       }
     },
     /*
-    * 验证xml格式的正确性
-    */
+     * 验证xml格式的正确性
+     */
     validateXML(xmlContent) {
       //errorCode 0是xml正确，1是xml错误，2是无法验证
-      let xmlDoc, errorMessage, errorCode = 0;
+      let xmlDoc,
+        errorMessage,
+        errorCode = 0;
       if (document.implementation.createDocument) {
         let parser = new DOMParser();
         xmlDoc = parser.parseFromString(xmlContent, "text/xml");
@@ -73,7 +79,8 @@ export default {
             errorMessage = xmlDoc.documentElement.childNodes[0].nodeValue;
           } else {
             errorCode = 1;
-            errorMessage = xmlDoc.getElementsByTagName("parsererror")[0].innerHTML;
+            errorMessage =
+              xmlDoc.getElementsByTagName("parsererror")[0].innerHTML;
           }
         } else {
           errorMessage = "格式正确";
@@ -83,8 +90,8 @@ export default {
         errorMessage = "浏览器不支持验证，无法验证xml正确性";
       }
       return {
-        "msg": errorMessage,
-        "error_code": errorCode
+        msg: errorMessage,
+        error_code: errorCode,
       };
     },
     saveConfirm() {
@@ -92,24 +99,27 @@ export default {
         this.$error("导入的数据非JSON格式");
         return;
       }
-      if (this.document.type === "XML" && this.validateXML(this.json).error_code > 0) {
+      if (
+        this.document.type === "XML" &&
+        this.validateXML(this.json).error_code > 0
+      ) {
         this.$error("导入的数据非XML格式");
         return;
       }
-      jsonGenerator({raw: this.json, type: this.document.type}).then(response => {
-        if (response.data) {
-          this.$emit('setJSONData', response.data);
+      jsonGenerator({ raw: this.json, type: this.document.type }).then(
+        (response) => {
+          if (response.data) {
+            this.$emit("setJSONData", response.data);
+          }
         }
-      });
+      );
       this.importVisible = false;
     },
     handleClose() {
       this.importVisible = false;
     },
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

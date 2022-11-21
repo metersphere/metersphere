@@ -1,107 +1,244 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" :width="dialogWidth"
-             :visible.sync="visible" class="api-import" v-loading="result" @close="close"
-             :destroy-on-close="true">
-
+  <el-dialog
+    :close-on-click-modal="false"
+    :title="$t('api_test.api_import.title')"
+    :width="dialogWidth"
+    :visible.sync="visible"
+    class="api-import"
+    v-loading="result"
+    @close="close"
+    :destroy-on-close="true"
+  >
     <div class="header-bar">
-      <div>{{ $t('api_test.api_import.data_format') }}</div>
+      <div>{{ $t("api_test.api_import.data_format") }}</div>
       <el-radio-group v-model="selectedPlatformValue">
         <span v-for="(item, index) in platforms" :key="index">
-          <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
+          <el-radio
+            v-if="!isScenarioModel || item.name != 'Swagger'"
+            :label="item.value"
+            >{{ item.name }}</el-radio
+          >
         </span>
       </el-radio-group>
 
       <div class="operate-button">
         <el-button class="save-button" type="primary" plain @click="save">
-          {{ $t('commons.save') }}
+          {{ $t("commons.save") }}
         </el-button>
-        <el-button class="cancel-button" type="warning" plain @click="visible = false">
-          {{ $t('commons.cancel') }}
+        <el-button
+          class="cancel-button"
+          type="warning"
+          plain
+          @click="visible = false"
+        >
+          {{ $t("commons.cancel") }}
         </el-button>
       </div>
     </div>
 
-    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result" ref="form">
+    <el-form
+      :model="formData"
+      :rules="rules"
+      label-width="105px"
+      v-loading="result"
+      ref="form"
+    >
       <el-row>
-        <el-col :span="isSwagger2 && authEnable && swaggerUrlEnable ? 8: 11">
+        <el-col :span="isSwagger2 && authEnable && swaggerUrlEnable ? 8 : 11">
           <el-form-item :label="$t('commons.import_module')" prop="moduleId">
-            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="formData.moduleId" @getValue="setModule"
-                            :obj="moduleObj" clearable checkStrictly/>
+            <ms-select-tree
+              size="small"
+              :data="moduleOptions"
+              :defaultKey="formData.moduleId"
+              @getValue="setModule"
+              :obj="moduleObj"
+              clearable
+              checkStrictly
+            />
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel&&showImportModel" :label="$t('commons.import_mode')" prop="modeId">
-            <el-select size="small" v-model="formData.modeId" clearable style="width: 100%">
-              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-if="!isScenarioModel && showImportModel"
+            :label="$t('commons.import_mode')"
+            prop="modeId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.modeId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in modeOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
-            <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule"
-                         style="display:block;">
-              {{ this.$t('commons.cover_api') }}
+            <el-checkbox
+              size="mini"
+              v-if="formData.modeId === 'fullCoverage'"
+              v-model="formData.coverModule"
+              style="display: block"
+            >
+              {{ this.$t("commons.cover_api") }}
             </el-checkbox>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
-                        :label="$t('api_test.api_import.import_version')" prop="versionId">
-            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="
+              projectVersionEnable && formData.modeId === 'incrementalMerge'
+            "
+            :label="$t('api_test.api_import.import_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.versionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-                        :label="$t('api_test.api_import.data_update_version')" prop="versionId">
-            <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+            :label="$t('api_test.api_import.data_update_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.updateVersionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-                        :label="$t('api_test.api_import.data_new_version')" prop="versionId">
-            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+            :label="$t('api_test.api_import.data_new_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.versionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
           <el-form-item v-if="showTemplate">
             <el-button type="small" @click="downloadTemplate">
-              {{ $t('test_track.case.import.download_template') }}
+              {{ $t("test_track.case.import.download_template") }}
             </el-button>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch
               v-model="swaggerUrlEnable"
-              :active-text="$t('api_test.api_import.swagger_url_import')">
+              :active-text="$t('api_test.api_import.swagger_url_import')"
+            >
             </el-switch>
           </el-form-item>
-
         </el-col>
         <el-col :span="1">
-          <el-divider direction="vertical"/>
+          <el-divider direction="vertical" />
         </el-col>
 
-        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEnable" style="margin-top: 40px">
-          <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
-            <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
+        <el-col
+          :span="12"
+          v-show="isSwagger2 && swaggerUrlEnable"
+          style="margin-top: 40px"
+        >
+          <el-form-item
+            :label="'Swagger URL'"
+            prop="swaggerUrl"
+            class="swagger-url"
+          >
+            <el-input
+              size="small"
+              v-model="formData.swaggerUrl"
+              clearable
+              show-word-limit
+            />
           </el-form-item>
-          <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"
-                     @change="changeAuthEnable"></el-switch>
+          <el-switch
+            v-model="authEnable"
+            :active-text="$t('api_test.api_import.add_request_params')"
+            @change="changeAuthEnable"
+          ></el-switch>
         </el-col>
 
-        <el-col :span="14" v-show="isSwagger2 && authEnable && swaggerUrlEnable">
+        <el-col
+          :span="14"
+          v-show="isSwagger2 && authEnable && swaggerUrlEnable"
+        >
           <!--请求头 -->
-          <div style="margin-top: 15px;">
-            <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
+          <div style="margin-top: 15px">
+            <span
+              >{{ $t("api_test.request.headers")
+              }}{{ $t("api_test.api_import.optional") }}：</span
+            >
           </div>
-          <ms-api-key-value :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
-                            :items="headers"/>
+          <ms-api-key-value
+            :show-desc="true"
+            :isShowEnable="isShowEnable"
+            :suggestions="headerSuggestions"
+            :items="headers"
+          />
           <!--query 参数-->
           <div style="margin-top: 10px">
-            <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
+            <span
+              >{{ $t("api_test.definition.request.query_param")
+              }}{{ $t("api_test.api_import.optional") }}：</span
+            >
           </div>
-          <ms-api-variable :with-more-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                           :parameters="queryArguments"/>
+          <ms-api-variable
+            :with-more-setting="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :parameters="queryArguments"
+          />
           <!--认证配置-->
           <div style="margin-top: 10px">
-            <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
+            <span
+              >{{ $t("api_test.definition.request.auth_config")
+              }}{{ $t("api_test.api_import.optional") }}：</span
+            >
           </div>
-          <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" :is-swagger="true" ref="importAuth"/>
+          <ms-api-auth-config
+            :is-read-only="isReadOnly"
+            :request="authConfig"
+            :encryptShow="false"
+            :is-swagger="true"
+            ref="importAuth"
+          />
         </el-col>
 
-        <el-col :span="12"
-                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)">
+        <el-col
+          :span="12"
+          v-if="
+            selectedPlatformValue != 'Swagger2' ||
+            (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)
+          "
+        >
           <el-upload
             class="api-upload"
             drag
@@ -112,10 +249,16 @@
             :on-remove="handleRemove"
             :file-list="fileList"
             :on-exceed="handleExceed"
-            multiple>
+            multiple
+          >
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-            <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
+            <div
+              class="el-upload__text"
+              v-html="$t('load_test.upload_tips')"
+            ></div>
+            <div class="el-upload__tip" slot="tip">
+              {{ $t("api_test.api_import.file_size_limit") }}
+            </div>
           </el-upload>
         </el-col>
       </el-row>
@@ -123,25 +266,39 @@
 
     <div class="format-tip">
       <div>
-        <span>{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span>
+        <span
+          >{{ $t("api_test.api_import.tip") }}：{{ selectedPlatform.tip }}</span
+        >
       </div>
       <div>
-        <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
+        <span
+          >{{ $t("api_test.api_import.export_tip") }}：{{
+            selectedPlatform.exportTip
+          }}</span
+        >
       </div>
       <div>
         <span>
-          {{ $t('api_test.api_import.import_tip') }} : <br/>
-          <span class="ms-import">{{ $t('api_test.api_import.import_tip1') }} <br/></span>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip2') }} <br/>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip3') }} <br/>
-          {{ $t('api_test.api_import.cover_tip') }} :<br/>
-          {{ $t('api_test.api_import.cover_tip_1') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_2') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_3') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_4') }}<br/>
-           {{ $t('api_test.api_import.no_cover_tip') }} :<br/>
-          {{ $t('api_test.api_import.no_cover_tip_1') }}<br/>
-          {{ $t('api_test.api_import.no_cover_tip_2') }}
+          {{ $t("api_test.api_import.import_tip") }} : <br />
+          <span class="ms-import"
+            >{{ $t("api_test.api_import.import_tip1") }} <br
+          /></span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
+            $t("api_test.api_import.import_tip2")
+          }}
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
+            $t("api_test.api_import.import_tip3")
+          }}
+          <br />
+          {{ $t("api_test.api_import.cover_tip") }} :<br />
+          {{ $t("api_test.api_import.cover_tip_1") }}<br />
+          {{ $t("api_test.api_import.cover_tip_2") }}<br />
+          {{ $t("api_test.api_import.cover_tip_3") }}<br />
+          {{ $t("api_test.api_import.cover_tip_4") }}<br />
+          {{ $t("api_test.api_import.no_cover_tip") }} :<br />
+          {{ $t("api_test.api_import.no_cover_tip_1") }}<br />
+          {{ $t("api_test.api_import.no_cover_tip_2") }}
         </span>
       </div>
     </div>
@@ -149,20 +306,23 @@
 </template>
 
 <script>
-import {exportEsbTemp} from "@/api/definition";
-import {getProjectVersions, versionEnableByProjectId} from "@/api/xpack";
-import {importScenario} from "@/api/scenario";
+import { exportEsbTemp } from "@/api/definition";
+import { getProjectVersions, versionEnableByProjectId } from "@/api/xpack";
+import { importScenario } from "@/api/scenario";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import {
+  listenGoBack,
+  removeGoBackListener,
+} from "metersphere-frontend/src/utils";
+import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
 import MsApiKeyValue from "../ApiKeyValue";
 import MsApiVariable from "../ApiVariable";
 import MsApiAuthConfig from "../auth/ApiAuthConfig";
-import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {KeyValue} from "../../model/ApiTestModel";
+import { REQUEST_HEADERS } from "metersphere-frontend/src/utils/constants";
+import { TYPE_TO_C } from "@/business/automation/scenario/Setting";
+import { KeyValue } from "../../model/ApiTestModel";
 
 export default {
   name: "ApiImport",
@@ -171,7 +331,7 @@ export default {
     MsSelectTree,
     MsApiKeyValue,
     MsApiVariable,
-    MsApiAuthConfig
+    MsApiAuthConfig,
   },
   props: {
     saved: {
@@ -182,8 +342,8 @@ export default {
     protocol: String,
     model: {
       type: String,
-      default: 'definition'
-    }
+      default: "definition",
+    },
   },
   data() {
     return {
@@ -193,79 +353,83 @@ export default {
       showEnvironmentSelect: true,
       headerSuggestions: REQUEST_HEADERS,
       moduleObj: {
-        id: 'id',
-        label: 'name',
+        id: "id",
+        label: "name",
       },
       modeOptions: [
         {
-          id: 'fullCoverage',
-          name: this.$t('commons.cover')
+          id: "fullCoverage",
+          name: this.$t("commons.cover"),
         },
         {
-          id: 'incrementalMerge',
-          name: this.$t('commons.not_cover')
-        }
+          id: "incrementalMerge",
+          name: this.$t("commons.not_cover"),
+        },
       ],
       platforms: [
         {
-          name: 'MeterSphere',
-          value: 'Metersphere',
-          tip: this.$t('api_test.api_import.ms_tip'),
-          exportTip: this.$t('api_test.api_import.ms_export_tip'),
-          suffixes: new Set(['json'])
+          name: "MeterSphere",
+          value: "Metersphere",
+          tip: this.$t("api_test.api_import.ms_tip"),
+          exportTip: this.$t("api_test.api_import.ms_export_tip"),
+          suffixes: new Set(["json"]),
         },
       ],
       postmanPlanform: {
-        name: 'Postman',
-        value: 'Postman',
-        tip: this.$t('api_test.api_import.postman_tip'),
-        exportTip: this.$t('api_test.api_import.post_export_tip'),
-        suffixes: new Set(['json'])
+        name: "Postman",
+        value: "Postman",
+        tip: this.$t("api_test.api_import.postman_tip"),
+        exportTip: this.$t("api_test.api_import.post_export_tip"),
+        suffixes: new Set(["json"]),
       },
       swaggerPlanform: {
-        name: 'Swagger',
-        value: 'Swagger2',
-        tip: this.$t('api_test.api_import.swagger_tip'),
-        exportTip: this.$t('api_test.api_import.swagger_export_tip'),
-        suffixes: new Set(['json'])
+        name: "Swagger",
+        value: "Swagger2",
+        tip: this.$t("api_test.api_import.swagger_tip"),
+        exportTip: this.$t("api_test.api_import.swagger_export_tip"),
+        suffixes: new Set(["json"]),
       },
       harPlanform: {
-        name: 'HAR',
-        value: 'Har',
-        tip: this.$t('api_test.api_import.har_tip'),
-        exportTip: this.$t('api_test.api_import.har_export_tip'),
-        suffixes: new Set(['har'])
+        name: "HAR",
+        value: "Har",
+        tip: this.$t("api_test.api_import.har_tip"),
+        exportTip: this.$t("api_test.api_import.har_export_tip"),
+        suffixes: new Set(["har"]),
       },
       esbPlanform: {
-        name: 'ESB',
-        value: 'ESB',
-        tip: this.$t('api_test.api_import.esb_tip'),
-        exportTip: this.$t('api_test.api_import.esb_export_tip'),
-        suffixes: new Set(['xlsx', 'xls'])
+        name: "ESB",
+        value: "ESB",
+        tip: this.$t("api_test.api_import.esb_tip"),
+        exportTip: this.$t("api_test.api_import.esb_export_tip"),
+        suffixes: new Set(["xlsx", "xls"]),
       },
       jmeterPlatform: {
-        name: 'JMeter',
-        value: 'Jmeter',
-        tip: this.$t('api_test.api_import.jmeter_tip'),
-        exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
-        suffixes: new Set(['jmx'])
+        name: "JMeter",
+        value: "Jmeter",
+        tip: this.$t("api_test.api_import.jmeter_tip"),
+        exportTip: this.$t("api_test.api_import.jmeter_export_tip"),
+        suffixes: new Set(["jmx"]),
       },
       selectedPlatform: {},
-      selectedPlatformValue: 'Metersphere',
+      selectedPlatformValue: "Metersphere",
       result: false,
       projects: [],
       environments: [],
       useEnvironment: false,
       formData: {
         file: undefined,
-        swaggerUrl: '',
-        modeId: 'incrementalMerge',
-        moduleId: '',
-        coverModule: false
+        swaggerUrl: "",
+        modeId: "incrementalMerge",
+        moduleId: "",
+        coverModule: false,
       },
       rules: {
         modeId: [
-          {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
+          {
+            required: true,
+            message: this.$t("commons.please_select_import_mode"),
+            trigger: "change",
+          },
         ],
       },
       currentModule: {},
@@ -275,11 +439,11 @@ export default {
       headers: [],
       queryArguments: [],
       authConfig: {
-        hashTree: []
+        hashTree: [],
       },
       versionOptions: [],
       projectVersionEnable: false,
-    }
+    };
   },
   created() {
     this.platforms.push(this.postmanPlanform);
@@ -304,8 +468,8 @@ export default {
           break;
         }
       }
-      if (this.selectedPlatformValue === 'ESB') {
-        this.formData.modeId = 'fullCoverage';
+      if (this.selectedPlatformValue === "ESB") {
+        this.formData.modeId = "fullCoverage";
         this.$refs.form.clearValidate();
       }
     },
@@ -326,41 +490,41 @@ export default {
       if (esbPlanformIndex >= 0) {
         this.platforms.splice(this.platforms.indexOf(this.esbPlanform), 1);
       }
-      if (this.protocol === 'TCP') {
+      if (this.protocol === "TCP") {
         if (hasLicense()) {
           this.platforms.push(this.esbPlanform);
         }
         return true;
-      } else if (this.protocol === 'HTTP') {
+      } else if (this.protocol === "HTTP") {
         this.platforms.push(this.postmanPlanform);
         this.platforms.push(this.swaggerPlanform);
         this.platforms.push(this.harPlanform);
         return false;
       }
-    }
+    },
   },
   computed: {
     isSwagger2() {
-      return this.selectedPlatformValue === 'Swagger2';
+      return this.selectedPlatformValue === "Swagger2";
     },
     showImportModel() {
-      return this.selectedPlatformValue !== 'ESB';
+      return this.selectedPlatformValue !== "ESB";
     },
     showTemplate() {
-      return this.selectedPlatformValue === 'ESB';
+      return this.selectedPlatformValue === "ESB";
     },
     isScenarioModel() {
-      return this.model === 'scenario';
+      return this.model === "scenario";
     },
     projectId() {
       return getCurrentProjectID();
     },
     dialogWidth() {
       if (this.isSwagger2 && this.authEnable && this.swaggerUrlEnable) {
-        return '80%';
+        return "80%";
       }
-      return '30%';
-    }
+      return "30%";
+    },
   },
   methods: {
     open(module) {
@@ -368,18 +532,22 @@ export default {
       this.visible = true;
       this.formData.moduleId = this.rememberModuleId();
       listenGoBack(this.close);
-
     },
     rememberModuleId() {
-      if (localStorage.getItem('tcp') || localStorage.getItem('http') || localStorage.getItem('sql') || localStorage.getItem('dubbo')) {
-        if (this.protocol === 'TCP') {
-          return localStorage.getItem('tcp');
-        } else if (this.protocol === 'HTTP') {
-          return localStorage.getItem('http');
-        } else if (this.protocol === 'SQL') {
-          return localStorage.getItem('sql');
-        } else if (this.protocol === 'DUBBO') {
-          return localStorage.getItem('dubbo');
+      if (
+        localStorage.getItem("tcp") ||
+        localStorage.getItem("http") ||
+        localStorage.getItem("sql") ||
+        localStorage.getItem("dubbo")
+      ) {
+        if (this.protocol === "TCP") {
+          return localStorage.getItem("tcp");
+        } else if (this.protocol === "HTTP") {
+          return localStorage.getItem("http");
+        } else if (this.protocol === "SQL") {
+          return localStorage.getItem("sql");
+        } else if (this.protocol === "DUBBO") {
+          return localStorage.getItem("dubbo");
         }
       }
     },
@@ -387,57 +555,70 @@ export default {
       this.formData.file = file.file;
     },
     handleExceed(files, fileList) {
-      this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+      this.$warning(this.$t("test_track.case.import.upload_limit_count"));
     },
     handleRemove(file, fileList) {
       this.formData.file = undefined;
     },
     downloadTemplate() {
       if (this.selectedPlatformValue == "ESB") {
-        exportEsbTemp('esb-temp');
+        exportEsbTemp("esb-temp");
       }
     },
     uploadValidate(file, fileList) {
-      let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
-        this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
+      let suffix = file.name.substring(file.name.lastIndexOf(".") + 1);
+      if (
+        this.selectedPlatform.suffixes &&
+        !this.selectedPlatform.suffixes.has(suffix)
+      ) {
+        this.$warning(this.$t("api_test.api_import.suffixFormatErr"));
         return false;
       }
       if (file.size / 1024 / 1024 > 100) {
-        this.$warning(this.$t('test_track.case.import.upload_limit_size'));
+        this.$warning(this.$t("test_track.case.import.upload_limit_size"));
         return false;
       }
       return true;
     },
     saveModule() {
-      if (this.protocol === 'TCP') {
-        localStorage.setItem('tcp', this.formData.moduleId);
-      } else if (this.protocol === 'HTTP') {
-        localStorage.setItem('http', this.formData.moduleId);
-      } else if (this.protocol === 'SQL') {
-        localStorage.setItem('sql', this.formData.moduleId);
-      } else if (this.protocol === 'DUBBO') {
-        localStorage.setItem('dubbo', this.formData.moduleId);
+      if (this.protocol === "TCP") {
+        localStorage.setItem("tcp", this.formData.moduleId);
+      } else if (this.protocol === "HTTP") {
+        localStorage.setItem("http", this.formData.moduleId);
+      } else if (this.protocol === "SQL") {
+        localStorage.setItem("sql", this.formData.moduleId);
+      } else if (this.protocol === "DUBBO") {
+        localStorage.setItem("dubbo", this.formData.moduleId);
       }
     },
     save() {
       this.saveModule();
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate((valid) => {
         if (valid) {
-          if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) && !this.formData.file) {
-            this.$warning(this.$t('commons.please_upload'));
+          if (
+            (this.selectedPlatformValue != "Swagger2" ||
+              (this.selectedPlatformValue == "Swagger2" &&
+                !this.swaggerUrlEnable)) &&
+            !this.formData.file
+          ) {
+            this.$warning(this.$t("commons.please_upload"));
             return;
           }
-          let url = '/api/definition/import';
+          let url = "/api/definition/import";
           if (this.isScenarioModel) {
-            url = '/api/automation/import';
+            url = "/api/automation/import";
           }
           let param = this.buildParam();
-          this.result = importScenario(url, param.file, null, this.buildParam()).then(response => {
+          this.result = importScenario(
+            url,
+            param.file,
+            null,
+            this.buildParam()
+          ).then((response) => {
             let res = response.data;
-            this.$success(this.$t('test_track.case.import.success'));
+            this.$success(this.$t("test_track.case.import.success"));
             this.visible = false;
-            this.$emit('refresh', res);
+            this.$emit("refresh", res);
           });
         } else {
           return false;
@@ -451,9 +632,9 @@ export default {
     clearAuthInfo() {
       this.headers = [];
       this.queryArguments = [];
-      this.headers.push(new KeyValue({enable: true}));
-      this.queryArguments.push(new KeyValue({enable: true}));
-      this.authConfig = {hashTree: [], authManager: {}};
+      this.headers.push(new KeyValue({ enable: true }));
+      this.queryArguments.push(new KeyValue({ enable: true }));
+      this.authConfig = { hashTree: [], authManager: {} };
       this.$refs.importAuth.initData();
     },
     changeAuthEnable() {
@@ -468,10 +649,10 @@ export default {
       param.saved = this.saved;
       param.model = this.model;
       if (this.currentModule) {
-        param.modeId = this.formData.modeId
+        param.modeId = this.formData.modeId;
       }
       if (this.formData.moduleId && this.formData.moduleId.length === 0) {
-        param.moduleId = ''
+        param.moduleId = "";
       }
       param.projectId = this.projectId;
       param.protocol = this.protocol;
@@ -495,22 +676,25 @@ export default {
       this.saveModule();
       this.formData = {
         file: undefined,
-        swaggerUrl: '',
+        swaggerUrl: "",
         modeId: this.formData.modeId,
       };
       this.swaggerUrlEnable = false;
-      this.selectedPlatformValue = 'Metersphere';
+      this.selectedPlatformValue = "Metersphere";
       this.fileList = [];
       removeGoBackListener(this.close);
       this.visible = false;
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID()).then(response => {
-          this.versionOptions = response.data.filter(v => v.status === 'open');
-          this.versionOptions.forEach(v => {
+        getProjectVersions(getCurrentProjectID()).then((response) => {
+          this.versionOptions = response.data.filter(
+            (v) => v.status === "open"
+          );
+          this.versionOptions.forEach((v) => {
             if (v.latest) {
-              v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
+              v.name =
+                v.name + " " + this.$t("api_test.api_import.latest_version");
             }
           });
         });
@@ -521,23 +705,22 @@ export default {
         return;
       }
       if (hasLicense()) {
-        versionEnableByProjectId(this.projectId).then(response => {
+        versionEnableByProjectId(this.projectId).then((response) => {
           this.projectVersionEnable = response.data;
         });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .api-import :deep(.el-dialog) {
   min-width: 750px;
 }
 
 .format-tip {
-  background: #EDEDED;
+  background: #ededed;
 }
 
 .api-upload {
@@ -562,8 +745,10 @@ export default {
   margin-right: 20px;
 }
 
-.header-bar, .format-tip, .el-form {
-  border: solid #E1E1E1 1px;
+.header-bar,
+.format-tip,
+.el-form {
+  border: solid #e1e1e1 1px;
   margin: 10px 0;
   padding: 10px;
   border-radius: 3px;
@@ -606,5 +791,4 @@ export default {
 .ms-import {
   color: #ff0000 !important;
 }
-
 </style>

@@ -9,7 +9,8 @@
       :run-data="debugData"
       @errorRefresh="errorRefresh"
       @runRefresh="runRefresh"
-      ref="runTest"/>
+      ref="runTest"
+    />
     <api-base-component
       :if-from-variable-advance="ifFromVariableAdvance"
       :data="controller"
@@ -22,27 +23,53 @@
       @active="active(controller)"
       @remove="remove"
       color="#02A7F0"
-      background-color="#F4F4F5">
+      background-color="#F4F4F5"
+    >
       <template v-slot:headerLeft>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" style="margin-right: 10px"
-           v-if="!isMax"/>
-        <el-radio :disabled="controller.disabled" @change="changeRadio" class="ms-radio ms-radio-margin"
-                  v-model="controller.loopType" label="LOOP_COUNT">
-          {{ $t('loop.loops_title') }}
+        <i
+          class="icon el-icon-arrow-right"
+          :class="{ 'is-active': controller.active }"
+          style="margin-right: 10px"
+          v-if="!isMax"
+        />
+        <el-radio
+          :disabled="controller.disabled"
+          @change="changeRadio"
+          class="ms-radio ms-radio-margin"
+          v-model="controller.loopType"
+          label="LOOP_COUNT"
+        >
+          {{ $t("loop.loops_title") }}
         </el-radio>
-        <el-radio :disabled="controller.disabled" @change="changeRadio" class="ms-radio ms-radio-margin"
-                  v-model="controller.loopType" label="FOREACH">
-          {{ $t('loop.foreach') }}
+        <el-radio
+          :disabled="controller.disabled"
+          @change="changeRadio"
+          class="ms-radio ms-radio-margin"
+          v-model="controller.loopType"
+          label="FOREACH"
+        >
+          {{ $t("loop.foreach") }}
         </el-radio>
-        <el-radio :disabled="controller.disabled" @change="changeRadio" class="ms-radio ms-radio-margin"
-                  v-model="controller.loopType" label="WHILE">
-          {{ $t('loop.while') }}
+        <el-radio
+          :disabled="controller.disabled"
+          @change="changeRadio"
+          class="ms-radio ms-radio-margin"
+          v-model="controller.loopType"
+          label="WHILE"
+        >
+          {{ $t("loop.while") }}
         </el-radio>
       </template>
 
       <template v-slot:message>
-        <span v-if="requestResult && requestResult.scenarios && requestResult.scenarios.length > 0 "
-              style="color: #8c939d;margin-right: 10px"/>
+        <span
+          v-if="
+            requestResult &&
+            requestResult.scenarios &&
+            requestResult.scenarios.length > 0
+          "
+          style="color: #8c939d; margin-right: 10px"
+        />
       </template>
 
       <template v-slot:button>
@@ -52,62 +79,92 @@
           @click="conn"
           icon="el-icon-video-play"
           class="ms-conn"
-          size="mini" circle/>
+          size="mini"
+          circle
+        />
       </template>
-      <div v-if="controller.loopType==='LOOP_COUNT'" draggable v-loading="loading">
+      <div
+        v-if="controller.loopType === 'LOOP_COUNT'"
+        draggable
+        v-loading="loading"
+      >
         <el-row>
           <el-col :span="8">
-            <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input size="small" v-model="controller.countController.loops" style="width: 200px"/>
+            <span class="ms-span ms-radio">{{ $t("loop.loops") }}</span>
+            <el-input
+              size="small"
+              v-model="controller.countController.loops"
+              style="width: 200px"
+            />
             <span class="ms-span ms-radio">次</span>
           </el-col>
           <el-col :span="8">
-            <span class="ms-span ms-radio">{{ $t('loop.interval') }}</span>
+            <span class="ms-span ms-radio">{{ $t("loop.interval") }}</span>
             <el-input-number
               v-model="controller.countController.interval"
               :disabled="controller.disabled"
               :placeholder="$t('commons.millisecond')"
-              :max="1000*10000000"
-              :min="0" :step="1000" size="small"/>
+              :max="1000 * 10000000"
+              :min="0"
+              :step="1000"
+              size="small"
+            />
             <span class="ms-span ms-radio">ms</span>
           </el-col>
           <el-col :span="8">
-            <span class="ms-span ms-radio">{{ $t('loop.proceed') }}</span>
-            <el-tooltip class="item" effect="dark" :content="$t('api_test.automation.loop_content')" placement="top">>
-              <el-switch :disabled="controller.disabled" v-model="controller.countController.proceed"
-                         @change="switchChange"/>
+            <span class="ms-span ms-radio">{{ $t("loop.proceed") }}</span>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="$t('api_test.automation.loop_content')"
+              placement="top"
+              >>
+              <el-switch
+                :disabled="controller.disabled"
+                v-model="controller.countController.proceed"
+                @change="switchChange"
+              />
             </el-tooltip>
           </el-col>
         </el-row>
       </div>
 
-      <div v-else-if="controller.loopType==='FOREACH'" draggable v-loading="loading">
+      <div
+        v-else-if="controller.loopType === 'FOREACH'"
+        draggable
+        v-loading="loading"
+      >
         <el-row>
           <el-col :span="8">
             <el-input
               :disabled="controller.disabled"
               :placeholder="$t('api_test.automation.loop_return_val')"
-              v-model="controller.forEachController.returnVal" size="small"/>
+              v-model="controller.forEachController.returnVal"
+              size="small"
+            />
           </el-col>
           <el-col :span="1" style="margin-top: 6px">
-            <span style="margin:10px 10px 10px">in</span>
+            <span style="margin: 10px 10px 10px">in</span>
           </el-col>
           <el-col :span="8">
             <el-input
               :disabled="controller.disabled"
               :placeholder="$t('api_test.automation.loop_input_val')"
-              v-model="controller.forEachController.inputVal" size="small"/>
+              v-model="controller.forEachController.inputVal"
+              size="small"
+            />
           </el-col>
           <el-col :span="7">
-            <span class="ms-span ms-radio">{{ $t('loop.interval') }}</span>
+            <span class="ms-span ms-radio">{{ $t("loop.interval") }}</span>
             <el-input-number
               v-model="controller.forEachController.interval"
               :disabled="controller.disabled"
               size="small"
               :placeholder="$t('commons.millisecond')"
-              :max="1000*10000000"
+              :max="1000 * 10000000"
               :min="0"
-              :step="1000"/>
+              :step="1000"
+            />
             <span class="ms-span ms-radio">ms</span>
           </el-col>
         </el-row>
@@ -123,40 +180,55 @@
         <el-select
           v-model="controller.whileController.operator"
           :disabled="controller.disabled"
-          :placeholder="$t('commons.please_select')" size="small"
-          @change="change" style="width: 10%;margin-left: 10px">
-          <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
+          :placeholder="$t('commons.please_select')"
+          size="small"
+          @change="change"
+          style="width: 10%; margin-left: 10px"
+        >
+          <el-option
+            v-for="o in operators"
+            :key="o.value"
+            :label="$t(o.label)"
+            :value="o.value"
+          />
         </el-select>
         <el-input
           v-model="controller.whileController.value"
           :disabled="controller.disabled"
           size="small"
           :placeholder="$t('api_test.value')"
-          v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
-        <span class="ms-span ms-radio">{{ $t('loop.timeout') }}</span>
+          v-if="!hasEmptyOperator"
+          style="width: 20%; margin-left: 20px"
+        />
+        <span class="ms-span ms-radio">{{ $t("loop.timeout") }}</span>
         <el-input-number
           v-model="controller.whileController.timeout"
           :disabled="controller.disabled"
           size="small"
           :placeholder="$t('commons.millisecond')"
-          :max="1000*10000000"
+          :max="1000 * 10000000"
           :min="3000"
-          :step="1000"/>
+          :step="1000"
+        />
         <span class="ms-span ms-radio">ms</span>
       </div>
 
       <template v-slot:debugStepCode>
         <span v-if="node.data.testing" class="ms-test-running">
-           <i class="el-icon-loading" style="font-size: 16px"/>
-           {{ $t('commons.testing') }}
-         </span>
-        <span class="ms-step-debug-code" :class="node.data.code ==='ERROR'?'ms-req-error':'ms-req-success'"
-              v-if="!loading && !node.data.testing && node.data.debug">
+          <i class="el-icon-loading" style="font-size: 16px" />
+          {{ $t("commons.testing") }}
+        </span>
+        <span
+          class="ms-step-debug-code"
+          :class="
+            node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'
+          "
+          v-if="!loading && !node.data.testing && node.data.debug"
+        >
           {{ getCode() }}
         </span>
       </template>
     </api-base-component>
-
   </div>
 </template>
 
@@ -164,15 +236,15 @@
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import MsRun from "../DebugRun";
-import {getUUID} from "metersphere-frontend/src/utils";
-import {STEP} from "../Setting";
-import {getReportMessageSocket} from "@/business/automation/api-automation";
-import {useApiStore} from "@/store";
+import { getUUID } from "metersphere-frontend/src/utils";
+import { STEP } from "../Setting";
+import { getReportMessageSocket } from "@/business/automation/api-automation";
+import { useApiStore } from "@/store";
 
 const store = useApiStore();
 export default {
   name: "MsLoopController",
-  components: {ApiBaseComponent, ApiResponseComponent, MsRun},
+  components: { ApiBaseComponent, ApiResponseComponent, MsRun },
   props: {
     controller: {},
     currentScenario: {},
@@ -244,7 +316,7 @@ export default {
           value: "is not empty",
         },
       },
-      stepFilter: new STEP,
+      stepFilter: new STEP(),
       messageWebSocket: {},
       uuid: "",
     };
@@ -280,14 +352,16 @@ export default {
         this.messageWebSocket.close();
         // // 把请求结果分给各个请求
         this.setResult(this.controller.hashTree);
-        store.currentApiCase = {debugLoop: getUUID()};
+        store.currentApiCase = { debugLoop: getUUID() };
         this.reload();
       }
     },
     clear(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
-          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+          if (
+            this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1
+          ) {
             item.requestResult = [];
             item.result = undefined;
             item.code = undefined;
@@ -303,7 +377,8 @@ export default {
         if (data.error > 0) {
           this.node.data.code = "error";
         } else {
-          this.node.data.code = this.node.data.code !== 'ERROR' ? "Success" : "Error";
+          this.node.data.code =
+            this.node.data.code !== "ERROR" ? "Success" : "Error";
         }
       }
       this.reload();
@@ -311,21 +386,30 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         let status = this.node.data.code;
-        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
+        return (
+          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
+        );
       }
-      return '';
+      return "";
     },
     switchChange() {
       if (this.controller.hashTree && this.controller.hashTree.length > 1) {
-        this.$warning(this.$t('api_test.automation.loop_message'));
+        this.$warning(this.$t("api_test.automation.loop_message"));
         this.controller.countController.proceed = true;
         return;
       }
       // 递归遍历所有请求数量
-      if (this.controller.hashTree && this.controller.hashTree.length === 1 && this.controller.hashTree[0].hashTree && this.controller.hashTree[0].hashTree.length > 0) {
+      if (
+        this.controller.hashTree &&
+        this.controller.hashTree.length === 1 &&
+        this.controller.hashTree[0].hashTree &&
+        this.controller.hashTree[0].hashTree.length > 0
+      ) {
         let count = 0;
         this.controller.hashTree[0].hashTree.forEach((item) => {
-          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+          if (
+            this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1
+          ) {
             count++;
           }
           if (item.hashTree && item.hashTree.length > 0) {
@@ -333,7 +417,7 @@ export default {
           }
         });
         if (count > 1) {
-          this.$warning(this.$t('api_test.automation.loop_message'));
+          this.$warning(this.$t("api_test.automation.loop_message"));
           this.controller.countController.proceed = true;
           return;
         }
@@ -341,7 +425,9 @@ export default {
     },
     recursive(arr, count) {
       for (let i in arr) {
-        if (this.stepFilter.get("AllSamplerProxy").indexOf(arr[i].type) !== -1) {
+        if (
+          this.stepFilter.get("AllSamplerProxy").indexOf(arr[i].type) !== -1
+        ) {
           count++;
         }
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
@@ -355,7 +441,7 @@ export default {
         return;
       }
       if (!this.controller.enable) {
-        this.$warning(this.$t('api_test.automation.debug_message'));
+        this.$warning(this.$t("api_test.automation.debug_message"));
         return;
       }
       this.requestResult.clear();
@@ -365,9 +451,13 @@ export default {
     runDebug() {
       this.loading = true;
       let currentEnvironmentId;
-      let resourceId = this.currentScenario.id + "_" + this.controller.projectId;
-      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map
-        && store.scenarioEnvMap.has(resourceId)) {
+      let resourceId =
+        this.currentScenario.id + "_" + this.controller.projectId;
+      if (
+        store.scenarioEnvMap &&
+        store.scenarioEnvMap instanceof Map &&
+        store.scenarioEnvMap.has(resourceId)
+      ) {
         currentEnvironmentId = store.scenarioEnvMap.get(resourceId);
       }
       this.debugData = {
@@ -418,15 +508,17 @@ export default {
         this.loading = false;
       });
     },
-    runRefresh() {
-    },
+    runRefresh() {},
     errorRefresh() {
       this.loading = false;
     },
     setResult(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
-          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 && this.requestResult.has(item.id)) {
+          if (
+            this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 &&
+            this.requestResult.has(item.id)
+          ) {
             item.activeName = "0";
             item.active = true;
             item.requestResult = this.requestResult.get(item.id);
@@ -440,7 +532,10 @@ export default {
   },
   computed: {
     hasEmptyOperator() {
-      return !!this.controller.operator && this.controller.operator.indexOf("empty") > 0;
+      return (
+        !!this.controller.operator &&
+        this.controller.operator.indexOf("empty") > 0
+      );
     },
   },
 };
@@ -453,7 +548,8 @@ export default {
 
 .ms-radio {
   color: #606266;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }
@@ -463,11 +559,11 @@ export default {
 }
 
 .ms-req-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-req-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 :deep(.el-radio) {
@@ -490,8 +586,8 @@ export default {
 }
 
 .ms-conn {
-  background-color: #409EFF;
+  background-color: #409eff;
   color: white;
-  padding: 5px
+  padding: 5px;
 }
 </style>

@@ -6,16 +6,22 @@
       :data="table.tableData"
       border
       size="mini"
-      highlight-current-row>
-      <el-table-column v-for="(title, index) in table.titles" :key="index" :label="title" min-width="150px">
+      highlight-current-row
+    >
+      <el-table-column
+        v-for="(title, index) in table.titles"
+        :key="index"
+        :label="title"
+        min-width="150px"
+      >
         <template v-slot:default="scope">
-          <el-popover
-            placement="top"
-            trigger="click">
+          <el-popover placement="top" trigger="click">
             <el-container>
               <div>{{ scope.row[title] }}</div>
             </el-container>
-            <span class="table-content" slot="reference">{{ scope.row[title] }}</span>
+            <span class="table-content" slot="reference">{{
+              scope.row[title]
+            }}</span>
           </el-popover>
         </template>
       </el-table-column>
@@ -29,11 +35,11 @@ export default {
   data() {
     return {
       tables: [],
-      titles: []
-    }
+      titles: [],
+    };
   },
   props: {
-    body: String
+    body: String,
   },
   created() {
     if (!this.body) {
@@ -57,7 +63,7 @@ export default {
         } else {
           if (colArray.length != titles.length) {
             // 创建新的表
-            if (colArray.length === 1 && colArray[0] === '') {
+            if (colArray.length === 1 && colArray[0] === "") {
               this.getTableData(rowArray.slice(i + 1));
             } else {
               this.getTableData(rowArray.slice(i));
@@ -66,7 +72,7 @@ export default {
           } else {
             let item = {};
             for (let j = 0; j < colArray.length; j++) {
-              item[titles[j]] = (colArray[j] ? colArray[j] : "");
+              item[titles[j]] = colArray[j] ? colArray[j] : "";
             }
             // 性能考虑每个表格取值不超过一百
             if (result.length < 100) {
@@ -77,15 +83,14 @@ export default {
       }
       this.tables.splice(0, 0, {
         titles: titles,
-        tableData: result
+        tableData: result,
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .el-table {
   margin-bottom: 20px;
 }
@@ -102,5 +107,4 @@ export default {
   overflow: auto;
   max-height: 500px;
 }
-
 </style>

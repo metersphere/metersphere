@@ -1,5 +1,5 @@
 import Mock from "mockjs";
-import {funcFilters} from "@/common/js/func-filter";
+import { funcFilters } from "@/common/js/func-filter";
 
 export const calculate = function (itemValue) {
   if (!itemValue) {
@@ -28,4 +28,4 @@ export const calculate = function (itemValue) {
   } catch (e) {
     return itemValue;
   }
-}
+};

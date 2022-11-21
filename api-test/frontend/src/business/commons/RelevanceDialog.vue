@@ -1,13 +1,16 @@
 <template>
-  <el-dialog :title="title"
-             :visible.sync="dialogVisible"
-             @close="close"
-             :width="width ? width : '75%'" v-loading="result"
-             :close-on-click-modal="false"
-             :destroy-on-close="true"
-             :fullscreen="fullScreen"
-             top="50px" append-to-body>
-
+  <el-dialog
+    :title="title"
+    :visible.sync="dialogVisible"
+    @close="close"
+    :width="width ? width : '75%'"
+    v-loading="result"
+    :close-on-click-modal="false"
+    :destroy-on-close="true"
+    :fullscreen="fullScreen"
+    top="50px"
+    append-to-body
+  >
     <template #title>
       <slot name="title" :title="title"></slot>
     </template>
@@ -26,69 +29,64 @@
           <slot></slot>
         </el-main>
       </el-container>
-
     </el-container>
 
     <template v-slot:footer>
       <slot name="footer"></slot>
     </template>
-
   </el-dialog>
 </template>
 
 <script>
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import SelectMenu from "@/business/commons/SelectMenu";
 
-  import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
-  import SelectMenu from "@/business/commons/SelectMenu";
-
-  export default {
-    name: "RelevanceDialog",
-    components: {
-      SelectMenu,
-      MsDialogFooter,
+export default {
+  name: "RelevanceDialog",
+  components: {
+    SelectMenu,
+    MsDialogFooter,
+  },
+  data() {
+    return {
+      result: false,
+      dialogVisible: false,
+    };
+  },
+  props: ["title", "width", "fullScreen"],
+  methods: {
+    open() {
+      this.dialogVisible = true;
     },
-    data() {
-      return {
-        result: false,
-        dialogVisible: false,
-      };
+    close() {
+      this.dialogVisible = false;
     },
-    props: ['title', 'width', 'fullScreen'],
-    methods: {
-      open() {
-        this.dialogVisible = true;
-      },
-      close() {
-        this.dialogVisible = false;
-      },
-    }
-  }
+  },
+};
 </script>
 
 <style scoped>
+.el-dialog {
+  min-height: 600px;
+}
 
-  .el-dialog {
-    min-height: 600px;
-  }
+.tree-aside {
+  max-height: 600px;
+}
 
-  .tree-aside {
-    max-height: 600px;
-  }
+.el-dialog :deep(.el-dialog__body) {
+  padding: 10px 20px;
+}
 
-  .el-dialog :deep(.el-dialog__body) {
-    padding: 10px 20px;
-  }
-
-  .header-btn {
-    position: absolute;
-    top: 40px;
-    right: 30px;
-    padding: 0;
-    background: 0 0;
-    border: none;
-    outline: 0;
-    cursor: pointer;
-    height: 30px;
-  }
-
+.header-btn {
+  position: absolute;
+  top: 40px;
+  right: 30px;
+  padding: 0;
+  background: 0 0;
+  border: none;
+  outline: 0;
+  cursor: pointer;
+  height: 30px;
+}
 </style>

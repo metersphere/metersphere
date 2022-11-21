@@ -11,10 +11,15 @@
     :show-version="showVersion"
     :background-color="backgroundColor"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="title" v-loading="loading">
+    :title="title"
+    v-loading="loading"
+  >
     <!--自定义脚本-->
-    <legend style="width: 100%;display:table-column" v-if="request && this.request.type === 'JSR223Processor'">
-      <p class="ms-tip">{{ $t('api_test.definition.request.req_param') }} </p>
+    <legend
+      style="width: 100%; display: table-column"
+      v-if="request && this.request.type === 'JSR223Processor'"
+    >
+      <p class="ms-tip">{{ $t("api_test.definition.request.req_param") }}</p>
       <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
         <!-- 请求头-->
         <el-tab-pane label="脚本内容" name="baseScript">
@@ -23,13 +28,26 @@
             :is-pre-processor="isPreProcessor"
             :node="node"
             :protocol="protocol"
-            :is-read-only="this.jsr223Processor.disabled"/>
+            :is-read-only="this.jsr223Processor.disabled"
+          />
         </el-tab-pane>
         <!-- 脚本步骤/断言步骤 -->
-        <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate">
-          <span class="item-tabs" effect="dark" placement="top-start" slot="label" :key="request.preSize">
-            {{ $t('api_test.definition.request.pre_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+        <el-tab-pane
+          :label="$t('api_test.definition.request.pre_operation')"
+          name="preOperate"
+        >
+          <span
+            class="item-tabs"
+            effect="dark"
+            placement="top-start"
+            slot="label"
+            :key="request.preSize"
+          >
+            {{ $t("api_test.definition.request.pre_operation") }}
+            <div
+              class="el-step__icon is-text ms-api-col ms-header"
+              v-if="request.preSize > 0"
+            >
               <div class="el-step__icon-inner">{{ request.preSize }}</div>
             </div>
           </span>
@@ -42,11 +60,24 @@
             v-if="activeName === 'preOperate'"
           />
         </el-tab-pane>
-        <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.post_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
-              <div class="el-step__icon-inner" :key="request.postSize">{{ request.postSize }}</div>
+        <el-tab-pane
+          :label="$t('api_test.definition.request.post_operation')"
+          name="postOperate"
+        >
+          <span
+            class="item-tabs"
+            effect="dark"
+            placement="top-start"
+            slot="label"
+          >
+            {{ $t("api_test.definition.request.post_operation") }}
+            <div
+              class="el-step__icon is-text ms-api-col ms-header"
+              v-if="request.postSize > 0"
+            >
+              <div class="el-step__icon-inner" :key="request.postSize">
+                {{ request.postSize }}
+              </div>
             </div>
           </span>
           <ms-jmx-step
@@ -58,11 +89,24 @@
             v-if="activeName === 'postOperate'"
           />
         </el-tab-pane>
-        <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.assertions_rule') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
-              <div class="el-step__icon-inner" :key="request.ruleSize">{{ request.ruleSize }}</div>
+        <el-tab-pane
+          :label="$t('api_test.definition.request.assertions_rule')"
+          name="assertionsRule"
+        >
+          <span
+            class="item-tabs"
+            effect="dark"
+            placement="top-start"
+            slot="label"
+          >
+            {{ $t("api_test.definition.request.assertions_rule") }}
+            <div
+              class="el-step__icon is-text ms-api-col ms-header"
+              v-if="request.ruleSize > 0"
+            >
+              <div class="el-step__icon-inner" :key="request.ruleSize">
+                {{ request.ruleSize }}
+              </div>
             </div>
           </span>
           <ms-jmx-step
@@ -71,7 +115,8 @@
             :response="response"
             :tab-type="'assertionsRule'"
             ref="assertionsRule"
-            v-if="activeName === 'assertionsRule'"/>
+            v-if="activeName === 'assertionsRule'"
+          />
         </el-tab-pane>
       </el-tabs>
     </legend>
@@ -83,36 +128,76 @@
         :is-pre-processor="isPreProcessor"
         :node="node"
         :protocol="protocol"
-        :is-read-only="this.jsr223Processor.disabled"/>
+        :is-read-only="this.jsr223Processor.disabled"
+      />
     </legend>
     <template v-slot:debugStepCode>
-         <span v-if="jsr223Processor.testing" class="ms-test-running">
-           <i class="el-icon-loading" style="font-size: 16px"/>
-           {{ $t('commons.testing') }}
-         </span>
-      <span class="ms-step-debug-code" :class="jsr223Processor.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
-            v-if="!loading &&!jsr223Processor.testing && jsr223Processor.debug && jsr223Processor.requestResult[0] && jsr223Processor.requestResult[0].responseResult">
-          {{ jsr223Processor.requestResult[0].success && reqSuccess ? 'Success' : 'Error' }}
-        </span>
+      <span v-if="jsr223Processor.testing" class="ms-test-running">
+        <i class="el-icon-loading" style="font-size: 16px" />
+        {{ $t("commons.testing") }}
+      </span>
+      <span
+        class="ms-step-debug-code"
+        :class="
+          jsr223Processor.requestResult[0].success && reqSuccess
+            ? 'ms-req-success'
+            : 'ms-req-error'
+        "
+        v-if="
+          !loading &&
+          !jsr223Processor.testing &&
+          jsr223Processor.debug &&
+          jsr223Processor.requestResult[0] &&
+          jsr223Processor.requestResult[0].responseResult
+        "
+      >
+        {{
+          jsr223Processor.requestResult[0].success && reqSuccess
+            ? "Success"
+            : "Error"
+        }}
+      </span>
     </template>
 
     <!-- 执行结果内容 -->
     <template v-slot:result>
-      <div v-loading="loading" v-if="jsr223Processor && jsr223Processor.requestResult && jsr223Processor.requestResult.length > 0">
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <el-tabs v-model="jsr223Processor.activeName" closable class="ms-tabs" v-if="jsr223Processor.requestResult && jsr223Processor.requestResult.length > 1">
-          <el-tab-pane v-for="(item,i) in jsr223Processor.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+      <div
+        v-loading="loading"
+        v-if="
+          jsr223Processor &&
+          jsr223Processor.requestResult &&
+          jsr223Processor.requestResult.length > 0
+        "
+      >
+        <p class="tip">{{ $t("api_test.definition.request.res_param") }}</p>
+        <el-tabs
+          v-model="jsr223Processor.activeName"
+          closable
+          class="ms-tabs"
+          v-if="
+            jsr223Processor.requestResult &&
+            jsr223Processor.requestResult.length > 1
+          "
+        >
+          <el-tab-pane
+            v-for="(item, i) in jsr223Processor.requestResult"
+            :label="'循环' + (i + 1)"
+            :key="i"
+            style="margin-bottom: 5px"
+          >
             <api-response-component
               :currentProtocol="jsr223Processor.protocol"
               :apiActive="true"
-              :result="item"/>
+              :result="item"
+            />
           </el-tab-pane>
         </el-tabs>
         <api-response-component
           :currentProtocol="'HTTP'"
           :apiActive="true"
           :result="jsr223Processor.requestResult[0]"
-          v-else/>
+          v-else
+        />
       </div>
     </template>
   </api-base-component>
@@ -125,7 +210,10 @@ import MsDropdown from "@/business/commons/MsDropdown";
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import Jsr233ProcessorContent from "../common/Jsr233ProcessorContent";
 import ApiResponseComponent from "./ApiResponseComponent";
-import {stepCompute, hisDataProcessing} from "@/business/definition/api-definition";
+import {
+  stepCompute,
+  hisDataProcessing,
+} from "@/business/definition/api-definition";
 
 export default {
   name: "MsJsr233Processor",
@@ -136,7 +224,7 @@ export default {
     MsInstructionsIcon,
     MsCodeEdit,
     ApiResponseComponent,
-    MsJmxStep: () => import( "@/business/definition/components/step/JmxStep")
+    MsJmxStep: () => import("@/business/definition/components/step/JmxStep"),
   },
   props: {
     request: {},
@@ -160,16 +248,14 @@ export default {
     protocol: String,
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     jsr223Processor: {
       type: Object,
     },
     isPreProcessor: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     title: String,
     color: String,
@@ -181,7 +267,11 @@ export default {
     },
   },
   created() {
-    if (this.request && this.request.type === 'JSR223Processor' && this.request.hashTree) {
+    if (
+      this.request &&
+      this.request.type === "JSR223Processor" &&
+      this.request.hashTree
+    ) {
       this.initStepSize(this.request.hashTree);
       this.historicalDataProcessing(this.request.hashTree);
     }
@@ -191,20 +281,20 @@ export default {
       this.forStatus();
       this.reload();
     },
-    'request.hashTree': {
+    "request.hashTree": {
       handler(v) {
         this.initStepSize(this.request.hashTree);
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   data() {
     return {
       loading: false,
       reqSuccess: true,
       response: {},
-      activeName: "baseScript"
-    }
+      activeName: "baseScript",
+    };
   },
   methods: {
     historicalDataProcessing(array) {
@@ -223,57 +313,68 @@ export default {
       });
     },
     filter(activeName) {
-      if (activeName === 'preOperate' && this.$refs.preStep) {
+      if (activeName === "preOperate" && this.$refs.preStep) {
         this.$refs.preStep.filter();
       }
-      if (activeName === 'postOperate' && this.$refs.postStep) {
+      if (activeName === "postOperate" && this.$refs.postStep) {
         this.$refs.postStep.filter();
       }
-      if (activeName === 'assertionsRule' && this.$refs.assertionsRule) {
+      if (activeName === "assertionsRule" && this.$refs.assertionsRule) {
         this.$refs.assertionsRule.filter();
       }
     },
     forStatus() {
-      if (this.jsr223Processor && this.jsr223Processor.result && this.jsr223Processor.result.length > 0) {
-        this.jsr223Processor.result.forEach(item => {
-          item.requestResult.forEach(req => {
+      if (
+        this.jsr223Processor &&
+        this.jsr223Processor.result &&
+        this.jsr223Processor.result.length > 0
+      ) {
+        this.jsr223Processor.result.forEach((item) => {
+          item.requestResult.forEach((req) => {
             if (!req.success) {
               this.reqSuccess = req.success;
             }
-          })
-        })
-      } else if (this.jsr223Processor && this.jsr223Processor.requestResult && this.jsr223Processor.requestResult.length > 1) {
-        this.jsr223Processor.requestResult.forEach(item => {
+          });
+        });
+      } else if (
+        this.jsr223Processor &&
+        this.jsr223Processor.requestResult &&
+        this.jsr223Processor.requestResult.length > 1
+      ) {
+        this.jsr223Processor.requestResult.forEach((item) => {
           if (!item.success) {
             this.reqSuccess = item.success;
             if (this.node && this.node.parent && this.node.parent.data) {
-              this.node.parent.data.code = 'ERROR';
+              this.node.parent.data.code = "ERROR";
             }
           }
-        })
+        });
       }
-      if (this.jsr223Processor.requestResult && this.jsr223Processor.requestResult.length > 0) {
-        this.response = this.jsr223Processor.requestResult[0]
+      if (
+        this.jsr223Processor.requestResult &&
+        this.jsr223Processor.requestResult.length > 0
+      ) {
+        this.response = this.jsr223Processor.requestResult[0];
       }
     },
     remove() {
-      this.$emit('remove', this.jsr223Processor, this.node);
+      this.$emit("remove", this.jsr223Processor, this.node);
     },
     copyRow() {
-      this.$emit('copyRow', this.jsr223Processor, this.node);
+      this.$emit("copyRow", this.jsr223Processor, this.node);
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     active() {
       this.jsr223Processor.active = !this.jsr223Processor.active;
       this.reload();
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -282,7 +383,7 @@ export default {
 }
 
 .ms-req-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-test-running {
@@ -290,7 +391,7 @@ export default {
 }
 
 .ms-req-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-header {

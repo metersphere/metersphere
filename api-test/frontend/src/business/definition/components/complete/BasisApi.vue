@@ -1,56 +1,96 @@
 <template>
   <div v-loading="loading">
-    <el-form :model="basicForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="basicForm"
-             style="margin-right: 20px" :disabled="isReadOnly">
+    <el-form
+      :model="basicForm"
+      label-position="right"
+      label-width="80px"
+      size="small"
+      :rules="rule"
+      ref="basicForm"
+      style="margin-right: 20px"
+      :disabled="isReadOnly"
+    >
       <!-- 基础信息 -->
       <el-row>
         <el-col :span="8">
           <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input class="ms-http-input" size="small" v-model="basicForm.name"/>
+            <el-input
+              class="ms-http-input"
+              size="small"
+              v-model="basicForm.name"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="basicForm.moduleId" @getValue="setModule"
-                            :obj="moduleObj" clearable checkStrictly/>
+            <ms-select-tree
+              size="small"
+              :data="moduleOptions"
+              :defaultKey="basicForm.moduleId"
+              @getValue="setModule"
+              :obj="moduleObj"
+              clearable
+              checkStrictly
+            />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('commons.status')" prop="status">
-            <el-select class="ms-http-input" size="small" v-model="basicForm.status" style="width: 100%">
-              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
+            <el-select
+              class="ms-http-input"
+              size="small"
+              v-model="basicForm.status"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in options"
+                :key="item.id"
+                :label="$t(item.label)"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
-          <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
-            <el-select v-model="basicForm.userId"
-                       :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                       class="ms-http-input" style="width: 100%">
+          <el-form-item
+            :label="$t('api_test.definition.request.responsible')"
+            prop="userId"
+          >
+            <el-select
+              v-model="basicForm.userId"
+              :placeholder="$t('api_test.definition.request.responsible')"
+              filterable
+              size="small"
+              class="ms-http-input"
+              style="width: 100%"
+            >
               <el-option
                 v-for="item in maintainerOptions"
                 :key="item.id"
                 :label="item.name + ' (' + item.email + ')'"
-                :value="item.id">
+                :value="item.id"
+              >
               </el-option>
             </el-select>
-
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('commons.tag')" prop="tag">
-            <ms-input-tag :currentScenario="basicForm" ref="tag"/>
+            <ms-input-tag :currentScenario="basicForm" ref="tag" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('commons.description')" prop="description">
-            <el-input class="ms-http-textarea"
-                      v-model="basicForm.description"
-                      type="textarea"
-                      :autosize="{ minRows: 1, maxRows: 10}"
-                      :rows="1" size="small"/>
+            <el-input
+              class="ms-http-textarea"
+              v-model="basicForm.description"
+              type="textarea"
+              :autosize="{ minRows: 1, maxRows: 10 }"
+              :rows="1"
+              size="small"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -59,72 +99,77 @@
 </template>
 
 <script>
-import {definitionFollow} from "@/api/definition";
-import {API_STATUS} from "../../model/JsonData";
+import { definitionFollow } from "@/api/definition";
+import { API_STATUS } from "../../model/JsonData";
 import MsInputTag from "@/business/automation/scenario/MsInputTag";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
-import {getProjectMemberOption} from "@/api/project";
-import {useApiStore} from "@/store";
+import { getProjectMemberOption } from "@/api/project";
+import { useApiStore } from "@/store";
 
 const store = useApiStore();
 export default {
   name: "MsBasisApi",
-  components: {MsInputTag, MsSelectTree},
+  components: { MsInputTag, MsSelectTree },
   props: {
     currentProtocol: {
       type: String,
-      default: "HTTP"
+      default: "HTTP",
     },
     moduleOptions: Array,
     basisData: {},
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   watch: {
-    'basicForm.name': {
+    "basicForm.name": {
       handler(v, v1) {
         if (v && v1 && v !== v1) {
           this.apiMapStatus();
         }
-      }
+      },
     },
-    'basicForm.moduleId': {
+    "basicForm.moduleId": {
       handler(v, v1) {
         if (v && v1 && v !== v1) {
           this.apiMapStatus();
         }
-      }
+      },
     },
-    'basicForm.status': {
+    "basicForm.status": {
       handler(v, v1) {
         if (v && v1 && v !== v1) {
           this.apiMapStatus();
         }
-      }
+      },
     },
-    'basicForm.follows': {
+    "basicForm.follows": {
       handler(v, v1) {
         if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
           this.apiMapStatus();
         }
-      }
+      },
     },
-    'basicForm.description': {
+    "basicForm.description": {
       handler(v, v1) {
-        if (v && v1  && v !== v1) {
+        if (v && v1 && v !== v1) {
           this.apiMapStatus();
         }
-      }
+      },
     },
-    'basicForm.tags': {
+    "basicForm.tags": {
       handler(v, v1) {
         this.tagCount++;
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.tagCount > 1) {
+        if (
+          v &&
+          v1 &&
+          JSON.stringify(v) !== JSON.stringify(v1) &&
+          this.tagCount > 1
+        ) {
           this.apiMapStatus();
         }
-      }
+      },
     },
     moduleOptions: {
       handler(v, v1) {
@@ -132,21 +177,20 @@ export default {
           this.basicForm.moduleId = this.basisData.moduleId;
         }
       },
-      deep: true
+      deep: true,
     },
   },
   created() {
     this.getMaintainerOptions();
     this.basicForm = this.basisData;
-    definitionFollow(this.basisData.id).then(response => {
+    definitionFollow(this.basisData.id).then((response) => {
       this.basicForm.follows = response.data;
     });
-
   },
   data() {
     let validateModuleId = (rule, value, callback) => {
       if (this.basicForm.moduleId.length === 0 || !this.basicForm.moduleId) {
-        callback(this.$t('test_track.case.input_module'));
+        callback(this.$t("test_track.case.input_module"));
       } else {
         callback();
       }
@@ -157,23 +201,45 @@ export default {
       currentModule: {},
       maintainerOptions: [],
       moduleObj: {
-        id: 'id',
-        label: 'name',
+        id: "id",
+        label: "name",
       },
       loading: false,
       rule: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t("test_track.case.input_name"),
+            trigger: "blur",
+          },
+          {
+            max: 50,
+            message: this.$t("test_track.length_less_than") + "50",
+            trigger: "blur",
+          },
         ],
-        userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        moduleId: [{required: true, validator: validateModuleId, trigger: 'change'}],
-        status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
+        userId: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_maintainer"),
+            trigger: "change",
+          },
+        ],
+        moduleId: [
+          { required: true, validator: validateModuleId, trigger: "change" },
+        ],
+        status: [
+          {
+            required: true,
+            message: this.$t("commons.please_select"),
+            trigger: "change",
+          },
+        ],
       },
       value: API_STATUS[0].id,
       options: API_STATUS,
-      tagCount: 0
-    }
+      tagCount: 0,
+    };
   },
   methods: {
     apiMapStatus() {
@@ -183,17 +249,17 @@ export default {
       }
     },
     getMaintainerOptions() {
-      getProjectMemberOption().then(data => {
+      getProjectMemberOption().then((data) => {
         this.maintainerOptions = data.data;
       });
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
         this.loading = false;
         store.apiStatus.set("fromChange", false);
         store.apiMap.set(this.basicForm.id, store.apiStatus);
-      })
+      });
     },
     setModule(id, data) {
       if (data) {
@@ -204,18 +270,18 @@ export default {
       }
     },
     validate() {
-      this.$refs['basicForm'].validate((valid) => {
+      this.$refs["basicForm"].validate((valid) => {
         if (valid) {
-          this.$emit('callback');
+          this.$emit("callback");
         }
-      })
+      });
       this.tagCount = 0;
     },
     createModules() {
       this.$emit("createRootModelInTree");
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

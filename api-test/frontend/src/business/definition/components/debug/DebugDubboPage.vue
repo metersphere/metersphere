@@ -1,62 +1,100 @@
 <template>
-
   <div class="card-container">
     <el-card class="card-content">
-      <el-button size="small" type="primary" class="ms-api-button" style="float: right;margin-right: 20px" @click="stop"
-                 v-if="isStop">
-        {{ $t('report.stop_btn') }}
+      <el-button
+        size="small"
+        type="primary"
+        class="ms-api-button"
+        style="float: right; margin-right: 20px"
+        @click="stop"
+        v-if="isStop"
+      >
+        {{ $t("report.stop_btn") }}
       </el-button>
       <div v-else>
-        <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
-                   @click="handleCommand"> {{ $t('commons.test') }}
+        <el-button
+          v-if="scenario"
+          style="float: right; margin-right: 20px"
+          size="small"
+          type="primary"
+          @click="handleCommand"
+        >
+          {{ $t("commons.test") }}
         </el-button>
-        <el-dropdown v-else split-button type="primary" class="ms-api-button" @click="handleCommand"
-                     @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-          {{ $t('commons.test') }}
+        <el-dropdown
+          v-else
+          split-button
+          type="primary"
+          class="ms-api-button"
+          @click="handleCommand"
+          @command="handleCommand"
+          size="small"
+          style="float: right; margin-right: 20px"
+        >
+          {{ $t("commons.test") }}
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
+            <el-dropdown-item command="save_as">{{
+              $t("api_test.definition.request.save_as_case")
+            }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <p class="tip">{{ $t("api_test.definition.request.req_param") }}</p>
       <div v-loading="loading">
         <!-- 请求参数 -->
-        <ms-basis-parameters :request="request" ref="requestForm"/>
+        <ms-basis-parameters :request="request" ref="requestForm" />
         <!-- 请求返回数据 -->
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol"
-                                ref="debugResult"/>
+        <p class="tip">{{ $t("api_test.definition.request.res_param") }}</p>
+        <ms-request-result-tail
+          v-if="!loading"
+          :response="responseData"
+          :currentProtocol="currentProtocol"
+          ref="debugResult"
+        />
       </div>
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
-              ref="runTest"/>
+      <ms-run
+        :debug="true"
+        :reportId="reportId"
+        :isStop="isStop"
+        :run-data="runData"
+        @runRefresh="runRefresh"
+        ref="runTest"
+      />
     </el-card>
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')">
-        {{ $t('commons.save') }}
+      <el-button
+        style="float: right; margin: 20px"
+        type="primary"
+        @click="handleCommand('save_as_api')"
+      >
+        {{ $t("commons.save") }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
-
+    <ms-api-case-list
+      @refreshModule="refreshModule"
+      :loaded="false"
+      ref="caseList"
+    />
   </div>
 </template>
 
 <script>
-import {getApiReportDetail} from "@/api/definition-report";
+import { getApiReportDetail } from "@/api/definition-report";
 import MsResponseResult from "../response/ResponseResult";
 import MsRequestMetric from "../response/RequestMetric";
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from "metersphere-frontend/src/utils";
 import MsResponseText from "../response/ResponseText";
 import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
+import { createComponent } from "../jmeter/components";
+import { REQ_METHOD } from "../../model/JsonData";
 import MsRequestResultTail from "../response/RequestResultTail";
 import MsBasisParameters from "../request/dubbo/BasisParameters";
 import MsApiCaseList from "../case/EditApiCase";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {mergeRequestDocumentData} from "@/business/definition/api-definition";
-import {execStop} from "@/api/scenario";
+import { TYPE_TO_C } from "@/business/automation/scenario/Setting";
+import { mergeRequestDocumentData } from "@/business/definition/api-definition";
+import { execStop } from "@/api/scenario";
 
 export default {
   name: "ApiConfig",
@@ -67,7 +105,7 @@ export default {
     MsResponseText,
     MsRun,
     MsBasisParameters,
-    MsApiCaseList
+    MsApiCaseList,
   },
   props: {
     currentProtocol: String,
@@ -77,12 +115,24 @@ export default {
   data() {
     return {
       rules: {
-        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
+        method: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_maintainer"),
+            trigger: "change",
+          },
+        ],
+        url: [
+          {
+            required: true,
+            message: this.$t("api_test.definition.request.path_all_info"),
+            trigger: "blur",
+          },
+        ],
       },
-      debugForm: {method: REQ_METHOD[0].id},
+      debugForm: { method: REQ_METHOD[0].id },
       options: [],
-      responseData: {type: 'TCP', responseResult: {}, subRequestResults: []},
+      responseData: { type: "TCP", responseResult: {}, subRequestResults: [] },
       loading: false,
       debugResultId: "",
       runData: [],
@@ -90,14 +140,14 @@ export default {
       reportId: "",
       reqOptions: REQ_METHOD,
       request: {},
-      isStop: false
-    }
+      isStop: false,
+    };
   },
   created() {
     if (this.testCase) {
       if (this.testCase.id) {
         // 执行结果信息
-        getApiReportDetail(this.testCase.id).then(response => {
+        getApiReportDetail(this.testCase.id).then((response) => {
           if (response.data) {
             let data = JSON.parse(response.data.content);
             this.responseData = data;
@@ -119,28 +169,28 @@ export default {
   },
   watch: {
     debugResultId() {
-      this.getResult()
-    }
+      this.getResult();
+    },
   },
   methods: {
     handleCommand(e) {
       mergeRequestDocumentData(this.request);
       if (e === "save_as") {
         this.saveAs();
-      } else if (e === 'save_as_api') {
+      } else if (e === "save_as_api") {
         this.saveAsApi();
       } else {
         this.runDebug();
       }
     },
     refreshModule() {
-      this.$emit('refreshModule');
+      this.$emit("refreshModule");
     },
     stop() {
       this.isStop = false;
       execStop(this.reportId).then(() => {
         this.loading = false;
-        this.$success(this.$t('report.test_stop_success'));
+        this.$success(this.$t("report.test_stop_success"));
       });
     },
     runDebug() {
@@ -159,9 +209,9 @@ export default {
       this.$refs.debugResult.reload();
     },
     saveAsApi() {
-      let obj = {request: this.request};
+      let obj = { request: this.request };
       obj.request.id = getUUID();
-      this.$emit('saveAs', obj);
+      this.$emit("saveAs", obj);
     },
     compatibleHistory(stepArray) {
       if (stepArray) {
@@ -169,8 +219,14 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          if (
+            stepArray[i] &&
+            stepArray[i].authManager &&
+            !stepArray[i].authManager.clazzName
+          ) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
+              stepArray[i].authManager.type
+            );
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.compatibleHistory(stepArray[i].hashTree);
@@ -179,7 +235,7 @@ export default {
       }
     },
     saveAs() {
-      let obj = {request: this.request};
+      let obj = { request: this.request };
       obj.request.id = getUUID();
       obj.saved = true;
       obj.protocol = this.currentProtocol;
@@ -191,11 +247,9 @@ export default {
         this.compatibleHistory(this.request.hashTree);
       }
       this.$refs.caseList.saveApiAndCase(obj);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "AuthPanel",
       testclass: "AuthManager",
       testname: "AuthManager",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class AuthManager extends HashTreeElement {
@@ -26,5 +26,5 @@ export default class AuthManager extends HashTreeElement {
   }
 }
 export const schema = {
-  AuthManager: AuthManager
-}
+  AuthManager: AuthManager,
+};

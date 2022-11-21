@@ -1,19 +1,36 @@
 <template>
-
-  <el-dialog :close-on-click-modal="false" :title="$t('operating_log.info')" :visible.sync="infoVisible" width="900px" :destroy-on-close="true"
-             @close="handleClose" append-to-body>
-    <div style="height: 700px;overflow: auto">
+  <el-dialog
+    :close-on-click-modal="false"
+    :title="$t('operating_log.info')"
+    :visible.sync="infoVisible"
+    width="900px"
+    :destroy-on-close="true"
+    @close="handleClose"
+    append-to-body
+  >
+    <div style="height: 700px; overflow: auto">
       <div v-if="detail.createUser">
-        <p class="tip">{{ this.$t('report.user_name') }} ：{{ detail.createUser }}</p>
+        <p class="tip">
+          {{ this.$t("report.user_name") }} ：{{ detail.createUser }}
+        </p>
       </div>
       <div>
-        <p class="tip">{{ this.$t('operating_log.time') }} ：{{ detail.operTime | datetimeFormat }}</p>
+        <p class="tip">
+          {{ this.$t("operating_log.time") }} ：{{
+            detail.operTime | datetimeFormat
+          }}
+        </p>
       </div>
       <div style="overflow: auto">
-        <p class="tip">{{ this.$t('report.test_log_details') }} </p>
+        <p class="tip">{{ this.$t("report.test_log_details") }}</p>
         <div v-if="!loading">
-          {{ $t('commons.tag') }}：
-          <ms-input-tag :read-only="true" :data="detail" ref="tag" style="width: 90%"/>
+          {{ $t("commons.tag") }}：
+          <ms-input-tag
+            :read-only="true"
+            :data="detail"
+            ref="tag"
+            style="width: 90%"
+          />
         </div>
       </div>
     </div>
@@ -25,7 +42,7 @@ import MsInputTag from "./MsInputTag";
 
 export default {
   name: "MsTagsHistoryDetail",
-  components: {MsInputTag},
+  components: { MsInputTag },
   props: {
     title: String,
   },
@@ -34,7 +51,7 @@ export default {
       infoVisible: false,
       detail: {},
       loading: false,
-    }
+    };
   },
   methods: {
     handleClose() {
@@ -44,9 +61,22 @@ export default {
     open(value) {
       this.infoVisible = true;
       this.detail = value;
-      if (value != null && value.diffValue != 'null' && value.diffValue != '' && value.diffValue != undefined) {
-        if (Object.prototype.toString.call(value.diffValue).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-          && Object.prototype.toString.call(value.diffValue).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+      if (
+        value != null &&
+        value.diffValue != "null" &&
+        value.diffValue != "" &&
+        value.diffValue != undefined
+      ) {
+        if (
+          Object.prototype.toString
+            .call(value.diffValue)
+            .match(/\[object (\w+)\]/)[1]
+            .toLowerCase() !== "object" &&
+          Object.prototype.toString
+            .call(value.diffValue)
+            .match(/\[object (\w+)\]/)[1]
+            .toLowerCase() !== "array"
+        ) {
           let diffValue = JSON.parse(value.diffValue);
           if (diffValue) {
             this.detail.diffValue = diffValue.root;
@@ -60,15 +90,13 @@ export default {
       return this.LOG_TYPE_MAP.get(type);
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

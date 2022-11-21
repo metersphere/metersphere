@@ -11,49 +11,83 @@
     color="#015478"
     background-color="#E6EEF2"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.definition.request.extract_param')">
+    :title="$t('api_test.definition.request.extract_param')"
+  >
     <div style="margin: 10px" v-loading="loading">
       <el-row>
-        <span>{{ $t('api_test.request.extract.description') }}</span>
+        <span>{{ $t("api_test.request.extract.description") }}</span>
         <span style="float: right">
-            <api-json-path-suggest-button :open-tip="$t('api_test.request.extract.json_path_suggest')"
-                                          :clear-tip="$t('api_test.request.extract.json_path_clear')" @open="suggestJsonOpen" @clear="clearJson"/>
-          </span>
+          <api-json-path-suggest-button
+            :open-tip="$t('api_test.request.extract.json_path_suggest')"
+            :clear-tip="$t('api_test.request.extract.json_path_clear')"
+            @open="suggestJsonOpen"
+            @clear="clearJson"
+          />
+        </span>
       </el-row>
       <div class="extract-add">
         <el-row :gutter="10">
           <el-col :span="4">
-            <el-select :disabled="isReadOnly" class="extract-item" v-model="type"
-                       :placeholder="$t('api_test.request.extract.select_type')"
-                       size="small">
-              <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX"/>
-              <el-option label="JSONPath" :value="options.JSON_PATH"/>
-              <el-option label="XPath" :value="options.XPATH"/>
+            <el-select
+              :disabled="isReadOnly"
+              class="extract-item"
+              v-model="type"
+              :placeholder="$t('api_test.request.extract.select_type')"
+              size="small"
+            >
+              <el-option
+                :label="$t('api_test.request.extract.regex')"
+                :value="options.REGEX"
+              />
+              <el-option label="JSONPath" :value="options.JSON_PATH" />
+              <el-option label="XPath" :value="options.XPATH" />
             </el-select>
           </el-col>
           <el-col :span="20">
-            <ms-api-extract-common :if-from-variable-advance="ifFromVariableAdvance" :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
+            <ms-api-extract-common
+              :if-from-variable-advance="ifFromVariableAdvance"
+              :is-read-only="isReadOnly"
+              :extract-type="type"
+              :list="list"
+              v-if="type"
+              :callback="after"
+            />
           </el-col>
 
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">{{ $t('commons.add') }}</el-button>
+          <el-button
+            v-if="!type"
+            :disabled="true"
+            type="primary"
+            size="small"
+            >{{ $t("commons.add") }}</el-button
+          >
         </el-row>
       </div>
 
-
-      <ms-api-extract-edit :if-from-variable-advance="ifFromVariableAdvance" @savePreParams="savePreParams" :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
+      <ms-api-extract-edit
+        :if-from-variable-advance="ifFromVariableAdvance"
+        @savePreParams="savePreParams"
+        :is-read-only="isReadOnly"
+        :reloadData="reloadData"
+        :extract="extract"
+      />
     </div>
-    <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" ref="jsonpathSuggest"/>
+    <ms-api-jsonpath-suggest
+      :tip="$t('api_test.request.extract.suggest_tip')"
+      @addSuggest="addJsonPathSuggest"
+      ref="jsonpathSuggest"
+    />
   </api-base-component>
 </template>
 
 <script>
-import {EXTRACT_TYPE} from "../../model/ApiTestModel";
+import { EXTRACT_TYPE } from "../../model/ApiTestModel";
 import MsApiExtractEdit from "./ApiExtractEdit";
 import MsApiExtractCommon from "./ApiExtractCommon";
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from "metersphere-frontend/src/utils";
 import ApiJsonPathSuggestButton from "../assertion/ApiJsonPathSuggestButton";
 import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
-import {ExtractJSONPath} from "@/business/definition/model/ApiTestModel";
+import { ExtractJSONPath } from "@/business/definition/model/ApiTestModel";
 import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
 
 export default {
@@ -71,11 +105,11 @@ export default {
     node: {},
     customizeStyle: {
       type: String,
-      default: "margin-top: 10px"
+      default: "margin-top: 10px",
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     draggable: {
       type: Boolean,
@@ -98,9 +132,9 @@ export default {
       default: false,
     },
   },
-  created(){
-    if(!this.extract.xpathType){
-      this.extract.xpathType = 'html';
+  created() {
+    if (!this.extract.xpathType) {
+      this.extract.xpathType = "html";
     }
   },
   data() {
@@ -109,7 +143,7 @@ export default {
       type: "",
       reloadData: "",
       loading: false,
-    }
+    };
   },
   methods: {
     after() {
@@ -117,30 +151,34 @@ export default {
       this.reloadData = getUUID().substring(0, 8);
     },
     remove() {
-      this.$emit('remove', this.extract, this.node);
+      this.$emit("remove", this.extract, this.node);
     },
     copyRow() {
-      this.$emit('copyRow', this.extract, this.node);
+      this.$emit("copyRow", this.extract, this.node);
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     active() {
       this.extract.active = !this.extract.active;
       this.reload();
     },
     suggestJsonOpen() {
-      this.$emit('suggestClick');
+      this.$emit("suggestClick");
       this.$nextTick(() => {
-        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
-          this.$message(this.$t('api_test.request.assertions.debug_first'));
+        if (
+          !this.response ||
+          !this.response.responseResult ||
+          !this.response.responseResult.body
+        ) {
+          this.$message(this.$t("api_test.request.assertions.debug_first"));
           return;
         }
         this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
-      })
+      });
     },
     addJsonPathSuggest(data) {
       let option = {};
@@ -167,9 +205,9 @@ export default {
         default:
           return [];
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -184,7 +222,7 @@ export default {
 
 .extract-add {
   padding: 10px;
-  border: #DCDFE6 solid 1px;
+  border: #dcdfe6 solid 1px;
   margin: 5px 0;
   border-radius: 5px;
 }

@@ -2,75 +2,102 @@
   <div>
     <el-row class="apiInfoRow">
       <div>
-        <el-table border v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
-                  :data="getJsonArr(apiInfo.responseBodyFormData)"
-                  class="test-content document-table">
-          <el-table-column prop="name"
-                           :label="$t('api_definition.document.name')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="contentType"
-                           :label="$t('api_definition.document.type')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="description"
-                           :label="$t('api_definition.document.desc')"
-                           min-width="280px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="required"
-                           :label="$t('api_definition.document.is_required')"
-                           :formatter="formatBoolean"
-                           min-width="80px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="value"
-                           :label="$t('api_definition.document.default_value')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
+        <el-table
+          border
+          v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
+          :data="getJsonArr(apiInfo.responseBodyFormData)"
+          class="test-content document-table"
+        >
+          <el-table-column
+            prop="name"
+            :label="$t('api_definition.document.name')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="contentType"
+            :label="$t('api_definition.document.type')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="description"
+            :label="$t('api_definition.document.desc')"
+            min-width="280px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="required"
+            :label="$t('api_definition.document.is_required')"
+            :formatter="formatBoolean"
+            min-width="80px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="value"
+            :label="$t('api_definition.document.default_value')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
         </el-table>
-        <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
-          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.jsonSchemaResponseBody"
-                             ref="jsonCodeEdit"/>
+        <div
+          v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'"
+          style="margin-left: 10px"
+        >
+          <ms-json-code-edit
+            :json-schema-disable="true"
+            :show-preview="false"
+            :body="apiInfo.jsonSchemaResponseBody"
+            ref="jsonCodeEdit"
+          />
         </div>
-        <div v-else-if="formatRowDataToJsonSchema(apiInfo,'response') " style="margin-left: 10px">
-          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.responseJsonSchema"
-                             ref="jsonCodeEdit"/>
+        <div
+          v-else-if="formatRowDataToJsonSchema(apiInfo, 'response')"
+          style="margin-left: 10px"
+        >
+          <ms-json-code-edit
+            :json-schema-disable="true"
+            :show-preview="false"
+            :body="apiInfo.responseJsonSchema"
+            ref="jsonCodeEdit"
+          />
         </div>
         <div v-else class="showDataDiv">
-          <br/>
-          <p style="margin: 0px 20px;"
-             v-html="formatRowData(apiInfo.responseBodyParamType,apiInfo.requestBodyStructureData)">
-          </p>
-          <br/>
+          <br />
+          <p
+            style="margin: 0px 20px"
+            v-html="
+              formatRowData(
+                apiInfo.responseBodyParamType,
+                apiInfo.requestBodyStructureData
+              )
+            "
+          ></p>
+          <br />
         </div>
       </div>
     </el-row>
-
-
   </div>
 </template>
 
 <script>
-
 import MsJsonCodeEdit from "@/business/commons/json-schema/JsonSchemaEditor";
 
 export default {
   name: "ApiResponseInfo",
-  components: {MsJsonCodeEdit},
+  components: { MsJsonCodeEdit },
   data() {
     return {
       active: true,
-      formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
+      formParamTypes: ["form-data", "x-www-from-urlencoded", "BINARY"],
     };
   },
   props: {
     apiInfo: Object,
   },
-  activated() {
-  },
-  created: function () {
-  },
-  mounted() {
-  },
+  activated() {},
+  created: function () {},
+  mounted() {},
   computed: {},
   watch: {},
   methods: {
@@ -83,7 +110,7 @@ export default {
     },
     getJsonArr(jsonString) {
       let returnJsonArr = [];
-      if (jsonString === '无' || jsonString === null) {
+      if (jsonString === "无" || jsonString === null) {
         return returnJsonArr;
       }
 
@@ -98,27 +125,27 @@ export default {
       return returnJsonArr;
     },
     formatBoolean(row, column, cellValue) {
-      var ret = '';  //你想在页面展示的值
+      var ret = ""; //你想在页面展示的值
       if (cellValue) {
-        ret = "是";  //根据自己的需求设定
+        ret = "是"; //根据自己的需求设定
       } else {
         ret = "否";
       }
       return ret;
     },
     formatRowDataToJsonSchema(api, jsonType) {
-      if (jsonType === 'request' && api.requestBodyStructureData) {
+      if (jsonType === "request" && api.requestBodyStructureData) {
         try {
           let bodyStructData = JSON.parse(api.requestBodyStructureData);
-          api.requestJsonSchema = {'raw': bodyStructData};
+          api.requestJsonSchema = { raw: bodyStructData };
           return true;
         } catch (e) {
           return false;
         }
-      } else if (jsonType === 'response' && api.requestBodyStructureData) {
+      } else if (jsonType === "response" && api.requestBodyStructureData) {
         try {
           JSON.parse(api.requestBodyStructureData);
-          api.responseJsonSchema = {'raw': api.requestBodyStructureData};
+          api.responseJsonSchema = { raw: api.requestBodyStructureData };
           return true;
         } catch (e) {
           return false;
@@ -137,7 +164,7 @@ export default {
 }
 
 .showDataDiv {
-  background-color: #F5F7F9;
+  background-color: #f5f7f9;
   margin: 10px 10px;
   max-height: 300px;
   overflow: auto;

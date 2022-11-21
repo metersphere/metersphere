@@ -45,7 +45,7 @@
 <script>
 import MsIfController from "./IfController";
 import MsTransactionController from "./TransactionController";
-import {ELEMENT_TYPE} from "../Setting";
+import { ELEMENT_TYPE } from "../Setting";
 import MsApiComponent from "./ApiComponent";
 import MsLoopController from "./LoopController";
 import MsApiScenarioComponent from "./ApiScenarioComponent";
@@ -64,9 +64,12 @@ export default {
     JmeterElementComponent,
     MsConstantTimer: () => import("./ConstantTimer"),
     MsJsr233Processor: () => import("./Jsr233Processor"),
-    MsScenarioAssertions: () => import("../../../definition/components/assertion/ScenarioAssertions"),
-    MsApiExtract: () => import("../../../definition/components/extract/ApiExtract"),
-    MsJdbcProcessor: () => import("@/business/automation/scenario/component/JDBCProcessor")
+    MsScenarioAssertions: () =>
+      import("../../../definition/components/assertion/ScenarioAssertions"),
+    MsApiExtract: () =>
+      import("../../../definition/components/extract/ApiExtract"),
+    MsJdbcProcessor: () =>
+      import("@/business/automation/scenario/component/JDBCProcessor"),
   },
   props: {
     type: String,
@@ -109,10 +112,10 @@ export default {
       titleColor: "",
       backgroundColor: "",
       apiId: "",
-    }
+    };
   },
   computed: {
-    component({type}) {
+    component({ type }) {
       let name;
       switch (type) {
         case ELEMENT_TYPE.IfController:
@@ -148,7 +151,7 @@ export default {
         case ELEMENT_TYPE.CustomizeReq:
           name = "MsApiComponent";
           break;
-        case  ELEMENT_TYPE.LoopController:
+        case ELEMENT_TYPE.LoopController:
           name = "MsLoopController";
           break;
         case ELEMENT_TYPE.scenario:
@@ -176,28 +179,28 @@ export default {
           break;
       }
       return name;
-    }
+    },
   },
   methods: {
     getComponent(type) {
       if (type === ELEMENT_TYPE.JSR223PreProcessor) {
-        this.title = this.$t('api_test.definition.request.pre_script');
+        this.title = this.$t("api_test.definition.request.pre_script");
         this.titleColor = "#b8741a";
         this.backgroundColor = "#F9F1EA";
         return "MsJsr233Processor";
       } else if (type === ELEMENT_TYPE.JSR223PostProcessor) {
-        this.title = this.$t('api_test.definition.request.post_script');
+        this.title = this.$t("api_test.definition.request.post_script");
         this.titleColor = "#783887";
         this.backgroundColor = "#F2ECF3";
         return "MsJsr233Processor";
       }
       if (type === ELEMENT_TYPE.JDBCPreProcessor) {
-        this.title = this.$t('api_test.definition.request.pre_sql');
+        this.title = this.$t("api_test.definition.request.pre_sql");
         this.titleColor = "#FE6F71";
         this.backgroundColor = "#F2ECF3";
         return "MsJdbcProcessor";
       } else if (type === ELEMENT_TYPE.JDBCPostProcessor) {
-        this.title = this.$t('api_test.definition.request.post_sql');
+        this.title = this.$t("api_test.definition.request.post_sql");
         this.titleColor = "#1483F6";
         this.backgroundColor = "#F2ECF3";
         return "MsJdbcProcessor";
@@ -206,7 +209,12 @@ export default {
         this.backgroundColor = "#F2ECF3";
         return "PluginComponent";
       } else if (type === ELEMENT_TYPE.Assertions) {
-        if (this.node && this.node.parent && this.node.parent.data && this.node.parent.data.referenced === "REF") {
+        if (
+          this.node &&
+          this.node.parent &&
+          this.node.parent.data &&
+          this.node.parent.data.referenced === "REF"
+        ) {
           this.apiId = this.node.parent.data.id;
           this.scenario.document.nodeType = "scenario";
         } else {
@@ -214,33 +222,32 @@ export default {
         }
         return "MsScenarioAssertions";
       } else {
-        this.title = this.$t('api_test.automation.customize_script');
+        this.title = this.$t("api_test.automation.customize_script");
         this.titleColor = "#7B4D12";
         this.backgroundColor = "#F1EEE9";
         return "MsJsr233Processor";
       }
     },
     remove(row, node) {
-      this.$emit('remove', row, node);
+      this.$emit("remove", row, node);
     },
     copyRow(row, node) {
-      this.$emit('copyRow', row, node);
-
+      this.$emit("copyRow", row, node);
     },
     openScenario(data) {
-      this.$emit('openScenario', data);
+      this.$emit("openScenario", data);
     },
     suggestClick(node) {
-      this.$emit('suggestClick', node);
+      this.$emit("suggestClick", node);
     },
     refReload(data, node) {
-      this.$emit('refReload', data, node);
+      this.$emit("refReload", data, node);
     },
     runScenario(scenario) {
-      this.$emit('runScenario', scenario);
+      this.$emit("runScenario", scenario);
     },
     stopScenario() {
-      this.$emit('stopScenario');
+      this.$emit("stopScenario");
     },
     setDomain() {
       this.$emit("setDomain");
@@ -249,10 +256,10 @@ export default {
       this.$emit("savePreParams", data);
     },
     editScenarioAdvance(data) {
-      this.$emit('editScenarioAdvance', data);
+      this.$emit("editScenarioAdvance", data);
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -261,5 +268,4 @@ export default {
   display: block;
   margin-right: 10px;
 }
-
 </style>

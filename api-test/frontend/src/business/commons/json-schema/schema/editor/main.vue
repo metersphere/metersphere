@@ -2,213 +2,344 @@
   <div class="json-schema-editor">
     <el-row class="row" :gutter="20">
       <el-col :span="8" class="ms-col-name">
-        <div :style="{marginLeft:`${10*deep}px`}" class="ms-col-name-c"/>
-        <span v-if="pickValue.type==='object' || pickValue.type ==='array'" :class="hidden ? 'el-icon-caret-left ms-transform':
-            'el-icon-caret-bottom'" @click="hidden = !hidden"/>
-        <span v-else style="width:10px;display:inline-block"></span>
-        <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey"
-               @blur="onInputName" size="small"/>
+        <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
+        <span
+          v-if="pickValue.type === 'object' || pickValue.type === 'array'"
+          :class="
+            hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'
+          "
+          @click="hidden = !hidden"
+        />
+        <span v-else style="width: 10px; display: inline-block"></span>
+        <input
+          class="el-input el-input__inner"
+          style="height: 32px"
+          :disabled="disabled || root"
+          :value="pickKey"
+          @blur="onInputName"
+          size="small"
+        />
 
-        <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
-          <input type="checkbox" :disabled="disabled || (!isObject && !isArray(pickValue))" class="ms-col-name-required"
-                 @change="onRootCheck"/>
+        <el-tooltip
+          v-if="root"
+          :content="$t('schema.checked_all')"
+          placement="top"
+        >
+          <input
+            type="checkbox"
+            :disabled="disabled || (!isObject && !isArray(pickValue))"
+            class="ms-col-name-required"
+            @change="onRootCheck"
+          />
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
-          <input type="checkbox" :disabled="disabled || isItem" :checked="checked" class="ms-col-name-required"
-                 @change="onCheck"/>
+          <input
+            type="checkbox"
+            :disabled="disabled || isItem"
+            :checked="checked"
+            class="ms-col-name-required"
+            @change="onCheck"
+          />
         </el-tooltip>
       </el-col>
       <el-col :span="4">
-        <el-select v-model="pickValue.type" :disabled="disabled||disabledType" class="ms-col-type"
-                   @change="onChangeType" size="small">
-          <el-option :key="t" :value="t" :label="t" v-for="t in types"/>
+        <el-select
+          v-model="pickValue.type"
+          :disabled="disabled || disabledType"
+          class="ms-col-type"
+          @change="onChangeType"
+          size="small"
+        >
+          <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
       <el-col :span="4">
         <ms-mock
-          :disabled="disabled || pickValue.type==='object' || pickKey ==='root' || pickValue.type==='array' || pickValue.type==='null'"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
           :schema="pickValue"
           :scenario-definition="scenarioDefinition"
           :show-mock-vars="showMockVars"
           :need-mock="needMock"
-          @editScenarioAdvance="editScenarioAdvance"/>
+          @editScenarioAdvance="editScenarioAdvance"
+        />
       </el-col>
       <el-col :span="4">
-        <el-input :disabled="disabled" v-model="pickValue.description" class="ms-col-title"
-                  :placeholder="$t('schema.description')" size="small"/>
+        <el-input
+          :disabled="disabled"
+          v-model="pickValue.description"
+          class="ms-col-title"
+          :placeholder="$t('schema.description')"
+          size="small"
+        />
       </el-col>
       <el-col :span="4" class="col-item-setting" v-if="!disabled">
-        <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
-          <i class="el-icon-setting" @click="onSetting"/>
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('schema.adv_setting')"
+          placement="top"
+        >
+          <i class="el-icon-setting" @click="onSetting" />
         </el-tooltip>
-        <el-tooltip v-if="isObject || isArray(pickValue)" :content="$t('schema.add_child_node')" placement="top">
-          <i class="el-icon-plus" @click="addChild" style="margin-left: 10px"/>
+        <el-tooltip
+          v-if="isObject || isArray(pickValue)"
+          :content="$t('schema.add_child_node')"
+          placement="top"
+        >
+          <i class="el-icon-plus" @click="addChild" style="margin-left: 10px" />
         </el-tooltip>
-        <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
-          <i class="el-icon-close" @click="removeNode" style="margin-left: 10px"/>
+        <el-tooltip
+          v-if="!root && !isItem"
+          :content="$t('schema.remove_node')"
+          placement="top"
+        >
+          <i
+            class="el-icon-close"
+            @click="removeNode"
+            style="margin-left: 10px"
+          />
         </el-tooltip>
       </el-col>
     </el-row>
 
-    <template v-if="!hidden&&pickValue.properties && !isArray(pickValue) && reloadItemOver">
-      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}"
-                          :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children"
-                          :scenario-definition="scenarioDefinition"
-                          :show-mock-vars="showMockVars"
-                          :disabled="disabled"
-                          @editScenarioAdvance="editScenarioAdvance"
-                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"
-                          :need-mock="needMock"
-                          @reloadItems="reloadItems"/>
+    <template
+      v-if="
+        !hidden && pickValue.properties && !isArray(pickValue) && reloadItemOver
+      "
+    >
+      <json-schema-editor
+        v-for="(item, key, index) in pickValue.properties"
+        :value="{ [key]: item }"
+        :parent="pickValue"
+        :key="index"
+        :deep="deep + 1"
+        :root="false"
+        class="children"
+        :scenario-definition="scenarioDefinition"
+        :show-mock-vars="showMockVars"
+        :disabled="disabled"
+        @editScenarioAdvance="editScenarioAdvance"
+        :lang="lang"
+        :custom="custom"
+        @changeAllItemsType="changeAllItemsType"
+        :need-mock="needMock"
+        @reloadItems="reloadItems"
+      />
     </template>
     <template v-if="!hidden && isArray(pickValue) && reloadItemOver">
-      <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue"
-                          :key="index"
-                          :deep="deep+1" :root="false" class="children"
-                          :scenario-definition="scenarioDefinition"
-                          :show-mock-vars="showMockVars"
-                          :disabled="disabled"
-                          :need-mock="needMock"
-                          @editScenarioAdvance="editScenarioAdvance"
-                          :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
+      <json-schema-editor
+        v-for="(item, key, index) in pickValue.items"
+        :value="{ [key]: item }"
+        :parent="pickValue"
+        :key="index"
+        :deep="deep + 1"
+        :root="false"
+        class="children"
+        :scenario-definition="scenarioDefinition"
+        :show-mock-vars="showMockVars"
+        :disabled="disabled"
+        :need-mock="needMock"
+        @editScenarioAdvance="editScenarioAdvance"
+        :lang="lang"
+        :custom="custom"
+        @changeAllItemsType="changeAllItemsType"
+        @reloadItems="reloadItems"
+      />
     </template>
     <!-- 高级设置-->
-    <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')"
-               :visible.sync="modalVisible" :destroy-on-close="true"
-               @close="handleClose" v-if="modalVisible">
-      <p class="tip">{{ $t("schema.base_setting") }} </p>
+    <el-dialog
+      append-to-body
+      :close-on-click-modal="true"
+      :title="$t('schema.adv_setting')"
+      :visible.sync="modalVisible"
+      :destroy-on-close="true"
+      @close="handleClose"
+      v-if="modalVisible"
+    >
+      <p class="tip">{{ $t("schema.base_setting") }}</p>
 
-      <el-form label-position="left" label-width="100px" v-model="advancedValue" class="ms-advanced-search-form">
-        <div :span="8" v-for="(item,key) in advancedValue" :key="key">
-          <el-form-item :label="$t('schema.'+key)">
-            <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%"
-                             :placeholder="key" size="small"/>
-            <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'"
-                             style="width:100%" :placeholder="key" size="small"/>
-            <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
-                <el-switch v-model="advancedValue[key]"/>
-                </span>
-            <el-select v-else-if="advancedAttr[key].type === 'array'" v-model="advancedValue[key]" style="width:100%"
-                       size="small">
+      <el-form
+        label-position="left"
+        label-width="100px"
+        v-model="advancedValue"
+        class="ms-advanced-search-form"
+      >
+        <div :span="8" v-for="(item, key) in advancedValue" :key="key">
+          <el-form-item :label="$t('schema.' + key)">
+            <el-input-number
+              v-model="advancedValue[key]"
+              v-if="advancedAttr[key].type === 'integer'"
+              style="width: 100%"
+              :placeholder="key"
+              size="small"
+            />
+            <el-input-number
+              v-model="advancedValue[key]"
+              v-else-if="advancedAttr[key].type === 'number'"
+              style="width: 100%"
+              :placeholder="key"
+              size="small"
+            />
+            <span
+              v-else-if="advancedAttr[key].type === 'boolean'"
+              style="display: inline-block; width: 100%"
+            >
+              <el-switch v-model="advancedValue[key]" />
+            </span>
+            <el-select
+              v-else-if="advancedAttr[key].type === 'array'"
+              v-model="advancedValue[key]"
+              style="width: 100%"
+              size="small"
+            >
               <el-option value="" :label="$t('schema.nothing')"></el-option>
-              <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums"/>
+              <el-option
+                :key="t"
+                :value="t"
+                :label="t"
+                v-for="t in advancedAttr[key].enums"
+              />
             </el-select>
-            <el-input v-else-if="advancedAttr[key].type === 'textarea'" :placeholder="advancedAttr[key].description"
-                      v-model="advancedValue[key]"
-                      type="textarea"
-                      :autosize="{ minRows: 2, maxRows: 10}"
-                      :rows="2"></el-input>
-            <el-input v-model="advancedValue[key]" v-else style="width:100%;" :placeholder="key" size="small"/>
-
+            <el-input
+              v-else-if="advancedAttr[key].type === 'textarea'"
+              :placeholder="advancedAttr[key].description"
+              v-model="advancedValue[key]"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 10 }"
+              :rows="2"
+            ></el-input>
+            <el-input
+              v-model="advancedValue[key]"
+              v-else
+              style="width: 100%"
+              :placeholder="key"
+              size="small"
+            />
           </el-form-item>
         </div>
       </el-form>
-      <p class="tip">{{ $t('schema.preview') }} </p>
-      <pre style="width:100%">{{ completeNodeValue }}</pre>
+      <p class="tip">{{ $t("schema.preview") }}</p>
+      <pre style="width: 100%">{{ completeNodeValue }}</pre>
 
       <span slot="footer" class="dialog-footer">
-       <ms-dialog-footer
-         @cancel="modalVisible = false"
-         @confirm="handleOk"/>
+        <ms-dialog-footer @cancel="modalVisible = false" @confirm="handleOk" />
       </span>
     </el-dialog>
   </div>
 </template>
 <script>
-import {isNull} from './util'
-import {TYPE, TYPE_NAME, TYPES} from './type/type'
-import MsMock from './mock/MockComplete'
-import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
-import {getUUID} from "metersphere-frontend/src/utils";
+import { isNull } from "./util";
+import { TYPE, TYPE_NAME, TYPES } from "./type/type";
+import MsMock from "./mock/MockComplete";
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import { getUUID } from "metersphere-frontend/src/utils";
 
 export default {
-  name: 'JsonSchemaEditor',
-  components: {MsMock, MsDialogFooter},
+  name: "JsonSchemaEditor",
+  components: { MsMock, MsDialogFooter },
   props: {
     value: {
       type: Object,
-      required: true
+      required: true,
     },
     showMockVars: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
-    disabled: { //name不可编辑，根节点name不可编辑,数组元素name不可编辑
+    disabled: {
+      //name不可编辑，根节点name不可编辑,数组元素name不可编辑
       type: Boolean,
-      default: false
+      default: false,
     },
-    disabledType: { //禁用类型选择
+    disabledType: {
+      //禁用类型选择
       type: Boolean,
-      default: false
+      default: false,
     },
-    isItem: { //是否数组元素
+    isItem: {
+      //是否数组元素
       type: Boolean,
-      default: false
+      default: false,
     },
-    deep: { // 节点深度，根节点deep=0
+    deep: {
+      // 节点深度，根节点deep=0
       type: Number,
-      default: 0
+      default: 0,
     },
-    root: { //是否root节点
+    root: {
+      //是否root节点
       type: Boolean,
-      default: true
+      default: true,
     },
-    parent: { //父节点
+    parent: {
+      //父节点
       type: Object,
-      default: null
+      default: null,
     },
-    custom: { //enable custom properties
+    custom: {
+      //enable custom properties
       type: Boolean,
-      default: false
+      default: false,
     },
-    lang: { // i18n language
+    lang: {
+      // i18n language
       type: String,
-      default: 'zh_CN'
+      default: "zh_CN",
     },
     scenarioDefinition: Array,
     needMock: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   computed: {
     pickValue() {
-      return Object.values(this.value)[0]
+      return Object.values(this.value)[0];
     },
     pickKey() {
-      return Object.keys(this.value)[0]
+      return Object.keys(this.value)[0];
     },
     isObject() {
-      return this.pickValue.type === 'object'
+      return this.pickValue.type === "object";
     },
     checked() {
-      return this.parent && this.parent.required && this.parent.required.indexOf(this.pickKey) >= 0
+      return (
+        this.parent &&
+        this.parent.required &&
+        this.parent.required.indexOf(this.pickKey) >= 0
+      );
     },
     advanced() {
-      return TYPE[this.pickValue.type]
+      return TYPE[this.pickValue.type];
     },
     types() {
       return TYPES(this.pickKey);
     },
     advancedAttr() {
-      return TYPE[this.pickValue.type].attr
+      return TYPE[this.pickValue.type].attr;
     },
     advancedNotEmptyValue() {
       const jsonNode = Object.assign({}, this.advancedValue);
       for (let key in jsonNode) {
-        isNull(jsonNode[key]) && delete jsonNode[key]
+        isNull(jsonNode[key]) && delete jsonNode[key];
       }
-      return jsonNode
+      return jsonNode;
     },
     completeNodeValue() {
-      const t = {}
+      const t = {};
       for (const item of this.customProps) {
-        t[item.key] = item.value
+        t[item.key] = item.value;
       }
-      return Object.assign({}, this.pickValue, this.advancedNotEmptyValue, t)
-    }
+      return Object.assign({}, this.pickValue, this.advancedNotEmptyValue, t);
+    },
   },
   data() {
     return {
@@ -218,10 +349,10 @@ export default {
       modalVisible: false,
       reloadItemOver: true,
       advancedValue: {},
-      addProp: {},// 自定义属性
+      addProp: {}, // 自定义属性
       customProps: [],
-      customing: false
-    }
+      customing: false,
+    };
   },
   created() {
     if (this.pickValue) {
@@ -236,7 +367,7 @@ export default {
   },
   methods: {
     isArray(data) {
-      let isDataArray = data.type === 'array';
+      let isDataArray = data.type === "array";
       if (isDataArray) {
         //如果item不是array类型，去掉。
         let itemsIsArray = Array.isArray(data.items);
@@ -247,149 +378,169 @@ export default {
       return isDataArray;
     },
     onInputName(e) {
-      const val = e.target.value
+      const val = e.target.value;
       const p = {};
       for (let key in this.parent.properties) {
         if (key != this.pickKey) {
-          p[key] = this.parent.properties[key]
+          p[key] = this.parent.properties[key];
         } else {
-          p[val] = this.parent.properties[key]
-          delete this.parent.properties[key]
+          p[val] = this.parent.properties[key];
+          delete this.parent.properties[key];
         }
       }
-      this.$set(this.parent, 'properties', p)
+      this.$set(this.parent, "properties", p);
     },
     onChangeType() {
-      if (this.parent && this.parent.type === 'array') {
-        this.$emit('changeAllItemsType', this.pickValue.type);
+      if (this.parent && this.parent.type === "array") {
+        this.$emit("changeAllItemsType", this.pickValue.type);
       } else {
-        delete this.pickValue['properties']
-        delete this.pickValue['items']
-        delete this.pickValue['required']
-        delete this.pickValue['mock']
+        delete this.pickValue["properties"];
+        delete this.pickValue["items"];
+        delete this.pickValue["required"];
+        delete this.pickValue["mock"];
         if (this.isArray(this.pickValue)) {
-          this.$set(this.pickValue, 'items', [{type: 'string', mock: {mock: ""}}]);
+          this.$set(this.pickValue, "items", [
+            { type: "string", mock: { mock: "" } },
+          ]);
         }
       }
     },
     changeAllItemsType(changeType) {
-      if (this.isArray(this.pickValue) && this.pickValue.items && this.pickValue.items.length > 0) {
-        this.pickValue.items.forEach(item => {
+      if (
+        this.isArray(this.pickValue) &&
+        this.pickValue.items &&
+        this.pickValue.items.length > 0
+      ) {
+        this.pickValue.items.forEach((item) => {
           item.type = changeType;
-          delete item['properties']
-          delete item['items']
-          delete item['required']
-          delete item['mock']
-          if (changeType === 'array') {
-            this.$set(item, 'items', [{type: 'string', mock: {mock: ""}}]);
+          delete item["properties"];
+          delete item["items"];
+          delete item["required"];
+          delete item["mock"];
+          if (changeType === "array") {
+            this.$set(item, "items", [{ type: "string", mock: { mock: "" } }]);
           }
         });
       }
     },
     onCheck(e) {
-      this._checked(e.target.checked, this.parent)
+      this._checked(e.target.checked, this.parent);
     },
     onRootCheck(e) {
-      const checked = e.target.checked
-      this._deepCheck(checked, this.pickValue)
+      const checked = e.target.checked;
+      this._deepCheck(checked, this.pickValue);
     },
     _deepCheck(checked, node) {
-      if (node.type === 'object' && node.properties) {
-        checked ? this.$set(node, 'required', Object.keys(node.properties)) : delete node['required']
-        Object.keys(node.properties).forEach(key => this._deepCheck(checked, node.properties[key]))
-      } else if (node.type === 'array' && node.items.type === 'object') {
-        checked ? this.$set(node.items, 'required', Object.keys(node.items.properties)) : delete node.items['required']
-        Object.keys(node.items.properties).forEach(key => this._deepCheck(checked, node.items.properties[key]))
+      if (node.type === "object" && node.properties) {
+        checked
+          ? this.$set(node, "required", Object.keys(node.properties))
+          : delete node["required"];
+        Object.keys(node.properties).forEach((key) =>
+          this._deepCheck(checked, node.properties[key])
+        );
+      } else if (node.type === "array" && node.items.type === "object") {
+        checked
+          ? this.$set(
+              node.items,
+              "required",
+              Object.keys(node.items.properties)
+            )
+          : delete node.items["required"];
+        Object.keys(node.items.properties).forEach((key) =>
+          this._deepCheck(checked, node.items.properties[key])
+        );
       }
     },
     _checked(checked, parent) {
-      let required = parent.required
+      let required = parent.required;
       if (checked) {
-        required || this.$set(this.parent, 'required', [])
+        required || this.$set(this.parent, "required", []);
 
-        required = this.parent.required
-        required.indexOf(this.pickKey) === -1 && required.push(this.pickKey)
+        required = this.parent.required;
+        required.indexOf(this.pickKey) === -1 && required.push(this.pickKey);
       } else {
-        const pos = required.indexOf(this.pickKey)
-        pos >= 0 && required.splice(pos, 1)
+        const pos = required.indexOf(this.pickKey);
+        pos >= 0 && required.splice(pos, 1);
       }
-      required.length === 0 && delete parent['required']
+      required.length === 0 && delete parent["required"];
     },
     addChild() {
       const node = this.pickValue;
       if (this.isArray(node)) {
-        let childObj = {type: 'string', mock: {mock: ""}}
+        let childObj = { type: "string", mock: { mock: "" } };
         if (node.items && node.items.length > 0) {
           childObj.type = node.items[0].type;
           node.items.push(childObj);
         } else {
-          this.$set(this.pickValue, 'items', [childObj]);
+          this.$set(this.pickValue, "items", [childObj]);
         }
         this.reloadItems();
-
       } else {
-        const name = this._joinName()
-        const type = 'string'
-        node.properties || this.$set(node, 'properties', {})
-        const props = node.properties
-        this.$set(props, name, {type: type, mock: {mock: ""}})
+        const name = this._joinName();
+        const type = "string";
+        node.properties || this.$set(node, "properties", {});
+        const props = node.properties;
+        this.$set(props, name, { type: type, mock: { mock: "" } });
       }
     },
     addCustomNode() {
-      this.$set(this.addProp, 'key', this._joinName())
-      this.$set(this.addProp, 'value', '')
-      this.customing = true
+      this.$set(this.addProp, "key", this._joinName());
+      this.$set(this.addProp, "value", "");
+      this.customing = true;
     },
     confirmAddCustomNode() {
-      this.customProps.push(this.addProp)
-      this.addProp = {}
-      this.customing = false
+      this.customProps.push(this.addProp);
+      this.addProp = {};
+      this.customing = false;
     },
     removeNode() {
-      if (this.parent.type && this.parent.type === 'object') {
-        const {properties, required} = this.parent
-        delete properties[this.pickKey]
+      if (this.parent.type && this.parent.type === "object") {
+        const { properties, required } = this.parent;
+        delete properties[this.pickKey];
         if (required) {
-          const pos = required.indexOf(this.pickKey)
-          pos >= 0 && required.splice(pos, 1)
-          required.length === 0 && delete this.parent.required
+          const pos = required.indexOf(this.pickKey);
+          pos >= 0 && required.splice(pos, 1);
+          required.length === 0 && delete this.parent.required;
         }
-      } else if (this.parent.type && this.parent.type === 'array') {
-        const {items, required} = this.parent
+      } else if (this.parent.type && this.parent.type === "array") {
+        const { items, required } = this.parent;
         items.splice(this.pickKey, 1);
         if (required) {
-          const pos = required.indexOf(this.pickKey)
-          pos >= 0 && required.splice(pos, 1)
-          required.length === 0 && delete this.parent.required
+          const pos = required.indexOf(this.pickKey);
+          pos >= 0 && required.splice(pos, 1);
+          required.length === 0 && delete this.parent.required;
         }
       }
       this.parentReloadItems();
     },
     _joinName() {
-      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(
+        0,
+        5
+      )}`;
     },
     onSetting() {
       this.modalVisible = true;
       this.advancedValue = {};
-      this.advancedValue = this.advanced.value
+      this.advancedValue = this.advanced.value;
       for (const k in this.advancedValue) {
-        this.advancedValue[k] = this.pickValue[k]
+        this.advancedValue[k] = this.pickValue[k];
       }
     },
     handleClose() {
       this.modalVisible = false;
     },
     handleOk() {
-      this.modalVisible = false
+      this.modalVisible = false;
       for (const key in this.advancedValue) {
         if (isNull(this.advancedValue[key])) {
-          delete this.pickValue[key]
+          delete this.pickValue[key];
         } else {
-          this.$set(this.pickValue, key, this.advancedValue[key])
+          this.$set(this.pickValue, key, this.advancedValue[key]);
         }
       }
       for (const item of this.customProps) {
-        this.$set(this.pickValue, item.key, item.value)
+        this.$set(this.pickValue, item.key, item.value);
       }
     },
     parentReloadItems() {
@@ -399,13 +550,13 @@ export default {
       this.reloadItemOver = false;
       this.$nextTick(() => {
         this.reloadItemOver = true;
-      })
+      });
     },
     editScenarioAdvance(data) {
-      this.$emit('editScenarioAdvance', data);
+      this.$emit("editScenarioAdvance", data);
     },
-  }
-}
+  },
+};
 </script>
 <style scoped>
 .json-schema-editor .row {
@@ -475,7 +626,10 @@ export default {
   display: flex;
 }
 
-.json-schema-editor-advanced-modal .ms-advanced-search-form .ms-form-item .ms-form-item-control-wrapper {
+.json-schema-editor-advanced-modal
+  .ms-advanced-search-form
+  .ms-form-item
+  .ms-form-item-control-wrapper {
   flex: 1;
 }
 

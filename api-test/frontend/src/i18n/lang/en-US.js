@@ -1,6 +1,6 @@
 import el from "element-ui/lib/locale/lang/en";
 import fu from "fit2cloud-ui/src/locale/lang/en_US"; // 加载fit2cloud的内容
-import mf from "metersphere-frontend/src/i18n/lang/en-US"
+import mf from "metersphere-frontend/src/i18n/lang/en-US";
 
 const message = {
   api_case: {
@@ -13,10 +13,10 @@ const message = {
       is_required: "Is it required",
       desc: "Description",
       type: "Type",
-      default_value: "Default value"
+      default_value: "Default value",
     },
     body: {
-      json_format_error: "JSON format error"
+      json_format_error: "JSON format error",
     },
     case_name: "Case name",
     case_no_permission: "No permission to edit case",
@@ -27,7 +27,7 @@ const message = {
     scenario_count: "{0} [scenario]",
     plan_count: "{0} [test plan]",
     case_is_referenced: "{0} cases have reference relationships",
-    scenario_is_referenced: "{0} scenarios have reference relationships"
+    scenario_is_referenced: "{0} scenarios have reference relationships",
   },
   home: {
     dashboard: {
@@ -78,7 +78,7 @@ const message = {
         running_count: "Running count",
         scenario_schedule_total: "Total",
         pass_rate: "Pass rate",
-      }
+      },
     },
     table: {
       index: "Index",
@@ -106,17 +106,17 @@ const message = {
       api_status: "Api status",
       update_time: "Update time",
       relation_case: "Relation CASE",
-      relation_scenario: "Relation Scenario"
+      relation_scenario: "Relation Scenario",
     },
   },
-  automation:{
-    project_no_permission: "The current person does not have the operation permission for this step",
-  }
-}
+  automation: {
+    project_no_permission:
+      "The current person does not have the operation permission for this step",
+  },
+};
 export default {
   ...el,
   ...fu,
   ...mf,
-  ...message
+  ...message,
 };
-

@@ -1,57 +1,78 @@
 <template>
-  <div style="line-height: 20px;">
+  <div style="line-height: 20px">
     <div v-for="(menu, index) in menus" :key="index">
       <span class="link-type">
-        <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
-           @click="active(menu)" :class="{'is-active': menu.open}"></i>
-        <span @click="active(menu)" class="nav-menu-title nav-font">{{menu.title}}</span>
+        <i
+          class="icon el-icon-arrow-right"
+          style="font-weight: bold; margin-right: 2px"
+          @click="active(menu)"
+          :class="{ 'is-active': menu.open }"
+        ></i>
+        <span @click="active(menu)" class="nav-menu-title nav-font">{{
+          menu.title
+        }}</span>
       </span>
 
       <el-collapse-transition>
         <div v-if="menu.open">
-          <div v-for="(child, key) in menu.children" :key="key" class="func-div">
-            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">{{child.title}}</el-link>
+          <div
+            v-for="(child, key) in menu.children"
+            :key="key"
+            class="func-div"
+          >
+            <el-link
+              :disabled="child.disabled"
+              @click="handleClick(child)"
+              class="func-link nav-font"
+              >{{ child.title }}</el-link
+            >
           </div>
         </div>
       </el-collapse-transition>
     </div>
-    <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
+    <custom-function-relate
+      ref="customFunctionRelate"
+      @addCustomFuncScript="handleCodeTemplate"
+    />
     <!--接口列表-->
-    <api-func-relevance @save="apiSave" @close="apiClose" ref="apiFuncRelevance"/>
+    <api-func-relevance
+      @save="apiSave"
+      @close="apiClose"
+      ref="apiFuncRelevance"
+    />
   </div>
-
 </template>
 
 <script>
 import ApiFuncRelevance from "@/business/automation/scenario/common/function/ApiFuncRelevance";
 import CustomFunctionRelate from "@/business/automation/scenario/common/function/CustomFunctionRelate";
-import {getCodeTemplate} from "@/business/automation/scenario/common/function/custom-function";
-import {SCRIPT_MENU} from "@/business/automation/scenario/common/function/script-menu";
+import { getCodeTemplate } from "@/business/automation/scenario/common/function/custom-function";
+import { SCRIPT_MENU } from "@/business/automation/scenario/common/function/script-menu";
 
 export default {
   name: "MockScriptNavMenu",
   components: {
     ApiFuncRelevance,
-    CustomFunctionRelate
+    CustomFunctionRelate,
   },
   data() {
     return {
-      value: true
-    }
+      value: true,
+    };
   },
   props: {
     language: {
       type: String,
       default() {
-        return "beanshell"
-      }
+        return "beanshell";
+      },
     },
     menus: {
       type: Array,
       default() {
-        return SCRIPT_MENU
-      }
-    }
+        return SCRIPT_MENU;
+      },
+    },
   },
   methods: {
     apiSave(data, env) {
@@ -91,11 +112,11 @@ export default {
             }
           }
           let param = this._parseRequestObj(dt);
-          param['host'] = host;
-          param['domain'] = domain;
-          param['port'] = port;
-          param['protocol'] = protocol;
-          code += '\n' + getCodeTemplate(this.language, param);
+          param["host"] = host;
+          param["domain"] = domain;
+          param["port"] = port;
+          param["protocol"] = protocol;
+          code += "\n" + getCodeTemplate(this.language, param);
         }
       }
       this.handleCodeTemplate(code);
@@ -120,26 +141,26 @@ export default {
       let headers = request.headers;
       let rest = request.rest;
       if (rest && rest.length > 0) {
-        rest.forEach(r => {
+        rest.forEach((r) => {
           if (r.enable) {
             requestRest.set(r.name, r.value);
           }
-        })
+        });
       }
       if (headers && headers.length > 0) {
-        headers.forEach(header => {
+        headers.forEach((header) => {
           if (header.name) {
             requestHeaders.set(header.name, header.value);
           }
-        })
+        });
       }
       let args = request.arguments;
       if (args && args.length) {
-        args.forEach(arg => {
+        args.forEach((arg) => {
           if (arg.name) {
             requestArguments.set(arg.name, arg.value);
           }
-        })
+        });
       }
       let body = request.body;
       if (body.json) {
@@ -147,17 +168,24 @@ export default {
         bodyType = "json";
       } else if (body.kvs) {
         bodyType = "kvs";
-        body.kvs.forEach(arg => {
+        body.kvs.forEach((arg) => {
           if (arg.name) {
             requestBodyKvs.set(arg.name, arg.value);
           }
-        })
+        });
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody, requestBodyKvs, bodyType, requestArguments, requestRest}
+      return {
+        requestPath,
+        requestHeaders,
+        requestMethod,
+        requestBody,
+        requestBodyKvs,
+        bodyType,
+        requestArguments,
+        requestRest,
+      };
     },
-    apiClose() {
-
-    },
+    apiClose() {},
     handleClick(obj) {
       let code = "";
       if (obj.command) {
@@ -167,10 +195,21 @@ export default {
         }
       } else {
         // todo 优化
-        if (this.language !== 'beanshell' && this.language !== 'groovy') {
-          if (obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
-            obj.title === this.$t('api_test.request.processor.code_hide_report_length')) {
-            this.$warning(this.$t('commons.no_corresponding') + " " + this.language + " " + this.$t('commons.code_template') + "！");
+        if (this.language !== "beanshell" && this.language !== "groovy") {
+          if (
+            obj.title ===
+              this.$t("api_test.request.processor.code_add_report_length") ||
+            obj.title ===
+              this.$t("api_test.request.processor.code_hide_report_length")
+          ) {
+            this.$warning(
+              this.$t("commons.no_corresponding") +
+                " " +
+                this.language +
+                " " +
+                this.$t("commons.code_template") +
+                "！"
+            );
             return;
           }
         }
@@ -180,17 +219,17 @@ export default {
     },
     _handleCommand(command) {
       switch (command) {
-        case 'custom_function':
+        case "custom_function":
           this.$refs.customFunctionRelate.open(this.language);
           return "";
-        case 'api_definition':
+        case "api_definition":
           this.$refs.apiFuncRelevance.open();
           return "";
-        case 'new_api_request': {
+        case "new_api_request": {
           // requestObj为空则生产默认模版
           let headers = new Map();
-          headers.set('Content-type', 'application/json');
-          return getCodeTemplate(this.language, {requestHeaders: headers});
+          headers.set("Content-type", "application/json");
+          return getCodeTemplate(this.language, { requestHeaders: headers });
         }
         default:
           return "";
@@ -202,13 +241,12 @@ export default {
       } else {
         this.$set(menu, "open", !menu.open);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .template-title {
   margin-bottom: 4px;
   font-weight: bold;

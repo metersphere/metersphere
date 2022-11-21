@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "TestBeanGUI",
       testclass: "JSR223PreProcessor",
       testname: "JSR223 PreProcessor",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class JSR223PreProcessor extends PostProcessor {
@@ -25,5 +25,5 @@ export default class JSR223PreProcessor extends PostProcessor {
 }
 
 export const schema = {
-  JSR223PreProcessor: JSR223PreProcessor
-}
+  JSR223PreProcessor: JSR223PreProcessor,
+};

@@ -11,14 +11,16 @@
               :report="report"
               :project-env-map="projectEnvMap"
               @reportExport="handleExport"
-              @reportSave="handleSave"/>
+              @reportSave="handleSave"
+            />
           </div>
           <main>
             <ms-metric-chart
               :content="content"
               :totalTime="totalTime"
               :report="report"
-              v-if="!loading"/>
+              v-if="!loading"
+            />
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="All" name="total">
@@ -31,9 +33,7 @@
                   />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
-                  <template slot="label">
-                    Error
-                  </template>
+                  <template slot="label"> Error </template>
                   <ms-scenario-results
                     :console="content.console"
                     :report="report"
@@ -44,24 +44,26 @@
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #F6972A">
-                    FakeError
-                  </span>
+                    <span class="fail" style="color: #f6972a"> FakeError </span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="errorReportTree"/>
+                  <ms-scenario-results
+                    v-on:requestResult="requestResult"
+                    :console="content.console"
+                    :treeData="fullTreeNodes"
+                    ref="errorReportTree"
+                  />
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #9C9B9A">
-                      Pending
-                    </span>
+                    <span class="fail" style="color: #9c9b9a"> Pending </span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult"
-                                       :report="report"
-                                       :console="content.console"
-                                       :treeData="fullTreeNodes"
-                                       ref="unExecuteTree"/>
+                  <ms-scenario-results
+                    v-on:requestResult="requestResult"
+                    :report="report"
+                    :console="content.console"
+                    :treeData="fullTreeNodes"
+                    ref="unExecuteTree"
+                  />
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
@@ -87,8 +89,7 @@
 </template>
 
 <script>
-
-import {baseSocket} from "@/api/base-network";
+import { baseSocket } from "@/api/base-network";
 import MsRequestResult from "./components/RequestResult";
 import MsRequestResultTail from "./components/RequestResultTail";
 import MsScenarioResult from "./components/ScenarioResult";
@@ -98,11 +99,11 @@ import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
-import {RequestFactory} from "../../definition/model/ApiTestModel";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {windowPrint} from "metersphere-frontend/src/utils";
-import {STEP} from "../scenario/Setting";
-import {getScenarioReport, updateReport} from "@/api/scenario-report";
+import { RequestFactory } from "../../definition/model/ApiTestModel";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import { windowPrint } from "metersphere-frontend/src/utils";
+import { STEP } from "../scenario/Setting";
+import { getScenarioReport, updateReport } from "@/api/scenario-report";
 
 export default {
   name: "SyncApiReportDetail",
@@ -110,12 +111,17 @@ export default {
     MsApiReportViewHeader,
     MsApiReportExport,
     MsMainContainer,
-    MsContainer, MsScenarioResults, MsRequestResultTail, MsMetricChart, MsScenarioResult, MsRequestResult
+    MsContainer,
+    MsScenarioResults,
+    MsRequestResultTail,
+    MsMetricChart,
+    MsScenarioResult,
+    MsRequestResult,
   },
   data() {
     return {
       activeName: "total",
-      content: {total: 0, scenarioTotal: 1},
+      content: { total: 0, scenarioTotal: 1 },
       report: {},
       loading: false,
       totalTime: 0,
@@ -128,26 +134,25 @@ export default {
       reportExportVisible: false,
       requestType: undefined,
       fullTreeNodes: [],
-      debugResult: new Map,
-      scenarioMap: new Map,
+      debugResult: new Map(),
+      scenarioMap: new Map(),
       exportFlag: false,
       messageWebSocket: {},
       websocket: {},
-      stepFilter: new STEP,
+      stepFilter: new STEP(),
       tempResult: [],
       projectEnvMap: {},
-    }
+    };
   },
   activated() {
     this.isRequestResult = false;
   },
-  created() {
-
-  },
+  created() {},
   mounted() {
     this.$nextTick(() => {
       if (this.scenario && this.scenario.scenarioDefinition) {
-        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
+        this.content.scenarioStepTotal =
+          this.scenario.scenarioDefinition.hashTree.length;
         this.initTree();
         this.initMessageSocket();
         this.clearDebug();
@@ -162,8 +167,8 @@ export default {
     scenarioId: String,
     isUi: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     initTree() {
@@ -172,11 +177,21 @@ export default {
         resId: "root",
         index: 1,
         label: this.scenario.name,
-        value: {responseResult: {}, unexecute: true, testing: false, status: 'PENDING'},
+        value: {
+          responseResult: {},
+          unexecute: true,
+          testing: false,
+          status: "PENDING",
+        },
         children: [],
-        unsolicited: true
+        unsolicited: true,
       };
-      this.formatContent(this.scenario.scenarioDefinition.hashTree, obj, "", "root");
+      this.formatContent(
+        this.scenario.scenarioDefinition.hashTree,
+        obj,
+        "",
+        "root"
+      );
       this.fullTreeNodes.push(obj);
     },
     compare() {
@@ -184,7 +199,7 @@ export default {
         let v1 = a.value.sort;
         let v2 = b.value.sort;
         return v1 - v2;
-      }
+      };
     },
     getType(type) {
       switch (type) {
@@ -200,7 +215,7 @@ export default {
       return type;
     },
     margeTransaction(item, arr) {
-      arr.forEach(subItem => {
+      arr.forEach((subItem) => {
         if (item.resId === subItem.resourceId) {
           item.value = subItem;
           item.testing = false;
@@ -209,39 +224,66 @@ export default {
         if (subItem.subRequestResults && subItem.subRequestResults.length > 0) {
           this.margeTransaction(item, subItem.subRequestResults);
         }
-      })
+      });
     },
     formatContent(hashTree, tree, fullPath, pid) {
       if (hashTree) {
-        hashTree.forEach(item => {
+        hashTree.forEach((item) => {
           if (item.enable) {
-            item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
+            item.parentIndex = fullPath
+              ? fullPath + "_" + item.index
+              : item.index;
             let name = item.name ? item.name : this.getType(item.type);
-            let id = item.type === 'JSR223Processor' || !item.id ? item.resourceId : item.id
+            let id =
+              item.type === "JSR223Processor" || !item.id
+                ? item.resourceId
+                : item.id;
             let obj = {
-              pid: pid, resId: id + "_" + item.parentIndex, index: Number(item.index), label: name,
-              value: {name: name, responseResult: {}, unexecute: true, testing: false, status: 'PENDING'}, children:
-                [], unsolicited: true
+              pid: pid,
+              resId: id + "_" + item.parentIndex,
+              index: Number(item.index),
+              label: name,
+              value: {
+                name: name,
+                responseResult: {},
+                unexecute: true,
+                testing: false,
+                status: "PENDING",
+              },
+              children: [],
+              unsolicited: true,
             };
             tree.children.push(obj);
-            if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+            if (
+              this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1
+            ) {
               obj.unsolicited = false;
               obj.type = item.type;
-            } else if (item.type === 'scenario') {
+            } else if (item.type === "scenario") {
               this.content.scenarioTotal += 1;
             }
-            if (item.hashTree && item.hashTree.length > 0 && this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) === -1) {
-              this.formatContent(item.hashTree, obj, item.parentIndex, obj.resId);
+            if (
+              item.hashTree &&
+              item.hashTree.length > 0 &&
+              this.stepFilter &&
+              this.stepFilter.get("AllSamplerProxy").indexOf(item.type) === -1
+            ) {
+              this.formatContent(
+                item.hashTree,
+                obj,
+                item.parentIndex,
+                obj.resId
+              );
             }
           }
-        })
+        });
       }
     },
     handleExport() {
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
       this.$nextTick(() => {
-        windowPrint('apiTestReport', 0.57);
+        windowPrint("apiTestReport", 0.57);
         reset();
       });
     },
@@ -265,7 +307,7 @@ export default {
       this.active();
       this.isRequestResult = false;
       this.requestType = undefined;
-      if (requestResult.request.body.indexOf('[Callable Statement]') > -1) {
+      if (requestResult.request.body.indexOf("[Callable Statement]") > -1) {
         this.requestType = RequestFactory.TYPES.SQL;
       }
       this.$nextTick(function () {
@@ -307,19 +349,22 @@ export default {
     },
     handleSave() {
       if (!this.report.name) {
-        this.$warning(this.$t('api_test.automation.report_name_info'));
+        this.$warning(this.$t("api_test.automation.report_name_info"));
         return;
       }
       this.loading = true;
       this.report.projectId = this.projectId;
       let url = "/api/scenario/report/update";
-      this.result = updateReport(this.report).then(response => {
-        this.$success(this.$t('commons.save_success'));
-        this.loading = false;
-        this.$emit('refresh');
-      }, error => {
-        this.loading = false;
-      });
+      this.result = updateReport(this.report).then(
+        (response) => {
+          this.$success(this.$t("commons.save_success"));
+          this.loading = false;
+          this.$emit("refresh");
+        },
+        (error) => {
+          this.loading = false;
+        }
+      );
     },
 
     initMessageSocket() {
@@ -328,26 +373,30 @@ export default {
       this.messageWebSocket.onerror = this.cleanHeartBeat;
     },
     getReport() {
-      getScenarioReport(this.reportId).then(response => {
+      getScenarioReport(this.reportId).then((response) => {
         this.report = response.data || {};
         if (response.data) {
           this.content = JSON.parse(response.data.content);
           if (!this.content) {
-            this.content = {scenarios: []};
+            this.content = { scenarios: [] };
           }
           if (this.content.projectEnvMap) {
             this.projectEnvMap = this.content.projectEnvMap;
           }
           this.content.error = this.content ? this.content.error : "";
 
-          this.content.success = (this.content.total - this.content.error - this.content.errorCode - this.content.unExecute);
+          this.content.success =
+            this.content.total -
+            this.content.error -
+            this.content.errorCode -
+            this.content.unExecute;
           this.totalTime = this.content.totalTime;
           this.fullTreeNodes = this.content.steps;
           this.recursiveSorting(this.fullTreeNodes);
           this.reload();
         }
         if ("Running" !== this.report.status) {
-          this.$emit('finish');
+          this.$emit("finish");
         }
       });
     },
@@ -357,39 +406,45 @@ export default {
       }
       if (Array.isArray(origin)) {
         this.sortChildren(origin);
-        origin.forEach(v => {
+        origin.forEach((v) => {
           if (v.children) {
-            this.checkOrder(v.children)
+            this.checkOrder(v.children);
           }
-        })
+        });
       }
     },
     sortChildren(source) {
       if (!source) {
         return;
       }
-      source.forEach(item => {
+      source.forEach((item) => {
         let children = item.children;
         if (children && children.length > 0) {
           let tempArr = new Array(children.length);
           let tempMap = new Map();
 
           for (let i = 0; i < children.length; i++) {
-            if (!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0) {
+            if (
+              !children[i].value ||
+              !children[i].value.startTime ||
+              children[i].value.startTime === 0
+            ) {
               //若没有value或未执行的，则step留在当前位置
               tempArr[i] = children[i];
               //进行标识
-              tempMap.set(children[i].stepId, children[i])
+              tempMap.set(children[i].stepId, children[i]);
             }
           }
 
           //过滤出还没有指定好位置的step
-          let arr = children.filter(m => {
-            return !tempMap.get(m.stepId);
-          }).sort((m, n) => {
-            //按时间排序
-            return m.value.startTime - n.value.startTime;
-          });
+          let arr = children
+            .filter((m) => {
+              return !tempMap.get(m.stepId);
+            })
+            .sort((m, n) => {
+              //按时间排序
+              return m.value.startTime - n.value.startTime;
+            });
 
           //找出arr(已经有序，从头取即可)中时间最小的插入 tempArr 可用位置
           for (let j = 0, i = 0; j < tempArr.length; j++) {
@@ -405,21 +460,25 @@ export default {
           //赋值
           item.children = tempArr;
         }
-      })
+      });
     },
     runningNodeChild(arr, resourceId) {
-      arr.forEach(item => {
+      arr.forEach((item) => {
         if (resourceId === item.resId) {
           item.value.testing = true;
         } else if (resourceId && resourceId.startsWith("result_")) {
           let data = JSON.parse(resourceId.substring(7));
           if (!data.status && data.error > 0) {
-            data.status = 'ERROR';
+            data.status = "ERROR";
           }
           if (!data.status && data.success) {
-            data.status = 'SUCCESS';
+            data.status = "SUCCESS";
           }
-          if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+          if (
+            data.method === "Request" &&
+            data.subRequestResults &&
+            data.subRequestResults.length > 0
+          ) {
             this.margeTransaction(item, data.subRequestResults);
           } else if (item.resId === data.resourceId) {
             if (item.value && item.value.id && !item.mark) {
@@ -440,29 +499,33 @@ export default {
         if (item.children && item.children.length > 0) {
           this.runningNodeChild(item.children, resourceId);
         }
-      })
+      });
     },
     runningEvaluation(resourceId) {
       if (this.fullTreeNodes) {
-        this.fullTreeNodes.forEach(item => {
+        this.fullTreeNodes.forEach((item) => {
           if (resourceId === item.resId) {
             item.value.testing = true;
           } else if (resourceId && resourceId.startsWith("result_")) {
             let data = JSON.parse(resourceId.substring(7));
             if (!data.status && data.error > 0) {
-              data.status = 'ERROR';
+              data.status = "ERROR";
             }
             if (!data.status && data.success) {
-              data.status = 'SUCCESS';
+              data.status = "SUCCESS";
             }
-            if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-              data.subRequestResults.forEach(subItem => {
+            if (
+              data.method === "Request" &&
+              data.subRequestResults &&
+              data.subRequestResults.length > 0
+            ) {
+              data.subRequestResults.forEach((subItem) => {
                 if (item.resId === subItem.resourceId) {
                   item.value = subItem;
                   item.testing = false;
                   item.debug = true;
                 }
-              })
+              });
             } else if (item.resId === data.resourceId) {
               item.value = data;
               item.testing = false;
@@ -472,7 +535,7 @@ export default {
           if (item.children && item.children.length > 0) {
             this.runningNodeChild(item.children, resourceId);
           }
-        })
+        });
       }
     },
     onMessage(e) {
@@ -484,8 +547,8 @@ export default {
         this.getReport();
         this.messageWebSocket.close();
         this.cleanHeartBeat();
-        this.$EventBus.$emit('hide', this.scenarioId);
-        this.$emit('refresh', this.debugResult);
+        this.$EventBus.$emit("hide", this.scenarioId);
+        this.$emit("refresh", this.debugResult);
       }
     },
     sort(stepArray) {
@@ -498,22 +561,22 @@ export default {
     },
 
     cleanHeartBeat() {
-      this.$emit('refresh', this.debugResult);
+      this.$emit("refresh", this.debugResult);
     },
     heartBeat() {
       let msg = {
         reportId: this.reportId,
-        content: "i'm alive"
+        content: "i'm alive",
       };
       this.messageWebSocket.send(JSON.stringify(msg));
-    }
+    },
   },
   computed: {
     projectId() {
       return getCurrentProjectID();
     },
-  }
-}
+  },
+};
 </script>
 <style>
 .report-container .el-tabs__header {
@@ -522,7 +585,6 @@ export default {
 </style>
 
 <style scoped>
-
 .report-container {
   height: calc(100vh - 155px);
   min-height: 600px;
@@ -543,7 +605,7 @@ export default {
 }
 
 .report-container .fail {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .report-container .is-active .fail {
@@ -561,5 +623,4 @@ export default {
 .report-body {
   min-width: 750px !important;
 }
-
 </style>

@@ -10,13 +10,15 @@
     :show-btn="showBtn"
     :show-version="showVersion"
     :background-color="backgroundColor"
-    :title="title" v-loading="loading">
-
+    :title="title"
+    v-loading="loading"
+  >
     <template v-slot:request>
       <jdbc-processor-content
         :showScript="false"
         :scenarioId="scenarioId"
-        :request="request"/>
+        :request="request"
+      />
     </template>
   </api-base-component>
 </template>
@@ -32,7 +34,10 @@ export default {
   name: "MsJdbcProcessor",
   components: {
     JdbcProcessorContent,
-    ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit
+    ApiBaseComponent,
+    MsDropdown,
+    MsInstructionsIcon,
+    MsCodeEdit,
   },
   props: {
     scenarioId: String,
@@ -54,8 +59,7 @@ export default {
     },
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     request: Object,
     title: String,
@@ -63,17 +67,16 @@ export default {
     backgroundColor: String,
     node: {},
   },
-  created() {
-  },
+  created() {},
   data() {
-    return {loading: false};
+    return { loading: false };
   },
   methods: {
     remove() {
-      this.$emit('remove', this.request, this.node);
+      this.$emit("remove", this.request, this.node);
     },
     copyRow() {
-      this.$emit('copyRow', this.request, this.node);
+      this.$emit("copyRow", this.request, this.node);
     },
     reload() {
       this.loading = true;
@@ -85,7 +88,7 @@ export default {
       this.request.active = !this.request.active;
       this.reload();
     },
-  }
+  },
 };
 </script>
 
@@ -98,5 +101,4 @@ export default {
   margin-left: 20px;
   padding: 7px;
 }
-
 </style>

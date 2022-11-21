@@ -1,43 +1,42 @@
 <template>
-  <div style="background-color:#F5F6F7;overflow: auto">
+  <div style="background-color: #f5f6f7; overflow: auto">
     <ms-container>
       <ms-main-container style="padding: 0px">
         <div class="api-home-layout">
-          <el-row :gutter=16>
+          <el-row :gutter="16">
             <el-col :span="12">
-              <api-dashboard @redirectPage="redirectPage"/>
+              <api-dashboard @redirectPage="redirectPage" />
             </el-col>
             <el-col :span="12">
-              <api-case-dashboard @redirectPage="redirectPage"/>
-            </el-col>
-          </el-row>
-          <el-row :gutter=16 style="margin-top: 16px;">
-            <el-col :span="12">
-              <scenario-dashboard @redirectPage="redirectPage"/>
-            </el-col>
-            <el-col :span="12">
-              <scenario-schedule-dashboard @redirectPage="redirectPage"/>
+              <api-case-dashboard @redirectPage="redirectPage" />
             </el-col>
           </el-row>
-          <el-row style="margin-top: 16px">
-            <el-col style="background-color: #FFFFFF;">
-              <updated-api-list @redirectPage="redirectPage"/>
+          <el-row :gutter="16" style="margin-top: 16px">
+            <el-col :span="12">
+              <scenario-dashboard @redirectPage="redirectPage" />
+            </el-col>
+            <el-col :span="12">
+              <scenario-schedule-dashboard @redirectPage="redirectPage" />
             </el-col>
           </el-row>
           <el-row style="margin-top: 16px">
-            <el-col style="background-color: #FFFFFF;">
-              <schedule-task-list @redirectPage="redirectPage"/>
+            <el-col style="background-color: #ffffff">
+              <updated-api-list @redirectPage="redirectPage" />
+            </el-col>
+          </el-row>
+          <el-row style="margin-top: 16px">
+            <el-col style="background-color: #ffffff">
+              <schedule-task-list @redirectPage="redirectPage" />
             </el-col>
           </el-row>
         </div>
       </ms-main-container>
     </ms-container>
   </div>
-
 </template>
 
 <script>
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from "metersphere-frontend/src/utils";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import ApiDashboard from "@/business/home/components/dashboard/ApiDashboard";
@@ -58,17 +57,14 @@ export default {
     ScenarioDashboard,
     ScenarioScheduleDashboard,
     UpdatedApiList,
-    ScheduleTaskList
+    ScheduleTaskList,
   },
 
   data() {
-    return {}
+    return {};
   },
-  activated() {
-  },
-  created() {
-
-  },
+  activated() {},
+  created() {},
   methods: {
     /**
      *
@@ -84,32 +80,44 @@ export default {
       switch (redirectPage) {
         case "api":
           home = this.$router.resolve({
-            name: 'ApiDefinitionWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectRange}
+            name: "ApiDefinitionWithQuery",
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+            },
           });
           break;
         case "scenario":
           home = this.$router.resolve({
-            name: 'ApiAutomationWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectRange}
+            name: "ApiAutomationWithQuery",
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+            },
           });
           break;
         case "scenarioReport":
           home = this.$router.resolve({
-            name: 'ApiReportListWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectRange}
+            name: "ApiReportListWithQuery",
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+            },
           });
           break;
         case "testPlanEdit":
-          home = this.$router.resolve('/track/plan/view/' + selectParam)
+          home = this.$router.resolve("/track/plan/view/" + selectParam);
           break;
       }
       if (home) {
-        window.open(home.href, '_blank');
+        window.open(home.href, "_blank");
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -149,10 +157,10 @@ export default {
 .api-home-layout :deep(.main-info-card) {
   height: 208px;
   width: 100%;
-  color: #646A73;
-  background-color: #FFFFFF;
+  color: #646a73;
+  background-color: #ffffff;
   box-sizing: border-box;
-  border: 1px solid #DEE0E3;
+  border: 1px solid #dee0e3;
   border-radius: 4px;
 }
 
@@ -165,7 +173,7 @@ export default {
   line-height: 22px;
   font-size: 14px;
   font-weight: 400;
-  color: #646A73;
+  color: #646a73;
 }
 
 .api-home-layout :deep(.addition-info-text) {
@@ -184,13 +192,13 @@ export default {
 
 .api-home-layout :deep(.home-table-cell) {
   height: 38px;
-  background-color: #F5F6F7;
+  background-color: #f5f6f7;
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(31, 35, 41, 0.15);
   border-right-width: 0;
   border-left-width: 0;
-  color: #646A73;
+  color: #646a73;
   line-height: 22px;
 }
 
@@ -199,20 +207,21 @@ export default {
 }
 
 .api-home-layout :deep(.table-title) {
-  color: #1F2329;
+  color: #1f2329;
   font-weight: 500;
   font-size: 18px;
   line-height: 26px;
 }
 
-.api-home-layout :deep(.el-table__row), .adjust-table :deep(.el-table__row .el-link) {
+.api-home-layout :deep(.el-table__row),
+.adjust-table :deep(.el-table__row .el-link) {
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
-.api-home-layout :deep(.el-table__body tr:hover ) {
+.api-home-layout :deep(.el-table__body tr:hover) {
   cursor: pointer;
 }
 

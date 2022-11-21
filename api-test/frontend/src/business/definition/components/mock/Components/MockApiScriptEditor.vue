@@ -2,33 +2,50 @@
   <div>
     <el-row type="flex">
       <el-col :span="codeSpan" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223Processor.scriptLanguage]"
-                      :read-only="isReadOnly"
-                      height="90%"
-                      :data.sync="jsr223Processor.script" theme="eclipse" :modes="['java','python']"
-                      ref="codeEdit"/>
+        <ms-code-edit
+          v-if="isCodeEditAlive"
+          :mode="codeEditModeMap[jsr223Processor.scriptLanguage]"
+          :read-only="isReadOnly"
+          height="90%"
+          :data.sync="jsr223Processor.script"
+          theme="eclipse"
+          :modes="['java', 'python']"
+          ref="codeEdit"
+        />
       </el-col>
-      <div style="width: 14px;margin-right: 5px;">
-        <div style="height: 12px;width: 12px; line-height:12px;">
-          <i :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
-             class="show-menu"
-             @click="switchMenu"></i>
+      <div style="width: 14px; margin-right: 5px">
+        <div style="height: 12px; width: 12px; line-height: 12px">
+          <i
+            :class="
+              showMenu
+                ? 'el-icon-remove-outline'
+                : 'el-icon-circle-plus-outline'
+            "
+            class="show-menu"
+            @click="switchMenu"
+          ></i>
         </div>
       </div>
       <el-col :span="menuSpan" style="width: 200px" class="script-index">
-        <ms-dropdown :default-command.sync="jsr223Processor.scriptLanguage" :commands="languages"
-                     style="margin-bottom: 5px;margin-left: 15px;"
-                     @command="languageChange"/>
-        <mock-script-nav-menu ref="scriptNavMenu" style="width: 90%" :language="jsr223Processor.scriptLanguage"
-                              :menus="baseCodeTemplates"
-                              @handleCode="handleCodeTemplate"/>
+        <ms-dropdown
+          :default-command.sync="jsr223Processor.scriptLanguage"
+          :commands="languages"
+          style="margin-bottom: 5px; margin-left: 15px"
+          @command="languageChange"
+        />
+        <mock-script-nav-menu
+          ref="scriptNavMenu"
+          style="width: 90%"
+          :language="jsr223Processor.scriptLanguage"
+          :menus="baseCodeTemplates"
+          @handleCode="handleCodeTemplate"
+        />
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-
 import MsCodeEdit from "@/business/definition/components/MsCodeEdit";
 import MsDropdown from "@/business/commons/MsDropdown";
 import CustomFunctionRelate from "@/business/automation/scenario/common/function/CustomFunctionRelate";
@@ -38,36 +55,40 @@ import i18n from "metersphere-frontend/src/i18n";
 
 export default {
   name: "MockApiScriptEditor",
-  components: {MsDropdown, MsCodeEdit, CustomFunctionRelate, ApiFuncRelevance, MockScriptNavMenu},
+  components: {
+    MsDropdown,
+    MsCodeEdit,
+    CustomFunctionRelate,
+    ApiFuncRelevance,
+    MockScriptNavMenu,
+  },
   data() {
     return {
       baseCodeTemplates: [],
       tcpCodeTemplates: [
         {
-          title: this.$t('project.code_segment.code_segment'),
+          title: this.$t("project.code_segment.code_segment"),
           children: [
             {
-              title: this.$t('project.code_segment.insert_segment'),
+              title: this.$t("project.code_segment.insert_segment"),
               command: "custom_function",
-            }
-          ]
+            },
+          ],
         },
       ],
       isCodeEditAlive: true,
-      languages: [
-        'beanshell', "python"
-      ],
+      languages: ["beanshell", "python"],
       codeEditModeMap: {
-        beanshell: 'java',
-        python: 'python',
-        groovy: 'java',
-        nashornScript: 'javascript',
-        rhinoScript: 'javascript',
+        beanshell: "java",
+        python: "python",
+        groovy: "java",
+        nashornScript: "javascript",
+        rhinoScript: "javascript",
       },
       codeSpan: 20,
       menuSpan: 4,
       showMenu: true,
-    }
+    };
   },
   created() {
     if (this.jsr223Processor) {
@@ -86,66 +107,77 @@ export default {
     httpCodeTemplates() {
       let returnData = [
         {
-          title: "API" + this.$t('api_test.definition.document.request_info'),
+          title: "API" + this.$t("api_test.definition.document.request_info"),
           children: [
             {
-              title: this.$t('api_test.request.address'),
+              title: this.$t("api_test.request.address"),
               value: this.getScript("address"),
             },
             {
-              title: "Header " + this.$t('api_test.definition.document.request_param'),
+              title:
+                "Header " +
+                this.$t("api_test.definition.document.request_param"),
               value: this.getScript("header"),
             },
             {
-              title: this.$t('api_test.request.body') + this.$t('api_test.variable'),
+              title:
+                this.$t("api_test.request.body") + this.$t("api_test.variable"),
               value: this.getScript("body"),
             },
             {
-              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + " (Raw)",
+              title:
+                this.$t("api_test.request.body") +
+                this.$t("api_test.variable") +
+                " (Raw)",
               value: this.getScript("bodyRaw"),
             },
             {
-              title: "Query " + this.$t('api_test.definition.document.request_param'),
+              title:
+                "Query " +
+                this.$t("api_test.definition.document.request_param"),
               value: this.getScript("query"),
             },
             {
-              title: "Rest " + this.$t('api_test.definition.document.request_param'),
+              title:
+                "Rest " + this.$t("api_test.definition.document.request_param"),
               value: this.getScript("rest"),
             },
-
-          ]
+          ],
         },
         {
-          title: i18n.t('project.code_segment.custom_value'),
+          title: i18n.t("project.code_segment.custom_value"),
           children: [
             {
-              title: i18n.t('api_test.request.processor.code_template_get_variable'),
+              title: i18n.t(
+                "api_test.request.processor.code_template_get_variable"
+              ),
               value: 'vars.get("variable_name");',
             },
             {
-              title: i18n.t('api_test.request.processor.code_template_set_variable'),
+              title: i18n.t(
+                "api_test.request.processor.code_template_set_variable"
+              ),
               value: 'vars.put("variable_name", "variable_value");',
             },
-          ]
+          ],
         },
         {
-          title: this.$t('project.code_segment.code_segment'),
+          title: this.$t("project.code_segment.code_segment"),
           children: [
             {
-              title: this.$t('project.code_segment.insert_segment'),
+              title: this.$t("project.code_segment.insert_segment"),
               command: "custom_function",
-            }
-          ]
+            },
+          ],
         },
       ];
       return returnData;
-    }
+    },
   },
   props: {
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     jsr223Processor: {
       type: Object,
@@ -160,21 +192,20 @@ export default {
     jsr223Processor() {
       this.reload();
     },
-    'jsr223Processor.scriptLanguage'() {
+    "jsr223Processor.scriptLanguage"() {
       if (this.showApi) {
         this.baseCodeTemplates = this.httpCodeTemplates;
       } else {
         this.baseCodeTemplates = this.tcpCodeTemplates;
       }
-    }
-  }
-  ,
+    },
+  },
   methods: {
     getScript(type) {
       let returnScript = "";
       let laguanges = "beanshell";
       if (this.jsr223Processor) {
-        laguanges = this.jsr223Processor.scriptLanguage
+        laguanges = this.jsr223Processor.scriptLanguage;
       }
       switch (type) {
         case "address":
@@ -230,8 +261,8 @@ export default {
         this.jsr223Processor.script = "";
       }
       this.jsr223Processor.script += template.value;
-      if (this.jsr223Processor.scriptLanguage === 'beanshell') {
-        this.jsr223Processor.script += ';';
+      if (this.jsr223Processor.scriptLanguage === "beanshell") {
+        this.jsr223Processor.script += ";";
       }
       this.reload();
     },
@@ -244,8 +275,9 @@ export default {
       this.$emit("languageChange");
     },
     addCustomFuncScript(script) {
-      this.jsr223Processor.script = this.jsr223Processor.script ?
-        this.jsr223Processor.script + '\n\n' + script : script;
+      this.jsr223Processor.script = this.jsr223Processor.script
+        ? this.jsr223Processor.script + "\n\n" + script
+        : script;
       this.reload();
     },
     switchMenu() {
@@ -263,8 +295,8 @@ export default {
         this.$refs.codeEdit.insert(code);
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -312,5 +344,4 @@ export default {
 .show-menu:hover {
   color: #935aa1;
 }
-
 </style>

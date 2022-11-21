@@ -6,9 +6,9 @@ const DEFAULT_OPTIONS = {
       guiclass: "TestBeanGUI",
       testclass: "JDBCSampler",
       testname: "JDBC Request",
-      enabled: "true"
+      enabled: "true",
     },
-  }
+  },
 };
 
 export default class JDBCSampler extends Sampler {
@@ -33,5 +33,5 @@ export default class JDBCSampler extends Sampler {
 }
 
 export const schema = {
-  JDBCSampler: JDBCSampler
-}
+  JDBCSampler: JDBCSampler,
+};
