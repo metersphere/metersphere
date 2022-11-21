@@ -401,6 +401,7 @@ export default {
       if (this.$refs.testCaseIssueList) {
         this.$refs.testCaseIssueList.tableData = [];
       }
+      this.$refs.form.clearValidate();
     },
     open(data, type) {
       this.uploadFiles = [];
