@@ -894,6 +894,16 @@
                  join issues on tci.issues_id = issues.id
         where tptc.plan_id = #{planId} and tptc.is_del != 1
     </select>
+    <select id="getTestPlanThisWeekBugCount" resultType="java.lang.Long">
+        select count(distinct tci.issues_id)
+        from test_plan_test_case tptc
+                 join test_case_issues tci on tptc.id = tci.resource_id
+        where tptc.plan_id = #{planId} and tptc.is_del != 1 and date_sub(curdate(), interval 7 day) &lt;= from_unixtime(round(tci.relate_time / 1000, 0))
+            and tci.issues_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
     <select id="getTestPlanCase" resultType="int">
         select count(s)
         from (select tptc.id as s

@@ -188,7 +188,7 @@ public class TrackService {
 
         int thisWeekCount = 0;
         if (CollectionUtils.isNotEmpty(unClosedIds)) {
-            thisWeekCount = extIssuesMapper.getThisWeekIssueCount(unClosedIds, projectId).intValue();
+            thisWeekCount = extTestCaseMapper.getTestPlanThisWeekBugCount(planId, unClosedIds).intValue();
         }
         bugSizeMap.put("thisWeekCount", thisWeekCount);
         return bugSizeMap;

@@ -15,7 +15,7 @@
         <div v-show="!loadError">
           <div class="main-info">
             <count-chart :chart-data="bugData.chartData" :main-title="chartMainTitle"
-                         :week-count="bugData.thisWeekAddedCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
+                         :week-count="bugData.thisWeekCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
           </div>
           <div class="addition-info">
             <el-row :gutter="24" style="margin: 0">
