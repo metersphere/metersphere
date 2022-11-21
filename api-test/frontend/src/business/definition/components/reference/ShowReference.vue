@@ -164,17 +164,29 @@ export default {
           let data = res.data || [];
           this.total = data.itemCount || 0;
           if (this.workspaceList) {
-            this.workspaceFilters = this.workspaceList
-              .filter((workspace) => {
-                return data.listObject.find((i) => i.workspaceId === workspace.id);
-              })
-              .map((e) => {
-                return { text: e.name, value: e.id };
-              });
+            if (this.workspaceFilters.length === 0) {
+              this.workspaceFilters = this.workspaceList
+                .filter((workspace) => {
+                  return data.listObject.find((i) => i.workspaceId === workspace.id);
+                })
+                .map((e) => {
+                  return { text: e.name, value: e.id };
+                });
+            }
             let workspaceIds = [];
-            this.workspaceFilters.map((item) => {
-              workspaceIds.push(item.value);
-            });
+            if (
+              this.condition.filters &&
+              this.condition.filters.workspace_id &&
+              this.condition.filters.workspace_id.length > 0
+            ) {
+              this.condition.filters.workspace_id.map((item) => {
+                workspaceIds.push(item);
+              });
+            } else {
+              this.workspaceFilters.map((item) => {
+                workspaceIds.push(item.value);
+              });
+            }
             apiProjectRelated({
               userId: getCurrentUserId(),
               workspaceIds: workspaceIds,
