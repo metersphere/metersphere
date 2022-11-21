@@ -31,11 +31,14 @@
       <el-form-item class="tips-item">
         <span class="tips">{{ $t('custom_field.sync_issue_tips') }}</span>
       </el-form-item>
-      <el-form-item class="btn-group">
+    </el-form>
+
+    <template v-slot:footer>
+      <div class="dialog-footer">
         <el-button size="small" @click="cancel">{{ $t('commons.cancel') }}</el-button>
         <el-button type="primary" size="small" @click="save">{{ $t('commons.confirm') }}</el-button>
-      </el-form-item>
-    </el-form>
+      </div>
+    </template>
   </el-dialog>
 </template>
 
