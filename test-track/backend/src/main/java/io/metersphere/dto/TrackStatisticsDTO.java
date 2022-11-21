@@ -5,6 +5,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.request.testcase.TrackCount;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -134,6 +135,13 @@ public class TrackStatisticsDTO {
             }
             this.allCaseCountNumber += countResult.getCountNumber();
         }
+        if (MapUtils.isEmpty(chartData)) {
+            // 空数据展示
+            chartData.put(TrackCount.P0, 0);
+            chartData.put(TrackCount.P1, 0);
+            chartData.put(TrackCount.P2, 0);
+            chartData.put(TrackCount.P3, 0);
+        }
         this.chartData = chartData;
     }
 
@@ -180,6 +188,13 @@ public class TrackStatisticsDTO {
                 }
             }
             this.allRelevanceCaseCount += countResult.getCountNumber();
+        }
+
+        if (MapUtils.isEmpty(chartData)) {
+            // 空数据展示
+            chartData.put(Translator.get("api_case"), 0);
+            chartData.put(Translator.get("performance_case"), 0);
+            chartData.put(Translator.get("scenario_case"), 0);
         }
         this.chartData = chartData;
     }
