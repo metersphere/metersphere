@@ -2996,6 +2996,12 @@ const message = {
     delete_command_lable: "Delete command",
     command_name_label: "Command name",
     unplanned_module: "Unplanned module",
+    check_grid: "Connection failed, please check selenium-grid service status",
+    check_grid_ip: "Connection failed, please check selenium-grid address information",
+    view_config: "View configuration information",
+    config_ip: "The local ip and port information are not detected, please check",
+    personal_info: "Personal Information",
+    in_config: "In Settings",
   },
   project_application: {
     workstation: {
