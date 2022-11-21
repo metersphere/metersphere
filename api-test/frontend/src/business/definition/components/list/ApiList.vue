@@ -670,17 +670,16 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.apiCaseCoverage = null;
       this.condition.apiCoverage = null;
+      this.condition.scenarioCoverage = null;
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
         case 'notCovered':
           this.condition.apiCoverage = 'unCovered';
-          this.condition.scenarioCoverage = null;
           break;
         case 'covered':
-          this.condition.apiCoverage = '"covered"';
-          this.condition.scenarioCoverage = 'covered';
+          this.condition.apiCoverage = 'covered';
           break;
         case 'notCoveredTestCase':
           this.condition.apiCaseCoverage = 'unCovered';
@@ -690,11 +689,9 @@ export default {
           break;
         case 'coveredScenario':
           this.condition.scenarioCoverage = 'covered';
-          this.condition.apiCoverage = null;
           break;
         case 'notCoveredScenario':
           this.condition.scenarioCoverage = 'unCovered';
-          this.condition.apiCoverage = null;
           break;
         case 'Prepare':
           this.condition.filters.status = [this.selectDataRange];
