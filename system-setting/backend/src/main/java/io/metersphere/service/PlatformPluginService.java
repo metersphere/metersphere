@@ -48,15 +48,19 @@ public class PlatformPluginService {
 
     private PlatformPluginManager pluginManager;
 
-    public PluginWithBLOBs addPlatformPlugin(MultipartFile file) {
-        if (pluginManager != null) {
+    public synchronized PlatformPluginManager getPluginManager() {
+        if (pluginManager == null) {
             pluginManager = new PlatformPluginManager();
         }
+        return pluginManager;
+    }
+
+    public PluginWithBLOBs addPlatformPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
 
         PluginManagerUtil.uploadPlugin(id, file);
-        PluginManagerUtil.loadPlugin(id, pluginManager, file);
-        PluginMetaInfo pluginMetaInfo = pluginManager.getImplInstance(id, PluginMetaInfo.class);
+        PluginManagerUtil.loadPlugin(id, getPluginManager(), file);
+        PluginMetaInfo pluginMetaInfo = getPluginManager().getImplInstance(id, PluginMetaInfo.class);
 
         Map map = JSON.parseMap(pluginMetaInfo.getFrontendMetaData());
         map.put("id", id);
@@ -86,13 +90,12 @@ public class PlatformPluginService {
      * 查询所有平台插件并加载
      */
     public void loadPlatFormPlugins() {
-        pluginManager = new PlatformPluginManager();
         List<PluginWithBLOBs> plugins = basePluginService.getPlugins(PluginScenario.platform.name());
-        PluginManagerUtil.loadPlugins(pluginManager, plugins);
+        PluginManagerUtil.loadPlugins(getPluginManager(), plugins);
     }
 
     public void getPluginResource(String pluginId, String name, HttpServletResponse response) {
-        InputStream inputStream = pluginManager.getClassLoader(pluginId)
+        InputStream inputStream = getPluginManager().getClassLoader(pluginId)
                 .getResourceAsStream(name);
         getImage(inputStream, response);
     }
@@ -137,7 +140,7 @@ public class PlatformPluginService {
         PlatformRequest platformRequest = new PlatformRequest();
         platformRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
 
-        Platform platform = pluginManager.getPlatformByKey(request.getPlatform(), platformRequest);
+        Platform platform = getPluginManager().getPlatformByKey(request.getPlatform(), platformRequest);
         GetOptionRequest getOptionRequest = new GetOptionRequest();
         getOptionRequest.setOptionMethod(request.getOptionMethod());
         getOptionRequest.setProjectConfig(request.getProjectConfig());
@@ -177,7 +180,7 @@ public class PlatformPluginService {
         pluginMapper.deleteByPrimaryKey(id);
         try {
             // 删除文件
-            pluginManager.getClassLoader(id).getStorageStrategy().delete();
+            getPluginManager().getClassLoader(id).getStorageStrategy().delete();
             kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, id);
         } catch (IOException e) {
             LogUtil.error(e);
@@ -188,13 +191,13 @@ public class PlatformPluginService {
     public Platform getPlatFormInstance(String pluginId, Map IntegrationConfig) {
         PlatformRequest request = new PlatformRequest();
         request.setIntegrationConfig(JSON.toJSONString(IntegrationConfig));
-        return pluginManager.getPlatform(pluginId, request);
+        return getPluginManager().getPlatform(pluginId, request);
     }
 
     public Platform getPlatFormInstance(String pluginId, String integrationConfig) {
         PlatformRequest request = new PlatformRequest();
         request.setIntegrationConfig(integrationConfig);
-        return pluginManager.getPlatform(pluginId, request);
+        return getPluginManager().getPlatform(pluginId, request);
     }
 
     public void validateIntegration(String pluginId, Map integrationConfig) {
@@ -208,7 +211,7 @@ public class PlatformPluginService {
     }
 
     private Platform getPlatformByPluginId(String pluginId) {
-        PluginMetaInfo pluginMetaInfo = pluginManager.getPluginMetaInfo(pluginId);
+        PluginMetaInfo pluginMetaInfo = getPluginManager().getPluginMetaInfo(pluginId);
         IntegrationRequest integrationRequest = new IntegrationRequest();
         integrationRequest.setPlatform(pluginMetaInfo.getKey());
         integrationRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -223,7 +226,7 @@ public class PlatformPluginService {
     }
 
     public List<SelectOption> getPlatformOptions() {
-        List<SelectOption> options = pluginManager.getPluginMetaInfoList()
+        List<SelectOption> options = getPluginManager().getPluginMetaInfoList()
                 .stream()
                 .map(pluginMetaInfo -> new SelectOption(pluginMetaInfo.getLabel(), pluginMetaInfo.getKey()))
                 .collect(Collectors.toList());
@@ -238,7 +241,7 @@ public class PlatformPluginService {
     }
 
     public List<String> getThirdPartTemplateSupportPlatform() {
-        List<PluginMetaInfo> pluginMetaInfoList = pluginManager.getPluginMetaInfoList();
+        List<PluginMetaInfo> pluginMetaInfoList = getPluginManager().getPluginMetaInfoList();
         return pluginMetaInfoList.stream()
                 .filter(PluginMetaInfo::isThirdPartTemplateSupport)
                 .map(PluginMetaInfo::getKey)
@@ -246,10 +249,10 @@ public class PlatformPluginService {
     }
 
     public void loadPlugin(String pluginId) {
-        if (pluginManager.getClassLoader(pluginId) == null) {
+        if (getPluginManager().getClassLoader(pluginId) == null) {
             // 如果没有加载才加载
             InputStream pluginJar = basePluginService.getPluginJar(pluginId);
-            PluginManagerUtil.loadPlugin(pluginId, pluginManager, pluginJar);
+            PluginManagerUtil.loadPlugin(pluginId, getPluginManager(), pluginJar);
         }
     }
 
@@ -259,6 +262,6 @@ public class PlatformPluginService {
      * @param pluginId
      */
     public void unload(String pluginId) {
-        pluginManager.deletePlugin(pluginId);
+        getPluginManager().deletePlugin(pluginId);
     }
 }
