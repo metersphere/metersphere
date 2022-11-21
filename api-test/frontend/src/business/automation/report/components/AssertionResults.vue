@@ -1,20 +1,9 @@
 <template>
   <div>
-    <el-table
-      :data="assertions"
-      :row-style="getRowStyle"
-      :header-cell-style="getRowStyle"
-    >
-      <el-table-column
-        prop="name"
-        :label="$t('api_report.assertions_name')"
-        width="150"
-        show-overflow-tooltip
-      >
+    <el-table :data="assertions" :row-style="getRowStyle" :header-cell-style="getRowStyle">
+      <el-table-column prop="name" :label="$t('api_report.assertions_name')" width="150" show-overflow-tooltip>
         <template v-slot:default="scope">
-          <span>{{
-            !scope.row.name || scope.row.name === 'null' ? '' : scope.row.name
-          }}</span>
+          <span>{{ !scope.row.name || scope.row.name === 'null' ? '' : scope.row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -22,17 +11,9 @@
         v-if="showContent"
         :label="$t('api_report.assertions_content')"
         width="300"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="message"
-        :label="$t('api_report.assertions_error_message')"
-      />
-      <el-table-column
-        prop="pass"
-        :label="$t('api_report.assertions_is_success')"
-        width="180"
-      >
+        show-overflow-tooltip />
+      <el-table-column prop="message" :label="$t('api_report.assertions_error_message')" />
+      <el-table-column prop="pass" :label="$t('api_report.assertions_is_success')" width="180">
         <template v-slot:default="{ row }">
           <el-tag size="mini" type="success" v-if="row.pass"> Success </el-tag>
           <el-tag size="mini" type="danger" v-else> Error </el-tag>
@@ -44,8 +25,7 @@
             <i
               class="el-icon-view el-button el-button--primary el-button--mini is-circle"
               circle
-              @click="showPage(row.script)"
-            />
+              @click="showPage(row.script)" />
           </div>
         </template>
       </el-table-column>
@@ -55,14 +35,8 @@
       :visible.sync="visible"
       width="900px"
       modal-append-to-body
-      append-to-body
-    >
-      <el-row
-        type="flex"
-        justify="space-between"
-        align="middle"
-        class="quick-script-block"
-      >
+      append-to-body>
+      <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <el-col :span="codeSpan" class="script-content">
           <ms-code-edit
             v-if="isCodeEditAlive"
@@ -70,8 +44,7 @@
             :data.sync="scriptContent"
             theme="eclipse"
             :modes="['java', 'python']"
-            ref="codeEdit"
-          />
+            ref="codeEdit" />
         </el-col>
       </el-row>
     </el-dialog>

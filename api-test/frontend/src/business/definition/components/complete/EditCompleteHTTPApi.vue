@@ -1,21 +1,10 @@
 <template>
   <div class="card-container">
     <el-card class="card-content" v-loading="httpForm.loading">
-      <el-form
-        :model="httpForm"
-        :rules="rule"
-        ref="httpForm"
-        label-width="80px"
-        label-position="right"
-      >
+      <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right; margin-right: 20px" class="ms-opt-btn">
-          <el-tooltip
-            :content="$t('commons.follow')"
-            placement="bottom"
-            effect="dark"
-            v-if="!showFollow"
-          >
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i
               class="el-icon-star-off"
               style="
@@ -26,15 +15,9 @@
                 top: 5px;
                 cursor: pointer;
               "
-              @click="saveFollow"
-            />
+              @click="saveFollow" />
           </el-tooltip>
-          <el-tooltip
-            :content="$t('commons.cancel')"
-            placement="bottom"
-            effect="dark"
-            v-if="showFollow"
-          >
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
             <i
               class="el-icon-star-on"
               style="
@@ -45,15 +28,9 @@
                 top: 5px;
                 cursor: pointer;
               "
-              @click="saveFollow"
-            />
+              @click="saveFollow" />
           </el-tooltip>
-          <el-link
-            type="primary"
-            style="margin-right: 5px"
-            @click="openHis"
-            v-if="httpForm.id"
-          >
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="httpForm.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
           <!--  版本历史 -->
@@ -65,8 +42,7 @@
             @compare="compare"
             @checkout="checkout"
             @create="create"
-            @del="del"
-          />
+            @del="del" />
           <el-button
             v-if="!isXpack || !apiSyncRuleRelation.showUpdateRule"
             type="primary"
@@ -83,17 +59,11 @@
             type="primary"
             size="small"
             @click="saveApi"
-            @command="handleCommand"
-          >
+            @command="handleCommand">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="openSyncRule"
-                >{{
-                  $t('commons.save') +
-                  '&' +
-                  $t('workstation.sync') +
-                  $t('commons.setting')
-                }}
+                >{{ $t('commons.save') + '&' + $t('workstation.sync') + $t('commons.setting') }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -111,20 +81,9 @@
                   class="ms-http-input"
                   size="small"
                   style="margin-top: 5px"
-                  @change="urlChange"
-                >
-                  <el-select
-                    v-model="httpForm.method"
-                    slot="prepend"
-                    style="width: 100px"
-                    size="small"
-                  >
-                    <el-option
-                      v-for="item in reqOptions"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.id"
-                    />
+                  @change="urlChange">
+                  <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
+                    <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id" />
                   </el-select>
                 </el-input>
               </el-form-item>
@@ -134,15 +93,12 @@
 
         <!-- 请求参数 -->
         <div>
-          <ms-form-divider
-            :title="$t('api_test.definition.request.req_param')"
-          />
+          <ms-form-divider :title="$t('api_test.definition.request.req_param')" />
           <ms-api-request-form
             :showScript="false"
             :request="request"
             :headers="request.headers"
-            :isShowEnable="isShowEnable"
-          />
+            :isShowEnable="isShowEnable" />
         </div>
       </el-form>
 
@@ -154,12 +110,7 @@
 
       <ms-change-history ref="changeHistory" />
 
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        width="100%"
-      >
+      <el-dialog :fullscreen="true" :visible.sync="dialogVisible" :destroy-on-close="true" width="100%">
         <http-api-version-diff
           v-if="dialogVisible"
           :old-data="httpForm"
@@ -174,8 +125,7 @@
           :request="newRequest"
           :old-request="request"
           :response="newResponse"
-          :old-response="response"
-        ></http-api-version-diff>
+          :old-response="response"></http-api-version-diff>
       </el-dialog>
     </el-card>
 
@@ -183,72 +133,38 @@
       :title="$t('commons.sync_other_info')"
       :visible.sync="createNewVersionVisible"
       :show-close="false"
-      width="30%"
-    >
+      width="30%">
       <div>
-        <el-checkbox v-model="httpForm.newVersionRemark">{{
-          $t('commons.remark')
-        }}</el-checkbox>
-        <el-checkbox v-model="httpForm.newVersionDeps">{{
-          $t('commons.relationship.name')
-        }}</el-checkbox>
+        <el-checkbox v-model="httpForm.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
+        <el-checkbox v-model="httpForm.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
         <el-checkbox v-model="httpForm.newVersionCase">CASE</el-checkbox>
         <el-checkbox v-model="httpForm.newVersionMock">MOCK</el-checkbox>
       </div>
 
       <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="cancelCreateNewVersion"
-          :title="$t('commons.edit_info')"
-          @confirm="saveApi"
-        >
+        <ms-dialog-footer @cancel="cancelCreateNewVersion" :title="$t('commons.edit_info')" @confirm="saveApi">
         </ms-dialog-footer>
       </template>
     </el-dialog>
 
     <el-dialog
       :visible.sync="batchSyncApiVisible"
-      :title="
-        $t('commons.save') +
-        '&' +
-        $t('workstation.sync') +
-        $t('commons.setting')
-      "
-      v-if="isXpack"
-    >
-      <el-row
-        style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
-      >
+      :title="$t('commons.save') + '&' + $t('workstation.sync') + $t('commons.setting')"
+      v-if="isXpack">
+      <el-row style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <div class="timeClass">
-          <span
-            style="font-size: 16px; font-weight: bold; padding-left: 10px"
-            >{{ $t('api_test.definition.one_click_sync') + 'case' }}</span
-          >
-          <el-switch
-            v-model="apiSyncRuleRelation.syncCase"
-            style="padding-right: 10px"
-          ></el-switch>
+          <span style="font-size: 16px; font-weight: bold; padding-left: 10px">{{
+            $t('api_test.definition.one_click_sync') + 'case'
+          }}</span>
+          <el-switch v-model="apiSyncRuleRelation.syncCase" style="padding-right: 10px"></el-switch>
         </div>
         <br />
-        <span style="font-size: 12px; padding-left: 10px">{{
-          $t('workstation.batch_sync_api_tips')
-        }}</span
+        <span style="font-size: 12px; padding-left: 10px">{{ $t('workstation.batch_sync_api_tips') }}</span
         ><br /><br />
-        <span
-          v-if="apiSyncRuleRelation.syncCase"
-          style="font-size: 16px; font-weight: bold; padding-left: 10px"
-        >
+        <span v-if="apiSyncRuleRelation.syncCase" style="font-size: 16px; font-weight: bold; padding-left: 10px">
           {{ $t('workstation.sync') + $t('commons.setting') }}
-          <i
-            class="el-icon-arrow-down"
-            v-if="showApiSyncConfig"
-            @click="showApiSyncConfig = false"
-          />
-          <i
-            class="el-icon-arrow-right"
-            v-if="!showApiSyncConfig"
-            @click="showApiSyncConfig = true"
-          /> </span
+          <i class="el-icon-arrow-down" v-if="showApiSyncConfig" @click="showApiSyncConfig = false" />
+          <i class="el-icon-arrow-right" v-if="!showApiSyncConfig" @click="showApiSyncConfig = true" /> </span
         ><br /><br />
         <div v-if="showApiSyncConfig">
           <sync-setting
@@ -256,13 +172,10 @@
             v-if="apiSyncRuleRelation.syncCase"
             v-bind:sync-data="apiSyncRuleRelation.apiSyncConfig"
             ref="synSetting"
-            @updateSyncData="updateSyncData"
-          ></sync-setting>
+            @updateSyncData="updateSyncData"></sync-setting>
         </div>
       </el-row>
-      <el-row
-        style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
-      >
+      <el-row style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <div class="timeClass">
           <span style="font-size: 16px; font-weight: bold; padding-left: 10px">
             {{ $t('api_test.definition.change_notification') }}
@@ -270,19 +183,13 @@
               class="ms-num"
               effect="dark"
               :content="$t('project_application.workstation.api_receiver_tip')"
-              placement="top"
-            >
+              placement="top">
               <i class="el-icon-warning" />
             </el-tooltip>
           </span>
-          <el-switch
-            v-model="apiSyncRuleRelation.sendNotice"
-            style="padding-right: 10px"
-          ></el-switch>
+          <el-switch v-model="apiSyncRuleRelation.sendNotice" style="padding-right: 10px"></el-switch>
         </div>
-        <span style="font-size: 12px; padding-left: 10px">
-          {{ $t('api_test.definition.recipient_tips') }} </span
-        ><br />
+        <span style="font-size: 12px; padding-left: 10px"> {{ $t('api_test.definition.recipient_tips') }} </span><br />
         <p
           style="
             font-size: 12px;
@@ -292,23 +199,15 @@
             cursor: pointer;
             padding-left: 10px;
           "
-          @click="gotoApiMessage"
-        >
+          @click="gotoApiMessage">
           {{ $t('project_application.workstation.go_to_api_message') }}
         </p>
-        <el-row
-          v-if="apiSyncRuleRelation.sendNotice"
-          style="margin-bottom: 5px; margin-top: 5px"
-        >
+        <el-row v-if="apiSyncRuleRelation.sendNotice" style="margin-bottom: 5px; margin-top: 5px">
           <el-col :span="4"
-            ><span style="font-weight: bold; padding-left: 10px">{{
-              $t('api_test.definition.recipient') + ':'
-            }}</span>
+            ><span style="font-weight: bold; padding-left: 10px">{{ $t('api_test.definition.recipient') + ':' }}</span>
           </el-col>
           <el-col :span="20" style="color: var(--primary_color)">
-            <el-checkbox v-model="apiSyncRuleRelation.caseCreator">{{
-              'CASE' + $t('api_test.creator')
-            }}</el-checkbox>
+            <el-checkbox v-model="apiSyncRuleRelation.caseCreator">{{ 'CASE' + $t('api_test.creator') }}</el-checkbox>
             <el-checkbox v-model="apiSyncRuleRelation.scenarioCreator">
               {{ $t('commons.scenario') + $t('api_test.creator') }}
             </el-checkbox>
@@ -316,27 +215,20 @@
         </el-row>
       </el-row>
       <el-row>
-        <el-checkbox
-          v-model="apiSyncRuleRelation.showUpdateRule"
-          style="padding-left: 10px"
+        <el-checkbox v-model="apiSyncRuleRelation.showUpdateRule" style="padding-left: 10px"
           >{{ $t('project_application.workstation.no_show_setting') }}
         </el-checkbox>
         <el-tooltip
           class="ms-num"
           effect="dark"
           :content="$t('project_application.workstation.no_show_setting_tip')"
-          placement="top"
-        >
+          placement="top">
           <i class="el-icon-warning" />
         </el-tooltip>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="batchSyncApiVisible = false">{{
-          $t('commons.cancel')
-        }}</el-button>
-        <el-button type="primary" @click="batchSync()">{{
-          $t('commons.confirm')
-        }}</el-button>
+        <el-button @click="batchSyncApiVisible = false">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="batchSync()">{{ $t('commons.confirm') }}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -386,8 +278,7 @@ const store = useApiStore();
 export default {
   name: 'MsAddCompleteHttpApi',
   components: {
-    MxVersionHistory: () =>
-      import('metersphere-frontend/src/components/version/MxVersionHistory'),
+    MxVersionHistory: () => import('metersphere-frontend/src/components/version/MxVersionHistory'),
     MsDialogFooter,
     ApiOtherInfo,
     MsFormDivider,
@@ -446,9 +337,7 @@ export default {
             trigger: 'change',
           },
         ],
-        moduleId: [
-          { required: true, validator: validateModuleId, trigger: 'change' },
-        ],
+        moduleId: [{ required: true, validator: validateModuleId, trigger: 'change' }],
         status: [
           {
             required: true,
@@ -514,11 +403,7 @@ export default {
       },
     },
     syncTabs() {
-      if (
-        this.basisData &&
-        this.syncTabs &&
-        this.syncTabs.includes(this.basisData.id)
-      ) {
+      if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
         // 标示接口在其他地方更新过，当前页面需要同步
         getDefinitionById(this.basisData.id).then((response) => {
           if (response.data) {
@@ -537,10 +422,7 @@ export default {
       }
     },
     batchSyncApiVisible() {
-      if (
-        !this.batchSyncApiVisible &&
-        this.apiSyncRuleRelation.showUpdateRule
-      ) {
+      if (!this.batchSyncApiVisible && this.apiSyncRuleRelation.showUpdateRule) {
         this.noShowSyncRuleRelation = true;
       }
     },
@@ -553,19 +435,13 @@ export default {
         let path = this.httpForm.path;
         let protocol = this.httpForm.method;
         if (protocol === 'GET' || protocol === 'DELETE') {
-          if (
-            this.httpForm.request != null &&
-            this.httpForm.request.rest != null
-          ) {
+          if (this.httpForm.request != null && this.httpForm.request.rest != null) {
             let pathUrlArr = path.split('/');
             let newPath = '';
             pathUrlArr.forEach((item) => {
               if (item !== '') {
                 let pathItem = item;
-                if (
-                  item.indexOf('{') === 0 &&
-                  item.indexOf('}') === item.length - 1
-                ) {
+                if (item.indexOf('{') === 0 && item.indexOf('}') === item.length - 1) {
                   let paramItem = item.substr(1, item.length - 2);
                   for (let i = 0; i < this.httpForm.request.rest.length; i++) {
                     let param = this.httpForm.request.rest[i];
@@ -592,19 +468,13 @@ export default {
         let path = this.newData.path;
         let protocol = this.newData.method;
         if (protocol === 'GET' || protocol === 'DELETE') {
-          if (
-            this.newData.request != null &&
-            this.newData.request.rest != null
-          ) {
+          if (this.newData.request != null && this.newData.request.rest != null) {
             let pathUrlArr = path.split('/');
             let newPath = '';
             pathUrlArr.forEach((item) => {
               if (item !== '') {
                 let pathItem = item;
-                if (
-                  item.indexOf('{') === 0 &&
-                  item.indexOf('}') === item.length - 1
-                ) {
+                if (item.indexOf('{') === 0 && item.indexOf('}') === item.length - 1) {
                   let paramItem = item.substr(1, item.length - 2);
                   for (let i = 0; i < this.newData.request.rest.length; i++) {
                     let param = this.newData.request.rest[i];
@@ -636,12 +506,7 @@ export default {
       return getCurrentUser();
     },
     openHis() {
-      this.$refs.changeHistory.open(this.httpForm.id, [
-        '接口定义',
-        '接口定義',
-        'Api definition',
-        'API_DEFINITION',
-      ]);
+      this.$refs.changeHistory.open(this.httpForm.id, ['接口定义', '接口定義', 'Api definition', 'API_DEFINITION']);
     },
     mockSetting() {
       if (this.basisData.id) {
@@ -683,108 +548,63 @@ export default {
           this.setParameter();
 
           if (!this.httpForm.versionId) {
-            if (
-              this.$refs.versionHistory &&
-              this.$refs.versionHistory.currentVersion
-            ) {
-              this.httpForm.versionId =
-                this.$refs.versionHistory.currentVersion.id;
+            if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
+              this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
-          if (
-            hasLicense() &&
-            (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) &&
-            !this.httpForm.isCopy
-          ) {
-            if (
-              this.httpForm.method !== this.beforeHttpForm.method &&
-              !this.noShowSyncRuleRelation
-            ) {
+          if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
+            if (this.httpForm.method !== this.beforeHttpForm.method && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
             }
-            if (
-              this.httpForm.path !== this.beforeHttpForm.path &&
-              !this.noShowSyncRuleRelation
-            ) {
+            if (this.httpForm.path !== this.beforeHttpForm.path && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
             }
             if (this.request.headers && this.beforeRequest.headers) {
               let submitRequestHeaders = JSON.stringify(this.request.headers);
-              let beforeRequestHeaders = JSON.stringify(
-                this.beforeRequest.headers
-              );
-              if (
-                submitRequestHeaders !== beforeRequestHeaders &&
-                !this.noShowSyncRuleRelation
-              ) {
+              let beforeRequestHeaders = JSON.stringify(this.beforeRequest.headers);
+              if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (this.request.arguments && this.beforeRequest.arguments) {
               let submitRequestQuery = JSON.stringify(this.request.arguments);
-              let beforeRequestQuery = JSON.stringify(
-                this.beforeRequest.arguments
-              );
-              if (
-                submitRequestQuery !== beforeRequestQuery &&
-                !this.noShowSyncRuleRelation
-              ) {
+              let beforeRequestQuery = JSON.stringify(this.beforeRequest.arguments);
+              if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (this.request.rest && this.beforeRequest.rest) {
               let submitRequestRest = JSON.stringify(this.request.rest);
               let beforeRequestRest = JSON.stringify(this.beforeRequest.rest);
-              if (
-                submitRequestRest !== beforeRequestRest &&
-                !this.noShowSyncRuleRelation
-              ) {
+              if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (this.request.body && this.beforeRequest.body) {
               let submitRequestBody = JSON.stringify(this.request.body);
               let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
-              if (
-                submitRequestBody !== beforeRequestBody &&
-                !this.noShowSyncRuleRelation
-              ) {
+              if (submitRequestBody !== beforeRequestBody && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (this.request.authManager && this.beforeRequest.authManager) {
-              let submitRequestAuthManager = JSON.stringify(
-                this.request.authManager
-              );
-              let beforeRequestAuthManager = JSON.stringify(
-                this.beforeRequest.authManager
-              );
-              if (
-                submitRequestAuthManager !== beforeRequestAuthManager &&
-                !this.noShowSyncRuleRelation
-              ) {
+              let submitRequestAuthManager = JSON.stringify(this.request.authManager);
+              let beforeRequestAuthManager = JSON.stringify(this.beforeRequest.authManager);
+              if (submitRequestAuthManager !== beforeRequestAuthManager && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (this.request.hashTree && this.beforeRequest.hashTree) {
               let submitRequestHashTree = JSON.stringify(this.request.hashTree);
-              let beforeRequestHashTree = JSON.stringify(
-                this.beforeRequest.hashTree
-              );
-              if (
-                submitRequestHashTree !== beforeRequestHashTree &&
-                !this.noShowSyncRuleRelation
-              ) {
+              let beforeRequestHashTree = JSON.stringify(this.beforeRequest.hashTree);
+              if (submitRequestHashTree !== beforeRequestHashTree && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
             if (
-              (this.request.connectTimeout !==
-                this.beforeRequest.connectTimeout ||
-                this.request.responseTimeout !==
-                  this.beforeRequest.responseTimeout ||
-                this.request.followRedirects !==
-                  this.beforeRequest.followRedirects ||
+              (this.request.connectTimeout !== this.beforeRequest.connectTimeout ||
+                this.request.responseTimeout !== this.beforeRequest.responseTimeout ||
+                this.request.followRedirects !== this.beforeRequest.followRedirects ||
                 this.request.alias !== this.beforeRequest.alias ||
                 this.apiSyncRuleRelation.showUpdateRule === true) &&
               !this.noShowSyncRuleRelation
@@ -806,44 +626,28 @@ export default {
       });
     },
     batchSync() {
-      if (
-        hasLicense() &&
-        (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) &&
-        !this.httpForm.isCopy
-      ) {
+      if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
         if (this.$refs.synSetting && this.$refs.synSetting.fromData) {
           let fromData = this.$refs.synSetting.fromData;
           fromData.method = true;
           fromData.path = true;
           fromData.protocol = true;
           this.httpForm.triggerUpdate = JSON.stringify(fromData);
-          this.apiSyncRuleRelation.apiSyncCaseRequest =
-            JSON.stringify(fromData);
+          this.apiSyncRuleRelation.apiSyncCaseRequest = JSON.stringify(fromData);
         }
-        if (
-          this.apiSyncRuleRelation.sendNotice &&
-          this.apiSyncRuleRelation.sendNotice === true
-        ) {
-          this.httpForm.sendSpecialMessage =
-            this.apiSyncRuleRelation.sendNotice;
+        if (this.apiSyncRuleRelation.sendNotice && this.apiSyncRuleRelation.sendNotice === true) {
+          this.httpForm.sendSpecialMessage = this.apiSyncRuleRelation.sendNotice;
         } else {
           this.httpForm.sendSpecialMessage = false;
         }
 
-        if (
-          this.apiSyncRuleRelation.caseCreator &&
-          this.apiSyncRuleRelation.caseCreator === true
-        ) {
+        if (this.apiSyncRuleRelation.caseCreator && this.apiSyncRuleRelation.caseCreator === true) {
           this.httpForm.caseCreator = this.apiSyncRuleRelation.caseCreator;
         } else {
           this.httpForm.caseCreator = false;
         }
-        if (
-          this.apiSyncRuleRelation.scenarioCreator &&
-          this.apiSyncRuleRelation.scenarioCreator === true
-        ) {
-          this.httpForm.scenarioCreator =
-            this.apiSyncRuleRelation.scenarioCreator;
+        if (this.apiSyncRuleRelation.scenarioCreator && this.apiSyncRuleRelation.scenarioCreator === true) {
+          this.httpForm.scenarioCreator = this.apiSyncRuleRelation.scenarioCreator;
         } else {
           this.httpForm.scenarioCreator = false;
         }
@@ -853,10 +657,7 @@ export default {
       }
     },
     saveApiSyncRuleRelation(apiSyncRuleRelation) {
-      updateRuleRelation(
-        apiSyncRuleRelation.resourceId,
-        apiSyncRuleRelation
-      ).then(() => {
+      updateRuleRelation(apiSyncRuleRelation.resourceId, apiSyncRuleRelation).then(() => {
         this.$emit('saveApi', this.httpForm);
         this.batchSyncApiVisible = false;
       });
@@ -868,17 +669,12 @@ export default {
       if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.httpForm.path));
       if (url) {
-        this.httpForm.path = decodeURIComponent(
-          this.httpForm.path.substr(0, this.httpForm.path.indexOf('?'))
-        );
+        this.httpForm.path = decodeURIComponent(this.httpForm.path.substr(0, this.httpForm.path.indexOf('?')));
       }
     },
     addProtocol(url) {
       if (url) {
-        if (
-          !url.toLowerCase().startsWith('https') &&
-          !url.toLowerCase().startsWith('http')
-        ) {
+        if (!url.toLowerCase().startsWith('https') && !url.toLowerCase().startsWith('http')) {
           return 'https://' + url;
         }
       }
@@ -948,10 +744,7 @@ export default {
           }
         }
         if (this.basisData.id) {
-          updateDefinitionFollows(
-            this.basisData.id,
-            this.httpForm.follows
-          ).then(() => {
+          updateDefinitionFollows(this.basisData.id, this.httpForm.follows).then(() => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
@@ -962,10 +755,7 @@ export default {
         }
         this.httpForm.follows.push(this.currentUser().id);
         if (this.basisData.id) {
-          updateDefinitionFollows(
-            this.basisData.id,
-            this.httpForm.follows
-          ).then(() => {
+          updateDefinitionFollows(this.basisData.id, this.httpForm.follows).then(() => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
@@ -974,36 +764,31 @@ export default {
     getVersionHistory() {
       getDefinitionVersions(this.httpForm.id).then((response) => {
         if (this.httpForm.isCopy) {
-          this.versionData = response.data.filter(
-            (v) => v.versionId === this.httpForm.versionId
-          );
+          this.versionData = response.data.filter((v) => v.versionId === this.httpForm.versionId);
         } else {
           this.versionData = response.data;
         }
       });
     },
     compare(row) {
-      this.httpForm.createTime =
-        this.$refs.versionHistory.versionOptions.filter(
-          (v) => v.id === this.httpForm.versionId
-        )[0].createTime;
-      getDefinitionByIdAndRefId(row.id, this.httpForm.refId).then(
-        (response) => {
-          getDefinitionById(response.data.id).then((res) => {
-            if (res.data) {
-              this.newData = res.data;
-              this.newData.createTime = row.createTime;
-              this.dealWithTag(res.data);
-              this.setRequest(res.data);
-              if (!this.setRequest(res.data)) {
-                this.newRequest = createComponent('HTTPSamplerProxy');
-                this.dialogVisible = true;
-              }
-              this.formatApi(res.data);
+      this.httpForm.createTime = this.$refs.versionHistory.versionOptions.filter(
+        (v) => v.id === this.httpForm.versionId
+      )[0].createTime;
+      getDefinitionByIdAndRefId(row.id, this.httpForm.refId).then((response) => {
+        getDefinitionById(response.data.id).then((res) => {
+          if (res.data) {
+            this.newData = res.data;
+            this.newData.createTime = row.createTime;
+            this.dealWithTag(res.data);
+            this.setRequest(res.data);
+            if (!this.setRequest(res.data)) {
+              this.newRequest = createComponent('HTTPSamplerProxy');
+              this.dialogVisible = true;
             }
-          });
-        }
-      );
+            this.formatApi(res.data);
+          }
+        });
+      });
     },
     setRequest(api) {
       if (api.request) {
@@ -1032,10 +817,7 @@ export default {
         }
       }
       if (this.httpForm.tags) {
-        if (
-          Object.prototype.toString.call(this.httpForm.tags) ===
-          '[object String]'
-        ) {
+        if (Object.prototype.toString.call(this.httpForm.tags) === '[object String]') {
           this.httpForm.tags = JSON.parse(this.httpForm.tags);
         }
       }
@@ -1128,22 +910,14 @@ export default {
           this.httpForm.caseTotal = response.data;
         }
         this.$set(this.httpForm, 'newVersionRemark', !!this.httpForm.remark);
-        this.$set(
-          this.httpForm,
-          'newVersionDeps',
-          this.$refs.apiOtherInfo.relationshipCount > 0
-        );
+        this.$set(this.httpForm, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
         this.$set(this.httpForm, 'newVersionCase', this.httpForm.caseTotal > 0);
         createMockConfig({
           projectId: this.projectId,
           apiId: this.httpForm.id,
         }).then(
           (response) => {
-            this.$set(
-              this.httpForm,
-              'newVersionMock',
-              response.data.mockExpectConfigList.length > 0
-            );
+            this.$set(this.httpForm, 'newVersionMock', response.data.mockExpectConfigList.length > 0);
 
             if (
               this.$refs.apiOtherInfo.relationshipCount > 0 ||
@@ -1168,24 +942,17 @@ export default {
       });
     },
     del(row) {
-      this.$alert(
-        this.$t('api_test.definition.request.delete_confirm') +
-          ' ' +
-          row.name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delDefinitionByRefId(row.id, this.httpForm.refId).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.getVersionHistory();
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            delDefinitionByRefId(row.id, this.httpForm.refId).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        },
+      });
     },
     gotoApiMessage() {
       let apiResolve = this.$router.resolve({
@@ -1198,14 +965,9 @@ export default {
         if (response.data) {
           this.apiSyncRuleRelation = response.data;
           if (this.apiSyncRuleRelation.apiSyncCaseRequest) {
-            this.apiSyncRuleRelation.apiSyncConfig = JSON.parse(
-              this.apiSyncRuleRelation.apiSyncCaseRequest
-            );
+            this.apiSyncRuleRelation.apiSyncConfig = JSON.parse(this.apiSyncRuleRelation.apiSyncCaseRequest);
           }
-          if (
-            this.apiSyncRuleRelation.caseCreator === null ||
-            this.apiSyncRuleRelation.caseCreator === undefined
-          ) {
+          if (this.apiSyncRuleRelation.caseCreator === null || this.apiSyncRuleRelation.caseCreator === undefined) {
             this.apiSyncRuleRelation.caseCreator = true;
           }
           if (
@@ -1214,16 +976,10 @@ export default {
           ) {
             this.apiSyncRuleRelation.scenarioCreator = true;
           }
-          if (
-            this.apiSyncRuleRelation.syncCase === null ||
-            this.apiSyncRuleRelation.syncCase === undefined
-          ) {
+          if (this.apiSyncRuleRelation.syncCase === null || this.apiSyncRuleRelation.syncCase === undefined) {
             this.apiSyncRuleRelation.syncCase = true;
           }
-          if (
-            this.apiSyncRuleRelation.sendNotice === null ||
-            this.apiSyncRuleRelation.sendNotice === undefined
-          ) {
+          if (this.apiSyncRuleRelation.sendNotice === null || this.apiSyncRuleRelation.sendNotice === undefined) {
             this.apiSyncRuleRelation.sendNotice = true;
           }
           this.noShowSyncRuleRelation = this.apiSyncRuleRelation.showUpdateRule;
@@ -1261,10 +1017,7 @@ export default {
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = '';
     }
-    if (
-      this.basisData.moduleId &&
-      this.basisData.moduleId === 'default-module'
-    ) {
+    if (this.basisData.moduleId && this.basisData.moduleId === 'default-module') {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
     if (this.basisData.isCopy) {

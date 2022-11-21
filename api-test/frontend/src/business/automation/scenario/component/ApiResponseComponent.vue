@@ -8,11 +8,7 @@
     <el-collapse-transition>
       <div v-if="isActive">
         <el-divider></el-divider>
-        <ms-request-result-tail
-          :currentProtocol="currentProtocol"
-          :show-metric="false"
-          :response="response"
-        />
+        <ms-request-result-tail :currentProtocol="currentProtocol" :show-metric="false" :response="response" />
       </div>
     </el-collapse-transition>
   </el-card>

@@ -1,15 +1,11 @@
 <template>
-  <div
-    class="el-collapse-item"
-    :class="{ 'is-active': isActive, 'is-disabled': disabled }"
-  >
+  <div class="el-collapse-item" :class="{ 'is-active': isActive, 'is-disabled': disabled }">
     <div
       role="tab"
       :aria-expanded="isActive"
       :aria-controls="`el-collapse-content-${id}`"
       :aria-describedby="`el-collapse-content-${id}`"
-      @click="handleHeaderClick"
-    >
+      @click="handleHeaderClick">
       <div
         class="el-collapse-item__header"
         role="button"
@@ -21,14 +17,9 @@
           'is-active': isActive,
         }"
         @focus="handleFocus"
-        @blur="focusing = false"
-      >
+        @blur="focusing = false">
         <div @click.stop="handleCollapseClick">
-          <i
-            class="el-collapse-item__arrow el-icon-arrow-right"
-            :class="{ 'is-active': isActive }"
-          >
-          </i>
+          <i class="el-collapse-item__arrow el-icon-arrow-right" :class="{ 'is-active': isActive }"> </i>
         </div>
         <slot name="title">{{ title }}</slot>
       </div>
@@ -40,8 +31,7 @@
         role="tabpanel"
         :aria-hidden="!isActive"
         :aria-labelledby="`el-collapse-head-${id}`"
-        :id="`el-collapse-content-${id}`"
-      >
+        :id="`el-collapse-content-${id}`">
         <div class="el-collapse-item__content">
           <slot></slot>
         </div>

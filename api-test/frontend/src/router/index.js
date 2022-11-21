@@ -35,8 +35,7 @@ export const microRoutes = [
   {
     path: '/definition/report/view/:reportId',
     name: 'ApiReportView',
-    component: () =>
-      import('@/business/definition/components/response/ApiResponseView'),
+    component: () => import('@/business/definition/components/response/ApiResponseView'),
   },
 ];
 

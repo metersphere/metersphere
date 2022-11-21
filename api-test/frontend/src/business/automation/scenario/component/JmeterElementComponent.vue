@@ -10,15 +10,9 @@
     :show-btn="showBtn"
     :show-version="showVersion"
     :background-color="defBackgroundColor"
-    :title="request.elementType"
-  >
+    :title="request.elementType">
     <div style="height: 300px; width: 100%">
-      <ms-code-edit
-        mode="xml"
-        :data.sync="request.jmeterElement"
-        theme="eclipse"
-        ref="codeEdit"
-      />
+      <ms-code-edit mode="xml" :data.sync="request.jmeterElement" theme="eclipse" ref="codeEdit" />
     </div>
 
     <template v-slot:debugStepCode>
@@ -29,8 +23,7 @@
       <span
         class="ms-step-debug-code"
         :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-        v-if="!loading && !node.data.testing && node.data.debug"
-      >
+        v-if="!loading && !node.data.testing && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -103,9 +96,7 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         let status = this.node.data.code;
-        return (
-          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
-        );
+        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
       }
       return '';
     },

@@ -7,72 +7,37 @@
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
-      v-loading="result"
-    >
-      <el-form
-        :model="form"
-        label-position="right"
-        label-width="180px"
-        size="medium"
-        ref="form"
-        :rules="rules"
-      >
-        <el-form-item
-          :label="$t('test_track.case.batch_update', [size])"
-          prop="type"
-        >
-          <el-select
-            v-model="form.type"
-            style="width: 100%"
-            @change="changeType"
-          >
+      v-loading="result">
+      <el-form :model="form" label-position="right" label-width="180px" size="medium" ref="form" :rules="rules">
+        <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
+          <el-select v-model="form.type" style="width: 100%" @change="changeType">
             <el-option
               v-for="(type, index) in typeArr"
               :key="index"
               :value="type.custom ? type.custom : type.id"
-              :label="type.name"
-            />
+              :label="type.name" />
           </el-select>
         </el-form-item>
 
-        <el-form-item
-          v-if="form.type === 'projectEnv'"
-          :label="$t('test_track.case.updated_attr_value')"
-        >
+        <el-form-item v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
           <env-popover
             :env-map="projectEnvMap"
             :project-ids="projectIds"
             @setProjectEnvMap="setProjectEnvMap"
-            :show-config-button-with-out-permission="
-              showConfigButtonWithOutPermission
-            "
+            :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
             :project-list="projectList"
             :environment-type.sync="environmentType"
             :group-id="envGroupId"
             :is-scenario="false"
             @setEnvGroup="setEnvGroup"
-            ref="envPopover"
-          />
+            ref="envPopover" />
         </el-form-item>
 
-        <el-form-item
-          v-else-if="form.type === 'tags'"
-          :label="$t('test_track.case.updated_attr_value')"
-        >
-          <ms-input-tag
-            :currentScenario="form"
-            v-if="showInputTag"
-            ref="tag"
-            class="ms-case-input"
-          ></ms-input-tag>
+        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
+          <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
           <el-checkbox v-model="form.appendTag">
             {{ $t('commons.append_tag') }}
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('commons.append_tag_tip')"
-              placement="top"
-            >
+            <el-tooltip class="item" effect="dark" :content="$t('commons.append_tag_tip')" placement="top">
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-checkbox>
@@ -81,27 +46,13 @@
         <el-form-item
           v-else-if="fieldType === 'custom'"
           prop="customFieldValue"
-          :label="$t('test_track.case.updated_attr_value')"
-        >
+          :label="$t('test_track.case.updated_attr_value')">
           <custom-filed-component :data="customField" prop="defaultValue" />
         </el-form-item>
 
-        <el-form-item
-          v-else
-          :label="$t('test_track.case.updated_attr_value')"
-          prop="value"
-        >
-          <el-select
-            v-model="form.value"
-            style="width: 100%"
-            :filterable="filterable"
-          >
-            <el-option
-              v-for="(option, index) in options"
-              :key="index"
-              :value="option.id"
-              :label="option.name"
-            >
+        <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
+          <el-select v-model="form.value" style="width: 100%" :filterable="filterable">
+            <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
                 <span>{{ option.id }}({{ option.name }})</span>
               </div>
@@ -110,10 +61,7 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="dialogVisible = false"
-          @confirm="submit('form')"
-        />
+        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="submit('form')" />
       </template>
     </el-dialog>
   </div>
@@ -121,10 +69,7 @@
 
 <script>
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
 import EnvPopover from '@/business/automation/scenario/EnvPopover';
 import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
 import CustomFiledComponent from 'metersphere-frontend/src/components/template/CustomFiledComponent';

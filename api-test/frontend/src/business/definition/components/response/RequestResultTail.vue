@@ -1,14 +1,10 @@
 <template>
   <div class="request-result" v-loading="loading">
-    <ms-request-metric
-      v-if="showMetric"
-      :response="reportId ? report : response"
-    />
+    <ms-request-metric v-if="showMetric" :response="reportId ? report : response" />
     <ms-response-result
       :currentProtocol="currentProtocol"
       :response="reportId ? report : response"
-      :isTestPlan="isTestPlan"
-    />
+      :isTestPlan="isTestPlan" />
   </div>
 </template>
 

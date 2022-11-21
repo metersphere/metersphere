@@ -75,18 +75,11 @@ module.exports = {
     },
   },
   chainWebpack: (config) => {
-    config.module
-      .rule('svg')
-      .exclude.add(
-        resolve('../../framework/sdk-parent/frontend/src/assets/module')
-      )
-      .end();
+    config.module.rule('svg').exclude.add(resolve('../../framework/sdk-parent/frontend/src/assets/module')).end();
     config.module
       .rule('icons')
       .test(/\.svg$/)
-      .include.add(
-        resolve('../../framework/sdk-parent/frontend/src/assets/module')
-      )
+      .include.add(resolve('../../framework/sdk-parent/frontend/src/assets/module'))
       .end()
       .use('svg-sprite-loader')
       .loader('svg-sprite-loader')

@@ -23,10 +23,7 @@ export function fileUpload(url, file, files, param) {
       formData.append('files', f);
     });
   }
-  formData.append(
-    'request',
-    new Blob([JSON.stringify(param)], { type: 'application/json' })
-  );
+  formData.append('request', new Blob([JSON.stringify(param)], { type: 'application/json' }));
   let config = getUploadConfig(url, formData);
   return request(config);
 }
@@ -45,9 +42,7 @@ export function downloadFile(method, url, data, fileName) {
   };
   request(config)
     .then((res) => {
-      fileName = fileName
-        ? fileName
-        : window.decodeURI(res.headers['content-disposition'].split('=')[1]);
+      fileName = fileName ? fileName : window.decodeURI(res.headers['content-disposition'].split('=')[1]);
       jsFileDownload(res.data, fileName);
     })
     .catch((e) => {

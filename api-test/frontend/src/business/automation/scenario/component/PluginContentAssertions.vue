@@ -8,100 +8,52 @@
           v-model="value.contentType"
           style="margin-left: 10px; width: 120px; height: 32px"
           :placeholder="$t('api_test.request.assertions.select_type')"
-          size="small"
-        >
-          <el-option
-            :label="$t('api_test.request.assertions.text')"
-            :value="options.TEXT"
-          />
+          size="small">
+          <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
           <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
           <el-option :label="'XPath'" :value="options.XPATH2" />
         </el-select>
-        <el-button
-          type="primary"
-          size="mini"
-          @click="add"
-          style="margin-left: 20px"
-        >
+        <el-button type="primary" size="mini" @click="add" style="margin-left: 20px">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
       <el-col :span="8" :offset="3">
         <span>{{ this.$t('api_test.request.sql.timeout') }}</span>
-        <el-input
-          size="mini"
-          style="width: 100px; margin-left: 10px"
-          v-model="value.timeOut"
-        ></el-input>
+        <el-input size="mini" style="width: 100px; margin-left: 10px" v-model="value.timeOut"></el-input>
       </el-col>
     </el-row>
     <el-row>
       <el-container>
-        <el-aside
-          width="73px"
-          style="overflow: hidden"
-          v-if="value.list.length > 1"
-        >
+        <el-aside width="73px" style="overflow: hidden" v-if="value.list.length > 1">
           <div style="height: 100%" id="moreOptionTypeDiv">
             <div
               class="ms-top-line-box"
               :style="{
                 height: lineDivTopHeight + 'px',
                 marginTop: lineDivMarginTopHeight + 'px',
-              }"
-            ></div>
+              }"></div>
             <div>
-              <el-select
-                class="ms-http-select"
-                size="small"
-                v-model="value.filterType"
-                style="width: 70px"
-              >
-                <el-option
-                  v-for="item in filterTypes"
-                  :key="item.id"
-                  :label="item.label"
-                  :value="item.id"
-                />
+              <el-select class="ms-http-select" size="small" v-model="value.filterType" style="width: 70px">
+                <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
             </div>
-            <div
-              class="ms-bottom-line-box"
-              :style="{ height: lineDivBottomHeight + 'px' }"
-            ></div>
+            <div class="ms-bottom-line-box" :style="{ height: lineDivBottomHeight + 'px' }"></div>
           </div>
         </el-aside>
         <el-main style="padding: 0px 20px 0px 0px; overflow: hidden">
           <div v-for="(data, index) in value.list" :key="index">
             <el-col name="itemOptions">
-              <div
-                v-if="data.type === options.TEXT"
-                class="assertion-item-editing"
-              >
-                <el-row
-                  :gutter="10"
-                  type="flex"
-                  justify="space-between"
-                  align="middle"
-                >
+              <div v-if="data.type === options.TEXT" class="assertion-item-editing">
+                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
                       style="width: 120px; height: 32px"
                       v-model="data.type"
-                      :placeholder="
-                        $t('api_test.request.assertions.select_type')
-                      "
-                      size="small"
-                    >
-                      <el-option
-                        :label="$t('api_test.request.assertions.text')"
-                        :value="options.TEXT"
-                      />
-                      <el-option
-                        :label="'JSONPath'"
-                        :value="options.JSON_PATH"
-                      />
+                      :placeholder="$t('api_test.request.assertions.select_type')"
+                      size="small">
+                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
+                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
                       <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
@@ -111,30 +63,12 @@
                       style="width: 120px; height: 32px"
                       v-model="data.option"
                       size="small"
-                      :placeholder="
-                        $t('api_test.request.assertions.select_condition')
-                      "
-                    >
-                      <el-option
-                        :label="$t('api_test.request.assertions.contains')"
-                        value="CONTAINS"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.not_contains')"
-                        value="NOT_CONTAINS"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.equals')"
-                        value="EQUALS"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.start_with')"
-                        value="START_WITH"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.end_with')"
-                        value="END_WITH"
-                      />
+                      :placeholder="$t('api_test.request.assertions.select_condition')">
+                      <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS" />
+                      <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS" />
+                      <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS" />
+                      <el-option :label="$t('api_test.request.assertions.start_with')" value="START_WITH" />
+                      <el-option :label="$t('api_test.request.assertions.end_with')" value="END_WITH" />
                     </el-select>
                   </el-col>
                   <el-col>
@@ -145,21 +79,16 @@
                       size="small"
                       show-word-limit
                       :placeholder="$t('api_test.request.assertions.value')"
-                      width="500px"
-                    />
+                      width="500px" />
                   </el-col>
                   <el-col class="assertion-btn">
-                    <el-tooltip
-                      :content="$t('test_resource_pool.enable_disable')"
-                      placement="top"
-                    >
+                    <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
                         class="enable-switch"
                         size="mini"
                         :disabled="isReadOnly"
-                        style="width: 30px; margin-right: 10px"
-                      />
+                        style="width: 30px; margin-right: 10px" />
                     </el-tooltip>
 
                     <el-button
@@ -168,40 +97,22 @@
                       size="mini"
                       icon="el-icon-delete"
                       circle
-                      @click="remove(data)"
-                    />
+                      @click="remove(data)" />
                   </el-col>
                 </el-row>
               </div>
 
-              <div
-                v-if="data.type === options.JSON_PATH"
-                class="assertion-item-editing"
-              >
-                <el-row
-                  :gutter="10"
-                  type="flex"
-                  justify="space-between"
-                  align="middle"
-                >
+              <div v-if="data.type === options.JSON_PATH" class="assertion-item-editing">
+                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
                       style="width: 120px; height: 32px"
                       v-model="data.type"
-                      :placeholder="
-                        $t('api_test.request.assertions.select_type')
-                      "
-                      size="small"
-                    >
-                      <el-option
-                        :label="$t('api_test.request.assertions.text')"
-                        :value="options.TEXT"
-                      />
-                      <el-option
-                        :label="'JSONPath'"
-                        :value="options.JSON_PATH"
-                      />
+                      :placeholder="$t('api_test.request.assertions.select_type')"
+                      size="small">
+                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
+                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
                       <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
@@ -212,10 +123,7 @@
                       maxlength="500"
                       size="small"
                       show-word-limit
-                      :placeholder="
-                        $t('api_test.request.extract.json_path_expression')
-                      "
-                    />
+                      :placeholder="$t('api_test.request.extract.json_path_expression')" />
                   </el-col>
                   <el-col>
                     <el-select
@@ -223,36 +131,14 @@
                       class="ms-col-type"
                       size="small"
                       style="width: 100px; margin-right: 10px"
-                      @change="reload"
-                    >
-                      <el-option
-                        :label="$t('api_test.request.assertions.contains')"
-                        value="CONTAINS"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.not_contains')"
-                        value="NOT_CONTAINS"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.equals')"
-                        value="EQUALS"
-                      />
-                      <el-option
-                        :label="$t('commons.adv_search.operators.not_equals')"
-                        value="NOT_EQUALS"
-                      />
-                      <el-option
-                        :label="$t('commons.adv_search.operators.gt')"
-                        value="GT"
-                      />
-                      <el-option
-                        :label="$t('commons.adv_search.operators.lt')"
-                        value="LT"
-                      />
-                      <el-option
-                        :label="$t('api_test.request.assertions.regular_match')"
-                        value="REGEX"
-                      />
+                      @change="reload">
+                      <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS" />
+                      <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS" />
+                      <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS" />
+                      <el-option :label="$t('commons.adv_search.operators.not_equals')" value="NOT_EQUALS" />
+                      <el-option :label="$t('commons.adv_search.operators.gt')" value="GT" />
+                      <el-option :label="$t('commons.adv_search.operators.lt')" value="LT" />
+                      <el-option :label="$t('api_test.request.assertions.regular_match')" value="REGEX" />
                     </el-select>
                     <el-input
                       :disabled="isReadOnly"
@@ -260,8 +146,7 @@
                       size="small"
                       show-word-limit
                       :placeholder="$t('api_test.request.assertions.expect')"
-                      style="width: 50%"
-                    />
+                      style="width: 50%" />
                     <el-tooltip placement="top" v-if="data.option === 'REGEX'">
                       <div slot="content">
                         {{ $t('api_test.request.assertions.regex_info') }}
@@ -270,17 +155,13 @@
                     </el-tooltip>
                   </el-col>
                   <el-col class="assertion-btn">
-                    <el-tooltip
-                      :content="$t('test_resource_pool.enable_disable')"
-                      placement="top"
-                    >
+                    <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
                         class="enable-switch"
                         size="mini"
                         :disabled="isReadOnly"
-                        style="width: 30px; margin-right: 10px"
-                      />
+                        style="width: 30px; margin-right: 10px" />
                     </el-tooltip>
                     <el-button
                       :disabled="isReadOnly"
@@ -288,40 +169,22 @@
                       size="mini"
                       icon="el-icon-delete"
                       circle
-                      @click="remove(data)"
-                    />
+                      @click="remove(data)" />
                   </el-col>
                 </el-row>
               </div>
 
-              <div
-                v-if="data.type === options.XPATH2"
-                class="assertion-item-editing"
-              >
-                <el-row
-                  :gutter="10"
-                  type="flex"
-                  justify="space-between"
-                  align="middle"
-                >
+              <div v-if="data.type === options.XPATH2" class="assertion-item-editing">
+                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
                       style="width: 120px; height: 32px"
                       v-model="data.type"
-                      :placeholder="
-                        $t('api_test.request.assertions.select_type')
-                      "
-                      size="small"
-                    >
-                      <el-option
-                        :label="$t('api_test.request.assertions.text')"
-                        :value="options.TEXT"
-                      />
-                      <el-option
-                        :label="'JSONPath'"
-                        :value="options.JSON_PATH"
-                      />
+                      :placeholder="$t('api_test.request.assertions.select_type')"
+                      size="small">
+                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
+                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
                       <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
@@ -332,23 +195,16 @@
                       maxlength="500"
                       size="small"
                       show-word-limit
-                      :placeholder="
-                        $t('api_test.request.extract.xpath_expression')
-                      "
-                    />
+                      :placeholder="$t('api_test.request.extract.xpath_expression')" />
                   </el-col>
                   <el-col class="assertion-btn">
-                    <el-tooltip
-                      :content="$t('test_resource_pool.enable_disable')"
-                      placement="top"
-                    >
+                    <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
                         class="enable-switch"
                         size="mini"
                         :disabled="isReadOnly"
-                        style="width: 30px; margin-right: 10px"
-                      />
+                        style="width: 30px; margin-right: 10px" />
                     </el-tooltip>
                     <el-button
                       :disabled="isReadOnly"
@@ -356,8 +212,7 @@
                       size="mini"
                       icon="el-icon-delete"
                       circle
-                      @click="remove(data)"
-                    />
+                      @click="remove(data)" />
                   </el-col>
                 </el-row>
               </div>

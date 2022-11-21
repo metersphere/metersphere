@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="el-input-tag input-tag-wrapper"
-    :class="[size ? 'el-input-tag--' + size : '']"
-    style="height: auto"
-  >
+  <div class="el-input-tag input-tag-wrapper" :class="[size ? 'el-input-tag--' + size : '']" style="height: auto">
     <el-tag
       :class="getClass(tag)"
       v-for="tag in innerTags"
@@ -12,16 +8,10 @@
       :key="tag"
       :size="size"
       :closable="!readOnly"
-      :disable-transitions="false"
-    >
+      :disable-transitions="false">
       {{ getTag(tag) }}
     </el-tag>
-    <input
-      :disabled="readOnly"
-      class="tag-input el-input"
-      v-model="newTag"
-      :placeholder="$t('commons.tag_tip')"
-    />
+    <input :disabled="readOnly" class="tag-input el-input" v-model="newTag" :placeholder="$t('commons.tag_tip')" />
   </div>
 </template>
 <script>
@@ -105,8 +95,7 @@ export default {
   border: 0;
   color: #303133;
   font-size: 12px;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   outline: none;
   padding-left: 0;
   width: 100px;

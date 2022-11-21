@@ -9,8 +9,7 @@
       :run-data="debugData"
       @errorRefresh="errorRefresh"
       @runRefresh="runRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
     <api-base-component
       :if-from-variable-advance="ifFromVariableAdvance"
       :data="controller"
@@ -23,22 +22,19 @@
       @active="active(controller)"
       @remove="remove"
       color="#02A7F0"
-      background-color="#F4F4F5"
-    >
+      background-color="#F4F4F5">
       <template v-slot:headerLeft>
         <i
           class="icon el-icon-arrow-right"
           :class="{ 'is-active': controller.active }"
           style="margin-right: 10px"
-          v-if="!isMax"
-        />
+          v-if="!isMax" />
         <el-radio
           :disabled="controller.disabled"
           @change="changeRadio"
           class="ms-radio ms-radio-margin"
           v-model="controller.loopType"
-          label="LOOP_COUNT"
-        >
+          label="LOOP_COUNT">
           {{ $t('loop.loops_title') }}
         </el-radio>
         <el-radio
@@ -46,8 +42,7 @@
           @change="changeRadio"
           class="ms-radio ms-radio-margin"
           v-model="controller.loopType"
-          label="FOREACH"
-        >
+          label="FOREACH">
           {{ $t('loop.foreach') }}
         </el-radio>
         <el-radio
@@ -55,21 +50,15 @@
           @change="changeRadio"
           class="ms-radio ms-radio-margin"
           v-model="controller.loopType"
-          label="WHILE"
-        >
+          label="WHILE">
           {{ $t('loop.while') }}
         </el-radio>
       </template>
 
       <template v-slot:message>
         <span
-          v-if="
-            requestResult &&
-            requestResult.scenarios &&
-            requestResult.scenarios.length > 0
-          "
-          style="color: #8c939d; margin-right: 10px"
-        />
+          v-if="requestResult && requestResult.scenarios && requestResult.scenarios.length > 0"
+          style="color: #8c939d; margin-right: 10px" />
       </template>
 
       <template v-slot:button>
@@ -80,22 +69,13 @@
           icon="el-icon-video-play"
           class="ms-conn"
           size="mini"
-          circle
-        />
+          circle />
       </template>
-      <div
-        v-if="controller.loopType === 'LOOP_COUNT'"
-        draggable
-        v-loading="loading"
-      >
+      <div v-if="controller.loopType === 'LOOP_COUNT'" draggable v-loading="loading">
         <el-row>
           <el-col :span="8">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input
-              size="small"
-              v-model="controller.countController.loops"
-              style="width: 200px"
-            />
+            <el-input size="small" v-model="controller.countController.loops" style="width: 200px" />
             <span class="ms-span ms-radio">次</span>
           </el-col>
           <el-col :span="8">
@@ -107,41 +87,30 @@
               :max="1000 * 10000000"
               :min="0"
               :step="1000"
-              size="small"
-            />
+              size="small" />
             <span class="ms-span ms-radio">ms</span>
           </el-col>
           <el-col :span="8">
             <span class="ms-span ms-radio">{{ $t('loop.proceed') }}</span>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('api_test.automation.loop_content')"
-              placement="top"
+            <el-tooltip class="item" effect="dark" :content="$t('api_test.automation.loop_content')" placement="top"
               >>
               <el-switch
                 :disabled="controller.disabled"
                 v-model="controller.countController.proceed"
-                @change="switchChange"
-              />
+                @change="switchChange" />
             </el-tooltip>
           </el-col>
         </el-row>
       </div>
 
-      <div
-        v-else-if="controller.loopType === 'FOREACH'"
-        draggable
-        v-loading="loading"
-      >
+      <div v-else-if="controller.loopType === 'FOREACH'" draggable v-loading="loading">
         <el-row>
           <el-col :span="8">
             <el-input
               :disabled="controller.disabled"
               :placeholder="$t('api_test.automation.loop_return_val')"
               v-model="controller.forEachController.returnVal"
-              size="small"
-            />
+              size="small" />
           </el-col>
           <el-col :span="1" style="margin-top: 6px">
             <span style="margin: 10px 10px 10px">in</span>
@@ -151,8 +120,7 @@
               :disabled="controller.disabled"
               :placeholder="$t('api_test.automation.loop_input_val')"
               v-model="controller.forEachController.inputVal"
-              size="small"
-            />
+              size="small" />
           </el-col>
           <el-col :span="7">
             <span class="ms-span ms-radio">{{ $t('loop.interval') }}</span>
@@ -163,8 +131,7 @@
               :placeholder="$t('commons.millisecond')"
               :max="1000 * 10000000"
               :min="0"
-              :step="1000"
-            />
+              :step="1000" />
             <span class="ms-span ms-radio">ms</span>
           </el-col>
         </el-row>
@@ -175,22 +142,15 @@
           :disabled="controller.disabled"
           size="small"
           :placeholder="$t('api_test.request.condition_variable')"
-          style="width: 20%"
-        />
+          style="width: 20%" />
         <el-select
           v-model="controller.whileController.operator"
           :disabled="controller.disabled"
           :placeholder="$t('commons.please_select')"
           size="small"
           @change="change"
-          style="width: 10%; margin-left: 10px"
-        >
-          <el-option
-            v-for="o in operators"
-            :key="o.value"
-            :label="$t(o.label)"
-            :value="o.value"
-          />
+          style="width: 10%; margin-left: 10px">
+          <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value" />
         </el-select>
         <el-input
           v-model="controller.whileController.value"
@@ -198,8 +158,7 @@
           size="small"
           :placeholder="$t('api_test.value')"
           v-if="!hasEmptyOperator"
-          style="width: 20%; margin-left: 20px"
-        />
+          style="width: 20%; margin-left: 20px" />
         <span class="ms-span ms-radio">{{ $t('loop.timeout') }}</span>
         <el-input-number
           v-model="controller.whileController.timeout"
@@ -208,8 +167,7 @@
           :placeholder="$t('commons.millisecond')"
           :max="1000 * 10000000"
           :min="3000"
-          :step="1000"
-        />
+          :step="1000" />
         <span class="ms-span ms-radio">ms</span>
       </div>
 
@@ -220,11 +178,8 @@
         </span>
         <span
           class="ms-step-debug-code"
-          :class="
-            node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'
-          "
-          v-if="!loading && !node.data.testing && node.data.debug"
-        >
+          :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
+          v-if="!loading && !node.data.testing && node.data.debug">
           {{ getCode() }}
         </span>
       </template>
@@ -359,9 +314,7 @@ export default {
     clear(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
-          if (
-            this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1
-          ) {
+          if (this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1) {
             item.requestResult = [];
             item.result = undefined;
             item.code = undefined;
@@ -377,8 +330,7 @@ export default {
         if (data.error > 0) {
           this.node.data.code = 'error';
         } else {
-          this.node.data.code =
-            this.node.data.code !== 'ERROR' ? 'Success' : 'Error';
+          this.node.data.code = this.node.data.code !== 'ERROR' ? 'Success' : 'Error';
         }
       }
       this.reload();
@@ -386,9 +338,7 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         let status = this.node.data.code;
-        return (
-          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
-        );
+        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
       }
       return '';
     },
@@ -407,9 +357,7 @@ export default {
       ) {
         let count = 0;
         this.controller.hashTree[0].hashTree.forEach((item) => {
-          if (
-            this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1
-          ) {
+          if (this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1) {
             count++;
           }
           if (item.hashTree && item.hashTree.length > 0) {
@@ -425,9 +373,7 @@ export default {
     },
     recursive(arr, count) {
       for (let i in arr) {
-        if (
-          this.stepFilter.get('AllSamplerProxy').indexOf(arr[i].type) !== -1
-        ) {
+        if (this.stepFilter.get('AllSamplerProxy').indexOf(arr[i].type) !== -1) {
           count++;
         }
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
@@ -451,13 +397,8 @@ export default {
     runDebug() {
       this.loading = true;
       let currentEnvironmentId;
-      let resourceId =
-        this.currentScenario.id + '_' + this.controller.projectId;
-      if (
-        store.scenarioEnvMap &&
-        store.scenarioEnvMap instanceof Map &&
-        store.scenarioEnvMap.has(resourceId)
-      ) {
+      let resourceId = this.currentScenario.id + '_' + this.controller.projectId;
+      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map && store.scenarioEnvMap.has(resourceId)) {
         currentEnvironmentId = store.scenarioEnvMap.get(resourceId);
       }
       this.debugData = {
@@ -515,10 +456,7 @@ export default {
     setResult(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
-          if (
-            this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1 &&
-            this.requestResult.has(item.id)
-          ) {
+          if (this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1 && this.requestResult.has(item.id)) {
             item.activeName = '0';
             item.active = true;
             item.requestResult = this.requestResult.get(item.id);
@@ -532,10 +470,7 @@ export default {
   },
   computed: {
     hasEmptyOperator() {
-      return (
-        !!this.controller.operator &&
-        this.controller.operator.indexOf('empty') > 0
-      );
+      return !!this.controller.operator && this.controller.operator.indexOf('empty') > 0;
     },
   },
 };
@@ -548,8 +483,7 @@ export default {
 
 .ms-radio {
   color: #606266;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }

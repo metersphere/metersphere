@@ -48,13 +48,7 @@ Vue.use(VuePapaParse);
 let instance = null;
 
 function render(props = {}) {
-  const {
-    container,
-    eventBus = new Vue(),
-    defaultPath,
-    routeParams,
-    routeName,
-  } = props;
+  const { container, eventBus = new Vue(), defaultPath, routeParams, routeName } = props;
   // 添加全局事件总线
   Vue.prototype.$EventBus = eventBus;
   instance = new Vue({

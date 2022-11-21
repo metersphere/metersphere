@@ -1,11 +1,7 @@
 <template>
   <div class="scenario-div" v-loading="result">
     <slot name="version"></slot>
-    <ms-search
-      :condition.sync="condition"
-      :base-search-tip="$t('commons.search_by_id_name_tag')"
-      @search="search"
-    >
+    <ms-search :condition.sync="condition" :base-search-tip="$t('commons.search_by_id_name_tag')" @search="search">
     </ms-search>
 
     <ms-table
@@ -27,16 +23,14 @@
       @refresh="search(projectId)"
       @callBackSelectAll="callBackSelectAll"
       @callBackSelect="callBackSelect"
-      ref="scenarioTable"
-    >
+      ref="scenarioTable">
       <ms-table-column
         prop="deleteTime"
         sortable
         v-if="this.trashEnable"
         :fields-width="fieldsWidth"
         :label="$t('commons.delete_time')"
-        min-width="150px"
-      >
+        min-width="150px">
         <template v-slot:default="scope">
           <span>{{ scope.row.deleteTime | datetimeFormat }}</span>
         </template>
@@ -47,8 +41,7 @@
         :fields-width="fieldsWidth"
         v-if="this.trashEnable"
         :label="$t('commons.delete_user')"
-        min-width="120"
-      />
+        min-width="120" />
 
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
@@ -57,8 +50,7 @@
           label="ID"
           sortable
           min-width="120px"
-          v-if="item.id == 'num' && !customNum"
-        >
+          v-if="item.id == 'num' && !customNum">
           <template slot-scope="scope" v-if="!trashEnable">
             <el-tooltip :content="$t('commons.edit')">
               <a style="cursor: pointer" @click="edit(scope.row)">
@@ -74,8 +66,7 @@
           :fields-width="fieldsWidth"
           min-width="120px"
           prop="customNum"
-          v-if="item.id == 'num' && customNum"
-        >
+          v-if="item.id == 'num' && customNum">
           <template slot-scope="scope">
             <el-tooltip :content="$t('commons.edit')">
               <a style="cursor: pointer" @click="edit(scope.row)">
@@ -91,8 +82,7 @@
           :label="$t('api_test.automation.scenario_name')"
           min-width="150px"
           prop="name"
-          sortable
-        />
+          sortable />
 
         <ms-table-column
           :field="item"
@@ -101,8 +91,7 @@
           :label="$t('api_test.automation.case_level')"
           min-width="130px"
           prop="level"
-          sortable
-        >
+          sortable>
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.level" />
           </template>
@@ -115,8 +104,7 @@
           :fields-width="fieldsWidth"
           :filters="!trashEnable ? scenarioFilters.STATUS_FILTERS : null"
           prop="status"
-          min-width="120px"
-        >
+          min-width="120px">
           <template v-slot:default="scope">
             <plan-status-table-item :value="scope.row.status" />
           </template>
@@ -128,8 +116,7 @@
           :showOverflowTooltip="false"
           :label="$t('api_test.automation.tag')"
           min-width="120px"
-          prop="tags"
-        >
+          prop="tags">
           <template v-slot:default="scope">
             <ms-tag
               v-for="(itemName, index) in scope.row.tags"
@@ -137,12 +124,9 @@
               type="success"
               effect="plain"
               :content="itemName"
-              :show-tooltip="
-                scope.row.tags.length === 1 && itemName.length * 12 <= 120
-              "
+              :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 120"
               :showTooltip="true"
-              style="margin-left: 0px; margin-right: 2px"
-            />
+              style="margin-left: 0px; margin-right: 2px" />
             <span />
           </template>
         </ms-table-column>
@@ -153,8 +137,7 @@
           :fields-width="fieldsWidth"
           :filters="versionFilters"
           min-width="100px"
-          prop="versionId"
-        >
+          prop="versionId">
           <template v-slot:default="scope">
             <span>{{ scope.row.versionName }}</span>
           </template>
@@ -166,8 +149,7 @@
           :fields-width="fieldsWidth"
           prop="principalName"
           min-width="120px"
-          sortable
-        />
+          sortable />
         <ms-table-column
           :label="$t('api_test.automation.creator')"
           :filters="userFilters"
@@ -175,16 +157,14 @@
           :fields-width="fieldsWidth"
           prop="creatorName"
           min-width="120px"
-          sortable="custom"
-        />
+          sortable="custom" />
         <ms-table-column
           :field="item"
           :fields-width="fieldsWidth"
           :filters="environmentsFilters"
           prop="environmentMap"
           :label="$t('commons.environment')"
-          min-width="180"
-        >
+          min-width="180">
           <template v-slot:default="{ row }">
             <div v-if="row.environmentMap">
               <span v-for="(k, v, index) in row.environmentMap" :key="index">
@@ -199,20 +179,11 @@
                 <el-popover placement="top" width="350" trigger="click">
                   <div v-for="(k, v, index) in row.environmentMap" :key="index">
                     <span class="plan-case-env"
-                      >{{ v }}:
-                      <el-tag type="success" size="mini" effect="plain">{{
-                        k
-                      }}</el-tag
+                      >{{ v }}: <el-tag type="success" size="mini" effect="plain">{{ k }}</el-tag
                       ><br />
                     </span>
                   </div>
-                  <el-link
-                    v-if="index === 1"
-                    slot="reference"
-                    type="info"
-                    :underline="false"
-                    icon="el-icon-more"
-                  />
+                  <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more" />
                 </el-popover>
               </span>
             </div>
@@ -225,8 +196,7 @@
           :label="$t('commons.update_time')"
           sortable
           prop="updateTime"
-          min-width="180px"
-        >
+          min-width="180px">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
           </template>
@@ -237,8 +207,7 @@
           :label="$t('commons.create_time')"
           sortable
           prop="createTime"
-          min-width="180px"
-        >
+          min-width="180px">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
@@ -249,8 +218,7 @@
           :fields-width="fieldsWidth"
           :label="$t('api_test.automation.step')"
           prop="stepTotal"
-          min-width="80px"
-        />
+          min-width="80px" />
         <ms-table-column
           :label="$t('api_test.automation.last_result')"
           :filters="resultFilters"
@@ -258,13 +226,9 @@
           :fields-width="fieldsWidth"
           sortable
           prop="lastResult"
-          min-width="130px"
-        >
+          min-width="130px">
           <template v-slot:default="{ row }">
-            <el-link
-              @click="showReport(row)"
-              :disabled="!row.lastResult || row.lastResult === 'PENDING'"
-            >
+            <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult === 'PENDING'">
               <ms-api-report-status :status="row.lastResult" />
             </el-link>
           </template>
@@ -275,8 +239,7 @@
           :fields-width="fieldsWidth"
           :label="$t('api_test.automation.passing_rate')"
           prop="passRate"
-          min-width="120px"
-        />
+          min-width="120px" />
       </span>
 
       <template v-slot:opt-before="scope">
@@ -287,28 +250,15 @@
           icon="el-icon-video-play"
           class="run-button"
           style="margin-right: 10px"
-          v-permission="['PROJECT_API_SCENARIO:READ+RUN']"
-        />
-        <el-tooltip
-          :content="$t('report.stop_btn')"
-          placement="top"
-          :enterable="false"
-          v-else
-        >
+          v-permission="['PROJECT_API_SCENARIO:READ+RUN']" />
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
             v-if="!trashEnable"
             @click.once="stop(scope.row)"
             size="mini"
-            style="
-              color: white;
-              padding: 0;
-              width: 28px;
-              height: 28px;
-              margin-right: 10px;
-            "
+            style="color: white; padding: 0; width: 28px; height: 28px; margin-right: 10px"
             class="stop-btn"
-            circle
-          >
+            circle>
             <div style="transform: scale(0.72)">
               <span style="margin-left: -3.5px; font-weight: bold">STOP</span>
             </div>
@@ -324,17 +274,11 @@
           @openScenario="openScenario"
           @showCaseRef="showScenarioRef"
           v-if="!trashEnable"
-          style="display: contents"
-        />
+          style="display: contents" />
       </template>
     </ms-table>
 
-    <ms-table-pagination
-      :change="search"
-      :current-page.sync="currentPage"
-      :page-size.sync="pageSize"
-      :total="total"
-    />
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
 
     <div>
       <!-- 执行结果 -->
@@ -344,8 +288,7 @@
         direction="rtl"
         :withHeader="true"
         :modal="false"
-        size="90%"
-      >
+        size="90%">
         <sysn-api-report-detail
           @refresh="search"
           :debug="true"
@@ -353,8 +296,7 @@
           :scenarioId="scenarioId"
           :infoDb="infoDb"
           :report-id="reportId"
-          :currentProjectId="projectId"
-        />
+          :currentProjectId="projectId" />
       </el-drawer>
       <!-- 执行结果 -->
       <el-drawer
@@ -363,16 +305,14 @@
         direction="rtl"
         :withHeader="true"
         :modal="false"
-        size="90%"
-      >
+        size="90%">
         <ms-api-report-detail
           @invisible="showReportVisible = false"
           @refresh="search"
           :infoDb="infoDb"
           :show-cancel-button="false"
           :report-id="showReportId"
-          :currentProjectId="projectId"
-        />
+          :currentProjectId="projectId" />
       </el-drawer>
       <!--测试计划-->
       <el-drawer
@@ -382,15 +322,13 @@
         :withHeader="false"
         :title="$t('test_track.plan_view.test_result')"
         :modal="false"
-        size="90%"
-      >
+        size="90%">
         <ms-test-plan-list
           @addTestPlan="addTestPlan(arguments)"
           @cancel="cancel"
           ref="testPlanList"
           :scenario-condition="condition"
-          :row="selectRows"
-        />
+          :row="selectRows" />
       </el-drawer>
     </div>
 
@@ -399,16 +337,14 @@
       @batchEdit="batchEdit"
       :typeArr="typeArr"
       :value-arr="valueArr"
-      :dialog-title="$t('test_track.case.batch_edit_case')"
-    />
+      :dialog-title="$t('test_track.case.batch_edit_case')" />
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove" />
     <ms-api-run-mode
       :request="runRequest"
       :project-id="projectId"
       @close="search"
       @handleRunBatch="handleRunBatch"
-      ref="apiBatchRun"
-    />
+      ref="apiBatchRun" />
     <ms-run
       :debug="true"
       :environment="projectEnvMap"
@@ -420,33 +356,20 @@
       :run-data="debugData"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
     <ms-task-center ref="taskCenter" :show-menu="false" />
-    <mx-relationship-graph-drawer
-      v-xpack
-      :graph-data="graphData"
-      ref="relationshipGraph"
-    />
+    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph" />
     <!--  删除接口提示  -->
-    <scenario-delete-confirm
-      ref="apiDeleteConfirmVersion"
-      @handleDelete="_handleDelete"
-    />
+    <scenario-delete-confirm ref="apiDeleteConfirmVersion" @handleDelete="_handleDelete" />
     <!--  删除场景弹窗  -->
     <api-delete-confirm
       :has-ref="hasRef"
       :show-scenario="showScenario"
       @showCaseRef="showScenarioRef"
       @handleDeleteCase="handleDeleteScenario"
-      ref="apiDeleteConfirm"
-    />
+      ref="apiDeleteConfirm" />
     <!--  引用场景弹窗  -->
-    <ms-show-reference
-      ref="viewRef"
-      @showCaseRef="showScenarioRef"
-      @openScenario="openScenario"
-    />
+    <ms-show-reference ref="viewRef" @showCaseRef="showScenarioRef" @openScenario="openScenario" />
   </div>
 </template>
 
@@ -478,20 +401,9 @@ import {
 } from '@/api/scenario';
 import { getMaintainer, getProject } from '@/api/project';
 import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-} from 'metersphere-frontend/src/utils/token';
-import {
-  downloadFile,
-  getUUID,
-  objToStrMap,
-  strMapToObj,
-} from 'metersphere-frontend/src/utils';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { getCurrentProjectID, getCurrentUserId } from 'metersphere-frontend/src/utils/token';
+import { downloadFile, getUUID, objToStrMap, strMapToObj } from 'metersphere-frontend/src/utils';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { API_SCENARIO_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
 import { API_SCENARIO_LIST } from 'metersphere-frontend/src/utils/constants';
 import {
@@ -506,10 +418,7 @@ import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import HeaderLabelOperate from 'metersphere-frontend/src/components/head/HeaderLabelOperate';
 import { getGraphByCondition } from '@/api/graph';
-import {
-  API_SCENARIO_CONFIGS_TRASH,
-  TYPE_TO_C,
-} from '@/business/automation/scenario/Setting';
+import { API_SCENARIO_CONFIGS_TRASH, TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsTableSearchBar from 'metersphere-frontend/src/components/MsTableSearchBar';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
 import ListItemDeleteConfirm from 'metersphere-frontend/src/components/ListItemDeleteConfirm';
@@ -542,39 +451,26 @@ export default {
     MsShowReference,
     ScenarioDeleteConfirm,
     MsApiReportStatus: () => import('../report/ApiReportStatus'),
-    HeaderCustom: () =>
-      import('metersphere-frontend/src/components/head/HeaderCustom'),
+    HeaderCustom: () => import('metersphere-frontend/src/components/head/HeaderCustom'),
     BatchMove: () => import('@/business/commons/BatchMove'),
-    EnvironmentSelect: () =>
-      import('@/business/environment/components/EnvironmentSelect'),
+    EnvironmentSelect: () => import('@/business/environment/components/EnvironmentSelect'),
     BatchEdit: () => import('@/business/commons/BatchEdit'),
     PlanStatusTableItem: () => import('@/business/commons/PlanStatusTableItem'),
     PriorityTableItem: () => import('@/business/commons/PriorityTableItem'),
-    MsTableHeaderSelectPopover: () =>
-      import(
-        'metersphere-frontend/src/components/table/MsTableHeaderSelectPopover'
-      ),
-    MsTablePagination: () =>
-      import('metersphere-frontend/src/components/pagination/TablePagination'),
+    MsTableHeaderSelectPopover: () => import('metersphere-frontend/src/components/table/MsTableHeaderSelectPopover'),
+    MsTablePagination: () => import('metersphere-frontend/src/components/pagination/TablePagination'),
     MsTableMoreBtn: () => import('./TableMoreBtn'),
     ShowMoreBtn: () => import('@/business/commons/ShowMoreBtn'),
-    MsTableHeader: () =>
-      import('metersphere-frontend/src/components/MsTableHeader'),
+    MsTableHeader: () => import('metersphere-frontend/src/components/MsTableHeader'),
     MsTag: () => import('metersphere-frontend/src/components/MsTag'),
     MsApiReportDetail: () => import('../report/ApiReportDetail'),
     SysnApiReportDetail: () => import('../report/SyncApiReportDetail'),
-    MsScenarioExtendButtons: () =>
-      import('@/business/automation/scenario/ScenarioExtendBtns'),
+    MsScenarioExtendButtons: () => import('@/business/automation/scenario/ScenarioExtendBtns'),
     MsTestPlanList: () => import('./testplan/TestPlanList'),
-    MsTableOperatorButton: () =>
-      import('metersphere-frontend/src/components/MsTableOperatorButton'),
-    MsTaskCenter: () =>
-      import('metersphere-frontend/src/components/task/TaskCenter'),
+    MsTableOperatorButton: () => import('metersphere-frontend/src/components/MsTableOperatorButton'),
+    MsTaskCenter: () => import('metersphere-frontend/src/components/task/TaskCenter'),
     MsRun: () => import('./DebugRun'),
-    MxRelationshipGraphDrawer: () =>
-      import(
-        'metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'
-      ),
+    MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
   },
   props: {
     referenced: {
@@ -629,9 +525,7 @@ export default {
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
       screenHeight: 'calc(100vh - 180px)', //屏幕高度,
       condition: {
-        components: this.trashEnable
-          ? API_SCENARIO_CONFIGS_TRASH
-          : API_SCENARIO_CONFIGS,
+        components: this.trashEnable ? API_SCENARIO_CONFIGS_TRASH : API_SCENARIO_CONFIGS,
       },
       projectId: '',
       scenarioId: '',
@@ -906,16 +800,11 @@ export default {
   },
   methods: {
     generateGraph() {
-      if (
-        getSelectDataCounts(this.condition, this.total, this.selectRows) > 100
-      ) {
+      if (getSelectDataCounts(this.condition, this.total, this.selectRows) > 100) {
         this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
         return;
       }
-      getGraphByCondition(
-        'API_SCENARIO',
-        buildBatchParam(this, this.$refs.scenarioTable.selectIds)
-      ).then((data) => {
+      getGraphByCondition('API_SCENARIO', buildBatchParam(this, this.$refs.scenarioTable.selectIds)).then((data) => {
         this.graphData = data.data;
         this.$refs.relationshipGraph.open();
       });
@@ -1015,11 +904,7 @@ export default {
         }
       }
       if (this.condition.projectId) {
-        this.result = getScenarioList(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = getScenarioList(this.currentPage, this.pageSize, this.condition).then((response) => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -1052,10 +937,7 @@ export default {
       this.planVisible = true;
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.setScenarioSelectRows(
-        this.$refs.scenarioTable.selectRows,
-        'scenario'
-      );
+      this.$refs.batchEdit.setScenarioSelectRows(this.$refs.scenarioTable.selectRows, 'scenario');
       if (this.condition.selectAll) {
         this.condition.ids = [];
         let param = {};
@@ -1077,11 +959,7 @@ export default {
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testBatchMove.open(
-        this.moduleTree,
-        this.$refs.scenarioTable.selectIds,
-        this.moduleOptionsNew
-      );
+      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptionsNew);
     },
     moveSave(param) {
       this.buildBatchParam(param);
@@ -1298,13 +1176,10 @@ export default {
         this.hasRef = false;
         checkBeforeDelete(param).then((response) => {
           let checkResult = response.data;
-          let alertMsg =
-            this.$t('load_test.delete_threadgroup_confirm') + ' ？';
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + ' ？';
           if (checkResult.deleteFlag) {
             alertMsg =
-              this.$t('api_definition.scenario_is_referenced', [
-                checkResult.refCount,
-              ]) +
+              this.$t('api_definition.scenario_is_referenced', [checkResult.refCount]) +
               ', ' +
               this.$t('api_test.is_continue') +
               ' ？';
@@ -1329,10 +1204,7 @@ export default {
               let obj = JSON.parse(response.data.scenarioDefinition);
               this.currentScenario.scenarioDefinition = obj;
               this.currentScenario.name = response.data.name;
-              if (
-                this.currentScenario.scenarioDefinition &&
-                this.currentScenario.scenarioDefinition.hashTree
-              ) {
+              if (this.currentScenario.scenarioDefinition && this.currentScenario.scenarioDefinition.hashTree) {
                 this.sort(this.currentScenario.scenarioDefinition.hashTree);
               }
               resolve();
@@ -1361,14 +1233,8 @@ export default {
             },
           };
         }
-        if (
-          stepArray[i] &&
-          stepArray[i].authManager &&
-          !stepArray[i].authManager.clazzName
-        ) {
-          stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-            stepArray[i].authManager.type
-          );
+        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.sort(stepArray[i].hashTree);
@@ -1422,20 +1288,14 @@ export default {
             hashTree: scenarioStep.hashTree,
           };
           if (this.currentScenario.environmentJson) {
-            this.projectEnvMap = objToStrMap(
-              JSON.parse(this.currentScenario.environmentJson)
-            );
+            this.projectEnvMap = objToStrMap(JSON.parse(this.currentScenario.environmentJson));
           }
           this.environmentType = this.currentScenario.environmentType;
           this.envGroupId = this.currentScenario.environmentGroupId;
           checkScenarioEnv(this.currentScenario.id).then((res) => {
             let data = res.data;
             if (!data) {
-              this.$warning(
-                this.$t(
-                  'workspace.env_group.please_select_env_for_current_scenario'
-                )
-              );
+              this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
               return false;
             }
             this.reportId = getUUID().substring(0, 8);
@@ -1500,12 +1360,7 @@ export default {
         this.hasRef = false;
         checkBeforeDelete(param).then((response) => {
           let checkResult = response.data;
-          let alertMsg =
-            this.$t('load_test.delete_threadgroup_confirm') +
-            '[' +
-            row.name +
-            ']' +
-            '?';
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + '[' + row.name + ']' + '?';
           if (checkResult.deleteFlag) {
             alertMsg =
               '[' +
@@ -1513,16 +1368,10 @@ export default {
               '] ' +
               this.$t('api_definition.scenario_is') +
               (checkResult.scenarioCount > 0
-                ? this.$t('api_definition.scenario_count', [
-                    checkResult.scenarioCount,
-                  ])
+                ? this.$t('api_definition.scenario_count', [checkResult.scenarioCount])
                 : '') +
-              (checkResult.planCount > 0 && checkResult.scenarioCount > 0
-                ? '、 '
-                : '') +
-              (checkResult.planCount > 0
-                ? this.$t('api_definition.plan_count', [checkResult.planCount])
-                : '') +
+              (checkResult.planCount > 0 && checkResult.scenarioCount > 0 ? '、 ' : '') +
+              (checkResult.planCount > 0 ? this.$t('api_definition.plan_count', [checkResult.planCount]) : '') +
               this.$t('api_test.scenario.reference') +
               ', ' +
               this.$t('api_test.is_continue') +
@@ -1531,20 +1380,11 @@ export default {
           }
           //
           getScenarioVersions(row.id).then((response) => {
-            if (
-              hasLicense() &&
-              this.versionEnable &&
-              response.data.length > 1
-            ) {
+            if (hasLicense() && this.versionEnable && response.data.length > 1) {
               // 删除提供列表删除和全部版本删除
               this.$refs.apiDeleteConfirmVersion.open(row, alertMsg);
             } else {
-              this.$refs.apiDeleteConfirm.open(
-                alertMsg,
-                this.$t('permission.project_api_scenario.delete'),
-                row,
-                null
-              );
+              this.$refs.apiDeleteConfirm.open(alertMsg, this.$t('permission.project_api_scenario.delete'), row, null);
             }
           });
         });
@@ -1602,10 +1442,7 @@ export default {
             this.result = false;
             let obj = response.data;
             obj.nodeTree = nodeTree;
-            downloadFile(
-              'Metersphere_Scenario_' + this.projectName + '.json',
-              JSON.stringify(obj)
-            );
+            downloadFile('Metersphere_Scenario_' + this.projectName + '.json', JSON.stringify(obj));
           });
         }
       });
@@ -1674,47 +1511,42 @@ export default {
       this.$emit('selection', selection);
     },
     batchCreatePerformance() {
-      this.$alert(
-        this.$t('api_test.definition.request.batch_to_performance_confirm') +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.infoDb = false;
-              let param = {};
-              this.buildBatchParam(param);
-              batchGenPerformanceTestJmx(param).then((response) => {
-                let returnDTO = response.data;
-                let projectEnvMap = returnDTO.projectEnvMap;
-                let returnDataList = returnDTO.jmxInfoDTOList;
-                let jmxObjList = [];
-                returnDataList.forEach((item) => {
-                  let jmxObj = {};
-                  jmxObj.name = item.name;
-                  jmxObj.xml = item.xml;
-                  jmxObj.attachFiles = item.attachFiles;
-                  jmxObj.attachByteFiles = item.attachByteFiles;
-                  jmxObj.scenarioId = item.id;
-                  jmxObj.version = item.version;
-                  jmxObjList.push(jmxObj);
-                });
-                performanceStore.$patch({
-                  scenarioJmxs: {
-                    name: 'Scenarios',
-                    jmxs: jmxObjList,
-                    projectEnvMap: projectEnvMap,
-                  },
-                });
-                this.$router.push({
-                  path: '/performance/test/create',
-                });
+      this.$alert(this.$t('api_test.definition.request.batch_to_performance_confirm') + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.infoDb = false;
+            let param = {};
+            this.buildBatchParam(param);
+            batchGenPerformanceTestJmx(param).then((response) => {
+              let returnDTO = response.data;
+              let projectEnvMap = returnDTO.projectEnvMap;
+              let returnDataList = returnDTO.jmxInfoDTOList;
+              let jmxObjList = [];
+              returnDataList.forEach((item) => {
+                let jmxObj = {};
+                jmxObj.name = item.name;
+                jmxObj.xml = item.xml;
+                jmxObj.attachFiles = item.attachFiles;
+                jmxObj.attachByteFiles = item.attachByteFiles;
+                jmxObj.scenarioId = item.id;
+                jmxObj.version = item.version;
+                jmxObjList.push(jmxObj);
               });
-            }
-          },
-        }
-      );
+              performanceStore.$patch({
+                scenarioJmxs: {
+                  name: 'Scenarios',
+                  jmxs: jmxObjList,
+                  projectEnvMap: projectEnvMap,
+                },
+              });
+              this.$router.push({
+                path: '/performance/test/create',
+              });
+            });
+          }
+        },
+      });
     },
     stop(row) {
       execStop(this.reportId).then(() => {

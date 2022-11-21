@@ -73,12 +73,7 @@ class Convert {
    * 对象类型转换成JSONSCHEMA
    */
   _objectToSchema() {
-    let baseResult = this._value2object(
-      this._object,
-      this._option.$id,
-      '',
-      true
-    );
+    let baseResult = this._value2object(this._object, this._option.$id, '', true);
     let objectSchema = this._json2schema(this._object);
     baseResult = Object.assign(baseResult, objectSchema);
     return baseResult;
@@ -130,23 +125,12 @@ class Convert {
                 let elementItem = element[index];
                 // 创建items对象的基本信息
                 if (isArray(elementItem)) {
-                  let innerItemArr = this._deepTraversal(
-                    elementItem,
-                    `${$id}/items`,
-                    key + 'items'
-                  );
+                  let innerItemArr = this._deepTraversal(elementItem, `${$id}/items`, key + 'items');
                   itemArr.push(innerItemArr);
                 } else {
                   //item不是Array，进行统一处理
-                  let item = this._value2object(
-                    elementItem,
-                    `${$id}/items`,
-                    key + 'items'
-                  );
-                  item = Object.assign(
-                    item,
-                    this._json2schema(elementItem, `${$id}/items`)
-                  );
+                  let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
+                  item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
                   itemArr.push(item);
                 }
               }
@@ -154,10 +138,7 @@ class Convert {
             }
           } else {
             // 不是数组，递归遍历获取，然后合并对象属性
-            result['properties'][key] = Object.assign(
-              result['properties'][key],
-              this._json2schema(element, $id)
-            );
+            result['properties'][key] = Object.assign(result['properties'][key], this._json2schema(element, $id));
           }
         } else {
           // 一般属性直接获取基本信息

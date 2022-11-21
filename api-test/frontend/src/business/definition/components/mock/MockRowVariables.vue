@@ -12,8 +12,7 @@
             @change="change"
             :value="item.uuid"
             v-model="item.enable"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
 
         <el-col>
@@ -24,8 +23,7 @@
             size="small"
             style="width: 100%"
             :fetch-suggestions="querySearch"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
         <el-col>
           <el-input
@@ -34,8 +32,7 @@
             size="small"
             @change="change"
             :placeholder="$t('api_test.value')"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
         <el-col class="kv-delete">
           <el-button
@@ -43,8 +40,7 @@
             class="el-icon-delete-solid"
             circle
             @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
       </el-row>
     </div>
@@ -107,17 +103,12 @@ export default {
     },
     querySearch(queryString, cb) {
       let suggestions = this.headerSuggestions;
-      let results = queryString
-        ? suggestions.filter(this.createFilter(queryString))
-        : suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
       cb(results);
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
   },

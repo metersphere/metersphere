@@ -11,14 +11,9 @@
     :show-version="showVersion"
     :background-color="backgroundColor"
     :title="title"
-    v-loading="loading"
-  >
+    v-loading="loading">
     <template v-slot:request>
-      <jdbc-processor-content
-        :showScript="false"
-        :scenarioId="scenarioId"
-        :request="request"
-      />
+      <jdbc-processor-content :showScript="false" :scenarioId="scenarioId" :request="request" />
     </template>
   </api-base-component>
 </template>

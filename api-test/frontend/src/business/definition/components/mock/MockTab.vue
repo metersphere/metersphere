@@ -1,9 +1,7 @@
 <template>
   <div>
     <div>
-      <div class="ms-opt-btn" v-if="versionEnable">
-        {{ $t('project.version.name') }}: {{ versionName }}
-      </div>
+      <div class="ms-opt-btn" v-if="versionEnable">{{ $t('project.version.name') }}: {{ versionName }}</div>
       <div style="float: left; margin-top: 15px">
         Mock地址：
         <el-link
@@ -11,21 +9,17 @@
           :href="getUrlPrefix"
           style="color: black"
           target="_blank"
-          type="primary"
-        >
+          type="primary">
           <span>{{ this.getUrlPrefix }}</span>
         </el-link>
-        <el-link v-else style="color: darkred" target="_blank" type="primary"
-          >当前项目未开启Mock服务
-        </el-link>
+        <el-link v-else style="color: darkred" target="_blank" type="primary">当前项目未开启Mock服务 </el-link>
       </div>
       <el-input
         :placeholder="$t('commons.search_by_name')"
         class="search-input"
         size="small"
         :clearable="true"
-        v-model="tableSearch"
-      />
+        v-model="tableSearch" />
       <el-button
         type="primary"
         style="float: right; margin-right: 10px"
@@ -39,9 +33,7 @@
         v-loading="result"
         :data="
           mockConfigData.mockExpectConfigList.filter(
-            (data) =>
-              !tableSearch ||
-              data.name.toLowerCase().includes(tableSearch.toLowerCase())
+            (data) => !tableSearch || data.name.toLowerCase().includes(tableSearch.toLowerCase())
           )
         "
         :operators="operators"
@@ -51,26 +43,11 @@
         @row-click="clickRow"
         row-key="id"
         operator-width="170px"
-        ref="table"
-      >
-        <ms-table-column
-          prop="expectNum"
-          :label="$t('commons.id')"
-          min-width="120px"
-        >
-        </ms-table-column>
+        ref="table">
+        <ms-table-column prop="expectNum" :label="$t('commons.id')" min-width="120px"> </ms-table-column>
 
-        <ms-table-column
-          prop="name"
-          :label="$t('api_test.mock.table.name')"
-          min-width="160px"
-        >
-        </ms-table-column>
-        <ms-table-column
-          prop="tags"
-          width="200px"
-          :label="$t('api_test.mock.table.tag')"
-        >
+        <ms-table-column prop="name" :label="$t('api_test.mock.table.name')" min-width="160px"> </ms-table-column>
+        <ms-table-column prop="tags" width="200px" :label="$t('api_test.mock.table.tag')">
           <template v-slot:default="scope">
             <ms-tag
               v-for="(itemName, index) in scope.row.tags"
@@ -79,39 +56,25 @@
               effect="plain"
               :show-tooltip="true"
               :content="itemName"
-              style="margin-left: 0px; margin-right: 2px"
-            />
+              style="margin-left: 0px; margin-right: 2px" />
             <span />
           </template>
         </ms-table-column>
 
-        <ms-table-column
-          prop="createUserId"
-          :label="$t('api_test.mock.table.creator')"
-          min-width="160px"
-        />
+        <ms-table-column prop="createUserId" :label="$t('api_test.mock.table.creator')" min-width="160px" />
         <ms-table-column
           sortable="updateTime"
           min-width="160px"
           :label="$t('api_test.definition.api_last_time')"
-          prop="updateTime"
-        >
+          prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
           </template>
         </ms-table-column>
-        <ms-table-column
-          prop="status"
-          min-width="50px"
-          :label="$t('api_test.mock.table.status')"
-        >
+        <ms-table-column prop="status" min-width="50px" :label="$t('api_test.mock.table.status')">
           <template v-slot:default="scope">
             <div>
-              <el-switch
-                v-model="scope.row.status"
-                class="captcha-img"
-                @change="changeStatus(scope.row)"
-              ></el-switch>
+              <el-switch v-model="scope.row.status" class="captcha-img" @change="changeStatus(scope.row)"></el-switch>
             </div>
           </template>
         </ms-table-column>
@@ -123,8 +86,7 @@
       :api-params="apiParams"
       @refreshMockInfo="refreshMockInfo"
       :mock-config-id="mockConfigData.mockConfig.id"
-      ref="mockEditDrawer"
-    />
+      ref="mockEditDrawer" />
   </div>
 </template>
 
@@ -231,10 +193,7 @@ export default {
             pathUrlArr.forEach((item) => {
               if (item !== '') {
                 let pathItem = item;
-                if (
-                  item.indexOf('{') === 0 &&
-                  item.indexOf('}') === item.length - 1
-                ) {
+                if (item.indexOf('{') === 0 && item.indexOf('}') === item.length - 1) {
                   let paramItem = item.substr(1, item.length - 2);
                   for (let i = 0; i < this.form.request.rest.length; i++) {
                     let param = this.form.request.rest[i];
@@ -291,10 +250,7 @@ export default {
     getHttpMockTestData(requestParam) {
       if (requestParam && requestParam.params) {
         let selectParma = [];
-        if (
-          requestParam.params.arguments &&
-          requestParam.params.arguments.length > 0
-        ) {
+        if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
           requestParam.params.arguments.forEach((item) => {
             if (item.rangeType && item.value && item.uuid) {
               let paramObj = {
@@ -318,10 +274,7 @@ export default {
             }
           });
         }
-        if (
-          requestParam.params.body.kvs &&
-          requestParam.params.body.kvs.length > 0
-        ) {
+        if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
           requestParam.params.body.kvs.forEach((item) => {
             if (item.rangeType && item.value && item.uuid) {
               let paramObj = {
@@ -339,39 +292,22 @@ export default {
             let returnData = response.data;
             if (returnData && returnData.length > 0) {
               returnData.forEach((data) => {
-                if (
-                  requestParam.params.arguments &&
-                  requestParam.params.arguments.length > 0
-                ) {
-                  for (
-                    let i = 0;
-                    i < requestParam.params.arguments.length;
-                    i++
-                  ) {
+                if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
+                  for (let i = 0; i < requestParam.params.arguments.length; i++) {
                     if (requestParam.params.arguments[i].uuid === data.id) {
                       requestParam.params.arguments[i].value = data.value;
                     }
                   }
                 }
-                if (
-                  requestParam.params.rest &&
-                  requestParam.params.rest.length > 0
-                ) {
+                if (requestParam.params.rest && requestParam.params.rest.length > 0) {
                   for (let i = 0; i < requestParam.params.rest.length; i++) {
                     if (requestParam.params.rest[i].uuid === data.id) {
                       requestParam.params.rest[i].value = data.value;
                     }
                   }
                 }
-                if (
-                  requestParam.params.body.kvs &&
-                  requestParam.params.body.kvs.length > 0
-                ) {
-                  for (
-                    let i = 0;
-                    i < requestParam.params.body.kvs.length;
-                    i++
-                  ) {
+                if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
+                  for (let i = 0; i < requestParam.params.body.kvs.length; i++) {
                     if (requestParam.params.body.kvs[i].uuid === data.id) {
                       requestParam.params.body.kvs[i].value = data.value;
                     }
@@ -470,20 +406,16 @@ export default {
       });
     },
     removeExpect(row) {
-      operationConfirm(
-        this,
-        this.$t('api_test.mock.delete_mock_expect'),
-        () => {
-          let mockInfoId = row.mockConfigId;
-          delMock(row.id).then((response) => {
-            this.refreshMockInfo(mockInfoId);
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success'),
-            });
+      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
+        let mockInfoId = row.mockConfigId;
+        delMock(row.id).then((response) => {
+          this.refreshMockInfo(mockInfoId);
+          this.$message({
+            type: 'success',
+            message: this.$t('commons.delete_success'),
           });
-        }
-      );
+        });
+      });
     },
     refreshMockInfo(mockConfigId) {
       let mockParam = {};

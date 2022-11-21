@@ -2,48 +2,30 @@
   <div v-loading="isReloadData || result">
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
-        <div
-          style="
-            border: 1px #dcdfe6 solid;
-            height: 100%;
-            border-radius: 4px;
-            width: 100%;
-          "
-        >
+        <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
           <el-form
             :model="request"
             :rules="rules"
             ref="request"
             label-width="100px"
             :disabled="isReadOnly"
-            style="margin: 10px"
-          >
+            style="margin: 10px">
             <el-row>
               <el-col :span="7">
-                <el-form-item
-                  prop="environmentId"
-                  :label="$t('api_test.definition.request.run_env')"
-                >
+                <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
                   <el-select
                     v-model="request.environmentId"
                     size="small"
                     class="ms-htt-width"
                     :placeholder="$t('api_test.definition.request.run_env')"
                     @change="environmentChange"
-                    clearable
-                  >
+                    clearable>
                     <el-option
                       v-for="(environment, index) in environments"
                       :key="index"
                       :label="environment.name"
-                      :value="environment.id"
-                    />
-                    <el-button
-                      class="environment-button"
-                      size="small"
-                      type="primary"
-                      @click="openEnvironmentConfig"
-                    >
+                      :value="environment.id" />
+                    <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
                       {{ $t('api_test.environment.environment_config') }}
                     </el-button>
                     <template v-slot:empty>
@@ -52,8 +34,7 @@
                           class="environment-button"
                           size="small"
                           type="primary"
-                          @click="openEnvironmentConfig"
-                        >
+                          @click="openEnvironmentConfig">
                           {{ $t('api_test.environment.environment_config') }}
                         </el-button>
                       </div>
@@ -65,36 +46,25 @@
                 <el-form-item
                   :label="$t('api_test.request.sql.dataSource')"
                   prop="dataSourceId"
-                  style="margin-left: 10px"
-                >
-                  <el-select
-                    v-model="request.dataSourceId"
-                    size="small"
-                    @change="reload"
-                  >
+                  style="margin-left: 10px">
+                  <el-select v-model="request.dataSourceId" size="small" @change="reload">
                     <el-option
                       v-for="(item, index) in databaseConfigsOptions"
                       :key="index"
                       :value="item.id"
-                      :label="item.name"
-                    />
+                      :label="item.name" />
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="7">
-                <el-form-item
-                  :label="$t('api_test.request.sql.timeout')"
-                  prop="queryTimeout"
-                  style="margin-left: 10px"
-                >
+                <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
                   <el-input-number
                     :disabled="isReadOnly"
                     size="small"
                     v-model="request.queryTimeout"
                     :placeholder="$t('commons.millisecond')"
                     :max="1000 * 10000000"
-                    :min="0"
-                  />
+                    :min="0" />
                 </el-form-item>
               </el-col>
               <el-col :span="2">
@@ -103,57 +73,28 @@
                   v-model="request.isRefEnvironment"
                   :disabled="request.disabled"
                   class="ref_environment"
-                  @change="getEnvironments"
-                >
+                  @change="getEnvironments">
                   {{ $t('api_test.request.refer_to_environment') }}
                 </el-checkbox>
               </el-col>
             </el-row>
 
-            <el-form-item
-              :label="$t('api_test.request.sql.result_variable')"
-              prop="resultVariable"
-            >
-              <el-input
-                v-model="request.resultVariable"
-                maxlength="500"
-                show-word-limit
-                size="small"
-              />
+            <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
+              <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small" />
             </el-form-item>
 
-            <el-form-item
-              :label="$t('api_test.request.sql.variable_names')"
-              prop="variableNames"
-            >
-              <el-input
-                v-model="request.variableNames"
-                maxlength="500"
-                show-word-limit
-                size="small"
-              />
+            <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
+              <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small" />
             </el-form-item>
 
-            <el-tabs
-              v-model="activeName"
-              @tab-click="tabClick"
-              class="ms-tab-content"
-            >
-              <el-tab-pane
-                :label="$t('api_test.scenario.variables')"
-                name="variables"
-                v-if="isBodyShow"
-              >
+            <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tab-content">
+              <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables" v-if="isBodyShow">
                 <ms-api-scenario-variables
                   :is-read-only="isReadOnly"
                   :items="request.variables"
-                  :description="$t('api_test.scenario.kv_description')"
-                />
+                  :description="$t('api_test.scenario.kv_description')" />
               </el-tab-pane>
-              <el-tab-pane
-                :label="$t('api_test.request.sql.sql_script')"
-                name="sql"
-              >
+              <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
                 <ms-code-edit
                   mode="sql"
                   :read-only="isReadOnly"
@@ -162,26 +103,13 @@
                   :height="200"
                   theme="eclipse"
                   ref="codeEdit"
-                  :key="request.id"
-                />
+                  :key="request.id" />
               </el-tab-pane>
               <!-- 脚本步骤/断言步骤 -->
-              <el-tab-pane
-                :label="$t('api_test.definition.request.pre_operation')"
-                name="preOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.pre_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.preSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
@@ -191,25 +119,15 @@
                   :apiId="request.id"
                   :response="response"
                   :tab-type="'pre'"
-                  ref="preStep"
-                />
+                  ref="preStep" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.post_operation')"
                 name="postOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.post_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.postSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.postSize }}
                     </div>
@@ -221,25 +139,15 @@
                   :apiId="request.id"
                   :response="response"
                   :tab-type="'post'"
-                  ref="postStep"
-                />
+                  ref="postStep" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.assertions_rule')"
                 name="assertionsRule"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.assertions_rule') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.ruleSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.ruleSize }}
                     </div>
@@ -252,8 +160,7 @@
                   :scenarioId="scenarioId"
                   @reload="reloadBody"
                   :tab-type="'assertionsRule'"
-                  ref="assertionsRule"
-                />
+                  ref="assertionsRule" />
               </el-tab-pane>
             </el-tabs>
           </el-form>
@@ -262,10 +169,7 @@
     </el-row>
 
     <!-- 环境 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </div>
 </template>
 
@@ -282,10 +186,7 @@ import { getUUID, objToStrMap } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
 import MsJmxStep from '../../step/JmxStep';
-import {
-  hisDataProcessing,
-  stepCompute,
-} from '@/business/definition/api-definition';
+import { hisDataProcessing, stepCompute } from '@/business/definition/api-definition';
 import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 import { useApiStore } from '@/store';
 
@@ -456,31 +357,17 @@ export default {
             }
           }
         });
-        this.initDataSource(
-          environmentId,
-          currentEnvironment,
-          targetDataSourceName
-        );
+        this.initDataSource(environmentId, currentEnvironment, targetDataSourceName);
       });
     },
     getEnvironments(environmentId) {
       let envId = '';
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      let scenarioEnvId = this.request.currentScenarioId
-        ? this.request.currentScenarioId + '_' + id
-        : id;
-      if (
-        store.scenarioEnvMap &&
-        store.scenarioEnvMap instanceof Map &&
-        store.scenarioEnvMap.has(scenarioEnvId)
-      ) {
+      let scenarioEnvId = this.request.currentScenarioId ? this.request.currentScenarioId + '_' + id : id;
+      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map && store.scenarioEnvMap.has(scenarioEnvId)) {
         envId = store.scenarioEnvMap.get(scenarioEnvId);
       }
-      if (
-        this.request.referenced === 'Created' &&
-        this.scenarioId !== '' &&
-        !this.request.isRefEnvironment
-      ) {
+      if (this.request.referenced === 'Created' && this.scenarioId !== '' && !this.request.isRefEnvironment) {
         this.itselfEnvironment(environmentId);
         return;
       } else if (!this.scenarioId && !this.request.customizeReq) {
@@ -495,26 +382,18 @@ export default {
           .match(/\[object (\w+)\]/)[1]
           .toLowerCase();
         if (obj !== 'object' && obj !== 'map') {
-          this.request.refEevMap = objToStrMap(
-            JSON.parse(this.request.refEevMap)
-          );
+          this.request.refEevMap = objToStrMap(JSON.parse(this.request.refEevMap));
         } else if (obj === 'object' && obj !== 'map') {
           this.request.refEevMap = objToStrMap(this.request.refEevMap);
         }
-        if (
-          this.request.refEevMap instanceof Map &&
-          this.request.refEevMap.has(id)
-        ) {
+        if (this.request.refEevMap instanceof Map && this.request.refEevMap.has(id)) {
           envId = this.request.refEevMap.get(id);
         }
       }
       let targetDataSourceName = '';
       let currentEnvironment = {};
 
-      if (
-        envId === this.request.originalEnvironmentId &&
-        this.request.originalDataSourceId
-      ) {
+      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       getEnvironmentByProjectId(id).then((response) => {
@@ -522,10 +401,7 @@ export default {
         this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
-          if (
-            environment.id === this.request.environmentId &&
-            environment.id !== envId
-          ) {
+          if (environment.id === this.request.environmentId && environment.id !== envId) {
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
@@ -545,9 +421,7 @@ export default {
       });
     },
     openEnvironmentConfig() {
-      this.$refs.environmentConfig.open(
-        this.request.projectId ? this.request.projectId : getCurrentProjectID()
-      );
+      this.$refs.environmentConfig.open(this.request.projectId ? this.request.projectId : getCurrentProjectID());
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName) {
       this.databaseConfigsOptions = [];
@@ -562,11 +436,7 @@ export default {
         }
       }
       let flag = false;
-      if (
-        currentEnvironment &&
-        currentEnvironment.config &&
-        currentEnvironment.config.databaseConfigs
-      ) {
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach((item) => {
           if (item.id === this.request.dataSourceId) {
             flag = true;
@@ -579,8 +449,7 @@ export default {
           this.databaseConfigsOptions.push(item);
         });
         if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
-          this.request.dataSourceId =
-            currentEnvironment.config.databaseConfigs[0].id;
+          this.request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }
@@ -615,20 +484,13 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition, env) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           // 找到原始数据源名称
           this.getTargetSource(scenarioDefinition[i]);
           scenarioDefinition[i].environmentId = env;
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
         }
       }

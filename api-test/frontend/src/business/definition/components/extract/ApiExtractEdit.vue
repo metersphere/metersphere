@@ -4,11 +4,7 @@
       <div>
         {{ $t('api_test.request.extract.regex') }}
       </div>
-      <div
-        class="regex-item"
-        v-for="(regex, index) in extract.regex"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(regex, index) in extract.regex" :key="index">
         <ms-api-extract-common
           :if-from-variable-advance="ifFromVariableAdvance"
           :is-read-only="isReadOnly"
@@ -17,18 +13,13 @@
           :common="regex"
           :edit="true"
           :index="index"
-          @savePreParams="savePreParams"
-        />
+          @savePreParams="savePreParams" />
       </div>
     </div>
 
     <div class="extract-item-editing json" v-if="extract.json.length > 0">
       <div>JSONPath</div>
-      <div
-        class="regex-item"
-        v-for="(json, index) in extract.json"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(json, index) in extract.json" :key="index">
         <ms-api-extract-common
           :if-from-variable-advance="ifFromVariableAdvance"
           :is-read-only="isReadOnly"
@@ -37,26 +28,15 @@
           :common="json"
           :edit="true"
           :index="index"
-          @savePreParams="savePreParams"
-        />
+          @savePreParams="savePreParams" />
       </div>
     </div>
 
     <div class="extract-item-editing xpath" v-if="extract.xpath.length > 0">
       <div>
         XPath
-        <el-select
-          v-model="extract.xpathType"
-          size="mini"
-          v-loading="loading"
-          @change="reload"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
+        <el-select v-model="extract.xpathType" size="mini" v-loading="loading" @change="reload">
+          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
         <el-tooltip placement="top">
           <div slot="content">
@@ -65,11 +45,7 @@
           <i class="el-icon-question" style="cursor: pointer" />
         </el-tooltip>
       </div>
-      <div
-        class="regex-item"
-        v-for="(xpath, index) in extract.xpath"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(xpath, index) in extract.xpath" :key="index">
         <ms-api-extract-common
           :if-from-variable-advance="ifFromVariableAdvance"
           :is-read-only="isReadOnly"
@@ -78,8 +54,7 @@
           :common="xpath"
           :edit="true"
           :index="index"
-          @savePreParams="savePreParams"
-        />
+          @savePreParams="savePreParams" />
       </div>
     </div>
   </div>

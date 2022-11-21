@@ -31,15 +31,7 @@ export function genPerformanceTestXml(file, files, params) {
 }
 
 export function getRunningTask(selectProjectId, currentPage, pageSize, param) {
-  return post(
-    '/task/center/runningTask/' +
-      selectProjectId +
-      '/' +
-      currentPage +
-      '/' +
-      pageSize,
-    param
-  );
+  return post('/task/center/runningTask/' + selectProjectId + '/' + currentPage + '/' + pageSize, param);
 }
 
 export function formatNumber(param) {

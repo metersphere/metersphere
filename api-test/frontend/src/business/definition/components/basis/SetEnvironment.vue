@@ -5,31 +5,24 @@
       :visible.sync="dialogVisible"
       width="400px"
       :destroy-on-close="true"
-      @close="handleClose"
-    >
+      @close="handleClose">
       <el-select
         v-model="environmentId"
         value-key="id"
         class="ms-htt-width"
         :placeholder="$t('api_test.definition.request.run_env')"
-        clearable
-      >
+        clearable>
         <el-option
           v-for="(environment, index) in environments"
           :key="index"
           :label="environment.name"
-          :value="environment.id"
-        />
+          :value="environment.id" />
         <template v-slot:empty>
           <div class="empty-environment"></div>
         </template>
       </el-select>
       <template v-slot:footer>
-        <el-button
-          type="primary"
-          @click="createPerformance"
-          @keydown.enter.native.prevent
-        >
+        <el-button type="primary" @click="createPerformance" @keydown.enter.native.prevent>
           {{ $t('commons.confirm') }}
         </el-button>
       </template>
@@ -39,10 +32,7 @@
 
 <script>
 import { getCaseById } from '@/api/api-test-case';
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';

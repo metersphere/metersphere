@@ -7,15 +7,11 @@
     width="80%"
     @close="close"
     v-loading="loading"
-    append-to-body
-  >
+    append-to-body>
     <fieldset :disabled="disabled" class="ms-fieldset">
       <el-collapse-transition>
         <el-tabs v-model="activeName" @tab-click="reloadTable">
-          <el-tab-pane
-            :label="$t('api_test.scenario.variables')"
-            name="variable"
-          >
+          <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
             <div>
               <el-row style="margin-bottom: 10px">
                 <div style="float: left">
@@ -24,36 +20,19 @@
                     v-model="selectVariable"
                     size="small"
                     @change="filter"
-                    @keyup.enter="filter"
-                  >
+                    @keyup.enter="filter">
                     <el-select
                       v-model="searchType"
                       slot="prepend"
                       :placeholder="$t('test_resource_pool.type')"
                       style="width: 90px"
-                      @change="filter"
-                    >
-                      <el-option
-                        value="ALL"
-                        :label="$t('api_test.automation.all')"
-                      ></el-option>
-                      <el-option
-                        value="CONSTANT"
-                        :label="$t('api_test.automation.constant')"
-                      ></el-option>
-                      <el-option
-                        value="LIST"
-                        :label="$t('test_track.case.list')"
-                      ></el-option>
+                      @change="filter">
+                      <el-option value="ALL" :label="$t('api_test.automation.all')"></el-option>
+                      <el-option value="CONSTANT" :label="$t('api_test.automation.constant')"></el-option>
+                      <el-option value="LIST" :label="$t('test_track.case.list')"></el-option>
                       <el-option value="CSV" label="CSV"></el-option>
-                      <el-option
-                        value="COUNTER"
-                        :label="$t('api_test.automation.counter')"
-                      ></el-option>
-                      <el-option
-                        value="RANDOM"
-                        :label="$t('api_test.automation.random')"
-                      ></el-option>
+                      <el-option value="COUNTER" :label="$t('api_test.automation.counter')"></el-option>
+                      <el-option value="RANDOM" :label="$t('api_test.automation.random')"></el-option>
                     </el-select>
                   </el-input>
                 </div>
@@ -64,58 +43,29 @@
                     :placeholder="$t('test_resource_pool.type')"
                     style="width: 90px"
                     size="small"
-                    @change="filter"
-                  >
-                    <el-option
-                      value="CONSTANT"
-                      :label="$t('api_test.automation.constant')"
-                    ></el-option>
-                    <el-option
-                      value="LIST"
-                      :label="$t('test_track.case.list')"
-                    ></el-option>
+                    @change="filter">
+                    <el-option value="CONSTANT" :label="$t('api_test.automation.constant')"></el-option>
+                    <el-option value="LIST" :label="$t('test_track.case.list')"></el-option>
                     <el-option value="CSV" label="CSV"></el-option>
-                    <el-option
-                      value="COUNTER"
-                      :label="$t('api_test.automation.counter')"
-                    ></el-option>
-                    <el-option
-                      value="RANDOM"
-                      :label="$t('api_test.automation.random')"
-                    ></el-option>
+                    <el-option value="COUNTER" :label="$t('api_test.automation.counter')"></el-option>
+                    <el-option value="RANDOM" :label="$t('api_test.automation.random')"></el-option>
                   </el-select>
-                  <el-button
-                    size="small"
-                    style="margin-left: 10px"
-                    type="primary"
-                    @click="addVariable"
-                  >
+                  <el-button size="small" style="margin-left: 10px" type="primary" @click="addVariable">
                     {{ $t('commons.add') }}
                   </el-button>
                   <el-dropdown style="margin-left: 10px">
                     <el-button size="small">
-                      <span class="tip-font">{{
-                        $t('commons.more_operator')
-                      }}</span>
+                      <span class="tip-font">{{ $t('commons.more_operator') }}</span>
                       <i class="el-icon-arrow-down el-icon--right" />
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item
-                        @click.native.stop="importVariable"
-                        :disabled="disabled"
-                      >
+                      <el-dropdown-item @click.native.stop="importVariable" :disabled="disabled">
                         {{ $t('commons.import_variable') }}
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        @click.native.stop="exportVariable"
-                        :disabled="disabled"
-                      >
+                      <el-dropdown-item @click.native.stop="exportVariable" :disabled="disabled">
                         {{ $t('commons.export_variable') }}
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        @click.native.stop="batchAddParameter"
-                        :disabled="disabled"
-                      >
+                      <el-dropdown-item @click.native.stop="batchAddParameter" :disabled="disabled">
                         {{ $t('commons.batch_add') }}
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -124,14 +74,7 @@
               </el-row>
               <el-row>
                 <el-col :span="12">
-                  <div
-                    style="
-                      border: 1px #dcdfe6 solid;
-                      min-height: 400px;
-                      border-radius: 4px;
-                      width: 100%;
-                    "
-                  >
+                  <div style="border: 1px #dcdfe6 solid; min-height: 400px; border-radius: 4px; width: 100%">
                     <ms-table
                       v-loading="loading"
                       row-key="id"
@@ -145,8 +88,7 @@
                       :field-key="tableHeaderKey"
                       @handleRowClick="handleRowClick"
                       @refresh="onChange"
-                      ref="variableTable"
-                    >
+                      ref="variableTable">
                       <span v-for="item in fields" :key="item.key">
                         <ms-table-column
                           prop="num"
@@ -154,8 +96,7 @@
                           :fields-width="fieldsWidth"
                           sortable
                           label="ID"
-                          min-width="60"
-                        >
+                          min-width="60">
                         </ms-table-column>
                         <ms-table-column
                           prop="name"
@@ -163,8 +104,7 @@
                           :fields-width="fieldsWidth"
                           :label="$t('api_test.variable_name')"
                           min-width="100"
-                          sortable
-                        >
+                          sortable>
                         </ms-table-column>
                         <ms-table-column
                           prop="type"
@@ -172,8 +112,7 @@
                           :fields-width="fieldsWidth"
                           :label="$t('test_track.case.type')"
                           min-width="70"
-                          sortable
-                        >
+                          sortable>
                           <template v-slot:default="scope">
                             <span>{{ types.get(scope.row.type) }}</span>
                           </template>
@@ -183,8 +122,7 @@
                           :field="item"
                           :fields-width="fieldsWidth"
                           :label="$t('api_test.value')"
-                          sortable
-                        >
+                          sortable>
                         </ms-table-column>
                         <ms-table-column
                           prop="description"
@@ -192,64 +130,27 @@
                           :fields-width="fieldsWidth"
                           :label="$t('commons.description')"
                           min-width="70"
-                          sortable
-                        >
+                          sortable>
                         </ms-table-column>
                       </span>
                     </ms-table>
-                    <batch-add-parameter
-                      @batchSave="batchSaveParameter"
-                      ref="batchAddParameter"
-                    />
+                    <batch-add-parameter @batchSave="batchSaveParameter" ref="batchAddParameter" />
                   </div>
                 </el-col>
                 <el-col :span="12">
-                  <ms-edit-constant
-                    v-if="editData.type == 'CONSTANT'"
-                    ref="parameters"
-                    :editData.sync="editData"
-                  />
-                  <ms-edit-counter
-                    v-if="editData.type == 'COUNTER'"
-                    ref="counter"
-                    :editData.sync="editData"
-                  />
-                  <ms-edit-random
-                    v-if="editData.type == 'RANDOM'"
-                    ref="random"
-                    :editData.sync="editData"
-                  />
-                  <ms-edit-list-value
-                    v-if="editData.type == 'LIST'"
-                    ref="listValue"
-                    :editData="editData"
-                  />
-                  <ms-edit-csv
-                    v-if="editData.type === 'CSV' && !loading"
-                    ref="csv"
-                    :editData.sync="editData"
-                  />
+                  <ms-edit-constant v-if="editData.type == 'CONSTANT'" ref="parameters" :editData.sync="editData" />
+                  <ms-edit-counter v-if="editData.type == 'COUNTER'" ref="counter" :editData.sync="editData" />
+                  <ms-edit-random v-if="editData.type == 'RANDOM'" ref="random" :editData.sync="editData" />
+                  <ms-edit-list-value v-if="editData.type == 'LIST'" ref="listValue" :editData="editData" />
+                  <ms-edit-csv v-if="editData.type === 'CSV' && !loading" ref="csv" :editData.sync="editData" />
                   <div v-if="editData.type" style="float: right">
-                    <el-button
-                      size="small"
-                      style="margin-left: 10px"
-                      type="primary"
-                      @click="confirmVariable"
-                    >
+                    <el-button size="small" style="margin-left: 10px" type="primary" @click="confirmVariable">
                       {{ $t('commons.confirm') }}
                     </el-button>
-                    <el-button
-                      size="small"
-                      style="margin-left: 10px"
-                      @click="cancelVariable"
+                    <el-button size="small" style="margin-left: 10px" @click="cancelVariable"
                       >{{ $t('commons.cancel') }}
                     </el-button>
-                    <el-button
-                      v-if="showDelete"
-                      size="small"
-                      style="margin-left: 10px"
-                      @click="deleteVariable"
-                    >
+                    <el-button v-if="showDelete" size="small" style="margin-left: 10px" @click="deleteVariable">
                       {{ $t('commons.delete') }}
                     </el-button>
                   </div>
@@ -264,14 +165,10 @@
               effect="dark"
               :content="$t('api_test.request.headers')"
               placement="top-start"
-              slot="label"
-            >
+              slot="label">
               <span
                 >{{ $t('api_test.request.headers') }}
-                <div
-                  class="el-step__icon is-text ms-api-col ms-header"
-                  v-if="headers.length > 1"
-                >
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length > 1">
                   <div class="el-step__icon-inner">
                     {{ headers.length - 1 }}
                   </div>
@@ -279,40 +176,24 @@
               </span>
             </el-tooltip>
             <el-row>
-              <el-link
-                class="ms-variable-link"
-                @click="batchAddHeader"
-                type="primary"
-                :disabled="disabled"
-              >
+              <el-link class="ms-variable-link" @click="batchAddHeader" type="primary" :disabled="disabled">
                 {{ $t('commons.batch_add') }}
               </el-link>
             </el-row>
             <div style="min-height: 400px">
-              <ms-api-key-value
-                :items="headers"
-                :suggestions="headerSuggestions"
-              />
-              <batch-add-parameter
-                @batchSave="batchSaveHeader"
-                ref="batchAddHeader"
-              />
+              <ms-api-key-value :items="headers" :suggestions="headerSuggestions" />
+              <batch-add-parameter @batchSave="batchSaveHeader" ref="batchAddHeader" />
             </div>
           </el-tab-pane>
         </el-tabs>
         <template v-slot:footer>
           <div>
-            <el-button type="primary" @click="save">{{
-              $t('commons.confirm')
-            }}</el-button>
+            <el-button type="primary" @click="save">{{ $t('commons.confirm') }}</el-button>
           </div>
         </template>
       </el-collapse-transition>
     </fieldset>
-    <variable-import
-      ref="variableImport"
-      @mergeData="mergeData"
-    ></variable-import>
+    <variable-import ref="variableImport" @mergeData="mergeData"></variable-import>
   </el-dialog>
 </template>
 
@@ -333,10 +214,7 @@ import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
 
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
-import {
-  getCustomTableHeader,
-  getCustomTableWidth,
-} from 'metersphere-frontend/src/utils/tableUtils';
+import { getCustomTableHeader, getCustomTableWidth } from 'metersphere-frontend/src/utils/tableUtils';
 import VariableImport from '@/business/automation/scenario/variable/VariableImport';
 
 const jsondiffpatch = require('jsondiffpatch');
@@ -412,9 +290,7 @@ export default {
         importData.id = getUUID();
         importData.enable = true;
         importData.showMore = false;
-        let sameNameIndex = this.variables.findIndex(
-          (d) => d.name === importData.name
-        );
+        let sameNameIndex = this.variables.findIndex((d) => d.name === importData.name);
         if (sameNameIndex !== -1) {
           if (modeId === 'fullCoverage') {
             this.variables.splice(sameNameIndex, 1, importData);
@@ -445,10 +321,7 @@ export default {
         this.$warning(messages);
         return;
       }
-      downloadFile(
-        'MS_' + variablesJson.length + '_Environments_variables.json',
-        JSON.stringify(variablesJson)
-      );
+      downloadFile('MS_' + variablesJson.length + '_Environments_variables.json', JSON.stringify(variablesJson));
     },
     batchAddParameter() {
       this.$refs.batchAddParameter.open('scenario');
@@ -620,14 +493,8 @@ export default {
       this.selectType = 'CONSTANT';
       this.editData = {};
       if (
-        jsondiffpatch.diff(
-          JSON.parse(JSON.stringify(this.variables)),
-          this.variablesOld
-        ) ||
-        jsondiffpatch.diff(
-          JSON.parse(JSON.stringify(this.headers)),
-          this.headersOld
-        )
+        jsondiffpatch.diff(JSON.parse(JSON.stringify(this.variables)), this.variablesOld) ||
+        jsondiffpatch.diff(JSON.parse(JSON.stringify(this.headers)), this.headersOld)
       ) {
         this.$emit('setVariables', saveVariables, this.headers);
       }
@@ -654,11 +521,7 @@ export default {
       });
       if (repeatKey !== '') {
         this.$warning(
-          this.$t('api_test.scenario.variables') +
-            '【' +
-            repeatKey +
-            '】' +
-            this.$t('load_test.param_is_duplicate')
+          this.$t('api_test.scenario.variables') + '【' + repeatKey + '】' + this.$t('load_test.param_is_duplicate')
         );
         return;
       }
@@ -706,26 +569,19 @@ export default {
       });
       if (message !== '') {
         message = message.substr(0, message.length - 1);
-        this.$alert(
-          this.$t('api_test.environment.variables_delete_info') +
-            '：【 ' +
-            message +
-            ' 】？',
-          '',
-          {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                ids.forEach((row) => {
-                  const index = this.variables.findIndex((d) => d.id === row);
-                  this.variables.splice(index, 1);
-                });
-                this.sortParameters();
-                this.editData = {};
-              }
-            },
-          }
-        );
+        this.$alert(this.$t('api_test.environment.variables_delete_info') + '：【 ' + message + ' 】？', '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              ids.forEach((row) => {
+                const index = this.variables.findIndex((d) => d.id === row);
+                this.variables.splice(index, 1);
+              });
+              this.sortParameters();
+              this.editData = {};
+            }
+          },
+        });
       } else {
         ids.forEach((row) => {
           const index = this.variables.findIndex((d) => d.id === row);
@@ -736,58 +592,40 @@ export default {
       }
     },
     handleDeleteBatch() {
-      this.$alert(
-        this.$t('api_test.environment.variables_delete_info') + ' ' + ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = this.$refs.variableTable.selectIds;
-              ids.forEach((row) => {
-                const index = this.variables.findIndex((d) => d.id === row);
-                this.variables.splice(index, 1);
-              });
-              // this.editData = {type: "CONSTANT"};
-              this.sortParameters();
-              this.editData = {};
-              this.$refs.variableTable.cancelCurrentRow();
-              this.$refs.variableTable.clear();
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.environment.variables_delete_info') + ' ' + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = this.$refs.variableTable.selectIds;
+            ids.forEach((row) => {
+              const index = this.variables.findIndex((d) => d.id === row);
+              this.variables.splice(index, 1);
+            });
+            // this.editData = {type: "CONSTANT"};
+            this.sortParameters();
+            this.editData = {};
+            this.$refs.variableTable.cancelCurrentRow();
+            this.$refs.variableTable.clear();
+          }
+        },
+      });
     },
     filter() {
       let data = [];
       this.variables.forEach((item) => {
-        if (
-          this.searchType &&
-          this.searchType != '' &&
-          this.selectVariable &&
-          this.selectVariable != ''
-        ) {
+        if (this.searchType && this.searchType != '' && this.selectVariable && this.selectVariable != '') {
           if (
             (item.type &&
-              item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ==
-                -1 &&
+              item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1 &&
               this.searchType != 'ALL') ||
-            (item.name &&
-              item.name
-                .toLowerCase()
-                .indexOf(this.selectVariable.toLowerCase()) == -1)
+            (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1)
           ) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
           }
         } else if (this.selectVariable && this.selectVariable != '') {
-          if (
-            item.name &&
-            item.name
-              .toLowerCase()
-              .indexOf(this.selectVariable.toLowerCase()) == -1
-          ) {
+          if (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
@@ -795,8 +633,7 @@ export default {
         } else if (this.searchType && this.searchType != '') {
           if (
             item.type &&
-            item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ==
-              -1 &&
+            item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1 &&
             this.searchType != 'ALL'
           ) {
             item.hidden = true;
@@ -806,10 +643,7 @@ export default {
         } else {
           item.hidden = undefined;
         }
-        if (
-          this.searchType === 'ALL' &&
-          !(this.selectVariable && this.selectVariable != '')
-        ) {
+        if (this.searchType === 'ALL' && !(this.selectVariable && this.selectVariable != '')) {
           item.hidden = undefined;
         }
         data.push(item);
@@ -818,10 +652,7 @@ export default {
     },
     createFilter(queryString) {
       return (item) => {
-        return (
-          item.type &&
-          item.type.toLowerCase().indexOf(queryString.toLowerCase()) !== -1
-        );
+        return item.type && item.type.toLowerCase().indexOf(queryString.toLowerCase()) !== -1;
       };
     },
     handleRowClick(row) {

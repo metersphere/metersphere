@@ -1,9 +1,6 @@
 <template>
   <div v-loading="result">
-    <api-list-container
-      :is-api-list-enable="isApiListEnable"
-      @isApiListEnableChange="isApiListEnableChange"
-    >
+    <api-list-container :is-api-list-enable="isApiListEnable" @isApiListEnableChange="isApiListEnableChange">
       <template>
         <slot name="version"></slot>
       </template>
@@ -22,16 +19,14 @@
         @setSelectRow="setSelectRow"
         @selectCountChange="selectCountChange"
         @refreshTable="initTable"
-        ref="apitable"
-      >
+        ref="apitable">
         <template v-slot:header>
           <ms-environment-select
             :project-id="projectId"
             v-if="isTestPlan || isScript"
             :is-read-only="isReadOnly"
             @setEnvironment="setEnvironment"
-            ref="msEnvironmentSelect"
-          />
+            ref="msEnvironmentSelect" />
         </template>
       </api-table-list>
     </api-list-container>
@@ -39,10 +34,7 @@
 </template>
 
 <script>
-import {
-  getDefinitionPage,
-  getRelevanceDefinitionPage,
-} from '@/api/definition';
+import { getDefinitionPage, getRelevanceDefinitionPage } from '@/api/definition';
 import ApiListContainer from '@/business/definition/components/list/ApiListContainer';
 import MsEnvironmentSelect from '@/business/definition/components/case/MsEnvironmentSelect';
 import { buildBatchParam } from 'metersphere-frontend/src/utils/tableUtils';

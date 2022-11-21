@@ -1,12 +1,7 @@
 <template>
   <div>
     <slot name="header">
-      <el-input
-        :placeholder="$t('test_track.module.search')"
-        v-model="filterText"
-        size="small"
-        :clearable="true"
-      />
+      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true" />
     </slot>
 
     <el-tree
@@ -22,8 +17,7 @@
       :expand-on-click-node="false"
       highlight-current
       :draggable="!disabled && !hideOpretor"
-      ref="tree"
-    >
+      ref="tree">
       <template v-slot:default="{ node, data }">
         <span class="custom-tree-node father" @click="handleNodeSelect(node)">
           <span v-if="data.isEdit" @click.stop>
@@ -34,54 +28,37 @@
               class="name-input"
               size="mini"
               ref="nameInput"
-              :draggable="true"
-            />
+              :draggable="true" />
           </span>
 
           <span v-if="!data.isEdit" class="node-icon">
             <i class="el-icon-folder" />
           </span>
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :content="data.name"
-            placement="top-start"
-            :open-delay="1000"
-          >
-            <span
-              v-if="!data.isEdit"
-              class="node-title"
-              v-text="isDefault(data) ? getLocalDefaultName() : data.name"
-            />
+          <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
+            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" />
           </el-tooltip>
           <span class="count-title" v-if="showCaseNum">
             <span style="color: var(--primary_color)">{{ data.caseNum }}</span>
           </span>
           <span v-if="!disabled" class="node-operate child">
             <el-tooltip
-              v-if="
-                data.id !== 'root' && data.name !== defaultLabel && !hideOpretor
-              "
+              v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
               class="item"
               effect="dark"
               v-permission="updatePermission"
               :open-delay="200"
               :content="$t('test_track.module.rename')"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
             </el-tooltip>
             <el-tooltip
-              v-if="
-                data.name === defaultLabel && data.level !== 1 && !hideOpretor
-              "
+              v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
               v-permission="updatePermission"
               class="item"
               effect="dark"
               :open-delay="200"
               :content="$t('test_track.module.rename')"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
             </el-tooltip>
             <el-tooltip
@@ -91,39 +68,29 @@
               v-permission="addPermission"
               v-if="!isDefault(data) && !hideOpretor"
               :content="$t('test_track.module.add_submodule')"
-              placement="top"
-            >
-              <i
-                @click.stop="append(node, data)"
-                class="el-icon-circle-plus-outline"
-              ></i>
+              placement="top">
+              <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
             </el-tooltip>
 
             <el-tooltip
-              v-if="
-                data.name === defaultLabel && data.level !== 1 && !hideOpretor
-              "
+              v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
               class="item"
               effect="dark"
               :open-delay="200"
               v-permission="deletePermission"
               :content="$t('commons.delete')"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
             </el-tooltip>
 
             <el-tooltip
-              v-if="
-                data.id !== 'root' && data.name !== defaultLabel && !hideOpretor
-              "
+              v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
               class="item"
               effect="dark"
               :open-delay="200"
               :content="$t('commons.delete')"
               v-permission="deletePermission"
-              placement="top"
-            >
+              placement="top">
               <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
             </el-tooltip>
           </span>
@@ -433,10 +400,7 @@ export default {
       if (dropType === 'none' || dropType === undefined) {
         return;
       }
-      if (
-        (dropNode.data.id === 'root' && dropType === 'before') ||
-        draggingNode.data.name === this.defaultLabel
-      ) {
+      if ((dropNode.data.id === 'root' && dropType === 'before') || draggingNode.data.name === this.defaultLabel) {
         this.$emit('refresh');
         return false;
       }
@@ -492,10 +456,7 @@ export default {
         param.nodeTree = draggingNode.data;
       } else {
         for (let i = 0; i < this.treeNodes.length; i++) {
-          param.nodeTree = this.findTreeByNodeId(
-            this.treeNodes[i],
-            dropNode.data.id
-          );
+          param.nodeTree = this.findTreeByNodeId(this.treeNodes[i], dropNode.data.id);
           if (param.nodeTree) {
             break;
           }

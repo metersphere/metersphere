@@ -1,9 +1,6 @@
 <template>
   <div v-loading="result">
-    <api-list-container
-      :is-api-list-enable="isApiListEnable"
-      @isApiListEnableChange="isApiListEnableChange"
-    >
+    <api-list-container :is-api-list-enable="isApiListEnable" @isApiListEnableChange="isApiListEnableChange">
       <template>
         <slot name="version"></slot>
       </template>
@@ -13,8 +10,7 @@
         v-if="isTestPlan || isScript"
         :is-read-only="isReadOnly"
         @setEnvironment="setEnvironment"
-        ref="msEnvironmentSelect"
-      />
+        ref="msEnvironmentSelect" />
       <ms-search :condition.sync="condition" @search="initTable"> </ms-search>
       <ms-table
         :data="tableData"
@@ -27,24 +23,17 @@
         @refresh="initTable"
         @selectCountChange="selectCountChange"
         operator-width="170px"
-        ref="table"
-      >
-        <ms-table-column prop="num" label="ID" width="80px" sortable="true">
-        </ms-table-column>
+        ref="table">
+        <ms-table-column prop="num" label="ID" width="80px" sortable="true"> </ms-table-column>
 
-        <ms-table-column
-          prop="name"
-          width="160px"
-          :label="$t('test_track.case.name')"
-        />
+        <ms-table-column prop="name" width="160px" :label="$t('test_track.case.name')" />
 
         <ms-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
           width="120px"
-          :label="$t('test_track.case.priority')"
-        >
+          :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority" />
           </template>
@@ -54,8 +43,7 @@
           sortable="custom"
           prop="path"
           width="180px"
-          :label="'API' + $t('api_test.definition.api_path')"
-        />
+          :label="'API' + $t('api_test.definition.api_path')" />
 
         <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
           <template v-slot:default="scope">
@@ -65,8 +53,7 @@
               type="success"
               effect="plain"
               :content="itemName"
-              style="margin-left: 0px; margin-right: 2px"
-            />
+              style="margin-left: 0px; margin-right: 2px" />
           </template>
         </ms-table-column>
 
@@ -75,8 +62,7 @@
           :label="$t('project.version.name')"
           :filters="versionFilters"
           min-width="100px"
-          prop="versionId"
-        >
+          prop="versionId">
           <template v-slot:default="scope">
             <span>{{ scope.row.versionName }}</span>
           </template>
@@ -84,12 +70,7 @@
 
         <ms-table-column prop="createUser" :label="$t('commons.create_user')" />
 
-        <ms-table-column
-          sortable="createTime"
-          width="160px"
-          :label="$t('commons.create_time')"
-          prop="createTime"
-        >
+        <ms-table-column sortable="createTime" width="160px" :label="$t('commons.create_time')" prop="createTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
@@ -99,8 +80,7 @@
           sortable="updateTime"
           width="160px"
           :label="$t('api_test.definition.api_last_time')"
-          prop="updateTime"
-        >
+          prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
           </template>
@@ -110,8 +90,7 @@
         :change="initTable"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total"
-      />
+        :total="total" />
     </api-list-container>
   </div>
 </template>
@@ -129,18 +108,11 @@ import MsTag from 'metersphere-frontend/src/components/MsTag';
 import MsBottomContainer from '@/business/definition/components/BottomContainer';
 import ShowMoreBtn from '@/business/commons/ShowMoreBtn';
 import MsBatchEdit from '@/business/definition/components/basis/BatchEdit';
-import {
-  API_METHOD_COLOUR,
-  CASE_PRIORITY,
-} from '@/business/definition/model/JsonData';
+import { API_METHOD_COLOUR, CASE_PRIORITY } from '@/business/definition/model/JsonData';
 import ApiListContainer from '@/business/definition/components/list/ApiListContainer';
 import PriorityTableItem from '@/business/commons/PriorityTableItem';
 import MsEnvironmentSelect from '@/business/definition/components/case/MsEnvironmentSelect';
-import {
-  _filter,
-  _sort,
-  buildBatchParam,
-} from 'metersphere-frontend/src/utils/tableUtils';
+import { _filter, _sort, buildBatchParam } from 'metersphere-frontend/src/utils/tableUtils';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
 import { TEST_PLAN_RELEVANCE_API_CASE_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
@@ -276,11 +248,7 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
       this.condition.ids = [];
-      this.result = apiTestCasePage(
-        this.currentPage,
-        this.pageSize,
-        this.condition
-      ).then((response) => {
+      this.result = apiTestCasePage(this.currentPage, this.pageSize, this.condition).then((response) => {
         this.setData(response);
       });
     },

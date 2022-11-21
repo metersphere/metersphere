@@ -1,40 +1,19 @@
 <template>
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
+    <div class="ms-opt-btn" v-if="versionEnable">{{ $t('project.version.name') }}: {{ apiData.versionName }}</div>
     <el-card class="card-content">
-      <el-form
-        :model="api"
-        :rules="rules"
-        ref="apiData"
-        :inline="true"
-        label-position="right"
-      >
+      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
         <p class="tip">{{ $t('test_track.plan_view.base_info') }}</p>
         <!-- 请求方法 -->
         <el-form-item :label="$t('api_report.request')" prop="method">
-          <el-select
-            v-model="api.request.method"
-            style="width: 100px"
-            size="small"
-          >
-            <el-option
-              v-for="item in reqOptions"
-              :key="item.id"
-              :label="item.label"
-              :value="item.id"
-            />
+          <el-select v-model="api.request.method" style="width: 100px" size="small">
+            <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id" />
           </el-select>
         </el-form-item>
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <environment-select
-            :current-data="api"
-            :project-id="projectId"
-            ref="environmentSelect"
-          />
+          <environment-select :current-data="api" :project-id="projectId" ref="environmentSelect" />
         </el-form-item>
 
         <!-- 请求地址 -->
@@ -44,8 +23,7 @@
             v-model="api.request.path"
             class="ms-htt-width"
             size="small"
-            :disabled="false"
-          />
+            :disabled="false" />
         </el-form-item>
 
         <!-- 操作按钮 -->
@@ -58,8 +36,7 @@
             @command="handleCommand"
             size="small"
             v-if="!runLoading"
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-          >
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
             {{ $t('commons.test') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="load_case"
@@ -71,15 +48,11 @@
               <el-dropdown-item command="update_api"
                 >{{ $t('api_test.definition.request.update_api') }}
               </el-dropdown-item>
-              <el-dropdown-item command="save_as_api">{{
-                $t('api_test.definition.request.save_as')
-              }}</el-dropdown-item>
+              <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 
-          <el-button size="small" type="primary" v-else @click.once="stop">{{
-            $t('report.stop_btn')
-          }}</el-button>
+          <el-button size="small" type="primary" v-else @click.once="stop">{{ $t('report.stop_btn') }}</el-button>
 
           <el-button
             size="small"
@@ -87,11 +60,7 @@
             @click.stop
             @click="generate"
             style="margin-left: 10px"
-            v-if="
-              hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') &&
-              hasLicense()
-            "
-          >
+            v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
             {{ $t('commons.generate_test_data') }}
           </el-button>
         </el-form-item>
@@ -106,8 +75,7 @@
           :response="responseData"
           v-if="loadRequest"
           :request="api.request"
-          ref="apiRequestForm"
-        />
+          ref="apiRequestForm" />
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
@@ -124,8 +92,7 @@
       :createCase="createCase"
       :currentApi="api"
       :save-button-text="loadCaseConfirmButton"
-      ref="caseList"
-    />
+      ref="caseList" />
 
     <!-- 执行组件 -->
     <ms-run
@@ -135,8 +102,7 @@
       :env-map="envMap"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
   </div>
 </template>
 
@@ -145,10 +111,7 @@ import { getMockEnvironment, updateDefinition } from '@/api/definition';
 import { getApiReportDetail } from '@/api/definition-report';
 import { versionEnableByProjectId } from '@/api/xpack';
 import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsApiCaseList from '../case/EditApiCase';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
@@ -404,14 +367,8 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.compatibleHistory(stepArray[i].hashTree);
@@ -499,10 +456,7 @@ export default {
     },
     initLocalFile() {
       if (this.apiData.request && this.apiData.request.body) {
-        if (
-          this.apiData.request.body.binary &&
-          this.apiData.request.body.binary.length > 0
-        ) {
+        if (this.apiData.request.body.binary && this.apiData.request.body.binary.length > 0) {
           this.apiData.request.body.binary.forEach((item) => {
             this.api.request.body.binary.forEach((api) => {
               if (item.uuid && api.uuid && item.uuid === api.uuid) {
@@ -511,19 +465,10 @@ export default {
             });
           });
         }
-        if (
-          this.apiData.request.body.kvs &&
-          this.apiData.request.body.kvs.length > 0
-        ) {
+        if (this.apiData.request.body.kvs && this.apiData.request.body.kvs.length > 0) {
           this.apiData.request.body.kvs.forEach((item) => {
             this.api.request.body.kvs.forEach((api) => {
-              if (
-                item.uuid &&
-                api.uuid &&
-                item.uuid === api.uuid &&
-                item.files &&
-                api.files
-              ) {
+              if (item.uuid && api.uuid && item.uuid === api.uuid && item.files && api.files) {
                 api.files = item.files;
               }
             });

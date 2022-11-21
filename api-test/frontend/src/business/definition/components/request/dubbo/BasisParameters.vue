@@ -2,26 +2,15 @@
   <div>
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
-        <div
-          style="
-            border: 1px #dcdfe6 solid;
-            height: 100%;
-            border-radius: 4px;
-            width: 100%;
-          "
-        >
+        <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
           <el-form
             :model="request"
             ref="request"
             label-width="100px"
             :disabled="isReadOnly"
             style="margin: 10px"
-            class="ms-el-tabs__nav-scroll"
-          >
-            <el-form-item
-              :label="$t('api_test.request.dubbo.protocol')"
-              prop="protocol"
-            >
+            class="ms-el-tabs__nav-scroll">
+            <el-form-item :label="$t('api_test.request.dubbo.protocol')" prop="protocol">
               <el-select v-model="request.protocol" size="small">
                 <el-option label="dubbo://" :value="protocols.DUBBO" />
               </el-select>
@@ -29,31 +18,25 @@
 
             <el-tabs v-model="activeName" @tab-click="tabClick">
               <el-tab-pane label="Interface" name="interface" v-if="isBodyShow">
-                <ms-dubbo-interface
-                  :request="request"
-                  :is-read-only="isReadOnly"
-                />
+                <ms-dubbo-interface :request="request" :is-read-only="isReadOnly" />
               </el-tab-pane>
               <el-tab-pane label="Config Center" name="config">
                 <ms-dubbo-config-center
                   :config="request.configCenter"
                   :is-read-only="isReadOnly"
-                  :description="$t('api_test.request.dubbo.form_description')"
-                />
+                  :description="$t('api_test.request.dubbo.form_description')" />
               </el-tab-pane>
               <el-tab-pane label="Registry Center" name="registry">
                 <ms-dubbo-registry-center
                   :registry="request.registryCenter"
                   :is-read-only="isReadOnly"
-                  :description="$t('api_test.request.dubbo.form_description')"
-                />
+                  :description="$t('api_test.request.dubbo.form_description')" />
               </el-tab-pane>
               <el-tab-pane label="Consumer & Service" name="consumer">
                 <ms-dubbo-consumer-service
                   :consumer="request.consumerAndService"
                   :is-read-only="isReadOnly"
-                  :description="$t('api_test.request.dubbo.form_description')"
-                />
+                  :description="$t('api_test.request.dubbo.form_description')" />
               </el-tab-pane>
 
               <el-tab-pane label="Args" name="args">
@@ -61,33 +44,17 @@
                   :is-read-only="isReadOnly"
                   :items="request.args"
                   key-placeholder="Param Type"
-                  value-placeholder="Param Value"
-                />
+                  value-placeholder="Param Value" />
               </el-tab-pane>
               <el-tab-pane label="Attachment Args" name="attachment">
-                <ms-api-key-value
-                  :is-read-only="isReadOnly"
-                  :items="request.attachmentArgs"
-                />
+                <ms-api-key-value :is-read-only="isReadOnly" :items="request.attachmentArgs" />
               </el-tab-pane>
 
               <!-- 脚本步骤/断言步骤 -->
-              <el-tab-pane
-                :label="$t('api_test.definition.request.pre_operation')"
-                name="preOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.pre_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.preSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
@@ -97,25 +64,15 @@
                   :response="response"
                   :scenario-id="scenarioId"
                   :tab-type="'pre'"
-                  ref="preStep"
-                />
+                  ref="preStep" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.post_operation')"
                 name="postOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.post_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.postSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.postSize }}
                     </div>
@@ -127,25 +84,15 @@
                   :scenarioId="scenarioId"
                   :response="response"
                   :tab-type="'post'"
-                  ref="postStep"
-                />
+                  ref="postStep" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.assertions_rule')"
                 name="assertionsRule"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.assertions_rule') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.ruleSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.ruleSize }}
                     </div>
@@ -158,8 +105,7 @@
                   :response="response"
                   @reload="reloadBody"
                   :tab-type="'assertionsRule'"
-                  ref="assertionsRule"
-                />
+                  ref="assertionsRule" />
               </el-tab-pane>
             </el-tabs>
           </el-form>
@@ -184,10 +130,7 @@ import MsDubboConsumerService from '../../request/dubbo/ConsumerAndService';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
 import MsJmxStep from '../../step/JmxStep';
-import {
-  stepCompute,
-  hisDataProcessing,
-} from '@/business/definition/api-definition';
+import { stepCompute, hisDataProcessing } from '@/business/definition/api-definition';
 
 export default {
   name: 'MsDatabaseConfig',

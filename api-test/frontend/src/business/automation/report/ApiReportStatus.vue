@@ -1,18 +1,9 @@
 <template>
   <div>
-    <el-tag
-      size="mini"
-      type="primary"
-      effect="plain"
-      v-if="getStatus(status) === 'running'"
-    >
+    <el-tag size="mini" type="primary" effect="plain" v-if="getStatus(status) === 'running'">
       {{ showStatus(status) }}
     </el-tag>
-    <el-tag
-      size="mini"
-      type="success"
-      v-else-if="getStatus(status) === 'success'"
-    >
+    <el-tag size="mini" type="success" v-else-if="getStatus(status) === 'success'">
       {{ showStatus(status) }}
     </el-tag>
     <el-tag size="mini" type="danger" v-else-if="getStatus(status) === 'error'">
@@ -22,8 +13,7 @@
       size="mini"
       type="danger"
       style="background-color: #f6972a; color: #ffffff"
-      v-else-if="getStatus(status) === 'fake_error'"
-    >
+      v-else-if="getStatus(status) === 'fake_error'">
       FakeError
     </el-tag>
     <span v-else-if="status === '-'" size="mini" type="info"> - </span>
@@ -51,9 +41,7 @@ export default {
       if (!status) {
         status = 'PENDING';
       }
-      return (
-        status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
-      );
+      return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
     },
   },
 };

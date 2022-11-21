@@ -6,30 +6,18 @@
       class="ms-htt-width"
       :placeholder="$t('api_test.definition.request.run_env')"
       @change="environmentChange"
-      clearable
-    >
+      clearable>
       <el-option
         v-for="(environment, index) in environments"
         :key="index"
         :label="getLabel(environment)"
-        :value="environment.id"
-      />
-      <el-button
-        class="environment-button"
-        size="mini"
-        type="primary"
-        @click="openEnvironmentConfig"
-      >
+        :value="environment.id" />
+      <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
         {{ $t('api_test.environment.environment_config') }}
       </el-button>
       <template v-slot:empty>
         <div class="empty-environment">
-          <el-button
-            class="environment-button"
-            size="mini"
-            type="primary"
-            @click="openEnvironmentConfig"
-          >
+          <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
             {{ $t('api_test.environment.environment_config') }}
           </el-button>
         </div>
@@ -37,10 +25,7 @@
     </el-select>
 
     <!-- 环境 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </span>
 </template>
 
@@ -96,18 +81,13 @@ export default {
     getLabel(environment) {
       if (environment) {
         if (this.type === 'TCP') {
-          if (
-            environment.config.tcpConfig &&
-            environment.config.tcpConfig.server
-          ) {
+          if (environment.config.tcpConfig && environment.config.tcpConfig.server) {
             return (
               environment.name +
               ': ' +
               environment.config.tcpConfig.server +
               ':' +
-              (environment.config.tcpConfig.port
-                ? environment.config.tcpConfig.port
-                : '')
+              (environment.config.tcpConfig.port ? environment.config.tcpConfig.port : '')
             );
           } else {
             return environment.name;
@@ -130,10 +110,7 @@ export default {
             if (this.currentData.request.hashTree) {
               // 找到原始环境和数据源名称
               let environment = this.environments[i];
-              this.setOwnEnvironment(
-                this.currentData.request.hashTree,
-                environment
-              );
+              this.setOwnEnvironment(this.currentData.request.hashTree, environment);
             }
           }
           break;
@@ -157,20 +134,13 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition, env) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           // 找到原始数据源名称
           this.getTargetSource(scenarioDefinition[i]);
           scenarioDefinition[i].environmentId = env.id;
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
         }
       }

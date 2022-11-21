@@ -6,8 +6,7 @@
     :fullscreen="dialogVisible"
     :modal="false"
     class="advanced-item-value"
-    width="100%"
-  >
+    width="100%">
     <el-tabs tab-position="top" style="height: 50vh" @tab-click="selectTab">
       <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
         <el-row type="flex" :gutter="20">
@@ -16,10 +15,7 @@
               <el-input
                 size="small"
                 v-model="filterText"
-                :placeholder="
-                  $t('api_test.request.parameters_mock_filter_tips')
-                "
-              />
+                :placeholder="$t('api_test.request.parameters_mock_filter_tips')" />
               <el-tree
                 class="filter-tree"
                 ref="tree"
@@ -27,19 +23,11 @@
                 :props="treeProps"
                 default-expand-all
                 @node-click="selectVariable"
-                :filter-node-method="filterNode"
-              ></el-tree>
+                :filter-node-method="filterNode"></el-tree>
             </div>
           </el-col>
-          <el-col
-            :span="6"
-            v-for="(itemFunc, itemIndex) in mockVariableFuncs"
-            :key="itemIndex"
-          >
-            <div
-              v-for="(func, funcIndex) in funcs"
-              :key="`${itemIndex}-${funcIndex}`"
-            >
+          <el-col :span="6" v-for="(itemFunc, itemIndex) in mockVariableFuncs" :key="itemIndex">
+            <div v-for="(func, funcIndex) in funcs" :key="`${itemIndex}-${funcIndex}`">
               <el-row>
                 <el-col :span="12">
                   <el-radio
@@ -47,20 +35,11 @@
                     v-model="itemFunc.name"
                     :label="func.name"
                     @change="methodChange(itemFunc, func)"
-                    @click.native.prevent="radioClick(itemFunc, func)"
-                  />
+                    @click.native.prevent="radioClick(itemFunc, func)" />
                 </el-col>
                 <el-col :span="12" v-if="itemFunc.name === func.name">
-                  <div
-                    v-for="(p, pIndex) in itemFunc.params"
-                    :key="`${itemIndex}-${funcIndex}-${pIndex}`"
-                  >
-                    <el-input
-                      :placeholder="p.name"
-                      size="mini"
-                      v-model="p.value"
-                      @change="showPreview"
-                    />
+                  <div v-for="(p, pIndex) in itemFunc.params" :key="`${itemIndex}-${funcIndex}-${pIndex}`">
+                    <el-input :placeholder="p.name" size="mini" v-model="p.value" @change="showPreview" />
                   </div>
                 </el-col>
               </el-row>
@@ -73,8 +52,7 @@
       <el-tab-pane
         :label="$t('api_test.automation.scenario_total')"
         name="variable"
-        v-if="scenarioDefinition != undefined"
-      >
+        v-if="scenarioDefinition != undefined">
         <div>
           <el-row style="margin-bottom: 10px">
             <div style="float: left">
@@ -83,46 +61,25 @@
                 v-model="defineVariable"
                 size="small"
                 @change="filter"
-                @keyup.enter="filter"
-              >
+                @keyup.enter="filter">
                 <el-select
                   v-model="searchType"
                   slot="prepend"
                   :placeholder="$t('test_resource_pool.type')"
                   style="width: 90px"
-                  @change="filter"
-                >
-                  <el-option
-                    value="CONSTANT"
-                    :label="$t('api_test.automation.constant')"
-                  ></el-option>
-                  <el-option
-                    value="LIST"
-                    :label="$t('test_track.case.list')"
-                  ></el-option>
+                  @change="filter">
+                  <el-option value="CONSTANT" :label="$t('api_test.automation.constant')"></el-option>
+                  <el-option value="LIST" :label="$t('test_track.case.list')"></el-option>
                   <el-option value="CSV" label="CSV"></el-option>
-                  <el-option
-                    value="COUNTER"
-                    :label="$t('api_test.automation.counter')"
-                  ></el-option>
-                  <el-option
-                    value="RANDOM"
-                    :label="$t('api_test.automation.random')"
-                  ></el-option>
+                  <el-option value="COUNTER" :label="$t('api_test.automation.counter')"></el-option>
+                  <el-option value="RANDOM" :label="$t('api_test.automation.random')"></el-option>
                 </el-select>
               </el-input>
             </div>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <div
-                style="
-                  border: 1px #dcdfe6 solid;
-                  min-height: 325px;
-                  border-radius: 4px;
-                  width: 100%;
-                "
-              >
+              <div style="border: 1px #dcdfe6 solid; min-height: 325px; border-radius: 4px; width: 100%">
                 <el-table
                   ref="table"
                   border
@@ -133,30 +90,16 @@
                   @select="select"
                   @row-click="edit"
                   v-loading="loading"
-                  height="325px"
-                >
+                  height="325px">
                   <el-table-column type="selection" width="38" />
                   <el-table-column prop="num" label="ID" sortable width="60" />
-                  <el-table-column
-                    prop="name"
-                    :label="$t('api_test.variable_name')"
-                    sortable
-                    show-overflow-tooltip
-                  />
-                  <el-table-column
-                    prop="type"
-                    :label="$t('test_track.case.type')"
-                    width="70"
-                  >
+                  <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip />
+                  <el-table-column prop="type" :label="$t('test_track.case.type')" width="70">
                     <template v-slot:default="scope">
                       <span>{{ types.get(scope.row.type) }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column
-                    prop="value"
-                    :label="$t('api_test.value')"
-                    show-overflow-tooltip
-                  />
+                  <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip />
                 </el-table>
               </div>
             </el-col>
@@ -165,18 +108,9 @@
       </el-tab-pane>
 
       <!--前置返回-->
-      <el-tab-pane
-        :label="$t('api_test.definition.request.pre_return')"
-        v-if="scenarioDefinition != undefined"
-      >
-        <ms-container
-          :class="{ 'maximize-container': !asideHidden }"
-          v-outside-click="outsideClick"
-        >
-          <ms-aside-container
-            @setAsideHidden="setAsideHidden"
-            style="padding-top: 0px"
-          >
+      <el-tab-pane :label="$t('api_test.definition.request.pre_return')" v-if="scenarioDefinition != undefined">
+        <ms-container :class="{ 'maximize-container': !asideHidden }" v-outside-click="outsideClick">
+          <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px">
             <div v-loading="loading" v-show="!asideHidden">
               <el-tree
                 node-key="resourceId"
@@ -189,12 +123,8 @@
                 :expand-on-click-node="false"
                 @node-click="nodeClick"
                 @node-expand="nodeExpand"
-                @node-collapse="nodeCollapse"
-              >
-                <span
-                  class="custom-tree-node father"
-                  slot-scope="{ node, data }"
-                >
+                @node-collapse="nodeCollapse">
+                <span class="custom-tree-node father" slot-scope="{ node, data }">
                   <!-- 步骤组件-->
                   <ms-component-config
                     :isMax="true"
@@ -203,8 +133,7 @@
                     :if-from-variable-advance="ifFromVariableAdvance"
                     :type="data.type"
                     :scenario="data"
-                    :env-map="projectEnvMap"
-                  />
+                    :env-map="projectEnvMap" />
                 </span>
               </el-tree>
             </div>
@@ -222,21 +151,10 @@
                 :env-map="projectEnvMap"
                 :draggable="false"
                 @savePreParams="savePreParams"
-                v-if="selectedTreeNode && selectedNode"
-              />
+                v-if="selectedTreeNode && selectedNode" />
               <!-- 请求下还有的子步骤-->
-              <div
-                v-if="
-                  selectedTreeNode &&
-                  selectedTreeNode.hashTree &&
-                  showNode(selectedTreeNode)
-                "
-              >
-                <div
-                  v-for="item in selectedTreeNode.hashTree"
-                  :key="item.id"
-                  class="ms-col-one"
-                >
+              <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
+                <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
                   <ms-component-config
                     :if-from-variable-advance="ifFromVariableAdvance"
                     :type="item.type"
@@ -246,44 +164,27 @@
                     :draggable="false"
                     @savePreParams="savePreParams"
                     @suggestClick="suggestClick"
-                    v-if="
-                      selectedTreeNode && selectedNode && filterSonNode(item)
-                    "
-                  />
+                    v-if="selectedTreeNode && selectedNode && filterSonNode(item)" />
                 </div>
               </div>
             </div>
-            <div
-              v-if="scenarioPreRequestParams.length > 0"
-              style="margin-bottom: 10px"
-            >
+            <div v-if="scenarioPreRequestParams.length > 0" style="margin-bottom: 10px">
               <p>{{ $t('api_test.definition.request.extract_params') }}</p>
-              <div
-                v-for="(item, index) in scenarioPreRequestParams"
-                :key="index"
-                class="kv-row item"
-              >
-                <el-row
-                  type="flex"
-                  :gutter="20"
-                  justify="space-between"
-                  align="middle"
-                >
+              <div v-for="(item, index) in scenarioPreRequestParams" :key="index" class="kv-row item">
+                <el-row type="flex" :gutter="20" justify="space-between" align="middle">
                   <el-col class="item">
                     <el-input
                       v-model="item.name"
                       size="small"
                       :readonly="true"
-                      @click.native="savePreParams(item.name)"
-                    />
+                      @click.native="savePreParams(item.name)" />
                   </el-col>
                   <el-col class="item">
                     <el-input
                       v-model="item.exp"
                       size="small"
                       :readonly="true"
-                      @click.native="savePreParams(item.name)"
-                    />
+                      @click.native="savePreParams(item.name)" />
                   </el-col>
                 </el-row>
               </div>
@@ -302,8 +203,7 @@
                 :data="jmeterFuncs"
                 class="adjust-table table-content"
                 height="400"
-                @row-click="handleRowClick"
-              >
+                @row-click="handleRowClick">
                 <el-table-column prop="type" label="Type" width="150" />
                 <el-table-column prop="name" label="Functions" width="250" />
                 <el-table-column prop="description" label="Description" />
@@ -313,30 +213,14 @@
         </el-row>
       </el-tab-pane>
 
-      <el-tab-pane
-        :label="$t('api_test.definition.document.request_info')"
-        v-if="showMockVars"
-      >
+      <el-tab-pane :label="$t('api_test.definition.document.request_info')" v-if="showMockVars">
         <el-row>
           <el-col :span="18" class="col-height">
             <div>
               <h1>{{ $t('api_test.definition.document.request_info') }}</h1>
-              <el-table
-                border
-                :data="requestValues"
-                class="adjust-table table-content"
-                @row-click="handleRowClick"
-              >
-                <el-table-column
-                  prop="type"
-                  :label="$t('commons.name')"
-                  width="150"
-                />
-                <el-table-column
-                  prop="name"
-                  :label="$t('api_test.value')"
-                  width="250"
-                />
+              <el-table border :data="requestValues" class="adjust-table table-content" @row-click="handleRowClick">
+                <el-table-column prop="type" :label="$t('commons.name')" width="150" />
+                <el-table-column prop="name" :label="$t('api_test.value')" width="250" />
               </el-table>
             </div>
           </el-col>
@@ -349,37 +233,16 @@
           <div style="position: fixed; bottom: 0px; z-index: 5">
             <el-form :inline="true" class="demo-form-inline">
               <el-form-item>
-                <el-input
-                  :placeholder="valueText"
-                  size="small"
-                  v-model="itemValue"
-                />
+                <el-input :placeholder="valueText" size="small" v-model="itemValue" />
               </el-form-item>
               <el-form-item>
-                <el-button
-                  size="small"
-                  type="primary"
-                  plain
-                  @click="saveAdvanced()"
-                >
+                <el-button size="small" type="primary" plain @click="saveAdvanced()">
                   {{ $t('commons.save') }}
                 </el-button>
-                <el-button
-                  size="small"
-                  type="info"
-                  plain
-                  @click="addFunc()"
-                  v-if="currentTab === 0"
-                >
+                <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
                   {{ $t('api_test.request.parameters_advance_add_func') }}
                 </el-button>
-                <el-button
-                  size="small"
-                  type="success"
-                  plain
-                  @click="showPreview()"
-                  v-if="currentTab === 0"
-                >
+                <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
                   {{ $t('api_test.request.parameters_preview') }}
                 </el-button>
               </el-form-item>
@@ -394,10 +257,7 @@
 
 <script>
 import { calculate, Scenario } from '../model/ApiTestModel';
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 import { STEP } from '../../automation/scenario/Setting';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
@@ -430,8 +290,7 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MsContainer,
-    MsComponentConfig: () =>
-      import('../../automation/scenario/component/ComponentConfig'),
+    MsComponentConfig: () => import('../../automation/scenario/component/ComponentConfig'),
   },
   data() {
     return {
@@ -471,14 +330,7 @@ export default {
       ],
       mockFuncs: MOCKJS_FUNC.map((f) => {
         return {
-          name:
-            f.name +
-            ' ' +
-            f.des +
-            ' ' +
-            this.$t('api_test.request.parameters_filter_example') +
-            '：' +
-            f.ex,
+          name: f.name + ' ' + f.des + ' ' + this.$t('api_test.request.parameters_filter_example') + '：' + f.ex,
           value: f.name,
         };
       }),
@@ -492,8 +344,7 @@ export default {
           name: '${address}',
         },
         {
-          type:
-            'Header ' + this.$t('api_test.definition.document.request_param'),
+          type: 'Header ' + this.$t('api_test.definition.document.request_param'),
           name: '${header.param}',
         },
         {
@@ -501,15 +352,11 @@ export default {
           name: '${body.param}',
         },
         {
-          type:
-            this.$t('api_test.request.body') +
-            this.$t('api_test.variable') +
-            ' (Raw)',
+          type: this.$t('api_test.request.body') + this.$t('api_test.variable') + ' (Raw)',
           name: '${bodyRaw}',
         },
         {
-          type:
-            'Query ' + this.$t('api_test.definition.document.request_param'),
+          type: 'Query ' + this.$t('api_test.definition.document.request_param'),
           name: '${query.param}',
         },
         {
@@ -575,11 +422,7 @@ export default {
       }
       this.itemValueVisible = true;
       // 关闭页面重新进入需要再做过滤
-      if (
-        this.ifFromVariableAdvance &&
-        this.$refs.preTree != undefined &&
-        this.currentTab == 3
-      ) {
+      if (this.ifFromVariableAdvance && this.$refs.preTree != undefined && this.currentTab == 3) {
         this.componentActive(this.$refs.preTree.root);
       }
     },
@@ -641,54 +484,40 @@ export default {
               //是叶子节点
               if (node.childNodes[i].data.type === 'Extract') {
                 //叶子节点的数据的类型是 提取
-                let extractJsonParams = node.childNodes[i].data.json.map(
-                  (v) => {
-                    return {
-                      name: v.variable,
-                      value: v.value,
-                      exp: v.expression,
-                    };
-                  }
-                );
-                let extractRegexParams = node.childNodes[i].data.regex.map(
-                  (v) => {
-                    return {
-                      name: v.variable,
-                      value: v.value,
-                      exp: v.expression,
-                    };
-                  }
-                );
-                let extractXpathParams = node.childNodes[i].data.xpath.map(
-                  (v) => {
-                    return {
-                      name: v.variable,
-                      value: v.value,
-                      exp: v.expression,
-                    };
-                  }
-                );
-                let vs = [
-                  ...extractJsonParams,
-                  ...extractRegexParams,
-                  ...extractXpathParams,
-                ];
+                let extractJsonParams = node.childNodes[i].data.json.map((v) => {
+                  return {
+                    name: v.variable,
+                    value: v.value,
+                    exp: v.expression,
+                  };
+                });
+                let extractRegexParams = node.childNodes[i].data.regex.map((v) => {
+                  return {
+                    name: v.variable,
+                    value: v.value,
+                    exp: v.expression,
+                  };
+                });
+                let extractXpathParams = node.childNodes[i].data.xpath.map((v) => {
+                  return {
+                    name: v.variable,
+                    value: v.value,
+                    exp: v.expression,
+                  };
+                });
+                let vs = [...extractJsonParams, ...extractRegexParams, ...extractXpathParams];
                 if (vs.length > 0) {
                   //数组合并
-                  this.scenarioPreRequestParams =
-                    this.scenarioPreRequestParams.concat(
-                      extractJsonParams,
-                      extractRegexParams,
-                      extractXpathParams
-                    );
+                  this.scenarioPreRequestParams = this.scenarioPreRequestParams.concat(
+                    extractJsonParams,
+                    extractRegexParams,
+                    extractXpathParams
+                  );
                 }
               }
               continue;
             } else {
-              this.getExtractDataByNode(
-                node.childNodes[i].data,
-                node.childNodes[i]
-              );
+              this.getExtractDataByNode(node.childNodes[i].data, node.childNodes[i]);
             }
           }
         }
@@ -707,18 +536,12 @@ export default {
             // 提取参数不需要隐藏
             if (node.childNodes[i].isLeaf && node.childNodes[i].level > 1) {
               node.childNodes[i].visible = false;
-              if (
-                node.childNodes[i].data.type === 'Extract' &&
-                node.data.type !== 'HTTPSamplerProxy'
-              ) {
+              if (node.childNodes[i].data.type === 'Extract' && node.data.type !== 'HTTPSamplerProxy') {
                 node.childNodes[i].visible = true;
               }
             } else {
               // 等待控制器不显示
-              if (
-                node.childNodes[i].level == 1 &&
-                node.childNodes[i].data.type === 'ConstantTimer'
-              ) {
+              if (node.childNodes[i].level == 1 && node.childNodes[i].data.type === 'ConstantTimer') {
                 node.childNodes[i].visible = false;
               }
               this.setLeafNodeUnVisible(node.childNodes[i]);
@@ -795,34 +618,26 @@ export default {
     },
     addFunc() {
       if (!this.itemValue) {
-        this.$warning(
-          this.$t('api_test.request.parameters_advance_add_mock_error')
-        );
+        this.$warning(this.$t('api_test.request.parameters_advance_add_mock_error'));
         return;
       }
       if (this.currentTab === 0 && this.itemValue.indexOf('@') == -1) {
         this.itemValue = '@' + this.itemValue;
       }
       if (this.mockVariableFuncs.length > 4) {
-        this.$info(
-          this.$t('api_test.request.parameters_advance_add_func_limit')
-        );
+        this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
         return;
       }
       if (this.mockVariableFuncs.length > 0) {
         let func = this.mockVariableFuncs[this.mockVariableFuncs.length - 1];
         if (!func.name) {
-          this.$warning(
-            this.$t('api_test.request.parameters_advance_add_func_error')
-          );
+          this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
           return;
         }
         if (func.params) {
           for (let j = 0; j < func.params.length; j++) {
             if (!func.params[j].value) {
-              this.$warning(
-                this.$t('api_test.request.parameters_advance_add_param_error')
-              );
+              this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
               return;
             }
           }
@@ -853,41 +668,23 @@ export default {
     filter() {
       let data = [];
       this.variables.forEach((item) => {
-        if (
-          this.searchType &&
-          this.searchType != '' &&
-          this.defineVariable &&
-          this.defineVariable != ''
-        ) {
+        if (this.searchType && this.searchType != '' && this.defineVariable && this.defineVariable != '') {
           if (
-            (item.type &&
-              item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ==
-                -1) ||
-            (item.name &&
-              item.name
-                .toLowerCase()
-                .indexOf(this.defineVariable.toLowerCase()) == -1)
+            (item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) ||
+            (item.name && item.name.toLowerCase().indexOf(this.defineVariable.toLowerCase()) == -1)
           ) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
           }
         } else if (this.defineVariable && this.defineVariable != '') {
-          if (
-            item.name &&
-            item.name
-              .toLowerCase()
-              .indexOf(this.defineVariable.toLowerCase()) == -1
-          ) {
+          if (item.name && item.name.toLowerCase().indexOf(this.defineVariable.toLowerCase()) == -1) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
           }
         } else if (this.searchType && this.searchType != '') {
-          if (
-            item.type &&
-            item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1
-          ) {
+          if (item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
@@ -933,11 +730,7 @@ export default {
       }
     },
     nodeClick(data, node) {
-      if (
-        data.referenced != 'REF' &&
-        data.referenced != 'Deleted' &&
-        !data.disabled
-      ) {
+      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
         this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
@@ -977,10 +770,7 @@ export default {
         }
       }
       node.active = true;
-      if (
-        node &&
-        this.stepFilter.get('AllSamplerProxy').indexOf(node.type) != -1
-      ) {
+      if (node && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) != -1) {
         return true;
       }
       return false;

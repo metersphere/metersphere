@@ -6,8 +6,7 @@
       @close="handleClose"
       direction="right"
       :show-full-screen="false"
-      :is-show-close="false"
-    >
+      :is-show-close="false">
       <div>
         <el-row>
           <el-col :span="14">
@@ -15,15 +14,8 @@
             <div v-if="isScenario" v-html="$t('api_test.bach_add_type_info')" />
           </el-col>
           <el-col :span="10" class="buttons">
-            <el-button size="mini" @click="handleClose">{{
-              $t('commons.cancel')
-            }}</el-button>
-            <el-button
-              type="primary"
-              size="mini"
-              @click="confirm"
-              @keydown.enter.native.prevent
-            >
+            <el-button size="mini" @click="handleClose">{{ $t('commons.cancel') }}</el-button>
+            <el-button type="primary" size="mini" @click="confirm" @keydown.enter.native.prevent>
               {{ $t('commons.confirm') }}
             </el-button>
           </el-col>
@@ -36,8 +28,7 @@
             :data.sync="parameters"
             theme="eclipse"
             :modes="['text']"
-            ref="codeEdit"
-          />
+            ref="codeEdit" />
         </div>
       </div>
     </ms-drawer>
@@ -46,10 +37,7 @@
 
 <script>
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import MsDrawer from 'metersphere-frontend/src/components/MsDrawer';
 
@@ -99,9 +87,7 @@ export default {
       });
       if (msg !== '') {
         this.$warning(
-          this.$t('api_test.params_format_warning', [
-            msg.slice(0, msg.length - 1),
-          ]) +
+          this.$t('api_test.params_format_warning', [msg.slice(0, msg.length - 1)]) +
             ' :' +
             this.$t('api_test.automation.variable_warning')
         );

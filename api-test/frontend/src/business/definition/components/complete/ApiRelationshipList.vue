@@ -8,43 +8,20 @@
       :enable-selection="false"
       ref="table"
       :screen-height="null"
-      @refresh="getTableData"
-    >
-      <ms-table-column
-        prop="targetNum"
-        :label="$t('commons.id')"
-        min-width="80"
-      />
+      @refresh="getTableData">
+      <ms-table-column prop="targetNum" :label="$t('commons.id')" min-width="80" />
 
-      <ms-table-column
-        prop="targetName"
-        :label="$t('commons.name')"
-        min-width="120"
-      />
+      <ms-table-column prop="targetName" :label="$t('commons.name')" min-width="120" />
 
-      <ms-table-column
-        v-xpack
-        v-if="versionEnable"
-        prop="versionName"
-        :label="$t('project.version.name')"
-      >
+      <ms-table-column v-xpack v-if="versionEnable" prop="versionName" :label="$t('project.version.name')">
         <template v-slot:default="scope">
           {{ versionOptions[scope.row.versionId] }}
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        prop="creator"
-        :label="$t('commons.create_user')"
-        min-width="120"
-      >
-      </ms-table-column>
+      <ms-table-column prop="creator" :label="$t('commons.create_user')" min-width="120"> </ms-table-column>
 
-      <ms-table-column
-        prop="status"
-        min-width="120px"
-        :label="$t('api_test.definition.api_status')"
-      >
+      <ms-table-column prop="status" min-width="120px" :label="$t('api_test.definition.api_status')">
         <template v-slot:default="scope">
           <span class="el-dropdown-link">
             <api-status :value="scope.row.status" />
@@ -57,8 +34,7 @@
       :api-definition-id="apiDefinitionId"
       @refresh="getTableData"
       :relationship-type="relationshipType"
-      ref="testCaseRelevance"
-    />
+      ref="testCaseRelevance" />
   </div>
 </template>
 
@@ -113,12 +89,10 @@ export default {
   },
   methods: {
     getTableData() {
-      getRelationshipApi(this.apiDefinitionId, this.relationshipType).then(
-        (response) => {
-          this.data = response.data;
-          this.$emit('setCount', response.data.length);
-        }
-      );
+      getRelationshipApi(this.apiDefinitionId, this.relationshipType).then((response) => {
+        this.data = response.data;
+        this.$emit('setCount', response.data.length);
+      });
     },
     openRelevance() {
       this.$refs.testCaseRelevance.open();

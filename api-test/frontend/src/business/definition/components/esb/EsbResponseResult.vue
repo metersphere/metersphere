@@ -1,24 +1,18 @@
 <template>
   <div class="text-container">
     <el-tabs v-model="activeName" v-show="isActive">
-      <el-tab-pane
-        :label="$t('api_test.definition.request.response_template')"
-        name="esbData"
-        class="pane"
-      >
+      <el-tab-pane :label="$t('api_test.definition.request.response_template')" name="esbData" class="pane">
         <esb-table
           :table-data="request.backEsbDataStruct"
           :show-options-button="showOptionsButton"
           @saveTableData="validateEsbDataStruct"
-          ref="esbTable"
-        ></esb-table>
+          ref="esbTable"></esb-table>
       </el-tab-pane>
       <el-tab-pane
         v-if="isApiComponent === false"
         :label="$t('api_test.definition.request.response_body')"
         name="body"
-        class="pane"
-      >
+        class="pane">
         <ms-code-edit
           v-if="isMsCodeEditShow"
           :mode="mode"
@@ -26,72 +20,45 @@
           :modes="modes"
           height="200px"
           :data.sync="response.responseResult.body"
-          ref="codeEdit"
-        />
+          ref="codeEdit" />
       </el-tab-pane>
 
       <el-tab-pane
         v-if="isApiComponent === false"
         :label="$t('api_test.definition.request.console')"
         name="console"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="response.responseResult.console"
-          height="200px"
-        />
+        class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="response.responseResult.console" height="200px" />
       </el-tab-pane>
 
       <el-tab-pane
         v-if="isApiComponent === false"
         :label="$t('api_report.assertions')"
         name="assertions"
-        class="pane assertions"
-      >
-        <ms-assertion-results
-          :assertions="response.responseResult.assertions"
-        />
+        class="pane assertions">
+        <ms-assertion-results :assertions="response.responseResult.assertions" />
       </el-tab-pane>
 
       <el-tab-pane
         v-if="isApiComponent === false"
         :label="$t('api_test.request.extract.label')"
         name="label"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="response.responseResult.vars"
-          height="200px"
-        />
+        class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="response.responseResult.vars" height="200px" />
       </el-tab-pane>
 
       <el-tab-pane
         v-if="isApiComponent === false"
         :label="$t('api_report.request_body')"
         name="request_body"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="reqMessages"
-          height="200px"
-        />
+        class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages" height="200px" />
       </el-tab-pane>
-      <el-tab-pane
-        v-if="isApiComponent === true"
-        :label="$t('api_test.definition.request.post_script')"
-        name="script"
-      >
+      <el-tab-pane v-if="isApiComponent === true" :label="$t('api_test.definition.request.post_script')" name="script">
         <jsr233-processor-content
           :jsr223-processor="request.backScript"
           :is-pre-processor="false"
-          :is-read-only="false"
-        />
+          :is-read-only="false" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -199,17 +166,10 @@ export default {
       this.mode = mode;
     },
     setBodyType() {
-      if (
-        !this.response.responseResult ||
-        !this.response.responseResult.headers
-      ) {
+      if (!this.response.responseResult || !this.response.responseResult.headers) {
         return;
       }
-      if (
-        this.response.responseResult.headers.indexOf(
-          'Content-Type: application/json'
-        ) > 0
-      ) {
+      if (this.response.responseResult.headers.indexOf('Content-Type: application/json') > 0) {
         this.mode = BODY_FORMAT.JSON;
         this.$nextTick(() => {
           if (this.$refs.modeDropdown) {

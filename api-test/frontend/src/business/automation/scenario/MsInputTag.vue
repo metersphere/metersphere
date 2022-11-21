@@ -3,8 +3,7 @@
     class="el-input-tag input-tag-wrapper"
     :class="[size ? 'el-input-tag--' + size : '']"
     style="height: auto"
-    @click="foucusTagInput"
-  >
+    @click="foucusTagInput">
     <el-tag
       class="ms-top"
       v-for="(tag, idx) in innerTags"
@@ -14,8 +13,7 @@
       :size="size"
       :closable="!readOnly"
       :disable-transitions="false"
-      @close="remove(idx)"
-    >
+      @close="remove(idx)">
       {{ tag && tag.length > 10 ? tag.substring(0, 10) + '...' : tag }}
     </el-tag>
     <input
@@ -25,8 +23,7 @@
       :placeholder="defaultPlaceHolder"
       @keydown.delete.stop="removeLastTag"
       @keydown="addNew"
-      @blur="addNew"
-    />
+      @blur="addNew" />
   </div>
 </template>
 
@@ -65,9 +62,7 @@ export default {
     return {
       defaultPlaceHolder: this.$t('commons.tag_tip'),
       newTag: '',
-      innerTags: this.currentScenario[this.prop]
-        ? [...this.currentScenario[this.prop]]
-        : [],
+      innerTags: this.currentScenario[this.prop] ? [...this.currentScenario[this.prop]] : [],
     };
   },
   watch: {
@@ -180,8 +175,7 @@ export default {
   border: 0;
   color: #303133;
   font-size: 12px;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   outline: none;
   padding-left: 0;
   width: 100px;

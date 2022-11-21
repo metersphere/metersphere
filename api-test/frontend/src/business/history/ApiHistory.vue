@@ -7,8 +7,7 @@
     :destroy-on-close="true"
     append-to-body
     @close="handleClose"
-    v-loading="loading"
-  >
+    v-loading="loading">
     <el-table :data="details">
       <el-table-column prop="operTime" :label="$t('operating_log.time')">
         <template v-slot:default="scope">
@@ -16,11 +15,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="userName" :label="$t('operating_log.user')" />
-      <el-table-column
-        prop="columnTitle"
-        :label="$t('operating_log.change_field')"
-        v-if="showChangeField"
-      >
+      <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" v-if="showChangeField">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
@@ -29,17 +24,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="originalValue"
-        :label="$t('operating_log.before_change')"
-      >
+      <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
               <div v-if="linkData.indexOf(detail.columnName) !== -1">
-                <el-link
-                  style="color: #409eff"
-                  @click="openDetail(scope.row, detail)"
+                <el-link style="color: #409eff" @click="openDetail(scope.row, detail)"
                   >{{ $t('operating_log.info') }}
                 </el-link>
               </div>
@@ -52,17 +42,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="newValue"
-        :label="$t('operating_log.after_change')"
-      >
+      <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
               <div v-if="linkData.indexOf(detail.columnName) !== -1">
-                <el-link
-                  style="color: #409eff"
-                  @click="openDetail(scope.row, detail)"
+                <el-link style="color: #409eff" @click="openDetail(scope.row, detail)"
                   >{{ $t('operating_log.info') }}
                 </el-link>
               </div>
@@ -80,8 +65,7 @@
       :change="getDetails"
       :current-page.sync="goPage"
       :page-size.sync="pageSize"
-      :total="totalCount"
-    />
+      :total="totalCount" />
 
     <ms-history-detail ref="historyDetail" />
     <ms-tags-history-detail ref="tagsHistoryDetail" />
@@ -103,8 +87,7 @@ export default {
     MsTagsHistoryDetail,
     MsApiHistoryDetail,
     MsEnvironmentHistoryDetail,
-    MsTablePagination: () =>
-      import('metersphere-frontend/src/components/pagination/TablePagination'),
+    MsTablePagination: () => import('metersphere-frontend/src/components/pagination/TablePagination'),
   },
   props: {
     title: String,
@@ -153,16 +136,12 @@ export default {
           //过滤接口定义请求参数为空的数据
           if (modules.length > 0 && modules[0] === '接口定义') {
             for (let i = 0; i < data.length; i++) {
-              if (
-                data[i].details.columns &&
-                data[i].details.columns.length > 0
-              ) {
+              if (data[i].details.columns && data[i].details.columns.length > 0) {
                 let columns = data[i].details.columns;
                 for (let j = 0; j < columns.length; j++) {
                   if (
                     columns[j].columnName === 'request' &&
-                    (columns[j].diffValue === null ||
-                      columns[j].diffValue === '')
+                    (columns[j].diffValue === null || columns[j].diffValue === '')
                   ) {
                     data[i].details.columns.splice(j, 1);
                   }
@@ -177,11 +156,7 @@ export default {
             // 不显示的节点 id
             let ids = [];
             for (let i = 0; i < data.length; i++) {
-              if (
-                data[i].details.columns.findIndex(
-                  (d) => d.diffValue === null || d.diffValue === ''
-                ) !== -1
-              ) {
+              if (data[i].details.columns.findIndex((d) => d.diffValue === null || d.diffValue === '') !== -1) {
                 ids.push(data[i].id);
                 continue;
               }

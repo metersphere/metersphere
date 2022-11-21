@@ -4,10 +4,8 @@
       v-if="
         (node.children && node.children.length > 0) ||
         node.unsolicited ||
-        (node.type &&
-          this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)
-      "
-    >
+        (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)
+      ">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">
@@ -15,11 +13,7 @@
           </div>
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
-          <el-link
-            v-if="node.redirect"
-            class="report-label-head"
-            @click="isLink"
-          >
+          <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
             {{ getLabel(node.label) }}
           </el-link>
           <span v-else>{{ getLabel(node.label) }}</span>
@@ -40,8 +34,7 @@
         :isActive="isActive"
         :is-share="isShare"
         :share-id="shareId"
-        v-on:requestResult="requestResult"
-      />
+        v-on:requestResult="requestResult" />
     </div>
   </div>
 </template>
@@ -113,9 +106,7 @@ export default {
 
   computed: {
     assertion() {
-      return (
-        this.scenario.passAssertions + ' / ' + this.scenario.totalAssertions
-      );
+      return this.scenario.passAssertions + ' / ' + this.scenario.totalAssertions;
     },
     success() {
       return this.scenario.error === 0;
@@ -173,8 +164,7 @@ export default {
 .report-label-head {
   border-bottom: 1px solid #303133;
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
 }
 

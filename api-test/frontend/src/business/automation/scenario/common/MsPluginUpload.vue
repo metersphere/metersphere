@@ -8,19 +8,14 @@
       :beforeUpload="uploadValidate"
       :file-list="plugin.files"
       :on-exceed="exceed"
-      ref="upload"
-    >
+      ref="upload">
       <div class="upload-default">
         <i class="el-icon-plus" />
       </div>
       <div class="upload-item" slot="file" slot-scope="{ file }">
         <span>{{ file.file ? file.file.name : file.name }}</span>
         <span class="el-upload-list__item-actions">
-          <span
-            v-if="!disabled"
-            class="el-upload-list__item-delete"
-            @click="handleRemove(file)"
-          >
+          <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
             <i class="el-icon-delete" />
           </span>
         </span>
@@ -54,9 +49,7 @@ export default {
       this.$refs.upload.handleRemove(file);
       for (let i = 0; i < this.plugin.files.length; i++) {
         let fileName = file.file ? file.file.name : file.name;
-        let paramFileName = this.plugin.files[i].file
-          ? this.plugin.files[i].file.name
-          : this.plugin.files[i].name;
+        let paramFileName = this.plugin.files[i].file ? this.plugin.files[i].file.name : this.plugin.files[i].name;
         if (fileName === paramFileName) {
           this.plugin.files.splice(i, 1);
           this.$refs.upload.handleRemove(file);

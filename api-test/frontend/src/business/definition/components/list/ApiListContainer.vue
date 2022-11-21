@@ -1,20 +1,10 @@
 <template>
   <div v-if="isShow">
     <el-button-group v-if="isShowChangeButton">
-      <el-button
-        plain
-        class="ms-relevance-api-btn"
-        :class="{ active: isApiListEnable }"
-        @click="apiChange('api')"
-      >
+      <el-button plain class="ms-relevance-api-btn" :class="{ active: isApiListEnable }" @click="apiChange('api')">
         API
       </el-button>
-      <el-button
-        plain
-        class="ms-relevance-case-btn"
-        :class="{ active: !isApiListEnable }"
-        @click="caseChange('case')"
-      >
+      <el-button plain class="ms-relevance-case-btn" :class="{ active: !isApiListEnable }" @click="caseChange('case')">
         CASE
       </el-button>
     </el-button-group>

@@ -1,16 +1,6 @@
 <template>
-  <el-form-item
-    :disable="true"
-    :label="title"
-    :prop="prop"
-    :label-width="labelWidth"
-  >
-    <ms-mark-down-text
-      :prop="prop"
-      :data="data"
-      :disabled="disabled"
-      :default-open="defaultOpen"
-    />
+  <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
+    <ms-mark-down-text :prop="prop" :data="data" :disabled="disabled" :default-open="defaultOpen" />
   </el-form-item>
 </template>
 

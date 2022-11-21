@@ -8,61 +8,37 @@
       label-position="right"
       label-width="80px"
       size="small"
-      style="margin-left: 5px; margin-right: 5px"
-    >
+      style="margin-left: 5px; margin-right: 5px">
       <ms-form-divider :title="$t('test_track.plan_view.base_info')" />
 
       <!-- 基础信息 -->
       <el-row>
-        <el-form-item
-          v-if="currentProtocol !== 'TCP'"
-          :label="$t('commons.name')"
-          prop="name"
-        >
-          <el-input
-            v-model="basicForm.name"
-            class="ms-http-input"
-            size="small"
-          />
+        <el-form-item v-if="currentProtocol !== 'TCP'" :label="$t('commons.name')" prop="name">
+          <el-input v-model="basicForm.name" class="ms-http-input" size="small" />
         </el-form-item>
 
         <el-form-item v-else :label="$t('commons.name')" prop="name">
           <el-input v-model="basicForm.name" class="ms-http-input" size="small">
-            <el-select
-              slot="prepend"
-              v-model="basicForm.method"
-              size="mini"
-              style="width: 80px"
-            >
-              <el-option
-                v-for="item in methodTypes"
-                :key="item.key"
-                :label="item.value"
-                :value="item.key"
-              />
+            <el-select slot="prepend" v-model="basicForm.method" size="mini" style="width: 80px">
+              <el-option v-for="item in methodTypes" :key="item.key" :label="item.value" :value="item.key" />
             </el-select>
           </el-input>
         </el-form-item>
       </el-row>
 
       <el-row>
-        <el-form-item
-          :label="$t('api_test.definition.request.responsible')"
-          prop="userId"
-        >
+        <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
           <el-select
             v-model="basicForm.userId"
             :placeholder="$t('api_test.definition.request.responsible')"
             class="ms-http-select"
             filterable
-            size="small"
-          >
+            size="small">
             <el-option
               v-for="item in maintainerOptions"
               :key="item.id"
               :label="item.name + ' (' + item.email + ')'"
-              :value="item.id"
-            >
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -77,33 +53,19 @@
             checkStrictly
             clearable
             size="small"
-            @getValue="setModule"
-          />
+            @getValue="setModule" />
         </el-form-item>
       </el-row>
       <el-row>
         <el-form-item :label="$t('commons.status')" prop="status">
-          <el-select
-            v-model="basicForm.status"
-            class="ms-http-select"
-            size="small"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.id"
-              :label="$t(item.label)"
-              :value="item.id"
-            />
+          <el-select v-model="basicForm.status" class="ms-http-select" size="small">
+            <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
           </el-select>
         </el-form-item>
       </el-row>
       <el-row>
         <el-form-item :label="$t('commons.tag')" prop="tag">
-          <ms-input-tag
-            ref="tag"
-            v-model="basicForm.tags"
-            :currentScenario="basicForm"
-          />
+          <ms-input-tag ref="tag" v-model="basicForm.tags" :currentScenario="basicForm" />
         </el-form-item>
       </el-row>
       <el-row>
@@ -114,8 +76,7 @@
             :rows="1"
             class="ms-http-textarea"
             size="small"
-            type="textarea"
-          />
+            type="textarea" />
         </el-form-item>
       </el-row>
       <!-- 自定义字段 -->
@@ -127,14 +88,12 @@
         class="case-form"
         label-position="right"
         label-width="80px"
-        size="small"
-      >
+        size="small">
         <custom-filed-form-row
           :default-open="defaultOpen"
           :disabled="readOnly"
           :form="customFieldForm"
-          :issue-template="apiTemplate"
-        />
+          :issue-template="apiTemplate" />
       </el-form>
     </el-form>
   </div>
@@ -187,9 +146,7 @@ export default {
             trigger: 'change',
           },
         ],
-        moduleId: [
-          { required: true, validator: validateModuleId, trigger: 'change' },
-        ],
+        moduleId: [{ required: true, validator: validateModuleId, trigger: 'change' }],
         status: [
           {
             required: true,

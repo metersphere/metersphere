@@ -2,9 +2,7 @@
   <div class="dashboard-card">
     <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">
-        <span class="dashboard-title">{{
-          $t('home.dashboard.scenario_schedule.title')
-        }}</span>
+        <span class="dashboard-title">{{ $t('home.dashboard.scenario_schedule.title') }}</span>
       </div>
       <div v-loading="loading" element-loading-background="#FFFFFF">
         <div
@@ -16,15 +14,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-          "
-        >
-          <img
-            style="height: 100px; width: 100px"
-            src="/assets/figma/icon_load_error.svg"
-          />
-          <span class="addition-info-title" style="color: #646a73">{{
-            $t('home.dashboard.public.load_error')
-          }}</span>
+          ">
+          <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+          <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
         <div v-show="!loadError">
           <div class="main-info">
@@ -37,15 +29,13 @@
                   redirect-data-type="schedule"
                   :link-permission="['PROJECT_API_SCENARIO:READ']"
                   @redirectPage="redirectPage"
-                  :is-execute-info="false"
-                />
+                  :is-execute-info="false" />
               </el-col>
               <el-col :span="12">
                 <main-info-card
                   :title="$t('home.dashboard.public.executed_times_in_week')"
                   :count-data="scenarioScheduleData"
-                  :is-execute-info="true"
-                />
+                  :is-execute-info="true" />
               </el-col>
             </el-row>
           </div>
@@ -56,8 +46,7 @@
                 <hover-card
                   :title="$t('home.dashboard.scenario_schedule.running_count')"
                   :main-info="scenarioScheduleData.runningCount"
-                  :tool-tip="runningCountToolTip"
-                >
+                  :tool-tip="runningCountToolTip">
                   <!--运行中、运行完成、未运行-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -69,21 +58,9 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'schedule',
-                                  'running',
-                                  null
-                                )
-                              "
-                            >
-                              {{
-                                formatAmount(scenarioScheduleData.runningCount)
-                              }}
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'schedule', 'running', null)">
+                              {{ formatAmount(scenarioScheduleData.runningCount) }}
                             </el-link>
                           </div>
                         </el-col>
@@ -94,21 +71,9 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'schedule',
-                                  'notRun',
-                                  null
-                                )
-                              "
-                            >
-                              {{
-                                formatAmount(scenarioScheduleData.notRunCount)
-                              }}
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'schedule', 'notRun', null)">
+                              {{ formatAmount(scenarioScheduleData.notRunCount) }}
                             </el-link>
                           </div>
                         </el-col>
@@ -122,8 +87,7 @@
                 <hover-card
                   :title="$t('home.dashboard.scenario_schedule.pass_rate')"
                   :main-info="scenarioScheduleData.passRate"
-                  :tool-tip="passRateToolTip"
-                >
+                  :tool-tip="passRateToolTip">
                   <!--已完成、进行中、未开始-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -136,15 +100,7 @@
                             <el-link
                               class="addition-info-num"
                               v-permission-disable="['PROJECT_API_REPORT:READ']"
-                              @click="
-                                redirectPage(
-                                  'scenarioReport',
-                                  'scenario',
-                                  'scheduleExecutionPassCount',
-                                  null
-                                )
-                              "
-                            >
+                              @click="redirectPage('scenarioReport', 'scenario', 'scheduleExecutionPassCount', null)">
                               {{ formatAmount(scenarioScheduleData.passCount) }}
                             </el-link>
                           </div>
@@ -157,18 +113,8 @@
                             <el-link
                               class="addition-info-num"
                               v-permission-disable="['PROJECT_API_REPORT:READ']"
-                              @click="
-                                redirectPage(
-                                  'scenarioReport',
-                                  'scenario',
-                                  'scheduleExecutionFailedCount',
-                                  null
-                                )
-                              "
-                            >
-                              {{
-                                formatAmount(scenarioScheduleData.unPassCount)
-                              }}
+                              @click="redirectPage('scenarioReport', 'scenario', 'scheduleExecutionFailedCount', null)">
+                              {{ formatAmount(scenarioScheduleData.unPassCount) }}
                             </el-link>
                           </div>
                         </el-col>
@@ -198,9 +144,7 @@ export default {
     return {
       loading: false,
       loadError: false,
-      runningCountToolTip: this.$t(
-        'api_test.home_page.formula.schedule_running'
-      ),
+      runningCountToolTip: this.$t('api_test.home_page.formula.schedule_running'),
       passRateToolTip: this.$t('api_test.home_page.formula.schedule_pass'),
       scenarioScheduleData: {
         total: 0,
@@ -244,13 +188,7 @@ export default {
         selectRange = 'scheduleExecutionFakeErrorCount';
         dataType = 'scenario';
       }
-      this.$emit(
-        'redirectPage',
-        redirectPage,
-        dataType,
-        selectRange,
-        selectParam
-      );
+      this.$emit('redirectPage', redirectPage, dataType, selectRange, selectParam);
     },
   },
 };

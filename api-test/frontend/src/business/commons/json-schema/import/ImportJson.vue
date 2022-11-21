@@ -6,37 +6,21 @@
     append-to-body
     show-close
     :close-on-click-modal="false"
-    @closed="handleClose"
-  >
+    @closed="handleClose">
     <el-tabs v-model="activeName">
       <el-tab-pane label="JSON" name="JSON">
         <div style="height: 400px">
-          <ms-code-edit
-            :mode="mode"
-            :data.sync="json"
-            theme="eclipse"
-            :modes="[]"
-            ref="codeEdit"
-          />
+          <ms-code-edit :mode="mode" :data.sync="json" theme="eclipse" :modes="[]" ref="codeEdit" />
         </div>
       </el-tab-pane>
       <el-tab-pane label="JSON-SCHEMA" name="JSON-SCHEMA">
         <div style="height: 400px">
-          <ms-code-edit
-            :mode="mode"
-            :data.sync="jsonSchema"
-            theme="eclipse"
-            :modes="[]"
-            ref="codeEdit"
-          />
+          <ms-code-edit :mode="mode" :data.sync="jsonSchema" theme="eclipse" :modes="[]" ref="codeEdit" />
         </div>
       </el-tab-pane>
     </el-tabs>
     <span slot="footer" class="dialog-footer">
-      <ms-dialog-footer
-        @cancel="importVisible = false"
-        @confirm="saveConfirm"
-      />
+      <ms-dialog-footer @cancel="importVisible = false" @confirm="saveConfirm" />
     </span>
   </el-dialog>
 </template>
@@ -77,11 +61,7 @@ export default {
     checkIsJsonSchema(json) {
       try {
         json = json5.parse(json);
-        if (
-          json.properties &&
-          typeof json.properties === 'object' &&
-          !json.type
-        ) {
+        if (json.properties && typeof json.properties === 'object' && !json.type) {
           json.type = 'object';
         }
         if (json.items && typeof json.items === 'object' && !json.type) {
@@ -91,14 +71,7 @@ export default {
           return false;
         }
         json.type = json.type.toLowerCase();
-        let types = [
-          'object',
-          'string',
-          'number',
-          'array',
-          'boolean',
-          'integer',
-        ];
+        let types = ['object', 'string', 'number', 'array', 'boolean', 'integer'];
         if (types.indexOf(json.type) === -1) {
           return false;
         }

@@ -3,8 +3,7 @@
     :title="$t('api_test.request.parameters_advance')"
     :visible.sync="itemValueVisible"
     class="advanced-item-value"
-    width="70%"
-  >
+    width="70%">
     <el-tabs tab-position="top" style="height: 50vh" @tab-click="selectTab">
       <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">
         <el-row type="flex" :gutter="20">
@@ -13,10 +12,7 @@
               <el-input
                 size="small"
                 v-model="filterText"
-                :placeholder="
-                  $t('api_test.request.parameters_mock_filter_tips')
-                "
-              />
+                :placeholder="$t('api_test.request.parameters_mock_filter_tips')" />
               <el-tree
                 class="filter-tree"
                 ref="tree"
@@ -24,39 +20,22 @@
                 :props="treeProps"
                 default-expand-all
                 @node-click="selectVariable"
-                :filter-node-method="filterNode"
-              ></el-tree>
+                :filter-node-method="filterNode"></el-tree>
             </div>
           </el-col>
-          <el-col
-            :span="6"
-            v-for="(itemFunc, itemIndex) in mockVariableFuncs"
-            :key="itemIndex"
-          >
-            <div
-              v-for="(func, funcIndex) in funcs"
-              :key="`${itemIndex}-${funcIndex}`"
-            >
+          <el-col :span="6" v-for="(itemFunc, itemIndex) in mockVariableFuncs" :key="itemIndex">
+            <div v-for="(func, funcIndex) in funcs" :key="`${itemIndex}-${funcIndex}`">
               <el-row>
                 <el-col :span="12">
                   <el-radio
                     size="mini"
                     v-model="itemFunc.name"
                     :label="func.name"
-                    @change="methodChange(itemFunc, func)"
-                  />
+                    @change="methodChange(itemFunc, func)" />
                 </el-col>
                 <el-col :span="12" v-if="itemFunc.name === func.name">
-                  <div
-                    v-for="(p, pIndex) in itemFunc.params"
-                    :key="`${itemIndex}-${funcIndex}-${pIndex}`"
-                  >
-                    <el-input
-                      :placeholder="p.name"
-                      size="mini"
-                      v-model="p.value"
-                      @change="showPreview"
-                    />
+                  <div v-for="(p, pIndex) in itemFunc.params" :key="`${itemIndex}-${funcIndex}-${pIndex}`">
+                    <el-input :placeholder="p.name" size="mini" v-model="p.value" @change="showPreview" />
                   </div>
                 </el-col>
               </el-row>
@@ -69,22 +48,13 @@
           <el-col :span="6" class="col-height">
             <div v-if="preRequestParams">
               <p>{{ $t('api_test.request.parameters_pre_request') }}</p>
-              <el-tree
-                :data="preRequestParams"
-                :props="treeProps"
-                @node-click="selectVariable"
-              ></el-tree>
+              <el-tree :data="preRequestParams" :props="treeProps" @node-click="selectVariable"></el-tree>
             </div>
           </el-col>
           <el-col :span="18" class="col-height">
             <div>
               <h1>{{ $t('api_test.request.jmeter_func') }}</h1>
-              <el-table
-                border
-                :data="jmeterFuncs"
-                class="adjust-table table-content"
-                height="400"
-              >
+              <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400">
                 <el-table-column prop="type" label="Type" width="150" />
                 <el-table-column prop="name" label="Functions" width="250" />
                 <el-table-column prop="description" label="Description" />
@@ -105,22 +75,10 @@
           <el-button size="small" type="primary" plain @click="saveAdvanced()">
             {{ $t('commons.save') }}
           </el-button>
-          <el-button
-            size="small"
-            type="info"
-            plain
-            @click="addFunc()"
-            v-if="currentTab === 0"
-          >
+          <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
             {{ $t('api_test.request.parameters_advance_add_func') }}
           </el-button>
-          <el-button
-            size="small"
-            type="success"
-            plain
-            @click="showPreview()"
-            v-if="currentTab === 0"
-          >
+          <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
             {{ $t('api_test.request.parameters_preview') }}
           </el-button>
         </el-col>
@@ -247,25 +205,19 @@ export default {
     },
     addFunc() {
       if (this.mockVariableFuncs.length > 4) {
-        this.$info(
-          this.$t('api_test.request.parameters_advance_add_func_limit')
-        );
+        this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
         return;
       }
       if (this.mockVariableFuncs.length > 0) {
         let func = this.mockVariableFuncs[this.mockVariableFuncs.length - 1];
         if (!func.name) {
-          this.$warning(
-            this.$t('api_test.request.parameters_advance_add_func_error')
-          );
+          this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
           return;
         }
         if (func.params) {
           for (let j = 0; j < func.params.length; j++) {
             if (!func.params[j].value) {
-              this.$warning(
-                this.$t('api_test.request.parameters_advance_add_param_error')
-              );
+              this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
               return;
             }
           }

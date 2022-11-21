@@ -1,10 +1,5 @@
 <template>
-  <el-select
-    :disabled="isReadOnly"
-    v-model="request.method"
-    class="request-method-select"
-    @change="change"
-  >
+  <el-select :disabled="isReadOnly" v-model="request.method" class="request-method-select" @change="change">
     <el-option label="GET" value="GET" />
     <el-option label="POST" value="POST" />
     <el-option label="PUT" value="PUT" />

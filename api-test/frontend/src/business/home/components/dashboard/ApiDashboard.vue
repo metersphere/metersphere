@@ -2,9 +2,7 @@
   <div class="dashboard-card">
     <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">
-        <span class="dashboard-title">{{
-          $t('home.dashboard.api.title')
-        }}</span>
+        <span class="dashboard-title">{{ $t('home.dashboard.api.title') }}</span>
       </div>
       <div v-loading="loading" element-loading-background="#FFFFFF">
         <div
@@ -16,15 +14,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-          "
-        >
-          <img
-            style="height: 100px; width: 100px"
-            src="/assets/figma/icon_load_error.svg"
-          />
-          <span class="addition-info-title" style="color: #646a73">{{
-            $t('home.dashboard.public.load_error')
-          }}</span>
+          ">
+          <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+          <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
         <div v-show="!loadError">
           <div class="main-info">
@@ -36,8 +28,7 @@
                 <hover-card
                   :title="$t('home.dashboard.api.covered_rate')"
                   :main-info="apiData.apiCoveredRate"
-                  :tool-tip="apiCoveredRageToolTip"
-                >
+                  :tool-tip="apiCoveredRageToolTip">
                   <!--未覆盖、已覆盖-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -49,13 +40,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage('api', 'api', 'covered', null)
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'covered', null)">
                               {{ formatAmount(apiData.coveredCount) }}
                             </el-link>
                           </div>
@@ -67,13 +53,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage('api', 'api', 'notCovered', null)
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'notCovered', null)">
                               {{ formatAmount(apiData.notCoveredCount) }}
                             </el-link>
                           </div>
@@ -88,8 +69,7 @@
                 <hover-card
                   :title="$t('home.dashboard.api.completed_rate')"
                   :main-info="apiData.completedRate"
-                  :tool-tip="completedRageToolTip"
-                >
+                  :tool-tip="completedRageToolTip">
                   <!--已完成、进行中、未开始-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -101,13 +81,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage('api', 'api', 'Completed', null)
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'Completed', null)">
                               {{ formatAmount(apiData.finishedCount) }}
                             </el-link>
                           </div>
@@ -119,13 +94,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage('api', 'api', 'Underway', null)
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'Underway', null)">
                               {{ formatAmount(apiData.runningCount) }}
                             </el-link>
                           </div>
@@ -137,13 +107,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage('api', 'api', 'Prepare', null)
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'Prepare', null)">
                               {{ formatAmount(apiData.notStartedCount) }}
                             </el-link>
                           </div>
@@ -217,13 +182,7 @@ export default {
       return formatNumber(number);
     },
     redirectPage(redirectPage, dataType, selectRange, selectParam) {
-      this.$emit(
-        'redirectPage',
-        redirectPage,
-        dataType,
-        selectRange,
-        selectParam
-      );
+      this.$emit('redirectPage', redirectPage, dataType, selectRange, selectParam);
     },
   },
 };

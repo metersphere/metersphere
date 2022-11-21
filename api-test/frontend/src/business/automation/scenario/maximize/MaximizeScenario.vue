@@ -8,32 +8,20 @@
               :content="$t('test_track.case.batch_operate')"
               placement="top"
               effect="light"
-              v-show="!isBatchProcess"
-            >
+              v-show="!isBatchProcess">
               <font-awesome-icon
                 class="ms-batch-btn"
                 :icon="['fa', 'bars']"
                 v-prevent-re-click
-                @click="batchProcessing"
-              />
+                @click="batchProcessing" />
             </el-tooltip>
-            <el-checkbox
-              v-show="isBatchProcess"
-              v-model="isCheckedAll"
-              @change="checkedAll"
-            />
-            <el-tooltip
-              :content="$t('commons.cancel')"
-              placement="top"
-              effect="light"
-              v-show="isBatchProcess"
-            >
+            <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
+            <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
               <font-awesome-icon
                 class="ms-batch-btn"
                 :icon="['fa', 'times']"
                 v-prevent-re-click
-                @click="cancelBatchProcessing"
-              />
+                @click="cancelBatchProcessing" />
             </el-tooltip>
           </div>
         </el-col>
@@ -44,16 +32,10 @@
             <el-row>
               <el-col :span="8">
                 <el-tooltip placement="top" :content="currentScenario.name">
-                  <span class="ms-max-scenario-name-width">{{
-                    currentScenario.name
-                  }}</span>
+                  <span class="ms-max-scenario-name-width">{{ currentScenario.name }}</span>
                 </el-tooltip>
               </el-col>
-              <el-col :span="8">
-                {{ $t('api_test.automation.step_total') }}：{{
-                  scenarioDefinition.length
-                }}
-              </el-col>
+              <el-col :span="8"> {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }} </el-col>
               <el-col :span="8">
                 <el-link class="head" @click="showScenarioParameters"
                   >{{ $t('api_test.automation.scenario_total') }}
@@ -64,14 +46,8 @@
           </div>
         </el-col>
         <el-col :span="12">
-          <el-checkbox v-model="cookieShare" @change="setCookieShare"
-            >共享cookie</el-checkbox
-          >
-          <el-checkbox
-            v-model="sampleError"
-            @change="setOnSampleError"
-            style="margin-right: 10px"
-          >
+          <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
+          <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">
             {{ $t('commons.failure_continues') }}
           </el-checkbox>
           <env-popover
@@ -88,8 +64,7 @@
             ref="envPopover"
             class="ms-right"
             :has-option-group="true"
-            :result="envResult"
-          />
+            :result="envResult" />
 
           <el-dropdown
             split-button
@@ -98,55 +73,30 @@
             style="margin: 0px 10px 0px"
             size="mini"
             @command="handleCommand"
-            v-show="!debugLoading"
-          >
+            v-show="!debugLoading">
             {{ $t('api_test.request.debug') }}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>{{
-                $t('api_test.automation.generate_report')
-              }}</el-dropdown-item>
+              <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <el-button
-            size="mini"
-            type="primary"
-            style="margin: 0px 10px 0px"
-            v-show="debugLoading"
-            @click="stop"
-          >
+          <el-button size="mini" type="primary" style="margin: 0px 10px 0px" v-show="debugLoading" @click="stop">
             {{ $t('report.stop_btn') }}
           </el-button>
         </el-col>
 
-        <font-awesome-icon
-          class="ms-min-alt-ico"
-          :icon="['fa', 'compress-alt']"
-          size="lg"
-          @click="unFullScreen"
-        />
+        <font-awesome-icon class="ms-min-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen" />
       </el-row>
     </div>
 
     <!-- 场景步骤-->
     <ms-container :class="{ 'maximize-container': !asideHidden }">
-      <ms-aside-container
-        @setAsideHidden="setAsideHidden"
-        style="padding: 0px; overflow: hidden"
-      >
+      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden">
         <div class="ms-debug-result" v-if="reqTotal > 0">
           <span style="float: right">
             <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
-            <span class="ms-message-right"
-              >{{ $t('api_test.automation.request_total') }}
-              {{ reqTotal }}</span
-            >
-            <span class="ms-message-right"
-              >{{ $t('api_test.automation.request_success') }}
-              {{ reqSuccess }}</span
-            >
-            <span class="ms-message-right">
-              {{ $t('api_test.automation.request_error') }} {{ reqError }}</span
-            >
+            <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
+            <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
+            <span class="ms-message-right"> {{ $t('api_test.automation.request_error') }} {{ reqError }}</span>
           </span>
         </div>
         <!-- 场景步骤内容 -->
@@ -167,56 +117,35 @@
             @node-drag-end="allowDrag"
             @node-click="nodeClick"
             class="ms-max-tree"
-            ref="maxStepTree"
-          >
+            ref="maxStepTree">
             <el-row
               class="custom-tree-node"
               :gutter="18"
               type="flex"
               align="middle"
               slot-scope="{ node, data }"
-              style="width: 98%"
-            >
+              style="width: 98%">
               <el-col
                 class="custom-tree-node-col"
                 style="padding-left: 0px; padding-right: 0px"
-                v-show="
-                  node &&
-                  data.hashTree &&
-                  data.hashTree.length > 0 &&
-                  !data.isLeaf
-                "
-              >
+                v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                 <span
                   v-show="!node.expanded"
                   class="el-icon-circle-plus-outline custom-node_e"
-                  @click="openOrClose(node)"
-                />
-                <span
-                  v-show="node.expanded"
-                  class="el-icon-remove-outline custom-node_e"
-                  @click="openOrClose(node)"
-                />
+                  @click="openOrClose(node)" />
+                <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)" />
               </el-col>
               <!-- 批量操作 -->
               <el-col
-                :class="
-                  data.checkBox
-                    ? 'custom-tree-node-hide'
-                    : 'custom-tree-node-col'
-                "
+                :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
                 style="padding-left: 0px; padding-right: 0px"
-                v-show="
-                  (data.hashTree && data.hashTree.length === 0) || data.isLeaf
-                "
-              >
+                v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
                 <show-more-btn
                   :is-show="node.checked"
                   :buttons="batchOperators"
                   :size="selectDataCounts"
                   v-show="data.checkBox"
-                  style="margin-right: 3px"
-                />
+                  style="margin-right: 3px" />
               </el-col>
               <el-col>
                 <!-- 步骤组件-->
@@ -238,20 +167,12 @@
                   @refReload="refReload"
                   @openScenario="openScenario"
                   v-if="
-                    stepFilter.get('ALlSamplerStep').indexOf(data.type) ===
-                      -1 ||
+                    stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
                     !node.parent ||
                     !node.parent.data ||
-                    stepFilter
-                      .get('AllSamplerProxy')
-                      .indexOf(node.parent.data.type) === -1
-                  "
-                />
-                <div
-                  v-else
-                  class="el-tree-node is-hidden is-focusable is-leaf"
-                  style="display: none"
-                >
+                    stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                  " />
+                <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
                   {{ hideNode(node) }}
                 </div>
               </el-col>
@@ -264,8 +185,7 @@
               size="small"
               :global-options="globalOptions"
               :click-auto-close="false"
-              ref="refFab"
-            >
+              ref="refFab">
               <fab-item
                 v-for="(item, index) in buttonData"
                 :key="index"
@@ -275,8 +195,7 @@
                 :title-color="item.titleColor"
                 :color="item.titleColor"
                 :icon="item.icon"
-                @clickItem="item.click"
-              />
+                @clickItem="item.click" />
             </vue-fab>
           </div>
         </div>
@@ -303,21 +222,10 @@
             @suggestClick="suggestClick"
             @refReload="refReload"
             @openScenario="openScenario"
-            v-if="selectedTreeNode && selectedNode"
-          />
+            v-if="selectedTreeNode && selectedNode" />
           <!-- 请求下还有的子步骤-->
-          <div
-            v-if="
-              selectedTreeNode &&
-              selectedTreeNode.hashTree &&
-              showNode(selectedTreeNode)
-            "
-          >
-            <div
-              v-for="item in selectedTreeNode.hashTree"
-              :key="item.id"
-              class="ms-col-one"
-            >
+          <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
+            <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
               <ms-component-config
                 :showBtn="false"
                 :isMax="false"
@@ -334,11 +242,8 @@
                 @refReload="refReload"
                 @openScenario="openScenario"
                 v-show="
-                  selectedTreeNode &&
-                  selectedNode &&
-                  stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1
-                "
-              />
+                  selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1
+                " />
             </div>
           </div>
         </div>
@@ -346,11 +251,7 @@
     </ms-container>
 
     <!--接口列表-->
-    <scenario-api-relevance
-      @save="pushApiOrCase"
-      ref="scenarioApiRelevance"
-      v-if="type !== 'detail'"
-    />
+    <scenario-api-relevance @save="pushApiOrCase" ref="scenarioApiRelevance" v-if="type !== 'detail'" />
 
     <!--自定义接口-->
     <el-drawer
@@ -362,26 +263,14 @@
       :title="$t('api_test.automation.customize_req')"
       style="overflow: auto"
       :modal="false"
-      size="90%"
-    >
-      <ms-api-customize
-        :request="customizeRequest"
-        @addCustomizeApi="addCustomizeApi"
-      />
+      size="90%">
+      <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
     </el-drawer>
     <!--场景导入 -->
-    <scenario-relevance
-      v-if="type !== 'detail'"
-      @save="addScenario"
-      ref="scenarioRelevance"
-    />
+    <scenario-relevance v-if="type !== 'detail'" @save="addScenario" ref="scenarioRelevance" />
 
     <!-- 环境 -->
-    <api-environment-config
-      v-if="type !== 'detail'"
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
 
     <!--执行组件-->
     <ms-run
@@ -392,8 +281,7 @@
       :run-data="debugData"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
     <!-- 调试结果 -->
     <el-drawer
       v-if="type !== 'detail'"
@@ -402,14 +290,12 @@
       direction="ltr"
       :withHeader="true"
       :modal="false"
-      size="90%"
-    >
+      size="90%">
       <ms-api-report-detail
         :report-id="reportId"
         :debug="true"
         :currentProjectId="projectId"
-        @refresh="detailRefresh"
-      />
+        @refresh="detailRefresh" />
     </el-drawer>
 
     <!--场景公共参数-->
@@ -417,21 +303,10 @@
       v-if="type !== 'detail'"
       @setVariables="setVariables"
       ref="scenarioParameters"
-      class="ms-sc-variable-header"
-    />
+      class="ms-sc-variable-header" />
     <!--外部导入-->
-    <api-import
-      v-if="type !== 'detail'"
-      ref="apiImport"
-      :saved="false"
-      @refresh="apiImport"
-    />
-    <el-backtop
-      target=".el-main .ms-main-container"
-      :visibility-height="10"
-      :right="50"
-      :bottom="20"
-    ></el-backtop>
+    <api-import v-if="type !== 'detail'" ref="apiImport" :saved="false" @refresh="apiImport" />
+    <el-backtop target=".el-main .ms-main-container" :visibility-height="10" :right="50" :bottom="20"></el-backtop>
   </div>
 </template>
 
@@ -440,20 +315,11 @@ import { getApiScenarioEnv } from '@/api/scenario';
 import { API_STATUS, PRIORITY } from '../../../definition/model/JsonData';
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import { ELEMENT_TYPE, STEP } from '../Setting';
-import {
-  exportPdf,
-  getUUID,
-  strMapToObj,
-} from 'metersphere-frontend/src/utils';
+import { exportPdf, getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import OutsideClick from '../common/outside-click';
-import {
-  copyScenarioRow,
-  saveScenario,
-  scenarioSort,
-  handleCtrlSEvent,
-} from '@/business/automation/api-automation';
+import { copyScenarioRow, saveScenario, scenarioSort, handleCtrlSEvent } from '@/business/automation/api-automation';
 import { buttons, setComponent } from '../menu/Menu';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
@@ -495,10 +361,7 @@ export default {
     MsVariableList: () => import('../variable/VariableList'),
     ScenarioRelevance: () => import('../api/ScenarioRelevance'),
     ScenarioApiRelevance: () => import('../api/ApiRelevance'),
-    ApiEnvironmentConfig: () =>
-      import(
-        'metersphere-frontend/src/components/environment/ApiEnvironmentConfig'
-      ),
+    ApiEnvironmentConfig: () => import('metersphere-frontend/src/components/environment/ApiEnvironmentConfig'),
     MsApiReportDetail: () => import('../../report/ApiReportDetail'),
     MsInputTag: () => import('../MsInputTag'),
     MsRun: () => import('../DebugRun'),
@@ -686,18 +549,12 @@ export default {
             };
             if (item.license) {
               if (hasLicense()) {
-                if (
-                  this.operatingElements &&
-                  this.operatingElements.includes(item.jmeterClazz)
-                ) {
+                if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
                   this.buttonData.push(plugin);
                 }
               }
             } else {
-              if (
-                this.operatingElements &&
-                this.operatingElements.includes(item.jmeterClazz)
-              ) {
+              if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
                 this.buttonData.push(plugin);
               }
             }
@@ -729,11 +586,7 @@ export default {
     },
     showButton(...names) {
       for (const name of names) {
-        if (
-          name &&
-          this.operatingElements &&
-          this.operatingElements.includes(name)
-        ) {
+        if (name && this.operatingElements && this.operatingElements.includes(name)) {
           return true;
         }
       }
@@ -750,10 +603,7 @@ export default {
     },
     showNode(node) {
       node.active = true;
-      if (
-        node &&
-        this.stepFilter.get('AllSamplerProxy').indexOf(node.type) != -1
-      ) {
+      if (node && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) != -1) {
         return true;
       }
       return false;
@@ -765,11 +615,7 @@ export default {
       this.asideHidden = data;
     },
     nodeClick(data, node) {
-      if (
-        data.referenced != 'REF' &&
-        data.referenced != 'Deleted' &&
-        !data.disabled
-      ) {
+      if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
         this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
@@ -915,32 +761,22 @@ export default {
     },
     remove(row, node) {
       let name = row === undefined || row.name === undefined ? '' : row.name;
-      this.$alert(
-        this.$t('api_test.definition.request.delete_confirm_step') +
-          ' ' +
-          name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              const parent = node.parent;
-              const hashTree = parent.data.hashTree || parent.data;
-              const index = hashTree.findIndex(
-                (d) =>
-                  d.resourceId != undefined &&
-                  row.resourceId != undefined &&
-                  d.resourceId === row.resourceId
-              );
-              hashTree.splice(index, 1);
-              this.sort();
-              this.reload();
-              this.initProjectIds();
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_confirm_step') + ' ' + name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            const parent = node.parent;
+            const hashTree = parent.data.hashTree || parent.data;
+            const index = hashTree.findIndex(
+              (d) => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId
+            );
+            hashTree.splice(index, 1);
+            this.sort();
+            this.reload();
+            this.initProjectIds();
+          }
+        },
+      });
     },
     copyRow(row, node) {
       copyScenarioRow(row, node);
@@ -1026,10 +862,7 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (
-        draggingNode.data.type === 'Assertions' ||
-        dropNode.data.type === 'Assertions'
-      ) {
+      if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
         return false;
       }
       // 增加插件权限控制
@@ -1051,9 +884,7 @@ export default {
         dropNode.data.referenced !== 'REF' &&
         dropNode.data.referenced !== 'Deleted' &&
         this.stepFilter.get(dropNode.data.type) &&
-        this.stepFilter
-          .get(dropNode.data.type)
-          .indexOf(draggingNode.data.type) !== -1
+        this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) !== -1
       ) {
         return true;
       }
@@ -1137,26 +968,18 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(
-              this.path,
-              this.currentScenario,
-              this.scenarioDefinition,
-              this,
-              (response) => {
-                this.$success(this.$t('commons.save_success'));
-                this.path = '/api/automation/update';
-                if (response.data) {
-                  this.currentScenario.id = response.data.id;
-                }
-                if (this.currentScenario.tags instanceof String) {
-                  this.currentScenario.tags = JSON.parse(
-                    this.currentScenario.tags
-                  );
-                }
-                this.$emit('refresh', this.currentScenario);
-                resolve();
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
+              this.$success(this.$t('commons.save_success'));
+              this.path = '/api/automation/update';
+              if (response.data) {
+                this.currentScenario.id = response.data.id;
               }
-            );
+              if (this.currentScenario.tags instanceof String) {
+                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+              }
+              this.$emit('refresh', this.currentScenario);
+              resolve();
+            });
           }
         });
       });
@@ -1165,9 +988,7 @@ export default {
     setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
       this.currentScenario.projectId = this.projectId;
-      this.currentScenario.modulePath = this.getPath(
-        this.currentScenario.apiScenarioModuleId
-      );
+      this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
       // 构建一个场景对象 方便引用处理
       let scenario = {
         id: this.currentScenario.id,
@@ -1186,9 +1007,7 @@ export default {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
       }
       if (this.currentModule != null) {
-        this.currentScenario.modulePath = this.currentModule.method
-          ? this.currentModule.method
-          : null;
+        this.currentScenario.modulePath = this.currentModule.method ? this.currentModule.method : null;
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
       this.currentScenario.projectId = this.projectId;
@@ -1202,10 +1021,7 @@ export default {
       this.loading = false;
     },
     showScenarioParameters() {
-      this.$refs.scenarioParameters.open(
-        this.currentScenario.variables,
-        this.currentScenario.headers
-      );
+      this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
     },
     apiImport(importData) {
       if (importData && importData.data) {
@@ -1221,10 +1037,7 @@ export default {
       if (this.currentScenario.variables) {
         size += this.currentScenario.variables.length;
       }
-      if (
-        this.currentScenario.headers &&
-        this.currentScenario.headers.length > 1
-      ) {
+      if (this.currentScenario.headers && this.currentScenario.headers.length > 1) {
         size += this.currentScenario.headers.length - 1;
       }
       return size;
@@ -1292,10 +1105,7 @@ export default {
       for (let i in this.scenarioDefinition) {
         if (this.scenarioDefinition[i]) {
           this.scenarioDefinition[i].enable = this.stepEnable;
-          if (
-            this.scenarioDefinition[i].hashTree &&
-            this.scenarioDefinition[i].hashTree.length > 0
-          ) {
+          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
             this.stepStatus(this.scenarioDefinition[i].hashTree);
           }
         }
@@ -1336,10 +1146,7 @@ export default {
           if (resourceId === nodes[i].resourceId) {
             nodes.splice(i, 1);
           } else {
-            if (
-              nodes[i].hashTree != undefined &&
-              nodes[i].hashTree.length > 0
-            ) {
+            if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
               this.recursionDelete(resourceId, nodes[i].hashTree);
             }
           }
@@ -1375,18 +1182,10 @@ export default {
       this.isBatchProcess = true;
       this.expandedNode = [];
       this.hideAllTreeNode(this.scenarioDefinition);
-      if (
-        this.$refs.maxStepTree &&
-        this.$refs.maxStepTree.root &&
-        this.$refs.maxStepTree.root.childNodes
-      ) {
+      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
         this.stepCheckedAll(true, this.$refs.maxStepTree.root.childNodes);
       }
-      if (
-        this.$refs.maxStepTree &&
-        this.$refs.maxStepTree.root &&
-        this.$refs.maxStepTree.root.childNodes
-      ) {
+      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
         this.stepCheckedAll(false, this.$refs.maxStepTree.root.childNodes);
       }
       this.reload();
@@ -1394,18 +1193,10 @@ export default {
     cancelBatchProcessing() {
       this.isBatchProcess = false;
       this.isCheckedAll = false;
-      if (
-        this.$refs.maxStepTree &&
-        this.$refs.maxStepTree.root &&
-        this.$refs.maxStepTree.root.childNodes
-      ) {
+      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
         this.stepCheckedAll(true, this.$refs.maxStepTree.root.childNodes);
       }
-      if (
-        this.$refs.maxStepTree &&
-        this.$refs.maxStepTree.root &&
-        this.$refs.maxStepTree.root.childNodes
-      ) {
+      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
         this.stepCheckedAll(false, this.$refs.maxStepTree.root.childNodes);
       }
       this.selectDataCounts = 0;
@@ -1419,10 +1210,7 @@ export default {
       let isLeaf = true;
       array.forEach((item) => {
         item.checkBox = false;
-        if (
-          isLeaf &&
-          this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1
-        ) {
+        if (isLeaf && this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
           isLeaf = false;
         }
         if (item.hashTree && item.hashTree.length > 0) {
@@ -1436,11 +1224,7 @@ export default {
       }
     },
     checkedAll(v) {
-      if (
-        this.$refs.maxStepTree &&
-        this.$refs.maxStepTree.root &&
-        this.$refs.maxStepTree.root.childNodes
-      ) {
+      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
         this.stepCheckedAll(v, this.$refs.maxStepTree.root.childNodes);
       }
     },
@@ -1461,10 +1245,7 @@ export default {
         let row = { resourceId: 'ms-reload-max-test' };
         if (this.$refs.maxStepTree && this.$refs.maxStepTree.root.data) {
           this.$refs.maxStepTree.root.data.push(row);
-          this.$refs.maxStepTree.root.data.splice(
-            this.$refs.maxStepTree.root.data.length - 1,
-            1
-          );
+          this.$refs.maxStepTree.root.data.splice(this.$refs.maxStepTree.root.data.length - 1, 1);
         }
       });
     },
@@ -1565,8 +1346,7 @@ export default {
 
 :deep(.el-checkbox) {
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }
@@ -1578,8 +1358,7 @@ export default {
 .head {
   border-bottom: 1px solid #303133;
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
 }
 
@@ -1608,8 +1387,7 @@ export default {
   color: #7c3985;
 }
 
-.ms-max-tree
-  :deep(.el-tree-node__expand-icon.expanded.el-icon-caret-right:before) {
+.ms-max-tree :deep(.el-tree-node__expand-icon.expanded.el-icon-caret-right:before) {
   color: #7c3985;
   /* content: "\e722";*/
   padding: 0;

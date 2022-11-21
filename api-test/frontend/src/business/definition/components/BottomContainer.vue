@@ -1,9 +1,5 @@
 <template>
-  <el-aside
-    :width="width"
-    class="ms-aside-container"
-    :style="{ 'margin-left': !enableAsideHidden ? 0 : '-' + width }"
-  >
+  <el-aside :width="width" class="ms-aside-container" :style="{ 'margin-left': !enableAsideHidden ? 0 : '-' + width }">
     <slot></slot>
   </el-aside>
 </template>

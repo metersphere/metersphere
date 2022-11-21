@@ -1,51 +1,26 @@
 <template>
   <el-main>
     <div class="api-schedule-form" style="overflow: auto !important">
-      <el-form
-        :model="formData"
-        :rules="rules"
-        v-loading="result"
-        label-width="80px"
-        ref="form"
-      >
+      <el-form :model="formData" :rules="rules" v-loading="result" label-width="80px" ref="form">
         <el-row>
           <el-col :span="12">
-            <el-form-item
-              :label-width="labelWith"
-              :label="'Swagger URL'"
-              prop="swaggerUrl"
-              class="swagger-url"
-            >
+            <el-form-item :label-width="labelWith" :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
               <el-input size="small" v-model="formData.swaggerUrl" clearable />
             </el-form-item>
-            <el-form-item
-              :label-width="labelWith"
-              :label="$t('commons.schedule_cron_title')"
-              prop="rule"
-            >
+            <el-form-item :label-width="labelWith" :label="$t('commons.schedule_cron_title')" prop="rule">
               <el-input
                 :disabled="isReadOnly"
                 v-model="formData.rule"
                 size="small"
-                :placeholder="$t('schedule.please_input_cron_expression')"
-              >
-                <a
-                  :disabled="isReadOnly"
-                  @click="showCronDialog"
-                  slot="suffix"
-                  class="head"
-                >
+                :placeholder="$t('schedule.please_input_cron_expression')">
+                <a :disabled="isReadOnly" @click="showCronDialog" slot="suffix" class="head">
                   {{ $t('schedule.generate_expression') }}
                 </a>
               </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              :label-width="labelWith"
-              :label="$t('commons.import_module')"
-              prop="moduleId"
-            >
+            <el-form-item :label-width="labelWith" :label="$t('commons.import_module')" prop="moduleId">
               <select-tree
                 class="select-tree"
                 size="small"
@@ -55,85 +30,51 @@
                 :obj="moduleObj"
                 clearable
                 checkStrictly
-                ref="selectTree"
-              />
+                ref="selectTree" />
             </el-form-item>
-            <el-form-item
-              :label-width="labelWith"
-              :label="$t('commons.import_mode')"
-              prop="modeId"
-            >
+            <el-form-item :label-width="labelWith" :label="$t('commons.import_mode')" prop="modeId">
               <el-select size="small" v-model="formData.modeId" clearable>
-                <el-option
-                  v-for="item in modeOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                />
+                <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
               <el-checkbox
                 size="mini"
                 v-if="formData.modeId === 'fullCoverage'"
                 v-model="formData.coverModule"
-                style="padding-left: 10px"
-              >
+                style="padding-left: 10px">
                 {{ this.$t('commons.cover_api') }}
               </el-checkbox>
             </el-form-item>
           </el-col>
 
           <el-col :span="12" style="margin-left: 50px">
-            <el-switch
-              v-model="authEnable"
-              :active-text="$t('api_test.api_import.add_request_params')"
-            ></el-switch>
+            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
           </el-col>
 
-          <el-col
-            :span="19"
-            v-show="authEnable"
-            style="margin-top: 10px; margin-left: 50px"
-            class="request-tabs"
-          >
+          <el-col :span="19" v-show="authEnable" style="margin-top: 10px; margin-left: 50px" class="request-tabs">
             <!-- 请求头 -->
             <div>
-              <span
-                >{{ $t('api_test.request.headers')
-                }}{{ $t('api_test.api_import.optional') }}：</span
-              >
+              <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
             <ms-api-key-value
               :label="$t('api_test.definition.request.auth_config')"
               :show-desc="true"
               :isShowEnable="isShowEnable"
               :suggestions="headerSuggestions"
-              :items="headers"
-            />
+              :items="headers" />
             <!--query 参数-->
             <div style="margin-top: 10px">
-              <span
-                >{{ $t('api_test.definition.request.query_param')
-                }}{{ $t('api_test.api_import.optional') }}：</span
-              >
+              <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
             <ms-api-variable
               :with-more-setting="true"
               :is-read-only="isReadOnly"
               :isShowEnable="isShowEnable"
-              :parameters="queryArguments"
-            />
+              :parameters="queryArguments" />
             <!--认证配置-->
             <div style="margin-top: 10px">
-              <span
-                >{{ $t('api_test.definition.request.auth_config')
-                }}{{ $t('api_test.api_import.optional') }}：</span
-              >
+              <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
             </div>
-            <ms-api-auth-config
-              :is-read-only="isReadOnly"
-              :request="authConfig"
-              :encryptShow="false"
-            />
+            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" />
           </el-col>
         </el-row>
 
@@ -143,29 +84,14 @@
       </el-form>
 
       <div class="clearfix">
-        <el-button
-          v-if="!formData.id"
-          type="primary"
-          style="float: right"
-          size="mini"
-          @click="saveCron"
-        >
+        <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">
           {{ $t('commons.add') }}
         </el-button>
         <div v-else>
-          <el-button
-            type="primary"
-            style="float: right; margin-left: 10px"
-            size="mini"
-            @click="clear"
-          >
+          <el-button type="primary" style="float: right; margin-left: 10px" size="mini" @click="clear">
             {{ $t('commons.clear') }}
           </el-button>
-          <el-button
-            type="primary"
-            style="float: right"
-            size="mini"
-            @click="saveCron"
+          <el-button type="primary" style="float: right" size="mini" @click="saveCron"
             >{{ $t('commons.update') }}
           </el-button>
         </div>
@@ -173,68 +99,36 @@
     </div>
 
     <div style="margin-top: 10px">
-      <el-button
-        type="primary"
-        style="float: left"
-        size="mini"
-        @click="openSchedule"
-      >
+      <el-button type="primary" style="float: left" size="mini" @click="openSchedule">
         {{ $t('schedule.task_notification') }}
       </el-button>
     </div>
     <div class="task-list">
-      <swagger-task-list
-        @clear="clear"
-        :param="param"
-        @rowClick="handleRowClick"
-        ref="taskList"
-      />
+      <swagger-task-list @clear="clear" :param="param" @rowClick="handleRowClick" ref="taskList" />
     </div>
 
-    <el-dialog
-      width="60%"
-      :title="$t('schedule.generate_expression')"
-      :visible.sync="showCron"
-      :modal="false"
-    >
-      <crontab
-        @hide="showCron = false"
-        @fill="crontabFill"
-        :expression="formData.value"
-        ref="crontab"
-      />
+    <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
+      <crontab @hide="showCron = false" @fill="crontabFill" :expression="formData.value" ref="crontab" />
     </el-dialog>
-    <el-dialog
-      :title="$t('schedule.task_notification')"
-      :visible.sync="dialogVisible"
-      width="60%"
-    >
+    <el-dialog :title="$t('schedule.task_notification')" :visible.sync="dialogVisible" width="60%">
       <swagger-task-notification
         :api-test-id="formData.id"
         :scheduleReceiverOptions="scheduleReceiverOptions"
-        ref="scheduleTaskNotification"
-      >
+        ref="scheduleTaskNotification">
       </swagger-task-notification>
     </el-dialog>
   </el-main>
 </template>
 
 <script>
-import {
-  createDefinitionSchedule,
-  updateDefinitionSchedule,
-} from '@/api/definition';
+import { createDefinitionSchedule, updateDefinitionSchedule } from '@/api/definition';
 import { getMaintainer } from '@/api/project';
 import MsFormDivider from 'metersphere-frontend/src/components/MsFormDivider';
 import SwaggerTaskList from '@/business/definition/components/import/SwaggerTaskList';
 import CrontabResult from 'metersphere-frontend/src/components/cron/CrontabResult';
 import Crontab from 'metersphere-frontend/src/components/cron/Crontab';
 import { cronValidate } from 'metersphere-frontend/src/utils/cron';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import SelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import SwaggerTaskNotification from '@/business/definition/components/import/SwaggerTaskNotification';
 import MsApiKeyValue from '../ApiKeyValue';
@@ -533,8 +427,7 @@ export default {
 .head {
   border-bottom: 1px solid var(--primary_color);
   color: var(--primary_color);
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
   cursor: pointer;
 }

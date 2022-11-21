@@ -3,13 +3,8 @@
     width="20%"
     :visible.sync="visible"
     :title="$t('test_track.plan.load_case.batch_exec_cases')"
-    @confirm="save"
-  >
-    <ms-environment-select
-      :project-id="projectId"
-      @setEnvironment="setEnvironment"
-      ref="environmentSelect"
-    />
+    @confirm="save">
+    <ms-environment-select :project-id="projectId" @setEnvironment="setEnvironment" ref="environmentSelect" />
   </ms-edit-dialog>
 </template>
 

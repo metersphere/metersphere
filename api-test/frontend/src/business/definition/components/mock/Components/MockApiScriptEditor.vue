@@ -10,20 +10,14 @@
           :data.sync="jsr223Processor.script"
           theme="eclipse"
           :modes="['java', 'python']"
-          ref="codeEdit"
-        />
+          ref="codeEdit" />
       </el-col>
       <div style="width: 14px; margin-right: 5px">
         <div style="height: 12px; width: 12px; line-height: 12px">
           <i
-            :class="
-              showMenu
-                ? 'el-icon-remove-outline'
-                : 'el-icon-circle-plus-outline'
-            "
+            :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
             class="show-menu"
-            @click="switchMenu"
-          ></i>
+            @click="switchMenu"></i>
         </div>
       </div>
       <el-col :span="menuSpan" style="width: 200px" class="script-index">
@@ -31,15 +25,13 @@
           :default-command.sync="jsr223Processor.scriptLanguage"
           :commands="languages"
           style="margin-bottom: 5px; margin-left: 15px"
-          @command="languageChange"
-        />
+          @command="languageChange" />
         <mock-script-nav-menu
           ref="scriptNavMenu"
           style="width: 90%"
           :language="jsr223Processor.scriptLanguage"
           :menus="baseCodeTemplates"
-          @handleCode="handleCodeTemplate"
-        />
+          @handleCode="handleCodeTemplate" />
       </el-col>
     </el-row>
   </div>
@@ -114,32 +106,23 @@ export default {
               value: this.getScript('address'),
             },
             {
-              title:
-                'Header ' +
-                this.$t('api_test.definition.document.request_param'),
+              title: 'Header ' + this.$t('api_test.definition.document.request_param'),
               value: this.getScript('header'),
             },
             {
-              title:
-                this.$t('api_test.request.body') + this.$t('api_test.variable'),
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable'),
               value: this.getScript('body'),
             },
             {
-              title:
-                this.$t('api_test.request.body') +
-                this.$t('api_test.variable') +
-                ' (Raw)',
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + ' (Raw)',
               value: this.getScript('bodyRaw'),
             },
             {
-              title:
-                'Query ' +
-                this.$t('api_test.definition.document.request_param'),
+              title: 'Query ' + this.$t('api_test.definition.document.request_param'),
               value: this.getScript('query'),
             },
             {
-              title:
-                'Rest ' + this.$t('api_test.definition.document.request_param'),
+              title: 'Rest ' + this.$t('api_test.definition.document.request_param'),
               value: this.getScript('rest'),
             },
           ],
@@ -148,15 +131,11 @@ export default {
           title: i18n.t('project.code_segment.custom_value'),
           children: [
             {
-              title: i18n.t(
-                'api_test.request.processor.code_template_get_variable'
-              ),
+              title: i18n.t('api_test.request.processor.code_template_get_variable'),
               value: 'vars.get("variable_name");',
             },
             {
-              title: i18n.t(
-                'api_test.request.processor.code_template_set_variable'
-              ),
+              title: i18n.t('api_test.request.processor.code_template_set_variable'),
               value: 'vars.put("variable_name", "variable_value");',
             },
           ],

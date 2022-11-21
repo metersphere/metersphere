@@ -6,73 +6,53 @@
           border
           v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
           :data="getJsonArr(apiInfo.responseBodyFormData)"
-          class="test-content document-table"
-        >
+          class="test-content document-table">
           <el-table-column
             prop="name"
             :label="$t('api_definition.document.name')"
             min-width="120px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="contentType"
             :label="$t('api_definition.document.type')"
             min-width="120px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="description"
             :label="$t('api_definition.document.desc')"
             min-width="280px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="required"
             :label="$t('api_definition.document.is_required')"
             :formatter="formatBoolean"
             min-width="80px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="value"
             :label="$t('api_definition.document.default_value')"
             min-width="120px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
         </el-table>
-        <div
-          v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'"
-          style="margin-left: 10px"
-        >
+        <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
           <ms-json-code-edit
             :json-schema-disable="true"
             :show-preview="false"
             :body="apiInfo.jsonSchemaResponseBody"
-            ref="jsonCodeEdit"
-          />
+            ref="jsonCodeEdit" />
         </div>
-        <div
-          v-else-if="formatRowDataToJsonSchema(apiInfo, 'response')"
-          style="margin-left: 10px"
-        >
+        <div v-else-if="formatRowDataToJsonSchema(apiInfo, 'response')" style="margin-left: 10px">
           <ms-json-code-edit
             :json-schema-disable="true"
             :show-preview="false"
             :body="apiInfo.responseJsonSchema"
-            ref="jsonCodeEdit"
-          />
+            ref="jsonCodeEdit" />
         </div>
         <div v-else class="showDataDiv">
           <br />
           <p
             style="margin: 0px 20px"
-            v-html="
-              formatRowData(
-                apiInfo.responseBodyParamType,
-                apiInfo.requestBodyStructureData
-              )
-            "
-          ></p>
+            v-html="formatRowData(apiInfo.responseBodyParamType, apiInfo.requestBodyStructureData)"></p>
           <br />
         </div>
       </div>

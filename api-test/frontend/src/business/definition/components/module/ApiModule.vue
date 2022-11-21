@@ -21,8 +21,7 @@
       :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
       :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
       @nodeSelectEvent="nodeChange"
-      ref="nodeTree"
-    >
+      ref="nodeTree">
       <template v-slot:header>
         <api-module-header
           :show-operator="showOperator"
@@ -39,8 +38,7 @@
           @refreshTable="$emit('refreshTable')"
           @schedule="$emit('schedule')"
           @refresh="refresh"
-          @debug="debug"
-        />
+          @debug="debug" />
       </template>
     </ms-node-tree>
   </div>
@@ -183,11 +181,7 @@ export default {
         this.condition.protocol = this.$route.params.type;
         this.$emit('protocolChange', this.condition.protocol);
         this.list();
-      } else if (
-        !this.isRelevance &&
-        !isRedirectPage &&
-        this.selectDefaultProtocol
-      ) {
+      } else if (!this.isRelevance && !isRedirectPage && this.selectDefaultProtocol) {
         //展示页面是非引用页面才会查询上一次接口类型
         getUserDefaultApiType().then((response) => {
           this.condition.protocol = response.data;
@@ -202,9 +196,7 @@ export default {
     isRedirect() {
       let isRedirectPage = false;
       if (this.$route.params.dataSelectRange) {
-        let item = JSON.parse(
-          JSON.stringify(this.$route.params.dataSelectRange)
-        ).param;
+        let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
         if (item) {
           let type = item.taskGroup.toString();
           if (type === 'SWAGGER_IMPORT') {
@@ -222,27 +214,17 @@ export default {
         projectId = this.projectId ? this.projectId : getCurrentProjectID();
       }
       if (this.isRelevanceModel) {
-        this.result = getApiModules(
-          this.relevanceProjectId,
-          this.condition.protocol,
-          this.currentVersion
-        ).then((response) => {
-          this.setData(response);
-        });
+        this.result = getApiModules(this.relevanceProjectId, this.condition.protocol, this.currentVersion).then(
+          (response) => {
+            this.setData(response);
+          }
+        );
       } else if (this.isTrashData) {
-        this.result = getApiModuleByTrash(
-          projectId,
-          this.condition.protocol,
-          this.currentVersion
-        ).then((response) => {
+        this.result = getApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getApiModules(
-          projectId,
-          this.condition.protocol,
-          this.currentVersion
-        ).then((response) => {
+        this.result = getApiModules(projectId, this.condition.protocol, this.currentVersion).then((response) => {
           this.setData(response);
         });
       }
@@ -251,10 +233,7 @@ export default {
       if (response.data != undefined && response.data != null) {
         let treeData = response.data;
         treeData.forEach((node) => {
-          node.name =
-            node.name === '未规划接口'
-              ? this.$t('api_test.definition.unplanned_api')
-              : node.name;
+          node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name;
           buildTree(node, { path: '' });
         });
         this.data = treeData;
@@ -272,10 +251,7 @@ export default {
       if (response.data != undefined && response.data != null) {
         this.data = response.data;
         this.data.forEach((node) => {
-          node.name =
-            node.name === '未规划接口'
-              ? this.$t('api_test.definition.unplanned_api')
-              : node.name;
+          node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name;
           buildTree(node, { path: '' });
         });
         this.$emit('setModuleOptions', this.data);
@@ -348,24 +324,21 @@ export default {
       if (this.isRelevanceModel) {
         getApiModules(
           this.relevanceProjectId,
-          this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });
       } else if (this.isTrashData) {
         getApiModuleByTrash(
           this.projectId,
-          this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });
       } else {
         getApiModules(
           this.projectId,
-          this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });

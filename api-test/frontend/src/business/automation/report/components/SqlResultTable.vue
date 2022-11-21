@@ -6,22 +6,14 @@
       :data="table.tableData"
       border
       size="mini"
-      highlight-current-row
-    >
-      <el-table-column
-        v-for="(title, index) in table.titles"
-        :key="index"
-        :label="title"
-        min-width="150px"
-      >
+      highlight-current-row>
+      <el-table-column v-for="(title, index) in table.titles" :key="index" :label="title" min-width="150px">
         <template v-slot:default="scope">
           <el-popover placement="top" trigger="click">
             <el-container>
               <div>{{ scope.row[title] }}</div>
             </el-container>
-            <span class="table-content" slot="reference">{{
-              scope.row[title]
-            }}</span>
+            <span class="table-content" slot="reference">{{ scope.row[title] }}</span>
           </el-popover>
         </template>
       </el-table-column>
@@ -50,10 +42,7 @@ export default {
     if (this.tables.length > 1) {
       for (let i = 0; i < this.tables.length; i++) {
         if (this.tables[i].titles.length === 1 && i < this.tables.length - 1) {
-          this.tables[i].tableData.splice(
-            this.tables[i].tableData.length - 1,
-            1
-          );
+          this.tables[i].tableData.splice(this.tables[i].tableData.length - 1, 1);
         }
       }
 
