@@ -63,7 +63,7 @@ public class PlatformPluginService {
             return false;
         }
         PluginMetaInfo pluginMetaInfo = pluginManager.getPluginMetaInfoByKey(platform);
-        return pluginMetaInfo.isThirdPartTemplateSupport();
+        return pluginMetaInfo == null ? false : pluginMetaInfo.isThirdPartTemplateSupport();
     }
 
     public Platform getPlatform(String platformKey, String workspaceId) {
