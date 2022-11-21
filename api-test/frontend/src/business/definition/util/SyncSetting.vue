@@ -1,26 +1,29 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="4">{{ $t('api_test.mock.req_param') + ":" }}</el-col>
-      <el-col :span="20" style="color:  var(--primary_color)">
-        <el-checkbox v-model="fromData.headers" @change="changeEvent">{{ "Header" + '\xa0\xa0' }}</el-checkbox>
-        <el-checkbox v-model="fromData.query" @change="changeEvent">{{
-            $t('api_test.definition.request.query_param')
-          }}
+      <el-col :span="4">{{ $t('api_test.mock.req_param') + ':' }}</el-col>
+      <el-col :span="20" style="color: var(--primary_color)">
+        <el-checkbox v-model="fromData.headers" @change="changeEvent">{{
+          'Header' + '\xa0\xa0'
+        }}</el-checkbox>
+        <el-checkbox v-model="fromData.query" @change="changeEvent"
+          >{{ $t('api_test.definition.request.query_param') }}
         </el-checkbox>
-        <el-checkbox v-model="fromData.rest" @change="changeEvent">{{
-            $t('api_test.definition.request.rest_param')
-          }}
+        <el-checkbox v-model="fromData.rest" @change="changeEvent"
+          >{{ $t('api_test.definition.request.rest_param') }}
         </el-checkbox>
-        <el-checkbox v-model="fromData.body" @change="changeEvent">{{ $t('api_test.request.body') }}</el-checkbox>
+        <el-checkbox v-model="fromData.body" @change="changeEvent">{{
+          $t('api_test.request.body')
+        }}</el-checkbox>
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="4">{{ $t('api_test.definition.request.other_config') + ":" }}</el-col>
+      <el-col :span="4">{{
+        $t('api_test.definition.request.other_config') + ':'
+      }}</el-col>
       <el-col :span="20" style="color: var(--primary_color)">
-        <el-checkbox v-model="fromData.delNotSame" @change="changeEvent">{{
-            $t('workstation.delNotSame')
-          }}
+        <el-checkbox v-model="fromData.delNotSame" @change="changeEvent"
+          >{{ $t('workstation.delNotSame') }}
         </el-checkbox>
       </el-col>
     </el-row>
@@ -29,7 +32,7 @@
 
 <script>
 export default {
-  name: "SyncSetting",
+  name: 'SyncSetting',
   props: {
     syncData: {
       type: Object,
@@ -42,21 +45,21 @@ export default {
           rest: true,
           body: true,
           delNotSame: true,
-        }
-      }
-    }
+        };
+      },
+    },
   },
   data() {
     return {
-      fromData: this.syncData
-    }
+      fromData: this.syncData,
+    };
   },
   methods: {
     changeEvent() {
-      this.$emit('updateSyncData', this.fromData)
-    }
-  }
-}
+      this.$emit('updateSyncData', this.fromData);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -64,4 +67,3 @@ export default {
   margin-bottom: 3px;
 }
 </style>
-

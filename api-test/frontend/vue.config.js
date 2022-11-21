@@ -1,5 +1,5 @@
 const path = require('path');
-const {name} = require('./package');
+const { name } = require('./package');
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -17,11 +17,11 @@ module.exports = {
     proxy: {
       ['^((?!/login)(?!/document))']: {
         target: 'http://localhost:8004',
-        ws: false
+        ws: false,
       },
       '/websocket': {
         target: 'http://localhost:8004',
-        ws: true
+        ws: true,
       },
     },
     // 跨域
@@ -31,27 +31,27 @@ module.exports = {
   },
   pages: {
     index: {
-      entry: "src/main.js",
-      template: "public/index.html",
-      filename: "index.html"
+      entry: 'src/main.js',
+      template: 'public/index.html',
+      filename: 'index.html',
     },
     shareApiReport: {
-      entry: "src/template/report/share/share-api-report.js",
-      template: "src/template/report/share/share-api-report.html",
-      filename: "share-api-report.html",
+      entry: 'src/template/report/share/share-api-report.js',
+      template: 'src/template/report/share/share-api-report.html',
+      filename: 'share-api-report.html',
     },
     shareDocument: {
-      entry: "src/template/document/share/share-document.js",
-      template: "src/template/document/share/share-document.html",
-      filename: "share-document.html",
+      entry: 'src/template/document/share/share-document.js',
+      template: 'src/template/document/share/share-document.html',
+      filename: 'share-document.html',
     },
   },
   configureWebpack: {
     devtool: 'cheap-module-source-map',
     resolve: {
       alias: {
-        '@': resolve('src')
-      }
+        '@': resolve('src'),
+      },
     },
     output: {
       // 把子应用打包成 umd 库格式(必须)
@@ -71,23 +71,27 @@ module.exports = {
     extract: {
       ignoreOrder: true,
       filename: `css/${name}-[name].[contenthash:8].css`,
-      chunkFilename: `css/${name}-[name].[contenthash:8].css`
+      chunkFilename: `css/${name}-[name].[contenthash:8].css`,
     },
   },
-  chainWebpack: config => {
+  chainWebpack: (config) => {
     config.module
       .rule('svg')
-      .exclude.add(resolve('../../framework/sdk-parent/frontend/src/assets/module'))
-      .end()
+      .exclude.add(
+        resolve('../../framework/sdk-parent/frontend/src/assets/module')
+      )
+      .end();
     config.module
       .rule('icons')
       .test(/\.svg$/)
-      .include.add(resolve('../../framework/sdk-parent/frontend/src/assets/module'))
+      .include.add(
+        resolve('../../framework/sdk-parent/frontend/src/assets/module')
+      )
       .end()
       .use('svg-sprite-loader')
       .loader('svg-sprite-loader')
       .options({
-        symbolId: 'icon-[name]'
-      })
-  }
+        symbolId: 'icon-[name]',
+      });
+  },
 };

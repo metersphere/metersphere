@@ -1,7 +1,12 @@
 <template>
   <div>
     <slot name="header">
-      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true"/>
+      <el-input
+        :placeholder="$t('test_track.module.search')"
+        v-model="filterText"
+        size="small"
+        :clearable="true"
+      />
     </slot>
 
     <el-tree
@@ -16,98 +21,131 @@
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
-      :draggable="!disabled&&!hideOpretor"
-      ref="tree">
+      :draggable="!disabled && !hideOpretor"
+      ref="tree"
+    >
+      <template v-slot:default="{ node, data }">
+        <span class="custom-tree-node father" @click="handleNodeSelect(node)">
+          <span v-if="data.isEdit" @click.stop>
+            <el-input
+              @blur.stop="save(node, data)"
+              @keyup.enter.native.stop="$event.target.blur()"
+              v-model="data.name"
+              class="name-input"
+              size="mini"
+              ref="nameInput"
+              :draggable="true"
+            />
+          </span>
 
-      <template v-slot:default="{node,data}">
-      <span class="custom-tree-node father" @click="handleNodeSelect(node)">
-
-        <span v-if="data.isEdit" @click.stop>
-          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
-                    class="name-input" size="mini" ref="nameInput" :draggable="true"/>
-        </span>
-
-        <span v-if="!data.isEdit" class="node-icon">
-          <i class="el-icon-folder"/>
-        </span>
-        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-          <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
-        </el-tooltip>
-        <span class="count-title" v-if="showCaseNum">
-          <span style="color: var(--primary_color);">{{ data.caseNum }}</span>
-        </span>
-        <span v-if="!disabled" class="node-operate child">
-          <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
-            class="item"
-            effect="dark"
-            v-permission="updatePermission"
-            :open-delay="200"
-            :content="$t('test_track.module.rename')"
-            placement="top">
-            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
-          </el-tooltip>
-          <el-tooltip
-            v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
-            v-permission="updatePermission"
-            class="item"
-            effect="dark"
-            :open-delay="200"
-            :content="$t('test_track.module.rename')"
-            placement="top">
-            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
-          </el-tooltip>
+          <span v-if="!data.isEdit" class="node-icon">
+            <i class="el-icon-folder" />
+          </span>
           <el-tooltip
             class="item"
             effect="dark"
-            :open-delay="200"
-            v-permission="addPermission"
-            v-if="!isDefault(data) && !hideOpretor"
-            :content="$t('test_track.module.add_submodule')"
-            placement="top">
-            <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
+            :content="data.name"
+            placement="top-start"
+            :open-delay="1000"
+          >
+            <span
+              v-if="!data.isEdit"
+              class="node-title"
+              v-text="isDefault(data) ? getLocalDefaultName() : data.name"
+            />
           </el-tooltip>
+          <span class="count-title" v-if="showCaseNum">
+            <span style="color: var(--primary_color)">{{ data.caseNum }}</span>
+          </span>
+          <span v-if="!disabled" class="node-operate child">
+            <el-tooltip
+              v-if="
+                data.id !== 'root' && data.name !== defaultLabel && !hideOpretor
+              "
+              class="item"
+              effect="dark"
+              v-permission="updatePermission"
+              :open-delay="200"
+              :content="$t('test_track.module.rename')"
+              placement="top"
+            >
+              <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+            </el-tooltip>
+            <el-tooltip
+              v-if="
+                data.name === defaultLabel && data.level !== 1 && !hideOpretor
+              "
+              v-permission="updatePermission"
+              class="item"
+              effect="dark"
+              :open-delay="200"
+              :content="$t('test_track.module.rename')"
+              placement="top"
+            >
+              <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+            </el-tooltip>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :open-delay="200"
+              v-permission="addPermission"
+              v-if="!isDefault(data) && !hideOpretor"
+              :content="$t('test_track.module.add_submodule')"
+              placement="top"
+            >
+              <i
+                @click.stop="append(node, data)"
+                class="el-icon-circle-plus-outline"
+              ></i>
+            </el-tooltip>
 
-          <el-tooltip
-            v-if="data.name === defaultLabel && data.level !==1 && !hideOpretor"
-            class="item" effect="dark"
-            :open-delay="200"
-            v-permission="deletePermission"
-            :content="$t('commons.delete')"
-            placement="top">
-            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
-          </el-tooltip>
+            <el-tooltip
+              v-if="
+                data.name === defaultLabel && data.level !== 1 && !hideOpretor
+              "
+              class="item"
+              effect="dark"
+              :open-delay="200"
+              v-permission="deletePermission"
+              :content="$t('commons.delete')"
+              placement="top"
+            >
+              <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+            </el-tooltip>
 
-          <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
-            class="item" effect="dark"
-            :open-delay="200"
-            :content="$t('commons.delete')"
-            v-permission="deletePermission"
-            placement="top">
-            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
-          </el-tooltip>
+            <el-tooltip
+              v-if="
+                data.id !== 'root' && data.name !== defaultLabel && !hideOpretor
+              "
+              class="item"
+              effect="dark"
+              :open-delay="200"
+              :content="$t('commons.delete')"
+              v-permission="deletePermission"
+              placement="top"
+            >
+              <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+            </el-tooltip>
+          </span>
         </span>
-      </span>
       </template>
     </el-tree>
   </div>
 </template>
 
 <script>
-
 export default {
-  name: "MsNodeTree",
+  name: 'MsNodeTree',
   components: {},
   data() {
     return {
       result: false,
-      filterText: "",
+      filterText: '',
       expandedNode: [],
       reloaded: false,
       defaultProps: {
-        children: "children",
-        label: "label"
+        children: 'children',
+        label: 'label',
       },
       extendTreeNodes: [],
     };
@@ -115,46 +153,46 @@ export default {
   props: {
     type: {
       type: String,
-      default: "view"
+      default: 'view',
     },
     treeNodes: {
-      type: Array
+      type: Array,
     },
     allLabel: {
       type: String,
       default() {
-        return this.$t("commons.all_label.case");
-      }
+        return this.$t('commons.all_label.case');
+      },
     },
     defaultLabel: {
       type: String,
       default() {
         return '未规划用例';
-      }
+      },
     },
     nameLimit: {
       type: Number,
       default() {
         return 50;
-      }
+      },
     },
     defaultExpandAll: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     showRemoveTip: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     showCaseNum: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     updatePermission: Array,
     addPermission: Array,
@@ -168,29 +206,29 @@ export default {
     },
     filterText(val) {
       this.filter(val);
-    }
+    },
   },
   computed: {
     disabled() {
       return this.type !== 'edit';
-    }
+    },
   },
   methods: {
     init() {
       let num = 0;
-      this.treeNodes.forEach(t => {
+      this.treeNodes.forEach((t) => {
         num += t.caseNum;
       });
       this.extendTreeNodes = [];
       this.extendTreeNodes.unshift({
-        "id": "root",
-        "name": this.allLabel,
-        "level": 0,
-        "children": this.treeNodes,
-        "caseNum": num > 0 ? num : ""
+        id: 'root',
+        name: this.allLabel,
+        level: 0,
+        children: this.treeNodes,
+        caseNum: num > 0 ? num : '',
       });
       if (this.expandedNode.length === 0) {
-        this.expandedNode.push("root");
+        this.expandedNode.push('root');
       }
     },
     handleNodeSelect(node) {
@@ -198,7 +236,7 @@ export default {
       let pNodes = [];
       this.getChildNodeId(node.data, nodeIds);
       this.getParentNodes(node, pNodes);
-      this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+      this.$emit('nodeSelectEvent', node, nodeIds, pNodes);
     },
     filterNode(value, data) {
       if (!value) return true;
@@ -249,7 +287,7 @@ export default {
 
         // 遍历子节点
         if (data.children && data.children.length > 0) {
-          this.changeTreeNodeStatus(data)
+          this.changeTreeNodeStatus(data);
         }
       }
     },
@@ -270,21 +308,29 @@ export default {
       });
     },
     increase(id) {
-      this.traverse(id, node => {
-        if (node.caseNum) {
-          node.caseNum++;
-        }
-      }, true);
+      this.traverse(
+        id,
+        (node) => {
+          if (node.caseNum) {
+            node.caseNum++;
+          }
+        },
+        true
+      );
       if (this.extendTreeNodes[0].id === 'root') {
         this.extendTreeNodes[0].caseNum++;
       }
     },
     decrease(id) {
-      this.traverse(id, node => {
-        if (node.caseNum) {
-          node.caseNum--;
-        }
-      }, true);
+      this.traverse(
+        id,
+        (node) => {
+          if (node.caseNum) {
+            node.caseNum--;
+          }
+        },
+        true
+      );
       if (this.extendTreeNodes[0].id === 'root') {
         this.extendTreeNodes[0].caseNum--;
       }
@@ -320,11 +366,11 @@ export default {
       const newChild = {
         id: undefined,
         isEdit: false,
-        name: "",
-        children: []
+        name: '',
+        children: [],
       };
       if (!data.children) {
-        this.$set(data, 'children', [])
+        this.$set(data, 'children', []);
       }
       data.children.push(newChild);
       this.edit(node, newChild, true);
@@ -342,7 +388,7 @@ export default {
         this.$warning(this.$t('test_track.length_less_than') + this.nameLimit);
         return;
       }
-      if (data.name.indexOf("\\") > -1) {
+      if (data.name.indexOf('\\') > -1) {
         this.$warning(this.$t('commons.node_name_tip'));
         return;
       }
@@ -367,29 +413,30 @@ export default {
       let tip = '确定删除节点 ' + data.label + ' 及其子节点下所有资源' + '？';
       // let info =  this.$t("test_track.module.delete_confirm") + data.label + "，" + this.$t("test_track.module.delete_all_resource") + "？";
       if (this.showRemoveTip) {
-        this.$alert(tip, "", {
-            confirmButtonText: this.$t("commons.confirm"),
-            callback: action => {
-              if (action === "confirm") {
-                let nodeIds = [];
-                this.getChildNodeId(node.data, nodeIds);
-                this.$emit('remove', nodeIds, data);
-              }
+        this.$alert(tip, '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let nodeIds = [];
+              this.getChildNodeId(node.data, nodeIds);
+              this.$emit('remove', nodeIds, data);
             }
-          }
-        );
+          },
+        });
       } else {
         let nodeIds = [];
         this.getChildNodeId(node.data, nodeIds);
         this.$emit('remove', nodeIds, data);
       }
-
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
-      if (dropType === "none" || dropType === undefined) {
+      if (dropType === 'none' || dropType === undefined) {
         return;
       }
-      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name === this.defaultLabel) {
+      if (
+        (dropNode.data.id === 'root' && dropType === 'before') ||
+        draggingNode.data.name === this.defaultLabel
+      ) {
         this.$emit('refresh');
         return false;
       }
@@ -426,7 +473,7 @@ export default {
       param.id = draggingNode.data.id;
       param.name = draggingNode.data.name;
       param.projectId = draggingNode.data.projectId;
-      if (dropType === "inner") {
+      if (dropType === 'inner') {
         param.parentId = dropNode.data.id;
         param.level = dropNode.data.level + 1;
       } else {
@@ -440,12 +487,15 @@ export default {
       }
       let nodeIds = [];
       this.getChildNodeId(draggingNode.data, nodeIds);
-      if (dropNode.data.level == 1 && dropType != "inner") {
+      if (dropNode.data.level == 1 && dropType != 'inner') {
         // nodeTree 为需要修改的子节点
         param.nodeTree = draggingNode.data;
       } else {
         for (let i = 0; i < this.treeNodes.length; i++) {
-          param.nodeTree = this.findTreeByNodeId(this.treeNodes[i], dropNode.data.id);
+          param.nodeTree = this.findTreeByNodeId(
+            this.treeNodes[i],
+            dropNode.data.id
+          );
           if (param.nodeTree) {
             break;
           }
@@ -460,9 +510,9 @@ export default {
       }
       for (let i = 0; i < nodes.length; i++) {
         if (nodes[i].id === id) {
-          i - 1 >= 0 ? list[0] = nodes[i - 1].id : list[0] = "";
+          i - 1 >= 0 ? (list[0] = nodes[i - 1].id) : (list[0] = '');
           list[1] = nodes[i].id;
-          i + 1 < nodes.length ? list[2] = nodes[i + 1].id : list[2] = "";
+          i + 1 < nodes.length ? (list[2] = nodes[i + 1].id) : (list[2] = '');
           return;
         }
         if (nodes[i].children) {
@@ -495,7 +545,7 @@ export default {
       if (rootNode.parent && rootNode.parent.id != 0) {
         this.getParentNodes(rootNode.parent, pNodes);
       }
-      if (rootNode.data.name && rootNode.data.name != "") {
+      if (rootNode.data.name && rootNode.data.name != '') {
         pNodes.push(rootNode.data);
       }
     },
@@ -504,14 +554,14 @@ export default {
         this.$nextTick(() => {
           this.handleNodeSelect(currentNode);
           this.$refs.tree.setCurrentKey(currentNode.data.id);
-        })
+        });
       }
     },
     justSetCurrentKey(id) {
       if (id) {
         this.$nextTick(() => {
           this.$refs.tree.setCurrentKey(id);
-        })
+        });
       }
     },
     isDefault(data) {
@@ -523,8 +573,8 @@ export default {
       } else {
         return this.$t('commons.module_title');
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

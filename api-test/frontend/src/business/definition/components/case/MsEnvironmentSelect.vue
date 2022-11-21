@@ -1,42 +1,68 @@
 <template>
   <span>
-    <el-select :disabled="isReadOnly" v-model="environmentId" size="small" class="environment-select"
-               :placeholder="$t('api_test.definition.request.run_env')" clearable @clear="clear">
-      <el-option v-for="(environment, key) in environments" :key="key"
-                 :label="environment.name"
-                 :value="environment.id"/>
-      <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+    <el-select
+      :disabled="isReadOnly"
+      v-model="environmentId"
+      size="small"
+      class="environment-select"
+      :placeholder="$t('api_test.definition.request.run_env')"
+      clearable
+      @clear="clear"
+    >
+      <el-option
+        v-for="(environment, key) in environments"
+        :key="key"
+        :label="environment.name"
+        :value="environment.id"
+      />
+      <el-button
+        class="environment-button"
+        size="mini"
+        type="primary"
+        @click="openEnvironmentConfig"
+      >
         {{ $t('api_test.environment.environment_config') }}
       </el-button>
       <template v-slot:empty>
         <div class="empty-environment">
-          <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+          <el-button
+            class="environment-button"
+            size="mini"
+            type="primary"
+            @click="openEnvironmentConfig"
+          >
             {{ $t('api_test.environment.environment_config') }}
           </el-button>
         </div>
       </template>
     </el-select>
     <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+    <api-environment-config
+      ref="environmentConfig"
+      @close="environmentConfigClose"
+    />
   </span>
 </template>
 
 <script>
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
-import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 
 export default {
-  name: "MsEnvironmentSelect",
+  name: 'MsEnvironmentSelect',
   components: {
-    ApiEnvironmentConfig: () => import('metersphere-frontend/src/components/environment/ApiEnvironmentConfig')
+    ApiEnvironmentConfig: () =>
+      import(
+        'metersphere-frontend/src/components/environment/ApiEnvironmentConfig'
+      ),
   },
   data() {
     return {
       environments: [],
       environment: undefined,
       isShow: true,
-      environmentId: ""
-    }
+      environmentId: '',
+    };
   },
   props: ['projectId', 'isReadOnly', 'useEnvironment'],
   created() {
@@ -54,7 +80,7 @@ export default {
     },
     useEnvironment() {
       this.getEnvironments();
-    }
+    },
   },
   methods: {
     refreshEnvironment() {
@@ -65,9 +91,9 @@ export default {
     },
     getEnvironments() {
       if (this.projectId) {
-        getEnvironmentByProjectId(this.projectId).then(response => {
+        getEnvironmentByProjectId(this.projectId).then((response) => {
           this.environments = response.data;
-          this.environments.forEach(environment => {
+          this.environments.forEach((environment) => {
             parseEnvironment(environment);
             if (this.useEnvironment && this.useEnvironment === environment.id) {
               this.environmentId = this.useEnvironment;
@@ -96,13 +122,11 @@ export default {
     environmentConfigClose() {
       this.getEnvironments();
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
-
 .environment-button {
   margin-left: 20px;
   padding: 7px;
@@ -112,5 +136,4 @@ export default {
   margin-left: 20px;
   min-width: 100px;
 }
-
 </style>

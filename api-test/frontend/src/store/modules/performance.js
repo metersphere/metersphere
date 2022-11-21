@@ -1,5 +1,5 @@
 export default {
-  id: "LOAD_TEST",
+  id: 'LOAD_TEST',
   state: () => ({
     test: {},
     scenarioJmxs: {},
@@ -7,7 +7,5 @@ export default {
   persist: {
     storage: sessionStorage,
   },
-  getters: {
-
-  },
-}
+  getters: {},
+};

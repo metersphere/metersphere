@@ -3,19 +3,36 @@
     :title="title"
     :visible.sync="deleteApiVisible"
     class="delete-body"
-    width="30%">
-    <p> {{ this.content }}</p>
-    <el-link style="color: #6c327a" @click="showRef" v-if="hasRef">{{ $t('api_test.automation.view_ref') }}</el-link>
-    <el-link style="color: #6c327a" v-if="showCase" @click="redirectPage('api', 'apiTestCase', 'ref')">
+    width="30%"
+  >
+    <p>{{ this.content }}</p>
+    <el-link style="color: #6c327a" @click="showRef" v-if="hasRef">{{
+      $t('api_test.automation.view_ref')
+    }}</el-link>
+    <el-link
+      style="color: #6c327a"
+      v-if="showCase"
+      @click="redirectPage('api', 'apiTestCase', 'ref')"
+    >
       {{ $t('api_definition.view_case') }}
     </el-link>
-    <el-link style="color: #6c327a" v-if="showScenario" @click="redirectPage('scenario', 'scenario', 'ref')">{{
-        $t('api_definition.view_scenario')
-      }}
+    <el-link
+      style="color: #6c327a"
+      v-if="showScenario"
+      @click="redirectPage('scenario', 'scenario', 'ref')"
+      >{{ $t('api_definition.view_scenario') }}
     </el-link>
     <span slot="footer">
-      <el-button @click="close" size="mini">{{ $t('commons.cancel') }}</el-button>
-      <el-button v-prevent-re-click type="primary" @click="handleDelete" @keydown.enter.native.prevent size="mini">
+      <el-button @click="close" size="mini">{{
+        $t('commons.cancel')
+      }}</el-button>
+      <el-button
+        v-prevent-re-click
+        type="primary"
+        @click="handleDelete"
+        @keydown.enter.native.prevent
+        size="mini"
+      >
         {{ $t('commons.confirm') }}
       </el-button>
     </span>
@@ -23,10 +40,10 @@
 </template>
 
 <script>
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from 'metersphere-frontend/src/utils';
 
 export default {
-  name: "ApiDeleteConfirm",
+  name: 'ApiDeleteConfirm',
   components: {},
   data() {
     return {
@@ -41,16 +58,16 @@ export default {
   props: {
     hasRef: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showCase: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showScenario: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     open(content, title, row, selectIds) {
@@ -74,32 +91,39 @@ export default {
       let uuid = getUUID();
       let home;
       switch (redirectPage) {
-        case "api":
+        case 'api':
           home = this.$router.resolve({
             name: 'ApiDefinitionWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectRange},
-            query: {ids: this.selectIds}
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+            },
+            query: { ids: this.selectIds },
           });
           break;
-        case "scenario":
+        case 'scenario':
           home = this.$router.resolve({
             name: 'ApiAutomationWithQuery',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectRange},
-            query: {ids: this.selectIds}
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+            },
+            query: { ids: this.selectIds },
           });
           break;
       }
       if (home) {
         window.open(home.href, '_blank');
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
-.delete-body :deep( .el-dialog__body , .el-dialog__footer) {
+.delete-body :deep(.el-dialog__body, .el-dialog__footer) {
   padding: 0px 20px;
 }
 </style>

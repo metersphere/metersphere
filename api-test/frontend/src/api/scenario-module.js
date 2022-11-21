@@ -1,4 +1,4 @@
-import {post, get} from 'metersphere-frontend/src/plugins/request'
+import { post, get } from 'metersphere-frontend/src/plugins/request';
 
 export function getModuleByProjectId(projectId) {
   let url = '/api/automation/module/list/' + projectId;

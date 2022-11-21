@@ -1,21 +1,33 @@
 <template>
-  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
+  <relevance-dialog
+    :width="width"
+    :title="dialogTitle"
+    ref="relevanceDialog"
+    :full-screen="isFullScreen"
+  >
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
       <div>
         <slot name="headerBtn"></slot>
       </div>
     </template>
-    <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
-      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save" btn-size="mini"
-                        @fullScreen="isFullScreen=!isFullScreen">
+    <template slot="title" slot-scope="{ title }" v-if="!$slots.headerBtn">
+      <ms-dialog-header
+        :title="title"
+        :enable-cancel="false"
+        @confirm="save"
+        btn-size="mini"
+        @fullScreen="isFullScreen = !isFullScreen"
+      >
         <template #other>
-          <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+          <table-select-count-bar
+            :count="selectCounts"
+            style="float: left; margin: 5px"
+          />
 
-          <div v-if="flag" style="margin: 5px; float: left;">
-            <el-checkbox v-model="checked" class="el-checkbox__label">{{
-                $t('test_track.sync_add_api_load')
-              }}
+          <div v-if="flag" style="margin: 5px; float: left">
+            <el-checkbox v-model="checked" class="el-checkbox__label"
+              >{{ $t('test_track.sync_add_api_load') }}
             </el-checkbox>
           </div>
         </template>
@@ -24,12 +36,23 @@
 
     <template v-slot:aside>
       <span v-if="isAcrossSpace" class="menu-title">{{
-          '[' + $t('project.version.checkout') + $t('commons.space') + ']'
-        }}</span>
-      <el-select v-if="isAcrossSpace" filterable slot="prepend" v-model="workspaceId" @change="changeWorkspace"
-                 class="ms-header-workspace"
-                 size="small">
-        <el-option v-for="(item,index) in workspaceList" :key="index" :label="item.name" :value="item.id"/>
+        '[' + $t('project.version.checkout') + $t('commons.space') + ']'
+      }}</span>
+      <el-select
+        v-if="isAcrossSpace"
+        filterable
+        slot="prepend"
+        v-model="workspaceId"
+        @change="changeWorkspace"
+        class="ms-header-workspace"
+        size="small"
+      >
+        <el-option
+          v-for="(item, index) in workspaceList"
+          :key="index"
+          :label="item.name"
+          :value="item.id"
+        />
       </el-select>
       <select-menu
         :data="projects"
@@ -37,26 +60,29 @@
         width="155px"
         :current-data="currentProject"
         :title="$t('test_track.switch_project')"
-        @dataChange="changeProject"/>
+        @dataChange="changeProject"
+      />
       <slot name="aside"></slot>
     </template>
 
     <slot></slot>
-
   </relevance-dialog>
 </template>
 
 <script>
-
-import {getUserWorkspace, projectRelated} from "@/api/project";
-import MsDialogHeader from 'metersphere-frontend/src/components/MsDialogHeader'
-import SelectMenu from "@/business/commons/SelectMenu";
-import RelevanceDialog from "./RelevanceDialog";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import TableSelectCountBar from "@/business/automation/scenario/api/TableSelectCountBar";
+import { getUserWorkspace, projectRelated } from '@/api/project';
+import MsDialogHeader from 'metersphere-frontend/src/components/MsDialogHeader';
+import SelectMenu from '@/business/commons/SelectMenu';
+import RelevanceDialog from './RelevanceDialog';
+import {
+  getCurrentProjectID,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+} from 'metersphere-frontend/src/utils/token';
+import TableSelectCountBar from '@/business/automation/scenario/api/TableSelectCountBar';
 
 export default {
-  name: "TestCaseRelevanceBase",
+  name: 'TestCaseRelevanceBase',
   components: {
     TableSelectCountBar,
     RelevanceDialog,
@@ -75,18 +101,18 @@ export default {
       workspaceList: [],
       currentWorkSpaceId: '',
       selectCounts: null,
-      isFullScreen: false
+      isFullScreen: false,
     };
   },
   props: {
     planId: {
-      type: String
+      type: String,
     },
     dialogTitle: {
       type: String,
       default() {
         return this.$t('test_track.plan_view.relevance_test_case');
-      }
+      },
     },
     flag: {
       type: Boolean,
@@ -96,18 +122,18 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     isAcrossSpace: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     multipleProject: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   methods: {
     refreshNode() {
@@ -130,14 +156,16 @@ export default {
     },
 
     getProject() {
-      let realWorkSpaceId = this.isAcrossSpace ? this.workspaceId : this.currentWorkSpaceId;
+      let realWorkSpaceId = this.isAcrossSpace
+        ? this.workspaceId
+        : this.currentWorkSpaceId;
       this.result = projectRelated({
         userId: getCurrentUserId(),
-        workspaceId: realWorkSpaceId
-      }).then(res => {
+        workspaceId: realWorkSpaceId,
+      }).then((res) => {
         let data = res.data;
         if (data && data.length > 0) {
-          const index = data.findIndex(d => d.id === getCurrentProjectID());
+          const index = data.findIndex((d) => d.id === getCurrentProjectID());
           this.projects = data;
           if (index !== -1) {
             this.projectId = data[index].id;
@@ -149,9 +177,14 @@ export default {
             this.changeProject(data[0]);
           }
         } else {
-          this.$message.warning(this.$t('commons.current_workspace') + this.$t('commons.not_exist') + this.$t('commons.project') + "!");
+          this.$message.warning(
+            this.$t('commons.current_workspace') +
+              this.$t('commons.not_exist') +
+              this.$t('commons.project') +
+              '!'
+          );
         }
-      })
+      });
     },
 
     changeProject(project) {
@@ -164,14 +197,14 @@ export default {
     },
 
     getWorkSpaceList() {
-      getUserWorkspace().then(response => {
+      getUserWorkspace().then((response) => {
         this.workspaceList = response.data;
       });
     },
 
     changeWorkspace() {
       this.getProject();
-    }
+    },
   },
   created() {
     this.currentWorkSpaceId = getCurrentWorkspaceId();
@@ -179,8 +212,8 @@ export default {
     if (this.isAcrossSpace) {
       this.getWorkSpaceList();
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

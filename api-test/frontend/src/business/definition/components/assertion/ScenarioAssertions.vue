@@ -13,8 +13,8 @@
     :show-copy="false"
     color="#A30014"
     background-color="#F7E6E9"
-    :title="$t('api_test.definition.request.scenario_assertions')">
-
+    :title="$t('api_test.definition.request.scenario_assertions')"
+  >
     <el-row>
       <span>{{ $t('api_test.request.assertions.description') }}</span>
       <span style="float: right">
@@ -22,21 +22,42 @@
           :show-suggest-button="false"
           :clear-tip="$t('api_test.request.assertions.json_path_clear')"
           :isReadOnly="request.disabled"
-          @clear="clearJson"/>
+          @clear="clearJson"
+        />
       </span>
     </el-row>
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
-          <el-select :disabled="request.disabled" class="assertion-item" v-model="type"
-                     :placeholder="$t('api_test.request.assertions.select_type')" size="small">
-            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
-            <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
-            <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
-            <el-option :label="'XPath'" :value="options.XPATH2"/>
-            <el-option :label="$t('api_test.request.assertions.response_time')" :value="options.DURATION"/>
-            <el-option :label="$t('api_test.request.assertions.jsr223')" :value="options.JSR223"/>
-            <el-option :label="$t('api_test.definition.request.document_structure')" :value="options.DOCUMENT"/>
+          <el-select
+            :disabled="request.disabled"
+            class="assertion-item"
+            v-model="type"
+            :placeholder="$t('api_test.request.assertions.select_type')"
+            size="small"
+          >
+            <el-option
+              :label="$t('api_test.request.assertions.text')"
+              :value="options.TEXT"
+            />
+            <el-option
+              :label="$t('api_test.request.assertions.regex')"
+              :value="options.REGEX"
+            />
+            <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
+            <el-option :label="'XPath'" :value="options.XPATH2" />
+            <el-option
+              :label="$t('api_test.request.assertions.response_time')"
+              :value="options.DURATION"
+            />
+            <el-option
+              :label="$t('api_test.request.assertions.jsr223')"
+              :value="options.JSR223"
+            />
+            <el-option
+              :label="$t('api_test.definition.request.document_structure')"
+              :value="options.DOCUMENT"
+            />
           </el-select>
         </el-col>
         <el-col :span="20">
@@ -92,194 +113,217 @@
       </el-row>
     </div>
 
-
     <ms-api-assertions-edit
       :is-read-only="request.disabled"
       :assertions="assertions"
       :apiId="apiId"
       :reloadData="reloadData"
-      style="margin-bottom: 20px"/>
+      style="margin-bottom: 20px"
+    />
 
     <ms-api-jsonpath-suggest
       :tip="$t('api_test.request.extract.suggest_tip')"
       @addSuggest="addJsonPathSuggest"
-      ref="jsonpathSuggest"/>
-
+      ref="jsonpathSuggest"
+    />
   </api-base-component>
 </template>
 
 <script>
-  import MsApiAssertionText from "./ApiAssertionText";
-  import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
-  import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-  import {getUUID} from "metersphere-frontend/src/utils";
-  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
-  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
-  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
-  import MsApiAssertionDocument from "./document/DocumentHeader";
+import MsApiAssertionText from './ApiAssertionText';
+import MsApiAssertionRegex from './ApiAssertionRegex';
+import MsApiAssertionDuration from './ApiAssertionDuration';
+import { ASSERTION_TYPE, JSONPath } from '../../model/ApiTestModel';
+import MsApiAssertionsEdit from './ApiAssertionsEdit';
+import MsApiAssertionJsonPath from './ApiAssertionJsonPath';
+import MsApiAssertionJsr223 from './ApiAssertionJsr223';
+import MsApiAssertionXPath2 from './ApiAssertionXPath2';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import ApiJsonPathSuggestButton from './ApiJsonPathSuggestButton';
+import MsApiJsonpathSuggest from './ApiJsonpathSuggest';
+import ApiBaseComponent from '../../../automation/scenario/common/ApiBaseComponent';
+import MsApiAssertionDocument from './document/DocumentHeader';
 
-  export default {
-    name: "MsApiAssertions",
-    components: {
-      ApiBaseComponent,
-      MsApiJsonpathSuggest,
-      ApiJsonPathSuggestButton,
-      MsApiAssertionXPath2,
-      MsApiAssertionJsr223,
-      MsApiAssertionJsonPath,
-      MsApiAssertionsEdit,
-      MsApiAssertionDuration,
-      MsApiAssertionRegex,
-      MsApiAssertionText,
-      MsApiAssertionDocument,
+export default {
+  name: 'MsApiAssertions',
+  components: {
+    ApiBaseComponent,
+    MsApiJsonpathSuggest,
+    ApiJsonPathSuggestButton,
+    MsApiAssertionXPath2,
+    MsApiAssertionJsr223,
+    MsApiAssertionJsonPath,
+    MsApiAssertionsEdit,
+    MsApiAssertionDuration,
+    MsApiAssertionRegex,
+    MsApiAssertionText,
+    MsApiAssertionDocument,
+  },
+  props: {
+    draggable: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-      draggable: {
-        type: Boolean,
-        default: false,
+    isMax: {
+      type: Boolean,
+      default: false,
+    },
+    innerStep: {
+      type: Boolean,
+      default: false,
+    },
+    showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
+      type: Boolean,
+      default: true,
+    },
+    assertions: {},
+    node: {},
+    request: {},
+    apiId: String,
+    response: {},
+    customizeStyle: {
+      type: String,
+      default: 'margin-top: 10px',
+    },
+    isReadOnly: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      options: ASSERTION_TYPE,
+      time: '',
+      type: '',
+      loading: false,
+      reloadData: '',
+    };
+  },
+  watch: {
+    assertions: {
+      handler(v) {
+        this.computeStep();
       },
-      isMax: {
-        type: Boolean,
-        default: false,
-      },
-      innerStep: {
-        type: Boolean,
-        default: false,
-      },
-      showBtn: {
-        type: Boolean,
-        default: true,
-      },
-      showVersion: {
-        type: Boolean,
-        default: true,
-      },
-      assertions: {},
-      node: {},
-      request: {},
-      apiId: String,
-      response: {},
-      customizeStyle: {
-        type: String,
-        default: "margin-top: 10px"
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
+      deep: true,
+    },
+  },
+  methods: {
+    computeStep() {
+      let ruleSize = 0;
+      ruleSize =
+        this.assertions.jsonPath.length +
+        this.assertions.jsr223.length +
+        this.assertions.regex.length +
+        this.assertions.xpath2.length;
+      if (
+        this.assertions &&
+        this.assertions.document.data &&
+        (this.assertions.document.data.json.length > 0 ||
+          this.assertions.document.data.xml.length > 0)
+      ) {
+        ruleSize++;
       }
-    },
-    data() {
-      return {
-        options: ASSERTION_TYPE,
-        time: "",
-        type: "",
-        loading: false,
-        reloadData: "",
+      if (this.assertions.duration && this.assertions.duration.value > 0) {
+        ruleSize++;
       }
+      ruleSize += this.assertions.text ? this.assertions.text.length : 0;
+      this.request.ruleSize = ruleSize;
+      this.$emit('reload');
     },
-    watch: {
-      assertions: {
-        handler(v) {
-          this.computeStep();
-        },
-        deep: true
-      },
-    },
-    methods: {
-      computeStep() {
-        let ruleSize = 0;
-        ruleSize = (this.assertions.jsonPath.length + this.assertions.jsr223.length + this.assertions.regex.length + this.assertions.xpath2.length);
-        if (this.assertions && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0)) {
-          ruleSize++;
-        }
-        if (this.assertions.duration && this.assertions.duration.value > 0) {
-          ruleSize++;
-        }
-        ruleSize += this.assertions.text ? this.assertions.text.length : 0;
-        this.request.ruleSize = ruleSize;
-        this.$emit('reload');
-      },
 
-      after() {
-        this.type = "";
-        this.reloadData = getUUID().substring(0, 8);
-        this.reload();
-      },
-      copyRow() {
-        this.$emit('copyRow', this.assertions, this.node);
-      },
-      suggestJsonOpen() {
-        this.$emit('suggestClick');
-        this.$nextTick(() => {
-          if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
-            this.$message(this.$t('api_test.request.assertions.debug_first'));
-            return;
-          }
-          this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
-        })
-      },
-      reload() {
-        this.loading = true
-        this.$nextTick(() => {
-          this.loading = false
-        })
-      },
-      active() {
-        this.assertions.active = !this.assertions.active;
-        this.reload();
-      },
-      remove() {
-        this.$emit('remove', this.assertions, this.node);
-      },
-      addJsonPathSuggest(data) {
-        let jsonItem = new JSONPath();
-        jsonItem.expression = data.path;
-        jsonItem.expect = data.value;
-        jsonItem.setJSONPathDescription();
-        let expect = jsonItem.expect;
-        if (expect) {
-          expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-            .replaceAll('+', "\\+").replaceAll('[', "\\[").replaceAll(']', "\\]")
-            .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
-            .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
+    after() {
+      this.type = '';
+      this.reloadData = getUUID().substring(0, 8);
+      this.reload();
+    },
+    copyRow() {
+      this.$emit('copyRow', this.assertions, this.node);
+    },
+    suggestJsonOpen() {
+      this.$emit('suggestClick');
+      this.$nextTick(() => {
+        if (
+          !this.response ||
+          !this.response.responseResult ||
+          !this.response.responseResult.body
+        ) {
+          this.$message(this.$t('api_test.request.assertions.debug_first'));
+          return;
         }
-        jsonItem.expect = expect;
-        jsonItem.enable = true;
-        this.assertions.jsonPath.push(jsonItem);
-      },
-      clearJson() {
-        this.assertions.jsonPath = [];
+        this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
+      });
+    },
+    reload() {
+      this.loading = true;
+      this.$nextTick(() => {
+        this.loading = false;
+      });
+    },
+    active() {
+      this.assertions.active = !this.assertions.active;
+      this.reload();
+    },
+    remove() {
+      this.$emit('remove', this.assertions, this.node);
+    },
+    addJsonPathSuggest(data) {
+      let jsonItem = new JSONPath();
+      jsonItem.expression = data.path;
+      jsonItem.expect = data.value;
+      jsonItem.setJSONPathDescription();
+      let expect = jsonItem.expect;
+      if (expect) {
+        expect = expect
+          .replaceAll('\\', '\\\\')
+          .replaceAll('(', '\\(')
+          .replaceAll(')', '\\)')
+          .replaceAll('+', '\\+')
+          .replaceAll('[', '\\[')
+          .replaceAll(']', '\\]')
+          .replaceAll('?', '\\?')
+          .replaceAll('/', '\\/')
+          .replaceAll('*', '\\*')
+          .replaceAll('^', '\\^')
+          .replaceAll('{', '\\{')
+          .replaceAll('}', '\\}')
+          .replaceAll('$', '\\$');
       }
-    }
-  }
+      jsonItem.expect = expect;
+      jsonItem.enable = true;
+      this.assertions.jsonPath.push(jsonItem);
+    },
+    clearJson() {
+      this.assertions.jsonPath = [];
+    },
+  },
+};
 </script>
 
 <style scoped>
-  .assertion-item {
-    width: 100%;
-  }
+.assertion-item {
+  width: 100%;
+}
 
-  .assertion-add {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: #DCDFE6 solid 1px;
-  }
+.assertion-add {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: #dcdfe6 solid 1px;
+}
 
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
-  :deep( .header-right){
-    margin-top: 4px;
-  }
-  :deep(.enable-switch){
-    margin: 0px 0px 0px;
-    padding-bottom: 3px;
-    width: 30px;
-  }
+.icon.is-active {
+  transform: rotate(90deg);
+}
+:deep(.header-right) {
+  margin-top: 4px;
+}
+:deep(.enable-switch) {
+  margin: 0px 0px 0px;
+  padding-bottom: 3px;
+  width: 30px;
+}
 </style>

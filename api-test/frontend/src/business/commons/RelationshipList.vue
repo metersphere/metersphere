@@ -1,9 +1,18 @@
 <template>
   <el-main>
     <span>{{ title }}</span>
-    <el-button class="add-btn"
-               v-permission="relationshipType == 'TEST_CASE' ? ['PROJECT_TRACK_CASE:READ+EDIT'] : ['PROJECT_API_DEFINITION:READ+EDIT_API']"
-               :disabled="readOnly || !resourceId" type="primary" size="mini" @click="openRelevance">
+    <el-button
+      class="add-btn"
+      v-permission="
+        relationshipType == 'TEST_CASE'
+          ? ['PROJECT_TRACK_CASE:READ+EDIT']
+          : ['PROJECT_API_DEFINITION:READ+EDIT_API']
+      "
+      :disabled="readOnly || !resourceId"
+      type="primary"
+      size="mini"
+      @click="openRelevance"
+    >
       {{ $t($t('commons.add')) }}
     </el-button>
 
@@ -15,26 +24,26 @@
       :version-enable="versionEnable"
       @setCount="setCount"
       @deleteRelationship="handleDelete"
-      ref="testCaseRelationshipList"/>
-
+      ref="testCaseRelationshipList"
+    />
   </el-main>
 </template>
 
 <script>
-import {deleteRelationshipEdge} from "metersphere-frontend/src/api/relationship-edge";
-import ApiRelationshipList from "@/business/definition/components/complete/ApiRelationshipList";
+import { deleteRelationshipEdge } from 'metersphere-frontend/src/api/relationship-edge';
+import ApiRelationshipList from '@/business/definition/components/complete/ApiRelationshipList';
 
 export default {
-  name: "RelationshipList",
-  components: {ApiRelationshipList},
+  name: 'RelationshipList',
+  components: { ApiRelationshipList },
   data() {
     return {
       result: false,
       data: [],
       condition: {},
       options: [],
-      value: ''
-    }
+      value: '',
+    };
   },
   props: {
     resourceId: String,
@@ -59,9 +68,9 @@ export default {
     },
     setCount(count) {
       this.$emit('setCount', count);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

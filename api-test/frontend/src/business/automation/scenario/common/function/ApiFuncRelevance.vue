@@ -1,12 +1,11 @@
 <template>
-
   <test-case-relevance-base
     @setProject="setProject"
     @save="save"
     :plan-id="planId"
     :dialog-title="dialogTitle"
-    ref="baseRelevance">
-
+    ref="baseRelevance"
+  >
     <template v-slot:aside>
       <ms-api-module
         :options="options"
@@ -16,7 +15,8 @@
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
-        ref="nodeTree"/>
+        ref="nodeTree"
+      />
     </template>
 
     <relevance-api-list
@@ -29,7 +29,8 @@
       :is-script="isScript"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiList"/>
+      ref="apiList"
+    />
 
     <relevance-case-list
       v-if="!isApiListEnable"
@@ -41,26 +42,23 @@
       :is-script="isScript"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiCaseList"/>
-
+      ref="apiCaseList"
+    />
   </test-case-relevance-base>
-
 </template>
 
 <script>
-
-
-import {getApiCaseWithBLOBs} from "@/api/api-test-case";
-import {apiListBatch} from "@/api/definition";
-import RelevanceCaseList from "@/business/automation/scenario/api/RelevanceCaseList";
-import RelevanceApiList from "@/business/automation/scenario/api/RelevanceApiList";
-import MsApiModule from "@/business/definition/components/module/ApiModule";
-import {getEnvironmentById} from "metersphere-frontend/src/api/environment";
-import TestCaseRelevanceBase from "@/business/commons/TestCaseRelevanceBase";
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
+import { getApiCaseWithBLOBs } from '@/api/api-test-case';
+import { apiListBatch } from '@/api/definition';
+import RelevanceCaseList from '@/business/automation/scenario/api/RelevanceCaseList';
+import RelevanceApiList from '@/business/automation/scenario/api/RelevanceApiList';
+import MsApiModule from '@/business/definition/components/module/ApiModule';
+import { getEnvironmentById } from 'metersphere-frontend/src/api/environment';
+import TestCaseRelevanceBase from '@/business/commons/TestCaseRelevanceBase';
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 
 export default {
-  name: "ApiFuncRelevance",
+  name: 'ApiFuncRelevance',
   components: {
     RelevanceCaseList,
     RelevanceApiList,
@@ -79,31 +77,33 @@ export default {
       isApiListEnable: true,
       condition: {},
       currentRow: {},
-      projectId: "",
-      options: [{value: 'HTTP', name: 'HTTP'}]
+      projectId: '',
+      options: [{ value: 'HTTP', name: 'HTTP' }],
     };
   },
   props: {
     planId: {
-      type: String
+      type: String,
     },
     isTestPlan: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     isScript: {
       type: Boolean,
       default() {
         return false;
-      }
-    }
+      },
+    },
   },
   created() {
     if (this.isScript) {
       if (this.isApiListEnable) {
-        this.dialogTitle = this.$t('permission.project_api_definition.import_api');
+        this.dialogTitle = this.$t(
+          'permission.project_api_definition.import_api'
+        );
       } else {
         this.dialogTitle = this.$t('permission.project_track_case.import');
       }
@@ -116,12 +116,14 @@ export default {
     isApiListEnable() {
       if (this.isScript) {
         if (this.isApiListEnable) {
-          this.dialogTitle = this.$t('permission.project_api_definition.import_api');
+          this.dialogTitle = this.$t(
+            'permission.project_api_definition.import_api'
+          );
         } else {
           this.dialogTitle = this.$t('permission.project_track_case.import');
         }
       }
-    }
+    },
   },
   methods: {
     open() {
@@ -195,10 +197,10 @@ export default {
             this.$warning(this.$t('api_test.environment.select_environment'));
             return;
           }
-          getEnvironmentById(environmentId).then(response => {
+          getEnvironmentById(environmentId).then((response) => {
             let environment = response.data;
             parseEnvironment(environment);
-            this.$emit("save", apis, environment);
+            this.$emit('save', apis, environment);
           });
         });
       } else {
@@ -211,21 +213,19 @@ export default {
             this.$warning(this.$t('api_test.environment.select_environment'));
             return;
           }
-          getEnvironmentById(environmentId).then(response => {
+          getEnvironmentById(environmentId).then((response) => {
             let environment = response.data;
             parseEnvironment(environment);
-            this.$emit("save", apiCases, environment);
+            this.$emit('save', apiCases, environment);
           });
         });
       }
     },
-
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 :deep(.select-menu) {
   margin-bottom: 15px;
 }
@@ -234,5 +234,4 @@ export default {
   float: right;
   margin-right: 10px;
 }
-
 </style>

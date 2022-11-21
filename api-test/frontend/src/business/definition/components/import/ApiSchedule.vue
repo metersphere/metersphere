@@ -1,90 +1,184 @@
 <template>
   <el-main>
-    <div class="api-schedule-form" style="overflow: auto!important;">
-      <el-form :model="formData" :rules="rules" v-loading="result" label-width="80px" ref="form">
+    <div class="api-schedule-form" style="overflow: auto !important">
+      <el-form
+        :model="formData"
+        :rules="rules"
+        v-loading="result"
+        label-width="80px"
+        ref="form"
+      >
         <el-row>
           <el-col :span="12">
-            <el-form-item :label-width="labelWith" :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
-              <el-input size="small" v-model="formData.swaggerUrl" clearable/>
+            <el-form-item
+              :label-width="labelWith"
+              :label="'Swagger URL'"
+              prop="swaggerUrl"
+              class="swagger-url"
+            >
+              <el-input size="small" v-model="formData.swaggerUrl" clearable />
             </el-form-item>
-            <el-form-item :label-width="labelWith" :label="$t('commons.schedule_cron_title')" prop="rule">
-              <el-input :disabled="isReadOnly"
-                        v-model="formData.rule"
-                        size="small"
-                        :placeholder="$t('schedule.please_input_cron_expression')">
-                <a :disabled="isReadOnly" @click="showCronDialog" slot="suffix" class="head">
+            <el-form-item
+              :label-width="labelWith"
+              :label="$t('commons.schedule_cron_title')"
+              prop="rule"
+            >
+              <el-input
+                :disabled="isReadOnly"
+                v-model="formData.rule"
+                size="small"
+                :placeholder="$t('schedule.please_input_cron_expression')"
+              >
+                <a
+                  :disabled="isReadOnly"
+                  @click="showCronDialog"
+                  slot="suffix"
+                  class="head"
+                >
                   {{ $t('schedule.generate_expression') }}
                 </a>
               </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label-width="labelWith" :label="$t('commons.import_module')" prop="moduleId">
-              <select-tree class="select-tree" size="small"
-                           :data="moduleOptions"
-                           :defaultKey="formData.moduleId"
-                           @getValue="setModule"
-                           :obj="moduleObj" clearable checkStrictly ref="selectTree"/>
-
+            <el-form-item
+              :label-width="labelWith"
+              :label="$t('commons.import_module')"
+              prop="moduleId"
+            >
+              <select-tree
+                class="select-tree"
+                size="small"
+                :data="moduleOptions"
+                :defaultKey="formData.moduleId"
+                @getValue="setModule"
+                :obj="moduleObj"
+                clearable
+                checkStrictly
+                ref="selectTree"
+              />
             </el-form-item>
-            <el-form-item :label-width="labelWith" :label="$t('commons.import_mode')" prop="modeId">
+            <el-form-item
+              :label-width="labelWith"
+              :label="$t('commons.import_mode')"
+              prop="modeId"
+            >
               <el-select size="small" v-model="formData.modeId" clearable>
-                <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+                <el-option
+                  v-for="item in modeOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
               </el-select>
-              <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule"
-                           style="padding-left: 10px">
+              <el-checkbox
+                size="mini"
+                v-if="formData.modeId === 'fullCoverage'"
+                v-model="formData.coverModule"
+                style="padding-left: 10px"
+              >
                 {{ this.$t('commons.cover_api') }}
               </el-checkbox>
             </el-form-item>
           </el-col>
 
           <el-col :span="12" style="margin-left: 50px">
-            <el-switch v-model="authEnable" :active-text="$t('api_test.api_import.add_request_params')"></el-switch>
+            <el-switch
+              v-model="authEnable"
+              :active-text="$t('api_test.api_import.add_request_params')"
+            ></el-switch>
           </el-col>
 
-          <el-col :span="19" v-show="authEnable" style="margin-top: 10px; margin-left: 50px" class="request-tabs">
+          <el-col
+            :span="19"
+            v-show="authEnable"
+            style="margin-top: 10px; margin-left: 50px"
+            class="request-tabs"
+          >
             <!-- 请求头 -->
             <div>
-              <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
+              <span
+                >{{ $t('api_test.request.headers')
+                }}{{ $t('api_test.api_import.optional') }}：</span
+              >
             </div>
-            <ms-api-key-value :label="$t('api_test.definition.request.auth_config')"
-                              :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
-                              :items="headers"/>
+            <ms-api-key-value
+              :label="$t('api_test.definition.request.auth_config')"
+              :show-desc="true"
+              :isShowEnable="isShowEnable"
+              :suggestions="headerSuggestions"
+              :items="headers"
+            />
             <!--query 参数-->
             <div style="margin-top: 10px">
-              <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
+              <span
+                >{{ $t('api_test.definition.request.query_param')
+                }}{{ $t('api_test.api_import.optional') }}：</span
+              >
             </div>
-            <ms-api-variable :with-more-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                             :parameters="queryArguments"/>
+            <ms-api-variable
+              :with-more-setting="true"
+              :is-read-only="isReadOnly"
+              :isShowEnable="isShowEnable"
+              :parameters="queryArguments"
+            />
             <!--认证配置-->
             <div style="margin-top: 10px">
-              <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
+              <span
+                >{{ $t('api_test.definition.request.auth_config')
+                }}{{ $t('api_test.api_import.optional') }}：</span
+              >
             </div>
-            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false"/>
+            <ms-api-auth-config
+              :is-read-only="isReadOnly"
+              :request="authConfig"
+              :encryptShow="false"
+            />
           </el-col>
         </el-row>
 
         <el-form-item>
-          <crontab-result :ex="formData.rule" ref="crontabResult"/>
+          <crontab-result :ex="formData.rule" ref="crontabResult" />
         </el-form-item>
       </el-form>
 
       <div class="clearfix">
-        <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">
+        <el-button
+          v-if="!formData.id"
+          type="primary"
+          style="float: right"
+          size="mini"
+          @click="saveCron"
+        >
           {{ $t('commons.add') }}
         </el-button>
         <div v-else>
-          <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+          <el-button
+            type="primary"
+            style="float: right; margin-left: 10px"
+            size="mini"
+            @click="clear"
+          >
             {{ $t('commons.clear') }}
           </el-button>
-          <el-button type="primary" style="float: right" size="mini" @click="saveCron">{{ $t('commons.update') }}
+          <el-button
+            type="primary"
+            style="float: right"
+            size="mini"
+            @click="saveCron"
+            >{{ $t('commons.update') }}
           </el-button>
         </div>
       </div>
     </div>
 
-    <div style="margin-top: 10px;">
-      <el-button type="primary" style="float: left" size="mini" @click="openSchedule">
+    <div style="margin-top: 10px">
+      <el-button
+        type="primary"
+        style="float: left"
+        size="mini"
+        @click="openSchedule"
+      >
         {{ $t('schedule.task_notification') }}
       </el-button>
     </div>
@@ -93,47 +187,65 @@
         @clear="clear"
         :param="param"
         @rowClick="handleRowClick"
-        ref="taskList"/>
+        ref="taskList"
+      />
     </div>
 
-    <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
-      <crontab @hide="showCron=false" @fill="crontabFill" :expression="formData.value" ref="crontab"/>
+    <el-dialog
+      width="60%"
+      :title="$t('schedule.generate_expression')"
+      :visible.sync="showCron"
+      :modal="false"
+    >
+      <crontab
+        @hide="showCron = false"
+        @fill="crontabFill"
+        :expression="formData.value"
+        ref="crontab"
+      />
     </el-dialog>
     <el-dialog
       :title="$t('schedule.task_notification')"
       :visible.sync="dialogVisible"
       width="60%"
     >
-      <swagger-task-notification :api-test-id="formData.id" :scheduleReceiverOptions="scheduleReceiverOptions"
-                                 ref="scheduleTaskNotification">
-
+      <swagger-task-notification
+        :api-test-id="formData.id"
+        :scheduleReceiverOptions="scheduleReceiverOptions"
+        ref="scheduleTaskNotification"
+      >
       </swagger-task-notification>
     </el-dialog>
-
-
   </el-main>
 </template>
 
 <script>
-import {createDefinitionSchedule, updateDefinitionSchedule} from "@/api/definition";
-import {getMaintainer} from "@/api/project";
-import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import SwaggerTaskList from "@/business/definition/components/import/SwaggerTaskList";
-import CrontabResult from "metersphere-frontend/src/components/cron/CrontabResult";
-import Crontab from "metersphere-frontend/src/components/cron/Crontab";
-import {cronValidate} from "metersphere-frontend/src/utils/cron";
-import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import SelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
-import SwaggerTaskNotification from "@/business/definition/components/import/SwaggerTaskNotification";
-import MsApiKeyValue from "../ApiKeyValue";
-import MsApiVariable from "../ApiVariable";
-import MsApiAuthConfig from "../auth/ApiAuthConfig";
-import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
-import {KeyValue} from "../../model/ApiTestModel";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
+import {
+  createDefinitionSchedule,
+  updateDefinitionSchedule,
+} from '@/api/definition';
+import { getMaintainer } from '@/api/project';
+import MsFormDivider from 'metersphere-frontend/src/components/MsFormDivider';
+import SwaggerTaskList from '@/business/definition/components/import/SwaggerTaskList';
+import CrontabResult from 'metersphere-frontend/src/components/cron/CrontabResult';
+import Crontab from 'metersphere-frontend/src/components/cron/Crontab';
+import { cronValidate } from 'metersphere-frontend/src/utils/cron';
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentWorkspaceId,
+} from 'metersphere-frontend/src/utils/token';
+import SelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
+import SwaggerTaskNotification from '@/business/definition/components/import/SwaggerTaskNotification';
+import MsApiKeyValue from '../ApiKeyValue';
+import MsApiVariable from '../ApiVariable';
+import MsApiAuthConfig from '../auth/ApiAuthConfig';
+import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
+import { KeyValue } from '../../model/ApiTestModel';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 
 export default {
-  name: "ApiSchedule",
+  name: 'ApiSchedule',
   components: {
     SwaggerTaskNotification,
     SelectTree,
@@ -143,27 +255,27 @@ export default {
     Crontab,
     MsApiKeyValue,
     MsApiVariable,
-    MsApiAuthConfig
+    MsApiAuthConfig,
   },
   props: {
     customValidate: {
       type: Function,
       default: () => {
-        return {pass: true};
-      }
+        return { pass: true };
+      },
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     moduleOptions: Array,
-    param: Object
+    param: Object,
   },
 
   watch: {
     'schedule.value'() {
       this.formData.rule = this.formData.value;
-    }
+    },
   },
   data() {
     const validateCron = (rule, ruleVal, callback) => {
@@ -184,7 +296,7 @@ export default {
       labelWith: '150px',
       operation: true,
       schedule: {
-        value: "",
+        value: '',
       },
       scheduleReceiverOptions: [],
       dialogVisible: false,
@@ -197,25 +309,31 @@ export default {
       modulePath: String,
       modeId: String,
       rules: {
-        rule: [{required: true, validator: validateCron, trigger: 'blur'}],
-        swaggerUrl: [{required: true, trigger: 'blur', message: this.$t('commons.please_fill_content')}],
+        rule: [{ required: true, validator: validateCron, trigger: 'blur' }],
+        swaggerUrl: [
+          {
+            required: true,
+            trigger: 'blur',
+            message: this.$t('commons.please_fill_content'),
+          },
+        ],
       },
       formData: {
         swaggerUrl: '',
         modeId: 'incrementalMerge',
         moduleId: '',
         rule: '',
-        coverModule: false
+        coverModule: false,
       },
       modeOptions: [
         {
           id: 'fullCoverage',
-          name: this.$t('commons.cover')
+          name: this.$t('commons.cover'),
         },
         {
           id: 'incrementalMerge',
-          name: this.$t('commons.not_cover')
-        }
+          name: this.$t('commons.not_cover'),
+        },
       ],
       result: false,
       moduleObj: {
@@ -228,29 +346,28 @@ export default {
       headers: [],
       queryArguments: [],
       authConfig: {
-        hashTree: []
-      }
+        hashTree: [],
+      },
     };
   },
 
   methods: {
     openSchedule() {
-      if (this.formData.id !== null && this.formData.id ) {
+      if (this.formData.id !== null && this.formData.id) {
         this.dialogVisible = true;
         this.initUserList();
         this.$nextTick(() => {
           if (this.$refs.scheduleTaskNotification) {
             this.$refs.scheduleTaskNotification.initForm();
           }
-        })
+        });
       } else {
-        this.$warning("请先选择您要添加通知的定时任务");
+        this.$warning('请先选择您要添加通知的定时任务');
       }
-
     },
 
     initUserList() {
-      this.result = getMaintainer().then(response => {
+      this.result = getMaintainer().then((response) => {
         this.scheduleReceiverOptions = response.data;
       });
     },
@@ -303,7 +420,7 @@ export default {
         this.formData.arguments = this.queryArguments;
         // 设置 BaseAuth 参数
         if (this.authConfig.authManager != undefined) {
-          this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+          this.authConfig.authManager.clazzName = TYPE_TO_C.get('AuthManager');
           this.formData.authManager = this.authConfig.authManager;
         }
       } else {
@@ -313,7 +430,7 @@ export default {
       }
       if (!this.formData.moduleId) {
         if (this.$refs.selectTree.returnDataKeys.length > 0) {
-          this.formData.moduleId = this.$refs.selectTree.returnDataKeys
+          this.formData.moduleId = this.$refs.selectTree.returnDataKeys;
         }
       }
       if (this.formData.id) {
@@ -367,7 +484,7 @@ export default {
         if (config.authManager != null || config.authManager != undefined) {
           this.authConfig = config;
         } else {
-          this.authConfig = {hashTree: [], authManager: {}};
+          this.authConfig = { hashTree: [], authManager: {} };
         }
       } else {
         this.clearAuthInfo();
@@ -380,11 +497,11 @@ export default {
     clearAuthInfo() {
       this.headers = [];
       this.queryArguments = [];
-      this.headers.push(new KeyValue({enable: true}));
-      this.queryArguments.push(new KeyValue({enable: true}));
-      this.authConfig = {hashTree: [], authManager: {}};
+      this.headers.push(new KeyValue({ enable: true }));
+      this.queryArguments.push(new KeyValue({ enable: true }));
+      this.authConfig = { hashTree: [], authManager: {} };
       this.authEnable = false;
-    }
+    },
   },
   computed: {
     isTesterPermission() {
@@ -393,7 +510,7 @@ export default {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
     },
-  }
+  },
 };
 </script>
 
@@ -403,8 +520,9 @@ export default {
   display: inline-block;
 }
 
-.api-schedule-form, .task-list {
-  border: #DCDFE6 solid 1px;
+.api-schedule-form,
+.task-list {
+  border: #dcdfe6 solid 1px;
   padding: 10px;
 }
 
@@ -415,7 +533,8 @@ export default {
 .head {
   border-bottom: 1px solid var(--primary_color);
   color: var(--primary_color);
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    Arial, sans-serif;
   font-size: 13px;
   cursor: pointer;
 }

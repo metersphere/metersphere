@@ -1,4 +1,4 @@
-import {post, get} from 'metersphere-frontend/src/plugins/request'
+import { post, get } from 'metersphere-frontend/src/plugins/request';
 
 export function getApiReportPage(currentPage, pageSize, condition) {
   let url = '/api/testcase/list-execute-res/' + currentPage + '/' + pageSize;

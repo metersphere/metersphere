@@ -1,14 +1,14 @@
-import Configuration from "../configuration";
+import Configuration from '../configuration';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "ArgumentsPanel",
-      testclass: "Arguments",
-      testname: "Arguments",
-      enabled: "true"
+      guiclass: 'ArgumentsPanel',
+      testclass: 'Arguments',
+      testname: 'Arguments',
+      enabled: 'true',
     },
-  }
+  },
 };
 
 export default class Arguments extends Configuration {
@@ -20,5 +20,5 @@ export default class Arguments extends Configuration {
 }
 
 export const schema = {
-  Arguments: Arguments
-}
+  Arguments: Arguments,
+};

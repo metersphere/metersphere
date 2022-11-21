@@ -6,47 +6,98 @@
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <span style="margin-left: 10px"></span>
-        <i class="el-icon-top" style="cursor:pointer" @click="moveTop(index)"/>
-        <i class="el-icon-bottom" style="cursor:pointer;" @click="moveBottom(index)"/>
+        <i
+          class="el-icon-top"
+          style="cursor: pointer"
+          @click="moveTop(index)"
+        />
+        <i
+          class="el-icon-bottom"
+          style="cursor: pointer"
+          @click="moveBottom(index)"
+        />
 
         <el-col class="item">
-          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
-                    @change="change" :placeholder="keyText" show-word-limit>
+          <el-input
+            v-if="!suggestions"
+            :disabled="isReadOnly"
+            v-model="item.name"
+            size="small"
+            maxlength="200"
+            @change="change"
+            :placeholder="keyText"
+            show-word-limit
+          >
             <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
-                         @change="typeChange(item)">
-                <el-option value="text"/>
-                <el-option value="file"/>
-                <el-option value="json"/>
+              <el-select
+                v-if="type === 'body'"
+                :disabled="isReadOnly"
+                class="kv-type"
+                v-model="item.type"
+                @change="typeChange(item)"
+              >
+                <el-option value="text" />
+                <el-option value="file" />
+                <el-option value="json" />
               </el-select>
             </template>
           </el-input>
-          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @input="change" @change="change" :placeholder="keyText" show-word-limit>
+          <el-autocomplete
+            :disabled="isReadOnly"
+            v-if="suggestions"
+            v-model="item.name"
+            size="small"
+            :fetch-suggestions="querySearch"
+            @input="change"
+            @change="change"
+            :placeholder="keyText"
+            show-word-limit
+          >
             <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
-                         @change="typeChange(item)">
-                <el-option value="text"/>
-                <el-option value="file"/>
-                <el-option value="json"/>
+              <el-select
+                v-if="type === 'body'"
+                :disabled="isReadOnly"
+                class="kv-type"
+                v-model="item.type"
+                @change="typeChange(item)"
+              >
+                <el-option value="text" />
+                <el-option value="file" />
+                <el-option value="json" />
               </el-select>
             </template>
           </el-autocomplete>
-
         </el-col>
 
         <el-col class="item" v-if="isActive && item.type !== 'file'">
-          <el-select :disabled="isReadOnly" :maxlength="100" v-model="item.rangeType" size="small" style="width: 100%">
+          <el-select
+            :disabled="isReadOnly"
+            :maxlength="100"
+            v-model="item.rangeType"
+            size="small"
+            style="width: 100%"
+          >
             <el-option
               v-for="item in rangeTypeOptions"
               :key="item.value"
               :label="item.label"
-              :value="item.value"></el-option>
+              :value="item.value"
+            ></el-option>
           </el-select>
         </el-col>
         <el-col class="item" v-if="isActive && item.type !== 'file'">
-          <el-input-number v-if="item.rangeType === 'length_eq' || item.rangeType === 'length_not_eq' || item.rangeType === 'length_large_than' || item.rangeType === 'length_shot_than'"
-                           v-model="item.value" size="small" :placeholder="valueText" show-word-limit />
+          <el-input-number
+            v-if="
+              item.rangeType === 'length_eq' ||
+              item.rangeType === 'length_not_eq' ||
+              item.rangeType === 'length_large_than' ||
+              item.rangeType === 'length_shot_than'
+            "
+            v-model="item.value"
+            size="small"
+            :placeholder="valueText"
+            show-word-limit
+          />
           <el-autocomplete
             v-else
             :disabled="isReadOnly"
@@ -57,58 +108,96 @@
             :placeholder="valueText"
             value-key="name"
             highlight-first-item
-            @select="change">
-            <i v-if="!disableVariableTip" slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+            @select="change"
+          >
+            <i
+              v-if="!disableVariableTip"
+              slot="suffix"
+              class="el-input__icon el-icon-edit pointer"
+              @click="advanced(item)"
+            ></i>
           </el-autocomplete>
         </el-col>
 
         <el-col class="item">
-          <el-input v-model="item.description" size="small" maxlength="200"
-                    :placeholder="$t('commons.description')" show-word-limit>
+          <el-input
+            v-model="item.description"
+            size="small"
+            maxlength="200"
+            :placeholder="$t('commons.description')"
+            show-word-limit
+          >
           </el-input>
         </el-col>
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
-          <ms-api-body-file-upload :parameter="item"/>
+          <ms-api-body-file-upload :parameter="item" />
         </el-col>
 
         <el-col v-if="type === 'body'" class="item kv-select">
-          <el-input :disabled="isReadOnly" v-model="item.contentType" size="small"
-                    @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
+          <el-input
+            :disabled="isReadOnly"
+            v-model="item.contentType"
+            size="small"
+            @change="change"
+            :placeholder="$t('api_test.request.content_type')"
+            show-word-limit
+          >
           </el-input>
         </el-col>
 
         <el-col class="item kv-delete">
-          <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
-                     :disabled="isDisable(index) || isReadOnly"/>
+          <el-button
+            size="mini"
+            class="el-icon-delete-solid"
+            circle
+            @click="remove(index)"
+            :disabled="isDisable(index) || isReadOnly"
+          />
         </el-col>
-
       </el-row>
     </div>
-    <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
-                             :append-to-body="appendDialogToBody"
-                             :parameters="parameters"
-                             :current-item="currentItem"/>
-    <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
+    <ms-api-variable-advance
+      ref="variableAdvance"
+      :environment="environment"
+      :scenario="scenario"
+      :append-to-body="appendDialogToBody"
+      :parameters="parameters"
+      :current-item="currentItem"
+    />
+    <ms-api-variable-json
+      :append-to-body="appendDialogToBody"
+      ref="variableJson"
+      @callback="callback"
+    />
 
-    <api-variable-setting :append-to-body="appendDialogToBody"
-                          ref="apiVariableSetting"/>
-
+    <api-variable-setting
+      :append-to-body="appendDialogToBody"
+      ref="apiVariableSetting"
+    />
   </div>
 </template>
 
 <script>
-import {KeyValue, Scenario} from "@/business/definition/model/ApiTestModel";
-import {JMETER_FUNC, MOCKJS_FUNC} from "metersphere-frontend/src/utils/constants";
-import MsApiVariableAdvance from "@/business/definition/components/ApiVariableAdvance";
-import MsApiVariableJson from "@/business/definition/components/ApiVariableJson";
-import MsApiBodyFileUpload from "@/business/definition/components/body/ApiBodyFileUpload";
+import { KeyValue, Scenario } from '@/business/definition/model/ApiTestModel';
+import {
+  JMETER_FUNC,
+  MOCKJS_FUNC,
+} from 'metersphere-frontend/src/utils/constants';
+import MsApiVariableAdvance from '@/business/definition/components/ApiVariableAdvance';
+import MsApiVariableJson from '@/business/definition/components/ApiVariableJson';
+import MsApiBodyFileUpload from '@/business/definition/components/body/ApiBodyFileUpload';
 import Vue from 'vue';
-import ApiVariableSetting from "@/business/definition/components/ApiVariableSetting";
+import ApiVariableSetting from '@/business/definition/components/ApiVariableSetting';
 
 export default {
-  name: "MsApiVariable",
-  components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance, MsApiVariableJson},
+  name: 'MsApiVariable',
+  components: {
+    ApiVariableSetting,
+    MsApiBodyFileUpload,
+    MsApiVariableAdvance,
+    MsApiVariableJson,
+  },
   props: {
     keyPlaceholder: String,
     valuePlaceholder: String,
@@ -119,73 +208,73 @@ export default {
     scenario: Scenario,
     type: {
       type: String,
-      default: ''
+      default: '',
     },
     appendDialogToBody: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShowEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     suggestions: Array,
-    disableVariableTip: Boolean
+    disableVariableTip: Boolean,
   },
   data() {
     return {
       currentItem: null,
       requireds: [
-        {name: this.$t('commons.selector.required'), id: true},
-        {name: this.$t('commons.selector.not_required'), id: false}
+        { name: this.$t('commons.selector.required'), id: true },
+        { name: this.$t('commons.selector.not_required'), id: false },
       ],
       isSelectAll: true,
       isActive: true,
       rangeTypeOptions: [
         {
-          value: "",
-          label: this.$t("commons.please_select"),
+          value: '',
+          label: this.$t('commons.please_select'),
         },
         {
-          value: "value_eq",
-          label: this.$t("api_test.mock.range_type.value_eq"),
+          value: 'value_eq',
+          label: this.$t('api_test.mock.range_type.value_eq'),
         },
         {
-          value: "value_not_eq",
-          label: this.$t("api_test.mock.range_type.value_not_eq"),
+          value: 'value_not_eq',
+          label: this.$t('api_test.mock.range_type.value_not_eq'),
         },
         {
-          value: "value_contain",
-          label: this.$t("api_test.mock.range_type.value_contain"),
+          value: 'value_contain',
+          label: this.$t('api_test.mock.range_type.value_contain'),
         },
         {
-          value: "length_eq",
-          label: this.$t("api_test.mock.range_type.length_eq"),
+          value: 'length_eq',
+          label: this.$t('api_test.mock.range_type.length_eq'),
         },
         {
-          value: "length_not_eq",
-          label: this.$t("api_test.mock.range_type.length_not_eq"),
+          value: 'length_not_eq',
+          label: this.$t('api_test.mock.range_type.length_not_eq'),
         },
         {
-          value: "length_large_than",
-          label: this.$t("api_test.mock.range_type.length_large_than"),
+          value: 'length_large_than',
+          label: this.$t('api_test.mock.range_type.length_large_than'),
         },
         {
-          value: "length_shot_than",
-          label: this.$t("api_test.mock.range_type.length_shot_than"),
+          value: 'length_shot_than',
+          label: this.$t('api_test.mock.range_type.length_shot_than'),
         },
         {
-          value: "regular_match",
-          label: this.$t("api_test.mock.range_type.regular_match"),
+          value: 'regular_match',
+          label: this.$t('api_test.mock.range_type.regular_match'),
         },
       ],
-    }
+    };
   },
   watch: {
     isSelectAll: function (to, from) {
@@ -198,11 +287,11 @@ export default {
   },
   computed: {
     keyText() {
-      return this.keyPlaceholder || this.$t("api_test.key");
+      return this.keyPlaceholder || this.$t('api_test.key');
     },
     valueText() {
-      return this.valuePlaceholder || this.$t("api_test.value");
-    }
+      return this.valuePlaceholder || this.$t('api_test.value');
+    },
   },
   methods: {
     moveBottom(index) {
@@ -212,7 +301,7 @@ export default {
       let thisRow = this.parameters[index];
       let nextRow = this.parameters[index + 1];
       Vue.set(this.parameters, index + 1, thisRow);
-      Vue.set(this.parameters, index, nextRow)
+      Vue.set(this.parameters, index, nextRow);
     },
     moveTop(index) {
       if (index === 0) {
@@ -221,8 +310,7 @@ export default {
       let thisRow = this.parameters[index];
       let lastRow = this.parameters[index - 1];
       Vue.set(this.parameters, index - 1, thisRow);
-      Vue.set(this.parameters, index, lastRow)
-
+      Vue.set(this.parameters, index, lastRow);
     },
     remove: function (index) {
       // 移除整行输入控件及内容
@@ -243,12 +331,14 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.parameters.push(new KeyValue({
-          type: 'text',
-          enable: true,
-          uuid: this.uuid(),
-          contentType: 'text/plain'
-        }));
+        this.parameters.push(
+          new KeyValue({
+            type: 'text',
+            enable: true,
+            uuid: this.uuid(),
+            contentType: 'text/plain',
+          })
+        );
       }
       this.$emit('change', this.parameters);
       // TODO 检查key重复
@@ -258,12 +348,17 @@ export default {
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
-      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+      let results = queryString
+        ? suggestions.filter(this.createFilter(queryString))
+        : suggestions;
       cb(results);
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        return (
+          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
+          0
+        );
       };
     },
     funcSearch(queryString, cb) {
@@ -272,13 +367,15 @@ export default {
         return;
       }
       let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      let results = queryString
+        ? funcs.filter(this.funcFilter(queryString))
+        : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
     funcFilter(queryString) {
       return (func) => {
-        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+        return func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1;
       };
     },
     uuid: function () {
@@ -292,7 +389,6 @@ export default {
         this.$refs.variableAdvance.open();
         this.currentItem = item;
       }
-
     },
     typeChange(item) {
       if (item.type === 'file') {
@@ -300,17 +396,17 @@ export default {
       } else if (item.type === 'text') {
         item.contentType = 'text/plain';
       } else {
-        item.contentType = 'application/json'
+        item.contentType = 'application/json';
       }
       this.reload();
     },
     selectAll() {
-      this.parameters.forEach(item => {
+      this.parameters.forEach((item) => {
         item.enable = true;
       });
     },
     invertSelect() {
-      this.parameters.forEach(item => {
+      this.parameters.forEach((item) => {
         item.enable = false;
       });
     },
@@ -326,20 +422,25 @@ export default {
     callback(item) {
       this.currentItem.value = item;
       this.currentItem = null;
-    }
+    },
   },
   created() {
-    if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-      this.parameters.push(new KeyValue({
-        type: 'text',
-        enable: true,
-        required: true,
-        uuid: this.uuid(),
-        contentType: 'text/plain'
-      }));
+    if (
+      this.parameters.length === 0 ||
+      this.parameters[this.parameters.length - 1].name
+    ) {
+      this.parameters.push(
+        new KeyValue({
+          type: 'text',
+          enable: true,
+          required: true,
+          uuid: this.uuid(),
+          contentType: 'text/plain',
+        })
+      );
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -382,7 +483,7 @@ export default {
 
 .pointer {
   cursor: pointer;
-  color: #1E90FF;
+  color: #1e90ff;
 }
 
 .kv-setting {

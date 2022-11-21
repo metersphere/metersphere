@@ -4,37 +4,43 @@
     placement="left"
     width="260"
     @show="batchShareApiDocument"
-    v-model="batchSharePopoverVisible">
-    <p>{{shareUrl}}</p>
+    v-model="batchSharePopoverVisible"
+  >
+    <p>{{ shareUrl }}</p>
     <div style="text-align: right; margin: 0">
-      <el-button type="primary" size="mini"
-                 v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
+      <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{
+        $t('commons.copy')
+      }}</el-button>
     </div>
-    <i class="el-icon-share" slot="reference" style="margin-right: 10px;cursor: pointer"></i>
+    <i
+      class="el-icon-share"
+      slot="reference"
+      style="margin-right: 10px; cursor: pointer"
+    ></i>
   </el-popover>
 </template>
 
 <script>
 export default {
-  name: "MxApiDocumentBatchShare",
+  name: 'MxApiDocumentBatchShare',
   data() {
     return {
-      batchSharePopoverVisible:false,
-    }
+      batchSharePopoverVisible: false,
+    };
   },
   props: {
     projectId: String,
     shareUrl: String,
   },
   methods: {
-    batchShareApiDocument(){
-      this.$emit('shareApiDocument','true');
+    batchShareApiDocument() {
+      this.$emit('shareApiDocument', 'true');
     },
     onBatchCopySuccess: function (e) {
       this.batchSharePopoverVisible = false;
       this.$message({
         message: this.$t('commons.copy_success'),
-        type: 'success'
+        type: 'success',
       });
     },
     onBatchCopyError: function (e) {
@@ -42,10 +48,8 @@ export default {
       this.$message.error(this.$t('commons.error'));
     },
   },
-  created() {
-  }
-}
+  created() {},
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

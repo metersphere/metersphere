@@ -1,6 +1,6 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
-export const TYPE = "PostProcessor";
+export const TYPE = 'PostProcessor';
 
 export default class PostProcessor extends HashTreeElement {
   constructor(options = {}) {

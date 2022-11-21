@@ -4,7 +4,7 @@ const value = {
   default: null,
   enum: null,
   description: null,
-}
+};
 const attr = {
   description: {
     name: '描述',
@@ -12,11 +12,11 @@ const attr = {
   },
   maximum: {
     name: '最大值',
-    type: 'number'
+    type: 'number',
   },
   minimum: {
     name: '最小值',
-    type: 'number'
+    type: 'number',
   },
   default: {
     name: '默认值',
@@ -25,8 +25,8 @@ const attr = {
   enum: {
     name: '枚举值',
     type: 'textarea',
-    description: "一行一个枚举值"
+    description: '一行一个枚举值',
   },
-}
-const wrapper = {value, attr}
-export default wrapper
+};
+const wrapper = { value, attr };
+export default wrapper;

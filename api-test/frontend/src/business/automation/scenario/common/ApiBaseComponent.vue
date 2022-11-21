@@ -158,19 +158,19 @@
 </template>
 
 <script>
-import StepExtendBtns from "../component/StepExtendBtns";
-import { STEP } from "../Setting";
-import { useApiStore } from "@/store";
+import StepExtendBtns from '../component/StepExtendBtns';
+import { STEP } from '../Setting';
+import { useApiStore } from '@/store';
 
 let store = useApiStore();
 
 export default {
-  name: "ApiBaseComponent",
+  name: 'ApiBaseComponent',
   components: { StepExtendBtns },
   data() {
     return {
       isShowInput: false,
-      colorStyle: "",
+      colorStyle: '',
       stepFilter: new STEP(),
     };
   },
@@ -201,13 +201,13 @@ export default {
     color: {
       type: String,
       default() {
-        return "#B8741A";
+        return '#B8741A';
       },
     },
     backgroundColor: {
       type: String,
       default() {
-        return "#F9F1EA";
+        return '#F9F1EA';
       },
     },
     showCollapse: {
@@ -251,7 +251,7 @@ export default {
       ) {
         this.colorStyle = this.color;
       } else {
-        this.colorStyle = "";
+        this.colorStyle = '';
       }
     },
   },
@@ -266,7 +266,7 @@ export default {
     }
     if (
       this.data &&
-      this.stepFilter.get("AllSamplerProxy").indexOf(this.data.type) != -1
+      this.stepFilter.get('AllSamplerProxy').indexOf(this.data.type) != -1
     ) {
       if (!this.data.method) {
         this.data.method = this.data.protocol;
@@ -282,62 +282,63 @@ export default {
     },
     isSingleButton() {
       if (
-        this.data.type === "ConstantTimer" ||
-        this.data.type === "Assertions"
+        this.data.type === 'ConstantTimer' ||
+        this.data.type === 'Assertions'
       ) {
         return (
           this.innerStep &&
           this.showVersion &&
-          this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1
+          this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1
         );
       }
       return (
         this.showVersion &&
-        this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1
+        this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1
       );
     },
     isMoreButton() {
       if (
-        this.data.type === "ConstantTimer" ||
-        this.data.type === "Assertions"
+        this.data.type === 'ConstantTimer' ||
+        this.data.type === 'Assertions'
       ) {
         return (
           !this.innerStep ||
           (this.showBtn &&
             (!this.data.disabled || this.data.root) &&
             this.showVersion &&
-            this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) === -1)
+            this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) ===
+              -1)
         );
       }
       return (
         this.showBtn &&
         (!this.data.disabled || this.data.root || this.isDeleted) &&
         this.showVersion &&
-        this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) === -1
+        this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1
       );
     },
   },
   methods: {
     active() {
-      this.$emit("active");
+      this.$emit('active');
     },
     getMethod() {
-      if (this.data.protocol === "HTTP") {
+      if (this.data.protocol === 'HTTP') {
         return this.data.method;
-      } else if (this.data.protocol === "dubbo://") {
-        return "DUBBO";
+      } else if (this.data.protocol === 'dubbo://') {
+        return 'DUBBO';
       } else {
         return this.data.protocol;
       }
     },
     copyRow() {
-      this.$emit("copy");
+      this.$emit('copy');
     },
     remove() {
-      this.$emit("remove");
+      this.$emit('remove');
     },
     openScenario(data) {
-      this.$emit("openScenario", data);
+      this.$emit('openScenario', data);
     },
     editName() {
       this.isShowInput = true;
@@ -347,16 +348,16 @@ export default {
     },
     enter($event) {
       if (this.showVersion) {
-        $event.currentTarget.className = "scenario-name";
+        $event.currentTarget.className = 'scenario-name';
       } else {
-        $event.currentTarget.className = "scenario-version";
+        $event.currentTarget.className = 'scenario-version';
       }
     },
     leave($event) {
       if (this.showVersion) {
-        $event.currentTarget.className = "scenario-unscroll";
+        $event.currentTarget.className = 'scenario-unscroll';
       } else {
-        $event.currentTarget.className = "scenario-version";
+        $event.currentTarget.className = 'scenario-version';
       }
     },
     enable() {

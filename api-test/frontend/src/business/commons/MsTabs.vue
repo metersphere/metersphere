@@ -1,13 +1,30 @@
 <template>
   <el-card class="card-content" v-if="isShow">
     <el-button-group v-if="isShowChangeButton">
-      <el-button v-if="leftButtonEnable" class="item" plain :class="{active: leftActive}" @click="changeTab('left')">
+      <el-button
+        v-if="leftButtonEnable"
+        class="item"
+        plain
+        :class="{ active: leftActive }"
+        @click="changeTab('left')"
+      >
         {{ leftContent }}
       </el-button>
-      <el-button v-if="middleButtonEnable" class="item" plain :class="{active: middleActive}"
-                 @click="changeTab('middle')">{{ middleContent }}
+      <el-button
+        v-if="middleButtonEnable"
+        class="item"
+        plain
+        :class="{ active: middleActive }"
+        @click="changeTab('middle')"
+        >{{ middleContent }}
       </el-button>
-      <el-button v-if="rightButtonEnable" class="item" plain :class="{active: rightActive}" @click="changeTab('right')">
+      <el-button
+        v-if="rightButtonEnable"
+        class="item"
+        plain
+        :class="{ active: rightActive }"
+        @click="changeTab('right')"
+      >
         {{ rightContent }}
       </el-button>
     </el-button-group>
@@ -21,56 +38,56 @@
 
 <script>
 export default {
-  name: "MsTabs",
+  name: 'MsTabs',
   data() {
     return {
       isShow: true,
       showApiList: false,
       showTestCaseList: false,
       showDocList: true,
-    }
+    };
   },
   props: {
     activeDom: String,
     isShowChangeButton: {
       type: Boolean,
-      default: true
+      default: true,
     },
     leftButtonEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     middleButtonEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     rightButtonEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     leftContent: {
       type: String,
-      default: 'left'
+      default: 'left',
     },
     middleContent: {
       type: String,
-      default: 'middle'
+      default: 'middle',
     },
     rightContent: {
       type: String,
-      default: 'right'
+      default: 'right',
     },
     leftTip: {
       type: String,
-      default: 'left'
+      default: 'left',
     },
     middleTip: {
       type: String,
-      default: 'middle'
+      default: 'middle',
     },
     rightTip: {
       type: String,
-      default: 'right'
+      default: 'right',
     },
   },
   computed: {
@@ -86,19 +103,18 @@ export default {
   },
   methods: {
     changeTab(tabType) {
-      this.$emit("changeTab", tabType);
-      this.$emit("update:activeDom", tabType);
+      this.$emit('changeTab', tabType);
+      this.$emit('update:activeDom', tabType);
     },
   },
-}
+};
 </script>
 
 <style scoped>
-
 .active {
   border: solid 1px #6d317c !important;
   background-color: var(--primary_color) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .item {
@@ -106,5 +122,4 @@ export default {
   padding: 5px 8px;
   border: solid 1px var(--primary_color);
 }
-
 </style>

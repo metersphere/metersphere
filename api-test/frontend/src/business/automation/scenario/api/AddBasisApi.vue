@@ -1,46 +1,102 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.definition.request.title')" :visible.sync="httpVisible"
-             width="45%"
-             :destroy-on-close="true" append-to-body>
-    <el-form :model="httpForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="httpForm"
-             v-if="!loading">
+  <el-dialog
+    :close-on-click-modal="false"
+    :title="$t('api_test.definition.request.title')"
+    :visible.sync="httpVisible"
+    width="45%"
+    :destroy-on-close="true"
+    append-to-body
+  >
+    <el-form
+      :model="httpForm"
+      label-position="right"
+      label-width="80px"
+      size="small"
+      :rules="rule"
+      ref="httpForm"
+      v-if="!loading"
+    >
       <el-form-item :label="$t('commons.name')" prop="name">
-        <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('commons.name')"/>
+        <el-input
+          v-model="httpForm.name"
+          autocomplete="off"
+          :placeholder="$t('commons.name')"
+        />
       </el-form-item>
 
       <!--HTTP 协议特有参数-->
-      <el-form-item :label="$t('api_report.request')" prop="path" v-if="currentProtocol==='HTTP'">
-        <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
-                  class="ms-http-input" size="small">
-          <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
-            <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+      <el-form-item
+        :label="$t('api_report.request')"
+        prop="path"
+        v-if="currentProtocol === 'HTTP'"
+      >
+        <el-input
+          :placeholder="$t('api_test.definition.request.path_info')"
+          v-model="httpForm.path"
+          class="ms-http-input"
+          size="small"
+        >
+          <el-select
+            v-model="httpForm.method"
+            slot="prepend"
+            style="width: 100px"
+            size="small"
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
           </el-select>
         </el-input>
       </el-form-item>
 
-      <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
-        <el-select v-model="httpForm.userId"
-                   :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                   style="width: 100%">
+      <el-form-item
+        :label="$t('api_test.definition.request.responsible')"
+        prop="userId"
+      >
+        <el-select
+          v-model="httpForm.userId"
+          :placeholder="$t('api_test.definition.request.responsible')"
+          filterable
+          size="small"
+          style="width: 100%"
+        >
           <el-option
             v-for="item in maintainerOptions"
             :key="item.id"
             :label="item.id + ' (' + item.name + ')'"
-            :value="item.id">
+            :value="item.id"
+          >
           </el-option>
         </el-select>
-
       </el-form-item>
       <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-        <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule"
-                        :obj="moduleObj" clearable checkStrictly/>
+        <ms-select-tree
+          size="small"
+          :data="moduleOptions"
+          :defaultKey="httpForm.moduleId"
+          @getValue="setModule"
+          :obj="moduleObj"
+          clearable
+          checkStrictly
+        />
       </el-form-item>
 
-      <el-form-item :label="$t('commons.description')" prop="description" style="margin-bottom: 29px">
-        <el-input class="ms-http-textarea" v-model="httpForm.description"
-                  type="textarea"
-                  :autosize="{ minRows: 2, maxRows: 10}"
-                  :rows="2" size="small"/>
+      <el-form-item
+        :label="$t('commons.description')"
+        prop="description"
+        style="margin-bottom: 29px"
+      >
+        <el-input
+          class="ms-http-textarea"
+          v-model="httpForm.description"
+          type="textarea"
+          :autosize="{ minRows: 2, maxRows: 10 }"
+          :rows="2"
+          size="small"
+        />
       </el-form-item>
       <el-form-item class="create-tip">
         {{ $t('api_test.definition.create_tip') }}
@@ -50,46 +106,51 @@
     <template v-slot:footer>
       <ms-dialog-footer
         @cancel="httpVisible = false"
-        @confirm="saveApi" v-prevent-re-click>
+        @confirm="saveApi"
+        v-prevent-re-click
+      >
       </ms-dialog-footer>
-
     </template>
-
   </el-dialog>
 </template>
 
 <script>
-import {createApiCase} from "@/api/api-test-case";
-import {createDefinition} from "@/api/definition";
-import {getApiModules} from "@/api/definition-module";
-import {getMaintainer} from "@/api/project";
-import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {REQ_METHOD} from "@/business/definition/model/JsonData";
-import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {createComponent, Request} from "@/business/definition/components/jmeter/components";
-import {getUUID} from "metersphere-frontend/src/utils";
-import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
-import {buildTree} from "metersphere-frontend/src/model/NodeTree";
-
+import { createApiCase } from '@/api/api-test-case';
+import { createDefinition } from '@/api/definition';
+import { getApiModules } from '@/api/definition-module';
+import { getMaintainer } from '@/api/project';
+import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
+import { REQ_METHOD } from '@/business/definition/model/JsonData';
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+} from 'metersphere-frontend/src/utils/token';
+import {
+  createComponent,
+  Request,
+} from '@/business/definition/components/jmeter/components';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
+import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
 
 export default {
-  name: "MsAddBasisApi",
-  components: {MsDialogFooter, MsSelectTree},
+  name: 'MsAddBasisApi',
+  components: { MsDialogFooter, MsSelectTree },
   props: {
     currentProtocol: {
       type: String,
-      default: "HTTP"
+      default: 'HTTP',
     },
   },
   data() {
     let validateURL = (rule, value, callback) => {
-      if (!this.httpForm.path.startsWith("/")) {
+      if (!this.httpForm.path.startsWith('/')) {
         callback(this.$t('api_test.definition.request.path_valid_info'));
       }
       callback();
     };
     return {
-      httpForm: {environmentId: "", moduleId: "default-module"},
+      httpForm: { environmentId: '', moduleId: 'default-module' },
       moduleOptions: [],
       httpVisible: false,
       currentModule: {},
@@ -101,22 +162,38 @@ export default {
       },
       rule: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t('test_track.case.input_name'),
+            trigger: 'blur',
+          },
+          {
+            max: 100,
+            message: this.$t('test_track.length_less_than') + '100',
+            trigger: 'blur',
+          },
         ],
-        path: [{
-          required: true,
-          message: this.$t('api_test.definition.request.path_info'),
-          trigger: 'blur'
-        }, {validator: validateURL, trigger: 'blur'}],
-        userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+        path: [
+          {
+            required: true,
+            message: this.$t('api_test.definition.request.path_info'),
+            trigger: 'blur',
+          },
+          { validator: validateURL, trigger: 'blur' },
+        ],
+        userId: [
+          {
+            required: true,
+            message: this.$t('test_track.case.input_maintainer'),
+            trigger: 'change',
+          },
+        ],
         // moduleId: [{required: true, message: this.$t('test_track.module.module'), trigger: 'change'}],
       },
       value: REQ_METHOD[0].id,
       options: REQ_METHOD,
-    }
-  }
-  ,
+    };
+  },
   methods: {
     saveApi() {
       this.$refs['httpForm'].validate((valid) => {
@@ -125,7 +202,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     save(data) {
       this.setParameters(data);
@@ -141,7 +218,7 @@ export default {
         priority: 'P0',
         active: true,
         uuid: getUUID(),
-        request: api.request
+        request: api.request,
       };
       obj.projectId = getCurrentProjectID();
       obj.id = obj.uuid;
@@ -155,8 +232,8 @@ export default {
     setParameters(data) {
       data.projectId = getCurrentProjectID();
       data.request.name = data.name;
-      if (data.protocol === "DUBBO" || data.protocol === "dubbo://") {
-        data.request.protocol = "dubbo://";
+      if (data.protocol === 'DUBBO' || data.protocol === 'dubbo://') {
+        data.request.protocol = 'dubbo://';
       }
       data.id = data.request.id;
       if (!data.method) {
@@ -164,13 +241,21 @@ export default {
       }
       data.request.path = this.httpForm.path;
       if (data.request.hashTree && data.request.hashTree.length > 0) {
-        let arrays = ["Extract", "JSR223PreProcessor", "JDBCPreProcessor", "ConstantTimer", "JSR223PostProcessor", "JDBCPostProcessor", "Assertions"];
+        let arrays = [
+          'Extract',
+          'JSR223PreProcessor',
+          'JDBCPreProcessor',
+          'ConstantTimer',
+          'JSR223PostProcessor',
+          'JDBCPostProcessor',
+          'Assertions',
+        ];
         let hashTree = [];
-        data.request.hashTree.forEach(item => {
+        data.request.hashTree.forEach((item) => {
           if (arrays.indexOf(item.type) !== -1) {
             hashTree.push(item);
           }
-        })
+        });
         data.request.hashTree = hashTree;
       }
     },
@@ -180,9 +265,9 @@ export default {
       let request = data.request;
       if (request.body) {
         if (request.body.kvs) {
-          request.body.kvs.forEach(param => {
+          request.body.kvs.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -195,9 +280,9 @@ export default {
           });
         }
         if (request.body.binary) {
-          request.body.binary.forEach(param => {
+          request.body.binary.forEach((param) => {
             if (param.files) {
-              param.files.forEach(item => {
+              param.files.forEach((item) => {
                 if (item.file) {
                   let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
@@ -239,61 +324,65 @@ export default {
         this.httpForm.request.path = this.httpForm.path;
       }
       if (this.currentModule != null) {
-        this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
+        this.httpForm.modulePath =
+          this.currentModule.method != undefined
+            ? this.currentModule.method
+            : null;
         this.httpForm.moduleId = this.currentModule.id;
       }
-
     },
     initHTTP() {
-      let request = createComponent("HTTPSamplerProxy");
+      let request = createComponent('HTTPSamplerProxy');
       request.path = this.httpForm.path;
       this.httpForm.request = request;
     },
     initSQL() {
       this.httpForm.method = Request.TYPES.SQL;
-      this.httpForm.request = createComponent("JDBCSampler");
+      this.httpForm.request = createComponent('JDBCSampler');
     },
     initTCP() {
       this.httpForm.method = Request.TYPES.TCP;
-      this.httpForm.request = createComponent("TCPSampler");
+      this.httpForm.request = createComponent('TCPSampler');
     },
     initDUBBO() {
-      this.httpForm.method = "dubbo://";
-      this.httpForm.request = createComponent("DubboSampler");
+      this.httpForm.method = 'dubbo://';
+      this.httpForm.request = createComponent('DubboSampler');
     },
     getMaintainerOptions() {
-      getMaintainer().then(response => {
+      getMaintainer().then((response) => {
         this.maintainerOptions = response.data;
       });
     },
     list(data) {
-      if (data.protocol === "dubbo://") {
-        data.protocol = "DUBBO";
+      if (data.protocol === 'dubbo://') {
+        data.protocol = 'DUBBO';
       }
-      this.result = getApiModules(getCurrentProjectID(), data.protocol).then(response => {
-        if (response.data != undefined && response.data != null) {
-          this.moduleOptions = response.data;
-          this.moduleOptions.forEach(node => {
-            buildTree(node, {path: ''});
-          });
+      this.result = getApiModules(getCurrentProjectID(), data.protocol).then(
+        (response) => {
+          if (response.data != undefined && response.data != null) {
+            this.moduleOptions = response.data;
+            this.moduleOptions.forEach((node) => {
+              buildTree(node, { path: '' });
+            });
+          }
         }
-      });
+      );
     },
     setModule(id, data) {
       this.httpForm.moduleId = id;
       this.httpForm.modulePath = data.path;
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     open(api) {
       if (api) {
         let data = JSON.parse(JSON.stringify(api));
-        if (data.protocol === "dubbo://") {
-          data.protocol = "DUBBO";
+        if (data.protocol === 'dubbo://') {
+          data.protocol = 'DUBBO';
         }
         data.id = getUUID();
         data.path = this.httpForm.path;
@@ -305,21 +394,19 @@ export default {
           method: api.method,
           userId: getCurrentUser().id,
           request: data,
-          moduleId: "default-module"
+          moduleId: 'default-module',
         };
         this.getMaintainerOptions();
         this.list(data);
         this.httpVisible = true;
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .create-tip {
   color: #8c939d;
 }
-
 </style>

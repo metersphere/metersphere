@@ -2,8 +2,12 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini"
-                   @click="handleAddTaskModel">
+        <el-button
+          icon="el-icon-circle-plus-outline"
+          plain
+          size="mini"
+          @click="handleAddTaskModel"
+        >
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -17,63 +21,75 @@
           :receive-type-options="receiveTypeOptions"
           @handleReceivers="handleReceivers"
           @handleTemplate="handleTemplate"
-          @refresh="initForm"/>
+          @refresh="initForm"
+        />
       </el-col>
     </el-row>
-    <mx-notice-template v-xpack ref="noticeTemplate" :variables="variables"/>
+    <mx-notice-template v-xpack ref="noticeTemplate" :variables="variables" />
   </div>
 </template>
 
 <script>
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import MsCodeEdit from "@/business/definition/components/MsCodeEdit";
-import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
-import NotificationTable from "metersphere-frontend/src/components/notification/NotificationTable";
-import {getMessageById} from "../../api/notice";
-
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import MsCodeEdit from '@/business/definition/components/MsCodeEdit';
+import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
+import NotificationTable from 'metersphere-frontend/src/components/notification/NotificationTable';
+import { getMessageById } from '../../api/notice';
 
 export default {
-  name: "ScheduleNotification",
+  name: 'ScheduleNotification',
   components: {
     NotificationTable,
     MsTipButton,
     MsCodeEdit,
-    MxNoticeTemplate: () => import("metersphere-frontend/src/components/MxNoticeTemplate")
+    MxNoticeTemplate: () =>
+      import('metersphere-frontend/src/components/MxNoticeTemplate'),
   },
   props: {
     testId: String,
     scheduleReceiverOptions: Array,
     isTesterPermission: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
       loading: false,
       modes: ['text', 'html'],
-      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}",
-      scheduleTask: [{
-        taskType: "scheduleTask",
-        event: "",
-        userIds: [],
-        type: [],
-        webhook: "",
-        isSet: true,
-        identification: "",
-        isReadOnly: false,
-        testId: this.testId,
-      }],
+      robotTitle: '${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}',
+      scheduleTask: [
+        {
+          taskType: 'scheduleTask',
+          event: '',
+          userIds: [],
+          type: [],
+          webhook: '',
+          isSet: true,
+          identification: '',
+          isReadOnly: false,
+          testId: this.testId,
+        },
+      ],
       scheduleEventOptions: [
-        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
-        {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
+        {
+          value: 'EXECUTE_SUCCESSFUL',
+          label: this.$t('schedule.event_success'),
+        },
+        { value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed') },
       ],
       receiveTypeOptions: [
-        {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
-        {value: 'LARK', label: this.$t('organization.message.lark')},
-        {value: 'WEBHOOK', label: this.$t('organization.message.webhook')},
+        { value: 'EMAIL', label: this.$t('organization.message.mail') },
+        {
+          value: 'NAIL_ROBOT',
+          label: this.$t('organization.message.nail_robot'),
+        },
+        {
+          value: 'WECHAT_ROBOT',
+          label: this.$t('organization.message.enterprise_wechat_robot'),
+        },
+        { value: 'LARK', label: this.$t('organization.message.lark') },
+        { value: 'WEBHOOK', label: this.$t('organization.message.webhook') },
       ],
       variables: [
         {
@@ -187,14 +203,16 @@ export default {
         {
           label: this.$t('api_test.environment.environment_type'),
           value: 'environmentType',
-        }, {
+        },
+        {
           label: this.$t('api_test.environment.environment_json'),
           value: 'environmentJson',
-        }, {
+        },
+        {
           label: this.$t('api_test.environment.environment_group_id'),
           value: 'environmentGroupId',
         },
-      ]
+      ],
     };
   },
   mounted() {
@@ -206,13 +224,13 @@ export default {
   watch: {
     testId() {
       this.initForm();
-    }
+    },
   },
   methods: {
     initForm() {
-      this.loading = getMessageById(this.testId).then(response => {
+      this.loading = getMessageById(this.testId).then((response) => {
         this.scheduleTask = response.data;
-        this.scheduleTask.forEach(task => {
+        this.scheduleTask.forEach((task) => {
           this.handleReceivers(task);
         });
       });
@@ -231,7 +249,7 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let robotTemplate = "";
+        let robotTemplate = '';
         switch (row.event) {
           case 'EXECUTE_SUCCESSFUL':
             robotTemplate = this.robotTitle;
@@ -246,9 +264,11 @@ export default {
       }
     },
     handleReceivers(row) {
-      row.receiverOptions = JSON.parse(JSON.stringify(this.scheduleReceiverOptions));
-    }
-  }
+      row.receiverOptions = JSON.parse(
+        JSON.stringify(this.scheduleReceiverOptions)
+      );
+    },
+  },
 };
 </script>
 
@@ -257,4 +277,3 @@ export default {
   margin-bottom: 10px;
 }
 </style>
-

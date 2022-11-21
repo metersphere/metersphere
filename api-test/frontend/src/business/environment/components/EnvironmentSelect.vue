@@ -1,47 +1,68 @@
 <template>
-    <span>
-      <el-select v-model="currentData.environmentId" size="small" class="ms-htt-width"
-                 :placeholder="$t('api_test.definition.request.run_env')"
-                 @change="environmentChange" clearable>
-        <el-option v-for="(environment, index) in environments" :key="index"
-                   :label="getLabel(environment)"
-                   :value="environment.id"/>
-        <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-          {{ $t('api_test.environment.environment_config') }}
-        </el-button>
-        <template v-slot:empty>
-          <div class="empty-environment">
-            <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-              {{ $t('api_test.environment.environment_config') }}
-            </el-button>
-          </div>
-        </template>
-      </el-select>
+  <span>
+    <el-select
+      v-model="currentData.environmentId"
+      size="small"
+      class="ms-htt-width"
+      :placeholder="$t('api_test.definition.request.run_env')"
+      @change="environmentChange"
+      clearable
+    >
+      <el-option
+        v-for="(environment, index) in environments"
+        :key="index"
+        :label="getLabel(environment)"
+        :value="environment.id"
+      />
+      <el-button
+        class="environment-button"
+        size="mini"
+        type="primary"
+        @click="openEnvironmentConfig"
+      >
+        {{ $t('api_test.environment.environment_config') }}
+      </el-button>
+      <template v-slot:empty>
+        <div class="empty-environment">
+          <el-button
+            class="environment-button"
+            size="mini"
+            type="primary"
+            @click="openEnvironmentConfig"
+          >
+            {{ $t('api_test.environment.environment_config') }}
+          </el-button>
+        </div>
+      </template>
+    </el-select>
 
-      <!-- 环境 -->
-      <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
-    </span>
+    <!-- 环境 -->
+    <api-environment-config
+      ref="environmentConfig"
+      @close="environmentConfigClose"
+    />
+  </span>
 </template>
 
 <script>
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
-import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
-import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
-import {useApiStore} from "@/store";
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import ApiEnvironmentConfig from 'metersphere-frontend/src/components/environment/ApiEnvironmentConfig';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
+import { useApiStore } from '@/store';
 
 const store = useApiStore();
 export default {
-  name: "EnvironmentSelect",
-  components: {ApiEnvironmentConfig},
+  name: 'EnvironmentSelect',
+  components: { ApiEnvironmentConfig },
   data() {
     return {
-      environments: []
-    }
+      environments: [],
+    };
   },
   props: {
     projectId: String,
     currentData: {},
-    type: String
+    type: String,
   },
   created() {
     this.getEnvironments();
@@ -49,9 +70,9 @@ export default {
   methods: {
     getEnvironments() {
       if (this.projectId) {
-        getEnvironmentByProjectId(this.projectId).then(response => {
+        getEnvironmentByProjectId(this.projectId).then((response) => {
           this.environments = response.data;
-          this.environments.forEach(environment => {
+          this.environments.forEach((environment) => {
             parseEnvironment(environment);
           });
           let hasEnvironment = false;
@@ -75,16 +96,26 @@ export default {
     getLabel(environment) {
       if (environment) {
         if (this.type === 'TCP') {
-          if (environment.config.tcpConfig && environment.config.tcpConfig.server) {
-            return environment.name + ": " + environment.config.tcpConfig.server + ":" +
-                (environment.config.tcpConfig.port ? environment.config.tcpConfig.port : "");
+          if (
+            environment.config.tcpConfig &&
+            environment.config.tcpConfig.server
+          ) {
+            return (
+              environment.name +
+              ': ' +
+              environment.config.tcpConfig.server +
+              ':' +
+              (environment.config.tcpConfig.port
+                ? environment.config.tcpConfig.port
+                : '')
+            );
           } else {
             return environment.name;
           }
         }
         return environment.name;
       }
-      return "";
+      return '';
     },
     environmentConfigClose() {
       this.getEnvironments();
@@ -99,7 +130,10 @@ export default {
             if (this.currentData.request.hashTree) {
               // 找到原始环境和数据源名称
               let environment = this.environments[i];
-              this.setOwnEnvironment(this.currentData.request.hashTree, environment);
+              this.setOwnEnvironment(
+                this.currentData.request.hashTree,
+                environment
+              );
             }
           }
           break;
@@ -107,12 +141,12 @@ export default {
       }
     },
     getTargetSource(obj) {
-      this.environments.forEach(environment => {
+      this.environments.forEach((environment) => {
         parseEnvironment(environment);
         // 找到原始环境和数据源名称
         if (environment.id === obj.environmentId) {
           if (environment.config && environment.config.databaseConfigs) {
-            environment.config.databaseConfigs.forEach(item => {
+            environment.config.databaseConfigs.forEach((item) => {
               if (item.id === obj.dataSourceId) {
                 obj.targetDataSourceName = item.name;
               }
@@ -123,13 +157,20 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition, env) {
       for (let i in scenarioDefinition) {
-        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        let typeArray = [
+          'JDBCPostProcessor',
+          'JDBCSampler',
+          'JDBCPreProcessor',
+        ];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           // 找到原始数据源名称
-          this.getTargetSource(scenarioDefinition[i])
+          this.getTargetSource(scenarioDefinition[i]);
           scenarioDefinition[i].environmentId = env.id;
         }
-        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
+        if (
+          scenarioDefinition[i].hashTree &&
+          scenarioDefinition[i].hashTree.length > 0
+        ) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
         }
       }
@@ -146,16 +187,14 @@ export default {
       if (this.currentData.request) {
         this.currentData.request.useEnvironment = environmentId;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .environment-button {
   margin-left: 20px;
   padding: 7px;
 }
-
 </style>

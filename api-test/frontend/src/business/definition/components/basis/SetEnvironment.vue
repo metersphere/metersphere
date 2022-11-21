@@ -5,20 +5,31 @@
       :visible.sync="dialogVisible"
       width="400px"
       :destroy-on-close="true"
-      @close="handleClose">
-      <el-select v-model="environmentId" value-key="id" class="ms-htt-width"
-                 :placeholder="$t('api_test.definition.request.run_env')"
-                 clearable>
-        <el-option v-for="(environment, index) in environments" :key="index"
-                   :label="environment.name"
-                   :value="environment.id"/>
+      @close="handleClose"
+    >
+      <el-select
+        v-model="environmentId"
+        value-key="id"
+        class="ms-htt-width"
+        :placeholder="$t('api_test.definition.request.run_env')"
+        clearable
+      >
+        <el-option
+          v-for="(environment, index) in environments"
+          :key="index"
+          :label="environment.name"
+          :value="environment.id"
+        />
         <template v-slot:empty>
-          <div class="empty-environment">
-          </div>
+          <div class="empty-environment"></div>
         </template>
       </el-select>
       <template v-slot:footer>
-        <el-button type="primary" @click="createPerformance" @keydown.enter.native.prevent>
+        <el-button
+          type="primary"
+          @click="createPerformance"
+          @keydown.enter.native.prevent
+        >
           {{ $t('commons.confirm') }}
         </el-button>
       </template>
@@ -27,14 +38,17 @@
 </template>
 
 <script>
-import {getCaseById} from "@/api/api-test-case";
-import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
-import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
+import { getCaseById } from '@/api/api-test-case';
+import {
+  listenGoBack,
+  removeGoBackListener,
+} from 'metersphere-frontend/src/utils';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 
 export default {
-  name: "MsSetEnvironment",
+  name: 'MsSetEnvironment',
   components: {},
   props: {
     testCase: Object,
@@ -45,14 +59,14 @@ export default {
       dialogVisible: false,
       filterable: false,
       environments: [],
-      environmentId: "",
+      environmentId: '',
       dialogTitle: {
         type: String,
         default() {
-          return this.$t('api_test.environment.select_environment')
-        }
-      }
-    }
+          return this.$t('api_test.environment.select_environment');
+        },
+      },
+    };
   },
   watch: {
     environmentId() {
@@ -76,9 +90,9 @@ export default {
     getEnvironments() {
       let selectProjectId = this.projectId;
       if (selectProjectId) {
-        getEnvironmentByProjectId(selectProjectId).then(response => {
+        getEnvironmentByProjectId(selectProjectId).then((response) => {
           this.environments = response.data;
-          this.environments.forEach(environment => {
+          this.environments.forEach((environment) => {
             parseEnvironment(environment);
           });
         });
@@ -97,16 +111,16 @@ export default {
       removeGoBackListener(this.handleClose);
     },
     createPerformance() {
-      getCaseById(this.testCase.id).then(response => {
+      getCaseById(this.testCase.id).then((response) => {
         let testCaseInfo = response.data;
         if (testCaseInfo != null) {
           this.dialogVisible = false;
-          this.$emit("createPerformance", testCaseInfo, this.environment);
+          this.$emit('createPerformance', testCaseInfo, this.environment);
         }
       });
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

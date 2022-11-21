@@ -1,5 +1,5 @@
-import {fileUpload} from "@/api/base-network";
-import {get, post} from "metersphere-frontend/src/plugins/request"
+import { fileUpload } from '@/api/base-network';
+import { get, post } from 'metersphere-frontend/src/plugins/request';
 
 export function editApiTestCaseOrder(request) {
   return post('/api/testcase/sort', request);
@@ -83,9 +83,9 @@ export function editApiCase(url, file, files, params) {
 }
 
 export function apiTestCaseCount(param) {
-  return post('/api/testcase/case-count',param);
+  return post('/api/testcase/case-count', param);
 }
 
 export function getApiCaseEnvironments(param) {
-  return post('/api/testcase/get/env',param);
+  return post('/api/testcase/get/env', param);
 }

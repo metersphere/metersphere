@@ -1,6 +1,12 @@
 <template>
   <div class="ms-table-header">
-    <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
+    <el-row
+      v-if="title"
+      class="table-title"
+      type="flex"
+      justify="space-between"
+      align="middle"
+    >
       <slot name="title">
         {{ title }}
       </slot>
@@ -12,14 +18,25 @@
       <span>
         <el-row justify="space-between" v-if="showThumbnail">
           <el-col :span="16">
-            <ms-table-search-bar :condition.sync="condition" @change="search"/>
+            <ms-table-search-bar :condition.sync="condition" @change="search" />
           </el-col>
           <el-col :span="8">
-            <font-awesome-icon class="ms-mode-aw ms-mode" :icon="['fas', 'list-ul']" @click="change('list')"/>
-            <i class="el-icon-menu ms-mode-left ms-mode" @click="change('view')"/>
+            <font-awesome-icon
+              class="ms-mode-aw ms-mode"
+              :icon="['fas', 'list-ul']"
+              @click="change('list')"
+            />
+            <i
+              class="el-icon-menu ms-mode-left ms-mode"
+              @click="change('view')"
+            />
           </el-col>
         </el-row>
-         <ms-table-search-bar :condition.sync="condition" @change="search" v-else/>
+        <ms-table-search-bar
+          :condition.sync="condition"
+          @change="search"
+          v-else
+        />
       </span>
     </el-row>
   </div>
@@ -28,16 +45,21 @@
 <script>
 import MsTableSearchBar from 'metersphere-frontend/src/components/MsTableSearchBar';
 import MsTableButton from 'metersphere-frontend/src/components/MsTableButton';
-import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
+import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import MsSearch from 'metersphere-frontend/src/components/search/MsSearch';
 
 export default {
-  name: "MsFileHeader",
-  components: {MsTableAdvSearchBar, MsTableSearchBar, MsTableButton, MsSearch},
+  name: 'MsFileHeader',
+  components: {
+    MsTableAdvSearchBar,
+    MsTableSearchBar,
+    MsTableButton,
+    MsSearch,
+  },
   data() {
     return {
-      version: this.currentVersion
+      version: this.currentVersion,
     };
   },
   props: {
@@ -45,84 +67,83 @@ export default {
       type: String,
       default() {
         return null;
-      }
+      },
     },
     showCreate: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showThumbnail: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showImport: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showRun: {
       type: Boolean,
-      default: false
+      default: false,
     },
     condition: {
-      type: Object
+      type: Object,
     },
     createTip: {
       type: String,
       default() {
         return this.$t('commons.create');
-      }
+      },
     },
     importTip: {
       type: String,
       default() {
         return this.$t('commons.import');
-      }
+      },
     },
     createPermission: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     uploadPermission: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     runTip: {
       type: String,
-
     },
     currentVersion: {
       type: String,
     },
     isShowVersion: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isTesterPermission: {
       type: Boolean,
-      default: false
+      default: false,
     },
     tip: {
       String,
       default() {
         return this.$t('commons.search_by_name');
-      }
+      },
     },
     haveSearch: {
       Boolean,
       default() {
         return true;
-      }
+      },
     },
     versionOptions: {
       type: Array,
       default() {
-        return []
-      }
-    }
+        return [];
+      },
+    },
   },
   methods: {
     search(value) {
@@ -131,17 +152,17 @@ export default {
     },
     change(data) {
       this.$emit('change', data);
-    }
+    },
   },
   computed: {
     isCombine() {
-      return this.condition.components  && this.condition.components.length > 0;
+      return this.condition.components && this.condition.components.length > 0;
     },
     projectId() {
       return getCurrentProjectID();
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

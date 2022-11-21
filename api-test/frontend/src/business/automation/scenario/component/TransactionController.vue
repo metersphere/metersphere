@@ -11,38 +11,55 @@
     color="#783887"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.automation.transaction_controller')">
+    :title="$t('api_test.automation.transaction_controller')"
+  >
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
-         <i class="el-icon-loading" style="font-size: 16px"/>
-         {{ $t('commons.testing') }}
-       </span>
-      <span class="ms-step-debug-code" :class="node.data.code ==='ERROR'?'ms-req-error':'ms-req-success'" v-if="!loading &&!node.data.testing && node.data.debug">
+        <i class="el-icon-loading" style="font-size: 16px" />
+        {{ $t('commons.testing') }}
+      </span>
+      <span
+        class="ms-step-debug-code"
+        :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
+        v-if="!loading && !node.data.testing && node.data.debug"
+      >
         {{ getCode() }}
       </span>
     </template>
 
     <template v-slot:headerLeft>
-      <el-input draggable size="mini" v-model="controller.name" style="width: 20%" :placeholder="$t('api_test.automation.transaction_controller')"/>
-      <el-checkbox v-model="controller.generateParentSample"
-                   @change="changeGenerateParantSample"
-                   :disabled="controller.disabled" class="ms-btn">
+      <el-input
+        draggable
+        size="mini"
+        v-model="controller.name"
+        style="width: 20%"
+        :placeholder="$t('api_test.automation.transaction_controller')"
+      />
+      <el-checkbox
+        v-model="controller.generateParentSample"
+        @change="changeGenerateParantSample"
+        :disabled="controller.disabled"
+        class="ms-btn"
+      >
         Generate Parent Sample
       </el-checkbox>
-      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.disabled">
+      <el-checkbox
+        v-model="controller.includeTimers"
+        @change="changeIncludeTimers"
+        :disabled="controller.disabled"
+      >
         Include Timers
       </el-checkbox>
     </template>
-
   </api-base-component>
 </template>
 
 <script>
-import ApiBaseComponent from "../common/ApiBaseComponent";
+import ApiBaseComponent from '../common/ApiBaseComponent';
 
 export default {
-  name: "MsTransactionController",
-  components: {ApiBaseComponent},
+  name: 'MsTransactionController',
+  components: { ApiBaseComponent },
   props: {
     controller: {},
     node: {},
@@ -74,47 +91,45 @@ export default {
       this.reload();
     },
   },
-  created() {
-
-  },
+  created() {},
   data() {
     return {
       loading: false,
       operators: {
         EQ: {
-          label: "commons.adv_search.operators.equals",
-          value: "=="
+          label: 'commons.adv_search.operators.equals',
+          value: '==',
         },
         NE: {
-          label: "commons.adv_search.operators.not_equals",
-          value: "!="
+          label: 'commons.adv_search.operators.not_equals',
+          value: '!=',
         },
         LIKE: {
-          label: "commons.adv_search.operators.like",
-          value: "=~"
+          label: 'commons.adv_search.operators.like',
+          value: '=~',
         },
         NOT_LIKE: {
-          label: "commons.adv_search.operators.not_like",
-          value: "!~"
+          label: 'commons.adv_search.operators.not_like',
+          value: '!~',
         },
         GT: {
-          label: "commons.adv_search.operators.gt",
-          value: ">"
+          label: 'commons.adv_search.operators.gt',
+          value: '>',
         },
         LT: {
-          label: "commons.adv_search.operators.lt",
-          value: "<"
+          label: 'commons.adv_search.operators.lt',
+          value: '<',
         },
         IS_EMPTY: {
-          label: "commons.adv_search.operators.is_empty",
-          value: "is empty"
+          label: 'commons.adv_search.operators.is_empty',
+          value: 'is empty',
         },
         IS_NOT_EMPTY: {
-          label: "commons.adv_search.operators.is_not_empty",
-          value: "is not empty"
-        }
-      }
-    }
+          label: 'commons.adv_search.operators.is_not_empty',
+          value: 'is not empty',
+        },
+      },
+    };
   },
   methods: {
     reload() {
@@ -140,8 +155,8 @@ export default {
       this.$emit('copyRow', this.controller, this.node);
     },
     change(value) {
-      if (value.indexOf("empty") > 0 && !!this.controller.value) {
-        this.controller.value = "";
+      if (value.indexOf('empty') > 0 && !!this.controller.value) {
+        this.controller.value = '';
       }
     },
     changeGenerateParantSample(value) {
@@ -155,10 +170,13 @@ export default {
   },
   computed: {
     hasEmptyOperator() {
-      return !!this.controller.operator && this.controller.operator.indexOf("empty") > 0;
-    }
-  }
-}
+      return (
+        !!this.controller.operator &&
+        this.controller.operator.indexOf('empty') > 0
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -172,11 +190,11 @@ export default {
 }
 
 .ms-req-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-req-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-step-debug-code {

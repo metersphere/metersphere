@@ -2,11 +2,11 @@
   <div></div>
 </template>
 <script>
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {strMapToObj} from "metersphere-frontend/src/utils";
-import {createComponent} from "../../definition/components/jmeter/components";
-import {saveScenario} from "@/business/automation/api-automation";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { strMapToObj } from 'metersphere-frontend/src/utils';
+import { createComponent } from '../../definition/components/jmeter/components';
+import { saveScenario } from '@/business/automation/api-automation';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 
 export default {
   name: 'MsDebugRun',
@@ -23,37 +23,52 @@ export default {
     saved: Boolean,
     environmentType: String,
     environmentGroupId: String,
-    browserLanguage: String
+    browserLanguage: String,
   },
   data() {
     return {
       result: false,
       loading: false,
       reqNumber: 0,
-    }
+    };
   },
 
   watch: {
     // 初始化
     reportId() {
-      this.run()
-    }
+      this.run();
+    },
   },
   methods: {
     sort(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
-          if (stepArray[i] && TYPE_TO_C.get(stepArray[i].type) && !stepArray[i].clazzName) {
+          if (
+            stepArray[i] &&
+            TYPE_TO_C.get(stepArray[i].type) &&
+            !stepArray[i].clazzName
+          ) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+          if (stepArray[i].type === 'Assertions' && !stepArray[i].document) {
             stepArray[i].document = {
-              type: "JSON",
-              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+              type: 'JSON',
+              data: {
+                xmlFollowAPI: false,
+                jsonFollowAPI: false,
+                json: [],
+                xml: [],
+              },
             };
           }
-          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          if (
+            stepArray[i] &&
+            stepArray[i].authManager &&
+            !stepArray[i].authManager.clazzName
+          ) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
+              stepArray[i].authManager.type
+            );
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
@@ -89,7 +104,7 @@ export default {
         environmentMap: strMapToObj(map),
         environmentType: this.environmentType,
         environmentGroupId: this.environmentGroupId,
-        environmentJson: JSON.stringify(strMapToObj(map))
+        environmentJson: JSON.stringify(strMapToObj(map)),
       };
       if (this.runData.variables) {
         reqObj.variables = this.runData.variables;
@@ -101,12 +116,14 @@ export default {
 
       let url = '/api/automation/run/debug';
       saveScenario(url, reqObj, this.runData.hashTree, this, (response) => {
-        if (response.data !== "SUCCESS") {
-          this.$error(response.data ? response.data : this.$t('commons.run_fail'));
+        if (response.data !== 'SUCCESS') {
+          this.$error(
+            response.data ? response.data : this.$t('commons.run_fail')
+          );
           this.$emit('errorRefresh');
         }
       });
     },
-  }
-}
+  },
+};
 </script>
