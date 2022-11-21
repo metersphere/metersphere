@@ -63,7 +63,7 @@
             WHERE temp.name LIKE CONCAT('%', #{request.name},'%')
         </if>
         <if test="request.orders == null or request.orders.size() == 0">
-            ORDER BY field(temp.type, 'SYSTEM', 'ORGANIZATION', 'WORKSPACE', 'PROJECT'), temp.update_time
+            ORDER BY field(temp.type, 'SYSTEM', 'ORGANIZATION', 'WORKSPACE', 'PROJECT'), temp.update_time, temp.name
         </if>
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY
