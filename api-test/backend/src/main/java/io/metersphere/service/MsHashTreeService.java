@@ -1,9 +1,9 @@
 package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.request.ElementUtil;
-import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
@@ -172,11 +172,11 @@ public class MsHashTreeService {
                 this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
             }
         } else if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), COPY)) {
-            ApiDefinition definition = apiDefinitionMapper.selectByPrimaryKey(element.optString(ID));
+            ApiDefinitionResult definition = apiDefinitionService.getById(element.optString(ID));
             if (definition != null) {
                 Project project = projectMapper.selectByPrimaryKey(definition.getProjectId());
                 element.put(ID, definition.getId());
-                this.setElement(element, definition.getNum(), enable, project.getName(), project.getVersionEnable());
+                this.setElement(element, definition.getNum(), enable, definition.getVersionName(), project.getVersionEnable());
                 isExist = true;
             }
         }
