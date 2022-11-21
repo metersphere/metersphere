@@ -2995,6 +2995,7 @@ const message = {
     delete_scenario_lable: "Delete scenario",
     delete_command_lable: "Delete command",
     command_name_label: "Command name",
+    unplanned_module: "Unplanned module",
   },
   project_application: {
     workstation: {
