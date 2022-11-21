@@ -124,6 +124,9 @@ public class FileMetadataService {
         // 上传文件
         FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
         String path = fileManagerService.upload(file, request);
+        if (StringUtils.isBlank(path)) {
+            MSException.throwException(Translator.get("upload_file_fail_get_file_path_fail"));
+        }
         fileMetadata.setPath(path);
         if (fileMetadataMapper.selectByPrimaryKey(fileMetadata.getId()) == null) {
             fileMetadata.setLatest(true);
