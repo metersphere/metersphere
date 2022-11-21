@@ -15,6 +15,7 @@ import io.metersphere.dto.IssuesStatusCountDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.platform.domain.SelectOption;
 import io.metersphere.request.issues.IssueExportRequest;
 import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
@@ -22,6 +23,7 @@ import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
+import io.metersphere.service.PlatformPluginService;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
@@ -42,6 +44,8 @@ public class IssuesController {
     private IssuesService issuesService;
     @Resource
     private BaseCheckPermissionService baseCheckPermissionService;
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
@@ -197,6 +201,11 @@ public class IssuesController {
     @PostMapping("/platform/transitions")
     public List<PlatformStatusDTO> getPlatformTransitions(@RequestBody PlatformIssueTypeRequest request) {
         return issuesService.getPlatformTransitions(request);
+    }
+
+    @GetMapping("/platform/option")
+    public List<SelectOption> getPlatformOptions() {
+        return platformPluginService.getPlatformOptions();
     }
 
     @PostMapping("/check/third/project")

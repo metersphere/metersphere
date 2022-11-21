@@ -248,3 +248,7 @@ export function getIssuePartTemplateWithProject(callback) {
       });
   });
 }
+
+export function getPlatformOption() {
+  return get(BASE_URL + 'platform/option');
+}
