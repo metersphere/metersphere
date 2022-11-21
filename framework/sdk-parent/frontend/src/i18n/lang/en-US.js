@@ -2010,10 +2010,10 @@ const message = {
         },
         table_value: {
           case_type: {
-            api: "Api case",
-            scene: "Scenario case",
-            load: "Load case",
-            functional: "Functional case"
+            api: "Api",
+            scene: "Scenario",
+            load: "Load",
+            functional: "Functional"
           }
         }
       },

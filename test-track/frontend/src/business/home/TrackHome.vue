@@ -135,15 +135,15 @@ export default {
 }
 
 .track-home-layout :deep(.dashboard-card) {
-  height: 392px;
+  height: 408px;
 }
 
 .track-home-layout :deep(.main-info) {
-  height: 197px;
+  height: 208px;
 }
 
 .track-home-layout :deep(.main-info-card) {
-  height: 197px;
+  height: 208px;
   width: 100%;
   color: #646A73;
   background-color: #FFFFFF;
@@ -179,18 +179,43 @@ export default {
 }
 
 .track-home-layout :deep(.home-table-cell) {
-  height: 38px;
+  height: 40px;
   background-color: #F5F6F7;
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(31, 35, 41, 0.15);
   border-right-width: 0;
   border-left-width: 0;
-  color: #1F2329;
+  color: #646A73;
   line-height: 22px;
 }
 
 .track-home-layout :deep(.el-card) {
   border: 0;
+}
+
+.track-home-layout :deep(.table-title) {
+  color: #1F2329;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.track-home-layout :deep(.el-table__row),
+.adjust-table :deep(.el-table__row .el-link) {
+  height: 40px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: #1F2329;
+}
+
+.track-home-layout :deep(.el-table__body tr:hover ) {
+  cursor: pointer;
+}
+
+.track-home-layout :deep(.el-table .cell) {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 </style>

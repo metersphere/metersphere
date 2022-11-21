@@ -1,43 +1,38 @@
 <template>
-  <el-card class="table-card" shadow="never">
-    <template v-slot:header>
-      <span class="table-title">
-        {{ $t('api_test.home_page.running_task_list.title') }}
-      </span>
-    </template>
-    <div v-loading="loading" element-loading-background="#FFFFFF">
+  <div style="margin: 24px" class="running-task-table">
+    <span class="table-title">
+      {{ $t('api_test.home_page.running_task_list.title') }}
+    </span>
+    <div style="margin-top: 16px" v-loading="loading" element-loading-background="#FFFFFF">
       <div v-show="loadError"
-           style="width: 100%; height: 300px; display: flex; flex-direction: column;     justify-content: center;align-items: center">
+           style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center">
         <img style="height: 100px;width: 100px;"
              src="/assets/figma/icon_load_error.svg"/>
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
       <div v-show="!loadError">
         <el-table
-          :enable-selection="false"
-          :condition="condition"
-          :data="tableData"
-          @refresh="search"
-          header-cell-class-name="home-table-cell" max-height="226px">
-          <el-table-column type="index" width="100" :label="$t('home.table.index')" show-overflow-tooltip/>
-          <el-table-column prop="name" :label="$t('commons.name')">
+          :enable-selection="false" :condition="condition" :data="tableData" class="adjust-table table-content"
+          @refresh="search" header-cell-class-name="home-table-cell" style="min-height: 228px">
+          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip width="100" />
+          <el-table-column prop="name" :label="$t('commons.name')" min-width="200">
             <template v-slot:default="{row}">
               <!-- 若为只读用户不可点击之后跳转-->
               <span v-if="isReadOnly">
                 {{ row.name }}
               </span>
-              <el-link v-else type="info" @click="redirect(row)">
+              <el-link style="color: #783887;" :underline="false" v-else type="info" @click="redirect(row)">
                 {{ row.name }}
               </el-link>
             </template>
-          </el-table-column>
-          <ms-table-column prop="taskType" :label="$t('home.table.task_type')" :filters="typeFilters">
+          </el-table-column  >
+          <ms-table-column prop="taskType" :label="$t('home.table.task_type')" :filters="typeFilters" width="100">
             <template v-slot:default="scope">
               <basic-task-type-label :value="scope.row.taskGroup"></basic-task-type-label>
             </template>
           </ms-table-column>
-          <el-table-column prop="rule" :label="$t('home.table.run_rule')" show-overflow-tooltip/>
-          <el-table-column :label="$t('home.table.task_status')">
+          <el-table-column prop="rule" :label="$t('home.table.run_rule')" show-overflow-tooltip min-width="200"/>
+          <el-table-column :label="$t('home.table.task_status')" width="100">
             <template v-slot:default="scope">
               <div>
                 <el-switch
@@ -49,13 +44,13 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('home.table.next_execution_time')">
+          <el-table-column :label="$t('home.table.next_execution_time')" width="170">
             <template v-slot:default="scope">
               <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="creator" :label="$t('home.table.create_user')" show-overflow-tooltip/>
-          <el-table-column :label="$t('home.table.update_time')">
+          <el-table-column prop="creator" :label="$t('home.table.create_user')" show-overflow-tooltip min-width="150" />
+          <el-table-column :label="$t('home.table.update_time')" width="170">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | datetimeFormat }}</span>
             </template>
@@ -73,7 +68,7 @@
                          :total="total"/>
       </div>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
@@ -193,18 +188,13 @@ export default {
 </script>
 
 <style scoped>
-.table-title {
-  color: #1F2329;
-  font-weight: 500;
-  font-size: 18px!important;
-  line-height: 26px;
+.running-task-table :deep(.el-link--inner) {
+  width: 100%;
+  float: left;
 }
 
-.el-table {
-  cursor: pointer;
-}
-
-.el-card :deep( .el-card__header ) {
-  border-bottom: 0px solid #EBEEF5;
+.running-task-table :deep(.status-label) {
+  width: 75px;
+  text-align: center;
 }
 </style>

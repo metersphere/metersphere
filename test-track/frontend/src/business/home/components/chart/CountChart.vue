@@ -1,9 +1,9 @@
 <template>
   <div v-if="reloadOver">
     <el-row type="flex" justify="left" align="left">
-      <div style="height: 184px; width: 100%; margin-left: 30px; margin-right: 30px;">
+      <div style="height: 208px; width: 100%; margin-left: 26px; margin-right: 30px;">
         <ms-chart :options="options"
-                  :height="184"
+                  :height="208"
                   width="100%"
                   :autoresize="true"/>
       </div>
@@ -120,17 +120,27 @@ export default {
           trigger: 'item'
         },
         legend: {
+          type: 'scroll',
           orient: 'vertical',
           icon: "rect",
           selectedMode: dataIsNotEmpty,
           itemGap: 16,
-          left: '45%',
+          left: '50%',
           y: 'center',
           itemHeight: 8,
           itemWidth: 8, //修改icon图形大小
           itemStyle: {
             borderWidth: 0.1
           },
+          pageIcons: {
+            vertical: [
+              'path://M387.84 164.906667a22.122667 22.122667 0 0 0-0.362667-30.72 20.522667 20.522667 0 0 0-29.674666 0.362666L0 512.853333l357.802667 378.282667c8.042667 8.533333 21.290667 8.746667 29.674666 0.341333 8.32-8.32 8.533333-22.016 0.384-30.72L60.330667 512.853333 387.861333 164.906667z',
+              'path://M709.845333 250.346667a22.4 22.4 0 0 1 0.533334-30.848 20.48 20.48 0 0 1 29.717333 0.64l272.426667 292.693333-272.426667 292.650667a20.458667 20.458667 0 0 1-29.717333 0.64c-8.32-8.32-8.746667-21.973333-0.533334-30.848l242.346667-262.464-242.346667-262.464z',
+            ],
+          },
+          pageIconColor: '#1F2329', // 可以点击的翻页按钮颜色
+          pageIconInactiveColor: '#7f7f7f', // 禁用的按钮颜色
+          pageIconSize: 14, //这当然就是按钮的大小
           textStyle: {
             align: 'right',
             rich: {
@@ -166,7 +176,7 @@ export default {
           text: "{mainTitle|" + this.mainTitle + "}\n\n{number|" + this.getAmount() + "}\n\n",
           subtext: this.$t("home.dashboard.public.this_week") + ": +" + formatNumber(this.weekCount) + " >",
           top: "center",
-          left: "86px",
+          left: "100px",
           textAlign: 'center',
           textStyle: {
             rich: {
@@ -197,8 +207,8 @@ export default {
         series: [
           {
             type: 'pie',
-            radius: ['70%', '96%'],
-            center: ['92px', '50%'],
+            radius: [75, 100],
+            center: ['104px', '50%'],
             avoidLabelOverlap: false,
             hoverAnimation: dataIsNotEmpty,
             legendHoverLink: false,
