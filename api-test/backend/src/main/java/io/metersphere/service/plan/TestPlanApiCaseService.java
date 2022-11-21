@@ -782,12 +782,11 @@ public class TestPlanApiCaseService {
                 this.add(req);
             }});
         }
-        QueryReferenceRequest planRequest = new QueryReferenceRequest();
         if (StringUtils.equals(request.getScenarioType(), ReportTypeConstants.API.name())) {
-            planRequest.setApiId(request.getId());
+            request.setApiId(request.getId());
         } else {
-            planRequest.setScenarioId(request.getId());
+            request.setScenarioId(request.getId());
         }
-        return extTestPlanApiCaseMapper.selectTestPlanByRelevancy(planRequest);
+        return extTestPlanApiCaseMapper.selectTestPlanByRelevancy(request);
     }
 }
