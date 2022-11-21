@@ -1,12 +1,6 @@
 <template>
   <div class="ms-table-header">
-    <el-row
-      v-if="title"
-      class="table-title"
-      type="flex"
-      justify="space-between"
-      align="middle"
-    >
+    <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
         {{ title }}
       </slot>
@@ -21,22 +15,11 @@
             <ms-table-search-bar :condition.sync="condition" @change="search" />
           </el-col>
           <el-col :span="8">
-            <font-awesome-icon
-              class="ms-mode-aw ms-mode"
-              :icon="['fas', 'list-ul']"
-              @click="change('list')"
-            />
-            <i
-              class="el-icon-menu ms-mode-left ms-mode"
-              @click="change('view')"
-            />
+            <font-awesome-icon class="ms-mode-aw ms-mode" :icon="['fas', 'list-ul']" @click="change('list')" />
+            <i class="el-icon-menu ms-mode-left ms-mode" @click="change('view')" />
           </el-col>
         </el-row>
-        <ms-table-search-bar
-          :condition.sync="condition"
-          @change="search"
-          v-else
-        />
+        <ms-table-search-bar :condition.sync="condition" @change="search" v-else />
       </span>
     </el-row>
   </div>

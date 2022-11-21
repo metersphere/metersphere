@@ -1,82 +1,50 @@
 <template>
   <div v-loading="loading">
-    <div
-      class="assertion-item-editing regex"
-      v-if="assertions.regex.length > 0"
-    >
+    <div class="assertion-item-editing regex" v-if="assertions.regex.length > 0">
       <div>{{ $t('api_test.request.assertions.regex') }}</div>
-      <div
-        class="regex-item"
-        v-for="(regex, index) in assertions.regex"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(regex, index) in assertions.regex" :key="index">
         <ms-api-assertion-regex
           :is-read-only="isReadOnly"
           :list="assertions.regex"
           :regex="regex"
           :edit="true"
-          :index="index"
-        />
+          :index="index" />
       </div>
     </div>
 
-    <div
-      class="assertion-item-editing json_path"
-      v-if="assertions.jsonPath.length > 0"
-    >
+    <div class="assertion-item-editing json_path" v-if="assertions.jsonPath.length > 0">
       <div>{{ 'JSONPath' }}</div>
-      <div
-        class="regex-item"
-        v-for="(jsonPath, index) in assertions.jsonPath"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(jsonPath, index) in assertions.jsonPath" :key="index">
         <ms-api-assertion-json-path
           :is-read-only="isReadOnly"
           :list="assertions.jsonPath"
           :json-path="jsonPath"
           :edit="true"
-          :index="index"
-        />
+          :index="index" />
       </div>
     </div>
 
-    <div
-      class="assertion-item-editing x_path"
-      v-if="assertions.xpath2.length > 0"
-    >
+    <div class="assertion-item-editing x_path" v-if="assertions.xpath2.length > 0">
       <div>{{ 'XPath' }}</div>
-      <div
-        class="regex-item"
-        v-for="(xPath, index) in assertions.xpath2"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(xPath, index) in assertions.xpath2" :key="index">
         <ms-api-assertion-x-path2
           :is-read-only="isReadOnly"
           :list="assertions.xpath2"
           :x-path2="xPath"
           :edit="true"
-          :index="index"
-        />
+          :index="index" />
       </div>
     </div>
 
-    <div
-      class="assertion-item-editing jsr223"
-      v-if="assertions.jsr223.length > 0"
-    >
+    <div class="assertion-item-editing jsr223" v-if="assertions.jsr223.length > 0">
       <div>{{ $t('api_test.request.assertions.script') }}</div>
-      <div
-        class="regex-item"
-        v-for="(assertion, index) in assertions.jsr223"
-        :key="index"
-      >
+      <div class="regex-item" v-for="(assertion, index) in assertions.jsr223" :key="index">
         <ms-api-assertion-jsr223
           :is-read-only="isReadOnly"
           :list="assertions.jsr223"
           :assertion="assertion"
           :edit="true"
-          :index="index"
-        />
+          :index="index" />
       </div>
     </div>
 
@@ -87,54 +55,35 @@
           :is-read-only="isReadOnly"
           v-model="assertions.duration.value"
           :duration="assertions.duration"
-          :edit="true"
-        />
+          :edit="true" />
       </div>
     </div>
     <div class="assertion-item-editing response-time" v-if="isDocument">
       <div>
         <el-row :gutter="10" type="flex" justify="space-between" align="middle">
-          <el-col>
-            {{ assertions.document.type }}-{{
-              $t('api_test.definition.request.document_structure')
-            }}
-          </el-col>
+          <el-col> {{ assertions.document.type }}-{{ $t('api_test.definition.request.document_structure') }} </el-col>
           <el-col class="assertion-remove-btn">
-            <el-tooltip
-              :content="$t('test_resource_pool.enable_disable')"
-              placement="top"
-            >
+            <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
               <el-switch
                 v-model="assertions.document.enable"
                 class="enable-switch"
                 size="mini"
                 :disabled="assertions.disabled"
-                style="width: 30px; margin-right: 10px"
-              />
+                style="width: 30px; margin-right: 10px" />
             </el-tooltip>
-            <el-tooltip
-              effect="dark"
-              :content="$t('commons.remove')"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button
                 icon="el-icon-delete"
                 type="danger"
                 size="mini"
                 circle
                 @click="remove()"
-                :disabled="assertions.disabled && !assertions.root"
-              />
+                :disabled="assertions.disabled && !assertions.root" />
             </el-tooltip>
           </el-col>
         </el-row>
       </div>
-      <ms-document-body
-        :document="assertions.document"
-        :apiId="apiId"
-        :isReadOnly="isReadOnly"
-        @remove="remove"
-      />
+      <ms-document-body :document="assertions.document" :apiId="apiId" :isReadOnly="isReadOnly" @remove="remove" />
     </div>
   </div>
 </template>
@@ -181,8 +130,7 @@ export default {
       return (
         this.assertions.document &&
         this.assertions.document.data &&
-        (this.assertions.document.data.json.length > 0 ||
-          this.assertions.document.data.xml.length > 0)
+        (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0)
       );
     },
   },

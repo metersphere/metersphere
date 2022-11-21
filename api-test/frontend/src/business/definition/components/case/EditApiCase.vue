@@ -1,12 +1,6 @@
 <template>
   <div v-if="visible">
-    <ms-drawer
-      :size="60"
-      @close="apiCaseClose"
-      direction="bottom"
-      ref="testCaseDrawer"
-      class="ms-drawer-case-header"
-    >
+    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer" class="ms-drawer-case-header">
       <template v-slot:header>
         <api-case-header
           :api="api"
@@ -20,18 +14,14 @@
           :is-case-edit="isCaseEdit"
           :button-text="saveButtonText"
           ref="header"
-          v-if="refreshHeader"
-        />
+          v-if="refreshHeader" />
       </template>
 
       <el-container>
         <el-main>
           <div v-for="item in apiCaseList" :key="item.id ? item.id : item.uuid">
             <api-case-item
-              :loading="
-                (singleLoading && singleRunId === item.id) ||
-                batchLoadingIds.indexOf(item.id) > -1
-              "
+              :loading="(singleLoading && singleRunId === item.id) || batchLoadingIds.indexOf(item.id) > -1"
               @refresh="refresh"
               @singleRun="singleRun"
               @stop="stop"
@@ -48,8 +38,7 @@
               :loaded="loaded"
               :maintainerOptions="maintainerOptions"
               :api-case="item"
-              ref="apiCaseItem"
-            />
+              ref="apiCaseItem" />
           </div>
         </el-main>
       </el-container>
@@ -64,17 +53,12 @@
       :edit-case-request="true"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
     <ms-task-center ref="taskCenter" :show-menu="false" />
   </div>
 </template>
 <script>
-import {
-  apiTestCaseList,
-  editApiCaseByParam,
-  getCaseById,
-} from '@/api/api-test-case';
+import { apiTestCaseList, editApiCaseByParam, getCaseById } from '@/api/api-test-case';
 import { getMaintainer } from '@/api/project';
 import ApiCaseHeader from './ApiCaseHeader';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
@@ -96,8 +80,7 @@ export default {
     ApiCaseHeader,
     MsRun: () => import('../Run'),
     ApiCaseItem: () => import('./ApiCaseItem'),
-    MsTaskCenter: () =>
-      import('metersphere-frontend/src/components/task/TaskCenter'),
+    MsTaskCenter: () => import('metersphere-frontend/src/components/task/TaskCenter'),
   },
   props: {
     createCase: String,
@@ -284,14 +267,8 @@ export default {
     setEnvironment(environment) {
       if (this.environment !== environment) {
         if (this.apiCaseList && this.apiCaseList.length > 0) {
-          if (
-            this.apiCaseList[0].request &&
-            this.apiCaseList[0].request.hashTree
-          ) {
-            this.setOwnEnvironment(
-              this.apiCaseList[0].request.hashTree,
-              environment
-            );
+          if (this.apiCaseList[0].request && this.apiCaseList[0].request.hashTree) {
+            this.setOwnEnvironment(this.apiCaseList[0].request.hashTree, environment);
           }
         }
       }
@@ -310,10 +287,7 @@ export default {
     apiCaseClose() {
       if (this.apiCaseList && this.apiCaseList.length > 0) {
         let message = '';
-        if (
-          store.apiCaseMap.has(this.apiCaseList[0].id) &&
-          store.apiCaseMap.get(this.apiCaseList[0].id) > 1
-        ) {
+        if (store.apiCaseMap.has(this.apiCaseList[0].id) && store.apiCaseMap.get(this.apiCaseList[0].id) > 1) {
           message += this.apiCaseList[0].name + '，';
         }
         if (this.apiCaseList[0].type === 'AddCase') {
@@ -364,14 +338,8 @@ export default {
       this.$emit('refreshModule');
     },
     setNewSource(environment, obj) {
-      if (
-        environment.config &&
-        environment.config.databaseConfigs &&
-        environment.config.databaseConfigs.length > 0
-      ) {
-        let dataSources = environment.config.databaseConfigs.filter(
-          (item) => item.name === obj.targetDataSourceName
-        );
+      if (environment.config && environment.config.databaseConfigs && environment.config.databaseConfigs.length > 0) {
+        let dataSources = environment.config.databaseConfigs.filter((item) => item.name === obj.targetDataSourceName);
         if (dataSources && dataSources.length > 0) {
           obj.dataSourceId = dataSources[0].id;
         } else {
@@ -437,18 +405,11 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition, env) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           this.getEnvironments(scenarioDefinition[i], env);
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
         }
       }
@@ -459,12 +420,7 @@ export default {
       this.singleRunId = '';
       this.apiCaseList[0].active = true;
       if (data) {
-        let status =
-          data.status === 'FAKE_ERROR'
-            ? data.status
-            : data.error > 0
-            ? 'Error'
-            : 'Success';
+        let status = data.status === 'FAKE_ERROR' ? data.status : data.error > 0 ? 'Error' : 'Success';
         this.apiCaseList[0].execResult = status;
         this.apiCaseList[0].responseData = data;
         this.$refs.apiCaseItem.runLoading = false;
@@ -653,11 +609,7 @@ export default {
       this.singleLoading = true;
       this.singleRunId = row.id;
       row.request.name = row.id;
-      if (
-        row.apiMethod !== 'SQL' &&
-        row.apiMethod !== 'DUBBO' &&
-        row.apiMethod !== 'dubbo://'
-      ) {
+      if (row.apiMethod !== 'SQL' && row.apiMethod !== 'DUBBO' && row.apiMethod !== 'dubbo://') {
         row.request.useEnvironment = this.environment;
       } else {
         row.request.useEnvironment = row.request.environmentId;

@@ -1,20 +1,10 @@
 <template>
   <div v-loading="loading">
     <div class="kv-row item" v-for="(item, index) in data" :key="index">
-      <el-row
-        type="flex"
-        :gutter="20"
-        justify="space-between"
-        align="middle"
-        :style="item.style"
-      >
+      <el-row type="flex" :gutter="20" justify="space-between" align="middle" :style="item.style">
         <div class="box" v-if="item.box" />
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <el-checkbox
-            v-if="!isDisable(index)"
-            v-model="item.enable"
-            :disabled="isReadOnly"
-          />
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly" />
         </el-col>
         <span style="margin-left: 10px" v-else />
         <el-col class="item">
@@ -26,8 +16,7 @@
             size="small"
             maxlength="200"
             show-word-limit
-            :style="item.style"
-          />
+            :style="item.style" />
           <el-autocomplete
             :disabled="isReadOnly"
             :maxlength="400"
@@ -35,8 +24,7 @@
             v-model="item.name"
             size="small"
             show-word-limit
-            :style="item.style"
-          />
+            :style="item.style" />
         </el-col>
         <el-col v-if="showRequired">
           <input
@@ -44,8 +32,7 @@
             :disabled="isReadOnly"
             v-model="item.required"
             size="small"
-            :style="item.style"
-          />
+            :style="item.style" />
         </el-col>
         <el-col class="item">
           <input
@@ -54,8 +41,7 @@
             v-model="item.value"
             size="small"
             show-word-limit
-            :style="item.style"
-          />
+            :style="item.style" />
         </el-col>
         <el-col class="item" v-if="showDesc">
           <input
@@ -66,8 +52,7 @@
             :style="item.style"
             :disabled="isReadOnly"
             :placeholder="$t('commons.description')"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
       </el-row>
     </div>

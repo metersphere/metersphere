@@ -1,16 +1,8 @@
 <template>
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
+    <div class="ms-opt-btn" v-if="versionEnable">{{ $t('project.version.name') }}: {{ apiData.versionName }}</div>
     <el-card class="card-content">
-      <el-form
-        :model="api"
-        ref="apiData"
-        :inline="true"
-        label-position="right"
-        style="height: 100%"
-      >
+      <el-form :model="api" ref="apiData" :inline="true" label-position="right" style="height: 100%">
         <!-- 操作按钮 -->
         <el-dropdown
           split-button
@@ -21,31 +13,18 @@
           size="small"
           style="float: right; margin-right: 20px"
           v-if="!runLoading"
-          v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-        >
+          v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
           {{ $t('commons.test') }}
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="load_case"
-              >{{ $t('api_test.definition.request.load_case') }}
-            </el-dropdown-item>
+            <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }} </el-dropdown-item>
             <el-dropdown-item command="save_as_case"
               >{{ $t('api_test.definition.request.save_as_case') }}
             </el-dropdown-item>
-            <el-dropdown-item command="update_api">{{
-              $t('api_test.definition.request.update_api')
-            }}</el-dropdown-item>
-            <el-dropdown-item command="save_as_api">{{
-              $t('api_test.definition.request.save_as')
-            }}</el-dropdown-item>
+            <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
+            <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <el-button
-          size="small"
-          type="primary"
-          v-else
-          @click.once="stop"
-          style="float: right; margin-right: 20px"
-        >
+        <el-button size="small" type="primary" v-else @click.once="stop" style="float: right; margin-right: 20px">
           {{ $t('report.stop_btn') }}
         </el-button>
 
@@ -53,12 +32,7 @@
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
           {{ $t('api_test.definition.request.run_env') }}：
-          <environment-select
-            :type="'TCP'"
-            :current-data="api"
-            :project-id="projectId"
-            ref="environmentSelect"
-          />
+          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId" ref="environmentSelect" />
         </el-form-item>
       </el-form>
 
@@ -69,8 +43,7 @@
           :request="api.request"
           @callback="runTest"
           :response="responseData"
-          ref="requestForm"
-        />
+          ref="requestForm" />
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
@@ -78,13 +51,7 @@
       </div>
       <div v-else-if="api.method == 'ESB'" v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-        <mx-esb-definition
-          v-xpack
-          :show-script="true"
-          :request="api.request"
-          @callback="runTest"
-          ref="requestForm"
-        />
+        <mx-esb-definition v-xpack :show-script="true" :request="api.request" @callback="runTest" ref="requestForm" />
       </div>
 
       <div v-if="api.method == 'ESB'">
@@ -94,8 +61,7 @@
           :is-api-component="false"
           :show-options-button="false"
           :request="api.request"
-          :response-data="responseData"
-        />
+          :response-data="responseData" />
       </div>
     </el-card>
 
@@ -109,8 +75,7 @@
       :loaded="loaded"
       :createCase="createCase"
       :save-button-text="loadCaseConfirmButton"
-      ref="caseList"
-    />
+      ref="caseList" />
 
     <!-- 执行组件 -->
     <ms-run
@@ -119,8 +84,7 @@
       :run-data="runData"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
   </div>
 </template>
 
@@ -156,10 +120,8 @@ export default {
     MsRequestResultTail,
     MsRun,
     MsTcpFormatParameters,
-    MxEsbDefinition: () =>
-      import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () =>
-      import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
+    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
+    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {
@@ -353,9 +315,7 @@ export default {
       }
       if (this.api.method === 'ESB') {
         this.api.esbDataStruct = JSON.stringify(this.api.request.esbDataStruct);
-        this.api.backEsbDataStruct = JSON.stringify(
-          this.api.request.backEsbDataStruct
-        );
+        this.api.backEsbDataStruct = JSON.stringify(this.api.request.backEsbDataStruct);
       }
       // 历史数据兼容处理
       if (this.api.request) {

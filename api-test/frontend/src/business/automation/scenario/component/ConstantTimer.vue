@@ -9,8 +9,7 @@
     :inner-step="innerStep"
     color="#67C23A"
     background-color="#F2F9EE"
-    :title="$t('api_test.automation.wait_controller')"
-  >
+    :title="$t('api_test.automation.wait_controller')">
     <template v-slot:headerLeft>
       <el-input-number
         class="time-input"
@@ -19,8 +18,7 @@
         :min="0"
         :step="1000"
         ref="nameInput"
-        :disabled="timer.disabled"
-      />
+        :disabled="timer.disabled" />
       ms
     </template>
   </api-base-component>

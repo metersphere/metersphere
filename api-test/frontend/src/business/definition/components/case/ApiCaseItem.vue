@@ -1,21 +1,10 @@
 <template>
-  <el-card
-    style="margin-top: 5px"
-    @click.native="selectTestCase(apiCase, $event)"
-    v-loading="saveLoading"
-  >
+  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase, $event)" v-loading="saveLoading">
     <div @click="active(apiCase)" v-if="type !== 'detail'">
       <el-row>
-        <el-col
-          :span="api.protocol === 'HTTP' ? 4 : 8"
-          v-loading="loading && !(apiCase.active || type === 'detail')"
-        >
+        <el-col :span="api.protocol === 'HTTP' ? 4 : 8" v-loading="loading && !(apiCase.active || type === 'detail')">
           <span @click.stop>
-            <i
-              class="icon el-icon-arrow-right"
-              :class="{ 'is-active': apiCase.active }"
-              @click="active(apiCase)"
-            />
+            <i class="icon el-icon-arrow-right" :class="{ 'is-active': apiCase.active }" @click="active(apiCase)" />
             <el-input
               v-if="!apiCase.id || isShowInput"
               size="small"
@@ -24,34 +13,20 @@
               :key="index"
               class="ms-api-header-select"
               style="width: 180px"
-              :readonly="
-                !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')
-              "
+              :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
               :placeholder="$t('commons.input_name')"
-              ref="nameEdit"
-            />
+              ref="nameEdit" />
             <span v-else>
-              <el-tooltip
-                :content="apiCase.id ? apiCase.name : ''"
-                placement="top"
-              >
+              <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
                 <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
               </el-tooltip>
 
-              <i
-                class="el-icon-edit"
-                style="cursor: pointer"
-                @click="showInput(apiCase)"
-              />
+              <i class="el-icon-edit" style="cursor: pointer" @click="showInput(apiCase)" />
             </span>
 
-            <el-link
-              type="primary"
-              style="margin-left: 10px"
-              @click="openHis(apiCase)"
-              v-if="apiCase.id"
-              >{{ $t('operating_log.change_history') }}</el-link
-            >
+            <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{
+              $t('operating_log.change_history')
+            }}</el-link>
           </span>
           <div v-if="apiCase.id" style="color: #999999; font-size: 12px">
             <span style="margin-left: 10px">
@@ -67,14 +42,8 @@
             v-model="apiCase.priority"
             class="ms-api-select"
             @change="changePriority(apiCase)"
-            :disabled="readonly"
-          >
-            <el-option
-              v-for="grd in priorities"
-              :key="grd.id"
-              :label="grd.name"
-              :value="grd.id"
-            />
+            :disabled="readonly">
+            <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id" />
           </el-select>
         </el-col>
         <el-col :span="api.protocol === 'HTTP' ? 4 : 0">
@@ -85,8 +54,7 @@
                 'background-color': getColor(true, apiCase.request.method),
                 border: getColor(true, apiCase.request.method),
               }"
-              class="api-el-tag"
-            >
+              class="api-el-tag">
               {{ apiCase.request.method }}
             </el-tag>
             <el-tooltip :content="apiCase.request.path">
@@ -102,14 +70,8 @@
                 v-model="apiCase.caseStatus"
                 style="margin-right: 5px"
                 @change="saveTestCase(apiCase, true)"
-                :disabled="readonly"
-              >
-                <el-option
-                  v-for="item in options"
-                  :key="item.id"
-                  :label="$t(item.label)"
-                  :value="item.id"
-                />
+                :disabled="readonly">
+                <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
               </el-select>
             </el-col>
             <el-col :span="16">
@@ -119,8 +81,7 @@
                   placement="bottom"
                   effect="dark"
                   v-if="!showFollow"
-                  :disabled="true"
-                >
+                  :disabled="true">
                   <i
                     class="el-icon-star-off"
                     style="
@@ -130,28 +91,19 @@
                       margin-right: 15px;
                       cursor: pointer;
                     "
-                    @click="saveFollow"
-                  />
+                    @click="saveFollow" />
                 </el-tooltip>
                 <el-tooltip
                   :content="$t('commons.cancel')"
                   placement="bottom"
                   effect="dark"
                   v-if="showFollow"
-                  :disabled="true"
-                >
+                  :disabled="true">
                   <i
                     class="el-icon-star-on"
-                    style="
-                      color: #783987;
-                      font-size: 28px;
-                      margin-top: 2px;
-                      margin-right: 15px;
-                      cursor: pointer;
-                    "
+                    style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px; cursor: pointer"
                     @click="saveFollow"
-                    v-if="showFollow"
-                  />
+                    v-if="showFollow" />
                 </el-tooltip>
               </div>
             </el-col>
@@ -162,8 +114,7 @@
                 :currentScenario="apiCase"
                 ref="tag"
                 @keyup.enter.native="saveTestCase(apiCase, true)"
-                :read-only="readonly"
-              />
+                :read-only="readonly" />
             </div>
           </el-row>
         </el-col>
@@ -179,56 +130,35 @@
               size="mini"
               :disabled="!apiCase.id || loaded"
               circle
-              v-if="!loading"
-            />
-            <el-tooltip
-              :content="$t('report.stop_btn')"
-              placement="top"
-              :enterable="false"
-              v-else
-            >
+              v-if="!loading" />
+            <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
               <el-button
                 :disabled="!apiCase.id"
                 @click.once="stop(apiCase)"
                 size="mini"
                 style="color: white; padding: 0; width: 28px; height: 28px"
                 class="stop-btn"
-                circle
-              >
+                circle>
                 <div style="transform: scale(0.72)">
-                  <span style="margin-left: -3.5px; font-weight: bold"
-                    >STOP</span
-                  >
+                  <span style="margin-left: -3.5px; font-weight: bold">STOP</span>
                 </div>
               </el-button>
             </el-tooltip>
           </span>
           <span @click.stop>
-            <ms-api-extend-btns
-              :is-case-edit="isCaseEdit"
-              :environment="environment"
-              :row="apiCase"
-            />
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" />
           </span>
         </el-col>
 
         <el-col :span="4">
           <ms-api-report-status :status="apiCase.execResult" />
-          <div
-            v-if="apiCase.id"
-            style="color: #999999; font-size: 12px; padding: 5px"
-          >
+          <div v-if="apiCase.id" style="color: #999999; font-size: 12px; padding: 5px">
             <span> {{ apiCase.execTime | datetimeFormat }}</span>
             {{ apiCase.updateUser }}
           </div>
         </el-col>
         <el-col :span="2">
-          <el-link
-            style="float: right"
-            type="primary"
-            @click.stop
-            @click="showHistory(apiCase.id)"
-          >
+          <el-link style="float: right" type="primary" @click.stop @click="showHistory(apiCase.id)">
             {{ $t('commons.execute_history') }}
           </el-link>
         </el-col>
@@ -247,15 +177,13 @@
           :response="apiCase.responseData"
           :request="apiCase.request"
           :case-id="apiCase.apiDefinitionId"
-          v-if="api.protocol === 'HTTP'"
-        />
+          v-if="api.protocol === 'HTTP'" />
         <tcp-format-parameters
           :showScript="true"
           :show-pre-script="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
-          v-if="api.method === 'TCP'"
-        />
+          v-if="api.method === 'TCP'" />
         <mx-esb-definition
           class="esb-div"
           v-xpack
@@ -264,20 +192,17 @@
           :showScript="true"
           :response="apiCase.responseData"
           v-if="api.method === 'ESB'"
-          ref="esbDefinition"
-        />
+          ref="esbDefinition" />
         <ms-sql-basis-parameters
           :showScript="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
-          v-if="api.method === 'SQL'"
-        />
+          v-if="api.method === 'SQL'" />
         <ms-dubbo-basis-parameters
           :showScript="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
-          v-if="api.protocol === 'DUBBO'"
-        />
+          v-if="api.protocol === 'DUBBO'" />
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <div v-if="api.method === 'ESB'">
@@ -288,15 +213,13 @@
             :is-api-component="false"
             :show-options-button="false"
             :show-header="true"
-            :api-item="apiCase"
-          />
+            :api-item="apiCase" />
         </div>
         <div v-else>
           <api-response-component
             :currentProtocol="apiCase.request.protocol"
             :api-item="apiCase"
-            :result="apiCase.responseData"
-          />
+            :result="apiCase.responseData" />
         </div>
       </div>
     </el-collapse-transition>
@@ -304,19 +227,15 @@
     <el-dialog
       :visible.sync="syncCaseVisible"
       :append-to-body="true"
-      :title="$t('commons.save') + '&' + $t('workstation.sync_setting')"
-    >
-      <el-row
-        style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
-      >
+      :title="$t('commons.save') + '&' + $t('workstation.sync_setting')">
+      <el-row style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <span style="padding-left: 10px">
           {{ $t('project_application.workstation.update_case_tip') }}
           <el-tooltip
             class="ms-num"
             effect="dark"
             :content="$t('project_application.workstation.case_receiver_tip')"
-            placement="top"
-          >
+            placement="top">
             <i class="el-icon-warning" />
           </el-tooltip>
         </span>
@@ -329,15 +248,12 @@
             cursor: pointer;
             padding-left: 10px;
           "
-          @click="gotoApiMessage"
-        >
+          @click="gotoApiMessage">
           {{ $t('project_application.workstation.go_to_case_message') }}
         </p>
         <el-row style="margin-bottom: 5px; margin-top: 5px">
           <el-col :span="4"
-            ><span style="font-weight: bold; padding-left: 10px">{{
-              $t('api_test.definition.recipient') + ':'
-            }}</span>
+            ><span style="font-weight: bold; padding-left: 10px">{{ $t('api_test.definition.recipient') + ':' }}</span>
           </el-col>
           <el-col :span="20" style="color: var(--primary_color)">
             <el-checkbox v-model="caseSyncRuleRelation.scenarioCreator">
@@ -347,47 +263,26 @@
         </el-row>
       </el-row>
       <el-row>
-        <el-checkbox
-          v-model="caseSyncRuleRelation.showUpdateRule"
-          style="padding-left: 10px"
+        <el-checkbox v-model="caseSyncRuleRelation.showUpdateRule" style="padding-left: 10px"
           >{{ $t('project_application.workstation.no_show_setting') }}
         </el-checkbox>
       </el-row>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="syncCaseVisible = false">{{
-          $t('commons.cancel')
-        }}</el-button>
-        <el-button type="primary" @click="saveCaseAndNotice()">{{
-          $t('commons.confirm')
-        }}</el-button>
+        <el-button @click="syncCaseVisible = false">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="saveCaseAndNotice()">{{ $t('commons.confirm') }}</el-button>
       </span>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
-import {
-  citedScenarioCount,
-  deleteToGc,
-  editApiCase,
-  editFollowsByParam,
-  getApiCaseFollow,
-} from '@/api/api-test-case';
+import { citedScenarioCount, deleteToGc, editApiCase, editFollowsByParam, getApiCaseFollow } from '@/api/api-test-case';
 import { createDefinition } from '@/api/definition';
 import { relationGet, updateRuleRelation } from '@/api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-} from 'metersphere-frontend/src/utils/token';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
-import {
-  _getBodyUploadFiles,
-  mergeRequestDocumentData,
-} from '@/business/definition/api-definition';
+import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
+import { _getBodyUploadFiles, mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { API_METHOD_COLOUR, API_STATUS, PRIORITY } from '../../model/JsonData';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
 import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
@@ -438,12 +333,9 @@ export default {
     ShowMoreBtn,
     MsChangeHistory,
     ApiCaseHeader,
-    MsApiReportStatus: () =>
-      import('../../../automation/report/ApiReportStatus'),
-    MxEsbDefinition: () =>
-      import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () =>
-      import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
+    MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
+    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
+    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {
@@ -520,18 +412,11 @@ export default {
   },
   created() {
     store.scenarioEnvMap = undefined;
-    if (
-      this.apiCase.request &&
-      this.apiCase.request.hashTree &&
-      this.apiCase.request.hashTree.length > 0
-    ) {
-      let index = this.apiCase.request.hashTree.findIndex(
-        (item) => item.type === 'Assertions'
-      );
+    if (this.apiCase.request && this.apiCase.request.hashTree && this.apiCase.request.hashTree.length > 0) {
+      let index = this.apiCase.request.hashTree.findIndex((item) => item.type === 'Assertions');
       if (index !== -1) {
         this.apiCase.request.hashTree[index].document.nodeType = 'Case';
-        this.apiCase.request.hashTree[index].document.apiDefinitionId =
-          this.apiCase.apiDefinitionId;
+        this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
       }
     }
     this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
@@ -607,10 +492,8 @@ export default {
       store.apiCaseMap.set(this.apiCase.id, 0);
     }
     // 记录原始数据源ID
-    this.apiCase.request.originalDataSourceId =
-      this.apiCase.request.dataSourceId;
-    this.apiCase.request.originalEnvironmentId =
-      this.apiCase.request.environmentId;
+    this.apiCase.request.originalDataSourceId = this.apiCase.request.dataSourceId;
+    this.apiCase.request.originalEnvironmentId = this.apiCase.request.environmentId;
 
     if (this.apiCase && this.apiCase.request && this.apiCase.request.hashTree) {
       this.setOriginal(this.apiCase.request.hashTree);
@@ -619,21 +502,12 @@ export default {
   methods: {
     setOriginal(scenarioDefinition) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
-          scenarioDefinition[i].originalDataSourceId =
-            scenarioDefinition[i].dataSourceId;
-          scenarioDefinition[i].originalEnvironmentId =
-            scenarioDefinition[i].environmentId;
+          scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
+          scenarioDefinition[i].originalEnvironmentId = scenarioDefinition[i].environmentId;
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOriginal(scenarioDefinition[i].hashTree);
         }
       }
@@ -663,24 +537,17 @@ export default {
       }
     },
     deleteCase(index, row) {
-      this.$alert(
-        this.$t('api_test.definition.request.delete_case_confirm') +
-          ' ' +
-          row.name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              deleteToGc(row.id).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.$emit('refresh');
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + row.name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            deleteToGc(row.id).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.$emit('refresh');
+            });
+          }
+        },
+      });
     },
     singleRun(data) {
       let methods = ['SQL', 'DUBBO', 'dubbo://'];
@@ -693,11 +560,7 @@ export default {
         return;
       }
       mergeRequestDocumentData(data.request);
-      if (
-        data.apiMethod !== 'SQL' &&
-        data.apiMethod !== 'DUBBO' &&
-        data.apiMethod !== 'dubbo://'
-      ) {
+      if (data.apiMethod !== 'SQL' && data.apiMethod !== 'DUBBO' && data.apiMethod !== 'dubbo://') {
         data.request.useEnvironment = this.environment;
       } else {
         data.request.useEnvironment = data.request.environmentId;
@@ -732,8 +595,7 @@ export default {
         this.currentApi.request = this.beforeRequest;
       } else {
         if (this.selectedEvent.currentTarget != undefined) {
-          this.selectedEvent.currentTarget.className =
-            'el-card is-always-shadow';
+          this.selectedEvent.currentTarget.className = 'el-card is-always-shadow';
         }
         this.selectedEvent.currentTarget = $event.currentTarget;
         $event.currentTarget.className = 'el-card is-always-shadow is-selected';
@@ -804,14 +666,8 @@ export default {
               },
             };
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
@@ -838,10 +694,7 @@ export default {
         row.request.id = tmp.request.id;
         tmp.request.path = this.api.path;
         tmp.versionId = this.api.versionId;
-        if (
-          tmp.request.protocol != 'dubbo://' &&
-          tmp.request.protocol != 'DUBBO'
-        ) {
+        if (tmp.request.protocol != 'dubbo://' && tmp.request.protocol != 'DUBBO') {
           tmp.request.method = this.api.method;
         }
       }
@@ -859,9 +712,7 @@ export default {
       if (tmp.request) {
         tmp.request.clazzName = TYPE_TO_C.get(tmp.request.type);
         if (tmp.request.authManager) {
-          tmp.request.authManager.clazzName = TYPE_TO_C.get(
-            tmp.request.authManager.type
-          );
+          tmp.request.authManager.clazzName = TYPE_TO_C.get(tmp.request.authManager.type);
         }
         this.sort(tmp.request.hashTree);
       }
@@ -923,89 +774,50 @@ export default {
       }
       if (this.apiCase.request.headers && this.beforeUpdateRequest.headers) {
         let submitRequestHeaders = JSON.stringify(this.apiCase.request.headers);
-        let beforeRequestHeaders = JSON.stringify(
-          this.beforeUpdateRequest.headers
-        );
-        if (
-          submitRequestHeaders !== beforeRequestHeaders &&
-          !this.noShowSyncRuleRelation
-        ) {
+        let beforeRequestHeaders = JSON.stringify(this.beforeUpdateRequest.headers);
+        if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
-      if (
-        this.apiCase.request.arguments &&
-        this.beforeUpdateRequest.arguments
-      ) {
+      if (this.apiCase.request.arguments && this.beforeUpdateRequest.arguments) {
         let submitRequestQuery = JSON.stringify(this.apiCase.request.arguments);
-        let beforeRequestQuery = JSON.stringify(
-          this.beforeUpdateRequest.arguments
-        );
-        if (
-          submitRequestQuery !== beforeRequestQuery &&
-          !this.noShowSyncRuleRelation
-        ) {
+        let beforeRequestQuery = JSON.stringify(this.beforeUpdateRequest.arguments);
+        if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
       if (this.apiCase.request.rest && this.beforeUpdateRequest.rest) {
         let submitRequestRest = JSON.stringify(this.apiCase.request.rest);
         let beforeRequestRest = JSON.stringify(this.beforeUpdateRequest.rest);
-        if (
-          submitRequestRest !== beforeRequestRest &&
-          !this.noShowSyncRuleRelation
-        ) {
+        if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
       if (this.apiCase.request.body && this.beforeUpdateRequest.body) {
         let submitRequestBody = JSON.stringify(this.apiCase.request.body);
         let beforeRequestBody = JSON.stringify(this.beforeUpdateRequest.body);
-        if (
-          submitRequestBody !== beforeRequestBody &&
-          !this.noShowSyncRuleRelation
-        ) {
+        if (submitRequestBody !== beforeRequestBody && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
-      if (
-        this.apiCase.request.authManager &&
-        this.beforeUpdateRequest.authManager
-      ) {
-        let submitRequestAuthManager = JSON.stringify(
-          this.apiCase.request.authManager
-        );
-        let beforeRequestAuthManager = JSON.stringify(
-          this.beforeUpdateRequest.authManager
-        );
-        if (
-          submitRequestAuthManager !== beforeRequestAuthManager &&
-          !this.noShowSyncRuleRelation
-        ) {
+      if (this.apiCase.request.authManager && this.beforeUpdateRequest.authManager) {
+        let submitRequestAuthManager = JSON.stringify(this.apiCase.request.authManager);
+        let beforeRequestAuthManager = JSON.stringify(this.beforeUpdateRequest.authManager);
+        if (submitRequestAuthManager !== beforeRequestAuthManager && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
       if (this.apiCase.request.hashTree && this.beforeUpdateRequest.hashTree) {
-        let submitRequestHashTree = JSON.stringify(
-          this.apiCase.request.hashTree
-        );
-        let beforeRequestHashTree = JSON.stringify(
-          this.beforeUpdateRequest.hashTree
-        );
-        if (
-          submitRequestHashTree !== beforeRequestHashTree &&
-          !this.noShowSyncRuleRelation
-        ) {
+        let submitRequestHashTree = JSON.stringify(this.apiCase.request.hashTree);
+        let beforeRequestHashTree = JSON.stringify(this.beforeUpdateRequest.hashTree);
+        if (submitRequestHashTree !== beforeRequestHashTree && !this.noShowSyncRuleRelation) {
           syncCaseVisible = true;
         }
       }
       if (
-        (this.apiCase.request.connectTimeout !==
-          this.beforeUpdateRequest.connectTimeout ||
-          this.apiCase.request.responseTimeout !==
-            this.beforeUpdateRequest.responseTimeout ||
-          this.apiCase.request.followRedirects !==
-            this.beforeUpdateRequest.followRedirects ||
+        (this.apiCase.request.connectTimeout !== this.beforeUpdateRequest.connectTimeout ||
+          this.apiCase.request.responseTimeout !== this.beforeUpdateRequest.responseTimeout ||
+          this.apiCase.request.followRedirects !== this.beforeUpdateRequest.followRedirects ||
           this.apiCase.request.alias !== this.beforeUpdateRequest.alias ||
           this.caseSyncRuleRelation.showUpdateRule === true) &&
         !this.noShowSyncRuleRelation
@@ -1090,10 +902,7 @@ export default {
     },
     saveCaseSyncRuleRelation(caseSyncRuleRelation) {
       this.saveLoading = true;
-      updateRuleRelation(
-        caseSyncRuleRelation.resourceId,
-        caseSyncRuleRelation
-      ).then(() => {
+      updateRuleRelation(caseSyncRuleRelation.resourceId, caseSyncRuleRelation).then(() => {
         this.compare = [];
         if (this.compare.indexOf(this.readyToSaveCase.id) === -1) {
           this.compare.push(this.readyToSaveCase.id);
@@ -1116,12 +925,8 @@ export default {
           if (this.caseSyncRuleRelation.scenarioCreator !== false) {
             this.caseSyncRuleRelation.scenarioCreator = true;
           }
-          this.noShowSyncRuleRelation =
-            this.caseSyncRuleRelation.showUpdateRule;
-          this.$EventBus.$emit(
-            'showXpackCaseBtn',
-            this.caseSyncRuleRelation.showUpdateRule
-          );
+          this.noShowSyncRuleRelation = this.caseSyncRuleRelation.showUpdateRule;
+          this.$EventBus.$emit('showXpackCaseBtn', this.caseSyncRuleRelation.showUpdateRule);
         }
       });
     },

@@ -19,10 +19,7 @@ export default class ResponseAssertion extends Assertion {
     this.customMessage = this.initStringProp('Assertion.custom_message');
     this.scope = this.initStringProp('Assertion.scope');
     this.variable = this.initStringProp('Scope.variable');
-    this.testField = this.initStringProp(
-      'Assertion.test_field',
-      'Assertion.response_data'
-    );
+    this.testField = this.initStringProp('Assertion.test_field', 'Assertion.response_data');
     this.assumeSuccess = this.initBoolProp('Assertion.assume_success', false);
     this.testType = this.initIntProp('Assertion.test_type', 16);
 

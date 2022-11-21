@@ -8,12 +8,7 @@
         </el-select>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button
-          :disabled="isReadOnly"
-          type="primary"
-          size="mini"
-          @click="add"
-        >
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -41,10 +36,7 @@ export default {
   methods: {
     add() {
       let obj = new AssertionDocument({ id: 'root' });
-      if (
-        this.document.type === 'JSON' &&
-        this.document.data.json.length === 0
-      ) {
+      if (this.document.type === 'JSON' && this.document.data.json.length === 0) {
         this.document.data.json.push(obj);
       }
       if (this.document.type === 'XML' && this.document.data.xml.length === 0) {

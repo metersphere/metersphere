@@ -8,22 +8,16 @@
           maxlength="500"
           size="small"
           show-word-limit
-          :placeholder="$t('api_test.request.extract.xpath_expression')"
-        />
+          :placeholder="$t('api_test.request.extract.xpath_expression')" />
       </el-col>
       <el-col class="assertion-btn">
-        <el-tooltip
-          :content="$t('test_resource_pool.enable_disable')"
-          placement="top"
-          v-if="edit"
-        >
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
           <el-switch
             v-model="xPath2.enable"
             class="enable-switch"
             size="mini"
             :disabled="isReadOnly"
-            style="width: 30px; margin-right: 10px"
-          />
+            style="width: 30px; margin-right: 10px" />
         </el-tooltip>
         <el-button
           :disabled="isReadOnly"
@@ -31,8 +25,7 @@
           icon="el-icon-copy-document"
           circle
           @click="copyRow"
-          v-if="edit"
-        />
+          v-if="edit" />
         <el-button
           :disabled="isReadOnly"
           type="danger"
@@ -40,15 +33,8 @@
           icon="el-icon-delete"
           circle
           @click="remove"
-          v-if="edit"
-        />
-        <el-button
-          :disabled="isReadOnly"
-          type="primary"
-          size="mini"
-          @click="add"
-          v-else
-        >
+          v-if="edit" />
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>

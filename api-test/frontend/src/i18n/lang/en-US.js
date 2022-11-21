@@ -110,8 +110,7 @@ const message = {
     },
   },
   automation: {
-    project_no_permission:
-      'The current person does not have the operation permission for this step',
+    project_no_permission: 'The current person does not have the operation permission for this step',
   },
 };
 export default {

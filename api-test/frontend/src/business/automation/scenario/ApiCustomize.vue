@@ -3,17 +3,9 @@
     <el-card>
       <el-form :model="request" label-width="auto" ref="request">
         <el-form-item :label="$t('api_test.request.name')" prop="name">
-          <el-input
-            v-model="request.name"
-            maxlength="200"
-            show-word-limit
-            size="small"
-          />
+          <el-input v-model="request.name" maxlength="200" show-word-limit size="small" />
         </el-form-item>
-        <el-form-item
-          :label="$t('api_test.definition.api_type')"
-          prop="protocol"
-        >
+        <el-form-item :label="$t('api_test.definition.api_type')" prop="protocol">
           <el-radio v-model="request.protocol" label="HTTP">HTTP</el-radio>
           <el-radio v-model="request.protocol" label="DUBBO">DUBBO</el-radio>
           <el-radio v-model="request.protocol" label="SQL">SQL</el-radio>
@@ -26,26 +18,22 @@
         :current-api="request"
         @saveAs="editApi"
         :currentProtocol="request.protocol"
-        v-if="request.protocol === 'HTTP'"
-      />
+        v-if="request.protocol === 'HTTP'" />
       <ms-debug-jdbc-page
         :scenario="true"
         :currentProtocol="request.protocol"
         @saveAs="editApi"
-        v-if="request.protocol === 'SQL'"
-      />
+        v-if="request.protocol === 'SQL'" />
       <ms-debug-tcp-page
         :scenario="true"
         :currentProtocol="request.protocol"
         @saveAs="editApi"
-        v-if="request.protocol === 'TCP'"
-      />
+        v-if="request.protocol === 'TCP'" />
       <ms-debug-dubbo-page
         :scenario="true"
         :currentProtocol="request.protocol"
         @saveAs="editApi"
-        v-if="request.protocol === 'DUBBO'"
-      />
+        v-if="request.protocol === 'DUBBO'" />
     </el-card>
   </div>
 </template>

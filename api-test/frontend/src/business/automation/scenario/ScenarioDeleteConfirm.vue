@@ -1,20 +1,12 @@
 <template>
-  <el-dialog
-    :title="title"
-    :visible.sync="deleteApiVisible"
-    :show-close="false"
-    width="30%"
-  >
+  <el-dialog :title="title" :visible.sync="deleteApiVisible" :show-close="false" width="30%">
     <el-radio-group v-model="deleteCurrentVersion">
-      <el-radio :label="true">{{
-        $t('commons.delete_current_version')
-      }}</el-radio>
+      <el-radio :label="true">{{ $t('commons.delete_current_version') }}</el-radio>
       <el-radio :label="false">{{ $t('commons.delete_all_version') }}</el-radio>
     </el-radio-group>
 
     <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="handleDelete">
-      </ms-dialog-footer>
+      <ms-dialog-footer @cancel="close" @confirm="handleDelete"> </ms-dialog-footer>
     </template>
   </el-dialog>
 </template>

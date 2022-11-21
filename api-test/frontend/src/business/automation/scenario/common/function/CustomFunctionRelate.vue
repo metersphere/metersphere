@@ -9,23 +9,20 @@
     top="10vh"
     v-loading="result"
     append-to-body
-    class="customFunc"
-  >
+    class="customFunc">
     <div>
       <el-alert
         :title="$t('project.code_segment.relate_tip')"
         type="info"
         style="width: 350px; float: left"
         :closable="false"
-        show-icon
-      >
+        show-icon>
       </el-alert>
       <ms-table-search-bar
         :condition.sync="condition"
         @change="init"
         class="search-bar"
-        :tip="$t('project.code_segment.search')"
-      />
+        :tip="$t('project.code_segment.search')" />
       <el-table
         border
         class="adjust-table"
@@ -33,18 +30,9 @@
         style="width: 100%"
         ref="table"
         highlight-current-row
-        @current-change="handleCurrentChange"
-      >
-        <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="description"
-          :label="$t('commons.description')"
-          show-overflow-tooltip
-        >
+        @current-change="handleCurrentChange">
+        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip />
+        <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
             <pre>{{ scope.row.description }}</pre>
           </template>
@@ -57,45 +45,24 @@
               type="success"
               effect="plain"
               :content="itemName"
-              style="margin-left: 0; margin-right: 2px"
-            >
+              style="margin-left: 0; margin-right: 2px">
             </ms-tag>
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="type"
-          :label="$t('project.code_segment.language')"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="createTime"
-          :label="$t('commons.create_time')"
-          show-overflow-tooltip
-        >
+        <el-table-column prop="type" :label="$t('project.code_segment.language')" show-overflow-tooltip />
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination
-        :change="init"
-        :current-page.sync="currentPage"
-        :page-size.sync="pageSize"
-        :total="total"
-      />
+      <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
     </div>
 
     <template v-slot:footer>
-      <el-button @click="close" size="medium">{{
-        $t('commons.cancel')
-      }}</el-button>
-      <el-button
-        type="primary"
-        @click="submit"
-        size="medium"
-        style="margin-left: 10px"
-      >
+      <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
+      <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px">
         {{ $t('commons.confirm') }}
       </el-button>
     </template>
@@ -139,11 +106,7 @@ export default {
         this.condition.type = language;
       }
       this.condition.projectId = getCurrentProjectID();
-      this.result = funcList(
-        this.currentPage,
-        this.pageSize,
-        this.condition
-      ).then((res) => {
+      this.result = funcList(this.currentPage, this.pageSize, this.condition).then((res) => {
         let tableData = res.data;
         const { itemCount, listObject } = tableData;
         this.total = itemCount;
@@ -186,8 +149,7 @@ export default {
 <style scoped>
 pre {
   margin: 0 0;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
 }
 
 .search-bar {

@@ -1,17 +1,13 @@
 <template>
   <div style="line-height: 20px">
     <div class="template-title">
-      <span class="nav-font">{{
-        $t('api_test.request.processor.code_template')
-      }}</span>
+      <span class="nav-font">{{ $t('api_test.request.processor.code_template') }}</span>
       <el-link
         href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
         target="componentReferenceDoc"
         style="margin-left: 30px; margin-bottom: 3px"
         type="primary"
-        ><span style="font-size: 13px">{{
-          $t('commons.reference_documentation')
-        }}</span>
+        ><span style="font-size: 13px">{{ $t('commons.reference_documentation') }}</span>
       </el-link>
     </div>
     <div v-for="(menu, index) in menus" :key="index">
@@ -20,43 +16,28 @@
           class="icon el-icon-arrow-right"
           style="font-weight: bold; margin-right: 2px"
           @click="active(menu)"
-          :class="{ 'is-active': menu.open }"
-        ></i>
-        <span @click="active(menu)" class="nav-menu-title nav-font">{{
-          menu.title
-        }}</span>
+          :class="{ 'is-active': menu.open }"></i>
+        <span @click="active(menu)" class="nav-menu-title nav-font">{{ menu.title }}</span>
       </span>
 
       <el-collapse-transition>
         <div v-if="menu.open">
-          <div
-            v-for="(child, key) in menu.children"
-            :key="key"
-            class="func-div"
-          >
-            <el-link
-              :disabled="child.disabled"
-              @click="handleClick(child)"
-              class="func-link nav-font"
-            >
+          <div v-for="(child, key) in menu.children" :key="key" class="func-div">
+            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">
               {{ child.title }}
             </el-link>
           </div>
         </div>
       </el-collapse-transition>
     </div>
-    <custom-function-relate
-      ref="customFunctionRelate"
-      @addCustomFuncScript="handleCodeTemplate"
-    />
+    <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate" />
     <!--接口列表-->
     <api-func-relevance
       @save="apiSave"
       :is-test-plan="false"
       :is-script="true"
       @close="apiClose"
-      ref="apiFuncRelevance"
-    />
+      ref="apiFuncRelevance" />
   </div>
 </template>
 
@@ -220,18 +201,11 @@ export default {
         // todo 优化
         if (this.language !== 'beanshell' && this.language !== 'groovy') {
           if (
-            obj.title ===
-              this.$t('api_test.request.processor.code_add_report_length') ||
-            obj.title ===
-              this.$t('api_test.request.processor.code_hide_report_length')
+            obj.title === this.$t('api_test.request.processor.code_add_report_length') ||
+            obj.title === this.$t('api_test.request.processor.code_hide_report_length')
           ) {
             this.$warning(
-              this.$t('commons.no_corresponding') +
-                ' ' +
-                this.language +
-                ' ' +
-                this.$t('commons.code_template') +
-                '！'
+              this.$t('commons.no_corresponding') + ' ' + this.language + ' ' + this.$t('commons.code_template') + '！'
             );
             return;
           }

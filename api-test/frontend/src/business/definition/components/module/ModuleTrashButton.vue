@@ -1,9 +1,5 @@
 <template>
-  <div
-    @click="exe"
-    class="recycle"
-    :class="{ 'is-active': condition.trashEnable }"
-  >
+  <div @click="exe" class="recycle" :class="{ 'is-active': condition.trashEnable }">
     <el-row>
       <el-col :span="21"
         ><i class="el-icon-delete"> {{ $t('commons.trash') }}</i></el-col

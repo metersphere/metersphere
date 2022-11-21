@@ -7,14 +7,9 @@
       size="small"
       ref="form"
       :rules="rules"
-      :key="isActive"
-    >
+      :key="isActive">
       <el-form-item :label="$t('api_test.variable_name')" prop="name">
-        <el-input
-          v-model="editData.name"
-          :placeholder="$t('api_test.variable_name')"
-          ref="nameInput"
-        />
+        <el-input v-model="editData.name" :placeholder="$t('api_test.variable_name')" ref="nameInput" />
       </el-form-item>
 
       <el-form-item :label="$t('commons.description')" prop="description">
@@ -25,8 +20,7 @@
           :autosize="{ minRows: 2, maxRows: 10 }"
           :rows="2"
           size="small"
-          :disabled="disabled"
-        />
+          :disabled="disabled" />
       </el-form-item>
 
       <el-form-item :label="$t('api_test.value')" prop="value">
@@ -39,30 +33,18 @@
             v-model="editData.value"
             value-key="name"
             :fetch-suggestions="funcSearch"
-            highlight-first-item
-          >
-            <i
-              slot="suffix"
-              class="el-input__icon el-icon-edit pointer"
-              @click="advanced(editData.value)"
-            ></i>
+            highlight-first-item>
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(editData.value)"></i>
           </el-autocomplete>
         </el-col>
       </el-form-item>
     </el-form>
-    <ms-api-variable-advance
-      ref="variableAdvance"
-      :current-item.sync="editData"
-      @advancedRefresh="reload"
-    />
+    <ms-api-variable-advance ref="variableAdvance" :current-item.sync="editData" @advancedRefresh="reload" />
   </div>
 </template>
 
 <script>
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 import MsApiVariableAdvance from 'metersphere-frontend/src/components/environment/commons/ApiVariableAdvance';
 
 export default {
@@ -98,9 +80,7 @@ export default {
     },
     createFilter(queryString) {
       return (variable) => {
-        return (
-          variable.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
-        );
+        return variable.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
     funcFilter(queryString) {
@@ -110,9 +90,7 @@ export default {
     },
     funcSearch(queryString, cb) {
       let func = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString
-        ? func.filter(this.funcFilter(queryString))
-        : func;
+      let results = queryString ? func.filter(this.funcFilter(queryString)) : func;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },

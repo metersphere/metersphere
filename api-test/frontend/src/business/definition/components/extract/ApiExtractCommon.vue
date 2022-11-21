@@ -7,14 +7,8 @@
           class="extract-item"
           v-model="common.useHeaders"
           :placeholder="$t('api_test.request.assertions.select_subject')"
-          size="small"
-        >
-          <el-option
-            v-for="item in useHeadersOption"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
+          size="small">
+          <el-option v-for="item in useHeadersOption" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-col>
       <el-col>
@@ -28,8 +22,7 @@
           @change="change"
           :show-copy-tip-with-multiple="common.multipleMatching"
           show-word-limit
-          :placeholder="$t('api_test.variable_name')"
-        />
+          :placeholder="$t('api_test.variable_name')" />
       </el-col>
       <el-col>
         <el-input
@@ -38,8 +31,7 @@
           size="small"
           show-word-limit
           :placeholder="expression"
-          @click.native="savePreParams(common.variable)"
-        />
+          @click.native="savePreParams(common.variable)" />
       </el-col>
       <el-col class="multiple_checkbox" v-if="edit">
         <el-checkbox v-model="common.multipleMatching" :disabled="isReadOnly">
@@ -54,16 +46,10 @@
           icon="el-icon-delete"
           circle
           @click="remove"
-          v-if="edit"
-        />
-        <el-button
-          :disabled="isReadOnly"
-          type="primary"
-          size="small"
-          @click="add"
-          v-else
-          >{{ $t('commons.add') }}</el-button
-        >
+          v-if="edit" />
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>{{
+          $t('commons.add')
+        }}</el-button>
       </el-col>
     </el-row>
   </div>
@@ -80,13 +66,7 @@ export default {
     extractType: {
       type: String,
       validator: function (value) {
-        return (
-          [
-            EXTRACT_TYPE.XPATH,
-            EXTRACT_TYPE.JSON_PATH,
-            EXTRACT_TYPE.REGEX,
-          ].indexOf(value) !== -1
-        );
+        return [EXTRACT_TYPE.XPATH, EXTRACT_TYPE.JSON_PATH, EXTRACT_TYPE.REGEX].indexOf(value) !== -1;
       },
     },
     common: {

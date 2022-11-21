@@ -8,17 +8,12 @@
       :rules="rule"
       ref="basicForm"
       style="margin-right: 20px"
-      :disabled="isReadOnly"
-    >
+      :disabled="isReadOnly">
       <!-- 基础信息 -->
       <el-row>
         <el-col :span="8">
           <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input
-              class="ms-http-input"
-              size="small"
-              v-model="basicForm.name"
-            />
+            <el-input class="ms-http-input" size="small" v-model="basicForm.name" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -30,48 +25,32 @@
               @getValue="setModule"
               :obj="moduleObj"
               clearable
-              checkStrictly
-            />
+              checkStrictly />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('commons.status')" prop="status">
-            <el-select
-              class="ms-http-input"
-              size="small"
-              v-model="basicForm.status"
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.id"
-                :label="$t(item.label)"
-                :value="item.id"
-              />
+            <el-select class="ms-http-input" size="small" v-model="basicForm.status" style="width: 100%">
+              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="8">
-          <el-form-item
-            :label="$t('api_test.definition.request.responsible')"
-            prop="userId"
-          >
+          <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
             <el-select
               v-model="basicForm.userId"
               :placeholder="$t('api_test.definition.request.responsible')"
               filterable
               size="small"
               class="ms-http-input"
-              style="width: 100%"
-            >
+              style="width: 100%">
               <el-option
                 v-for="item in maintainerOptions"
                 :key="item.id"
                 :label="item.name + ' (' + item.email + ')'"
-                :value="item.id"
-              >
+                :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
@@ -89,8 +68,7 @@
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 10 }"
               :rows="1"
-              size="small"
-            />
+              size="small" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -161,12 +139,7 @@ export default {
     'basicForm.tags': {
       handler(v, v1) {
         this.tagCount++;
-        if (
-          v &&
-          v1 &&
-          JSON.stringify(v) !== JSON.stringify(v1) &&
-          this.tagCount > 1
-        ) {
+        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.tagCount > 1) {
           this.apiMapStatus();
         }
       },
@@ -225,9 +198,7 @@ export default {
             trigger: 'change',
           },
         ],
-        moduleId: [
-          { required: true, validator: validateModuleId, trigger: 'change' },
-        ],
+        moduleId: [{ required: true, validator: validateModuleId, trigger: 'change' }],
         status: [
           {
             required: true,

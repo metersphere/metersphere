@@ -12,27 +12,19 @@
               style="float: right; width: 180px; margin-right: 5px"
               class="ms-api-header-select"
               @change="initApiDocSimpleList"
-              clearable
-            >
+              clearable>
               <el-option
                 key="createTimeDesc"
                 :label="$t('api_test.definition.document.create_time_sort')"
-                value="createTimeDesc"
-              />
+                value="createTimeDesc" />
               <el-option
                 key="editTimeAsc"
-                :label="
-                  $t('api_test.definition.document.edit_time_positive_sequence')
-                "
-                value="editTimeAsc"
-              />
+                :label="$t('api_test.definition.document.edit_time_positive_sequence')"
+                value="editTimeAsc" />
               <el-option
                 key="editTimeDesc"
-                :label="
-                  $t('api_test.definition.document.edit_time_Reverse_order')
-                "
-                value="editTimeDesc"
-              />
+                :label="$t('api_test.definition.document.edit_time_Reverse_order')"
+                value="editTimeDesc" />
             </el-select>
 
             <el-select
@@ -42,91 +34,48 @@
               style="float: right; width: 180px; margin-right: 5px"
               class="ms-api-header-select"
               @change="initApiDocSimpleList"
-              clearable
-            >
-              <el-option
-                key="ALL"
-                :label="$t('api_test.definition.document.data_set.all')"
-                value="ALL"
-              />
-              <el-option
-                key="GET"
-                :label="
-                  'GET ' + $t('api_test.definition.document.request_interface')
-                "
-                value="GET"
-              />
+              clearable>
+              <el-option key="ALL" :label="$t('api_test.definition.document.data_set.all')" value="ALL" />
+              <el-option key="GET" :label="'GET ' + $t('api_test.definition.document.request_interface')" value="GET" />
               <el-option
                 key="POST"
-                :label="
-                  'POST ' + $t('api_test.definition.document.request_interface')
-                "
-                value="POST"
-              />
-              <el-option
-                key="PUT"
-                :label="
-                  'PUT ' + $t('api_test.definition.document.request_interface')
-                "
-                value="PUT"
-              />
+                :label="'POST ' + $t('api_test.definition.document.request_interface')"
+                value="POST" />
+              <el-option key="PUT" :label="'PUT ' + $t('api_test.definition.document.request_interface')" value="PUT" />
               <el-option
                 key="DELETE"
-                :label="
-                  'DELETE ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="DELETE"
-              />
+                :label="'DELETE ' + $t('api_test.definition.document.request_interface')"
+                value="DELETE" />
               <el-option
                 key="PATCH"
-                :label="
-                  'PATCH ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="PATCH"
-              />
+                :label="'PATCH ' + $t('api_test.definition.document.request_interface')"
+                value="PATCH" />
               <el-option
                 key="OPTIONS"
-                :label="
-                  'OPTIONS ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="OPTIONS"
-              />
+                :label="'OPTIONS ' + $t('api_test.definition.document.request_interface')"
+                value="OPTIONS" />
               <el-option
                 key="HEAD"
-                :label="
-                  'HEAD ' + $t('api_test.definition.document.request_interface')
-                "
-                value="HEAD"
-              />
+                :label="'HEAD ' + $t('api_test.definition.document.request_interface')"
+                value="HEAD" />
               <el-option
                 key="CONNECT"
-                :label="
-                  'CONNECT ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="CONNECT"
-              />
+                :label="'CONNECT ' + $t('api_test.definition.document.request_interface')"
+                value="CONNECT" />
             </el-select>
             <el-input
-              :placeholder="
-                $t('api_test.definition.document.search_by_api_name')
-              "
+              :placeholder="$t('api_test.definition.document.search_by_api_name')"
               @blur="initApiDocSimpleList()"
               style="float: right; width: 180px; margin-right: 5px"
               size="small"
               @keyup.enter.native="initApiDocSimpleList()"
-              v-model="apiSearch.name"
-            />
+              v-model="apiSearch.name" />
             <mx-api-document-batch-share
               v-xpack
               @shareApiDocument="shareApiDocument"
               :project-id="projectId"
               :share-url="batchShareUrl"
-              style="float: right; margin: 6px; font-size: 17px"
-            />
+              style="float: right; margin: 6px; font-size: 17px" />
           </el-row>
           <el-row
             v-else
@@ -138,8 +87,7 @@
               margin-left: 400px;
               top: 90px;
               right: 40px;
-            "
-          >
+            ">
             <el-select
               size="small"
               :placeholder="$t('api_test.definition.document.order')"
@@ -147,27 +95,19 @@
               style="float: right; width: 180px; margin-right: 5px"
               class="ms-api-header-select"
               @change="initApiDocSimpleList"
-              clearable
-            >
+              clearable>
               <el-option
                 key="createTimeDesc"
                 :label="$t('api_test.definition.document.create_time_sort')"
-                value="createTimeDesc"
-              />
+                value="createTimeDesc" />
               <el-option
                 key="editTimeAsc"
-                :label="
-                  $t('api_test.definition.document.edit_time_positive_sequence')
-                "
-                value="editTimeAsc"
-              />
+                :label="$t('api_test.definition.document.edit_time_positive_sequence')"
+                value="editTimeAsc" />
               <el-option
                 key="editTimeDesc"
-                :label="
-                  $t('api_test.definition.document.edit_time_Reverse_order')
-                "
-                value="editTimeDesc"
-              />
+                :label="$t('api_test.definition.document.edit_time_Reverse_order')"
+                value="editTimeDesc" />
             </el-select>
 
             <el-select
@@ -177,106 +117,58 @@
               style="float: right; width: 180px; margin-right: 5px"
               class="ms-api-header-select"
               @change="initApiDocSimpleList"
-              clearable
-            >
-              <el-option
-                key="ALL"
-                :label="$t('api_test.definition.document.data_set.all')"
-                value="ALL"
-              />
-              <el-option
-                key="GET"
-                :label="
-                  'GET ' + $t('api_test.definition.document.request_interface')
-                "
-                value="GET"
-              />
+              clearable>
+              <el-option key="ALL" :label="$t('api_test.definition.document.data_set.all')" value="ALL" />
+              <el-option key="GET" :label="'GET ' + $t('api_test.definition.document.request_interface')" value="GET" />
               <el-option
                 key="POST"
-                :label="
-                  'POST ' + $t('api_test.definition.document.request_interface')
-                "
-                value="POST"
-              />
-              <el-option
-                key="PUT"
-                :label="
-                  'PUT ' + $t('api_test.definition.document.request_interface')
-                "
-                value="PUT"
-              />
+                :label="'POST ' + $t('api_test.definition.document.request_interface')"
+                value="POST" />
+              <el-option key="PUT" :label="'PUT ' + $t('api_test.definition.document.request_interface')" value="PUT" />
               <el-option
                 key="DELETE"
-                :label="
-                  'DELETE ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="DELETE"
-              />
+                :label="'DELETE ' + $t('api_test.definition.document.request_interface')"
+                value="DELETE" />
               <el-option
                 key="PATCH"
-                :label="
-                  'PATCH ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="PATCH"
-              />
+                :label="'PATCH ' + $t('api_test.definition.document.request_interface')"
+                value="PATCH" />
               <el-option
                 key="OPTIONS"
-                :label="
-                  'OPTIONS ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="OPTIONS"
-              />
+                :label="'OPTIONS ' + $t('api_test.definition.document.request_interface')"
+                value="OPTIONS" />
               <el-option
                 key="HEAD"
-                :label="
-                  'HEAD ' + $t('api_test.definition.document.request_interface')
-                "
-                value="HEAD"
-              />
+                :label="'HEAD ' + $t('api_test.definition.document.request_interface')"
+                value="HEAD" />
               <el-option
                 key="CONNECT"
-                :label="
-                  'CONNECT ' +
-                  $t('api_test.definition.document.request_interface')
-                "
-                value="CONNECT"
-              />
+                :label="'CONNECT ' + $t('api_test.definition.document.request_interface')"
+                value="CONNECT" />
             </el-select>
             <el-input
-              :placeholder="
-                $t('api_test.definition.document.search_by_api_name')
-              "
+              :placeholder="$t('api_test.definition.document.search_by_api_name')"
               @blur="initApiDocSimpleList()"
               style="float: right; width: 180px; margin-right: 5px"
               size="small"
               @keyup.enter.native="initApiDocSimpleList()"
-              v-model="apiSearch.name"
-            />
+              v-model="apiSearch.name" />
             <mx-api-document-batch-share
               v-xpack
               @shareApiDocument="shareApiDocument"
               :project-id="projectId"
               :share-url="batchShareUrl"
-              style="float: right; margin: 6px; font-size: 17px"
-            />
+              style="float: right; margin: 6px; font-size: 17px" />
           </el-row>
           <el-divider></el-divider>
           <!--   展示区域     -->
-          <div
-            ref="apiDocInfoDiv"
-            @scroll="handleScroll"
-            style="overflow: auto"
-          >
+          <div ref="apiDocInfoDiv" @scroll="handleScroll" style="overflow: auto">
             <api-information
               v-for="apiInfo in apiInfoArray"
               :key="apiInfo.id"
               :api-info="apiInfo"
               :project-id="projectId"
-              ref="apiDocInfoDivItem"
-            />
+              ref="apiDocInfoDivItem" />
           </div>
         </el-main>
         <!-- 右侧列表 -->
@@ -287,16 +179,9 @@
                 v-for="apiInfo in apiInfoArray"
                 :key="apiInfo.id"
                 @click.native="clickStep(apiInfo.id)"
-                name="apiInfoStepNode"
-              >
+                name="apiInfoStepNode">
                 <el-link slot="title">
-                  <span
-                    style="
-                      display: inline-block;
-                      word-break: break-all;
-                      white-space: normal;
-                    "
-                  >
+                  <span style="display: inline-block; word-break: break-all; white-space: normal">
                     {{ apiInfo.name }}
                   </span>
                 </el-link>
@@ -313,8 +198,7 @@
       :page-sizes="[10, 20, 50]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-    >
+      :total="total">
     </el-pagination>
   </div>
 </template>
@@ -324,11 +208,7 @@ import { API_METHOD_COLOUR } from '@/business/definition/model/JsonData';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
-import {
-  generateApiDocumentShareInfo,
-  documentShareUrl,
-  selectApiInfoByParam,
-} from '@/api/share';
+import { generateApiDocumentShareInfo, documentShareUrl, selectApiInfoByParam } from '@/api/share';
 import ApiInformation from '@/business/definition/components/document/components/ApiInformation';
 
 export default {
@@ -338,8 +218,7 @@ export default {
     ApiStatus,
     MsCodeEdit,
     ApiInformation,
-    MxApiDocumentBatchShare: () =>
-      import('@/business/definition/components/share/MxApiDocumentBatchShare'),
+    MxApiDocumentBatchShare: () => import('@/business/definition/components/share/MxApiDocumentBatchShare'),
   },
   data() {
     return {
@@ -457,11 +336,9 @@ export default {
         if (this.pageHeaderHeight != 0 && this.pageHeaderHeight != null) {
           countPageHeight = this.pageHeaderHeight;
         }
-        this.$refs.apiDocInfoDiv.style.height =
-          clientHeight - countPageHeight + 'px';
+        this.$refs.apiDocInfoDiv.style.height = clientHeight - countPageHeight + 'px';
         this.$refs.apiDocInfoDiv.style.overflow = 'auto';
-        this.$refs.apiDocList.style.height =
-          clientHeight - countPageHeight + 'px';
+        this.$refs.apiDocList.style.height = clientHeight - countPageHeight + 'px';
       }
     },
     initApiDocSimpleList() {
@@ -480,21 +357,19 @@ export default {
       }
       simpleRequest.versionId = this.versionId;
       simpleRequest.trashEnable = this.trashEnable;
-      selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then(
-        (response) => {
-          this.apiInfoArray = response.data.listObject;
-          this.total = response.data.itemCount;
-          if (response.data.length > this.maxComponentSize) {
-            this.needAsyncSelect = true;
-          } else {
-            this.needAsyncSelect = false;
-          }
-          //每次查询完成之后定位右侧的步骤
-          this.$nextTick(() => {
-            this.handleScroll();
-          });
+      selectApiInfoByParam(simpleRequest, this.currentPage, this.pageSize).then((response) => {
+        this.apiInfoArray = response.data.listObject;
+        this.total = response.data.itemCount;
+        if (response.data.length > this.maxComponentSize) {
+          this.needAsyncSelect = true;
+        } else {
+          this.needAsyncSelect = false;
         }
-      );
+        //每次查询完成之后定位右侧的步骤
+        this.$nextTick(() => {
+          this.handleScroll();
+        });
+      });
     },
     shareApiDocument() {
       this.shareUrl = '';
@@ -545,10 +420,7 @@ export default {
         }
       } else {
         if (apiStep.className.indexOf('apiShowStep') > 0) {
-          apiStep.className = apiStep.className.substring(
-            0,
-            apiStep.className.length - 12
-          );
+          apiStep.className = apiStep.className.substring(0, apiStep.className.length - 12);
         }
       }
     },
@@ -645,8 +517,7 @@ export default {
   width: 20px;
 }
 
-.apiShowStep
-  :deep(.el-step__title.is-wait .el-link.el-link--default.is-underline) {
+.apiShowStep :deep(.el-step__title.is-wait .el-link.el-link--default.is-underline) {
   color: #783887;
 }
 

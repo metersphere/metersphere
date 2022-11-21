@@ -5,8 +5,7 @@
     :is-share="isShare"
     :is-plan="isPlanReport"
     :template-report="response"
-    :is-template="isTemplate"
-  />
+    :is-template="isTemplate" />
 </template>
 
 <script>

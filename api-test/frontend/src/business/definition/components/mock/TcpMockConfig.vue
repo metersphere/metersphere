@@ -8,33 +8,21 @@
           class="search-input"
           size="small"
           :clearable="serchInputClearable"
-          v-model="tableSearch"
-        />
+          v-model="tableSearch" />
         <el-table
           ref="table"
           border
           :data="
             mockConfigData.mockExpectConfigList.filter(
-              (data) =>
-                !tableSearch ||
-                data.name.toLowerCase().includes(tableSearch.toLowerCase())
+              (data) => !tableSearch || data.name.toLowerCase().includes(tableSearch.toLowerCase())
             )
           "
           @row-click="clickRow"
           row-key="id"
           class="test-content"
-          :height="screenHeight"
-        >
-          <el-table-column
-            :label="$t('api_test.mock.table.name')"
-            min-width="160px"
-            prop="name"
-          ></el-table-column>
-          <el-table-column
-            :label="$t('api_test.mock.table.tag')"
-            min-width="200px"
-            prop="tags"
-          >
+          :height="screenHeight">
+          <el-table-column :label="$t('api_test.mock.table.name')" min-width="160px" prop="name"></el-table-column>
+          <el-table-column :label="$t('api_test.mock.table.tag')" min-width="200px" prop="tags">
             <template v-slot:default="scope">
               <ms-tag
                 v-for="(itemName, index) in scope.row.tags"
@@ -43,57 +31,36 @@
                 effect="plain"
                 :show-tooltip="true"
                 :content="itemName"
-                style="margin-left: 0px; margin-right: 2px"
-              />
+                style="margin-left: 0px; margin-right: 2px" />
             </template>
           </el-table-column>
           <el-table-column
             :label="$t('api_test.mock.table.creator')"
             min-width="160px"
-            prop="createUserId"
-          ></el-table-column>
-          <el-table-column
-            :label="$t('api_test.mock.table.status')"
-            min-width="80px"
-            prop="status"
-          >
+            prop="createUserId"></el-table-column>
+          <el-table-column :label="$t('api_test.mock.table.status')" min-width="80px" prop="status">
             <template v-slot:default="scope">
               <div>
-                <el-switch
-                  v-model="scope.row.status"
-                  class="captcha-img"
-                  @change="changeStatus(scope.row)"
-                ></el-switch>
+                <el-switch v-model="scope.row.status" class="captcha-img" @change="changeStatus(scope.row)"></el-switch>
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            :label="$t('api_test.mock.table.update_time')"
-            min-width="160px"
-            prop="updateTime"
-          >
+          <el-table-column :label="$t('api_test.mock.table.update_time')" min-width="160px" prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            fixed="right"
-            min-width="100"
-            align="center"
-            :label="$t('commons.operating')"
-          >
+          <el-table-column fixed="right" min-width="100" align="center" :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <div>
                 <ms-table-operator-button
                   :tip="$t('commons.copy')"
                   icon="el-icon-copy-document"
-                  @exec="copyExpect(scope.row)"
-                />
+                  @exec="copyExpect(scope.row)" />
                 <ms-table-operator-button
                   :tip="$t('commons.delete')"
                   icon="el-icon-delete"
-                  @exec="removeExpect(scope.row)"
-                />
+                  @exec="removeExpect(scope.row)" />
               </div>
             </template>
           </el-table-column>
@@ -102,13 +69,7 @@
 
       <!--  期望详情 -->
       <p class="tip">{{ $t('api_test.mock.expect_detail') }}</p>
-      <el-form
-        :model="mockExpectConfig"
-        :rules="rule"
-        ref="mockExpectForm"
-        label-width="80px"
-        label-position="right"
-      >
+      <el-form :model="mockExpectConfig" :rules="rule" ref="mockExpectForm" label-width="80px" label-position="right">
         <div class="card">
           <div class="base-info">
             <el-row>
@@ -117,20 +78,12 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.name')" prop="name">
-                  <el-input
-                    class="ms-http-input"
-                    size="small"
-                    v-model="mockExpectConfig.name"
-                  />
+                  <el-input class="ms-http-input" size="small" v-model="mockExpectConfig.name" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.tag')" prop="tag">
-                  <ms-input-tag
-                    :currentScenario="mockExpectConfig"
-                    v-if="showHeadTable"
-                    ref="tag"
-                  />
+                  <ms-input-tag :currentScenario="mockExpectConfig" v-if="showHeadTable" ref="tag" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -139,21 +92,14 @@
               <el-col>{{ $t('api_test.mock.req_param') }}</el-col>
             </el-row>
             <el-row>
-              <tcp-params
-                :request="mockExpectConfig.request"
-                style="margin: 10px 10px"
-                ref="tcpParam"
-              ></tcp-params>
+              <tcp-params :request="mockExpectConfig.request" style="margin: 10px 10px" ref="tcpParam"></tcp-params>
             </el-row>
             <el-row style="margin-top: 10px">
               <el-col>{{ $t('api_test.mock.rsp_param') }}</el-col>
             </el-row>
             <el-row>
               <el-form-item label="延时 (ms)" prop="response.delayed">
-                <el-input-number
-                  v-model="mockExpectConfig.response.delayed"
-                  :min="0"
-                >
+                <el-input-number v-model="mockExpectConfig.response.delayed" :min="0">
                   <template slot="append">ms</template>
                 </el-input-number>
               </el-form-item>
@@ -165,31 +111,21 @@
                   :mode="'txt'"
                   ref="codeEdit"
                   :data.sync="mockExpectConfig.response.body"
-                  style="margin-top: 10px"
-                />
+                  style="margin-top: 10px" />
               </el-form-item>
             </el-row>
             <el-row>
               <div style="float: right; margin-right: 20px">
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="saveMockExpectConfig"
-                  title="ctrl + s"
+                <el-button type="primary" size="small" @click="saveMockExpectConfig" title="ctrl + s"
                   >{{ $t('commons.add') }}
                 </el-button>
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="cleanMockExpectConfig"
+                <el-button type="primary" size="small" @click="cleanMockExpectConfig"
                   >{{ $t('commons.clear') }}
                 </el-button>
                 <el-button
                   type="primary"
                   size="small"
-                  v-if="
-                    mockExpectConfig.id != '' && mockExpectConfig.id != null
-                  "
+                  v-if="mockExpectConfig.id != '' && mockExpectConfig.id != null"
                   @click="updateMockExpectConfig"
                   >{{ $t('commons.update') }}
                 </el-button>
@@ -203,12 +139,7 @@
 </template>
 
 <script>
-import {
-  createMockConfig,
-  delMock,
-  mockExpectConfig,
-  updateMockExpectConfig,
-} from '@/api/api-mock';
+import { createMockConfig, delMock, mockExpectConfig, updateMockExpectConfig } from '@/api/api-mock';
 import MsTableOperatorButton from 'metersphere-frontend/src/components/MsTableOperatorButton';
 import MockRowVariables from '@/business/definition/components/mock/MockRowVariables';
 import MsInputTag from '@/business/automation/scenario/MsInputTag';
@@ -326,21 +257,17 @@ export default {
       });
     },
     removeExpect(row) {
-      operationConfirm(
-        this,
-        this.$t('api_test.mock.delete_mock_expect'),
-        () => {
-          let mockInfoId = row.mockConfigId;
-          delMock(row.id).then((response) => {
-            this.cleanMockExpectConfig();
-            this.refreshMockInfo(mockInfoId);
-            this.$message({
-              type: 'success',
-              message: this.$t('commons.delete_success'),
-            });
+      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
+        let mockInfoId = row.mockConfigId;
+        delMock(row.id).then((response) => {
+          this.cleanMockExpectConfig();
+          this.refreshMockInfo(mockInfoId);
+          this.$message({
+            type: 'success',
+            message: this.$t('commons.delete_success'),
           });
-        }
-      );
+        });
+      });
     },
     saveMockExpectConfig() {
       let mockConfigId = this.mockConfigData.mockConfig.id;

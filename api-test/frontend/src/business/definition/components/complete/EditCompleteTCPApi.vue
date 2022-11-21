@@ -4,16 +4,8 @@
     <el-row>
       <el-col>
         <!--操作按钮-->
-        <div
-          style="float: right; margin-right: 20px; margin-top: 20px"
-          class="ms-opt-btn"
-        >
-          <el-tooltip
-            :content="$t('commons.follow')"
-            placement="bottom"
-            effect="dark"
-            v-if="!showFollow"
-          >
+        <div style="float: right; margin-right: 20px; margin-top: 20px" class="ms-opt-btn">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i
               class="el-icon-star-off"
               style="
@@ -24,15 +16,9 @@
                 top: 5px;
                 cursor: pointer;
               "
-              @click="saveFollow"
-            />
+              @click="saveFollow" />
           </el-tooltip>
-          <el-tooltip
-            :content="$t('commons.cancel')"
-            placement="bottom"
-            effect="dark"
-            v-if="showFollow"
-          >
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
             <i
               class="el-icon-star-on"
               style="
@@ -43,15 +29,9 @@
                 top: 5px;
                 cursor: pointer;
               "
-              @click="saveFollow"
-            />
+              @click="saveFollow" />
           </el-tooltip>
-          <el-link
-            type="primary"
-            style="margin-right: 5px"
-            @click="openHis"
-            v-if="basisData.id"
-          >
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="basisData.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
           <!--  版本历史 -->
@@ -63,15 +43,8 @@
             @compare="compare"
             @checkout="checkout"
             @create="create"
-            @del="del"
-          />
-          <el-button
-            type="primary"
-            size="small"
-            @click="saveApi"
-            title="ctrl + s"
-            >{{ $t('commons.save') }}</el-button
-          >
+            @del="del" />
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
         </div>
       </el-col>
     </el-row>
@@ -83,35 +56,18 @@
         :show-pre-script="true"
         :show-script="false"
         :request="request"
-        ref="tcpFormatParameter"
-      />
+        ref="tcpFormatParameter" />
     </div>
     <div v-else-if="apiProtocol == 'ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-      <mx-esb-definition
-        v-xpack
-        :show-pre-script="true"
-        :show-script="false"
-        :request="request"
-        ref="esbDefinition"
-      />
+      <mx-esb-definition v-xpack :show-pre-script="true" :show-script="false" :request="request" ref="esbDefinition" />
       <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-      <mx-esb-definition-response
-        v-xpack
-        :is-api-component="true"
-        :show-options-button="true"
-        :request="request"
-      />
+      <mx-esb-definition-response v-xpack :is-api-component="true" :show-options-button="true" :request="request" />
     </div>
     <api-other-info :api="basisData" ref="apiOtherInfo" />
 
     <ms-change-history ref="changeHistory" />
-    <el-dialog
-      :fullscreen="true"
-      :visible.sync="dialogVisible"
-      :destroy-on-close="true"
-      width="100%"
-    >
+    <el-dialog :fullscreen="true" :visible.sync="dialogVisible" :destroy-on-close="true" width="100%">
       <t-c-p-api-version-diff
         v-if="dialogVisible"
         :old-data="basisData"
@@ -124,33 +80,23 @@
         :mock-info="mockInfo"
         :api-protocol="apiProtocol"
         :old-api-protocol="newApiProtocol"
-        :method-types="methodTypes"
-      ></t-c-p-api-version-diff>
+        :method-types="methodTypes"></t-c-p-api-version-diff>
     </el-dialog>
 
     <el-dialog
       :title="$t('commons.sync_other_info')"
       :visible.sync="createNewVersionVisible"
       :show-close="false"
-      width="30%"
-    >
+      width="30%">
       <div>
-        <el-checkbox v-model="basisData.newVersionRemark">{{
-          $t('commons.remark')
-        }}</el-checkbox>
-        <el-checkbox v-model="basisData.newVersionDeps">{{
-          $t('commons.relationship.name')
-        }}</el-checkbox>
+        <el-checkbox v-model="basisData.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
+        <el-checkbox v-model="basisData.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
         <el-checkbox v-model="basisData.newVersionCase">CASE</el-checkbox>
         <el-checkbox v-model="basisData.newVersionMock">MOCK</el-checkbox>
       </div>
 
       <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="cancelCreateNewVersion"
-          :title="$t('commons.edit_info')"
-          @confirm="saveApi"
-        >
+        <ms-dialog-footer @cancel="cancelCreateNewVersion" :title="$t('commons.edit_info')" @confirm="saveApi">
         </ms-dialog-footer>
       </template>
     </el-dialog>
@@ -169,10 +115,7 @@ import {
 import MsTcpBasicApi from './TCPBasicApi';
 import MsTcpFormatParameters from '../request/tcp/TcpFormatParameters';
 import MsChangeHistory from '@/business/history/ApiHistory';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import ApiOtherInfo from '@/business/definition/components/complete/ApiOtherInfo';
 import TCPApiVersionDiff from './version/TCPApiVersionDiff';
@@ -194,12 +137,9 @@ export default {
     MsTcpFormatParameters,
     MsChangeHistory,
     TCPApiVersionDiff,
-    MxEsbDefinition: () =>
-      import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxVersionHistory: () =>
-      import('metersphere-frontend/src/components/version/MxVersionHistory'),
-    MxEsbDefinitionResponse: () =>
-      import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
+    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
+    MxVersionHistory: () => import('metersphere-frontend/src/components/version/MxVersionHistory'),
+    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   props: {
     request: {},
@@ -265,11 +205,7 @@ export default {
   },
   watch: {
     syncTabs() {
-      if (
-        this.basisData &&
-        this.syncTabs &&
-        this.syncTabs.includes(this.basisData.id)
-      ) {
+      if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
         // 标示接口在其他地方更新过，当前页面需要同步
         getDefinitionById(this.basisData.id).then((response) => {
           if (response.data) {
@@ -294,12 +230,7 @@ export default {
   },
   methods: {
     openHis() {
-      this.$refs.changeHistory.open(this.basisData.id, [
-        '接口定义',
-        '接口定義',
-        'Api definition',
-        'API_DEFINITION',
-      ]);
+      this.$refs.changeHistory.open(this.basisData.id, ['接口定义', '接口定義', 'Api definition', 'API_DEFINITION']);
     },
     callback() {
       this.validated = true;
@@ -309,9 +240,7 @@ export default {
         this.basisData.tags = JSON.stringify(this.basisData.tags);
       }
       if (this.basisData.method === 'ESB') {
-        let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(
-          this.request.esbDataStruct
-        );
+        let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
         if (!validataResult) {
           return;
         }
@@ -320,9 +249,7 @@ export default {
           this.basisData.esbDataStruct = this.esbDataStruct;
         }
         if (this.request.backEsbDataStruct != null) {
-          this.basisData.backEsbDataStruct = JSON.stringify(
-            this.request.backEsbDataStruct
-          );
+          this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
         }
         if (this.request.backScript != null) {
           this.basisData.backScript = JSON.stringify(this.request.backScript);
@@ -345,9 +272,7 @@ export default {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
         }
         if (this.basisData.method === 'ESB') {
-          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(
-            this.request.esbDataStruct
-          );
+          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
           if (!validataResult) {
             return;
           }
@@ -356,9 +281,7 @@ export default {
             this.basisData.esbDataStruct = this.esbDataStruct;
           }
           if (this.request.backEsbDataStruct != null) {
-            this.basisData.backEsbDataStruct = JSON.stringify(
-              this.request.backEsbDataStruct
-            );
+            this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
           }
           if (this.request.backScript != null) {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
@@ -400,10 +323,7 @@ export default {
           }
         }
         if (this.basisData.id) {
-          updateDefinitionFollows(
-            this.basisData.id,
-            this.basisData.follows
-          ).then(() => {
+          updateDefinitionFollows(this.basisData.id, this.basisData.follows).then(() => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
@@ -414,10 +334,7 @@ export default {
         }
         this.basisData.follows.push(getCurrentUser().id);
         if (this.basisData.id) {
-          updateDefinitionFollows(
-            this.basisData.id,
-            this.basisData.follows
-          ).then(() => {
+          updateDefinitionFollows(this.basisData.id, this.basisData.follows).then(() => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
@@ -426,46 +343,38 @@ export default {
     getVersionHistory() {
       getDefinitionVersions(this.basisData.id).then((response) => {
         if (this.basisData.isCopy) {
-          this.versionData = response.data.filter(
-            (v) => v.versionId === this.basisData.versionId
-          );
+          this.versionData = response.data.filter((v) => v.versionId === this.basisData.versionId);
         } else {
           this.versionData = response.data;
         }
       });
     },
     compare(row) {
-      this.basisData.createTime =
-        this.$refs.versionHistory.versionOptions.filter(
-          (v) => v.id === this.basisData.versionId
-        )[0].createTime;
-      getDefinitionByIdAndRefId(row.id, this.basisData.refId).then(
-        (response) => {
-          getDefinitionById(response.data.id).then((res) => {
-            if (res.data) {
-              this.newData = res.data;
-              this.newData.createTime = row.createTime;
-              if (
-                this.newData.method !== 'TCP' &&
-                this.newData.method !== 'ESB'
-              ) {
-                this.newData.method = this.newData.protocol;
-              }
-              this.newApiProtocol = this.basisData.method;
-              if (this.newApiProtocol == null || this.newApiProtocol === '') {
-                this.newApiProtocol = 'TCP';
-              }
-              this.dealWithTag(res.data);
-              this.setRequest(res.data);
-              if (!this.setRequest(res.data)) {
-                this.newRequest = createComponent('TCPSampler');
-                this.dialogVisible = true;
-              }
-              this.formatApi(res.data);
+      this.basisData.createTime = this.$refs.versionHistory.versionOptions.filter(
+        (v) => v.id === this.basisData.versionId
+      )[0].createTime;
+      getDefinitionByIdAndRefId(row.id, this.basisData.refId).then((response) => {
+        getDefinitionById(response.data.id).then((res) => {
+          if (res.data) {
+            this.newData = res.data;
+            this.newData.createTime = row.createTime;
+            if (this.newData.method !== 'TCP' && this.newData.method !== 'ESB') {
+              this.newData.method = this.newData.protocol;
             }
-          });
-        }
-      );
+            this.newApiProtocol = this.basisData.method;
+            if (this.newApiProtocol == null || this.newApiProtocol === '') {
+              this.newApiProtocol = 'TCP';
+            }
+            this.dealWithTag(res.data);
+            this.setRequest(res.data);
+            if (!this.setRequest(res.data)) {
+              this.newRequest = createComponent('TCPSampler');
+              this.dialogVisible = true;
+            }
+            this.formatApi(res.data);
+          }
+        });
+      });
     },
     setRequest(api) {
       if (api.request) {
@@ -494,10 +403,7 @@ export default {
         }
       }
       if (this.basisData.tags) {
-        if (
-          Object.prototype.toString.call(this.basisData.tags) ===
-          '[object String]'
-        ) {
+        if (Object.prototype.toString.call(this.basisData.tags) === '[object String]') {
           this.basisData.tags = JSON.parse(this.basisData.tags);
         }
       }
@@ -590,26 +496,14 @@ export default {
           this.basisData.caseTotal = response.data;
         }
         this.$set(this.basisData, 'newVersionRemark', !!this.basisData.remark);
-        this.$set(
-          this.basisData,
-          'newVersionDeps',
-          this.$refs.apiOtherInfo.relationshipCount > 0
-        );
-        this.$set(
-          this.basisData,
-          'newVersionCase',
-          this.basisData.caseTotal > 0
-        );
+        this.$set(this.basisData, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
+        this.$set(this.basisData, 'newVersionCase', this.basisData.caseTotal > 0);
 
         createMockConfig({
           projectId: this.projectId,
           apiId: this.basisData.id,
         }).then((response) => {
-          this.$set(
-            this.basisData,
-            'newVersionMock',
-            response.data.mockExpectConfigList.length > 0
-          );
+          this.$set(this.basisData, 'newVersionMock', response.data.mockExpectConfigList.length > 0);
 
           if (
             this.$refs.apiOtherInfo.relationshipCount > 0 ||
@@ -628,24 +522,17 @@ export default {
       });
     },
     del(row) {
-      this.$alert(
-        this.$t('api_test.definition.request.delete_confirm') +
-          ' ' +
-          row.name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delDefinitionByRefId(row.id, this.basisData.refId).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.getVersionHistory();
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            delDefinitionByRefId(row.id, this.basisData.refId).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        },
+      });
     },
   },
 };

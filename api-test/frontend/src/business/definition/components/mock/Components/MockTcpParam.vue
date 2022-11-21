@@ -2,15 +2,7 @@
   <div>
     <el-row>
       <el-col :span="spanCount">
-        <div
-          style="
-            border: 1px #dcdfe6 solid;
-            height: 100%;
-            border-radius: 4px;
-            width: 100%;
-          "
-          v-loading="isReloadData"
-        >
+        <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%" v-loading="isReloadData">
           <el-tabs v-model="activeName" class="request-tabs"> </el-tabs>
         </div>
       </el-col>
@@ -30,10 +22,7 @@ import MsApiAssertions from '@/business/definition/components/assertion/ApiAsser
 import MsApiExtract from '@/business/definition/components/extract/ApiExtract';
 import { Body, KeyValue } from '@/business/definition/model/ApiTestModel';
 import { getUUID } from 'metersphere-frontend/src/utils';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
 import MsApiAdvancedConfig from '@/business/definition/components/request/http/ApiAdvancedConfig';
 import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
@@ -138,15 +127,10 @@ export default {
     hasPermission,
     hasLicense,
     generate() {
-      if (
-        this.request.body &&
-        (this.request.body.jsonSchema || this.request.body.raw)
-      ) {
+      if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
         if (!this.request.body.jsonSchema) {
           const MsConvert = new Convert();
-          this.request.body.jsonSchema = MsConvert.format(
-            JSON.parse(this.request.body.raw)
-          );
+          this.request.body.jsonSchema = MsConvert.format(JSON.parse(this.request.body.raw));
         }
         testDataGenerator(this.request.body.jsonSchema).then((response) => {
           if (response.data) {
@@ -155,10 +139,7 @@ export default {
             } else {
               const MsConvert = new Convert();
               let data = MsConvert.format(JSON.parse(response.data));
-              this.request.body.jsonSchema = this.deepAssign(
-                this.request.body.jsonSchema,
-                data
-              );
+              this.request.body.jsonSchema = this.deepAssign(this.request.body.jsonSchema, data);
             }
             this.reloadBody();
           }

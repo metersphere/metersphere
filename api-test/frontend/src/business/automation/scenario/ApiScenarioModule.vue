@@ -21,35 +21,20 @@
       @refresh="list"
       @filter="filter"
       @nodeSelectEvent="nodeChange"
-      ref="nodeTree"
-    >
+      ref="nodeTree">
       <template v-slot:header>
-        <ms-search-bar
-          :show-operator="showOperator && !isTrashData"
-          :condition="condition"
-          :commands="operators"
-        />
+        <ms-search-bar :show-operator="showOperator && !isTrashData" :condition="condition" :commands="operators" />
         <module-trash-button
           v-if="!isReadOnly && !isTrashData"
           :condition="condition"
           :exe="enableTrash"
-          :total="total"
-        />
+          :total="total" />
       </template>
     </ms-node-tree>
 
-    <ms-add-basis-scenario
-      :module-options="data"
-      @saveAsEdit="saveAsEdit"
-      @refresh="refresh"
-      ref="basisScenario"
-    />
+    <ms-add-basis-scenario :module-options="data" @saveAsEdit="saveAsEdit" @refresh="refresh" ref="basisScenario" />
 
-    <api-import
-      ref="apiImport"
-      :moduleOptions="data"
-      @refreshAll="$emit('refreshAll')"
-    />
+    <api-import ref="apiImport" :moduleOptions="data" @refreshAll="$emit('refreshAll')" />
   </div>
 </template>
 
@@ -199,21 +184,15 @@ export default {
     },
     list(projectId) {
       if (this.isRelevanceModel) {
-        this.result = getModuleByRelevanceProjectId(
-          this.relevanceProjectId
-        ).then((response) => {
+        this.result = getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
           this.setData(response);
         });
       } else if (this.isTrashData) {
-        this.result = getModuleByTrash(
-          projectId ? projectId : this.projectId
-        ).then((response) => {
+        this.result = getModuleByTrash(projectId ? projectId : this.projectId).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getModuleByProjectId(
-          projectId ? projectId : this.projectId
-        ).then((response) => {
+        this.result = getModuleByProjectId(projectId ? projectId : this.projectId).then((response) => {
           this.setData(response);
         });
       }
@@ -222,10 +201,7 @@ export default {
       if (response.data != undefined && response.data != null) {
         this.data = response.data;
         this.data.forEach((node) => {
-          node.name =
-            node.name === '未规划场景'
-              ? this.$t('api_test.automation.unplanned_scenario')
-              : node.name;
+          node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name;
           buildTree(node, { path: '' });
         });
         this.$emit('setModuleOptions', this.data);
@@ -304,11 +280,9 @@ export default {
     //后台更新节点数据
     nohupReloadTree(selectNodeId) {
       if (this.isRelevanceModel) {
-        getModuleByRelevanceProjectId(this.relevanceProjectId).then(
-          (response) => {
-            this.setModuleList(response, selectNodeId);
-          }
-        );
+        getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
+          this.setModuleList(response, selectNodeId);
+        });
       } else if (this.isTrashData) {
         if (!this.projectId) {
           return;
@@ -329,10 +303,7 @@ export default {
       if (response.data != undefined && response.data != null) {
         this.data = response.data;
         this.data.forEach((node) => {
-          node.name =
-            node.name === '未规划场景'
-              ? this.$t('api_test.automation.unplanned_scenario')
-              : node.name;
+          node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name;
           buildTree(node, { path: '' });
         });
 
@@ -367,10 +338,7 @@ export default {
       this.$emit('enableTrash', this.condition.trashEnable);
     },
     removeModuleId(nodeIds) {
-      if (
-        localStorage.getItem('scenarioModule') &&
-        localStorage.getItem('scenarioModule') === nodeIds[0]
-      ) {
+      if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {
         localStorage.setItem('scenarioModule', undefined);
       }
     },

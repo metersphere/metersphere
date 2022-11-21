@@ -1,12 +1,6 @@
 <template>
   <span v-if="showHide">
-    <el-upload
-      action="#"
-      class="ms-upload-header"
-      list-type="picture-card"
-      :file-list="parameter.files"
-      ref="upload"
-    >
+    <el-upload action="#" class="ms-upload-header" list-type="picture-card" :file-list="parameter.files" ref="upload">
       <div class="upload-default" @click.stop>
         <el-popover placement="right" trigger="hover">
           <div>
@@ -15,65 +9,36 @@
               class="ms-body-upload"
               :http-request="upload"
               :beforeUpload="uploadValidate"
-              ref="uploadLocal"
-            >
+              ref="uploadLocal">
               <el-button type="text" :disabled="isReadOnly" v-if="!isReadOnly">
                 {{ $t('permission.project_file.local_upload') }}</el-button
               >
               <span slot="file" />
             </el-upload>
           </div>
-          <el-button
-            type="text"
-            @click="associationFile"
-            v-if="!isReadOnly"
-            :disabled="isReadOnly"
-            >{{ $t('permission.project_file.associated_files') }}</el-button
-          >
+          <el-button type="text" @click="associationFile" v-if="!isReadOnly" :disabled="isReadOnly">{{
+            $t('permission.project_file.associated_files')
+          }}</el-button>
           <i class="el-icon-plus" slot="reference" />
         </el-popover>
       </div>
       <div class="upload-item" slot="file" slot-scope="{ file }">
-        <span>{{
-          file.file && file.file.name ? file.file.name : file.name
-        }}</span>
-        <span
-          v-if="file.storage === 'FILE_REF'"
-          class="el-upload-list__item-actions"
-        >
-          <span
-            v-if="!disabled"
-            class="ms-list__item-delete"
-            @click="handleRemove(file)"
-          >
+        <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
+        <span v-if="file.storage === 'FILE_REF'" class="el-upload-list__item-actions">
+          <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
             <i class="el-icon-unlock" />
             <span style="font-size: 13px">
-              {{
-                file.isExist
-                  ? $t('permission.project_file.file_delete_tip')
-                  : ''
-              }}
+              {{ file.isExist ? $t('permission.project_file.file_delete_tip') : '' }}
             </span>
           </span>
         </span>
         <span class="el-upload-list__item-actions" v-else>
-          <span
-            v-if="!disabled"
-            class="ms-list__item-delete"
-            @click="handleUpload(file)"
-          >
-            <el-tooltip
-              :content="$t('permission.project_file.save_to_file_manage')"
-              placement="top"
-            >
+          <span v-if="!disabled" class="ms-list__item-delete" @click="handleUpload(file)">
+            <el-tooltip :content="$t('permission.project_file.save_to_file_manage')" placement="top">
               <i class="el-icon-upload" style="font-size: 23px" />
             </el-tooltip>
           </span>
-          <span
-            v-if="!disabled"
-            class="ms-list__item-delete"
-            @click="handleRemove(file)"
-          >
+          <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
             <i class="el-icon-delete" />
           </span>
         </span>
@@ -85,10 +50,7 @@
 </template>
 
 <script>
-import {
-  dumpFile,
-  fileExists,
-} from 'metersphere-frontend/src/api/file-metadata';
+import { dumpFile, fileExists } from 'metersphere-frontend/src/api/file-metadata';
 import MsFileBatchMove from '@/business/commons/FileBatchMove';
 import MsFileMetadataList from '@/business/commons/QuoteFileList';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
@@ -130,10 +92,7 @@ export default {
         this.result = fileExists(fileIds).then((response) => {
           let resultIds = response.data;
           this.parameter.files.forEach((file) => {
-            if (
-              file.storage === 'FILE_REF' &&
-              resultIds.indexOf(file.fileId) === -1
-            ) {
+            if (file.storage === 'FILE_REF' && resultIds.indexOf(file.fileId) === -1) {
               file.isExist = true;
             }
           });

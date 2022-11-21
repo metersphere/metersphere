@@ -1,27 +1,11 @@
 <template>
   <el-card class="scenario-results">
     <div v-if="errorReport > 0">
-      <el-tooltip
-        :content="$t('api_test.automation.open_expansion')"
-        placement="top"
-        effect="light"
-      >
-        <i
-          class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"
-          v-prevent-re-click
-          @click="openExpansion"
-        />
+      <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+        <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion" />
       </el-tooltip>
-      <el-tooltip
-        :content="$t('api_test.automation.close_expansion')"
-        placement="top"
-        effect="light"
-      >
-        <i
-          class="el-icon-remove-outline ms-open-btn"
-          size="mini"
-          @click="closeExpansion"
-        />
+      <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+        <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion" />
       </el-tooltip>
     </div>
     <el-tree
@@ -31,21 +15,15 @@
       :filter-node-method="filterNode"
       highlight-current
       class="ms-tree ms-report-tree"
-      ref="resultsTree"
-    >
-      <span
-        slot-scope="{ node, data }"
-        style="width: 99%"
-        @click="nodeClick(node)"
-      >
+      ref="resultsTree">
+      <span slot-scope="{ node, data }" style="width: 99%" @click="nodeClick(node)">
         <ms-scenario-result
           :node="data"
           :console="console"
           v-on:requestResult="requestResult"
           :isActive="isActive"
           :is-share="isShare"
-          :share-id="shareId"
-        />
+          :share-id="shareId" />
       </span>
     </el-tree>
   </el-card>
@@ -82,11 +60,7 @@ export default {
   },
   computed: {
     isUi() {
-      return (
-        this.report &&
-        this.report.reportType &&
-        this.report.reportType.startsWith('UI')
-      );
+      return this.report && this.report.reportType && this.report.reportType.startsWith('UI');
     },
   },
   methods: {
@@ -97,11 +71,7 @@ export default {
       if (!value) return true;
       if (data.value) {
         if (value === 'FAKE_ERROR') {
-          if (
-            data.errorCode &&
-            data.errorCode !== '' &&
-            data.value.status === 'FAKE_ERROR'
-          ) {
+          if (data.errorCode && data.errorCode !== '' && data.value.status === 'FAKE_ERROR') {
             return true;
           }
         } else if (value === 'PENDING') {
@@ -180,8 +150,7 @@ export default {
 
 :deep(.el-checkbox) {
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }

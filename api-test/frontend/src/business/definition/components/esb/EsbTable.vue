@@ -6,89 +6,41 @@
       row-key="uuid"
       v-loading="loading"
       :expand-row-keys="expands"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
-      <el-table-column
-        prop="esbName"
-        :label="$t('api_test.definition.request.esb_table.name')"
-        width="230"
-      >
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
+      <el-table-column prop="esbName" :label="$t('api_test.definition.request.esb_table.name')" width="230">
         <template slot-scope="scope">
-          <el-input
-            v-if="scope.row.status"
-            v-model="scope.row.name"
-            style="width: 140px"
-          ></el-input>
+          <el-input v-if="scope.row.status" v-model="scope.row.name" style="width: 140px"></el-input>
           <span v-else>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="type"
-        :label="$t('api_test.definition.request.esb_table.type')"
-        width="120"
-      >
+      <el-table-column prop="type" :label="$t('api_test.definition.request.esb_table.type')" width="120">
         <template slot-scope="scope">
-          <el-select
-            v-if="scope.row.status"
-            v-model="scope.row.type"
-            :placeholder="$t('commons.please_select')"
-          >
-            <el-option
-              v-for="item in typeSelectOptions"
-              :key="item.value"
-              :label="item.value"
-              :value="item.value"
-            >
+          <el-select v-if="scope.row.status" v-model="scope.row.type" :placeholder="$t('commons.please_select')">
+            <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.value" :value="item.value">
             </el-option>
           </el-select>
           <span v-else>{{ scope.row.type }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="length"
-        :label="$t('api_test.definition.request.esb_table.length')"
-        width="80"
-      >
+      <el-table-column prop="length" :label="$t('api_test.definition.request.esb_table.length')" width="80">
         <template slot-scope="scope">
-          <el-input
-            v-if="scope.row.status"
-            v-model="scope.row.contentType"
-          ></el-input>
+          <el-input v-if="scope.row.status" v-model="scope.row.contentType"></el-input>
           <span v-else>{{ scope.row.contentType }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="description"
-        :label="$t('api_test.definition.request.esb_table.desc')"
-        min-width="200"
-      >
+      <el-table-column prop="description" :label="$t('api_test.definition.request.esb_table.desc')" min-width="200">
         <template slot-scope="scope">
-          <el-input
-            v-if="scope.row.status"
-            v-model="scope.row.description"
-          ></el-input>
+          <el-input v-if="scope.row.status" v-model="scope.row.description"></el-input>
           <span v-else>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="value"
-        :label="$t('api_test.definition.request.esb_table.value')"
-        width="180"
-      >
+      <el-table-column prop="value" :label="$t('api_test.definition.request.esb_table.value')" width="180">
         <template slot-scope="scope">
-          <el-input
-            v-if="scope.row.status"
-            v-model="scope.row.value"
-          ></el-input>
+          <el-input v-if="scope.row.status" v-model="scope.row.value"></el-input>
           <span v-else>{{ scope.row.value }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        v-if="showOptionsButton"
-        :label="$t('commons.operating')"
-        width="140"
-        fixed="right"
-      >
+      <el-table-column v-if="showOptionsButton" :label="$t('commons.operating')" width="140" fixed="right">
         <template v-slot:default="scope">
           <span>
             <el-button
@@ -98,8 +50,7 @@
               type="primary"
               circle
               @click="nextRow(scope.row)"
-              class="ht-btn-confirm"
-            />
+              class="ht-btn-confirm" />
             <el-button
               size="mini"
               p="$t('commons.copy')"
@@ -107,28 +58,20 @@
               type="primary"
               circle
               @click="copyDataStructConfirm(scope.row)"
-              class="ht-btn-confirm"
-            />
+              class="ht-btn-confirm" />
             <el-button
               size="mini"
               p="$t('commons.remove')"
               icon="el-icon-close"
               circle
               @click="remove(scope.row)"
-              class="ht-btn-remove"
-            />
+              class="ht-btn-remove" />
           </span>
         </template>
       </el-table-column>
     </el-table>
     <div v-if="showOptionsButton">
-      <el-button
-        class="ht-btn-add"
-        size="mini"
-        p="$t('commons.add')"
-        icon="el-icon-circle-plus-outline"
-        @click="add"
-      >
+      <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline" @click="add">
         {{ $t('commons.add') }}
       </el-button>
       <el-button
@@ -198,18 +141,14 @@ export default {
     },
     //复制当前数据结构
     copyDataStructConfirm: function (row) {
-      this.$alert(
-        this.$t('api_test.definition.request.esb_copy_confirm') + ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.copyDataStruct(row);
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.esb_copy_confirm') + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.copyDataStruct(row);
+          }
+        },
+      });
     },
     copyDataStruct: function (row) {
       let parentRow = this.selectParentRow(this.tableData, row.uuid);
@@ -300,9 +239,7 @@ export default {
         this.$warning('ESB参数名' + '不能为空，且不能包含英文小数点[.]');
         return false;
       } else if (row.name.indexOf('.') > 0) {
-        this.$warning(
-          'ESB参数名[' + row.name + ']不合法，不能包含英文小数点"."!'
-        );
+        this.$warning('ESB参数名[' + row.name + ']不合法，不能包含英文小数点"."!');
         return false;
       } else if (row.type == null || row.type === '') {
         this.$warning('类型' + '不能为空!');
@@ -338,11 +275,7 @@ export default {
           }
           row.children.push(appendData);
         } else if (row.children.length > 0) {
-          let appendResult = this.appendDataWithDeepForeach(
-            row.children,
-            rowId,
-            appendData
-          );
+          let appendResult = this.appendDataWithDeepForeach(row.children, rowId, appendData);
           if (appendResult) {
             return appendResult;
           }

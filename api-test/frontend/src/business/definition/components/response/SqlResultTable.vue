@@ -6,22 +6,14 @@
       :data="table.tableData"
       border
       size="mini"
-      highlight-current-row
-    >
-      <el-table-column
-        v-for="(title, index) in table.titles"
-        :key="index"
-        :label="title"
-        min-width="150px"
-      >
+      highlight-current-row>
+      <el-table-column v-for="(title, index) in table.titles" :key="index" :label="title" min-width="150px">
         <template v-slot:default="scope">
           <el-popover placement="top" trigger="click">
             <el-container>
               <div>{{ scope.row[title] }}</div>
             </el-container>
-            <span class="table-content" slot="reference">{{
-              scope.row[title]
-            }}</span>
+            <span class="table-content" slot="reference">{{ scope.row[title] }}</span>
           </el-popover>
         </template>
       </el-table-column>

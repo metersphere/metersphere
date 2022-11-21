@@ -1,20 +1,8 @@
 <template>
   <div class="select-menu">
     <span class="menu-title">{{ '[' + title + ']' }}</span>
-    <el-select
-      filterable
-      slot="prepend"
-      v-model="value"
-      @change="changeData"
-      :style="{ width: width }"
-      size="small"
-    >
-      <el-option
-        v-for="(item, index) in data"
-        :key="index"
-        :label="item.name"
-        :value="index"
-      >
+    <el-select filterable slot="prepend" v-model="value" @change="changeData" :style="{ width: width }" size="small">
+      <el-option v-for="(item, index) in data" :key="index" :label="item.name" :value="index">
         <span class="span-name" :title="item.name">{{ item.name }}</span>
       </el-option>
     </el-select>

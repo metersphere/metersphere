@@ -5,34 +5,22 @@
     :width="width"
     :disabled="isReadOnly"
     @show="showPopover"
-    trigger="click"
-  >
-    <el-radio-group
-      v-model="radio"
-      style="margin-left: 20px"
-      @change="radioChange"
-    >
-      <el-radio :label="ENV_TYPE.JSON">{{
-        $t('workspace.env_group.env_list')
-      }}</el-radio>
-      <el-radio v-if="showEnvGroup" :label="ENV_TYPE.GROUP">{{
-        $t('workspace.env_group.name')
-      }}</el-radio>
+    trigger="click">
+    <el-radio-group v-model="radio" style="margin-left: 20px" @change="radioChange">
+      <el-radio :label="ENV_TYPE.JSON">{{ $t('workspace.env_group.env_list') }}</el-radio>
+      <el-radio v-if="showEnvGroup" :label="ENV_TYPE.GROUP">{{ $t('workspace.env_group.name') }}</el-radio>
     </el-radio-group>
     <env-select
       :project-ids="projectIds"
       :result="result"
-      :show-config-button-with-out-permission="
-        showConfigButtonWithOutPermission
-      "
+      :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
       :env-map="envMap"
       :project-list="projectList"
       @close="visible = false"
       @setProjectEnvMap="setProjectEnvMap"
       v-show="!radio || radio === ENV_TYPE.JSON"
       :btnStyle="btnStyle"
-      ref="envSelect"
-    />
+      ref="envSelect" />
     <env-group
       ref="envGroup"
       v-show="radio === ENV_TYPE.GROUP && !hasOptionGroup"
@@ -40,8 +28,7 @@
       :project-ids="projectIds"
       @setEnvGroup="setEnvGroup"
       :group-id="groupId"
-      :btnStyle="btnStyle"
-    ></env-group>
+      :btnStyle="btnStyle"></env-group>
     <!-- 对环境组选项进行分类 可用｜不可用 -->
     <env-group-with-option
       ref="envOptionGroup"
@@ -49,14 +36,8 @@
       @close="visible = false"
       :project-ids="projectIds"
       @setEnvGroup="setEnvGroup"
-      :group-id="groupId"
-    ></env-group-with-option>
-    <el-button
-      type="primary"
-      slot="reference"
-      size="mini"
-      style="margin-top: 2px"
-    >
+      :group-id="groupId"></env-group-with-option>
+    <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px">
       {{ $t('api_test.definition.request.run_env') }}
       <i class="el-icon-caret-bottom el-icon--right"></i>
     </el-button>
@@ -192,9 +173,7 @@ export default {
             let res = this.$refs.envSelect.checkEnv(data);
             resolve(res);
           } else if (this.environmentType === ENV_TYPE.GROUP) {
-            let res = !this.hasOptionGroup
-              ? this.$refs.envGroup.checkEnv()
-              : this.$refs.envOptionGroup.checkEnv();
+            let res = !this.hasOptionGroup ? this.$refs.envGroup.checkEnv() : this.$refs.envOptionGroup.checkEnv();
             res.then((r) => {
               resolve(r);
             });

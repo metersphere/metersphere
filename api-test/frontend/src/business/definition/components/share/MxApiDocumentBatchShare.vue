@@ -4,19 +4,12 @@
     placement="left"
     width="260"
     @show="batchShareApiDocument"
-    v-model="batchSharePopoverVisible"
-  >
+    v-model="batchSharePopoverVisible">
     <p>{{ shareUrl }}</p>
     <div style="text-align: right; margin: 0">
-      <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{
-        $t('commons.copy')
-      }}</el-button>
+      <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{ $t('commons.copy') }}</el-button>
     </div>
-    <i
-      class="el-icon-share"
-      slot="reference"
-      style="margin-right: 10px; cursor: pointer"
-    ></i>
+    <i class="el-icon-share" slot="reference" style="margin-right: 10px; cursor: pointer"></i>
   </el-popover>
 </template>
 

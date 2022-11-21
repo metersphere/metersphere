@@ -7,11 +7,7 @@
       </span>
     </slot>
     <el-dropdown-menu slot="dropdown" chang>
-      <el-dropdown-item
-        v-for="(command, index) in commands"
-        :key="index"
-        :command="command"
-      >
+      <el-dropdown-item v-for="(command, index) in commands" :key="index" :command="command">
         {{ command }}
       </el-dropdown-item>
     </el-dropdown-menu>

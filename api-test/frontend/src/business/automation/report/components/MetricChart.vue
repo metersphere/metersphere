@@ -16,15 +16,9 @@
                 (content.error && content.error > 0) ||
                 (content.errorCode && content.errorCode > 0) ||
                 (content.unExecute && content.unExecute > 0)
-              "
-            >
+              ">
               <span class="ms-req-span">
-                {{
-                  content.success +
-                  content.error +
-                  content.errorCode +
-                  content.unExecute
-                }}
+                {{ content.success + content.error + content.errorCode + content.unExecute }}
                 {{ $t('api_report.request') }}
               </span>
             </span>
@@ -36,67 +30,35 @@
             </span>
           </div>
           <!--    饼图显示/成功/失败/误报      -->
-          <ms-chart
-            ref="chart"
-            :options="options"
-            :height="150"
-            :width="150"
-            :autoresize="true"
-            v-else
-          />
+          <ms-chart ref="chart" :options="options" :height="150" :width="150" :autoresize="true" v-else />
           <!--   总数统计      -->
           <el-row type="flex" justify="center" align="middle">
             <div style="min-width: 120px">
               <div class="metric-icon-box">
-                <span
-                  class="ms-point-success"
-                  style="margin: 7px; float: left"
-                />
+                <span class="ms-point-success" style="margin: 7px; float: left" />
                 <div class="metric-box-total">
-                  <div class="value" style="font-size: 12px">
-                    {{ content.success }} Success
-                  </div>
+                  <div class="value" style="font-size: 12px">{{ content.success }} Success</div>
                 </div>
               </div>
               <el-divider></el-divider>
               <div class="metric-icon-box" style="height: 26px">
                 <span class="ms-point-error" style="margin: 7px; float: left" />
                 <div class="metric-box-total">
-                  <div class="value" style="font-size: 12px">
-                    {{ content.error }} Error
-                  </div>
+                  <div class="value" style="font-size: 12px">{{ content.error }} Error</div>
                 </div>
               </div>
               <el-divider v-if="content.errorCode > 0"></el-divider>
-              <div
-                class="metric-icon-box"
-                v-if="content.errorCode > 0"
-                style="height: 26px"
-              >
-                <span
-                  class="ms-point-error-code"
-                  style="margin: 7px; float: left"
-                />
+              <div class="metric-icon-box" v-if="content.errorCode > 0" style="height: 26px">
+                <span class="ms-point-error-code" style="margin: 7px; float: left" />
                 <div class="metric-box-total" v-if="content.errorCode > 0">
-                  <div class="value" style="font-size: 12px">
-                    {{ content.errorCode }} FakeError
-                  </div>
+                  <div class="value" style="font-size: 12px">{{ content.errorCode }} FakeError</div>
                 </div>
               </div>
               <el-divider v-if="content.unExecute > 0"></el-divider>
-              <div
-                class="metric-icon-box"
-                style="height: 26px"
-                v-if="content.unExecute > 0"
-              >
-                <span
-                  class="ms-point-unexecute"
-                  style="margin: 7px; float: left"
-                />
+              <div class="metric-icon-box" style="height: 26px" v-if="content.unExecute > 0">
+                <span class="ms-point-unexecute" style="margin: 7px; float: left" />
                 <div class="metric-box-total">
-                  <div class="value" style="font-size: 12px">
-                    {{ content.unExecute }} Pending
-                  </div>
+                  <div class="value" style="font-size: 12px">{{ content.unExecute }} Pending</div>
                 </div>
               </div>
             </div>
@@ -106,12 +68,7 @@
       <div class="split"></div>
       <!-- 场景统计 -->
       <div style="width: 50%">
-        <el-row
-          type="flex"
-          justify="center"
-          align="middle"
-          v-if="report.reportType !== 'API_INTEGRATED'"
-        >
+        <el-row type="flex" justify="center" align="middle" v-if="report.reportType !== 'API_INTEGRATED'">
           <div class="metric-box">
             <div class="value">
               {{ content.scenarioTotal ? content.scenarioTotal : 0 }}
@@ -134,22 +91,10 @@
           </div>
           <span
             class="ms-point-error-code"
-            v-if="
-              content.scenarioErrorReport > 0 ||
-              content.scenarioStepErrorReport > 0
-            "
-          />
-          <div
-            class="metric-box"
-            v-if="
-              content.scenarioErrorReport > 0 ||
-              content.scenarioStepErrorReport > 0
-            "
-          >
+            v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0" />
+          <div class="metric-box" v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0">
             <div class="value">
-              {{
-                content.scenarioErrorReport ? content.scenarioErrorReport : 0
-              }}
+              {{ content.scenarioErrorReport ? content.scenarioErrorReport : 0 }}
             </div>
             <div class="name">FakeError</div>
           </div>
@@ -178,9 +123,7 @@
             <span class="ms-point-success" />
             <div class="metric-box">
               <div class="value">
-                {{
-                  content.scenarioStepSuccess ? content.scenarioStepSuccess : 0
-                }}
+                {{ content.scenarioStepSuccess ? content.scenarioStepSuccess : 0 }}
               </div>
               <div class="name">Success</div>
             </div>
@@ -193,33 +136,17 @@
             </div>
             <span
               class="ms-point-error-code"
-              v-if="
-                content.scenarioErrorReport > 0 ||
-                content.scenarioStepErrorReport > 0
-              "
-            />
-            <div
-              class="metric-box"
-              v-if="
-                content.scenarioErrorReport > 0 ||
-                content.scenarioStepErrorReport > 0
-              "
-            >
+              v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0" />
+            <div class="metric-box" v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0">
               <div class="value">
-                {{
-                  content.scenarioStepErrorReport
-                    ? content.scenarioStepErrorReport
-                    : 0
-                }}
+                {{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}
               </div>
               <div class="name">FakeError</div>
             </div>
             <span v-show="showUnExecuteReport" class="ms-point-unexecute" />
             <div v-show="showUnExecuteReport" class="metric-box">
               <div class="value">
-                {{
-                  content.scenarioStepPending ? content.scenarioStepPending : 0
-                }}
+                {{ content.scenarioStepPending ? content.scenarioStepPending : 0 }}
               </div>
               <div class="name">Pending</div>
             </div>
@@ -303,8 +230,7 @@ export default {
         if (this.minutes > 60) {
           this.hour = Math.round(this.minutes / 60);
           this.minutes = Math.round(this.minutes % 60);
-          this.time =
-            this.hour + 'hour' + this.minutes + 'min' + this.seconds + 's';
+          this.time = this.hour + 'hour' + this.minutes + 'min' + this.seconds + 's';
         }
       } else {
         this.time = this.totalTime + 'ms';
@@ -396,10 +322,8 @@ export default {
     },
     showUnExecuteReport() {
       return (
-        (this.content.scenarioStepPending &&
-          this.content.scenarioStepPending > 0) ||
-        (this.content.scenarioUnExecute &&
-          this.content.scenarioUnExecute > 0) ||
+        (this.content.scenarioStepPending && this.content.scenarioStepPending > 0) ||
+        (this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0) ||
         (this.content.unExecute && this.content.unExecute > 0)
       );
     },

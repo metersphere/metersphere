@@ -1,45 +1,19 @@
 <template>
   <div>
     <p>
-      <el-select
-        v-model="preOperate"
-        size="mini"
-        class="ms-select-step"
-        v-if="tabType === 'pre'"
-      >
-        <el-option
-          v-for="item in preOperates"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-        >
-        </el-option>
+      <el-select v-model="preOperate" size="mini" class="ms-select-step" v-if="tabType === 'pre'">
+        <el-option v-for="item in preOperates" :key="item.id" :label="item.name" :value="item.id"> </el-option>
       </el-select>
 
-      <el-select
-        v-model="postOperate"
-        size="mini"
-        class="ms-select-step"
-        v-else-if="tabType === 'post'"
-      >
-        <el-option
-          v-for="item in postOperates"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id"
-        >
-        </el-option>
+      <el-select v-model="postOperate" size="mini" class="ms-select-step" v-else-if="tabType === 'post'">
+        <el-option v-for="item in postOperates" :key="item.id" :label="item.name" :value="item.id"> </el-option>
       </el-select>
       <el-button
         size="mini"
         @click="add"
         type="primary"
         v-if="tabType !== 'assertionsRule'"
-        style="
-          background-color: var(--primary_color);
-          border-color: var(--primary_color);
-        "
-      >
+        style="background-color: var(--primary_color); border-color: var(--primary_color)">
         {{ $t('api_test.request.assertions.add') }}
       </el-button>
     </p>
@@ -53,13 +27,8 @@
       @node-drag-end="allowDrag"
       draggable
       ref="generalSteps"
-      class="ms-step-tree-cell"
-    >
-      <span
-        class="custom-tree-node father"
-        slot-scope="{ node, data }"
-        style="width: calc(100% - 20px)"
-      >
+      class="ms-step-tree-cell">
+      <span class="custom-tree-node father" slot-scope="{ node, data }" style="width: calc(100% - 20px)">
         <!--前置脚本-->
         <div v-if="tabType === 'pre'">
           <ms-jsr233-processor
@@ -71,8 +40,7 @@
             :title="$t('api_test.definition.request.pre_script')"
             :jsr223-processor="data"
             color="#B8741A"
-            background-color="#F9F1EA"
-          />
+            background-color="#F9F1EA" />
           <!--前置SQL-->
           <ms-jdbc-processor
             v-if="data.type === 'JDBCPreProcessor'"
@@ -85,8 +53,7 @@
             :jdbc-processor="data"
             :draggable="true"
             color="#B8741A"
-            background-color="#F9F1EA"
-          />
+            background-color="#F9F1EA" />
 
           <ms-constant-timer
             :inner-step="true"
@@ -95,8 +62,7 @@
             :draggable="true"
             @remove="remove"
             @copyRow="copyRow"
-            v-if="data.type === 'ConstantTimer'"
-          />
+            v-if="data.type === 'ConstantTimer'" />
         </div>
         <div v-if="tabType === 'post'">
           <!--后置脚本-->
@@ -110,8 +76,7 @@
             :jsr223-processor="data"
             :draggable="true"
             color="#783887"
-            background-color="#F2ECF3"
-          />
+            background-color="#F2ECF3" />
 
           <!--后置SQL-->
           <ms-jdbc-processor
@@ -125,8 +90,7 @@
             :jdbc-processor="data"
             :draggable="true"
             color="#783887"
-            background-color="#F2ECF3"
-          />
+            background-color="#F2ECF3" />
           <!--提取规则-->
           <ms-api-extract
             :response="response"
@@ -135,8 +99,7 @@
             :draggable="true"
             @copyRow="copyRow"
             @remove="remove"
-            v-if="data.type === 'Extract'"
-          />
+            v-if="data.type === 'Extract'" />
         </div>
         <div v-if="tabType === 'assertionsRule'">
           <!--断言规则-->
@@ -150,8 +113,7 @@
             :apiId="apiId"
             :draggable="true"
             :is-read-only="data.disabled"
-            :assertions="data"
-          />
+            :assertions="data" />
         </div>
       </span>
     </el-tree>
@@ -163,13 +125,7 @@ import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
 import { createComponent } from '../jmeter/components';
 import MsApiAssertions from '../assertion/ApiAssertions';
 import MsApiExtract from '../extract/ApiExtract';
-import {
-  Assertions,
-  Body,
-  ConstantTimer,
-  Extract,
-  KeyValue,
-} from '../../model/ApiTestModel';
+import { Assertions, Body, ConstantTimer, Extract, KeyValue } from '../../model/ApiTestModel';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import BatchAddParameter from '../basis/BatchAddParameter';
@@ -223,11 +179,7 @@ export default {
   watch: {
     // 接口/用例 右上角公共环境监听
     storeUseEnvironment: function () {
-      if (
-        this.request.hashTree &&
-        this.request.hashTree.length > 0 &&
-        !this.scenarioId
-      ) {
+      if (this.request.hashTree && this.request.hashTree.length > 0 && !this.scenarioId) {
         this.setSubset(this.request.hashTree, store.useEnvironment);
       }
     },
@@ -359,30 +311,21 @@ export default {
     },
     setSubset(scenarioDefinition, env) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           // 找到原始数据源名称
           this.getTargetSource(scenarioDefinition[i]);
           scenarioDefinition[i].environmentId = env;
           this.setSameSourceId(env, scenarioDefinition[i]);
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setSubset(scenarioDefinition[i].hashTree, env);
         }
       }
     },
     getEnvs() {
       if (!this.scenarioId) {
-        let projectId = this.request.projectId
-          ? this.request.projectId
-          : getCurrentProjectID();
+        let projectId = this.request.projectId ? this.request.projectId : getCurrentProjectID();
         this.result = getEnvironmentByProjectId(projectId).then((response) => {
           this.environments = response.data;
           this.environments.forEach((environment) => {
@@ -414,11 +357,7 @@ export default {
         }
       }
       let isSame = false;
-      if (
-        currentEnvironment &&
-        currentEnvironment.config &&
-        currentEnvironment.config.databaseConfigs
-      ) {
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach((item) => {
           // 按照名称匹配
           if (item.name === obj.targetDataSourceName) {
@@ -433,26 +372,17 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (
           typeArray.indexOf(scenarioDefinition[i].type) !== -1 &&
           this.request.environmentId &&
           !scenarioDefinition[i].environmentId
         ) {
           scenarioDefinition[i].environmentId = this.request.environmentId;
-          if (
-            this.request.dataSourceId &&
-            !scenarioDefinition[i].dataSourceId
-          ) {
+          if (this.request.dataSourceId && !scenarioDefinition[i].dataSourceId) {
             scenarioDefinition[i].dataSourceId = this.request.dataSourceId;
-            scenarioDefinition[i].originalDataSourceId =
-              scenarioDefinition[i].dataSourceId;
-            scenarioDefinition[i].originalEnvironmentId =
-              scenarioDefinition[i].environmentId;
+            scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
+            scenarioDefinition[i].originalEnvironmentId = scenarioDefinition[i].environmentId;
           }
         }
       }
@@ -637,24 +567,17 @@ export default {
         let step = this.request.hashTree[i];
         if (
           this.tabType === 'pre' &&
-          (step.type === 'JSR223PreProcessor' ||
-            step.type === 'JDBCPreProcessor' ||
-            step.type === 'ConstantTimer')
+          (step.type === 'JSR223PreProcessor' || step.type === 'JDBCPreProcessor' || step.type === 'ConstantTimer')
         ) {
           step.index = Number(index);
           index++;
         } else if (
           this.tabType === 'post' &&
-          (step.type === 'JSR223PostProcessor' ||
-            step.type === 'JDBCPostProcessor' ||
-            step.type === 'Extract')
+          (step.type === 'JSR223PostProcessor' || step.type === 'JDBCPostProcessor' || step.type === 'Extract')
         ) {
           step.index = Number(index);
           index++;
-        } else if (
-          this.tabType === 'assertionsRule' &&
-          step.type === 'Assertions'
-        ) {
+        } else if (this.tabType === 'assertionsRule' && step.type === 'Assertions') {
           step.index = Number(index);
           index++;
         }
@@ -681,11 +604,7 @@ export default {
         params.forEach((item) => {
           let line = item.split(/，|,/);
           let required = false;
-          if (
-            line[1] === '必填' ||
-            line[1] === 'Required' ||
-            line[1] === 'true'
-          ) {
+          if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
             required = true;
           }
           keyValues.push(

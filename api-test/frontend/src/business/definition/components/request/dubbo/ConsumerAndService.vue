@@ -1,12 +1,5 @@
 <template>
-  <el-form
-    :model="consumer"
-    :rules="rules"
-    ref="consumer"
-    label-width="100px"
-    size="small"
-    :disabled="isReadOnly"
-  >
+  <el-form :model="consumer" :rules="rules" ref="consumer" label-width="100px" size="small" :disabled="isReadOnly">
     <el-row>
       <div class="dubbo-form-description" v-if="description">
         {{ description }}
@@ -14,27 +7,18 @@
     </el-row>
     <el-row>
       <el-form-item label="Timeout" prop="timeout" class="dubbo-form-item">
-        <el-input
-          type="number"
-          v-model="consumer.timeout"
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input type="number" v-model="consumer.timeout" :placeholder="$t('commons.input_content')" />
       </el-form-item>
       <el-form-item label="Version" prop="version" class="dubbo-form-item">
         <el-input
           v-model="consumer.version"
           maxlength="30"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Retries" prop="retries" class="dubbo-form-item">
-        <el-input
-          type="number"
-          v-model="consumer.retries"
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input type="number" v-model="consumer.retries" :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Cluster" prop="cluster" class="dubbo-form-item">
@@ -42,55 +26,27 @@
           v-model="consumer.cluster"
           maxlength="300"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
     </el-row>
     <el-row>
       <el-form-item label="Group" prop="group" class="dubbo-form-item">
-        <el-input
-          v-model="consumer.group"
-          maxlength="300"
-          show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input v-model="consumer.group" maxlength="300" show-word-limit :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
-      <el-form-item
-        label="Connections"
-        prop="connections"
-        class="dubbo-form-item"
-      >
-        <el-input
-          type="number"
-          v-model="consumer.connections"
-          :placeholder="$t('commons.input_content')"
-        />
+      <el-form-item label="Connections" prop="connections" class="dubbo-form-item">
+        <el-input type="number" v-model="consumer.connections" :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Async" prop="async" class="dubbo-form-item">
         <el-select v-model="consumer.async" class="select-100" clearable>
-          <el-option
-            v-for="option in asyncOptions"
-            :key="option"
-            :label="option"
-            :value="option"
-          />
+          <el-option v-for="option in asyncOptions" :key="option" :label="option" :value="option" />
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        label="LoadBalance"
-        prop="loadBalance"
-        class="dubbo-form-item"
-      >
+      <el-form-item label="LoadBalance" prop="loadBalance" class="dubbo-form-item">
         <el-select v-model="consumer.loadBalance" class="select-100" clearable>
-          <el-option
-            v-for="option in loadBalances"
-            :key="option"
-            :label="option"
-            :value="option"
-          />
+          <el-option v-for="option in loadBalances" :key="option" :label="option" :value="option" />
         </el-select>
       </el-form-item>
     </el-row>

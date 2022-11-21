@@ -1,12 +1,7 @@
 <template>
   <el-card class="card-content" v-if="isShow">
     <el-button-group v-if="isShowChangeButton">
-      <el-tooltip
-        class="item"
-        effect="dark"
-        :content="$t('api_test.definition.api_title')"
-        placement="left"
-      >
+      <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.api_title')" placement="left">
         <el-button
           plain
           style="width: 44px; height: 32px; padding: 5px 8px"
@@ -16,12 +11,7 @@
         >
       </el-tooltip>
 
-      <el-tooltip
-        class="item"
-        effect="dark"
-        :content="$t('api_test.definition.case_title')"
-        placement="top"
-      >
+      <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.case_title')" placement="top">
         <el-button
           plain
           style="width: 44px; height: 32px; padding: 1px"
@@ -31,18 +21,12 @@
         >
       </el-tooltip>
 
-      <el-tooltip
-        class="item"
-        effect="dark"
-        :content="$t('api_test.definition.doc_title')"
-        placement="right"
-      >
+      <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.doc_title')" placement="right">
         <el-button
           plain
           style="width: 44px; height: 32px; padding: 1px"
           :class="{ active: showDocList }"
-          @click="changeTab('doc')"
-        >
+          @click="changeTab('doc')">
           {{ $t('api_test.definition.doc_title') }}</el-button
         >
       </el-tooltip>

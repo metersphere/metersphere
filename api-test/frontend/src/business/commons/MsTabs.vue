@@ -1,13 +1,7 @@
 <template>
   <el-card class="card-content" v-if="isShow">
     <el-button-group v-if="isShowChangeButton">
-      <el-button
-        v-if="leftButtonEnable"
-        class="item"
-        plain
-        :class="{ active: leftActive }"
-        @click="changeTab('left')"
-      >
+      <el-button v-if="leftButtonEnable" class="item" plain :class="{ active: leftActive }" @click="changeTab('left')">
         {{ leftContent }}
       </el-button>
       <el-button
@@ -23,8 +17,7 @@
         class="item"
         plain
         :class="{ active: rightActive }"
-        @click="changeTab('right')"
-      >
+        @click="changeTab('right')">
         {{ rightContent }}
       </el-button>
     </el-button-group>

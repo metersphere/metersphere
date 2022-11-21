@@ -4,15 +4,12 @@
     <el-button
       class="add-btn"
       v-permission="
-        relationshipType == 'TEST_CASE'
-          ? ['PROJECT_TRACK_CASE:READ+EDIT']
-          : ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        relationshipType == 'TEST_CASE' ? ['PROJECT_TRACK_CASE:READ+EDIT'] : ['PROJECT_API_DEFINITION:READ+EDIT_API']
       "
       :disabled="readOnly || !resourceId"
       type="primary"
       size="mini"
-      @click="openRelevance"
-    >
+      @click="openRelevance">
       {{ $t($t('commons.add')) }}
     </el-button>
 
@@ -24,8 +21,7 @@
       :version-enable="versionEnable"
       @setCount="setCount"
       @deleteRelationship="handleDelete"
-      ref="testCaseRelationshipList"
-    />
+      ref="testCaseRelationshipList" />
   </el-main>
 </template>
 

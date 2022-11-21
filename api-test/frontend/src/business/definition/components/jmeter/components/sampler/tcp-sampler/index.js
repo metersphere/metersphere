@@ -12,11 +12,7 @@ const DEFAULT_OPTIONS = {
 };
 
 export default class TCPSampler extends Sampler {
-  static CLASSES = [
-    'TCPClientImpl',
-    'BinaryTCPClientImpl',
-    'LengthPrefixedBinaryTCPClientImpl',
-  ];
+  static CLASSES = ['TCPClientImpl', 'BinaryTCPClientImpl', 'LengthPrefixedBinaryTCPClientImpl'];
 
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
@@ -27,11 +23,9 @@ export default class TCPSampler extends Sampler {
     this.ctimeout = options.ctimeout; // Connect
     this.timeout = options.timeout; // Response
 
-    this.reUseConnection =
-      options.reUseConnection === undefined ? true : options.reUseConnection;
+    this.reUseConnection = options.reUseConnection === undefined ? true : options.reUseConnection;
     this.nodelay = options.nodelay === undefined ? false : options.nodelay;
-    this.closeConnection =
-      options.closeConnection === undefined ? false : options.closeConnection;
+    this.closeConnection = options.closeConnection === undefined ? false : options.closeConnection;
     this.soLinger = options.soLinger;
     this.eolByte = options.eolByte;
 

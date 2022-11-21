@@ -1,12 +1,5 @@
 <template>
-  <el-form
-    :model="config"
-    :rules="rules"
-    ref="config"
-    label-width="100px"
-    size="small"
-    :disabled="isReadOnly"
-  >
+  <el-form :model="config" :rules="rules" ref="config" label-width="100px" size="small" :disabled="isReadOnly">
     <el-row>
       <div class="dubbo-form-description" v-if="description">
         {{ description }}
@@ -20,37 +13,22 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Group" prop="group" class="dubbo-form-item">
-        <el-input
-          v-model="config.group"
-          maxlength="300"
-          show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input v-model="config.group" maxlength="300" show-word-limit :placeholder="$t('commons.input_content')" />
       </el-form-item>
       <el-form-item label="Namespace" prop="namespace" class="dubbo-form-item">
         <el-input
           v-model="config.namespace"
           maxlength="300"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
       <el-form-item label="Timeout" prop="timeout" class="dubbo-form-item">
-        <el-input
-          type="number"
-          v-model="config.timeout"
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input type="number" v-model="config.timeout" :placeholder="$t('commons.input_content')" />
       </el-form-item>
     </el-row>
     <el-row>
       <el-form-item label="Address" prop="address" class="dubbo-form-item-long">
-        <el-input
-          v-model="config.address"
-          maxlength="300"
-          show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input v-model="config.address" maxlength="300" show-word-limit :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="UserName" prop="username" class="dubbo-form-item">
@@ -58,8 +36,7 @@
           v-model="config.username"
           maxlength="100"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Password" prop="password" class="dubbo-form-item">
@@ -69,8 +46,7 @@
           show-word-limit
           show-password
           autocomplete="new-password"
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
     </el-row>
   </el-form>

@@ -22,10 +22,7 @@ export default class TestPlan extends HashTreeElement {
   }
 
   updateProps() {
-    let collectionProp =
-      this.props['TestPlan.user_defined_variables'].elements[
-        'Arguments.arguments'
-      ];
+    let collectionProp = this.props['TestPlan.user_defined_variables'].elements['Arguments.arguments'];
     collectionProp.clear();
     this.userDefinedVariables.forEach((variable) => {
       if (variable.enable !== false) {

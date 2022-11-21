@@ -9,29 +9,23 @@
       :placeholder="$t('api_test.value')"
       value-key="name"
       highlight-first-item
-      @select="change"
-    >
+      @select="change">
       <i
         slot="suffix"
         v-if="!disabled && needMock"
         class="el-input__icon el-icon-edit pointer"
-        @click="advanced(mock)"
-      ></i>
+        @click="advanced(mock)"></i>
     </el-autocomplete>
     <ms-api-variable-advance
       :show-mock-vars="showMockVars"
       :scenario-definition="scenarioDefinition"
       :current-item="mock"
-      ref="variableAdvance"
-    />
+      ref="variableAdvance" />
   </div>
 </template>
 
 <script>
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 import MsApiVariableAdvance from '@/business/definition/components/ApiVariableAdvance';
 
 export default {
@@ -93,9 +87,7 @@ export default {
       let results = [];
       if (!this.showMockVars) {
         let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        results = queryString
-          ? funcs.filter(this.funcFilter(queryString))
-          : funcs;
+        results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       }
       // 调用 callback 返回建议列表的数据
       cb(results);
@@ -123,17 +115,13 @@ export default {
     },
     querySearchAsync(queryString, cb) {
       const arr = this.mock || [];
-      const results = queryString
-        ? arr.filter(this.createStateFilter(queryString))
-        : arr;
+      const results = queryString ? arr.filter(this.createStateFilter(queryString)) : arr;
 
       cb(results);
     },
     createStateFilter(queryString) {
       return (state) => {
-        return (
-          state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
-        );
+        return state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
     editScenarioAdvance(data) {

@@ -3,16 +3,14 @@
     <ms-search
       :base-search-tip="$t('api_test.definition.request.select_case')"
       :condition.sync="condition"
-      @search="search"
-    >
+      @search="search">
     </ms-search>
     <mx-version-select
       v-xpack
       :project-id="projectId"
       @changeVersion="changeVersion"
       style="float: left"
-      class="search-input"
-    />
+      class="search-input" />
 
     <ms-table
       ref="scenarioTable"
@@ -26,53 +24,27 @@
       :row-order-group-id="projectId"
       @refresh="search"
       :disable-header-config="true"
-      @selectCountChange="selectCountChange"
-    >
-      <el-table-column
-        v-if="!customNum"
-        prop="num"
-        label="ID"
-        show-overflow-tooltip
-      >
-      </el-table-column>
-      <el-table-column
-        v-if="customNum"
-        prop="customNum"
-        label="ID"
-        show-overflow-tooltip
-      >
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        :label="$t('api_test.automation.scenario_name')"
-        show-overflow-tooltip
-      />
+      @selectCountChange="selectCountChange">
+      <el-table-column v-if="!customNum" prop="num" label="ID" show-overflow-tooltip> </el-table-column>
+      <el-table-column v-if="customNum" prop="customNum" label="ID" show-overflow-tooltip> </el-table-column>
+      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" show-overflow-tooltip />
       <el-table-column
         v-if="versionEnable"
         column-key="version_id"
         :filters="versionFilters"
         :label="$t('commons.version')"
-        min-width="120px"
-      >
+        min-width="120px">
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="level"
-        :label="$t('api_test.automation.case_level')"
-        show-overflow-tooltip
-      >
+      <el-table-column prop="level" :label="$t('api_test.automation.case_level')" show-overflow-tooltip>
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.level" ref="level" />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="tagNames"
-        :label="$t('api_test.automation.tag')"
-        min-width="120"
-      >
+      <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
         <template v-slot:default="scope">
           <ms-tag
             v-for="itemName in scope.row.tags"
@@ -80,62 +52,29 @@
             type="success"
             effect="plain"
             :content="itemName"
-            style="margin-left: 0px; margin-right: 2px"
-          />
+            style="margin-left: 0px; margin-right: 2px" />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="userId"
-        :label="$t('api_test.automation.creator')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="updateTime"
-        :label="$t('api_test.automation.update_time')"
-        width="180"
-      >
+      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip />
+      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="stepTotal"
-        :label="$t('api_test.automation.step')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="lastResult"
-        :label="$t('api_test.automation.last_result')"
-      >
+      <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip />
+      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
         <template v-slot:default="{ row }">
-          <el-link
-            type="success"
-            @click="showReport(row)"
-            v-if="row.lastResult === 'SUCCESS'"
-          >
+          <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'SUCCESS'">
             {{ $t('api_test.automation.success') }}
           </el-link>
-          <el-link
-            type="danger"
-            @click="showReport(row)"
-            v-if="row.lastResult === 'ERROR'"
-          >
+          <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'ERROR'">
             {{ $t('api_test.automation.fail') }}
           </el-link>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="passRate"
-        :label="$t('api_test.automation.passing_rate')"
-        show-overflow-tooltip
-      />
+      <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')" show-overflow-tooltip />
     </ms-table>
-    <ms-table-pagination
-      :change="search"
-      :current-page.sync="currentPage"
-      :page-size.sync="pageSize"
-      :total="total"
-    />
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
   </div>
 </template>
 
@@ -171,8 +110,7 @@ export default {
     MsApiReportDetail,
     MsTableAdvSearchBar,
     MsSearch,
-    MxVersionSelect: () =>
-      import('metersphere-frontend/src/components/version/MxVersionSelect'),
+    MxVersionSelect: () => import('metersphere-frontend/src/components/version/MxVersionSelect'),
   },
   props: {
     referenced: {
@@ -247,11 +185,7 @@ export default {
       }
 
       if (this.condition.projectId) {
-        this.result = getScenarioList(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = getScenarioList(this.currentPage, this.pageSize, this.condition).then((response) => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
@@ -288,9 +222,7 @@ export default {
       }
     },
     getConditions() {
-      this.condition.tableDataIds = Array.from(this.tableData).map(
-        (row) => row.id
-      );
+      this.condition.tableDataIds = Array.from(this.tableData).map((row) => row.id);
       return this.condition;
     },
     checkEnv() {

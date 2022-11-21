@@ -6,11 +6,8 @@
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
           v-if="pickValue.type === 'object'"
-          :class="
-            hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'
-          "
-          @click="hidden = !hidden"
-        />
+          :class="hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'"
+          @click="hidden = !hidden" />
         <span v-else style="width: 10px; display: inline-block" />
         <input
           class="el-input el-input__inner ms-input-css"
@@ -18,21 +15,15 @@
           :disabled="disabled"
           :value="pickKey"
           @blur="onInputName"
-          size="small"
-        />
+          size="small" />
 
-        <el-tooltip
-          v-if="root"
-          :content="$t('schema.checked_all')"
-          placement="top"
-        >
+        <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
           <input
             type="checkbox"
             :disabled="disabled"
             class="ms-col-name-required"
             :style="{ background: getBg() }"
-            @change="onRootCheck"
-          />
+            @change="onRootCheck" />
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
           <input
@@ -41,8 +32,7 @@
             :checked="checked"
             :style="{ 'background-color': getBg() }"
             class="ms-col-name-required"
-            @change="onCheck"
-          />
+            @change="onCheck" />
         </el-tooltip>
       </el-col>
       <el-col :span="4">
@@ -51,8 +41,7 @@
           :disabled="disabled"
           class="el-input el-input__inner ms-input-css"
           size="small"
-          :style="{ 'background-color': getBg() }"
-        />
+          :style="{ 'background-color': getBg() }" />
       </el-col>
       <el-col :span="6">
         <input
@@ -61,16 +50,14 @@
           :disabled="disabled"
           class="el-input el-input__inner ms-input-css"
           size="small"
-          :style="{ 'background-color': getBg() }"
-        />
+          :style="{ 'background-color': getBg() }" />
         <input
           v-else
           v-model="defaultValue"
           :disabled="disabled"
           class="el-input el-input__inner ms-input-css"
           size="small"
-          :style="{ 'background-color': getBg() }"
-        />
+          :style="{ 'background-color': getBg() }" />
       </el-col>
       <el-col :span="6">
         <input
@@ -78,14 +65,11 @@
           :disabled="disabled"
           class="el-input el-input__inner ms-input-css"
           size="small"
-          :style="{ 'background-color': getBg() }"
-        />
+          :style="{ 'background-color': getBg() }" />
       </el-col>
     </el-row>
 
-    <template
-      v-if="!hidden && pickValue.properties && !isArray && reloadItemOver"
-    >
+    <template v-if="!hidden && pickValue.properties && !isArray && reloadItemOver">
       <compared-editor
         v-for="(item, key, index) in pickValue.properties"
         :value="{ [key]: item }"
@@ -97,8 +81,7 @@
         :lang="lang"
         :custom="custom"
         @changeAllItemsType="changeAllItemsType"
-        @reloadItems="reloadItems"
-      />
+        @reloadItems="reloadItems" />
     </template>
     <template v-if="isArray && reloadItemOver">
       <compared-editor
@@ -111,8 +94,7 @@
         class="children"
         :lang="lang"
         :custom="custom"
-        @changeAllItemsType="changeAllItemsType"
-      />
+        @changeAllItemsType="changeAllItemsType" />
     </template>
   </div>
 </template>
@@ -197,11 +179,7 @@ export default {
       return this.pickValue.type === 'array';
     },
     checked() {
-      return (
-        this.parent &&
-        this.parent.required &&
-        this.parent.required.indexOf(this.pickKey) >= 0
-      );
+      return this.parent && this.parent.required && this.parent.required.indexOf(this.pickKey) >= 0;
     },
     advanced() {
       return TYPE[this.pickValue.type];
@@ -271,18 +249,12 @@ export default {
         delete this.pickValue['required'];
         delete this.pickValue['mock'];
         if (this.isArray) {
-          this.$set(this.pickValue, 'items', [
-            { type: 'string', mock: { mock: '' } },
-          ]);
+          this.$set(this.pickValue, 'items', [{ type: 'string', mock: { mock: '' } }]);
         }
       }
     },
     changeAllItemsType(changeType) {
-      if (
-        this.isArray &&
-        this.pickValue.items &&
-        this.pickValue.items.length > 0
-      ) {
+      if (this.isArray && this.pickValue.items && this.pickValue.items.length > 0) {
         this.pickValue.items.forEach((item) => {
           item.type = changeType;
           delete item['properties'];
@@ -304,23 +276,11 @@ export default {
     },
     _deepCheck(checked, node) {
       if (node.type === 'object' && node.properties) {
-        checked
-          ? this.$set(node, 'required', Object.keys(node.properties))
-          : delete node['required'];
-        Object.keys(node.properties).forEach((key) =>
-          this._deepCheck(checked, node.properties[key])
-        );
+        checked ? this.$set(node, 'required', Object.keys(node.properties)) : delete node['required'];
+        Object.keys(node.properties).forEach((key) => this._deepCheck(checked, node.properties[key]));
       } else if (node.type === 'array' && node.items.type === 'object') {
-        checked
-          ? this.$set(
-              node.items,
-              'required',
-              Object.keys(node.items.properties)
-            )
-          : delete node.items['required'];
-        Object.keys(node.items.properties).forEach((key) =>
-          this._deepCheck(checked, node.items.properties[key])
-        );
+        checked ? this.$set(node.items, 'required', Object.keys(node.items.properties)) : delete node.items['required'];
+        Object.keys(node.items.properties).forEach((key) => this._deepCheck(checked, node.items.properties[key]));
       }
     },
     _checked(checked, parent) {
@@ -385,10 +345,7 @@ export default {
       this.parentReloadItems();
     },
     _joinName() {
-      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(
-        0,
-        5
-      )}`;
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`;
     },
     onSetting() {
       this.modalVisible = true;
@@ -512,10 +469,7 @@ export default {
   display: flex;
 }
 
-.json-schema-editor-advanced-modal
-  .ms-advanced-search-form
-  .ms-form-item
-  .ms-form-item-control-wrapper {
+.json-schema-editor-advanced-modal .ms-advanced-search-form .ms-form-item .ms-form-item-control-wrapper {
   flex: 1;
 }
 

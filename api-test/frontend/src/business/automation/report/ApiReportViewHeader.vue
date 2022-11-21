@@ -11,15 +11,9 @@
             style="width: 200px"
             v-model="report.name"
             maxlength="60"
-            show-word-limit
-          />
+            show-word-limit />
           <span v-else>
-            <el-link
-              v-if="isSingleScenario"
-              type="primary"
-              class="report-name"
-              @click="redirect"
-            >
+            <el-link v-if="isSingleScenario" type="primary" class="report-name" @click="redirect">
               {{ report.name }}
             </el-link>
             <span v-else>
@@ -30,18 +24,13 @@
               class="el-icon-edit"
               style="cursor: pointer"
               @click="nameIsEdit = true"
-              @click.stop
-            />
+              @click.stop />
           </span>
         </span>
         <span v-if="report.endTime || report.createTime">
-          <span style="margin-left: 10px"
-            >{{ $t('report.test_start_time') }}：</span
-          >
+          <span style="margin-left: 10px">{{ $t('report.test_start_time') }}：</span>
           <span class="time"> {{ report.createTime | datetimeFormat }}</span>
-          <span style="margin-left: 10px"
-            >{{ $t('report.test_end_time') }}：</span
-          >
+          <span style="margin-left: 10px">{{ $t('report.test_end_time') }}：</span>
           <span class="time"> {{ report.endTime | datetimeFormat }}</span>
         </span>
         <div style="float: right">
@@ -54,8 +43,7 @@
             type="primary"
             size="mini"
             @click="handleExport(report.name)"
-            style="margin-right: 10px"
-          >
+            style="margin-right: 10px">
             {{ $t('test_track.plan_view.export_report') }}
           </el-button>
 
@@ -65,53 +53,28 @@
             style="margin-right: 10px; float: right"
             placement="bottom"
             trigger="click"
-            width="300"
-          >
+            width="300">
             <p>{{ shareUrl }}</p>
-            <span
-              style="color: red; float: left; margin-left: 10px"
-              v-if="application.typeValue"
-              >{{ $t('commons.validity_period') + application.typeValue }}</span
-            >
+            <span style="color: red; float: left; margin-left: 10px" v-if="application.typeValue">{{
+              $t('commons.validity_period') + application.typeValue
+            }}</span>
             <div style="text-align: right; margin: 0">
-              <el-button
-                type="primary"
-                size="mini"
-                :disabled="!shareUrl"
-                v-clipboard:copy="shareUrl"
+              <el-button type="primary" size="mini" :disabled="!shareUrl" v-clipboard:copy="shareUrl"
                 >{{ $t('commons.copy') }}
               </el-button>
             </div>
             <template v-slot:reference>
-              <el-button
-                :disabled="isReadOnly"
-                type="danger"
-                plain
-                size="mini"
-                @click="handleShare(report)"
-              >
+              <el-button :disabled="isReadOnly" type="danger" plain size="mini" @click="handleShare(report)">
                 {{ $t('test_track.plan_view.share_report') }}
               </el-button>
             </template>
           </el-popover>
 
-          <el-button
-            v-if="showRerunButton"
-            class="rerun-button"
-            plain
-            size="mini"
-            @click="rerun"
-          >
+          <el-button v-if="showRerunButton" class="rerun-button" plain size="mini" @click="rerun">
             {{ $t('api_test.automation.rerun') }}
           </el-button>
 
-          <el-button
-            v-if="showCancelButton"
-            class="export-button"
-            plain
-            size="mini"
-            @click="returnView"
-          >
+          <el-button v-if="showCancelButton" class="export-button" plain size="mini" @click="returnView">
             {{ $t('commons.cancel') }}
           </el-button>
         </div>
@@ -119,33 +82,17 @@
     </el-row>
     <el-row v-if="showProjectEnv" type="flex">
       <span> {{ $t('commons.environment') + ':' }} </span>
-      <div
-        v-for="(values, key) in projectEnvMap"
-        :key="key"
-        style="margin-right: 10px"
-      >
+      <div v-for="(values, key) in projectEnvMap" :key="key" style="margin-right: 10px">
         {{ key + ':' }}
-        <ms-tag
-          v-for="(item, index) in values"
-          :key="index"
-          type="success"
-          :content="item"
-          style="margin-left: 2px"
-        />
+        <ms-tag v-for="(item, index) in values" :key="index" type="success" :content="item" style="margin-left: 2px" />
       </div>
     </el-row>
   </header>
 </template>
 
 <script>
-import {
-  generateShareInfoWithExpired,
-  getShareRedirectUrl,
-} from '../../../api/share';
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { generateShareInfoWithExpired, getShareRedirectUrl } from '../../../api/share';
+import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
 import { getProjectApplicationConfig } from '../../../api/project';
 import { apiTestReRun } from '../../../api/xpack';
@@ -270,27 +217,16 @@ export default {
       });
     },
     getProjectApplication() {
-      getProjectApplicationConfig(
-        getCurrentProjectID(),
-        '/API_SHARE_REPORT_TIME'
-      ).then((res) => {
+      getProjectApplicationConfig(getCurrentProjectID(), '/API_SHARE_REPORT_TIME').then((res) => {
         if (res.data && res.data.typeValue) {
-          let quantity = res.data.typeValue.substring(
-            0,
-            res.data.typeValue.length - 1
-          );
-          let unit = res.data.typeValue.substring(
-            res.data.typeValue.length - 1
-          );
+          let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
+          let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
           if (unit === 'H') {
             res.data.typeValue = quantity + this.$t('commons.date_unit.hour');
           } else if (unit === 'D') {
             res.data.typeValue = quantity + this.$t('commons.date_unit.day');
           } else if (unit === 'M') {
-            res.data.typeValue =
-              quantity +
-              this.$t('commons.workspace_unit') +
-              this.$t('commons.date_unit.month');
+            res.data.typeValue = quantity + this.$t('commons.workspace_unit') + this.$t('commons.date_unit.month');
           } else if (unit === 'Y') {
             res.data.typeValue = quantity + this.$t('commons.date_unit.year');
           }

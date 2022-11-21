@@ -6,15 +6,11 @@
     :theme="theme"
     :height="height"
     :key="readOnly"
-    ref="msEditor"
-  />
+    ref="msEditor" />
 </template>
 
 <script>
-import {
-  formatJson,
-  formatXml,
-} from 'metersphere-frontend/src/utils/format-utils';
+import { formatJson, formatXml } from 'metersphere-frontend/src/utils/format-utils';
 import toDiffableHtml from 'diffable-html';
 
 export default {

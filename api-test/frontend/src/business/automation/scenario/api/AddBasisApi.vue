@@ -5,8 +5,7 @@
     :visible.sync="httpVisible"
     width="45%"
     :destroy-on-close="true"
-    append-to-body
-  >
+    append-to-body>
     <el-form
       :model="httpForm"
       label-position="right"
@@ -14,61 +13,36 @@
       size="small"
       :rules="rule"
       ref="httpForm"
-      v-if="!loading"
-    >
+      v-if="!loading">
       <el-form-item :label="$t('commons.name')" prop="name">
-        <el-input
-          v-model="httpForm.name"
-          autocomplete="off"
-          :placeholder="$t('commons.name')"
-        />
+        <el-input v-model="httpForm.name" autocomplete="off" :placeholder="$t('commons.name')" />
       </el-form-item>
 
       <!--HTTP 协议特有参数-->
-      <el-form-item
-        :label="$t('api_report.request')"
-        prop="path"
-        v-if="currentProtocol === 'HTTP'"
-      >
+      <el-form-item :label="$t('api_report.request')" prop="path" v-if="currentProtocol === 'HTTP'">
         <el-input
           :placeholder="$t('api_test.definition.request.path_info')"
           v-model="httpForm.path"
           class="ms-http-input"
-          size="small"
-        >
-          <el-select
-            v-model="httpForm.method"
-            slot="prepend"
-            style="width: 100px"
-            size="small"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.id"
-              :label="item.label"
-              :value="item.id"
-            />
+          size="small">
+          <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
+            <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id" />
           </el-select>
         </el-input>
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.definition.request.responsible')"
-        prop="userId"
-      >
+      <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
         <el-select
           v-model="httpForm.userId"
           :placeholder="$t('api_test.definition.request.responsible')"
           filterable
           size="small"
-          style="width: 100%"
-        >
+          style="width: 100%">
           <el-option
             v-for="item in maintainerOptions"
             :key="item.id"
             :label="item.id + ' (' + item.name + ')'"
-            :value="item.id"
-          >
+            :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -80,23 +54,17 @@
           @getValue="setModule"
           :obj="moduleObj"
           clearable
-          checkStrictly
-        />
+          checkStrictly />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('commons.description')"
-        prop="description"
-        style="margin-bottom: 29px"
-      >
+      <el-form-item :label="$t('commons.description')" prop="description" style="margin-bottom: 29px">
         <el-input
           class="ms-http-textarea"
           v-model="httpForm.description"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 10 }"
           :rows="2"
-          size="small"
-        />
+          size="small" />
       </el-form-item>
       <el-form-item class="create-tip">
         {{ $t('api_test.definition.create_tip') }}
@@ -104,12 +72,7 @@
     </el-form>
 
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="httpVisible = false"
-        @confirm="saveApi"
-        v-prevent-re-click
-      >
-      </ms-dialog-footer>
+      <ms-dialog-footer @cancel="httpVisible = false" @confirm="saveApi" v-prevent-re-click> </ms-dialog-footer>
     </template>
   </el-dialog>
 </template>
@@ -121,14 +84,8 @@ import { getApiModules } from '@/api/definition-module';
 import { getMaintainer } from '@/api/project';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { REQ_METHOD } from '@/business/definition/model/JsonData';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-} from 'metersphere-frontend/src/utils/token';
-import {
-  createComponent,
-  Request,
-} from '@/business/definition/components/jmeter/components';
+import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
+import { createComponent, Request } from '@/business/definition/components/jmeter/components';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
@@ -324,10 +281,7 @@ export default {
         this.httpForm.request.path = this.httpForm.path;
       }
       if (this.currentModule != null) {
-        this.httpForm.modulePath =
-          this.currentModule.method != undefined
-            ? this.currentModule.method
-            : null;
+        this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
         this.httpForm.moduleId = this.currentModule.id;
       }
     },
@@ -357,16 +311,14 @@ export default {
       if (data.protocol === 'dubbo://') {
         data.protocol = 'DUBBO';
       }
-      this.result = getApiModules(getCurrentProjectID(), data.protocol).then(
-        (response) => {
-          if (response.data != undefined && response.data != null) {
-            this.moduleOptions = response.data;
-            this.moduleOptions.forEach((node) => {
-              buildTree(node, { path: '' });
-            });
-          }
+      this.result = getApiModules(getCurrentProjectID(), data.protocol).then((response) => {
+        if (response.data != undefined && response.data != null) {
+          this.moduleOptions = response.data;
+          this.moduleOptions.forEach((node) => {
+            buildTree(node, { path: '' });
+          });
         }
-      );
+      });
     },
     setModule(id, data) {
       this.httpForm.moduleId = id;

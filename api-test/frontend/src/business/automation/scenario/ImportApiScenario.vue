@@ -5,8 +5,7 @@
         @selectModule="selectModule"
         @getApiModuleTree="initTree"
         @refresh="refresh"
-        @saveAsEdit="editScenario"
-      />
+        @saveAsEdit="editScenario" />
     </ms-aside-container>
     <ms-main-container>
       <ms-api-scenario-list
@@ -15,19 +14,12 @@
         @selection="setData"
         :referenced="true"
         :select-project-id="cuurentProjectId"
-        ref="apiScenarioList"
-      />
+        ref="apiScenarioList" />
 
-      <el-button
-        style="float: right; margin: 10px"
-        @click="importApiScenario"
-        type="primary"
-      >
+      <el-button style="float: right; margin: 10px" @click="importApiScenario" type="primary">
         {{ $t('api_test.scenario.reference') }}
       </el-button>
-      <el-button style="float: right; margin: 10px" @click="copyApiScenario">{{
-        $t('commons.copy')
-      }}</el-button>
+      <el-button style="float: right; margin: 10px" @click="copyApiScenario">{{ $t('commons.copy') }}</el-button>
     </ms-main-container>
   </ms-container>
 </template>
@@ -92,28 +84,23 @@ export default {
     },
     getApiScenario() {
       let scenarios = [];
-      this.result = getApiScenarios(this.currentScenarioIds).then(
-        (response) => {
-          if (response.data) {
-            response.data.forEach((item) => {
-              let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-              let obj = {
-                id: item.id,
-                name: item.name,
-                type: 'scenario',
-                referenced: 'Copy',
-                resourceId: getUUID(),
-                hashTree:
-                  scenarioDefinition && scenarioDefinition.hashTree
-                    ? scenarioDefinition.hashTree
-                    : [],
-              };
-              scenarios.push(obj);
-            });
-            this.$emit('addScenario', scenarios);
-          }
+      this.result = getApiScenarios(this.currentScenarioIds).then((response) => {
+        if (response.data) {
+          response.data.forEach((item) => {
+            let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+            let obj = {
+              id: item.id,
+              name: item.name,
+              type: 'scenario',
+              referenced: 'Copy',
+              resourceId: getUUID(),
+              hashTree: scenarioDefinition && scenarioDefinition.hashTree ? scenarioDefinition.hashTree : [],
+            };
+            scenarios.push(obj);
+          });
+          this.$emit('addScenario', scenarios);
         }
-      );
+      });
     },
     copyApiScenario() {
       if (this.currentScenarioIds) {

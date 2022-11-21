@@ -1,27 +1,12 @@
 <template>
   <div class="card-container">
     <el-card class="card-content">
-      <el-form
-        :model="debugForm"
-        :rules="rules"
-        ref="debugForm"
-        :inline="true"
-        label-position="right"
-      >
+      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
         <p class="tip">{{ $t('test_track.plan_view.base_info') }}</p>
         <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
-          <el-input
-            v-model="request.server"
-            maxlength="300"
-            show-word-limit
-            size="small"
-          />
+          <el-input v-model="request.server" maxlength="300" show-word-limit size="small" />
         </el-form-item>
-        <el-form-item
-          :label="$t('api_test.request.tcp.port')"
-          prop="port"
-          label-width="60px"
-        >
+        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
           <el-input v-model="request.port" size="small" />
         </el-form-item>
         <el-form-item>
@@ -30,12 +15,7 @@
           </el-button>
 
           <div v-else>
-            <el-button
-              v-if="scenario"
-              size="small"
-              type="primary"
-              @click="handleCommand"
-            >
+            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
               {{ $t('commons.test') }}
             </el-button>
             <el-dropdown
@@ -46,8 +26,7 @@
               @click="handleCommand"
               @command="handleCommand"
               size="small"
-              style="float: right; margin-right: 20px"
-            >
+              style="float: right; margin-right: 20px">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="save_as"
@@ -61,19 +40,14 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
         <!-- TCP 请求参数 -->
-        <ms-tcp-format-parameters
-          :request="request"
-          @callback="runDebug"
-          ref="requestForm"
-        />
+        <ms-tcp-format-parameters :request="request" @callback="runDebug" ref="requestForm" />
         <!-- TCP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <ms-request-result-tail
           v-if="!loading"
           :response="responseData"
           :currentProtocol="currentProtocol"
-          ref="debugResult"
-        />
+          ref="debugResult" />
       </div>
       <!-- 执行组件 -->
       <ms-run
@@ -82,24 +56,15 @@
         :isStop="isStop"
         :run-data="runData"
         @runRefresh="runRefresh"
-        ref="runTest"
-      />
+        ref="runTest" />
     </el-card>
     <div v-if="scenario">
-      <el-button
-        style="float: right; margin: 20px"
-        type="primary"
-        @click="handleCommand('save_as_api')"
-      >
+      <el-button style="float: right; margin: 20px" type="primary" @click="handleCommand('save_as_api')">
         {{ $t('commons.save') }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list
-      @refreshModule="refreshModule"
-      :loaded="false"
-      ref="caseList"
-    />
+    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList" />
   </div>
 </template>
 

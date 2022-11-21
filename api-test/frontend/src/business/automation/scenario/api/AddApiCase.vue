@@ -5,8 +5,7 @@
     :visible.sync="httpVisible"
     width="30%"
     :destroy-on-close="true"
-    append-to-body
-  >
+    append-to-body>
     <el-form
       :model="httpForm"
       label-position="right"
@@ -14,25 +13,18 @@
       size="small"
       :rules="rule"
       ref="httpForm"
-      v-if="!loading"
-    >
+      v-if="!loading">
       <el-form-item :label="$t('api_definition.case_name')" prop="name">
         <el-input
           v-model="httpForm.name"
           autocomplete="off"
           :placeholder="$t('api_definition.case_name')"
           show-word-limit
-          maxlength="100"
-        />
+          maxlength="100" />
       </el-form-item>
     </el-form>
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="httpVisible = false"
-        @confirm="saveApi"
-        v-prevent-re-click
-      >
-      </ms-dialog-footer>
+      <ms-dialog-footer @cancel="httpVisible = false" @confirm="saveApi" v-prevent-re-click> </ms-dialog-footer>
     </template>
   </el-dialog>
 </template>

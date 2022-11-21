@@ -4,32 +4,17 @@
       {{ description }}
     </span>
     <el-row>
-      <el-checkbox
-        v-model="isSelectAll"
-        v-if="isShowEnable === true && items.length > 1"
-      />
+      <el-checkbox v-model="isSelectAll" v-if="isShowEnable === true && items.length > 1" />
     </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <el-checkbox
-            v-if="!isDisable(index)"
-            v-model="item.enable"
-            :disabled="isReadOnly"
-          />
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly" />
         </el-col>
         <span style="margin-left: 10px" v-else></span>
 
-        <i
-          class="el-icon-top"
-          style="cursor: pointer"
-          @click="moveTop(index)"
-        />
-        <i
-          class="el-icon-bottom"
-          style="cursor: pointer"
-          @click="moveBottom(index)"
-        />
+        <i class="el-icon-top" style="cursor: pointer" @click="moveTop(index)" />
+        <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(index)" />
 
         <el-col class="item" v-if="unShowSelect === false">
           <el-input
@@ -40,8 +25,7 @@
             maxlength="200"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          />
+            show-word-limit />
           <el-autocomplete
             :disabled="isReadOnly"
             :maxlength="400"
@@ -51,8 +35,7 @@
             :fetch-suggestions="querySearch"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
 
         <el-col class="item" v-if="unShowSelect === true">
@@ -63,8 +46,7 @@
             size="small"
             maxlength="200"
             :placeholder="keyText"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
 
         <el-col class="item">
@@ -75,8 +57,7 @@
             size="small"
             @change="change"
             :placeholder="unShowSelect ? $t('commons.description') : valueText"
-            show-word-limit
-          />
+            show-word-limit />
           <div v-if="needMock">
             <el-autocomplete
               :disabled="isReadOnly"
@@ -88,13 +69,8 @@
               value-key="name"
               :fetch-suggestions="funcSearch"
               highlight-first-item
-              show-word-limit
-            >
-              <i
-                slot="suffix"
-                class="el-input__icon el-icon-edit pointer"
-                @click="advanced(item)"
-              ></i>
+              show-word-limit>
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
             </el-autocomplete>
           </div>
         </el-col>
@@ -105,8 +81,7 @@
             size="small"
             maxlength="200"
             :placeholder="$t('commons.description')"
-            show-word-limit
-          >
+            show-word-limit>
           </el-input>
         </el-col>
 
@@ -116,8 +91,7 @@
             class="el-icon-delete-solid"
             circle
             @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
       </el-row>
     </div>
@@ -126,8 +100,7 @@
       :append-to-body="appendToBody"
       :current-item="currentItem"
       :parameters="keyValues"
-      ref="variableAdvance"
-    />
+      ref="variableAdvance" />
   </div>
 </template>
 
@@ -135,10 +108,7 @@
 import { KeyValue } from '../model/ApiTestModel';
 import Vue from 'vue';
 import MsApiVariableAdvance from './ApiVariableAdvance';
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 
 export default {
   name: 'MsApiKeyValue',
@@ -220,9 +190,7 @@ export default {
     },
     funcSearch(queryString, cb) {
       let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString
-        ? funcs.filter(this.funcFilter(queryString))
-        : funcs;
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
@@ -281,17 +249,12 @@ export default {
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
-      let results = queryString
-        ? suggestions.filter(this.createFilter(queryString))
-        : suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
       cb(results);
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
     selectAll() {

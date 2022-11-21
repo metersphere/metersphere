@@ -15,16 +15,9 @@
       operator-width="170px"
       @order="initTable"
       @filter="search"
-      ref="apitable"
-    >
-      <ms-table-column prop="num" label="ID" min-width="80px" sortable>
-      </ms-table-column>
-      <ms-table-column
-        prop="name"
-        :label="$t('api_test.definition.api_name')"
-        sortable
-        width="120px"
-      />
+      ref="apitable">
+      <ms-table-column prop="num" label="ID" min-width="80px" sortable> </ms-table-column>
+      <ms-table-column prop="name" :label="$t('api_test.definition.api_name')" sortable width="120px" />
 
       <ms-table-column
         prop="method"
@@ -32,8 +25,7 @@
         column-key="method"
         :filters="methodFilters"
         :label="getApiRequestTypeName"
-        width="120px"
-      >
+        width="120px">
         <template v-slot:default="scope">
           <el-tag
             size="mini"
@@ -41,8 +33,7 @@
               'background-color': getColor(true, scope.row.method),
               border: getColor(true, scope.row.method),
             }"
-            class="api-el-tag"
-          >
+            class="api-el-tag">
             {{ scope.row.method }}
           </el-tag>
         </template>
@@ -54,14 +45,9 @@
         :filters="userFilters"
         column-key="user_id"
         :label="$t('api_test.definition.api_principal')"
-        width="100px"
-      />
+        width="100px" />
 
-      <ms-table-column
-        prop="path"
-        width="120px"
-        :label="$t('api_test.definition.api_path')"
-      />
+      <ms-table-column prop="path" width="120px" :label="$t('api_test.definition.api_path')" />
 
       <ms-table-column prop="tags" :label="$t('commons.tag')" width="120px">
         <template v-slot:default="scope">
@@ -72,8 +58,7 @@
             effect="plain"
             :show-tooltip="true"
             :content="itemName"
-            style="margin-left: 0px; margin-right: 2px"
-          />
+            style="margin-left: 0px; margin-right: 2px" />
         </template>
       </ms-table-column>
 
@@ -82,47 +67,31 @@
         :label="$t('project.version.name')"
         :filters="versionFilters"
         min-width="100px"
-        prop="versionId"
-      >
+        prop="versionId">
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        sortable="createTime"
-        width="160px"
-        :label="$t('commons.create_time')"
-        prop="createTime"
-      >
+      <ms-table-column sortable="createTime" width="160px" :label="$t('commons.create_time')" prop="createTime">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | datetimeFormat }}</span>
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        width="160"
-        :label="$t('api_test.definition.api_last_time')"
-        sortable="custom"
-        prop="updateTime"
-      >
+      <ms-table-column width="160" :label="$t('api_test.definition.api_last_time')" sortable="custom" prop="updateTime">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        prop="caseTotal"
-        width="80px"
-        :label="$t('api_test.definition.api_case_number')"
-      />
+      <ms-table-column prop="caseTotal" width="80px" :label="$t('api_test.definition.api_case_number')" />
     </ms-table>
     <ms-table-pagination
       :change="initTable"
       :current-page.sync="currentPage"
       :page-size.sync="pageSize"
-      :total="total"
-    />
+      :total="total" />
   </span>
 </template>
 

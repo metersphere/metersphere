@@ -11,13 +11,7 @@
     </el-row>
     <el-row>
       <el-form>
-        <form-rich-text-item
-          class="remark-item"
-          :disabled="true"
-          :data="remarkObj"
-          prop="remark"
-          label-width="0"
-        />
+        <form-rich-text-item class="remark-item" :disabled="true" :data="remarkObj" prop="remark" label-width="0" />
       </el-form>
     </el-row>
   </div>

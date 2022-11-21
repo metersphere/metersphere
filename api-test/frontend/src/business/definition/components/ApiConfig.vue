@@ -15,8 +15,7 @@
       :moduleOptions="moduleOptions"
       :syncTabs="syncTabs"
       v-if="currentProtocol === 'HTTP'"
-      ref="httpApi"
-    />
+      ref="httpApi" />
     <!-- TCP -->
     <ms-edit-complete-tcp-api
       :request="request"
@@ -29,8 +28,7 @@
       :moduleOptions="moduleOptions"
       :syncTabs="syncTabs"
       v-if="currentProtocol === 'TCP'"
-      ref="tcpApi"
-    />
+      ref="tcpApi" />
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api
       :request="request"
@@ -42,8 +40,7 @@
       :moduleOptions="moduleOptions"
       :syncTabs="syncTabs"
       v-if="currentProtocol === 'DUBBO'"
-      ref="dubboApi"
-    />
+      ref="dubboApi" />
     <!--SQL-->
     <ms-edit-complete-sql-api
       :request="request"
@@ -55,8 +52,7 @@
       :moduleOptions="moduleOptions"
       :syncTabs="syncTabs"
       v-if="currentProtocol === 'SQL'"
-      ref="sqlApi"
-    />
+      ref="sqlApi" />
   </div>
 </template>
 
@@ -151,30 +147,18 @@ export default {
       store.apiStatus = new Map();
     }
     // 记录原始数据源ID
-    if (
-      this.currentApi &&
-      this.currentApi.request &&
-      this.currentApi.request.hashTree
-    ) {
+    if (this.currentApi && this.currentApi.request && this.currentApi.request.hashTree) {
       this.setOriginal(this.currentApi.request.hashTree);
     }
   },
   methods: {
     setOriginal(scenarioDefinition) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
-          scenarioDefinition[i].originalDataSourceId =
-            scenarioDefinition[i].dataSourceId;
+          scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOriginal(scenarioDefinition[i].hashTree);
         }
       }
@@ -225,10 +209,7 @@ export default {
       });
     },
     setRequest() {
-      if (
-        this.currentApi.request != undefined &&
-        this.currentApi.request != null
-      ) {
+      if (this.currentApi.request != undefined && this.currentApi.request != null) {
         if (
           Object.prototype.toString
             .call(this.currentApi.request)
@@ -255,8 +236,7 @@ export default {
       if (!this.currentApi.request.variables) {
         this.currentApi.request.variables = [];
       }
-      this.currentApi.request.originalDataSourceId =
-        this.currentApi.request.dataSourceId;
+      this.currentApi.request.originalDataSourceId = this.currentApi.request.dataSourceId;
     },
     initDubbo() {
       if (!this.setRequest()) {
@@ -417,10 +397,7 @@ export default {
       data.protocol = this.currentProtocol;
       data.request = this.request;
       data.request.name = data.name;
-      if (
-        this.currentProtocol === 'DUBBO' ||
-        this.currentProtocol === 'dubbo://'
-      ) {
+      if (this.currentProtocol === 'DUBBO' || this.currentProtocol === 'dubbo://') {
         data.request.protocol = 'dubbo://';
       } else {
         data.request.protocol = this.currentProtocol;

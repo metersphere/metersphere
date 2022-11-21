@@ -5,45 +5,23 @@
     :title="$t('run_mode.other_config')"
     :with-footer="false"
     :append-to-body="appendToBody"
-    :close-on-click-modal="true"
-  >
+    :close-on-click-modal="true">
     <el-form>
       <el-row>
         <el-col :span="8">
           <el-form-item :label="$t('schema.minLength')">
-            <el-input-number
-              :min="0"
-              v-model="data.min"
-              :placeholder="$t('schema.minLength')"
-              size="small"
-            />
+            <el-input-number :min="0" v-model="data.min" :placeholder="$t('schema.minLength')" size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('schema.maxLength')">
-            <el-input-number
-              :min="0"
-              v-model="data.max"
-              :placeholder="$t('schema.maxLength')"
-              size="small"
-            />
+            <el-input-number :min="0" v-model="data.max" :placeholder="$t('schema.maxLength')" size="small" />
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('commons.encode')">
-            <el-select
-              v-model="data.urlEncode"
-              size="small"
-              clearable
-              style="width: 50%"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-option>
+            <el-select v-model="data.urlEncode" size="small" clearable style="width: 50%">
+              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -57,8 +35,7 @@
               maxlength="200"
               :placeholder="$t('commons.description')"
               show-word-limit
-              style="width: 80%; margin-left: 25px"
-            >
+              style="width: 80%; margin-left: 25px">
             </el-input>
           </el-form-item>
         </el-col>

@@ -6,16 +6,10 @@
       @click="$emit('open')"
       @click.stop
       :disabled="isReadOnly"
-      v-if="showSuggestButton"
-    >
+      v-if="showSuggestButton">
       {{ openTip }}
     </el-button>
-    <el-button
-      size="mini"
-      type="danger"
-      @click="$emit('clear')"
-      :disabled="isReadOnly"
-    >
+    <el-button size="mini" type="danger" @click="$emit('clear')" :disabled="isReadOnly">
       {{ clearTip }}
     </el-button>
   </span>

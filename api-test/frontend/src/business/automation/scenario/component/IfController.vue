@@ -11,30 +11,22 @@
     color="#E6A23C"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.automation.if_controller')"
-  >
+    :title="$t('api_test.automation.if_controller')">
     <template v-slot:headerLeft>
       <el-input
         draggable
         size="mini"
         v-model="controller.variable"
         style="width: 12%"
-        :placeholder="$t('api_test.request.condition_variable')"
-      />
+        :placeholder="$t('api_test.request.condition_variable')" />
 
       <el-select
         v-model="controller.operator"
         :placeholder="$t('commons.please_select')"
         size="mini"
         @change="change"
-        class="ms-select"
-      >
-        <el-option
-          v-for="o in operators"
-          :key="o.value"
-          :label="$t(o.label)"
-          :value="o.value"
-        />
+        class="ms-select">
+        <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value" />
       </el-select>
 
       <el-input
@@ -43,8 +35,7 @@
         v-model="controller.value"
         :placeholder="$t('api_test.value')"
         v-if="!hasEmptyOperator"
-        class="ms-btn"
-      />
+        class="ms-btn" />
 
       <el-input
         draggable
@@ -52,8 +43,7 @@
         v-model="controller.remark"
         :placeholder="$t('commons.remark')"
         v-if="!hasEmptyOperator && !isMax"
-        class="ms-btn"
-      />
+        class="ms-btn" />
     </template>
 
     <template v-slot:debugStepCode>
@@ -64,10 +54,7 @@
       <span
         class="ms-step-debug-code"
         :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-        v-if="
-          !loading && !node.data.testing && node.data.debug && node.data.code
-        "
-      >
+        v-if="!loading && !node.data.testing && node.data.debug && node.data.code">
         {{ getCode() }}
       </span>
     </template>
@@ -160,9 +147,7 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         let status = this.node.data.code;
-        return (
-          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
-        );
+        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
       }
       return '';
     },
@@ -180,10 +165,7 @@ export default {
   },
   computed: {
     hasEmptyOperator() {
-      return (
-        !!this.controller.operator &&
-        this.controller.operator.indexOf('empty') > 0
-      );
+      return !!this.controller.operator && this.controller.operator.indexOf('empty') > 0;
     },
   },
 };

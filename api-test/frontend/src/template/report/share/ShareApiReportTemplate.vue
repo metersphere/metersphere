@@ -4,8 +4,7 @@
     :share-id="shareId"
     :is-share="isShare"
     :is-plan="true"
-    :show-cancel-button="false"
-  ></ms-api-report>
+    :show-cancel-button="false"></ms-api-report>
 </template>
 
 <script>

@@ -8,21 +8,12 @@
           </div>
         </el-col>
         <el-col :span="8">
-          <el-tooltip
-            effect="dark"
-            :content="request.url"
-            placement="bottom"
-            :open-delay="800"
-          >
+          <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{ request.url }}</div>
           </el-tooltip>
         </el-col>
         <el-col :span="8">
-          <div class="url">
-            {{ $t('api_report.start_time') }}：{{
-              request.startTime | datetimeFormat(true)
-            }}
-          </div>
+          <div class="url">{{ $t('api_report.start_time') }}：{{ request.startTime | datetimeFormat(true) }}</div>
         </el-col>
       </el-row>
     </div>
@@ -32,8 +23,7 @@
           :request-type="requestType"
           v-if="isCodeEditAlive"
           :response="request.responseResult"
-          :request="request"
-        />
+          :request="request" />
       </div>
     </el-collapse-transition>
   </div>

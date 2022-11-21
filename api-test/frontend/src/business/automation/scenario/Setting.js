@@ -67,10 +67,7 @@ export function STEP() {
         'MsUiCommand',
       ],
     ],
-    [
-      'DEFINITION',
-      ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler'],
-    ],
+    ['DEFINITION', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler']],
     [
       'ALlSamplerStep',
       [
@@ -85,14 +82,7 @@ export function STEP() {
     ],
     [
       'AllCanExecType',
-      [
-        'HTTPSamplerProxy',
-        'DubboSampler',
-        'JDBCSampler',
-        'TCPSampler',
-        'JSR223Processor',
-        'AbstractSampler',
-      ],
+      ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'JSR223Processor', 'AbstractSampler'],
     ],
   ]);
   return map;
@@ -120,81 +110,27 @@ export const ELEMENT_TYPE = {
 export const TYPE_TO_C = new Map([
   ['scenario', 'io.metersphere.api.dto.definition.request.MsScenario'],
   ['UiScenario', 'io.metersphere.xpack.ui.hashtree.MsUiScenario'],
-  [
-    'HTTPSamplerProxy',
-    'io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy',
-  ],
-  [
-    'DubboSampler',
-    'io.metersphere.api.dto.definition.request.sampler.MsDubboSampler',
-  ],
-  [
-    'JDBCSampler',
-    'io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler',
-  ],
-  [
-    'TCPSampler',
-    'io.metersphere.api.dto.definition.request.sampler.MsTCPSampler',
-  ],
-  [
-    'IfController',
-    'io.metersphere.api.dto.definition.request.controller.MsIfController',
-  ],
-  [
-    'TransactionController',
-    'io.metersphere.api.dto.definition.request.controller.MsTransactionController',
-  ],
-  [
-    'LoopController',
-    'io.metersphere.api.dto.definition.request.controller.MsLoopController',
-  ],
-  [
-    'ConstantTimer',
-    'io.metersphere.api.dto.definition.request.timer.MsConstantTimer',
-  ],
-  [
-    'JSR223Processor',
-    'io.metersphere.api.dto.definition.request.processors.MsJSR223Processor',
-  ],
-  [
-    'JSR223PreProcessor',
-    'io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor',
-  ],
-  [
-    'JSR223PostProcessor',
-    'io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor',
-  ],
-  [
-    'JDBCPreProcessor',
-    'io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor',
-  ],
-  [
-    'JDBCPostProcessor',
-    'io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor',
-  ],
-  [
-    'Assertions',
-    'io.metersphere.api.dto.definition.request.assertions.MsAssertions',
-  ],
+  ['HTTPSamplerProxy', 'io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy'],
+  ['DubboSampler', 'io.metersphere.api.dto.definition.request.sampler.MsDubboSampler'],
+  ['JDBCSampler', 'io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler'],
+  ['TCPSampler', 'io.metersphere.api.dto.definition.request.sampler.MsTCPSampler'],
+  ['IfController', 'io.metersphere.api.dto.definition.request.controller.MsIfController'],
+  ['TransactionController', 'io.metersphere.api.dto.definition.request.controller.MsTransactionController'],
+  ['LoopController', 'io.metersphere.api.dto.definition.request.controller.MsLoopController'],
+  ['ConstantTimer', 'io.metersphere.api.dto.definition.request.timer.MsConstantTimer'],
+  ['JSR223Processor', 'io.metersphere.api.dto.definition.request.processors.MsJSR223Processor'],
+  ['JSR223PreProcessor', 'io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor'],
+  ['JSR223PostProcessor', 'io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor'],
+  ['JDBCPreProcessor', 'io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor'],
+  ['JDBCPostProcessor', 'io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor'],
+  ['Assertions', 'io.metersphere.api.dto.definition.request.assertions.MsAssertions'],
   ['Extract', 'io.metersphere.api.dto.definition.request.extract.MsExtract'],
-  [
-    'JmeterElement',
-    'io.metersphere.api.dto.definition.request.unknown.MsJmeterElement',
-  ],
+  ['JmeterElement', 'io.metersphere.api.dto.definition.request.unknown.MsJmeterElement'],
   ['TestPlan', 'io.metersphere.api.dto.definition.request.MsTestPlan'],
   ['ThreadGroup', 'io.metersphere.api.dto.definition.request.MsThreadGroup'],
-  [
-    'DNSCacheManager',
-    'io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager',
-  ],
-  [
-    'DebugSampler',
-    'io.metersphere.api.dto.definition.request.sampler.MsDebugSampler',
-  ],
-  [
-    'AuthManager',
-    'io.metersphere.api.dto.definition.request.auth.MsAuthManager',
-  ],
+  ['DNSCacheManager', 'io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager'],
+  ['DebugSampler', 'io.metersphere.api.dto.definition.request.sampler.MsDebugSampler'],
+  ['AuthManager', 'io.metersphere.api.dto.definition.request.auth.MsAuthManager'],
 ]);
 
 export const PLUGIN_ELEMENTS = new Map([
@@ -299,10 +235,7 @@ export const PLUGIN_ELEMENTS = new Map([
     ],
   ],
   ['menu_fragments', ['TestFragmentController']],
-  [
-    'menu_non_test_elements',
-    ['ProxyControl', 'HttpMirrorControl', 'GenerateTree', 'PropertyControl'],
-  ],
+  ['menu_non_test_elements', ['ProxyControl', 'HttpMirrorControl', 'GenerateTree', 'PropertyControl']],
   [
     'menu_generative_controller',
     [
@@ -397,12 +330,7 @@ export function init() {
   let allArray = [];
   allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_generative_controller'));
   allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_logic_controller'));
-  allArray = allArray.concat([
-    'scenario',
-    'ConstantTimer',
-    'JSR223Processor',
-    'Assertions',
-  ]);
+  allArray = allArray.concat(['scenario', 'ConstantTimer', 'JSR223Processor', 'Assertions']);
   return allArray;
 }
 

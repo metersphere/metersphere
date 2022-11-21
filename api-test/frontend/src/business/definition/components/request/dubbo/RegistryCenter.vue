@@ -1,12 +1,5 @@
 <template>
-  <el-form
-    :model="registry"
-    :rules="rules"
-    ref="registry"
-    label-width="100px"
-    size="small"
-    :disabled="isReadOnly"
-  >
+  <el-form :model="registry" :rules="rules" ref="registry" label-width="100px" size="small" :disabled="isReadOnly">
     <el-row>
       <div class="dubbo-form-description" v-if="description">
         {{ description }}
@@ -20,12 +13,7 @@
       </el-form-item>
 
       <el-form-item label="Group" prop="group" class="dubbo-form-item">
-        <el-input
-          v-model="registry.group"
-          maxlength="300"
-          show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input v-model="registry.group" maxlength="300" show-word-limit :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="UserName" prop="username" class="dubbo-form-item">
@@ -33,8 +21,7 @@
           v-model="registry.username"
           maxlength="100"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Password" prop="password" class="dubbo-form-item">
@@ -44,8 +31,7 @@
           show-word-limit
           show-password
           autocomplete="new-password"
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
     </el-row>
     <el-row>
@@ -54,16 +40,11 @@
           v-model="registry.address"
           maxlength="300"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item label="Timeout" prop="timeout" class="dubbo-form-item">
-        <el-input
-          type="number"
-          v-model="registry.timeout"
-          :placeholder="$t('commons.input_content')"
-        />
+        <el-input type="number" v-model="registry.timeout" :placeholder="$t('commons.input_content')" />
       </el-form-item>
     </el-row>
   </el-form>
