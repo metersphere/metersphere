@@ -191,7 +191,7 @@ export default {
 }
 
 .api-home-layout :deep(.home-table-cell) {
-  height: 38px;
+  height: 40px;
   background-color: #f5f6f7;
   font-size: 14px;
   font-weight: 500;
@@ -215,6 +215,7 @@ export default {
 
 .api-home-layout :deep(.el-table__row),
 .adjust-table :deep(.el-table__row .el-link) {
+  height: 40px;
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
