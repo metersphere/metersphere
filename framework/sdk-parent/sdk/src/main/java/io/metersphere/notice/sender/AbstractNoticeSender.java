@@ -1,5 +1,7 @@
 package io.metersphere.notice.sender;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.base.domain.User;
 import io.metersphere.base.mapper.UserMapper;
@@ -13,7 +15,9 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
+import io.metersphere.service.BaseCustomFieldService;
 import io.metersphere.service.MicroService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -33,27 +37,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private MicroService microService;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private BaseCustomFieldService baseCustomFieldService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
         // 如果有自定义字段
-        if (noticeModel.getParamMap().containsKey("customFields")) {
-            try {
-                String customFields = (String) noticeModel.getParamMap().get("customFields");
-                List array = JSON.parseArray(customFields);
-                if (CollectionUtils.isNotEmpty(array)) {
-                    for (Object o : array) {
-                        Map obj = JSON.parseObject(o.toString(), Map.class);
-                        String name = (String) obj.get("name");
-                        Object value = obj.get("value");
-                        noticeModel.getParamMap().put(name, value); // 处理人
-                        if (StringUtils.equals((String) obj.get("name"), "处理人")) {
-                            noticeModel.getParamMap().put("processor", value); // 处理人
-                        }
-                    }
-                }
-            } catch (Exception e) {
-            }
-        }
+        handleCustomFields(noticeModel);
 
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
@@ -91,6 +80,38 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             context = noticeModel.getContext();
         }
         return getContent(context, noticeModel.getParamMap());
+    }
+
+    private void handleCustomFields(NoticeModel noticeModel) {
+        if (!noticeModel.getParamMap().containsKey("fields")) {
+            return;
+        }
+        try {
+            Object customFields = noticeModel.getParamMap().get("fields");
+            List<Object> fields;
+            if (customFields instanceof String) {
+                fields = JSON.parseArray((String) customFields, Object.class);
+            } else {
+                fields = (List<Object>) customFields;
+            }
+            if (CollectionUtils.isNotEmpty(fields)) {
+                for (Object o : fields) {
+                    Map jsonObject = new BeanMap(o);
+                    String id = (String) jsonObject.get("id");
+                    CustomField customField = baseCustomFieldService.get(id);
+                    Object value = jsonObject.get("value");
+                    if (value instanceof String && StringUtils.isNotEmpty((String) value)) {
+                        String v = StringUtils.unwrap((String) value, "\"");
+                        noticeModel.getParamMap().put(customField.getName(), v); // 处理人
+                        if (StringUtils.equals(customField.getName(), "处理人")) {
+                            noticeModel.getParamMap().put("processor", v); // 处理人
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     protected String getContent(String template, Map<String, Object> context) {
