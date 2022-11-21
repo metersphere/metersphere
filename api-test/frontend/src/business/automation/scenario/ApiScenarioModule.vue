@@ -331,6 +331,9 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
+      if (!this.currentModule) {
+        this.$error(this.$t('test_track.case.input_module'));
+      }
       this.$refs.basisScenario.open(this.currentModule);
     },
     enableTrash() {
