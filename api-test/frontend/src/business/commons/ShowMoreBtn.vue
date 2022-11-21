@@ -2,20 +2,28 @@
   <div>
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
-        <el-tooltip v-if="isShow"
-                    popper-class="batch-popper"
-                    :value="!hasShowed"
-                    effect="dark"
-                    :content="$t('test_track.case.batch_operate')"
-                    placement="top-start">
-          <i class="el-icon-more ms-icon-more table-more-icon"/>
+        <el-tooltip
+          v-if="isShow"
+          popper-class="batch-popper"
+          :value="!hasShowed"
+          effect="dark"
+          :content="$t('test_track.case.batch_operate')"
+          placement="top-start"
+        >
+          <i class="el-icon-more ms-icon-more table-more-icon" />
         </el-tooltip>
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
-        <div class="show-more-btn-title">{{ $t('test_track.case.batch_handle', [size]) }}</div>
-        <span v-for="(btn,index) in buttons" :key="index">
-          <el-dropdown-item :disabled="isDisable(btn)" v-if="isXPack(btn)" @click.native.stop="click(btn)">
-           {{ btn.name }}
+        <div class="show-more-btn-title">
+          {{ $t('test_track.case.batch_handle', [size]) }}
+        </div>
+        <span v-for="(btn, index) in buttons" :key="index">
+          <el-dropdown-item
+            :disabled="isDisable(btn)"
+            v-if="isXPack(btn)"
+            @click.native.stop="click(btn)"
+          >
+            {{ btn.name }}
           </el-dropdown-item>
         </span>
       </el-dropdown-menu>
@@ -24,10 +32,13 @@
 </template>
 
 <script>
-import {hasLicense, hasPermissions} from "metersphere-frontend/src/utils/permission";
+import {
+  hasLicense,
+  hasPermissions,
+} from 'metersphere-frontend/src/utils/permission';
 
 export default {
-  name: "ShowMoreBtn",
+  name: 'ShowMoreBtn',
   data() {
     return {
       disabled: false,
@@ -36,12 +47,12 @@ export default {
   props: {
     isShow: {
       type: Boolean,
-      default: false
+      default: false,
     },
     buttons: Array,
     row: Object,
     size: Number,
-    hasShowed: Boolean
+    hasShowed: Boolean,
   },
   created() {
     if (this.trashEnable) {
@@ -73,8 +84,8 @@ export default {
       } else {
         return true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

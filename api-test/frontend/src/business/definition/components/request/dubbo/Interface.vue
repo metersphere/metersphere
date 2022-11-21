@@ -1,20 +1,48 @@
 <template>
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px" size="small" v-loading="loading"
-           :disabled="isReadOnly">
-    <el-button class="get-provider" type="primary" size="mini" @click="getProviderList">Get Provider List</el-button>
+  <el-form
+    :model="request"
+    :rules="rules"
+    ref="request"
+    label-width="100px"
+    size="small"
+    v-loading="loading"
+    :disabled="isReadOnly"
+  >
+    <el-button
+      class="get-provider"
+      type="primary"
+      size="mini"
+      @click="getProviderList"
+      >Get Provider List</el-button
+    >
     <el-row>
       <el-col :span="12">
         <el-form-item label="Interfaces" prop="interfaces">
-          <el-select filterable v-model="serviceInterface" class="select-100" @change="changeInterface"
-                     :disabled="isDisable">
-            <el-option v-for="i in interfaces" :key="i.value" :label="i.label" :value="i.value"/>
+          <el-select
+            filterable
+            v-model="serviceInterface"
+            class="select-100"
+            @change="changeInterface"
+            :disabled="isDisable"
+          >
+            <el-option
+              v-for="i in interfaces"
+              :key="i.value"
+              :label="i.label"
+              :value="i.value"
+            />
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="Methods" prop="methods">
-          <el-select v-model="method" class="select-100" @change="changeMethod" :disabled="isDisable">
-            <el-option v-for="m in methods" :key="m" :label="m" :value="m"/>
+          <el-select
+            v-model="method"
+            class="select-100"
+            @change="changeMethod"
+            :disabled="isDisable"
+          >
+            <el-option v-for="m in methods" :key="m" :label="m" :value="m" />
           </el-select>
         </el-form-item>
       </el-col>
@@ -23,14 +51,22 @@
     <el-row>
       <el-col :span="12">
         <el-form-item label="Interface" prop="interface">
-          <el-input v-model="request.interface" maxlength="300" show-word-limit
-                    :placeholder="$t('commons.input_content')"/>
+          <el-input
+            v-model="request.interface"
+            maxlength="300"
+            show-word-limit
+            :placeholder="$t('commons.input_content')"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="Method" prop="method">
-          <el-input v-model="request.method" maxlength="300" show-word-limit
-                    :placeholder="$t('commons.input_content')"/>
+          <el-input
+            v-model="request.method"
+            maxlength="300"
+            show-word-limit
+            :placeholder="$t('commons.input_content')"
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -38,67 +74,78 @@
 </template>
 
 <script>
+import { dubboProviders } from '@/api/home';
 
-  import {dubboProviders} from "@/api/home";
-
-  export default {
-    name: "MsDubboInterface",
-    props: {
-      request: {},
-      registryCenter: {},
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      }
+export default {
+  name: 'MsDubboInterface',
+  props: {
+    request: {},
+    registryCenter: {},
+    isReadOnly: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-      return {
-        loading: false,
-        providerMap: {},
-        serviceInterface: "",
-        method: "",
-        interfaces: [],
-        methods: [],
-        rules: {
-          interface: [
-            {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
-          ],
-          method: [
-            {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
-          ]
-        }
-      }
+  },
+  data() {
+    return {
+      loading: false,
+      providerMap: {},
+      serviceInterface: '',
+      method: '',
+      interfaces: [],
+      methods: [],
+      rules: {
+        interface: [
+          {
+            max: 300,
+            message: this.$t('commons.input_limit', [1, 300]),
+            trigger: 'blur',
+          },
+        ],
+        method: [
+          {
+            max: 300,
+            message: this.$t('commons.input_limit', [1, 300]),
+            trigger: 'blur',
+          },
+        ],
+      },
+    };
+  },
+
+  methods: {
+    changeInterface(value) {
+      this.methods = this.providerMap[value].methods;
+      this.request.interface = value;
+      this.request.consumerAndService.version = this.providerMap[value].version;
     },
+    changeMethod(value) {
+      this.request.method = value;
+    },
+    getProviderList() {
+      let param = {};
+      if (this.request.registryCenter) {
+        param.protocol = this.request.registryCenter.protocol;
+        param.address = this.request.registryCenter.address;
+        param.group = this.request.registryCenter.group;
+      } else if (this.request.dubboConfig.registryCenter) {
+        param.protocol = this.request.dubboConfig.registryCenter.protocol;
+        param.address = this.request.dubboConfig.registryCenter.address;
+        param.group = this.request.dubboConfig.registryCenter.group;
+      }
 
-    methods: {
-      changeInterface(value) {
-        this.methods = this.providerMap[value].methods;
-        this.request.interface = value;
-        this.request.consumerAndService.version = this.providerMap[value].version;
-      },
-      changeMethod(value) {
-        this.request.method = value;
-      },
-      getProviderList() {
-        let param = {};
-        if (this.request.registryCenter) {
-          param.protocol = this.request.registryCenter.protocol;
-          param.address = this.request.registryCenter.address;
-          param.group = this.request.registryCenter.group;
-        } else if (this.request.dubboConfig.registryCenter) {
-          param.protocol = this.request.dubboConfig.registryCenter.protocol;
-          param.address = this.request.dubboConfig.registryCenter.address;
-          param.group = this.request.dubboConfig.registryCenter.group;
-        }
-
-        this.loading = true;
-        dubboProviders(param).then(response => {
+      this.loading = true;
+      dubboProviders(param)
+        .then((response) => {
           this.methodMap = {};
           this.interfaces = [];
-          if(response.data) {
-            response.data.forEach(p => {
+          if (response.data) {
+            response.data.forEach((p) => {
               this.providerMap[p.serviceInterface] = p;
-              this.interfaces.push({label: p.service, value: p.serviceInterface})
+              this.interfaces.push({
+                label: p.service,
+                value: p.serviceInterface,
+              });
             });
           }
           if (this.methodMap[this.request.interface]) {
@@ -106,26 +153,29 @@
           }
           this.loading = false;
           this.$success(this.$t('api_test.request.dubbo.get_provider_success'));
-        }).catch(() => {
+        })
+        .catch(() => {
           this.loading = false;
-          this.$warning(this.$t('api_test.request.dubbo.check_registry_center'));
+          this.$warning(
+            this.$t('api_test.request.dubbo.check_registry_center')
+          );
         });
-      }
     },
-    computed: {
-      isDisable() {
-        return this.interfaces.length === 0;
-      }
-    }
-  }
+  },
+  computed: {
+    isDisable() {
+      return this.interfaces.length === 0;
+    },
+  },
+};
 </script>
 
 <style scoped>
-  .get-provider {
-    margin: 5px 5px 10px;
-  }
+.get-provider {
+  margin: 5px 5px 10px;
+}
 
-  .select-100 {
-    width: 100%;
-  }
+.select-100 {
+  width: 100%;
+}
 </style>

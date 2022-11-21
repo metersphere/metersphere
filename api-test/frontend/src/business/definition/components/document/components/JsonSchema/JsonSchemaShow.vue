@@ -2,58 +2,69 @@
   <div id="app" v-loading="loading">
     <el-row>
       <el-col>
-        <el-button style="float: right" type="text" size="mini" @click="expandAll">
+        <el-button
+          style="float: right"
+          type="text"
+          size="mini"
+          @click="expandAll"
+        >
           {{ expandTitle }}
         </el-button>
       </el-col>
     </el-row>
     <div :style="jsonSchemaDisable ? '' : 'min-height: 200px'">
-      <json-schema-panel class="schema"
-                         :disabled="jsonSchemaDisable"
-                         :value="schema"
-                         :show-mock-vars="showMockVars"
-                         :scenario-definition="scenarioDefinition"
-                         :expand-all-params="expandAllParams"
-                         @editScenarioAdvance="editScenarioAdvance"
-                         lang="zh_CN" custom/>
+      <json-schema-panel
+        class="schema"
+        :disabled="jsonSchemaDisable"
+        :value="schema"
+        :show-mock-vars="showMockVars"
+        :scenario-definition="scenarioDefinition"
+        :expand-all-params="expandAllParams"
+        @editScenarioAdvance="editScenarioAdvance"
+        lang="zh_CN"
+        custom
+      />
     </div>
   </div>
 </template>
 
 <script>
-import JsonSchemaPanel
-  from "@/business/definition/components/document/components/JsonSchema/JsonSchemaPanel";
+import JsonSchemaPanel from '@/business/definition/components/document/components/JsonSchema/JsonSchemaPanel';
 
 const Convert = require('@/business/commons/json-schema/convert/convert.js');
 const MsConvert = new Convert();
 
 export default {
   name: 'JsonSchemaShow',
-  components: {JsonSchemaPanel},
+  components: { JsonSchemaPanel },
   props: {
     body: {},
     showPreview: {
       type: Boolean,
-      default: true
+      default: true,
     },
     jsonSchemaDisable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showMockVars: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     scenarioDefinition: Array,
   },
   created() {
-    if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
-      let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
+    if (
+      !this.body.jsonSchema &&
+      this.body.raw &&
+      this.checkIsJson(this.body.raw)
+    ) {
+      let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
       this.schema = obj;
     } else if (this.body.jsonSchema) {
-      this.schema = {"root": this.body.jsonSchema};
+      this.schema = { root: this.body.jsonSchema };
     }
     this.body.jsonSchema = this.schema.root;
   },
@@ -62,38 +73,43 @@ export default {
       handler(newValue, oldValue) {
         this.body.jsonSchema = this.schema.root;
       },
-      deep: true
+      deep: true,
     },
     body: {
       handler(newValue, oldValue) {
-        if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
-          let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
+        if (
+          !this.body.jsonSchema &&
+          this.body.raw &&
+          this.checkIsJson(this.body.raw)
+        ) {
+          let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
           this.schema = obj;
         } else if (this.body.jsonSchema) {
-          this.schema = {"root": this.body.jsonSchema};
+          this.schema = { root: this.body.jsonSchema };
         }
         this.body.jsonSchema = this.schema.root;
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   data() {
     return {
-      schema:
-        {
-          "root": {
-            "type": "object",
-            "properties": {},
-          }
+      schema: {
+        root: {
+          type: 'object',
+          properties: {},
         },
+      },
       loading: false,
       expandAllParams: false,
-    }
+    };
   },
   computed: {
     expandTitle() {
-      return this.expandAllParams ? this.$t("commons.close_all") : this.$t("commons.expand_all");
-    }
+      return this.expandAllParams
+        ? this.$t('commons.close_all')
+        : this.$t('commons.expand_all');
+    },
   },
   methods: {
     expandAll() {
@@ -112,14 +128,12 @@ export default {
       this.$nextTick(() => {
         this.schema.root = data;
         this.body.jsonSchema = this.schema.root;
-      })
+      });
     },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
     },
-  }
-}
+  },
+};
 </script>
-<style>
-
-</style>
+<style></style>

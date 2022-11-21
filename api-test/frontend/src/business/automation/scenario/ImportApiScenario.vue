@@ -1,8 +1,12 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"
-                              @refresh="refresh" @saveAsEdit="editScenario"/>
+      <ms-api-scenario-module
+        @selectModule="selectModule"
+        @getApiModuleTree="initTree"
+        @refresh="refresh"
+        @saveAsEdit="editScenario"
+      />
     </ms-aside-container>
     <ms-main-container>
       <ms-api-scenario-list
@@ -11,36 +15,42 @@
         @selection="setData"
         :referenced="true"
         :select-project-id="cuurentProjectId"
-        ref="apiScenarioList"/>
+        ref="apiScenarioList"
+      />
 
-      <el-button style="float: right;margin: 10px" @click="importApiScenario" type="primary">
+      <el-button
+        style="float: right; margin: 10px"
+        @click="importApiScenario"
+        type="primary"
+      >
         {{ $t('api_test.scenario.reference') }}
       </el-button>
-      <el-button style="float: right;margin: 10px" @click="copyApiScenario">{{ $t('commons.copy') }}</el-button>
+      <el-button style="float: right; margin: 10px" @click="copyApiScenario">{{
+        $t('commons.copy')
+      }}</el-button>
     </ms-main-container>
   </ms-container>
 </template>
 
 <script>
-
-import {getApiScenarios} from "@/api/scenario";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
-import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
-import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MsApiScenarioList from "@/business/automation/scenario/ApiScenarioList";
-import {getUUID} from "metersphere-frontend/src/utils";
-import MsApiScenarioModule from "@/business/automation/scenario/ApiScenarioModule";
-import MsEditApiScenario from "../scenario/EditApiScenario";
+import { getApiScenarios } from '@/api/scenario';
+import MsContainer from 'metersphere-frontend/src/components/MsContainer';
+import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
+import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
+import MsApiScenarioList from '@/business/automation/scenario/ApiScenarioList';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import MsApiScenarioModule from '@/business/automation/scenario/ApiScenarioModule';
+import MsEditApiScenario from '../scenario/EditApiScenario';
 
 export default {
-  name: "ImportApiScenario",
+  name: 'ImportApiScenario',
   components: {
     MsApiScenarioModule,
     MsApiScenarioList,
     MsMainContainer,
     MsAsideContainer,
     MsContainer,
-    MsEditApiScenario
+    MsEditApiScenario,
   },
   comments: {},
   data() {
@@ -51,15 +61,15 @@ export default {
       currentScenario: [],
       currentScenarioIds: [],
       moduleOptions: {},
-      cuurentProjectId: "",
+      cuurentProjectId: '',
       scenarioDefinition: Object,
-    }
+    };
   },
   watch: {},
   methods: {
     setData(data) {
-      this.currentScenario = Array.from(data).map(row => row);
-      this.currentScenarioIds = Array.from(data).map(row => row.id);
+      this.currentScenario = Array.from(data).map((row) => row);
+      this.currentScenarioIds = Array.from(data).map((row) => row.id);
     },
     selectModule(data) {
       this.currentModule = data;
@@ -67,32 +77,43 @@ export default {
     importApiScenario() {
       let scenarios = [];
       if (this.currentScenario) {
-        this.currentScenario.forEach(item => {
-          let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'REF', resourceId: getUUID()};
+        this.currentScenario.forEach((item) => {
+          let obj = {
+            id: item.id,
+            name: item.name,
+            type: 'scenario',
+            referenced: 'REF',
+            resourceId: getUUID(),
+          };
           scenarios.push(obj);
-        })
+        });
       }
       this.$emit('addScenario', scenarios);
     },
     getApiScenario() {
       let scenarios = [];
-      this.result = getApiScenarios(this.currentScenarioIds).then(response => {
-        if (response.data) {
-          response.data.forEach(item => {
-            let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-            let obj = {
-              id: item.id,
-              name: item.name,
-              type: "scenario",
-              referenced: 'Copy',
-              resourceId: getUUID(),
-              hashTree: scenarioDefinition && scenarioDefinition.hashTree ? scenarioDefinition.hashTree : []
-            };
-            scenarios.push(obj);
-          })
-          this.$emit('addScenario', scenarios);
+      this.result = getApiScenarios(this.currentScenarioIds).then(
+        (response) => {
+          if (response.data) {
+            response.data.forEach((item) => {
+              let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+              let obj = {
+                id: item.id,
+                name: item.name,
+                type: 'scenario',
+                referenced: 'Copy',
+                resourceId: getUUID(),
+                hashTree:
+                  scenarioDefinition && scenarioDefinition.hashTree
+                    ? scenarioDefinition.hashTree
+                    : [],
+              };
+              scenarios.push(obj);
+            });
+            this.$emit('addScenario', scenarios);
+          }
         }
-      })
+      );
     },
     copyApiScenario() {
       if (this.currentScenarioIds) {
@@ -108,13 +129,10 @@ export default {
     },
     editScenario(row) {
       this.currentScenario = row;
-      this.addTab({name: 'add'});
+      this.addTab({ name: 'add' });
     },
-
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

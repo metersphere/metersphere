@@ -1,20 +1,20 @@
-import PostProcessor from "../post-processor";
+import PostProcessor from '../post-processor';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "TestBeanGUI",
-      testclass: "JDBCPostProcessor",
-      testname: "JDBC PostProcessor",
-      enabled: "true"
+      guiclass: 'TestBeanGUI',
+      testclass: 'JDBCPostProcessor',
+      testname: 'JDBC PostProcessor',
+      enabled: 'true',
     },
-  }
+  },
 };
 
 export default class JDBCPostProcessor extends PostProcessor {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.type = "JDBCPostProcessor";
+    this.type = 'JDBCPostProcessor';
     this.hashTree = [];
     this.variables = [];
     this.environmentId = undefined;
@@ -34,5 +34,5 @@ export default class JDBCPostProcessor extends PostProcessor {
 }
 
 export const schema = {
-  JDBCPostProcessor: JDBCPostProcessor
-}
+  JDBCPostProcessor: JDBCPostProcessor,
+};

@@ -2,24 +2,26 @@
   <div
     class="el-input-tag input-tag-wrapper"
     :class="[size ? 'el-input-tag--' + size : '']"
-    style="height: auto">
-
+    style="height: auto"
+  >
     <el-tag
       :class="getClass(tag)"
-      v-for="(tag) in innerTags"
+      v-for="tag in innerTags"
       v-bind="$attrs"
       type="info"
       :key="tag"
       :size="size"
       :closable="!readOnly"
-      :disable-transitions="false">
+      :disable-transitions="false"
+    >
       {{ getTag(tag) }}
     </el-tag>
     <input
       :disabled="readOnly"
       class="tag-input el-input"
       v-model="newTag"
-      :placeholder="$t('commons.tag_tip')"/>
+      :placeholder="$t('commons.tag_tip')"
+    />
   </div>
 </template>
 <script>
@@ -29,17 +31,17 @@ export default {
     data: {},
     addTagOnKeys: {
       type: Array,
-      default: () => [13, 188, 9]
+      default: () => [13, 188, 9],
     },
     readOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    size: {type: String, default: "small"},
+    size: { type: String, default: 'small' },
     prop: {
       type: String,
-      default: "diffValue"
-    }
+      default: 'diffValue',
+    },
   },
   created() {
     if (!this.data[this.prop]) {
@@ -49,32 +51,32 @@ export default {
   data() {
     return {
       newTag: '',
-      innerTags: this.data[this.prop] ? [...this.data[this.prop]] : []
-    }
+      innerTags: this.data[this.prop] ? [...this.data[this.prop]] : [],
+    };
   },
   watch: {
     innerTags() {
       this.data[this.prop] = this.innerTags;
-    }
+    },
   },
   methods: {
     getTag(tag) {
-      if (tag && (tag.indexOf("++") !== -1 || tag.indexOf("--") !== -1)) {
+      if (tag && (tag.indexOf('++') !== -1 || tag.indexOf('--') !== -1)) {
         tag = tag.substring(2);
       }
-      return tag && tag.length > 10 ? tag.substring(0, 10) + "..." : tag;
+      return tag && tag.length > 10 ? tag.substring(0, 10) + '...' : tag;
     },
     getClass(tag) {
-      if (tag && tag.indexOf("++") !== -1) {
-        return "ms-tag-add";
+      if (tag && tag.indexOf('++') !== -1) {
+        return 'ms-tag-add';
       }
-      if (tag && tag.indexOf("--") !== -1) {
-        return "ms-tag-del";
+      if (tag && tag.indexOf('--') !== -1) {
+        return 'ms-tag-del';
       }
-      return "";
-    }
-  }
-}
+      return '';
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -90,7 +92,7 @@ export default {
   display: inline-block;
   outline: none;
   padding: 0 10px 0 5px;
-  transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   width: 100%;
 }
 
@@ -103,7 +105,8 @@ export default {
   border: 0;
   color: #303133;
   font-size: 12px;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    Arial, sans-serif;
   outline: none;
   padding-left: 0;
   width: 100px;
@@ -133,10 +136,10 @@ export default {
   text-decoration: line-through;
   text-decoration-color: red;
   -moz-text-decoration-line: line-through;
-  background: #F3E6E7;
+  background: #f3e6e7;
 }
 
 .ms-tag-add {
-  background: #E2ECDC;
+  background: #e2ecdc;
 }
 </style>

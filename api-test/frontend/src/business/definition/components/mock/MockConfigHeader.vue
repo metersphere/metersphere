@@ -1,5 +1,5 @@
 <template>
-  <el-header style="width: 100% ;padding: 0px">
+  <el-header style="width: 100%; padding: 0px">
     <el-card>
       <el-row>
         <el-col :span="1">
@@ -7,22 +7,38 @@
           {{ $t('commons.name') }}
         </el-col>
         <el-col :span="9">
-          <el-input class="ms-http-input" style="width: 80%" size="small" v-model="mockExpectConfig.name"/>
+          <el-input
+            class="ms-http-input"
+            style="width: 80%"
+            size="small"
+            v-model="mockExpectConfig.name"
+          />
         </el-col>
         <el-col :span="1">
           {{ $t('commons.tag') }}
         </el-col>
         <el-col :span="9">
-          <ms-input-tag :currentScenario="mockExpectConfig"
-                        style="width: 80%;height: 100%;white-space: nowrap;overflow: hidden" v-if="showHeadTable"
-                        ref="tag"/>
+          <ms-input-tag
+            :currentScenario="mockExpectConfig"
+            style="
+              width: 80%;
+              height: 100%;
+              white-space: nowrap;
+              overflow: hidden;
+            "
+            v-if="showHeadTable"
+            ref="tag"
+          />
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" size="small" style="float: right;margin-right: 65px;"
-                     @click="saveMockExpectConfig"
-                     title="ctrl + s" v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">{{
-              $t('commons.save')
-            }}
+          <el-button
+            type="primary"
+            size="small"
+            style="float: right; margin-right: 65px"
+            @click="saveMockExpectConfig"
+            title="ctrl + s"
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+            >{{ $t('commons.save') }}
           </el-button>
         </el-col>
       </el-row>
@@ -31,32 +47,29 @@
 </template>
 
 <script>
-
-import MsInputTag from "@/business/automation/scenario/MsInputTag";
+import MsInputTag from '@/business/automation/scenario/MsInputTag';
 
 export default {
-  name: "MockConfigHeader",
-  components: {MsInputTag},
+  name: 'MockConfigHeader',
+  components: { MsInputTag },
   data() {
-    return {}
+    return {};
   },
   props: {
     mockExpectConfig: Object,
     showHeadTable: Boolean,
   },
-  created() {
-  },
+  created() {},
   watch: {},
   methods: {
     saveMockExpectConfig() {
-      this.$emit("saveMockExpectConfig");
-    }
-  }
-}
+      this.$emit('saveMockExpectConfig');
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .el-card-btn {
   float: right;
   top: 20px;

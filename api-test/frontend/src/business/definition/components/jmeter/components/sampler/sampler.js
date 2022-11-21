@@ -1,6 +1,6 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
-export const TYPE = "Sampler";
+export const TYPE = 'Sampler';
 
 export default class Sampler extends HashTreeElement {
   constructor(options = {}) {

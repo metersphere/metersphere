@@ -1,36 +1,45 @@
 <template>
   <div>
-    <ms-database-from :config="currentConfig" :callback="saveConfig" ref="databaseFrom" :is-read-only="isReadOnly"/>
-    <ms-database-config-list @rowSelect="rowSelect" v-if="configs.length > 0" :table-data="configs"/>
+    <ms-database-from
+      :config="currentConfig"
+      :callback="saveConfig"
+      ref="databaseFrom"
+      :is-read-only="isReadOnly"
+    />
+    <ms-database-config-list
+      @rowSelect="rowSelect"
+      v-if="configs.length > 0"
+      :table-data="configs"
+    />
   </div>
 </template>
 
 <script>
-import MsDatabaseConfigList from "./DatabaseConfigList";
-import {DatabaseConfig} from "../../../model/ApiTestModel";
-import MsDatabaseFrom from "./DatabaseFrom";
-import {getUUID} from "metersphere-frontend/src/utils";
+import MsDatabaseConfigList from './DatabaseConfigList';
+import { DatabaseConfig } from '../../../model/ApiTestModel';
+import MsDatabaseFrom from './DatabaseFrom';
+import { getUUID } from 'metersphere-frontend/src/utils';
 
 export default {
-  name: "MsDatabaseConfig",
-  components: {MsDatabaseFrom, MsDatabaseConfigList},
+  name: 'MsDatabaseConfig',
+  components: { MsDatabaseFrom, MsDatabaseConfigList },
   props: {
     configs: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   data() {
     return {
       drivers: DatabaseConfig.DRIVER_CLASS,
-      currentConfig: new DatabaseConfig()
-    }
+      currentConfig: new DatabaseConfig(),
+    };
   },
   watch: {
     configs() {
       this.currentConfig = new DatabaseConfig();
-    }
+    },
   },
   methods: {
     saveConfig(config) {
@@ -59,22 +68,20 @@ export default {
     },
     rowSelect(config) {
       this.currentConfig = config;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .addButton {
   float: right;
 }
 
 .database-from {
   padding: 10px;
-  border: #DCDFE6 solid 1px;
+  border: #dcdfe6 solid 1px;
   margin: 5px 0;
   border-radius: 5px;
 }
-
 </style>

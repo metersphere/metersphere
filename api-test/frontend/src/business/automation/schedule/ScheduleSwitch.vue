@@ -1,54 +1,63 @@
 <template>
   <div class="schedule-config">
     <div>
-        <span class="cron-ico">
-          <i class="el-icon-date" size="small"></i>
-          <span class="character">SCHEDULER</span>
-        </span>
-      <el-switch :disabled="!schedule.value" v-model="schedule.enable" @change="scheduleChange"/>
+      <span class="cron-ico">
+        <i class="el-icon-date" size="small"></i>
+        <span class="character">SCHEDULER</span>
+      </span>
+      <el-switch
+        :disabled="!schedule.value"
+        v-model="schedule.enable"
+        @change="scheduleChange"
+      />
     </div>
     <div>
-        <span>
-          {{ $t('schedule.next_execution_time') }}：
-          <span :class="{'disable-character': !schedule.enable}"
-                v-if="!schedule.enable">{{ $t('schedule.not_set') }}</span>
-          <crontab-result v-if="schedule.enable" :enable-simple-mode="true" :ex="cornValue" ref="crontabResult"/>
-        </span>
+      <span>
+        {{ $t('schedule.next_execution_time') }}：
+        <span
+          :class="{ 'disable-character': !schedule.enable }"
+          v-if="!schedule.enable"
+          >{{ $t('schedule.not_set') }}</span
+        >
+        <crontab-result
+          v-if="schedule.enable"
+          :enable-simple-mode="true"
+          :ex="cornValue"
+          ref="crontabResult"
+        />
+      </span>
     </div>
   </div>
 </template>
 
 <script>
-import CrontabResult from "metersphere-frontend/src/components/cron/CrontabResult";
+import CrontabResult from 'metersphere-frontend/src/components/cron/CrontabResult';
 
 export default {
-  name: "ScheduleSwitch",
-  components: {CrontabResult},
+  name: 'ScheduleSwitch',
+  components: { CrontabResult },
   data() {
-    return {
-    }
+    return {};
   },
   props: {
     testId: String,
     schedule: Object,
-    cornValue:String,
+    cornValue: String,
     isReadOnly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     scheduleChange() {
       this.$emit('scheduleChange');
     },
   },
-  watch: {
-  }
-}
+  watch: {},
+};
 </script>
 
 <style scoped>
-
 .schedule-config {
   float: right;
   width: 250px;
@@ -77,5 +86,4 @@ export default {
 .cron-ico {
   cursor: pointer;
 }
-
 </style>

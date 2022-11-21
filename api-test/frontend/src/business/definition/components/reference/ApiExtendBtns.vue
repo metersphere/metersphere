@@ -4,31 +4,35 @@
       <el-icon class="el-icon-more"></el-icon>
     </el-link>
     <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item command="create_performance" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
+      <el-dropdown-item command="ref">{{
+        $t('api_test.automation.view_ref')
+      }}</el-dropdown-item>
+      <el-dropdown-item
+        command="create_performance"
+        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']"
+      >
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
     </el-dropdown-menu>
-    <ms-show-reference ref="viewRef"/>
-
+    <ms-show-reference ref="viewRef" />
   </el-dropdown>
 </template>
 
 <script>
-import {genPerformanceTestXml} from "@/api/home";
-import MsShowReference from "./ShowReference";
-import MsTestPlanList from "../../../automation/scenario/testplan/TestPlanList";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getBodyUploadFiles} from "@/business/definition/api-definition";
-import TestPlan from "@/business/definition/components/jmeter/components/test-plan";
-import ThreadGroup from "@/business/definition/components/jmeter/components/thread-group";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {usePerformanceStore} from "@/store";
+import { genPerformanceTestXml } from '@/api/home';
+import MsShowReference from './ShowReference';
+import MsTestPlanList from '../../../automation/scenario/testplan/TestPlanList';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { getBodyUploadFiles } from '@/business/definition/api-definition';
+import TestPlan from '@/business/definition/components/jmeter/components/test-plan';
+import ThreadGroup from '@/business/definition/components/jmeter/components/thread-group';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import { usePerformanceStore } from '@/store';
 
 const performanceStore = usePerformanceStore();
 export default {
-  name: "MsApiExtendBtns",
-  components: {MsShowReference, MsTestPlanList},
+  name: 'MsApiExtendBtns',
+  components: { MsShowReference, MsTestPlanList },
   props: {
     row: Object,
     isCaseEdit: Boolean,
@@ -37,21 +41,21 @@ export default {
   data() {
     return {
       planVisible: false,
-    }
+    };
   },
   methods: {
     handleCommand(cmd) {
       if (this.row.id) {
         switch (cmd) {
-          case  "ref":
+          case 'ref':
             this.$refs.viewRef.open(this.row, 'API');
             break;
-          case "create_performance":
+          case 'create_performance':
             this.createPerformance(this.row);
             break;
         }
       } else {
-        this.$warning(this.$t('api_test.automation.save_case_info'))
+        this.$warning(this.$t('api_test.automation.save_case_info'));
       }
     },
     sortHashTree(stepArray) {
@@ -60,14 +64,25 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
+          if (stepArray[i].type === 'Assertions' && !stepArray[i].document) {
             stepArray[i].document = {
-              type: "JSON",
-              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+              type: 'JSON',
+              data: {
+                xmlFollowAPI: false,
+                jsonFollowAPI: false,
+                json: [],
+                xml: [],
+              },
             };
           }
-          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
+          if (
+            stepArray[i] &&
+            stepArray[i].authManager &&
+            !stepArray[i].authManager.clazzName
+          ) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
+              stepArray[i].authManager.type
+            );
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sortHashTree(stepArray[i].hashTree);
@@ -100,7 +115,7 @@ export default {
       threadGroup.clazzName = TYPE_TO_C.get(threadGroup.type);
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
-      this.runData.forEach(item => {
+      this.runData.forEach((item) => {
         item.projectId = projectId;
         if (!item.clazzName) {
           item.clazzName = TYPE_TO_C.get(item.type);
@@ -115,37 +130,38 @@ export default {
         name: row.name,
         clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type),
         projectId: getCurrentProjectID(),
-        environmentMap: new Map([
-          [projectId, this.environment.id]
-        ]),
+        environmentMap: new Map([[projectId, this.environment.id]]),
       };
 
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
-      reqObj.reportId = "run";
-      genPerformanceTestXml(null, bodyFiles, reqObj).then(response => {
-        let jmxInfo = response.data.data.jmxInfoDTO;
-        if (jmxInfo) {
-          let projectEnvMap = response.data.projectEnvMap;
-          let jmxObj = {};
-          jmxObj.name = jmxInfo.name;
-          jmxObj.xml = jmxInfo.xml;
-          jmxObj.attachFiles = jmxInfo.attachFiles;
-          jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
-          jmxObj.caseId = reqObj.id;
-          jmxObj.version = row.version;
-          jmxObj.envId = this.environment;
-          jmxObj.projectEnvMap = projectEnvMap;
-          performanceStore.$patch({'test': {name: row.name, jmx: jmxObj}});
-          this.$router.push({
-            path: "/performance/test/create"
-          });
+      reqObj.reportId = 'run';
+      genPerformanceTestXml(null, bodyFiles, reqObj).then(
+        (response) => {
+          let jmxInfo = response.data.data.jmxInfoDTO;
+          if (jmxInfo) {
+            let projectEnvMap = response.data.projectEnvMap;
+            let jmxObj = {};
+            jmxObj.name = jmxInfo.name;
+            jmxObj.xml = jmxInfo.xml;
+            jmxObj.attachFiles = jmxInfo.attachFiles;
+            jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
+            jmxObj.caseId = reqObj.id;
+            jmxObj.version = row.version;
+            jmxObj.envId = this.environment;
+            jmxObj.projectEnvMap = projectEnvMap;
+            performanceStore.$patch({ test: { name: row.name, jmx: jmxObj } });
+            this.$router.push({
+              path: '/performance/test/create',
+            });
+          }
+        },
+        (error) => {
+          this.$emit('runRefresh', {});
         }
-      }, error => {
-        this.$emit('runRefresh', {});
-      });
-    }
-  }
-}
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>

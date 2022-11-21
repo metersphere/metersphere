@@ -1,18 +1,18 @@
-import Sampler from "../sampler";
-import {Body} from "../../../../../model/ApiTestModel";
+import Sampler from '../sampler';
+import { Body } from '../../../../../model/ApiTestModel';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      enabled: "true"
+      enabled: 'true',
     },
-  }
+  },
 };
 export default class HTTPSamplerProxy extends Sampler {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.type = "HTTPSamplerProxy";
-    this.protocol = "HTTP";
+    this.type = 'HTTPSamplerProxy';
+    this.protocol = 'HTTP';
     this.domain = undefined;
     this.port = undefined;
     this.method = undefined;
@@ -39,6 +39,5 @@ export default class HTTPSamplerProxy extends Sampler {
 }
 
 export const schema = {
-  HTTPSamplerProxy: HTTPSamplerProxy
-}
-
+  HTTPSamplerProxy: HTTPSamplerProxy,
+};

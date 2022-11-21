@@ -1,7 +1,7 @@
 <template>
   <div class="item">
     <div class="item-title">
-      {{title}}
+      {{ title }}
     </div>
     <div>
       <slot></slot>
@@ -10,22 +10,20 @@
 </template>
 
 <script>
-    export default {
-      name: "ApiReportRequestHeaderItem",
-      props: {title: String}
-    }
+export default {
+  name: 'ApiReportRequestHeaderItem',
+  props: { title: String },
+};
 </script>
 
 <style scoped>
+.item {
+  width: 120px;
+  height: 50px;
+  display: inline-block;
+}
 
-  .item {
-    width: 120px;
-    height: 50px;
-    display: inline-block;
-  }
-
-  .item-title {
-    margin-bottom: 20px;
-  }
-
+.item-title {
+  margin-bottom: 20px;
+}
 </style>

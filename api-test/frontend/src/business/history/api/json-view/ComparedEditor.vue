@@ -1,32 +1,36 @@
 <template>
   <div id="app" v-loading="loading">
-    <div style="width:  98%">
-      <compared-editor class="schema" :value="schema" lang="zh_CN" custom/>
+    <div style="width: 98%">
+      <compared-editor class="schema" :value="schema" lang="zh_CN" custom />
     </div>
   </div>
 </template>
 
 <script>
-import ComparedEditor from './schema/editor/index'
+import ComparedEditor from './schema/editor/index';
 
 const Convert = require('@/business/commons/json-schema/convert/convert.js');
 const MsConvert = new Convert();
 export default {
   name: 'App',
-  components: {ComparedEditor},
+  components: { ComparedEditor },
   props: {
     body: {},
     showPreview: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   created() {
-    if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
-      let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
+    if (
+      !this.body.jsonSchema &&
+      this.body.raw &&
+      this.checkIsJson(this.body.raw)
+    ) {
+      let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
       this.schema = obj;
     } else if (this.body.jsonSchema) {
-      this.schema = {"root": this.body.jsonSchema};
+      this.schema = { root: this.body.jsonSchema };
     }
     this.body.jsonSchema = this.schema.root;
   },
@@ -35,34 +39,37 @@ export default {
       handler(newValue, oldValue) {
         this.body.jsonSchema = this.schema.root;
       },
-      deep: true
+      deep: true,
     },
     body: {
       handler(newValue, oldValue) {
-        if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
-          let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
+        if (
+          !this.body.jsonSchema &&
+          this.body.raw &&
+          this.checkIsJson(this.body.raw)
+        ) {
+          let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
           this.schema = obj;
         } else if (this.body.jsonSchema) {
-          this.schema = {"root": this.body.jsonSchema};
+          this.schema = { root: this.body.jsonSchema };
         }
         this.body.jsonSchema = this.schema.root;
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   data() {
     return {
-      schema:
-        {
-          "root": {
-            "type": "object",
-            "properties": {},
-          }
+      schema: {
+        root: {
+          type: 'object',
+          properties: {},
         },
+      },
       loading: false,
       preview: null,
-      activeName: "apiTemplate",
-    }
+      activeName: 'apiTemplate',
+    };
   },
   methods: {
     openOneClickOperation() {
@@ -81,11 +88,9 @@ export default {
       this.$nextTick(() => {
         this.schema.root = data;
         this.body.jsonSchema = this.schema.root;
-      })
-    }
-  }
-}
+      });
+    },
+  },
+};
 </script>
-<style>
-
-</style>
+<style></style>

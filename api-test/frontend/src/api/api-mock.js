@@ -1,5 +1,5 @@
-import {get, post} from "metersphere-frontend/src/plugins/request"
-import {fileUpload} from "@/api/base-network";
+import { get, post } from 'metersphere-frontend/src/plugins/request';
+import { fileUpload } from '@/api/base-network';
 
 export function getMockApiParams(id) {
   return get('/mock/config/get-api-params/' + id);
@@ -33,7 +33,7 @@ export function getMockTestData(mockParam) {
   return post('/mock/config/test-data', mockParam);
 }
 
-export function updateMockExpectConfig(mockParam, file, files,) {
+export function updateMockExpectConfig(mockParam, file, files) {
   return fileUpload('/mock/config/update/form', file, files, mockParam);
 }
 

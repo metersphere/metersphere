@@ -1,55 +1,80 @@
 <template>
   <div class="dependencies-container">
-
-    <el-tooltip v-xpack class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
-      <font-awesome-icon class="graph-icon" :icon="['fas', 'sitemap']" size="lg" @click="openGraph"/>
+    <el-tooltip
+      v-xpack
+      class="item"
+      effect="dark"
+      :content="$t('commons.relationship.graph')"
+      placement="left"
+    >
+      <font-awesome-icon
+        class="graph-icon"
+        :icon="['fas', 'sitemap']"
+        size="lg"
+        @click="openGraph"
+      />
     </el-tooltip>
 
     <relationship-list
-        class="pre-list"
-        :read-only="readOnly"
-        :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.pre_case') : $t('commons.relationship.pre_api')"
-        relationship-type="PRE" :resource-id="resourceId"
-        :version-enable="versionEnable"
-        @setCount="setPreCount"
-        :resource-type="resourceType" ref="preRelationshipList"/>
+      class="pre-list"
+      :read-only="readOnly"
+      :title="
+        resourceType === 'TEST_CASE'
+          ? $t('commons.relationship.pre_case')
+          : $t('commons.relationship.pre_api')
+      "
+      relationship-type="PRE"
+      :resource-id="resourceId"
+      :version-enable="versionEnable"
+      @setCount="setPreCount"
+      :resource-type="resourceType"
+      ref="preRelationshipList"
+    />
     <relationship-list
-        class="post-list"
-        :read-only="readOnly"
-        :version-enable="versionEnable"
-        :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.post_case') : $t('commons.relationship.post_api')"
-        relationship-type="POST" :resource-id="resourceId"
-        @setCount="setPostCount"
-        :resource-type="resourceType" ref="postRelationshipList"/>
+      class="post-list"
+      :read-only="readOnly"
+      :version-enable="versionEnable"
+      :title="
+        resourceType === 'TEST_CASE'
+          ? $t('commons.relationship.post_case')
+          : $t('commons.relationship.post_api')
+      "
+      relationship-type="POST"
+      :resource-id="resourceId"
+      @setCount="setPostCount"
+      :resource-type="resourceType"
+      ref="postRelationshipList"
+    />
 
-    <mx-relationship-graph-drawer v-xpack v-permission :graph-data="graphData" ref="relationshipGraph"/>
-
+    <mx-relationship-graph-drawer
+      v-xpack
+      v-permission
+      :graph-data="graphData"
+      ref="relationshipGraph"
+    />
   </div>
 </template>
 
 <script>
-
-import {getRelationshipGraph} from "@/api/graph";
-import RelationshipList from "./RelationshipList";
+import { getRelationshipGraph } from '@/api/graph';
+import RelationshipList from './RelationshipList';
 
 export default {
-  name: "DependenciesList",
+  name: 'DependenciesList',
   components: {
     RelationshipList,
-    MxRelationshipGraphDrawer: () => import("metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer"),
+    MxRelationshipGraphDrawer: () =>
+      import(
+        'metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'
+      ),
   },
-  props: [
-    'resourceId',
-    'resourceType',
-    'readOnly',
-    'versionEnable',
-  ],
+  props: ['resourceId', 'resourceType', 'readOnly', 'versionEnable'],
   data() {
     return {
       graphData: {},
       preCount: 0,
       postCount: 0,
-    }
+    };
   },
   methods: {
     open() {
@@ -61,10 +86,12 @@ export default {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
-      getRelationshipGraph(this.resourceId, this.resourceType).then((response) => {
-        this.graphData = response.data;
-        this.$refs.relationshipGraph.open();
-      });
+      getRelationshipGraph(this.resourceId, this.resourceType).then(
+        (response) => {
+          this.graphData = response.data;
+          this.$refs.relationshipGraph.open();
+        }
+      );
     },
     setPreCount(count) {
       this.preCount = count;
@@ -74,8 +101,8 @@ export default {
       this.postCount = count;
       this.$emit('setCount', this.preCount + this.postCount);
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

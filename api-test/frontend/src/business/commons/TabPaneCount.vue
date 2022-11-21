@@ -1,17 +1,21 @@
 <template>
   <span>
-    <span>{{title}}</span>
-    <span class="el-step__icon is-text ms-api-col ms-header" :class="{'fix-color': fixColor}" v-if="count > 0">
-      <span class="el-step__icon-inner">{{count}}</span>
+    <span>{{ title }}</span>
+    <span
+      class="el-step__icon is-text ms-api-col ms-header"
+      :class="{ 'fix-color': fixColor }"
+      v-if="count > 0"
+    >
+      <span class="el-step__icon-inner">{{ count }}</span>
     </span>
   </span>
 </template>
 
 <script>
 export default {
-  name: "TabPaneCount",
-  props: ['title', 'count', 'fixColor']
-}
+  name: 'TabPaneCount',
+  props: ['title', 'count', 'fixColor'],
+};
 </script>
 
 <style scoped>

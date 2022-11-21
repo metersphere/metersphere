@@ -5,30 +5,58 @@
     :width="width"
     :disabled="isReadOnly"
     @show="showPopover"
-    trigger="click">
-    <el-radio-group v-model="radio" style="margin-left: 20px;" @change="radioChange">
-      <el-radio :label="ENV_TYPE.JSON">{{ $t('workspace.env_group.env_list') }}</el-radio>
-      <el-radio v-if="showEnvGroup" :label="ENV_TYPE.GROUP">{{ $t('workspace.env_group.name') }}</el-radio>
+    trigger="click"
+  >
+    <el-radio-group
+      v-model="radio"
+      style="margin-left: 20px"
+      @change="radioChange"
+    >
+      <el-radio :label="ENV_TYPE.JSON">{{
+        $t('workspace.env_group.env_list')
+      }}</el-radio>
+      <el-radio v-if="showEnvGroup" :label="ENV_TYPE.GROUP">{{
+        $t('workspace.env_group.name')
+      }}</el-radio>
     </el-radio-group>
-    <env-select :project-ids="projectIds"
-                :result="result"
-                :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                :env-map="envMap"
-                :project-list="projectList"
-                @close="visible = false"
-                @setProjectEnvMap="setProjectEnvMap"
-                v-show="!radio || radio === ENV_TYPE.JSON"
-                :btnStyle="btnStyle"
-                ref="envSelect"/>
-    <env-group ref="envGroup" v-show="radio === ENV_TYPE.GROUP && !hasOptionGroup" @close="visible = false"
-               :project-ids="projectIds"
-               @setEnvGroup="setEnvGroup" :group-id="groupId" :btnStyle="btnStyle"></env-group>
+    <env-select
+      :project-ids="projectIds"
+      :result="result"
+      :show-config-button-with-out-permission="
+        showConfigButtonWithOutPermission
+      "
+      :env-map="envMap"
+      :project-list="projectList"
+      @close="visible = false"
+      @setProjectEnvMap="setProjectEnvMap"
+      v-show="!radio || radio === ENV_TYPE.JSON"
+      :btnStyle="btnStyle"
+      ref="envSelect"
+    />
+    <env-group
+      ref="envGroup"
+      v-show="radio === ENV_TYPE.GROUP && !hasOptionGroup"
+      @close="visible = false"
+      :project-ids="projectIds"
+      @setEnvGroup="setEnvGroup"
+      :group-id="groupId"
+      :btnStyle="btnStyle"
+    ></env-group>
     <!-- 对环境组选项进行分类 可用｜不可用 -->
-    <env-group-with-option ref="envOptionGroup" v-show="radio === ENV_TYPE.GROUP && hasOptionGroup"
-                           @close="visible = false"
-                           :project-ids="projectIds"
-                           @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group-with-option>
-    <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">
+    <env-group-with-option
+      ref="envOptionGroup"
+      v-show="radio === ENV_TYPE.GROUP && hasOptionGroup"
+      @close="visible = false"
+      :project-ids="projectIds"
+      @setEnvGroup="setEnvGroup"
+      :group-id="groupId"
+    ></env-group-with-option>
+    <el-button
+      type="primary"
+      slot="reference"
+      size="mini"
+      style="margin-top: 2px"
+    >
       {{ $t('api_test.definition.request.run_env') }}
       <i class="el-icon-caret-bottom el-icon--right"></i>
     </el-button>
@@ -36,18 +64,18 @@
 </template>
 
 <script>
-import EnvSelect from "@/business/automation/scenario/EnvSelect";
-import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import EnvGroup from "@/business/automation/scenario/EnvGroup";
-import EnvGroupWithOption from "@/business/automation/scenario/EnvGroupWithOption";
+import EnvSelect from '@/business/automation/scenario/EnvSelect';
+import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
+import EnvGroup from '@/business/automation/scenario/EnvGroup';
+import EnvGroupWithOption from '@/business/automation/scenario/EnvGroupWithOption';
 
 export default {
-  name: "EnvPopover",
-  components: {EnvGroup, EnvSelect, EnvGroupWithOption},
+  name: 'EnvPopover',
+  components: { EnvGroup, EnvSelect, EnvGroupWithOption },
   props: {
     width: {
       type: String,
-      default: "400"
+      default: '400',
     },
     envMap: Map,
     projectIds: Set,
@@ -56,78 +84,78 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     isReadOnly: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     result: {
       type: Object,
       default() {
-        return {loading: false}
-      }
+        return { loading: false };
+      },
     },
     groupId: {
       type: String,
       default() {
-        return "";
-      }
+        return '';
+      },
     },
     environmentType: String,
     isScenario: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     showEnvGroup: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     placement: {
       type: String,
       default() {
-        return "bottom";
-      }
+        return 'bottom';
+      },
     },
     hasOptionGroup: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     btnStyle: {
       type: Object,
       default() {
-        return {width: "360px"}
-      }
-    }
+        return { width: '360px' };
+      },
+    },
   },
   data() {
     return {
       visible: false,
       radio: this.environmentType,
-    }
+    };
   },
   watch: {
     environmentType(val) {
       this.radio = val;
-    }
+    },
   },
   computed: {
     ENV_TYPE() {
       return ENV_TYPE;
-    }
+    },
   },
   methods: {
     showPopover() {
       if (this.isScenario) {
-        this.$emit("showPopover");
+        this.$emit('showPopover');
       } else {
         this.$refs.envSelect.open();
       }
@@ -143,16 +171,16 @@ export default {
       }
     },
     setProjectEnvMap(map) {
-      this.$emit("setProjectEnvMap", map);
+      this.$emit('setProjectEnvMap', map);
     },
     setEnvGroup(envGroupId) {
-      this.$emit("setEnvGroup", envGroupId);
+      this.$emit('setEnvGroup', envGroupId);
     },
     initEnv() {
       return this.$refs.envSelect.initEnv();
     },
     checkEnv(data) {
-      return new Promise((resolve => {
+      return new Promise((resolve) => {
         if (data) {
           // 所有请求全路径不检查环境
           resolve(true);
@@ -164,23 +192,21 @@ export default {
             let res = this.$refs.envSelect.checkEnv(data);
             resolve(res);
           } else if (this.environmentType === ENV_TYPE.GROUP) {
-            let res = !this.hasOptionGroup ? this.$refs.envGroup.checkEnv() :
-              this.$refs.envOptionGroup.checkEnv();
-            res.then(r => {
+            let res = !this.hasOptionGroup
+              ? this.$refs.envGroup.checkEnv()
+              : this.$refs.envOptionGroup.checkEnv();
+            res.then((r) => {
               resolve(r);
-            })
+            });
           }
         }
-      }))
+      });
     },
     radioChange(val) {
-      this.$emit("update:environmentType", val);
-    }
-  }
-
-}
+      this.$emit('update:environmentType', val);
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

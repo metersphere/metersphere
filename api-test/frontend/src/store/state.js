@@ -1,7 +1,7 @@
 export default {
-  id: "API",
+  id: 'API',
   state: () => ({
-    useEnvironment: "",
+    useEnvironment: '',
     selectStep: {},
     currentApiCase: {},
     pluginFiles: [],
@@ -9,11 +9,11 @@ export default {
     apiMap: new Map(),
     apiStatus: new Map(),
     apiCaseMap: new Map(),
-    forceRerenderIndex: ""
+    forceRerenderIndex: '',
   }),
   getters: {
     currentApi(store) {
-      return store.$state
+      return store.$state;
     },
   },
-}
+};

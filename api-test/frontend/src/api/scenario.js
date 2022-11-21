@@ -1,5 +1,5 @@
-import {fileUpload} from "@/api/base-network";
-import {get, post, request} from 'metersphere-frontend/src/plugins/request'
+import { fileUpload } from '@/api/base-network';
+import { get, post, request } from 'metersphere-frontend/src/plugins/request';
 
 export function getScenarioById(scenarioId) {
   return get('/api/automation/get/' + scenarioId);
