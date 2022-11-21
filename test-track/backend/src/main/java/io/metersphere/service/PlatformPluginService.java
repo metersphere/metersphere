@@ -35,20 +35,26 @@ public class PlatformPluginService {
 
     private PlatformPluginManager pluginManager;
 
+    public synchronized PlatformPluginManager getPluginManager() {
+        if (pluginManager == null) {
+            pluginManager = new PlatformPluginManager();
+        }
+        return pluginManager;
+    }
+
     /**
      * 查询所有平台插件并加载
      */
     public void loadPlatFormPlugins() {
-        pluginManager = new PlatformPluginManager();
         List<PluginWithBLOBs> plugins = basePluginService.getPlugins(PluginScenario.platform.name());
-        PluginManagerUtil.loadPlugins(pluginManager, plugins);
+        PluginManagerUtil.loadPlugins(getPluginManager(), plugins);
     }
 
     public void loadPlugin(String pluginId) {
-        if (pluginManager.getClassLoader(pluginId) == null) {
+        if (getPluginManager().getClassLoader(pluginId) == null) {
             // 如果没有加载才加载
             InputStream pluginJar = basePluginService.getPluginJar(pluginId);
-            PluginManagerUtil.loadPlugin(pluginId, pluginManager, pluginJar);
+            PluginManagerUtil.loadPlugin(pluginId, getPluginManager(), pluginJar);
         }
     }
 
@@ -57,7 +63,7 @@ public class PlatformPluginService {
      * @param pluginId
      */
     public void unloadPlugin(String pluginId) {
-        pluginManager.deletePlugin(pluginId);
+        getPluginManager().deletePlugin(pluginId);
     }
 
     public boolean isThirdPartTemplateSupport(String platform) {
@@ -76,7 +82,7 @@ public class PlatformPluginService {
 
         PlatformRequest pluginRequest = new PlatformRequest();
         pluginRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
-        return pluginManager.getPlatformByKey(platformKey, pluginRequest);
+        return getPluginManager().getPlatformByKey(platformKey, pluginRequest);
     }
 
     public Platform getPlatform(String platformKey) {
@@ -105,7 +111,7 @@ public class PlatformPluginService {
     }
 
     public List<SelectOption> getPlatformOptions() {
-        List<SelectOption> options = pluginManager.getPluginMetaInfoList()
+        List<SelectOption> options = getPluginManager().getPluginMetaInfoList()
                 .stream()
                 .map(pluginMetaInfo -> new SelectOption(pluginMetaInfo.getLabel(), pluginMetaInfo.getKey()))
                 .collect(Collectors.toList());

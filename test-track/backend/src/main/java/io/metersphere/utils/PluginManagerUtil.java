@@ -35,13 +35,15 @@ public class PluginManagerUtil {
     /**
      * 加载插件
      */
-    public static void loadPlugins(PluginManager pluginManager, List<PluginWithBLOBs> plugins) {
+    public static synchronized void loadPlugins(PluginManager pluginManager, List<PluginWithBLOBs> plugins) {
         plugins.forEach(plugin -> {
             String id = plugin.getId();
             MinioStorageStrategy minioStorageStrategy = new MinioStorageStrategy(id);
             InputStream inputStream = minioStorageStrategy.get(plugin.getSourceName());
             try {
-                pluginManager.loadJar(id, inputStream, minioStorageStrategy);
+                if (pluginManager.getClassLoader(id) == null) {
+                    pluginManager.loadJar(id, inputStream, minioStorageStrategy);
+                }
             } catch (IOException e) {
                 LogUtil.error("初始化插件失败：", e);
             }

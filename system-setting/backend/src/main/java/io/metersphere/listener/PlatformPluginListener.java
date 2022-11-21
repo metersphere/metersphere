@@ -18,14 +18,15 @@ public class PlatformPluginListener {
     @Resource
     private PlatformPluginService platformPluginService;
 
-    @KafkaListener(id = ADD_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_ADD, groupId = "${spring.application.name}")
+    // groupId 必须是每个实例唯一
+    @KafkaListener(id = ADD_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_ADD, groupId = "${eureka.instance.instance-id}")
     public void handlePluginAdd(ConsumerRecord<?, String> record) {
         String pluginId = record.value();
         LogUtil.info("system setting service consume platform_plugin add message, plugin id: " + pluginId);
         platformPluginService.loadPlugin(pluginId);
     }
 
-    @KafkaListener(id = DELETE_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, groupId = "${spring.application.name}")
+    @KafkaListener(id = DELETE_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, groupId = "${eureka.instance.instance-id}")
     public void handlePluginDelete(ConsumerRecord<?, String> record) {
         String pluginId = record.value();
         LogUtil.info("system setting consume platform_plugin delete message, plugin id: " + pluginId);
