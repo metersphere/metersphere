@@ -122,6 +122,7 @@ public class TestCaseIssueService {
             testCaseIssues.setResourceId(resourceId);
             testCaseIssues.setRefType(refType);
             testCaseIssues.setRefId(StringUtils.isNotBlank(refId) ? null : refId);
+            testCaseIssues.setRelateTime(System.currentTimeMillis());
             testCaseIssuesMapper.insert(testCaseIssues);
         }
     }

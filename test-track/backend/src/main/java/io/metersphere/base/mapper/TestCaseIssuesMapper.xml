@@ -5,8 +5,9 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="issues_id" jdbcType="VARCHAR" property="issuesId" />
-    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="ref_type" jdbcType="VARCHAR" property="refType" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="relate_time" jdbcType="BIGINT" property="relateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, resource_id, issues_id, ref_id, ref_type
+    id, resource_id, issues_id, ref_type, ref_id, relate_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseIssuesExample" resultMap="BaseResultMap">
     select
@@ -101,9 +102,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseIssues">
     insert into test_case_issues (id, resource_id, issues_id,
-      ref_id, ref_type)
+                                  ref_type, ref_id, relate_time
+    )
     values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{issuesId,jdbcType=VARCHAR},
-      #{refId,jdbcType=VARCHAR}, #{refType,jdbcType=VARCHAR})
+            #{refType,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{relateTime,jdbcType=BIGINT}
+           )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseIssues">
     insert into test_case_issues
@@ -117,11 +120,14 @@
       <if test="issuesId != null">
         issues_id,
       </if>
+      <if test="refType != null">
+        ref_type,
+      </if>
       <if test="refId != null">
         ref_id,
       </if>
-      <if test="refType != null">
-        ref_type,
+      <if test="relateTime != null">
+        relate_time,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -134,11 +140,14 @@
       <if test="issuesId != null">
         #{issuesId,jdbcType=VARCHAR},
       </if>
+      <if test="refType != null">
+        #{refType,jdbcType=VARCHAR},
+      </if>
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
       </if>
-      <if test="refType != null">
-        #{refType,jdbcType=VARCHAR},
+      <if test="relateTime != null">
+        #{relateTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -160,11 +169,14 @@
       <if test="record.issuesId != null">
         issues_id = #{record.issuesId,jdbcType=VARCHAR},
       </if>
+      <if test="record.refType != null">
+        ref_type = #{record.refType,jdbcType=VARCHAR},
+      </if>
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
-      <if test="record.refType != null">
-        ref_type = #{record.refType,jdbcType=VARCHAR},
+      <if test="record.relateTime != null">
+        relate_time = #{record.relateTime,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -174,10 +186,11 @@
   <update id="updateByExample" parameterType="map">
     update test_case_issues
     set id = #{record.id,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      issues_id = #{record.issuesId,jdbcType=VARCHAR},
-      ref_id = #{record.refId,jdbcType=VARCHAR},
-      ref_type = #{record.refType,jdbcType=VARCHAR}
+    resource_id = #{record.resourceId,jdbcType=VARCHAR},
+    issues_id = #{record.issuesId,jdbcType=VARCHAR},
+    ref_type = #{record.refType,jdbcType=VARCHAR},
+    ref_id = #{record.refId,jdbcType=VARCHAR},
+    relate_time = #{record.relateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -191,11 +204,14 @@
       <if test="issuesId != null">
         issues_id = #{issuesId,jdbcType=VARCHAR},
       </if>
+      <if test="refType != null">
+        ref_type = #{refType,jdbcType=VARCHAR},
+      </if>
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
       </if>
-      <if test="refType != null">
-        ref_type = #{refType,jdbcType=VARCHAR},
+      <if test="relateTime != null">
+        relate_time = #{relateTime,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -203,9 +219,10 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseIssues">
     update test_case_issues
     set resource_id = #{resourceId,jdbcType=VARCHAR},
-      issues_id = #{issuesId,jdbcType=VARCHAR},
-      ref_id = #{refId,jdbcType=VARCHAR},
-      ref_type = #{refType,jdbcType=VARCHAR}
+        issues_id = #{issuesId,jdbcType=VARCHAR},
+        ref_type = #{refType,jdbcType=VARCHAR},
+        ref_id = #{refId,jdbcType=VARCHAR},
+        relate_time = #{relateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

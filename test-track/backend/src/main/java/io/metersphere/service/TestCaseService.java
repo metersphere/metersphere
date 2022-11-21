@@ -487,6 +487,7 @@ public class TestCaseService {
                         t.setId(UUID.randomUUID().toString());
                         t.setResourceId(testCase.getId());
                         t.setIssuesId(issue.getId());
+                        t.setRelateTime(System.currentTimeMillis());
                         testCaseIssuesMapper.insertSelective(t);
                     });
                 }

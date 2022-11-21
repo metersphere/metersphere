@@ -314,6 +314,76 @@ public class TestCaseIssuesExample {
             return (Criteria) this;
         }
 
+        public Criteria andRefTypeIsNull() {
+            addCriterion("ref_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeIsNotNull() {
+            addCriterion("ref_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeEqualTo(String value) {
+            addCriterion("ref_type =", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotEqualTo(String value) {
+            addCriterion("ref_type <>", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeGreaterThan(String value) {
+            addCriterion("ref_type >", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("ref_type >=", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLessThan(String value) {
+            addCriterion("ref_type <", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLessThanOrEqualTo(String value) {
+            addCriterion("ref_type <=", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeLike(String value) {
+            addCriterion("ref_type like", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotLike(String value) {
+            addCriterion("ref_type not like", value, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeIn(List<String> values) {
+            addCriterion("ref_type in", values, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotIn(List<String> values) {
+            addCriterion("ref_type not in", values, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeBetween(String value1, String value2) {
+            addCriterion("ref_type between", value1, value2, "refType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefTypeNotBetween(String value1, String value2) {
+            addCriterion("ref_type not between", value1, value2, "refType");
+            return (Criteria) this;
+        }
+
         public Criteria andRefIdIsNull() {
             addCriterion("ref_id is null");
             return (Criteria) this;
@@ -384,73 +454,63 @@ public class TestCaseIssuesExample {
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeIsNull() {
-            addCriterion("ref_type is null");
+        public Criteria andRelateTimeIsNull() {
+            addCriterion("relate_time is null");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeIsNotNull() {
-            addCriterion("ref_type is not null");
+        public Criteria andRelateTimeIsNotNull() {
+            addCriterion("relate_time is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeEqualTo(String value) {
-            addCriterion("ref_type =", value, "refType");
+        public Criteria andRelateTimeEqualTo(Long value) {
+            addCriterion("relate_time =", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeNotEqualTo(String value) {
-            addCriterion("ref_type <>", value, "refType");
+        public Criteria andRelateTimeNotEqualTo(Long value) {
+            addCriterion("relate_time <>", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeGreaterThan(String value) {
-            addCriterion("ref_type >", value, "refType");
+        public Criteria andRelateTimeGreaterThan(Long value) {
+            addCriterion("relate_time >", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("ref_type >=", value, "refType");
+        public Criteria andRelateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("relate_time >=", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeLessThan(String value) {
-            addCriterion("ref_type <", value, "refType");
+        public Criteria andRelateTimeLessThan(Long value) {
+            addCriterion("relate_time <", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeLessThanOrEqualTo(String value) {
-            addCriterion("ref_type <=", value, "refType");
+        public Criteria andRelateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("relate_time <=", value, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeLike(String value) {
-            addCriterion("ref_type like", value, "refType");
+        public Criteria andRelateTimeIn(List<Long> values) {
+            addCriterion("relate_time in", values, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeNotLike(String value) {
-            addCriterion("ref_type not like", value, "refType");
+        public Criteria andRelateTimeNotIn(List<Long> values) {
+            addCriterion("relate_time not in", values, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeIn(List<String> values) {
-            addCriterion("ref_type in", values, "refType");
+        public Criteria andRelateTimeBetween(Long value1, Long value2) {
+            addCriterion("relate_time between", value1, value2, "relateTime");
             return (Criteria) this;
         }
 
-        public Criteria andRefTypeNotIn(List<String> values) {
-            addCriterion("ref_type not in", values, "refType");
-            return (Criteria) this;
-        }
-
-        public Criteria andRefTypeBetween(String value1, String value2) {
-            addCriterion("ref_type between", value1, value2, "refType");
-            return (Criteria) this;
-        }
-
-        public Criteria andRefTypeNotBetween(String value1, String value2) {
-            addCriterion("ref_type not between", value1, value2, "refType");
+        public Criteria andRelateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("relate_time not between", value1, value2, "relateTime");
             return (Criteria) this;
         }
     }
