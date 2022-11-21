@@ -3,7 +3,6 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.TestCaseIssues;
 import io.metersphere.base.domain.TestCaseIssuesExample;
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface TestCaseIssuesMapper {
