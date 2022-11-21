@@ -10,44 +10,34 @@
           :row-class-name="getRowClassName"
           :data="tableData"
           :class="getTableClass()"
-          ref="expandTable"
-        >
+          ref="expandTable">
           <el-table-column
             prop="name"
             :label="$t('api_definition.document.name')"
             min-width="120px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="contentType"
             :label="$t('api_definition.document.type')"
             min-width="120px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="description"
             :label="$t('api_definition.document.desc')"
             min-width="280px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="required"
             :label="$t('api_definition.document.is_required')"
             :formatter="formatBoolean"
             min-width="80px"
-            show-overflow-tooltip
-          />
+            show-overflow-tooltip />
           <el-table-column
             prop="value"
             :label="$t('api_definition.document.default_value')"
             min-width="120px"
-            show-overflow-tooltip
-          />
-          <el-table-column
-            type="expand"
-            :label="getCollapseOption()"
-            width="80px"
-          >
+            show-overflow-tooltip />
+          <el-table-column type="expand" :label="getCollapseOption()" width="80px">
             <template slot="header">
               <el-button type="text" size="mini" @click="expandAllRows">
                 <span :id="tableExpandButtonId">
@@ -56,37 +46,24 @@
               </el-button>
             </template>
             <template v-slot:default="scope">
-              <table-advanced-setting
-                :table-data="scope.row"
-              ></table-advanced-setting>
+              <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
             </template>
           </el-table-column>
         </el-table>
         <div
-          v-else-if="
-            apiInfo.requestBodyParamType === 'JSON-SCHEMA' ||
-            apiInfo.requestBodyParamType === 'JSON'
-          "
-          style="margin-left: 10px"
-        >
+          v-else-if="apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON'"
+          style="margin-left: 10px">
           <json-schema-show
             :show-preview="false"
             :json-schema-disable="true"
             :body="apiInfo.jsonSchemaBody"
-            ref="jsonCodeEdit"
-          />
+            ref="jsonCodeEdit" />
         </div>
         <div v-else class="showDataDiv">
           <br />
           <p
             style="margin: 0px 20px"
-            v-html="
-              formatRowData(
-                apiInfo.requestBodyParamType,
-                apiInfo.requestBodyStructureData
-              )
-            "
-          ></p>
+            v-html="formatRowData(apiInfo.requestBodyParamType, apiInfo.requestBodyStructureData)"></p>
           <br />
         </div>
       </div>
@@ -98,10 +75,7 @@
       </div>
       <div class="showDataDiv">
         <br />
-        <p
-          style="margin: 0px 20px"
-          v-html="genPreviewData(apiInfo.requestPreviewData)"
-        ></p>
+        <p style="margin: 0px 20px" v-html="genPreviewData(apiInfo.requestPreviewData)"></p>
         <br />
       </div>
     </el-row>
@@ -183,9 +157,7 @@ export default {
           });
         }
       }
-      this.expandTitle = this.expandAllRow
-        ? this.$t('commons.close_all')
-        : this.$t('commons.expand_all');
+      this.expandTitle = this.expandAllRow ? this.$t('commons.close_all') : this.$t('commons.expand_all');
       let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
       tableHeaderDom.innerText = this.expandTitle;
     },

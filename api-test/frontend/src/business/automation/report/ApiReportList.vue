@@ -3,42 +3,17 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result">
         <template v-slot:header>
-          <ms-table-header
-            :condition.sync="condition"
-            v-if="loadIsOver"
-            @search="search"
-            :show-create="false"
-          >
+          <ms-table-header :condition.sync="condition" v-if="loadIsOver" @search="search" :show-create="false">
             <template v-slot:button>
               <el-button-group>
-                <el-tooltip
-                  class="item"
-                  effect="dark"
-                  content="left"
-                  :disabled="true"
-                  placement="left"
-                >
-                  <el-button
-                    plain
-                    :class="{ active: leftActive }"
-                    @click="changeTab('left')"
-                  >
+                <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
+                  <el-button plain :class="{ active: leftActive }" @click="changeTab('left')">
                     {{ $t('commons.scenario') }}
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip
-                  class="item"
-                  effect="dark"
-                  content="right"
-                  :disabled="true"
-                  placement="right"
-                >
-                  <el-button
-                    plain
-                    :class="{ active: rightActive }"
-                    @click="changeTab('right')"
-                  >
+                <el-tooltip class="item" effect="dark" content="right" :disabled="true" placement="right">
+                  <el-button plain :class="{ active: rightActive }" @click="changeTab('right')">
                     {{ $t('api_test.definition.request.case') }}
                   </el-button>
                 </el-tooltip>
@@ -58,36 +33,24 @@
           :height="screenHeight"
           @filter-change="filter"
           @row-click="handleView"
-          v-if="loadIsOver"
-        >
+          v-if="loadIsOver">
           <el-table-column type="selection" />
           <el-table-column width="40" :resizable="false" align="center">
             <el-dropdown slot="header" style="width: 14px">
               <span class="el-dropdown-link" style="width: 14px">
-                <i
-                  class="el-icon-arrow-down el-icon--right"
-                  style="margin-left: 0px"
-                ></i>
+                <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
                   {{ $t('api_test.batch_menus.select_all_data', [total]) }}
                 </el-dropdown-item>
                 <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                  {{
-                    $t('api_test.batch_menus.select_show_data', [
-                      tableData.length,
-                    ])
-                  }}
+                  {{ $t('api_test.batch_menus.select_show_data', [tableData.length]) }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <template v-slot:default="scope">
-              <show-more-btn
-                :is-show="scope.row.showMore"
-                :buttons="buttons"
-                :size="selectDataCounts"
-              />
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" />
             </template>
           </el-table-column>
 
@@ -99,8 +62,7 @@
             :editable="true"
             :edit-content="$t('report.rename_report')"
             @editColumn="openReNameDialog"
-            min-width="200px"
-          >
+            min-width="200px">
           </ms-table-column>
 
           <el-table-column
@@ -108,8 +70,7 @@
             :label="$t('load_test.report_type')"
             width="150"
             column-key="reportType"
-            :filters="reportTypeFilters"
-          >
+            :filters="reportTypeFilters">
             <template v-slot:default="scope">
               <div v-if="scope.row.reportType === 'SCENARIO_INTEGRATED'">
                 <el-tag size="mini" type="primary">
@@ -142,24 +103,13 @@
             :label="$t('api_test.creator')"
             width="150"
             show-overflow-tooltip
-            :filters="userFilters"
-          />
-          <el-table-column
-            prop="createTime"
-            min-width="120"
-            :label="$t('commons.create_time')"
-            sortable
-          >
+            :filters="userFilters" />
+          <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="endTime"
-            min-width="120"
-            :label="$t('report.test_end_time')"
-            sortable
-          >
+          <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
             <template v-slot:default="scope">
               <span v-if="scope.row.endTime && scope.row.endTime > 0">
                 {{ scope.row.endTime | datetimeFormat }}
@@ -174,18 +124,12 @@
             width="150"
             :label="$t('commons.trigger_mode.name')"
             column-key="triggerMode"
-            :filters="triggerFilters"
-          >
+            :filters="triggerFilters">
             <template v-slot:default="scope">
               <report-trigger-mode-item :trigger-mode="scope.row.triggerMode" />
             </template>
           </el-table-column>
-          <el-table-column
-            :label="$t('commons.status')"
-            :filters="statusFilters"
-            column-key="status"
-            prop="status"
-          >
+          <el-table-column :label="$t('commons.status')" :filters="statusFilters" column-key="status" prop="status">
             <template v-slot:default="{ row }">
               <ms-api-report-status :status="row.status" />
             </template>
@@ -197,15 +141,13 @@
                   :tip="$t('api_report.detail')"
                   icon="el-icon-s-data"
                   @exec="handleView(scope.row)"
-                  type="primary"
-                />
+                  type="primary" />
                 <ms-table-operator-button
                   :tip="$t('api_report.delete')"
                   v-permission="['PROJECT_API_REPORT:READ+DELETE']"
                   icon="el-icon-delete"
                   @exec="handleDelete(scope.row)"
-                  type="danger"
-                />
+                  type="danger" />
               </div>
             </template>
           </el-table-column>
@@ -214,13 +156,9 @@
           :change="search"
           :current-page.sync="currentPage"
           :page-size.sync="pageSize"
-          :total="total"
-        />
+          :total="total" />
       </el-card>
-      <ms-rename-report-dialog
-        ref="renameDialog"
-        @submit="rename($event)"
-      ></ms-rename-report-dialog>
+      <ms-rename-report-dialog ref="renameDialog" @submit="rename($event)"></ms-rename-report-dialog>
       <el-dialog
         :close-on-click-modal="false"
         :title="$t('test_track.plan_view.test_result')"
@@ -228,55 +166,34 @@
         :visible.sync="resVisible"
         class="api-import"
         destroy-on-close
-        @close="resVisible = false"
-      >
-        <ms-request-result-tail
-          :report-id="reportId"
-          :response="response"
-          ref="debugResult"
-        />
+        @close="resVisible = false">
+        <ms-request-result-tail :report-id="reportId" :response="response" ref="debugResult" />
       </el-dialog>
     </ms-main-container>
   </ms-container>
 </template>
 <script>
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import {
-  REPORT_CASE_CONFIGS,
-  REPORT_CONFIGS,
-} from 'metersphere-frontend/src/components/search/search-components';
+import { REPORT_CASE_CONFIGS, REPORT_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
 import { _filter, _sort } from 'metersphere-frontend/src/utils/tableUtils';
 import MsRenameReportDialog from 'metersphere-frontend/src/components/report/MsRenameReportDialog';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsRequestResultTail from '@/business/definition/components/response/RequestResultTail';
 import MsTabButton from '@/business/commons/MsTabs';
 import { getMaintainer } from '@/api/project';
-import {
-  delBatchReport,
-  delReport,
-  getReportPage,
-  reportReName,
-} from '@/api/scenario-report';
+import { delBatchReport, delReport, getReportPage, reportReName } from '@/api/scenario-report';
 import { getApiReportPage } from '@/api/definition-report';
 import { REPORT_STATUS } from '@/business/commons/js/commons';
 
 export default {
   components: {
-    ReportTriggerModeItem: () =>
-      import(
-        'metersphere-frontend/src/components/tableItem/ReportTriggerModeItem'
-      ),
-    MsTableOperatorButton: () =>
-      import('metersphere-frontend/src/components/MsTableOperatorButton'),
+    ReportTriggerModeItem: () => import('metersphere-frontend/src/components/tableItem/ReportTriggerModeItem'),
+    MsTableOperatorButton: () => import('metersphere-frontend/src/components/MsTableOperatorButton'),
     MsApiReportStatus: () => import('./ApiReportStatus'),
-    MsMainContainer: () =>
-      import('metersphere-frontend/src/components/MsMainContainer'),
-    MsContainer: () =>
-      import('metersphere-frontend/src/components/MsContainer'),
-    MsTableHeader: () =>
-      import('metersphere-frontend/src/components/MsTableHeader'),
-    MsTablePagination: () =>
-      import('metersphere-frontend/src/components/pagination/TablePagination'),
+    MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
+    MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
+    MsTableHeader: () => import('metersphere-frontend/src/components/MsTableHeader'),
+    MsTablePagination: () => import('metersphere-frontend/src/components/pagination/TablePagination'),
     ShowMoreBtn: () => import('@/business/commons/ShowMoreBtn'),
     MsRenameReportDialog,
     MsTableColumn,
@@ -308,15 +225,11 @@ export default {
       reportTypeFilters: [],
       reportScenarioFilters: [
         {
-          text:
-            this.$t('api_test.scenario.independent') +
-            this.$t('commons.scenario'),
+          text: this.$t('api_test.scenario.independent') + this.$t('commons.scenario'),
           value: 'SCENARIO_INDEPENDENT',
         },
         {
-          text:
-            this.$t('api_test.scenario.integrated') +
-            this.$t('commons.scenario'),
+          text: this.$t('api_test.scenario.integrated') + this.$t('commons.scenario'),
           value: 'SCENARIO_INTEGRATED',
         },
       ],
@@ -398,20 +311,12 @@ export default {
       this.genRedirectParams(this.condition);
       if (this.activeDom === 'left') {
         this.reportTypeFilters = this.reportScenarioFilters;
-        this.result = getReportPage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((res) => {
+        this.result = getReportPage(this.currentPage, this.pageSize, this.condition).then((res) => {
           this.setData(res);
         });
       } else {
         this.reportTypeFilters = this.reportCaseFilters;
-        this.result = getApiReportPage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((res) => {
+        this.result = getApiReportPage(this.currentPage, this.pageSize, this.condition).then((res) => {
           this.setData(res);
         });
       }
@@ -456,10 +361,7 @@ export default {
         this.$warning(this.$t('commons.run_warning'));
         return;
       }
-      if (
-        report.reportType.indexOf('SCENARIO') !== -1 ||
-        report.reportType === 'API_INTEGRATED'
-      ) {
+      if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType === 'API_INTEGRATED') {
         this.currentProjectId = report.projectId;
         this.$router.push({
           path: 'report/view/' + report.id,
@@ -470,21 +372,17 @@ export default {
       }
     },
     handleDelete(report) {
-      this.$alert(
-        this.$t('api_report.delete_confirm') + report.name + '？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delReport(report.id).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.search();
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_report.delete_confirm') + report.name + '？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            delReport(report.id).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.search();
+            });
+          }
+        },
+      });
     },
     init() {
       this.testId = this.$route.params.testId;
@@ -533,8 +431,7 @@ export default {
             sendParam.selectAllDate = this.isSelectAllDate;
             sendParam.unSelectIds = this.unSelection;
             sendParam = Object.assign(sendParam, this.condition);
-            sendParam.caseType =
-              this.activeDom === 'right' ? 'API' : 'SCENARIO';
+            sendParam.caseType = this.activeDom === 'right' ? 'API' : 'SCENARIO';
             delBatchReport(sendParam).then(() => {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));

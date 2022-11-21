@@ -65,29 +65,15 @@ export function diff(oldDom, newDom, oldColor, newColor) {
 
 function changeStyle(diffNode, oldColor, newColor) {
   for (let i = 0; i < diffNode.oldNodeArray.length; i++) {
-    if (
-      diffNode.oldNodeArray[i] === 'comment' ||
-      diffNode.oldNodeArray[i].nodeName === '#comment'
-    ) {
+    if (diffNode.oldNodeArray[i] === 'comment' || diffNode.oldNodeArray[i].nodeName === '#comment') {
       continue;
     }
     if (diffNode.oldNodeArray[i].className === 'cell') {
       let rowVnodeElm = findRowVnodeElm(diffNode.oldNodeArray[i]);
       if (isDef(rowVnodeElm.style)) {
-        rowVnodeElm.style.setProperty(
-          'background-color',
-          oldColor,
-          'important'
-        );
-      } else if (
-        isDef(rowVnodeElm.parentNode.style) &&
-        rowVnodeElm !== 'comment'
-      ) {
-        rowVnodeElm.parentNode.style.setProperty(
-          'background-color',
-          oldColor,
-          'important'
-        );
+        rowVnodeElm.style.setProperty('background-color', oldColor, 'important');
+      } else if (isDef(rowVnodeElm.parentNode.style) && rowVnodeElm !== 'comment') {
+        rowVnodeElm.parentNode.style.setProperty('background-color', oldColor, 'important');
       }
     } else {
       changeStyleBySubset(diffNode.oldNodeArray[i], oldColor);
@@ -95,29 +81,15 @@ function changeStyle(diffNode, oldColor, newColor) {
   }
 
   for (let i = 0; i < diffNode.nodeArray.length; i++) {
-    if (
-      diffNode.nodeArray[i] === 'comment' ||
-      diffNode.nodeArray[i].nodeName === '#comment'
-    ) {
+    if (diffNode.nodeArray[i] === 'comment' || diffNode.nodeArray[i].nodeName === '#comment') {
       continue;
     }
     if (diffNode.nodeArray[i].className === 'cell') {
       let rowVnodeElm = findRowVnodeElm(diffNode.nodeArray[i]);
       if (isDef(rowVnodeElm.style)) {
-        rowVnodeElm.style.setProperty(
-          'background-color',
-          newColor,
-          'important'
-        );
-      } else if (
-        isDef(rowVnodeElm.parentNode.style) &&
-        rowVnodeElm !== 'comment'
-      ) {
-        rowVnodeElm.parentNode.style.setProperty(
-          'background-color',
-          newColor,
-          'important'
-        );
+        rowVnodeElm.style.setProperty('background-color', newColor, 'important');
+      } else if (isDef(rowVnodeElm.parentNode.style) && rowVnodeElm !== 'comment') {
+        rowVnodeElm.parentNode.style.setProperty('background-color', newColor, 'important');
       }
     } else {
       changeStyleBySubset(diffNode.nodeArray[i], newColor);
@@ -131,11 +103,7 @@ function changeStyleBySubset(vnodeElm, color) {
     if (isDef(vnodeElm.style)) {
       vnodeElm.style.setProperty('background-color', color, 'important');
     } else if (isDef(vnodeElm.parentNode.style) && vnodeElm !== 'comment') {
-      vnodeElm.parentNode.style.setProperty(
-        'background-color',
-        color,
-        'important'
-      );
+      vnodeElm.parentNode.style.setProperty('background-color', color, 'important');
     }
     for (let i = 0; i < vnodeElm.children.length; i++) {
       changeStyleBySubset(vnodeElm.children[i], color);
@@ -144,11 +112,7 @@ function changeStyleBySubset(vnodeElm, color) {
     if (isDef(vnodeElm.style)) {
       vnodeElm.style.setProperty('background-color', color, 'important');
     } else if (isDef(vnodeElm.parentNode.style) && vnodeElm !== 'comment') {
-      vnodeElm.parentNode.style.setProperty(
-        'background-color',
-        color,
-        'important'
-      );
+      vnodeElm.parentNode.style.setProperty('background-color', color, 'important');
     }
   }
 }
@@ -241,12 +205,7 @@ function sameDetail(oldVnode, newVnode, sameNode) {
     sameChildren(oldVnode.children, newVnode.children, sameNode);
   }
   //剩最后的子节点的时候，分类型做判断，如果最后的子节点有一个不相同，sameNode就置空，
-  if (
-    isUndef(oldVnode.child) &&
-    isUndef(newVnode.child) &&
-    isUndef(oldVnode.children) &&
-    isUndef(newVnode.children)
-  ) {
+  if (isUndef(oldVnode.child) && isUndef(newVnode.child) && isUndef(oldVnode.children) && isUndef(newVnode.children)) {
     if (isDef(oldVnode.text) && isDef(newVnode.text)) {
       if (oldVnode.text === newVnode.text) {
         sameNode.nodeArray.push(newVnode.elm);
@@ -256,10 +215,7 @@ function sameDetail(oldVnode, newVnode, sameNode) {
     } else if (isDef(oldVnode.tag) && isDef(newVnode.tag)) {
       if (oldVnode.tag === 'input' && newVnode.tag === 'input') {
         if (oldVnode.elm.value === newVnode.elm.value) {
-          if (
-            oldVnode.elm.checked !== undefined &&
-            newVnode.elm.checked !== undefined
-          ) {
+          if (oldVnode.elm.checked !== undefined && newVnode.elm.checked !== undefined) {
             if (oldVnode.elm.checked === newVnode.elm.checked) {
               sameNode.nodeArray.push(newVnode.elm);
             } else {
@@ -314,27 +270,14 @@ function diffDetail(oldVnode, newVnode, diffNode) {
     if (oldVnode.tag === 'tbody' && newVnode.tag === 'tbody') {
       isCompareChildren = true;
     } else if (isDef(oldVnode.elm.className) && isDef(newVnode.elm.className)) {
-      if (
-        oldVnode.elm.className === 'el-collapse' &&
-        newVnode.elm.className === 'el-collapse'
-      ) {
+      if (oldVnode.elm.className === 'el-collapse' && newVnode.elm.className === 'el-collapse') {
         isCompareChildren = true;
       }
     }
-    diffChildren(
-      oldVnode.children,
-      newVnode.children,
-      diffNode,
-      isCompareChildren
-    );
+    diffChildren(oldVnode.children, newVnode.children, diffNode, isCompareChildren);
   }
   //剩最后的子节点的时候，分类型做判断(注意，最后的子节点的真实dom里可能还有dom节点)
-  if (
-    isUndef(oldVnode.child) &&
-    isUndef(newVnode.child) &&
-    isUndef(oldVnode.children) &&
-    isUndef(newVnode.children)
-  ) {
+  if (isUndef(oldVnode.child) && isUndef(newVnode.child) && isUndef(oldVnode.children) && isUndef(newVnode.children)) {
     //最子节点比较结果
     let childDiff = [];
     diffRealNode(oldVnode.elm, newVnode.elm, diffNode, childDiff);
@@ -352,10 +295,7 @@ function diffDetail(oldVnode, newVnode, diffNode) {
           diffNode.oldNodeArray.push(oldVnode.elm);
           diffNode.nodeArray.push(newVnode.elm);
         } else {
-          if (
-            oldVnode.elm.checked !== undefined &&
-            newVnode.elm.checked !== undefined
-          ) {
+          if (oldVnode.elm.checked !== undefined && newVnode.elm.checked !== undefined) {
             if (oldVnode.elm.checked !== newVnode.elm.checked) {
               diffNode.oldNodeArray.push(oldVnode.elm);
               diffNode.nodeArray.push(newVnode.elm);
@@ -485,10 +425,7 @@ function sameVnode(a, b) {
   return (
     a.key === b.key &&
     a.asyncFactory === b.asyncFactory &&
-    ((a.tag === b.tag &&
-      a.isComment === b.isComment &&
-      isDef(a.data) === isDef(b.data) &&
-      sameInputType(a, b)) ||
+    ((a.tag === b.tag && a.isComment === b.isComment && isDef(a.data) === isDef(b.data) && sameInputType(a, b)) ||
       (isTrue(a.isAsyncPlaceholder) && isUndef(b.asyncFactory.error)))
   );
 }

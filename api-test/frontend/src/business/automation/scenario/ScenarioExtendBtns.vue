@@ -5,30 +5,20 @@
         <el-icon class="el-icon-more"></el-icon>
       </el-link>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="ref">{{
-          $t('api_test.automation.view_ref')
-        }}</el-dropdown-item>
-        <el-dropdown-item
-          command="schedule"
-          v-permission="['PROJECT_API_SCENARIO:READ+SCHEDULE']"
-        >
+        <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
+        <el-dropdown-item command="schedule" v-permission="['PROJECT_API_SCENARIO:READ+SCHEDULE']">
           {{ $t('api_test.automation.schedule') }}
         </el-dropdown-item>
         <el-dropdown-item
           command="create_performance"
           v-permission="['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE']"
-          v-modules="['performance']"
-        >
+          v-modules="['performance']">
           {{ $t('api_test.create_performance_test') }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
-    <ms-schedule-maintain
-      ref="scheduleMaintain"
-      @refreshTable="refreshTable"
-      :request="request"
-    />
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable" :request="request" />
   </div>
 </template>
 

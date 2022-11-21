@@ -42,11 +42,7 @@ export default {
       this.socketSync();
     },
     isStop() {
-      if (
-        !this.isStop &&
-        this.websocket &&
-        this.websocket.close instanceof Function
-      ) {
+      if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
       }
     },
@@ -97,14 +93,8 @@ export default {
               },
             };
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);

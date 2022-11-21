@@ -37,8 +37,7 @@
       @openScenario="openScenario"
       @setDomain="setDomain"
       @savePreParams="savePreParams"
-      @editScenarioAdvance="editScenarioAdvance"
-    />
+      @editScenarioAdvance="editScenarioAdvance" />
   </div>
 </template>
 
@@ -64,12 +63,9 @@ export default {
     JmeterElementComponent,
     MsConstantTimer: () => import('./ConstantTimer'),
     MsJsr233Processor: () => import('./Jsr233Processor'),
-    MsScenarioAssertions: () =>
-      import('../../../definition/components/assertion/ScenarioAssertions'),
-    MsApiExtract: () =>
-      import('../../../definition/components/extract/ApiExtract'),
-    MsJdbcProcessor: () =>
-      import('@/business/automation/scenario/component/JDBCProcessor'),
+    MsScenarioAssertions: () => import('../../../definition/components/assertion/ScenarioAssertions'),
+    MsApiExtract: () => import('../../../definition/components/extract/ApiExtract'),
+    MsJdbcProcessor: () => import('@/business/automation/scenario/component/JDBCProcessor'),
   },
   props: {
     type: String,
@@ -209,12 +205,7 @@ export default {
         this.backgroundColor = '#F2ECF3';
         return 'PluginComponent';
       } else if (type === ELEMENT_TYPE.Assertions) {
-        if (
-          this.node &&
-          this.node.parent &&
-          this.node.parent.data &&
-          this.node.parent.data.referenced === 'REF'
-        ) {
+        if (this.node && this.node.parent && this.node.parent.data && this.node.parent.data.referenced === 'REF') {
           this.apiId = this.node.parent.data.id;
           this.scenario.document.nodeType = 'scenario';
         } else {

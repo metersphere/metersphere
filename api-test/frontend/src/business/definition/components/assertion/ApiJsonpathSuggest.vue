@@ -5,17 +5,12 @@
     :size="30"
     @close="close"
     direction="right"
-    v-clickoutside="close"
-  >
+    v-clickoutside="close">
     <template v-slot:header>
       <ms-instructions-icon :content="tip" />
       {{ tip }}
     </template>
-    <jsonpath-picker
-      :code="data"
-      v-on:path="pathChangeHandler"
-      ref="jsonpathPicker"
-    />
+    <jsonpath-picker :code="data" v-on:path="pathChangeHandler" ref="jsonpathPicker" />
   </ms-drawer>
 </template>
 

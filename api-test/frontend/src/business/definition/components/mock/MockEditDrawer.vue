@@ -1,28 +1,15 @@
 <template>
-  <ms-drawer
-    :size="60"
-    @close="close"
-    :visible="showDrawer"
-    direction="bottom"
-    ref="mockDrawer"
-  >
+  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom" ref="mockDrawer">
     <template v-slot:header>
       <mock-config-header
         :mock-expect-config="mockExpectConfig"
         :show-head-table="showHeadTable"
-        @saveMockExpectConfig="saveMockExpectConfig"
-      />
+        @saveMockExpectConfig="saveMockExpectConfig" />
     </template>
     <div>
       <!--  期望详情 -->
       <p class="tip">{{ $t('api_test.mock.request_condition') }}</p>
-      <el-form
-        :model="mockExpectConfig"
-        :rules="rule"
-        ref="mockExpectForm"
-        label-width="80px"
-        label-position="right"
-      >
+      <el-form :model="mockExpectConfig" :rules="rule" ref="mockExpectForm" label-width="80px" label-position="right">
         <div class="card">
           <div class="base-info">
             <el-row>
@@ -31,16 +18,14 @@
                 :show-operation-col="true"
                 :request="mockExpectConfig.request"
                 style="margin: 10px 10px"
-                ref="tcpParam"
-              ></tcp-params>
+                ref="tcpParam"></tcp-params>
               <mock-request-param
                 v-else
                 :isShowEnable="false"
                 :referenced="true"
                 :is-read-only="false"
                 :api-params="apiParams"
-                :request="mockExpectConfig.request.params"
-              />
+                :request="mockExpectConfig.request.params" />
             </el-row>
 
             <el-row style="margin-top: 10px">
@@ -48,11 +33,7 @@
                 <p class="tip">{{ $t('api_test.mock.rsp_param') }}</p>
               </el-col>
               <el-col :span="12">
-                <el-button
-                  class="ms-right-buttion"
-                  size="small"
-                  @click="addPostScript"
-                >
+                <el-button class="ms-right-buttion" size="small" @click="addPostScript">
                   +{{ $t('api_test.definition.request.post_script') }}
                 </el-button>
               </el-col>
@@ -62,8 +43,7 @@
                 :api-id="apiId"
                 :is-tcp="isTcp"
                 :response="mockExpectConfig.response.responseResult"
-                ref="mockResponseParam"
-              />
+                ref="mockResponseParam" />
             </el-row>
           </div>
         </div>
@@ -180,9 +160,7 @@ export default {
   },
   watch: {},
   created() {
-    this.mockExpectConfig = JSON.parse(
-      JSON.stringify(this.baseMockExpectConfig)
-    );
+    this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
   },
   computed: {},
   methods: {
@@ -193,9 +171,7 @@ export default {
       return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
     },
     open(param) {
-      this.mockExpectConfig = JSON.parse(
-        JSON.stringify(this.baseMockExpectConfig)
-      );
+      this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
       if (param) {
         this.mockExpectConfig = param;
         if (!this.mockExpectConfig.request.params) {
@@ -211,13 +187,9 @@ export default {
           };
           this.$set(this.mockExpectConfig.request, 'params', requestParamsObj);
 
-          if (
-            this.mockExpectConfig.request.jsonParam &&
-            this.mockExpectConfig.request.jsonData
-          ) {
+          if (this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData) {
             this.mockExpectConfig.request.params.body.type = 'JSON';
-            this.mockExpectConfig.request.params.body.raw =
-              this.mockExpectConfig.request.jsonData;
+            this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.request.jsonData;
           } else if (this.mockExpectConfig.request.variables) {
             this.mockExpectConfig.request.params.body.type = 'Form Data';
             let headerItem = {};
@@ -258,11 +230,7 @@ export default {
               binary: [],
             },
           };
-          this.$set(
-            this.mockExpectConfig.response,
-            'responseResult',
-            responseResultObj
-          );
+          this.$set(this.mockExpectConfig.response, 'responseResult', responseResultObj);
           if (this.mockExpectConfig.response.httpHeads) {
             this.mockExpectConfig.response.httpHeads.forEach((item) => {
               this.mockExpectConfig.response.responseResult.headers.push({
@@ -292,9 +260,7 @@ export default {
     },
     cleanMockExpectConfig() {
       this.showHeadTable = false;
-      this.mockExpectConfig = JSON.parse(
-        JSON.stringify(this.baseMockExpectConfig)
-      );
+      this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
       this.$nextTick(function () {
         this.showHeadTable = true;
       });

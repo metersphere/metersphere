@@ -1,124 +1,62 @@
 <template>
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive">
-      <el-tab-pane
-        :label="$t('api_test.definition.request.response_body')"
-        name="body"
-        class="pane"
-      >
-        <ms-sql-result-table
-          v-if="isSqlType && activeName === 'body'"
-          :body="responseResult.body"
-        />
+      <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
+        <ms-sql-result-table v-if="isSqlType && activeName === 'body'" :body="responseResult.body" />
         <ms-code-edit
           v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
           :mode="mode"
           :read-only="true"
           :modes="modes"
           :data.sync="responseResult.body"
-          ref="codeEdit"
-        />
+          ref="codeEdit" />
       </el-tab-pane>
 
-      <el-tab-pane
-        :label="$t('api_test.definition.request.response_header')"
-        name="headers"
-        class="pane"
-      >
+      <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
         <ms-code-edit
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.headers"
-          v-if="activeName === 'headers'"
-        />
+          v-if="activeName === 'headers'" />
       </el-tab-pane>
 
-      <el-tab-pane
-        v-if="isTestPlan"
-        :label="$t('api_test.definition.request.console')"
-        name="console"
-        class="pane"
-      >
+      <el-tab-pane v-if="isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
         <ms-code-edit
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.console"
           v-if="activeName === 'console'"
-          height="calc(100vh - 300px)"
-        />
+          height="calc(100vh - 300px)" />
       </el-tab-pane>
 
-      <el-tab-pane
-        v-if="!isTestPlan"
-        :label="$t('api_test.definition.request.console')"
-        name="console"
-        class="pane"
-      >
+      <el-tab-pane v-if="!isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
         <ms-code-edit
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.console"
-          v-if="activeName === 'console'"
-        />
+          v-if="activeName === 'console'" />
       </el-tab-pane>
 
-      <el-tab-pane
-        :label="$t('api_report.assertions')"
-        name="assertions"
-        class="pane assertions"
-      >
-        <ms-assertion-results
-          :assertions="responseResult.assertions"
-          v-if="activeName === 'assertions'"
-        />
+      <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
+        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'" />
       </el-tab-pane>
 
-      <el-tab-pane
-        :label="$t('api_test.request.extract.label')"
-        name="label"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="responseResult.vars"
-          v-if="activeName === 'label'"
-        />
+      <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.vars" v-if="activeName === 'label'" />
       </el-tab-pane>
 
-      <el-tab-pane
-        :label="$t('api_report.request_body')"
-        name="request_body"
-        class="pane"
-      >
-        <ms-code-edit
-          :mode="'text'"
-          :read-only="true"
-          :data.sync="reqMessages"
-          v-if="activeName === 'request_body'"
-        />
+      <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages" v-if="activeName === 'request_body'" />
       </el-tab-pane>
 
-      <el-tab-pane
-        v-if="activeName == 'body'"
-        :disabled="true"
-        name="mode"
-        class="pane cookie"
-      >
+      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>
           <ms-dropdown
             v-if="currentProtocol === 'SQL'"
             :commands="sqlModes"
             :default-command="mode"
-            @command="sqlModeChange"
-          />
-          <ms-dropdown
-            v-else
-            :commands="modes"
-            :default-command="mode"
-            @command="modeChange"
-            ref="modeDropdown"
-          />
+            @command="sqlModeChange" />
+          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown" />
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -182,9 +120,7 @@ export default {
         this.response &&
         this.response.responseResult &&
         this.response.responseResult.headers &&
-        this.response.responseResult.headers.indexOf(
-          'Content-Type: application/json'
-        ) > 0
+        this.response.responseResult.headers.indexOf('Content-Type: application/json') > 0
       ) {
         this.mode = BODY_FORMAT.JSON;
         this.$nextTick(() => {
@@ -246,15 +182,11 @@ export default {
   computed: {
     isSqlType() {
       return (
-        this.currentProtocol === 'SQL' &&
-        this.response.responseResult.responseCode === '200' &&
-        this.mode === 'table'
+        this.currentProtocol === 'SQL' && this.response.responseResult.responseCode === '200' && this.mode === 'table'
       );
     },
     responseResult() {
-      return this.response && this.response.responseResult
-        ? this.response.responseResult
-        : {};
+      return this.response && this.response.responseResult ? this.response.responseResult : {};
     },
   },
 };

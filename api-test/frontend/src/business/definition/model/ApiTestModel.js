@@ -124,8 +124,7 @@ export class BaseConfig {
       if (Object.prototype.hasOwnProperty.call(options, name)) {
         if (!(this[name] instanceof Array)) {
           if (notUndefined === true) {
-            this[name] =
-              options[name] === undefined ? this[name] : options[name];
+            this[name] = options[name] === undefined ? this[name] : options[name];
           } else {
             this[name] = options[name];
           }
@@ -258,10 +257,7 @@ export class Scenario extends BaseConfig {
   isValid() {
     if (this.enable) {
       for (let i = 0; i < this.requests.length; i++) {
-        let validator = this.requests[i].isValid(
-          this.environmentId,
-          this.environment
-        );
+        let validator = this.requests[i].isValid(this.environmentId, this.environment);
         if (!validator.isValid) {
           return validator;
         }
@@ -292,9 +288,7 @@ class DubboConfig extends BaseConfig {
         loadBalance: undefined,
       };
     }
-    this.consumerAndService = new ConsumerAndService(
-      options.consumerAndService
-    );
+    this.consumerAndService = new ConsumerAndService(options.consumerAndService);
   }
 }
 
@@ -385,13 +379,9 @@ export class HttpRequest extends Request {
     this.doMultipartPost = options.doMultipartPost;
     this.connectTimeout = options.connectTimeout || 10 * 1000;
     this.responseTimeout = options.responseTimeout || 10 * 1000;
-    this.followRedirects =
-      options.followRedirects === undefined ? true : options.followRedirects;
+    this.followRedirects = options.followRedirects === undefined ? true : options.followRedirects;
 
-    this.sets(
-      { parameters: KeyValue, rest: KeyValue, headers: KeyValue },
-      options
-    );
+    this.sets({ parameters: KeyValue, rest: KeyValue, headers: KeyValue }, options);
   }
 
   isValid(environmentId, environment) {
@@ -477,9 +467,7 @@ export class DubboRequest extends Request {
     this.method = options.method;
     this.configCenter = new ConfigCenter(options.configCenter);
     this.registryCenter = new RegistryCenter(options.registryCenter);
-    this.consumerAndService = new ConsumerAndService(
-      options.consumerAndService
-    );
+    this.consumerAndService = new ConsumerAndService(options.consumerAndService);
     this.args = [];
     this.attachmentArgs = [];
     // Scenario.dubboConfig
@@ -548,10 +536,7 @@ export class SqlRequest extends Request {
     // this.queryType = options.queryType;
     this.queryTimeout = options.queryTimeout || 60000;
 
-    this.sets(
-      { args: KeyValue, attachmentArgs: KeyValue, variables: KeyValue },
-      options
-    );
+    this.sets({ args: KeyValue, attachmentArgs: KeyValue, variables: KeyValue }, options);
   }
 
   isValid() {
@@ -588,11 +573,7 @@ export class SqlRequest extends Request {
 }
 
 export class TCPConfig extends BaseConfig {
-  static CLASSES = [
-    'TCPClientImpl',
-    'BinaryTCPClientImpl',
-    'LengthPrefixedBinaryTCPClientImpl',
-  ];
+  static CLASSES = ['TCPClientImpl', 'BinaryTCPClientImpl', 'LengthPrefixedBinaryTCPClientImpl'];
 
   constructor(options = {}) {
     super();
@@ -602,11 +583,9 @@ export class TCPConfig extends BaseConfig {
     this.ctimeout = options.ctimeout; // Connect
     this.timeout = options.timeout; // Response
 
-    this.reUseConnection =
-      options.reUseConnection === undefined ? true : options.reUseConnection;
+    this.reUseConnection = options.reUseConnection === undefined ? true : options.reUseConnection;
     this.nodelay = options.nodelay === undefined ? false : options.nodelay;
-    this.closeConnection =
-      options.closeConnection === undefined ? false : options.closeConnection;
+    this.closeConnection = options.closeConnection === undefined ? false : options.closeConnection;
     this.soLinger = options.soLinger;
     this.eolByte = options.eolByte;
 
@@ -718,15 +697,7 @@ export class DatabaseConfig extends BaseConfig {
 }
 
 export class RegistryCenter extends BaseConfig {
-  static PROTOCOLS = [
-    'none',
-    'zookeeper',
-    'nacos',
-    'apollo',
-    'multicast',
-    'redis',
-    'simple',
-  ];
+  static PROTOCOLS = ['none', 'zookeeper', 'nacos', 'apollo', 'multicast', 'redis', 'simple'];
 
   constructor(options) {
     super();
@@ -741,25 +712,13 @@ export class RegistryCenter extends BaseConfig {
   }
 
   isValid() {
-    return (
-      !!this.protocol ||
-      !!this.group ||
-      !!this.username ||
-      !!this.address ||
-      !!this.password ||
-      !!this.timeout
-    );
+    return !!this.protocol || !!this.group || !!this.username || !!this.address || !!this.password || !!this.timeout;
   }
 }
 
 export class ConsumerAndService extends BaseConfig {
   static ASYNC_OPTIONS = ['sync', 'async'];
-  static LOAD_BALANCE_OPTIONS = [
-    'random',
-    'roundrobin',
-    'leastactive',
-    'consistenthash',
-  ];
+  static LOAD_BALANCE_OPTIONS = ['random', 'roundrobin', 'leastactive', 'consistenthash'];
 
   constructor(options) {
     super();
@@ -811,11 +770,7 @@ export class Body extends BaseConfig {
   }
 
   isKV() {
-    return (
-      [BODY_TYPE.FORM_DATA, BODY_TYPE.WWW_FORM, BODY_TYPE.BINARY].indexOf(
-        this.type
-      ) > 0
-    );
+    return [BODY_TYPE.FORM_DATA, BODY_TYPE.WWW_FORM, BODY_TYPE.BINARY].indexOf(this.type) > 0;
   }
 }
 
@@ -1010,8 +965,7 @@ export class JSONPath extends AssertionType {
   }
 
   setJSONPathDescription() {
-    this.description =
-      this.expression + ' expect: ' + (this.expect ? this.expect : '');
+    this.description = this.expression + ' expect: ' + (this.expect ? this.expect : '');
   }
 
   isValid() {
@@ -1308,29 +1262,19 @@ class JMXHttpRequest {
       this.useEnvironment = request.useEnvironment;
       this.method = request.method;
       if (!request.useEnvironment) {
-        if (
-          !request.url.startsWith('http://') &&
-          !request.url.startsWith('https://')
-        ) {
+        if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) {
           request.url = 'http://' + request.url;
         }
         let url = new URL(request.url);
         this.domain = decodeURIComponent(url.hostname);
         this.port = url.port;
         this.protocol = url.protocol.split(':')[0];
-        this.path = this.getPostQueryParameters(
-          request,
-          decodeURIComponent(url.pathname)
-        );
+        this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
         this.domain = environment.config.httpConfig.domain;
         this.port = environment.config.httpConfig.port;
         this.protocol = environment.config.httpConfig.protocol;
-        let url = new URL(
-          environment.config.httpConfig.protocol +
-            '://' +
-            environment.config.httpConfig.socket
-        );
+        let url = new URL(environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket);
         this.path = this.getPostQueryParameters(
           request,
           decodeURIComponent(url.pathname + (request.path ? request.path : ''))
@@ -1446,15 +1390,9 @@ class JMXGenerator {
     if (!request.isValid()) return;
     let sampler;
     if (request instanceof DubboRequest) {
-      sampler = new DubboSample(
-        request.name || '',
-        new JMXDubboRequest(request)
-      );
+      sampler = new DubboSample(request.name || '', new JMXDubboRequest(request));
     } else if (request instanceof HttpRequest) {
-      sampler = new HTTPSamplerProxy(
-        request.name || '',
-        new JMXHttpRequest(request, false)
-      );
+      sampler = new HTTPSamplerProxy(request.name || '', new JMXHttpRequest(request, false));
       this.addRequestHeader(sampler, request);
       this.addRequestArguments(sampler, request);
       this.addRequestBody(sampler, request, testId);
@@ -1475,11 +1413,7 @@ class JMXGenerator {
 
     this.addConstantsTimer(sampler, request);
 
-    if (
-      request.controller &&
-      request.controller.isValid() &&
-      request.controller.enable
-    ) {
+    if (request.controller && request.controller.isValid() && request.controller.enable) {
       if (request.controller instanceof IfController) {
         let controller = this.getController(sampler, request);
         threadGroup.put(controller);
@@ -1546,10 +1480,7 @@ class JMXGenerator {
         let validHosts = [];
         hosts.forEach((item) => {
           if (item.domain && domain) {
-            let d = item.domain
-              .trim()
-              .replace('http://', '')
-              .replace('https://', '');
+            let d = item.domain.trim().replace('http://', '').replace('https://', '');
             if (d === domain.trim()) {
               item.domain = d; // 域名去掉协议
               validHosts.push(item);
@@ -1726,8 +1657,7 @@ class JMXGenerator {
         kv.files.forEach((file) => {
           let arg = {};
           arg.name = kv.name;
-          arg.value =
-            BODY_FILE_DIR + '/' + testId + '/' + file.id + '_' + file.name;
+          arg.value = BODY_FILE_DIR + '/' + testId + '/' + file.id + '_' + file.name;
           files.push(arg);
         });
       }
@@ -1751,9 +1681,7 @@ class JMXGenerator {
 
     if (assertions.duration.isValid()) {
       let name = 'Response In Time: ' + assertions.duration.value;
-      httpSamplerProxy.put(
-        new DurationAssertion(name, assertions.duration.value)
-      );
+      httpSamplerProxy.put(new DurationAssertion(name, assertions.duration.value));
     }
   }
 

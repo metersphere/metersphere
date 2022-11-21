@@ -1,24 +1,10 @@
 <template>
   <div>
     <el-row v-if="!isReloadData">
-      <el-radio-group
-        v-model="request.reportType"
-        size="mini"
-        style="margin: 10px 0px"
-      >
-        <el-radio
-          :disabled="isReadOnly"
-          label="json"
-          @change="changeReportType"
-        >
-          json
-        </el-radio>
-        <el-radio :disabled="isReadOnly" label="xml" @change="changeReportType">
-          xml
-        </el-radio>
-        <el-radio :disabled="isReadOnly" label="raw" @change="changeReportType">
-          raw
-        </el-radio>
+      <el-radio-group v-model="request.reportType" size="mini" style="margin: 10px 0px">
+        <el-radio :disabled="isReadOnly" label="json" @change="changeReportType"> json </el-radio>
+        <el-radio :disabled="isReadOnly" label="xml" @change="changeReportType"> xml </el-radio>
+        <el-radio :disabled="isReadOnly" label="raw" @change="changeReportType"> raw </el-radio>
       </el-radio-group>
       <div style="min-width: 1200px" v-if="request.reportType === 'xml'">
         <tcp-xml-table
@@ -28,8 +14,7 @@
           @xmlTablePushRow="xmlTablePushRow"
           @initXmlTableData="initXmlTableData"
           @saveTableData="saveXmlTableData"
-          ref="treeTable"
-        ></tcp-xml-table>
+          ref="treeTable"></tcp-xml-table>
       </div>
       <div style="min-width: 1200px" v-if="request.reportType === 'json'">
         <div class="send-request">
@@ -38,8 +23,7 @@
             :read-only="isReadOnly"
             :data.sync="request.jsonDataStruct"
             :modes="['text', 'json', 'xml', 'html']"
-            theme="eclipse"
-          />
+            theme="eclipse" />
         </div>
       </div>
       <div style="min-width: 1200px" v-if="request.reportType === 'raw'">
@@ -49,8 +33,7 @@
             :read-only="isReadOnly"
             :data.sync="request.rawDataStruct"
             :modes="['text', 'json', 'xml', 'html']"
-            theme="eclipse"
-          />
+            theme="eclipse" />
         </div>
       </div>
     </el-row>
@@ -173,9 +156,7 @@ export default {
     validateXmlDataStruct() {
       if (this.request.xmlDataStruct) {
         this.refreshXmlTableDataStruct(this.request.xmlDataStruct);
-        let result = this.checkXmlTableDataStructData(
-          this.request.xmlDataStruct
-        );
+        let result = this.checkXmlTableDataStructData(this.request.xmlDataStruct);
         return result;
       }
     },
@@ -192,11 +173,7 @@ export default {
       }
     },
     saveData() {
-      if (
-        this.request &&
-        this.request.reportType === 'xml' &&
-        this.$refs.treeTable
-      ) {
+      if (this.request && this.request.reportType === 'xml' && this.$refs.treeTable) {
         this.$refs.treeTable.saveTableData();
       }
     },

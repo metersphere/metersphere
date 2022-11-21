@@ -4,16 +4,12 @@
       <el-col :span="12">
         <el-tag>当前{{ oldData.versionName }}</el-tag>
         <span style="margin-left: 10px">{{ oldUserName }}</span
-        ><span style="margin-left: 10px">{{
-          oldCreateTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ oldCreateTime | datetimeFormat }}</span>
       </el-col>
       <el-col :span="12">
         <el-tag>{{ newData.versionName }}</el-tag>
         <span style="margin-left: 10px">{{ newData.userName }}</span
-        ><span style="margin-left: 10px">{{
-          newCreateTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ newCreateTime | datetimeFormat }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -30,126 +26,79 @@
                 :rules="rules"
                 :disabled="true"
                 ref="currentScenario"
-                style="margin-right: 20px"
-              >
+                style="margin-right: 20px">
                 <!-- 基础信息 -->
                 <el-row>
                   <el-col :span="7">
                     <el-form-item :label="$t('commons.name')" prop="name">
-                      <el-input
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="oldData.name"
-                      />
+                      <el-input class="ms-scenario-input" size="small" v-model="oldData.name" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('test_track.module.module')"
-                      prop="apiScenarioModuleId"
-                    >
+                    <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
                       <ms-select-tree
                         size="small"
                         :data="moduleOptions"
                         :defaultKey="oldData.apiScenarioModuleId"
                         :obj="moduleObj"
                         clearable
-                        checkStrictly
-                      />
+                        checkStrictly />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
                     <el-form-item :label="$t('commons.status')" prop="status">
-                      <el-select
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="oldData.status"
-                      >
-                        <el-option
-                          v-for="item in options"
-                          :key="item.id"
-                          :label="$t(item.label)"
-                          :value="item.id"
-                        />
+                      <el-select class="ms-scenario-input" size="small" v-model="oldData.status">
+                        <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
                       </el-select>
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('api_test.definition.request.responsible')"
-                      prop="principal"
-                    >
+                    <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
                       <el-select
                         v-model="oldData.principal"
-                        :placeholder="
-                          $t('api_test.definition.request.responsible')
-                        "
+                        :placeholder="$t('api_test.definition.request.responsible')"
                         filterable
                         size="small"
-                        class="ms-scenario-input"
-                      >
+                        class="ms-scenario-input">
                         <el-option
                           v-for="item in maintainerOptions"
                           :key="item.id"
                           :label="item.name + ' (' + item.id + ')'"
-                          :value="item.id"
-                        >
+                          :value="item.id">
                         </el-option>
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('test_track.case.priority')"
-                      prop="level"
-                    >
-                      <el-select
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="oldData.level"
-                      >
-                        <el-option
-                          v-for="item in levels"
-                          :key="item.id"
-                          :label="item.label"
-                          :value="item.id"
-                        />
+                    <el-form-item :label="$t('test_track.case.priority')" prop="level">
+                      <el-select class="ms-scenario-input" size="small" v-model="oldData.level">
+                        <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id" />
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('api_test.automation.tag')"
-                      prop="tags"
-                    >
+                    <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
                       <ms-input-tag :currentScenario="oldData" ref="tag" />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('commons.description')"
-                      prop="description"
-                    >
+                    <el-form-item :label="$t('commons.description')" prop="description">
                       <el-input
                         class="ms-http-textarea"
                         v-model="oldData.description"
                         type="textarea"
                         :autosize="{ minRows: 1, maxRows: 10 }"
                         :rows="1"
-                        size="small"
-                      />
+                        size="small" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7" v-if="customNum">
                     <el-form-item label="ID" prop="customNum">
-                      <el-input
-                        v-model.trim="oldData.customNum"
-                        size="small"
-                      ></el-input>
+                      <el-input v-model.trim="oldData.customNum" size="small"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -163,56 +112,35 @@
               <el-row>
                 <el-col :span="21">
                   <!-- 调试部分 -->
-                  <div
-                    class="ms-debug-div"
-                    @click="showAll"
-                    :class="{ 'is-top': isTop }"
-                    ref="debugHeader"
-                  >
+                  <div class="ms-debug-div" @click="showAll" :class="{ 'is-top': isTop }" ref="debugHeader">
                     <el-row style="margin: 5px">
                       <el-col :span="4" class="ms-col-one ms-font">
                         <el-tooltip placement="top" effect="light">
                           <template v-slot:content>
                             <div>
-                              {{
-                                oldData.name === undefined || ''
-                                  ? $t('api_test.scenario.name')
-                                  : oldData.name
-                              }}
+                              {{ oldData.name === undefined || '' ? $t('api_test.scenario.name') : oldData.name }}
                             </div>
                           </template>
                           <span class="scenario-name">
-                            {{
-                              oldData.name === undefined || ''
-                                ? $t('api_test.scenario.name')
-                                : oldData.name
-                            }}
+                            {{ oldData.name === undefined || '' ? $t('api_test.scenario.name') : oldData.name }}
                           </span>
                         </el-tooltip>
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        {{ $t('api_test.automation.step_total') }}：{{
-                          oldScenarioDefinition.length
-                        }}
+                        {{ $t('api_test.automation.step_total') }}：{{ oldScenarioDefinition.length }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        <el-link class="head"
-                          >{{ $t('api_test.automation.scenario_total') }}
-                        </el-link>
+                        <el-link class="head">{{ $t('api_test.automation.scenario_total') }} </el-link>
                         ：{{ getOldVariableSize() }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="oldEnableCookieShare"
-                          ><span style="font-size: 13px">{{
-                            $t('api_test.scenario.share_cookie')
-                          }}</span></el-checkbox
+                          ><span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox
                         >
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="oldOnSampleError"
-                          ><span style="font-size: 13px">{{
-                            $t('commons.failure_continues')
-                          }}</span></el-checkbox
+                          ><span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span></el-checkbox
                         >
                       </el-col>
                     </el-row>
@@ -220,26 +148,13 @@
 
                   <!-- 场景步骤内容 -->
                   <div ref="stepInfo" id="stepInfo">
-                    <el-tooltip
-                      :content="$t('api_test.automation.open_expansion')"
-                      placement="top"
-                      effect="light"
-                    >
+                    <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
                       <i
                         class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"
-                        @click="openExpansion('old')"
-                      />
+                        @click="openExpansion('old')" />
                     </el-tooltip>
-                    <el-tooltip
-                      :content="$t('api_test.automation.close_expansion')"
-                      placement="top"
-                      effect="light"
-                    >
-                      <i
-                        class="el-icon-remove-outline ms-open-btn"
-                        size="mini"
-                        @click="closeExpansion('old')"
-                      />
+                    <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+                      <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('old')" />
                     </el-tooltip>
                     <el-tree
                       node-key="resourceId"
@@ -249,21 +164,12 @@
                       :default-expanded-keys="oldExpandedNode"
                       :expand-on-click-node="false"
                       highlight-current
-                      @node-expand="
-                        nodeExpand(oldScenarioDefinition, null, 'old')
-                      "
-                      @node-collapse="
-                        nodeCollapse(oldScenarioDefinition, null, 'old')
-                      "
+                      @node-expand="nodeExpand(oldScenarioDefinition, null, 'old')"
+                      @node-collapse="nodeCollapse(oldScenarioDefinition, null, 'old')"
                       @node-click="oldNodeClick"
                       draggable
-                      ref="stepTree"
-                    >
-                      <span
-                        class="custom-tree-node father"
-                        slot-scope="{ node, data }"
-                        style="width: 96%"
-                      >
+                      ref="stepTree">
+                      <span class="custom-tree-node father" slot-scope="{ node, data }" style="width: 96%">
                         <!-- 步骤组件-->
                         <ms-component-config
                           :type="data.type"
@@ -272,19 +178,14 @@
                           :node="node"
                           :env-map="projectEnvMap"
                           :project-list="projectList"
-                          :show-version="false"
-                        />
+                          :show-version="false" />
                       </span>
                     </el-tree>
                   </div>
                 </el-col>
               </el-row>
             </div>
-            <el-backtop
-              target=".card-content"
-              :visibility-height="100"
-              :right="50"
-            ></el-backtop>
+            <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
           </div>
         </el-card>
       </el-card>
@@ -301,126 +202,79 @@
                 :rules="rules"
                 :disabled="true"
                 ref="currentScenario"
-                style="margin-right: 20px"
-              >
+                style="margin-right: 20px">
                 <!-- 基础信息 -->
                 <el-row>
                   <el-col :span="7">
                     <el-form-item :label="$t('commons.name')" prop="name">
-                      <el-input
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="newData.name"
-                      />
+                      <el-input class="ms-scenario-input" size="small" v-model="newData.name" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('test_track.module.module')"
-                      prop="apiScenarioModuleId"
-                    >
+                    <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
                       <ms-select-tree
                         size="small"
                         :data="moduleOptions"
                         :defaultKey="newData.apiScenarioModuleId"
                         :obj="moduleObj"
                         clearable
-                        checkStrictly
-                      />
+                        checkStrictly />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
                     <el-form-item :label="$t('commons.status')" prop="status">
-                      <el-select
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="newData.status"
-                      >
-                        <el-option
-                          v-for="item in options"
-                          :key="item.id"
-                          :label="$t(item.label)"
-                          :value="item.id"
-                        />
+                      <el-select class="ms-scenario-input" size="small" v-model="newData.status">
+                        <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
                       </el-select>
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('api_test.definition.request.responsible')"
-                      prop="principal"
-                    >
+                    <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
                       <el-select
                         v-model="newData.principal"
-                        :placeholder="
-                          $t('api_test.definition.request.responsible')
-                        "
+                        :placeholder="$t('api_test.definition.request.responsible')"
                         filterable
                         size="small"
-                        class="ms-scenario-input"
-                      >
+                        class="ms-scenario-input">
                         <el-option
                           v-for="item in maintainerOptions"
                           :key="item.id"
                           :label="item.name + ' (' + item.id + ')'"
-                          :value="item.id"
-                        >
+                          :value="item.id">
                         </el-option>
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('test_track.case.priority')"
-                      prop="level"
-                    >
-                      <el-select
-                        class="ms-scenario-input"
-                        size="small"
-                        v-model="newData.level"
-                      >
-                        <el-option
-                          v-for="item in levels"
-                          :key="item.id"
-                          :label="item.label"
-                          :value="item.id"
-                        />
+                    <el-form-item :label="$t('test_track.case.priority')" prop="level">
+                      <el-select class="ms-scenario-input" size="small" v-model="newData.level">
+                        <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id" />
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('api_test.automation.tag')"
-                      prop="tags"
-                    >
+                    <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
                       <ms-input-tag :currentScenario="newData" ref="tag" />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="7">
-                    <el-form-item
-                      :label="$t('commons.description')"
-                      prop="description"
-                    >
+                    <el-form-item :label="$t('commons.description')" prop="description">
                       <el-input
                         class="ms-http-textarea"
                         v-model="newData.description"
                         type="textarea"
                         :autosize="{ minRows: 1, maxRows: 10 }"
                         :rows="1"
-                        size="small"
-                      />
+                        size="small" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="7" v-if="customNum">
                     <el-form-item label="ID" prop="customNum">
-                      <el-input
-                        v-model.trim="newData.customNum"
-                        size="small"
-                      ></el-input>
+                      <el-input v-model.trim="newData.customNum" size="small"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -434,56 +288,35 @@
               <el-row>
                 <el-col :span="21">
                   <!-- 调试部分 -->
-                  <div
-                    class="ms-debug-div"
-                    @click="showAll"
-                    :class="{ 'is-top': isTop }"
-                    ref="debugHeader"
-                  >
+                  <div class="ms-debug-div" @click="showAll" :class="{ 'is-top': isTop }" ref="debugHeader">
                     <el-row style="margin: 5px">
                       <el-col :span="4" class="ms-col-one ms-font">
                         <el-tooltip placement="top" effect="light">
                           <template v-slot:content>
                             <div>
-                              {{
-                                newData.name === undefined || ''
-                                  ? $t('api_test.scenario.name')
-                                  : newData.name
-                              }}
+                              {{ newData.name === undefined || '' ? $t('api_test.scenario.name') : newData.name }}
                             </div>
                           </template>
                           <span class="scenario-name">
-                            {{
-                              newData.name === undefined || ''
-                                ? $t('api_test.scenario.name')
-                                : newData.name
-                            }}
+                            {{ newData.name === undefined || '' ? $t('api_test.scenario.name') : newData.name }}
                           </span>
                         </el-tooltip>
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        {{ $t('api_test.automation.step_total') }}：{{
-                          newScenarioDefinition.length
-                        }}
+                        {{ $t('api_test.automation.step_total') }}：{{ newScenarioDefinition.length }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        <el-link class="head"
-                          >{{ $t('api_test.automation.scenario_total') }}
-                        </el-link>
+                        <el-link class="head">{{ $t('api_test.automation.scenario_total') }} </el-link>
                         ：{{ getNewVariableSize() }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="newEnableCookieShare"
-                          ><span style="font-size: 13px">{{
-                            $t('api_test.scenario.share_cookie')
-                          }}</span></el-checkbox
+                          ><span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox
                         >
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
                         <el-checkbox v-model="newOnSampleError"
-                          ><span style="font-size: 13px">{{
-                            $t('commons.failure_continues')
-                          }}</span></el-checkbox
+                          ><span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span></el-checkbox
                         >
                       </el-col>
                     </el-row>
@@ -491,26 +324,13 @@
 
                   <!-- 场景步骤内容 -->
                   <div ref="newStepInfo">
-                    <el-tooltip
-                      :content="$t('api_test.automation.open_expansion')"
-                      placement="top"
-                      effect="light"
-                    >
+                    <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
                       <i
                         class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"
-                        @click="openExpansion('new')"
-                      />
+                        @click="openExpansion('new')" />
                     </el-tooltip>
-                    <el-tooltip
-                      :content="$t('api_test.automation.close_expansion')"
-                      placement="top"
-                      effect="light"
-                    >
-                      <i
-                        class="el-icon-remove-outline ms-open-btn"
-                        size="mini"
-                        @click="closeExpansion('new')"
-                      />
+                    <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+                      <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')" />
                     </el-tooltip>
                     <el-tree
                       node-key="resourceId"
@@ -520,21 +340,12 @@
                       :expand-on-click-node="false"
                       :default-expanded-keys="newExpandedNode"
                       highlight-current
-                      @node-expand="
-                        nodeExpand(newScenarioDefinition, null, 'new')
-                      "
-                      @node-collapse="
-                        nodeCollapse(newScenarioDefinition, null, 'new')
-                      "
+                      @node-expand="nodeExpand(newScenarioDefinition, null, 'new')"
+                      @node-collapse="nodeCollapse(newScenarioDefinition, null, 'new')"
                       @node-click="nodeClick"
                       draggable
-                      ref="newStepTree"
-                    >
-                      <span
-                        class="custom-tree-node father"
-                        slot-scope="{ node, data }"
-                        style="width: 96%"
-                      >
+                      ref="newStepTree">
+                      <span class="custom-tree-node father" slot-scope="{ node, data }" style="width: 96%">
                         <!-- 步骤组件-->
                         <ms-component-config
                           :type="data.type"
@@ -543,8 +354,7 @@
                           :node="node"
                           :env-map="newProjectEnvMap"
                           :project-list="projectList"
-                          :show-version="false"
-                        />
+                          :show-version="false" />
                       </span>
                     </el-tree>
                   </div>
@@ -552,21 +362,11 @@
               </el-row>
             </div>
 
-            <el-backtop
-              target=".card-content"
-              :visibility-height="100"
-              :right="50"
-            ></el-backtop>
+            <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
           </div>
         </el-card>
       </el-card>
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        append-to-body
-        width="100%"
-      >
+      <el-dialog :fullscreen="true" :visible.sync="dialogVisible" :destroy-on-close="true" append-to-body width="100%">
         <scenario-child-diff
           v-if="dialogVisible"
           :old-data="leftChildData"
@@ -578,8 +378,7 @@
           :old-v-node="leftChildVnode"
           :new-v-node="rightChildVnode"
           :old-color="oldColor"
-          :new-color="newColor"
-        ></scenario-child-diff>
+          :new-color="newColor"></scenario-child-diff>
       </el-dialog>
     </div>
   </div>
@@ -640,8 +439,7 @@ export default {
   components: {
     ScenarioChildDiff,
     MsComponentConfig,
-    MsSelectTree: () =>
-      import('metersphere-frontend/src/components/select-tree/SelectTree'),
+    MsSelectTree: () => import('metersphere-frontend/src/components/select-tree/SelectTree'),
     MsInputTag: () => import('@/business/automation/scenario/MsInputTag'),
     EnvPopover: () => import('@/business/automation/scenario/EnvPopover'),
   },
@@ -708,89 +506,76 @@ export default {
   methods: {
     getCurrentScenario() {
       if (this.currentScenarioId) {
-        this.result = getScenarioWithBLOBsById(this.currentScenarioId).then(
-          (response) => {
-            if (response.data) {
-              if (response.data.scenarioDefinition != null) {
-                let obj = JSON.parse(response.data.scenarioDefinition);
-                if (obj) {
-                  this.oldScenarioDefinition = obj.hashTree;
+        this.result = getScenarioWithBLOBsById(this.currentScenarioId).then((response) => {
+          if (response.data) {
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              if (obj) {
+                this.oldScenarioDefinition = obj.hashTree;
+              }
+            }
+            this.oldData = response.data;
+            getFollowByScenarioId(this.currentScenarioId).then((response) => {
+              this.oldData.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if (response.data[i] === this.currentUser().id) {
+                  this.showFollow = true;
+                  break;
                 }
               }
-              this.oldData = response.data;
-              getFollowByScenarioId(this.currentScenarioId).then((response) => {
-                this.oldData.follows = response.data;
-                for (let i = 0; i < response.data.length; i++) {
-                  if (response.data[i] === this.currentUser().id) {
-                    this.showFollow = true;
-                    break;
-                  }
-                }
-              });
-            }
+            });
           }
-        );
+        });
       }
     },
     getDffScenario() {
-      getScenarioById(this.dffScenarioId + '/' + this.scenarioRefId).then(
-        (response) => {
-          getScenarioWithBLOBsById(response.data.id).then((res) => {
-            if (res.data) {
-              if (res.data.scenarioDefinition != null) {
-                let obj = JSON.parse(res.data.scenarioDefinition);
-                if (obj) {
-                  if (obj.hashTree) {
-                    for (let i = 0; i < obj.hashTree.length; i++) {
-                      if (!obj.hashTree[i].index) {
-                        obj.hashTree[i].index = i + 1;
-                      }
-                      obj.hashTree[i].disabled = true;
-                      if (!obj.hashTree[i].requestResult) {
-                        obj.hashTree[i].requestResult = [
-                          { responseResult: {} },
-                        ];
-                      }
+      getScenarioById(this.dffScenarioId + '/' + this.scenarioRefId).then((response) => {
+        getScenarioWithBLOBsById(response.data.id).then((res) => {
+          if (res.data) {
+            if (res.data.scenarioDefinition != null) {
+              let obj = JSON.parse(res.data.scenarioDefinition);
+              if (obj) {
+                if (obj.hashTree) {
+                  for (let i = 0; i < obj.hashTree.length; i++) {
+                    if (!obj.hashTree[i].index) {
+                      obj.hashTree[i].index = i + 1;
                     }
-                    this.newEnableCookieShare = obj.enableCookieShare;
-                    if (obj.onSampleError === undefined) {
-                      this.newOnSampleError = true;
-                    } else {
-                      this.newOnSampleError = obj.onSampleError;
+                    obj.hashTree[i].disabled = true;
+                    if (!obj.hashTree[i].requestResult) {
+                      obj.hashTree[i].requestResult = [{ responseResult: {} }];
                     }
                   }
-                  this.newScenarioDefinition = obj.hashTree;
-                  for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
-                    this.oldScenarioDefinition[i].disabled = true;
-                  }
-                  if (response.data.environmentJson) {
-                    this.newProjectEnvMap = objToStrMap(
-                      JSON.parse(response.data.environmentJson)
-                    );
+                  this.newEnableCookieShare = obj.enableCookieShare;
+                  if (obj.onSampleError === undefined) {
+                    this.newOnSampleError = true;
                   } else {
-                    // 兼容历史数据
-                    this.newProjectEnvMap.set(
-                      this.projectId,
-                      obj.environmentId
-                    );
+                    this.newOnSampleError = obj.onSampleError;
                   }
                 }
+                this.newScenarioDefinition = obj.hashTree;
+                for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
+                  this.oldScenarioDefinition[i].disabled = true;
+                }
+                if (response.data.environmentJson) {
+                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                }
               }
-              res.data.userName = response.data.userName;
-              this.dealWithTag(res.data);
-              this.newData = res.data;
-              this.closeExpansion();
-              this.showDiff = true;
             }
-          });
-        }
-      );
+            res.data.userName = response.data.userName;
+            this.dealWithTag(res.data);
+            this.newData = res.data;
+            this.closeExpansion();
+            this.showDiff = true;
+          }
+        });
+      });
     },
     dealWithTag(newScenario) {
       if (newScenario.tags) {
-        if (
-          Object.prototype.toString.call(newScenario.tags) === '[object String]'
-        ) {
+        if (Object.prototype.toString.call(newScenario.tags) === '[object String]') {
           newScenario.tags = JSON.parse(newScenario.tags);
         }
       }
@@ -914,19 +699,11 @@ export default {
     },
     nodeExpand(data, node, source) {
       if (source === 'new') {
-        if (
-          data &&
-          data.resourceId &&
-          this.newExpandedNode.indexOf(data.resourceId) === -1
-        ) {
+        if (data && data.resourceId && this.newExpandedNode.indexOf(data.resourceId) === -1) {
           this.newExpandedNode.push(data.resourceId);
         }
       } else {
-        if (
-          data &&
-          data.resourceId &&
-          this.oldExpandedNode.indexOf(data.resourceId) === -1
-        ) {
+        if (data && data.resourceId && this.oldExpandedNode.indexOf(data.resourceId) === -1) {
           this.oldExpandedNode.push(data.resourceId);
         }
       }
@@ -934,15 +711,9 @@ export default {
     nodeCollapse(data, node, source) {
       if (data && data.resourceId) {
         if (source === 'new') {
-          this.newExpandedNode.splice(
-            this.newExpandedNode.indexOf(data.resourceId),
-            1
-          );
+          this.newExpandedNode.splice(this.newExpandedNode.indexOf(data.resourceId), 1);
         } else {
-          this.oldExpandedNode.splice(
-            this.oldExpandedNode.indexOf(data.resourceId),
-            1
-          );
+          this.oldExpandedNode.splice(this.oldExpandedNode.indexOf(data.resourceId), 1);
         }
       }
     },

@@ -5,37 +5,28 @@
         <el-icon class="el-icon-more"></el-icon>
       </el-link>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="copy" v-if="data.command">{{
-          this.$t('commons.copy')
-        }}</el-dropdown-item>
+        <el-dropdown-item command="copy" v-if="data.command">{{ this.$t('commons.copy') }}</el-dropdown-item>
         <el-dropdown-item command="enable" v-if="data.command && data.enable"
           >{{ this.$t('ui.disable') }}
         </el-dropdown-item>
         <el-dropdown-item command="enable" v-if="data.command && !data.enable"
           >{{ this.$t('ui.enable') }}
         </el-dropdown-item>
-        <el-dropdown-item command="remove">{{
-          this.$t('api_test.automation.delete_step')
-        }}</el-dropdown-item>
+        <el-dropdown-item command="remove">{{ this.$t('api_test.automation.delete_step') }}</el-dropdown-item>
         <el-dropdown-item command="rename" v-if="!isScenario"
           >{{ this.$t('test_track.module.rename') }}
         </el-dropdown-item>
         <el-dropdown-item command="scenarioVar" v-if="data.type === 'scenario'">
           {{ this.$t('api_test.automation.view_scene_variables') }}
         </el-dropdown-item>
-        <el-dropdown-item
-          command="openScenario"
-          v-if="data.type === 'scenario' && data.referenced === 'REF'"
-        >
+        <el-dropdown-item command="openScenario" v-if="data.type === 'scenario' && data.referenced === 'REF'">
           {{ this.$t('api_test.automation.open_scene') }}
         </el-dropdown-item>
         <el-dropdown-item
           command="saveAs"
           v-if="
-            allSamplers.indexOf(data.type) != -1 &&
-            (data.referenced === undefined || data.referenced === 'Created')
-          "
-        >
+            allSamplers.indexOf(data.type) != -1 && (data.referenced === undefined || data.referenced === 'Created')
+          ">
           {{ this.$t('api_test.automation.save_as_api') }}
         </el-dropdown-item>
         <el-dropdown-item command="saveAsCase" v-if="data.refType === 'API'">
@@ -51,17 +42,9 @@
 
     <ms-add-api-case :currentProtocol="currentProtocol" ref="apiCase" />
 
-    <el-dialog
-      :title="$t('commons.reference_settings')"
-      :visible.sync="dialogVisible"
-      width="400px"
-    >
+    <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="400px">
       <ul>
-        <el-tooltip
-          :content="$t('commons.enable_scene_info')"
-          placement="top"
-          v-if="showEnableScenario"
-        >
+        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if="showEnableScenario">
           <el-checkbox v-model="data.environmentEnable" @change="checkEnv">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
@@ -81,11 +64,7 @@ import MsAddBasisApi from '../api/AddBasisApi';
 import MsAddApiCase from '../api/AddApiCase';
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import {
-  checkScenarioEnv,
-  getScenarioWithBLOBsById,
-  setScenarioDomain,
-} from '@/api/scenario';
+import { checkScenarioEnv, getScenarioWithBLOBsById, setScenarioDomain } from '@/api/scenario';
 import { hasPermission } from 'metersphere-frontend/src/utils/permission';
 
 export default {
@@ -130,11 +109,7 @@ export default {
           this.$emit('remove');
           break;
         case 'scenarioVar':
-          this.$refs.scenarioParameters.open(
-            this.data.variables,
-            this.data.headers,
-            this.data.referenced === 'REF'
-          );
+          this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, this.data.referenced === 'REF');
           break;
         case 'openScenario':
           this.getScenario();
@@ -212,11 +187,7 @@ export default {
     },
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           scenarioDefinition[i].environmentEnable = this.data.environmentEnable;
           scenarioDefinition[i].refEevMap = new Map();
@@ -224,10 +195,7 @@ export default {
             scenarioDefinition[i].refEevMap = this.data.environmentMap;
           }
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree);
         }
       }

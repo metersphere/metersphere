@@ -7,14 +7,9 @@
     width="600px"
     v-loading="loading"
     append-to-body
-    class="batch-move"
-  >
+    class="batch-move">
     <div>
-      <el-input
-        :placeholder="$t('test_track.module.search')"
-        v-model="filterText"
-        size="small"
-      />
+      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" />
       <el-tree
         class="filter-tree node-tree"
         :data="treeNodes"
@@ -24,8 +19,7 @@
         highlight-current
         style="overflow: auto"
         @node-click="nodeClick"
-        ref="tree"
-      >
+        ref="tree">
         <template v-slot:default="{ node }">
           <span>
             <span class="node-icon">
@@ -90,10 +84,7 @@ export default {
         if (response.data != undefined && response.data != null) {
           this.treeNodes = response.data;
           this.treeNodes.forEach((node) => {
-            node.name =
-              node.name === 'DEF_MODULE'
-                ? this.$t('commons.module_title')
-                : node.name;
+            node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name;
             buildTree(node, { path: '' });
           });
           this.loading = false;

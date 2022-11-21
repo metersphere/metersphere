@@ -5,21 +5,18 @@
         v-model="pe['selectEnv']"
         :placeholder="$t('workspace.env_group.please_select_env')"
         style="margin-top: 8px; width: 200px"
-        size="small"
-      >
+        size="small">
         <el-option
           v-for="(environment, index) in pe.envs"
           :key="index"
           :label="environment.name"
-          :value="environment.id"
-        />
+          :value="environment.id" />
         <el-button
           class="ms-scenario-button"
           v-if="isShowConfirmButton(pe.id)"
           size="mini"
           type="primary"
-          @click="openEnvironmentConfig(pe.id, pe['selectEnv'])"
-        >
+          @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
@@ -28,8 +25,7 @@
               class="ms-scenario-button"
               size="mini"
               type="primary"
-              @click="openEnvironmentConfig(pe.id, pe['selectEnv'])"
-            >
+              @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
               {{ $t('api_test.environment.environment_config') }}
             </el-button>
           </div>
@@ -40,21 +36,12 @@
       </span>
     </div>
 
-    <el-button
-      type="primary"
-      @click="handleConfirm"
-      size="small"
-      :style="btnStyle"
-      class="env-confirm"
-    >
+    <el-button type="primary" @click="handleConfirm" size="small" :style="btnStyle" class="env-confirm">
       {{ $t('workspace.env_group.confirm') }}
     </el-button>
 
     <!-- 环境配置 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </div>
 </template>
 
@@ -142,8 +129,7 @@ export default {
                 envId = this.envMap.get(id);
               }
               // 选中环境是否存在
-              temp.selectEnv =
-                envs.filter((e) => e.id === envId).length === 0 ? null : envId;
+              temp.selectEnv = envs.filter((e) => e.id === envId).length === 0 ? null : envId;
               resolve();
             });
           });
@@ -189,9 +175,7 @@ export default {
         map.set(dt.id, dt.selectEnv);
       });
       if (!sign) {
-        this.$warning(
-          this.$t('workspace.env_group.please_select_env_for_current_scenario')
-        );
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return;
       }
       this.$emit('setProjectEnvMap', map);
@@ -223,9 +207,7 @@ export default {
       }
 
       if (!sign) {
-        this.$warning(
-          this.$t('workspace.env_group.please_select_env_for_current_scenario')
-        );
+        this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
         return false;
       }
       return true;

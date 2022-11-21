@@ -10,8 +10,7 @@
         :page-sizes="pageSizes"
         :page-size="pageSize"
         :layout="layout"
-        :total="total"
-      >
+        :total="total">
       </el-pagination>
     </div>
   </el-row>
@@ -79,8 +78,7 @@ export default {
   line-height: 26px;
 }
 
-.home-table-page
-  :deep(.el-pagination.is-background .el-pager li:not(.disabled).active) {
+.home-table-page :deep(.el-pagination.is-background .el-pager li:not(.disabled).active) {
   background-color: #ffffff;
   color: #783887;
   border: 1px solid #783887;

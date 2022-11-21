@@ -1,15 +1,7 @@
 <template>
   <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="50%">
-    <el-tabs
-      tab-position="top"
-      style="width: 100%"
-      v-model="activeName"
-      @tab-click="handleClick"
-    >
-      <el-tab-pane
-        :label="$t('api_test.automation.scenario_ref')"
-        name="scenario"
-      >
+    <el-tabs tab-position="top" style="width: 100%" v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane :label="$t('api_test.automation.scenario_ref')" name="scenario">
         <ms-table
           :data="scenarioData"
           style="width: 100%"
@@ -18,18 +10,11 @@
           :page-size="pageSize"
           :enable-selection="false"
           @refresh="search"
-          :condition="condition"
-        >
+          :condition="condition">
           <ms-table-column prop="num" label="ID" sortable width="80" />
-          <ms-table-column
-            prop="name"
-            :label="$t('api_report.scenario_name')"
-            width="200"
-          >
+          <ms-table-column prop="name" :label="$t('api_report.scenario_name')" width="200">
             <template v-slot:default="{ row }">
-              <el-link @click="openScenario(row)" style="cursor: pointer"
-                >{{ row.name }}
-              </el-link>
+              <el-link @click="openScenario(row)" style="cursor: pointer">{{ row.name }} </el-link>
             </template>
           </ms-table-column>
           <ms-table-column
@@ -37,16 +22,14 @@
             :label="$t('group.belong_workspace')"
             width="200"
             column-key="workspaceId"
-            :filters="workspaceFilters"
-          >
+            :filters="workspaceFilters">
           </ms-table-column>
           <ms-table-column
             prop="projectName"
             :label="$t('group.belong_project')"
             :filters="projectFilters"
             column-key="projectId"
-            width="200"
-          >
+            width="200">
           </ms-table-column>
         </ms-table>
       </el-tab-pane>
@@ -60,60 +43,35 @@
           :page-size="pageSize"
           :enable-selection="false"
           @refresh="search"
-          :condition="condition"
-        >
-          <ms-table-column
-            prop="name"
-            :label="$t('test_track.home.test_plan_name')"
-            width="200"
-            sortable
-          >
+          :condition="condition">
+          <ms-table-column prop="name" :label="$t('test_track.home.test_plan_name')" width="200" sortable>
             <template v-slot:default="{ row }">
-              <el-link @click="openTestPlan(row)" style="cursor: pointer"
-                >{{ row.name }}
-              </el-link>
+              <el-link @click="openTestPlan(row)" style="cursor: pointer">{{ row.name }} </el-link>
             </template>
           </ms-table-column>
           <ms-table-column
             prop="workspaceName"
             :label="$t('group.belong_workspace')"
             width="200"
-            column-key="workspaceId"
-          >
+            column-key="workspaceId">
           </ms-table-column>
           <ms-table-column
             prop="projectName"
             :label="$t('group.belong_project')"
             :filters="projectPlanFilters"
             column-key="projectId"
-            width="200"
-          >
+            width="200">
           </ms-table-column>
         </ms-table>
       </el-tab-pane>
     </el-tabs>
-    <ms-table-pagination
-      :change="search"
-      :current-page.sync="currentPage"
-      :page-size.sync="pageSize"
-      :total="total"
-    />
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
   </el-dialog>
 </template>
 <script>
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
-import {
-  apiProjectRelated,
-  getOwnerProjectIds,
-  getProject,
-  getUserWorkspace,
-  projectRelated,
-} from '@/api/project';
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { apiProjectRelated, getOwnerProjectIds, getProject, getUserWorkspace, projectRelated } from '@/api/project';
+import { getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getDefinitionReference, getPlanReference } from '@/api/definition';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
@@ -202,19 +160,13 @@ export default {
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.condition.scenarioType = this.type;
       if (this.activeName === 'scenario') {
-        getDefinitionReference(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((res) => {
+        getDefinitionReference(this.currentPage, this.pageSize, this.condition).then((res) => {
           let data = res.data || [];
           this.total = data.itemCount || 0;
           if (this.workspaceList) {
             this.workspaceFilters = this.workspaceList
               .filter((workspace) => {
-                return data.listObject.find(
-                  (i) => i.workspaceId === workspace.id
-                );
+                return data.listObject.find((i) => i.workspaceId === workspace.id);
               })
               .map((e) => {
                 return { text: e.name, value: e.id };
@@ -229,9 +181,7 @@ export default {
             }).then((res) => {
               this.projectFilters = res.data
                 .filter((project) => {
-                  return data.listObject.find(
-                    (i) => i.projectId === project.id
-                  );
+                  return data.listObject.find((i) => i.projectId === project.id);
                 })
                 .map((e) => {
                   return { text: e.name, value: e.id };
@@ -242,20 +192,18 @@ export default {
           this.scenarioData = data.listObject || [];
         });
       } else {
-        getPlanReference(this.currentPage, this.pageSize, this.condition).then(
-          (res) => {
-            let data = res.data || [];
-            this.total = data.itemCount || 0;
-            this.projectPlanFilters = this.projectList
-              .filter((project) => {
-                return data.listObject.find((i) => i.projectId === project.id);
-              })
-              .map((e) => {
-                return { text: e.name, value: e.id };
-              });
-            this.planData = data.listObject || [];
-          }
-        );
+        getPlanReference(this.currentPage, this.pageSize, this.condition).then((res) => {
+          let data = res.data || [];
+          this.total = data.itemCount || 0;
+          this.projectPlanFilters = this.projectList
+            .filter((project) => {
+              return data.listObject.find((i) => i.projectId === project.id);
+            })
+            .map((e) => {
+              return { text: e.name, value: e.id };
+            });
+          this.planData = data.listObject || [];
+        });
       }
     },
     handleClick(tab, event) {

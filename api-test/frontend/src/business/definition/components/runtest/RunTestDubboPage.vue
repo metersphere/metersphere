@@ -1,8 +1,6 @@
 <template>
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
+    <div class="ms-opt-btn" v-if="versionEnable">{{ $t('project.version.name') }}: {{ apiData.versionName }}</div>
     <el-card class="card-content">
       <!-- 操作按钮 -->
       <el-dropdown
@@ -14,42 +12,25 @@
         size="small"
         style="float: right; margin-right: 20px"
         v-if="!runLoading"
-        v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-      >
+        v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
         {{ $t('commons.test') }}
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="load_case"
-            >{{ $t('api_test.definition.request.load_case') }}
-          </el-dropdown-item>
+          <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }} </el-dropdown-item>
           <el-dropdown-item command="save_as_case"
             >{{ $t('api_test.definition.request.save_as_case') }}
           </el-dropdown-item>
-          <el-dropdown-item command="update_api">{{
-            $t('api_test.definition.request.update_api')
-          }}</el-dropdown-item>
-          <el-dropdown-item command="save_as_api">{{
-            $t('api_test.definition.request.save_as')
-          }}</el-dropdown-item>
+          <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
+          <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-button
-        size="small"
-        type="primary"
-        v-else
-        @click.once="stop"
-        style="float: right; margin-right: 20px"
-      >
+      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right; margin-right: 20px">
         {{ $t('report.stop_btn') }}
       </el-button>
 
       <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
       <div v-loading="loading">
         <!-- TCP 请求参数 -->
-        <ms-basis-parameters
-          :request="api.request"
-          ref="requestForm"
-          :response="responseData"
-        />
+        <ms-basis-parameters :request="api.request" ref="requestForm" :response="responseData" />
 
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
@@ -68,14 +49,10 @@
       :refreshSign="refreshSign"
       :createCase="createCase"
       :save-button-text="loadCaseConfirmButton"
-      ref="caseList"
-    />
+      ref="caseList" />
 
     <!-- 环境 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
     <!-- 执行组件 -->
     <ms-run
       :debug="false"
@@ -83,8 +60,7 @@
       :run-data="runData"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
   </div>
 </template>
 

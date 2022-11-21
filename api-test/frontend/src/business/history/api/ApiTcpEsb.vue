@@ -1,26 +1,12 @@
 <template>
   <div>
-    <div
-      style="
-        border: 1px #dcdfe6 solid;
-        height: 100%;
-        border-radius: 4px;
-        width: 98%;
-      "
-    >
-      <el-form
-        class="tcp"
-        :model="request"
-        ref="request"
-        :disabled="isReadOnly"
-        style="margin: 20px"
-      >
+    <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 98%">
+      <el-form class="tcp" :model="request" ref="request" :disabled="isReadOnly" style="margin: 20px">
         <el-tabs v-model="activeName" class="request-tabs">
           <el-tab-pane
             name="parameters"
             :label="$t('api_test.definition.request.req_param')"
-            v-if="request.query1 || request.query2"
-          >
+            v-if="request.query1 || request.query2">
             <pre v-html="getDiff(request.query2, request.query1)"></pre>
           </el-tab-pane>
 
@@ -28,8 +14,7 @@
           <el-tab-pane
             :label="$t('api_test.definition.request.message_template')"
             name="request"
-            v-if="request.request1 || request.request2"
-          >
+            v-if="request.request1 || request.request2">
             <pre v-html="getDiff(request.request2, request.request1)"></pre>
           </el-tab-pane>
 
@@ -38,17 +23,10 @@
             :label="$t('api_test.definition.request.other_config')"
             name="other"
             class="other-config"
-            v-if="request.otherConfig"
-          >
+            v-if="request.otherConfig">
             <el-table :data="request.otherConfig">
-              <el-table-column
-                prop="columnTitle"
-                :label="$t('operating_log.change_field')"
-              />
-              <el-table-column
-                prop="originalValue"
-                :label="$t('operating_log.before_change')"
-              >
+              <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" />
+              <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
                 <template v-slot:default="scope">
                   <el-tooltip :content="scope.row.originalValue">
                     <div class="current-value ms-tag-del">
@@ -57,10 +35,7 @@
                   </el-tooltip>
                 </template>
               </el-table-column>
-              <el-table-column
-                prop="newValue"
-                :label="$t('operating_log.after_change')"
-              >
+              <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
                 <template v-slot:default="scope">
                   <el-tooltip :content="scope.row.newValue">
                     <div class="current-value ms-tag-add">
@@ -76,24 +51,16 @@
             :label="$t('api_test.definition.request.response_template')"
             name="esbData"
             class="pane"
-            v-if="request.backEsbDataStruct1 || request.backEsbDataStruct2"
-          >
-            <pre
-              v-html="
-                getDiff(request.backEsbDataStruct2, request.backEsbDataStruct1)
-              "
-            ></pre>
+            v-if="request.backEsbDataStruct1 || request.backEsbDataStruct2">
+            <pre v-html="getDiff(request.backEsbDataStruct2, request.backEsbDataStruct1)"></pre>
           </el-tab-pane>
 
           <el-tab-pane
             :label="$t('api_test.definition.request.post_script')"
             name="backScript"
             class="pane"
-            v-if="request.backScript1 || request.backScript2"
-          >
-            <pre
-              v-html="getDiff(request.backScript2, request.backScript1)"
-            ></pre>
+            v-if="request.backScript1 || request.backScript2">
+            <pre v-html="getDiff(request.backScript2, request.backScript1)"></pre>
           </el-tab-pane>
         </el-tabs>
       </el-form>
@@ -141,10 +108,7 @@ export default {
   created() {
     if (
       this.request.body &&
-      (this.request.body.jsonSchema ||
-        this.request.body.xml ||
-        this.request.body.raw_1 ||
-        this.request.body.raw_2)
+      (this.request.body.jsonSchema || this.request.body.xml || this.request.body.raw_1 || this.request.body.raw_2)
     ) {
       this.activeName = 'request';
       if (this.request.body.jsonSchema) {
@@ -164,10 +128,7 @@ export default {
       this.activeName = 'script';
     } else if (this.request.otherConfig) {
       this.activeName = 'other';
-    } else if (
-      this.request.backEsbDataStruct1 ||
-      this.request.backEsbDataStruct2
-    ) {
+    } else if (this.request.backEsbDataStruct1 || this.request.backEsbDataStruct2) {
       this.activeName = 'esbData';
     } else if (this.request.backScript1 || this.request.backScript2) {
       this.activeName = 'backScript';
@@ -194,10 +155,7 @@ export default {
         this.activeName = 'script';
       } else if (this.request.other_config) {
         this.activeName = 'other';
-      } else if (
-        this.request.backEsbDataStruct_1 ||
-        this.request.backEsbDataStruct_2
-      ) {
+      } else if (this.request.backEsbDataStruct_1 || this.request.backEsbDataStruct_2) {
         this.activeName = 'esbData';
       } else if (this.request.backScript_1 || this.request.backScript_2) {
         this.activeName = 'backScript';

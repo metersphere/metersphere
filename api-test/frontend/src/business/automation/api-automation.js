@@ -76,13 +76,7 @@ function getScenarioFiles(obj) {
   return scenarioFiles;
 }
 
-export function saveScenario(
-  url,
-  scenario,
-  scenarioDefinition,
-  _this,
-  success
-) {
+export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
   if (store.pluginFiles && store.pluginFiles.length > 0) {
     store.pluginFiles.forEach((fileItem) => {
@@ -104,10 +98,7 @@ export function saveScenario(
       formData.append('scenarioFiles', f);
     });
   }
-  formData.append(
-    'request',
-    new Blob([JSON.stringify(scenario)], { type: 'application/json' })
-  );
+  formData.append('request', new Blob([JSON.stringify(scenario)], { type: 'application/json' }));
   let config = getUploadConfig(url, formData);
   editScenario(config).then(
     (response) => {
@@ -155,29 +146,14 @@ export function scenarioSort(_this) {
       _this.scenarioDefinition[i].projectId = _this.projectId;
     }
 
-    if (
-      _this.scenarioDefinition[i].hashTree != undefined &&
-      _this.scenarioDefinition[i].hashTree.length > 0
-    ) {
+    if (_this.scenarioDefinition[i].hashTree != undefined && _this.scenarioDefinition[i].hashTree.length > 0) {
       if (_this.hideTreeNode) {
-        _this.hideTreeNode(
-          _this.scenarioDefinition[i],
-          _this.scenarioDefinition[i].hashTree
-        );
+        _this.hideTreeNode(_this.scenarioDefinition[i], _this.scenarioDefinition[i].hashTree);
       }
-      recursiveSorting(
-        _this,
-        _this.scenarioDefinition[i].hashTree,
-        _this.scenarioDefinition[i].projectId
-      );
+      recursiveSorting(_this, _this.scenarioDefinition[i].hashTree, _this.scenarioDefinition[i].projectId);
     }
     // 添加debug结果
-    if (
-      _this.debugResult &&
-      _this.debugResult.get(
-        _this.scenarioDefinition[i].id + _this.scenarioDefinition[i].name
-      )
-    ) {
+    if (_this.debugResult && _this.debugResult.get(_this.scenarioDefinition[i].id + _this.scenarioDefinition[i].name)) {
       _this.scenarioDefinition[i].requestResult = _this.debugResult.get(
         _this.scenarioDefinition[i].id + _this.scenarioDefinition[i].name
       );
@@ -197,9 +173,7 @@ export function recursiveSorting(_this, arr, scenarioProjectId) {
       arr[i].countController.proceed = true;
     }
     if (!arr[i].projectId) {
-      arr[i].projectId = scenarioProjectId
-        ? scenarioProjectId
-        : _this.projectId;
+      arr[i].projectId = scenarioProjectId ? scenarioProjectId : _this.projectId;
     }
     if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
       if (_this.hideTreeNode) {

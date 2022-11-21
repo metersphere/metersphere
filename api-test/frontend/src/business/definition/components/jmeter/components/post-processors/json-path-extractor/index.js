@@ -16,9 +16,7 @@ export default class JSONPostProcessor extends PostProcessor {
     super(options);
     this.scope = this.initStringProp('Sample.scope');
     this.variable = this.initStringProp('Scope.variable');
-    this.referenceNames = this.initStringProp(
-      'JSONPostProcessor.referenceNames'
-    );
+    this.referenceNames = this.initStringProp('JSONPostProcessor.referenceNames');
     this.jsonPathExprs = this.initStringProp('JSONPostProcessor.jsonPathExprs');
     this.matchNumber = this.initStringProp('JSONPostProcessor.match_number');
     this.defaultValues = this.initStringProp('JSONPostProcessor.defaultValues');

@@ -22,11 +22,7 @@ export default {
     },
   },
   created() {
-    if (
-      !this.body.jsonSchema &&
-      this.body.raw &&
-      this.checkIsJson(this.body.raw)
-    ) {
+    if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
       let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
       this.schema = obj;
     } else if (this.body.jsonSchema) {
@@ -43,11 +39,7 @@ export default {
     },
     body: {
       handler(newValue, oldValue) {
-        if (
-          !this.body.jsonSchema &&
-          this.body.raw &&
-          this.checkIsJson(this.body.raw)
-        ) {
+        if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
           let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
           this.schema = obj;
         } else if (this.body.jsonSchema) {

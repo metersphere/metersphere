@@ -1,9 +1,5 @@
 import Sampler from '../sampler';
-import {
-  ConfigCenter,
-  ConsumerAndService,
-  RegistryCenter,
-} from '../../../../../model/ApiTestModel';
+import { ConfigCenter, ConsumerAndService, RegistryCenter } from '../../../../../model/ApiTestModel';
 
 const DEFAULT_OPTIONS = {
   options: {
@@ -26,9 +22,7 @@ export default class DubboSampler extends Sampler {
     this.method = options.method;
     this.configCenter = new ConfigCenter(options.configCenter);
     this.registryCenter = new RegistryCenter(options.registryCenter);
-    this.consumerAndService = new ConsumerAndService(
-      options.consumerAndService
-    );
+    this.consumerAndService = new ConsumerAndService(options.consumerAndService);
     this.args = [];
     this.attachmentArgs = [];
     this.dubboConfig = undefined;

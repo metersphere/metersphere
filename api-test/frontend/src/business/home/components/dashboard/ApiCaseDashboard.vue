@@ -2,9 +2,7 @@
   <div class="dashboard-card">
     <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">
-        <span class="dashboard-title">{{
-          $t('home.dashboard.api_case.title')
-        }}</span>
+        <span class="dashboard-title">{{ $t('home.dashboard.api_case.title') }}</span>
       </div>
       <div v-loading="loading" element-loading-background="#FFFFFF">
         <div
@@ -16,15 +14,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-          "
-        >
-          <img
-            style="height: 100px; width: 100px"
-            src="/assets/figma/icon_load_error.svg"
-          />
-          <span class="addition-info-title" style="color: #646a73">{{
-            $t('home.dashboard.public.load_error')
-          }}</span>
+          ">
+          <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+          <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
         <div v-show="!loadError">
           <div class="main-info">
@@ -37,15 +29,13 @@
                   redirect-page-name="api"
                   redirect-data-type="apiTestCase"
                   :link-permission="['PROJECT_API_DEFINITION:READ']"
-                  @redirectPage="redirectPage"
-                />
+                  @redirectPage="redirectPage" />
               </el-col>
               <el-col :span="12">
                 <main-info-card
                   :title="$t('home.dashboard.public.executed_times_in_week')"
                   :count-data="apiCaseData"
-                  :is-execute-info="true"
-                />
+                  :is-execute-info="true" />
               </el-col>
             </el-row>
           </div>
@@ -56,8 +46,7 @@
                 <hover-card
                   :title="$t('home.dashboard.api_case.covered_rate')"
                   :main-info="apiCaseData.apiCoveredRate"
-                  :tool-tip="apiCoveredRateToolTip"
-                >
+                  :tool-tip="apiCoveredRateToolTip">
                   <!--未覆盖、已覆盖-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -69,18 +58,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'api',
-                                  'coveredTestCase',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'coveredTestCase', null)">
                               {{ formatAmount(apiCaseData.coveredCount) }}
                             </el-link>
                           </div>
@@ -92,18 +71,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'api',
-                                  'notCoveredTestCase',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'notCoveredTestCase', null)">
                               {{ formatAmount(apiCaseData.notCoveredCount) }}
                             </el-link>
                           </div>
@@ -118,8 +87,7 @@
                 <hover-card
                   :title="$t('home.dashboard.api_case.executed_rate')"
                   :main-info="apiCaseData.executedRate"
-                  :tool-tip="executeRateToolTip"
-                >
+                  :tool-tip="executeRateToolTip">
                   <!--执行、未执行-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -131,18 +99,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'apiTestCase',
-                                  'executedCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'apiTestCase', 'executedCount', null)">
                               {{ formatAmount(apiCaseData.executedCount) }}
                             </el-link>
                           </div>
@@ -154,18 +112,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'apiTestCase',
-                                  'unexecuteCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'apiTestCase', 'unexecuteCount', null)">
                               {{ formatAmount(apiCaseData.notExecutedCount) }}
                             </el-link>
                           </div>
@@ -180,8 +128,7 @@
                 <hover-card
                   :title="$t('home.dashboard.api_case.pass_rate')"
                   :main-info="apiCaseData.passRate"
-                  :tool-tip="passRateToolTip"
-                >
+                  :tool-tip="passRateToolTip">
                   <!--通过、未通过-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -193,18 +140,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'apiTestCase',
-                                  'executionPassCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'apiTestCase', 'executionPassCount', null)">
                               {{ formatAmount(apiCaseData.passCount) }}
                             </el-link>
                           </div>
@@ -216,18 +153,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'apiTestCase',
-                                  'executionFailedCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'apiTestCase', 'executionFailedCount', null)">
                               {{ formatAmount(apiCaseData.unPassCount) }}
                             </el-link>
                           </div>
@@ -305,13 +232,7 @@ export default {
       if (selectRange === 'fakeError') {
         selectRange = 'fakeErrorCount';
       }
-      this.$emit(
-        'redirectPage',
-        redirectPage,
-        dataType,
-        selectRange,
-        selectParam
-      );
+      this.$emit('redirectPage', redirectPage, dataType, selectRange, selectParam);
     },
   },
 };

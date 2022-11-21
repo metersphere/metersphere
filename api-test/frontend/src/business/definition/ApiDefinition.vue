@@ -15,19 +15,13 @@
           @setModuleOptions="setModuleOptions"
           @setNodeTree="setNodeTree"
           @enableTrash="enableTrash"
-          @schedule="
-            handleTabsEdit(
-              $t('api_test.api_import.timing_synchronization'),
-              'SCHEDULE'
-            )
-          "
+          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
           :type="'edit'"
           page-source="definition"
           :is-trash-data="trashEnable"
           :total="total"
           :current-version="currentVersion"
-          ref="nodeTree"
-        />
+          ref="nodeTree" />
       </ms-aside-container>
 
       <ms-main-container>
@@ -37,22 +31,15 @@
           :useEnvironment="useEnvironment"
           @setEnvironment="setEnvironment"
           class="ms-api-button"
-          ref="environmentSelect"
-        />
+          ref="environmentSelect" />
         <!-- 主框架列表 -->
         <el-tabs
           v-model="apiDefaultTab"
           @edit="closeConfirm"
           @tab-click="addTab"
           @tab-remove="removeTab"
-          ref="mainTabs"
-        >
-          <el-tab-pane
-            name="trash"
-            :closable="true"
-            :label="$t('commons.trash')"
-            v-if="trashEnable"
-          >
+          ref="mainTabs">
+          <el-tab-pane name="trash" :closable="true" :label="$t('commons.trash')" v-if="trashEnable">
             <ms-tab-button
               v-if="this.trashTabInfo.type === 'list'"
               :active-dom.sync="trashActiveDom"
@@ -60,15 +47,13 @@
               :right-tip="$t('api_test.definition.case_title')"
               :middle-button-enable="false"
               left-content="API"
-              right-content="CASE"
-            >
+              right-content="CASE">
               <template v-slot:version>
                 <mx-version-select
                   v-xpack
                   :project-id="projectId"
                   :version-id="trashVersion"
-                  @changeVersion="changeVersion"
-                />
+                  @changeVersion="changeVersion" />
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -93,8 +78,7 @@
                 @refreshTable="refresh"
                 :init-api-table-opretion="initApiTableOpretion"
                 @updateInitApiTableOpretion="updateInitApiTableOpr"
-                ref="trashApiList"
-              />
+                ref="trashApiList" />
               <!--测试用例列表-->
               <api-case-simple-list
                 v-if="trashActiveDom === 'right'"
@@ -109,8 +93,7 @@
                 @handleCase="handleCase"
                 @refreshTable="refresh"
                 @showExecResult="showExecResult"
-                ref="trashCaseList"
-              />
+                ref="trashCaseList" />
             </ms-tab-button>
           </el-tab-pane>
 
@@ -119,16 +102,14 @@
             :key="item.name"
             :label="item.title"
             :closable="item.closable"
-            :name="item.name"
-          >
+            :name="item.name">
             <el-tooltip
               v-if="index > 0"
               slot="label"
               effect="dark"
               :content="item.title"
               placement="bottom-start"
-              class="ms-tab-name-width"
-            >
+              class="ms-tab-name-width">
               <span>{{ item.title }}</span>
             </el-tooltip>
             <ms-tab-button
@@ -141,14 +122,9 @@
               middle-content="CASE"
               :right-content="$t('api_test.definition.doc_title')"
               :right-button-enable="currentProtocol === 'HTTP'"
-              @changeTab="changeTab"
-            >
+              @changeTab="changeTab">
               <template v-slot:version>
-                <mx-version-select
-                  v-xpack
-                  :project-id="projectId"
-                  @changeVersion="changeVersion"
-                />
+                <mx-version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -175,8 +151,7 @@
                 @refreshTable="refresh"
                 :init-api-table-opretion="initApiTableOpretion"
                 @updateInitApiTableOpretion="updateInitApiTableOpr"
-                ref="apiDefList"
-              />
+                ref="apiDefList" />
               <!--测试用例列表-->
               <api-case-simple-list
                 v-if="activeDom === 'middle'"
@@ -191,8 +166,7 @@
                 @handleCase="handleCase"
                 @refreshTable="refresh"
                 @showExecResult="showExecResult"
-                ref="caseList"
-              />
+                ref="caseList" />
               <api-documents-page
                 class="api-doc-page"
                 v-if="activeDom === 'right' && currentProtocol === 'HTTP'"
@@ -200,14 +174,10 @@
                 :trash-enable="trashEnable"
                 :version-id="currentVersion"
                 :module-ids="selectNodeIds"
-                ref="documentsPage"
-              />
+                ref="documentsPage" />
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
-            <div
-              v-if="item.type === 'ADD' || item.type === 'TEST'"
-              class="ms-api-div"
-            >
+            <div v-if="item.type === 'ADD' || item.type === 'TEST'" class="ms-api-div">
               <ms-edit-complete-container
                 :syncTabs="syncTabs"
                 @runTest="runTest"
@@ -223,8 +193,7 @@
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
-                ref="apiConfig"
-              />
+                ref="apiConfig" />
             </div>
             <!-- 快捷调试 -->
             <div v-else-if="item.type === 'debug'" class="ms-api-schedule-div">
@@ -233,65 +202,43 @@
                 :testCase="item.api"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
-                v-if="currentProtocol === 'HTTP'"
-              />
+                v-if="currentProtocol === 'HTTP'" />
               <ms-debug-jdbc-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
-                v-if="currentProtocol === 'SQL'"
-              />
+                v-if="currentProtocol === 'SQL'" />
               <ms-debug-tcp-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
                 :scenario="false"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
-                v-if="currentProtocol === 'TCP'"
-              />
+                v-if="currentProtocol === 'TCP'" />
               <ms-debug-dubbo-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
-                v-if="currentProtocol === 'DUBBO'"
-              />
+                v-if="currentProtocol === 'DUBBO'" />
             </div>
 
             <!-- 定时任务 -->
             <div v-if="item.type === 'SCHEDULE'" class="ms-api-schedule-div">
-              <api-schedule
-                :param="param"
-                :module-options="nodeTree"
-                ref="apiSchedules"
-              />
+              <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules" />
             </div>
           </el-tab-pane>
 
-          <el-tab-pane
-            name="add"
-            v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')"
-          >
+          <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
             <template v-slot:label>
               <el-dropdown @command="handleCommand">
-                <el-button
-                  type="primary"
-                  plain
-                  icon="el-icon-plus"
-                  size="mini"
-                />
+                <el-button type="primary" plain icon="el-icon-plus" size="mini" />
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item
-                    command="debug"
-                    v-permission="['PROJECT_API_DEFINITION:READ+DEBUG']"
-                  >
+                  <el-dropdown-item command="debug" v-permission="['PROJECT_API_DEFINITION:READ+DEBUG']">
                     {{ $t('api_test.definition.request.fast_debug') }}
                   </el-dropdown-item>
-                  <el-dropdown-item
-                    command="ADD"
-                    v-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
-                  >
+                  <el-dropdown-item command="ADD" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']">
                     {{ $t('api_test.definition.request.title') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="CLOSE_ALL"
@@ -310,21 +257,13 @@
       :api-params="apiParams"
       @refreshMockInfo="refreshMockInfo"
       :mock-config-id="mockConfigData.id"
-      ref="mockEditDrawer"
-    />
+      ref="mockEditDrawer" />
   </div>
 </template>
 <script>
-import {
-  createDefinitionEnv,
-  getDefinitionById,
-  getDefinitionEnv,
-} from '@/api/definition';
+import { createDefinitionEnv, getDefinitionById, getDefinitionEnv } from '@/api/definition';
 import { getProjectConfig } from '@/api/project';
-import {
-  getApiModuleByProjectIdAndProtocol,
-  trashCount,
-} from '@/api/definition-module';
+import { getApiModuleByProjectIdAndProtocol, trashCount } from '@/api/definition-module';
 import MsApiList from './components/list/ApiList';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
@@ -338,11 +277,7 @@ import MsRunTestHttpPage from './components/runtest/RunTestHTTPPage';
 import MsRunTestTcpPage from './components/runtest/RunTestTCPPage';
 import MsRunTestSqlPage from './components/runtest/RunTestSQLPage';
 import MsRunTestDubboPage from './components/runtest/RunTestDubboPage';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUser, getCurrentUserId } from 'metersphere-frontend/src/utils/token';
 import { hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsApiModule from './components/module/ApiModule';
@@ -354,17 +289,10 @@ import MockConfig from '@/business/definition/components/mock/MockConfig';
 import ApiSchedule from '@/business/definition/components/import/ApiSchedule';
 import MsEditCompleteContainer from './components/EditCompleteContainer';
 import MsEnvironmentSelect from './components/case/MsEnvironmentSelect';
-import {
-  PROJECT_ID,
-  WORKSPACE_ID,
-} from 'metersphere-frontend/src/utils/constants';
+import { PROJECT_ID, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
 import { useApiStore } from '@/store';
 import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
-import {
-  createMockConfig,
-  getMockApiParams,
-  mockExpectConfig,
-} from '@/api/api-mock';
+import { createMockConfig, getMockApiParams, mockExpectConfig } from '@/api/api-mock';
 import MockEditDrawer from '@/business/definition/components/mock/MockEditDrawer';
 
 const store = useApiStore();
@@ -429,8 +357,7 @@ export default {
     MsEditCompleteContainer,
     MsEnvironmentSelect,
     MockEditDrawer,
-    MxVersionSelect: () =>
-      import('metersphere-frontend/src/components/version/MxVersionSelect'),
+    MxVersionSelect: () => import('metersphere-frontend/src/components/version/MxVersionSelect'),
   },
   props: {
     visible: {
@@ -552,8 +479,7 @@ export default {
       }
     },
     apiDefaultTab() {
-      this.isAsideHidden =
-        this.apiDefaultTab === 'default' || this.apiDefaultTab === 'trash';
+      this.isAsideHidden = this.apiDefaultTab === 'default' || this.apiDefaultTab === 'trash';
     },
   },
   created() {
@@ -627,10 +553,7 @@ export default {
         });
       }
       if (scheduleTabName === '') {
-        this.handleTabsEdit(
-          this.$t('api_test.api_import.timing_synchronization'),
-          'SCHEDULE'
-        );
+        this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
       } else {
         this.apiDefaultTab = scheduleTabName;
       }
@@ -643,9 +566,7 @@ export default {
       }
     },
     addEnv(envId) {
-      createDefinitionEnv({ userId: getCurrentUserId(), envId: envId }).then(
-        (response) => {}
-      );
+      createDefinitionEnv({ userId: getCurrentUserId(), envId: envId }).then((response) => {});
     },
     getTrashApi() {
       trashCount(this.projectId, this.currentProtocol).then((response) => {
@@ -653,18 +574,16 @@ export default {
       });
     },
     getEnv() {
-      getDefinitionEnv(getCurrentUserId(), getCurrentProjectID()).then(
-        (response) => {
-          let env = response.data;
-          if (env) {
-            store.useEnvironment = env.envId;
-            this.useEnvironment = env.envId;
-          } else {
-            store.useEnvironment = '';
-            this.useEnvironment = '';
-          }
+      getDefinitionEnv(getCurrentUserId(), getCurrentProjectID()).then((response) => {
+        let env = response.data;
+        if (env) {
+          store.useEnvironment = env.envId;
+          this.useEnvironment = env.envId;
+        } else {
+          store.useEnvironment = '';
+          this.useEnvironment = '';
         }
-      );
+      });
     },
     hasPermission,
     getPath(id, arr) {
@@ -693,10 +612,7 @@ export default {
           if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd('ADD');
           } else {
-            this.handleTabsEdit(
-              this.$t('api_test.definition.request.fast_debug'),
-              'debug'
-            );
+            this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), 'debug');
           }
         });
       } else if (tab.name === 'trash') {
@@ -732,10 +648,7 @@ export default {
           this.handleTabClose();
           break;
         default:
-          this.handleTabsEdit(
-            this.$t('api_test.definition.request.fast_debug'),
-            'debug'
-          );
+          this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), 'debug');
           break;
       }
     },
@@ -784,10 +697,7 @@ export default {
             store.apiMap.get(t.api.id).get('fromChange') === true)
         ) {
           message += t.api.name + '，';
-        } else if (
-          t.type === 'ADD' &&
-          t.title === this.$t('api_test.definition.request.title')
-        ) {
+        } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
           message += this.$t('api_test.definition.request.title') + '，';
         }
         if (t.type === 'ADD' && t.isCopy) {
@@ -839,10 +749,7 @@ export default {
               message += t.api.name;
               id = t.api.id;
             }
-          } else if (
-            t.type === 'ADD' &&
-            t.title === this.$t('api_test.definition.request.title')
-          ) {
+          } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
             message += this.$t('api_test.definition.request.title');
             id = t.api.id;
           }
@@ -853,24 +760,16 @@ export default {
         }
       });
       if (message !== '') {
-        this.$alert(
-          this.$t('commons.api') +
-            ' [ ' +
-            message +
-            ' ] ' +
-            this.$t('commons.confirm_info'),
-          '',
-          {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                store.apiMap.delete(id);
-                this.handleTabRemove(targetName);
-              }
-            },
-          }
-        );
+        this.$alert(this.$t('commons.api') + ' [ ' + message + ' ] ' + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              store.apiMap.delete(id);
+              this.handleTabRemove(targetName);
+            }
+          },
+        });
       } else {
         if (id) {
           store.apiMap.delete(id);
@@ -944,11 +843,7 @@ export default {
       this.apiDefaultTab = newTabName;
     },
     debug(id) {
-      this.handleTabsEdit(
-        this.$t('api_test.definition.request.fast_debug'),
-        'debug',
-        id
-      );
+      this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), 'debug', id);
     },
     initForwardData() {
       let dataRange = this.$route.params.dataSelectRange;
@@ -965,21 +860,16 @@ export default {
       }
     },
     editApiModule(row) {
-      getApiModuleByProjectIdAndProtocol(row.projectId, row.protocol).then(
-        (response) => {
-          if (response.data) {
-            response.data.forEach((node) => {
-              node.name =
-                node.name === '未规划接口'
-                  ? this.$t('api_test.definition.unplanned_api')
-                  : node.name;
-              buildTree(node, { path: '' });
-            });
-            this.moduleOptions = response.data;
-          }
-          this.editApi(row);
+      getApiModuleByProjectIdAndProtocol(row.projectId, row.protocol).then((response) => {
+        if (response.data) {
+          response.data.forEach((node) => {
+            node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name;
+            buildTree(node, { path: '' });
+          });
+          this.moduleOptions = response.data;
         }
-      );
+        this.editApi(row);
+      });
     },
     editApi(row) {
       const index = this.apiTabs.find((p) => p.api && p.api.id === row.id);
@@ -990,19 +880,13 @@ export default {
           row.name = 'copy' + '_' + row.name;
         } else {
           if (row.name) {
-            name =
-              this.$t('api_test.definition.request.edit_api') + '-' + row.name;
+            name = this.$t('api_test.definition.request.edit_api') + '-' + row.name;
           } else {
             name = this.$t('api_test.definition.request.title');
           }
         }
         this.activeTab = 'api';
-        if (
-          row != null &&
-          row.tags != 'null' &&
-          row.tags != '' &&
-          row.tags != undefined
-        ) {
+        if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
           if (
             Object.prototype.toString
               .call(row.tags)
@@ -1028,12 +912,7 @@ export default {
         row.name = 'copy' + '_' + row.name;
       }
       this.activeTab = 'api';
-      if (
-        row != null &&
-        row.tags != 'null' &&
-        row.tags != '' &&
-        row.tags != undefined
-      ) {
+      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (
           Object.prototype.toString
             .call(row.tags)
@@ -1094,8 +973,7 @@ export default {
       for (let index in this.apiTabs) {
         let tab = this.apiTabs[index];
         if (tab.name === this.apiDefaultTab) {
-          tab.title =
-            this.$t('api_test.definition.request.edit_api') + '-' + data.name;
+          tab.title = this.$t('api_test.definition.request.edit_api') + '-' + data.name;
           break;
         }
       }
@@ -1113,12 +991,7 @@ export default {
       } else {
         name = this.$t('api_test.definition.request.title');
       }
-      if (
-        row != null &&
-        row.tags != 'null' &&
-        row.tags != '' &&
-        row.tags != undefined
-      ) {
+      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (
           Object.prototype.toString
             .call(row.tags)

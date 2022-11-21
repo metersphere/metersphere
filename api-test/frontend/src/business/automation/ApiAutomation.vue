@@ -16,21 +16,11 @@
         :is-trash-data="trashEnable"
         :type="'edit'"
         :total="total"
-        ref="nodeTree"
-      />
+        ref="nodeTree" />
     </ms-aside-container>
     <ms-main-container>
-      <el-tabs
-        v-model="activeName"
-        @tab-click="addTab"
-        @tab-remove="closeConfirm"
-      >
-        <el-tab-pane
-          name="trash"
-          :closable="true"
-          :label="$t('commons.trash')"
-          v-if="trashEnable"
-        >
+      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
+        <el-tab-pane name="trash" :closable="true" :label="$t('commons.trash')" v-if="trashEnable">
           <ms-api-scenario-list
             @getTrashCase="getTrashCase"
             @refreshTree="refreshTree"
@@ -47,21 +37,13 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiTrashScenarioList"
-          >
+            ref="apiTrashScenarioList">
             <template v-slot:version>
-              <mx-version-select
-                v-xpack
-                :project-id="projectId"
-                @changeVersion="changeVersion"
-              />
+              <mx-version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
             </template>
           </ms-api-scenario-list>
         </el-tab-pane>
-        <el-tab-pane
-          name="default"
-          :label="$t('api_test.automation.scenario_list')"
-        >
+        <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
             v-if="!trashEnable"
             @getTrashCase="getTrashCase"
@@ -79,32 +61,20 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiScenarioList"
-          >
+            ref="apiScenarioList">
             <template v-slot:version>
-              <mx-version-select
-                v-xpack
-                :project-id="projectId"
-                @changeVersion="changeVersion"
-              />
+              <mx-version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
             </template>
           </ms-api-scenario-list>
         </el-tab-pane>
 
-        <el-tab-pane
-          :key="item.name"
-          v-for="item in tabs"
-          :label="item.label"
-          :name="item.name"
-          closable
-        >
+        <el-tab-pane :key="item.name" v-for="item in tabs" :label="item.label" :name="item.name" closable>
           <el-tooltip
             slot="label"
             effect="dark"
             :content="item.label"
             placement="bottom-start"
-            class="ms-tab-name-width"
-          >
+            class="ms-tab-name-width">
             <span>{{ item.label }}</span>
           </el-tooltip>
           <div class="ms-api-scenario-div">
@@ -115,23 +85,16 @@
               :currentScenario="item.currentScenario"
               :custom-num="customNum"
               :moduleOptions="moduleOptions"
-              ref="autoScenarioConfig"
-            />
+              ref="autoScenarioConfig" />
           </div>
         </el-tab-pane>
 
-        <el-tab-pane
-          name="add"
-          v-if="hasPermission('PROJECT_API_SCENARIO:READ+CREATE')"
-        >
+        <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_SCENARIO:READ+CREATE')">
           <template v-slot:label>
             <el-dropdown @command="handleCommand">
               <el-button type="primary" plain icon="el-icon-plus" size="mini" />
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item
-                  command="ADD"
-                  v-permission="['PROJECT_API_SCENARIO:READ+CREATE']"
-                >
+                <el-dropdown-item command="ADD" v-permission="['PROJECT_API_SCENARIO:READ+CREATE']">
                   {{ $t('api_test.automation.add_scenario') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="CLOSE_ALL"
@@ -147,24 +110,13 @@
 </template>
 
 <script>
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { hasPermission } from 'metersphere-frontend/src/utils/permission';
-import {
-  PROJECT_ID,
-  WORKSPACE_ID,
-} from 'metersphere-frontend/src/utils/constants';
+import { PROJECT_ID, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
 import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
 import { getScenarioById, getScenarioByTrash } from '@/api/scenario';
-import {
-  getOwnerProjectIds,
-  getProject,
-  getProjectConfig,
-} from '@/api/project';
+import { getOwnerProjectIds, getProject, getProjectConfig } from '@/api/project';
 import { getModuleByProjectId } from '@/api/scenario-module';
 import { useApiStore } from '@/store';
 
@@ -173,18 +125,12 @@ const jsondiffpatch = require('jsondiffpatch');
 export default {
   name: 'ApiAutomation',
   components: {
-    MxVersionSelect: () =>
-      import('metersphere-frontend/src/components/version/MxVersionSelect'),
-    MsApiScenarioModule: () =>
-      import('@/business/automation/scenario/ApiScenarioModule'),
-    MsApiScenarioList: () =>
-      import('@/business/automation/scenario/ApiScenarioList'),
-    MsMainContainer: () =>
-      import('metersphere-frontend/src/components/MsMainContainer'),
-    MsAsideContainer: () =>
-      import('metersphere-frontend/src/components/MsAsideContainer'),
-    MsContainer: () =>
-      import('metersphere-frontend/src/components/MsContainer'),
+    MxVersionSelect: () => import('metersphere-frontend/src/components/version/MxVersionSelect'),
+    MsApiScenarioModule: () => import('@/business/automation/scenario/ApiScenarioModule'),
+    MsApiScenarioList: () => import('@/business/automation/scenario/ApiScenarioList'),
+    MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
+    MsAsideContainer: () => import('metersphere-frontend/src/components/MsAsideContainer'),
+    MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
     MsEditApiScenario: () => import('./scenario/EditApiScenario'),
   },
   comments: {},
@@ -274,8 +220,7 @@ export default {
       }
     },
     activeName() {
-      this.isAsideHidden =
-        this.activeName === 'default' || this.activeName === 'trash';
+      this.isAsideHidden = this.activeName === 'default' || this.activeName === 'trash';
     },
   },
   methods: {
@@ -329,10 +274,7 @@ export default {
       getModuleByProjectId(projectId).then((response) => {
         if (response.data) {
           response.data.forEach((node) => {
-            node.name =
-              node.name === '未规划场景'
-                ? this.$t('api_test.automation.unplanned_scenario')
-                : node.name;
+            node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name;
             buildTree(node, { path: '' });
           });
           this.moduleOptions = response.data;
@@ -525,10 +467,7 @@ export default {
         if (v3.scenarioDefinition) {
           this.deleteResourceIds(v3.scenarioDefinition);
         }
-        let delta = jsondiffpatch.diff(
-          JSON.parse(JSON.stringify(v1)),
-          JSON.parse(JSON.stringify(v3))
-        );
+        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
         if (delta) {
           this.isSave = true;
         }
@@ -618,8 +557,7 @@ export default {
           }
           if (
             item.body &&
-            ((item.body.binary && item.body.binary.length === 0) ||
-              (item.body.kvs && item.body.kvs.length === 0))
+            ((item.body.binary && item.body.binary.length === 0) || (item.body.kvs && item.body.kvs.length === 0))
           ) {
             delete item.body;
           }
@@ -647,26 +585,18 @@ export default {
           }
         });
         if (message !== '') {
-          this.$alert(
-            this.$t('commons.scenario') +
-              ' [ ' +
-              message +
-              ' ] ' +
-              this.$t('commons.confirm_info'),
-            '',
-            {
-              confirmButtonText: this.$t('commons.confirm'),
-              cancelButtonText: this.$t('commons.cancel'),
-              callback: (action) => {
-                if (action === 'confirm') {
-                  this.removeTab(targetName);
-                  this.isSave = false;
-                } else {
-                  this.isSave = false;
-                }
-              },
-            }
-          );
+          this.$alert(this.$t('commons.scenario') + ' [ ' + message + ' ] ' + this.$t('commons.confirm_info'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.removeTab(targetName);
+                this.isSave = false;
+              } else {
+                this.isSave = false;
+              }
+            },
+          });
         } else {
           this.isSave = false;
           this.removeTab(targetName);
@@ -681,12 +611,7 @@ export default {
       if (index !== -1) {
         // 清除vuex中缓存的环境
         let tab = this.tabs[index];
-        if (
-          tab &&
-          tab.currentScenario &&
-          store.scenarioEnvMap &&
-          store.scenarioEnvMap instanceof Map
-        ) {
+        if (tab && tab.currentScenario && store.scenarioEnvMap && store.scenarioEnvMap instanceof Map) {
           store.scenarioEnvMap.forEach((v, k) => {
             if (k.indexOf(tab.currentScenario.id) !== -1) {
               store.scenarioEnvMap.delete(k);
@@ -764,10 +689,7 @@ export default {
         this.$error(this.$t('api_test.scenario_jump_message'));
         return;
       }
-      const index = this.tabs.find(
-        (p) =>
-          p.currentScenario.id === row.id && p.currentScenario.copy === row.copy
-      );
+      const index = this.tabs.find((p) => p.currentScenario.id === row.id && p.currentScenario.copy === row.copy);
       if (!index) {
         this.addTab({ name: 'edit', currentScenario: row });
       } else {
@@ -806,13 +728,11 @@ export default {
       });
     },
     getProject() {
-      getProjectConfig(this.projectId, '/SCENARIO_CUSTOM_NUM').then(
-        (result) => {
-          if (result.data) {
-            this.customNum = result.data.scenarioCustomNum;
-          }
+      getProjectConfig(this.projectId, '/SCENARIO_CUSTOM_NUM').then((result) => {
+        if (result.data) {
+          this.customNum = result.data.scenarioCustomNum;
         }
-      );
+      });
     },
     updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
@@ -822,8 +742,7 @@ export default {
         this.$refs.apiScenarioList.condition.versionId = currentVersion || null;
       }
       if (this.$refs.apiTrashScenarioList) {
-        this.$refs.apiTrashScenarioList.condition.versionId =
-          currentVersion || null;
+        this.$refs.apiTrashScenarioList.condition.versionId = currentVersion || null;
       }
       this.refreshAll();
     },

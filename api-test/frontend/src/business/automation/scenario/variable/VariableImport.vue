@@ -5,17 +5,11 @@
     @close="close"
     :close-on-click-modal="false"
     append-to-body
-    width="35%"
-  >
+    width="35%">
     <el-form :rules="rules" label-width="80px" v-model="modeId">
       <el-form-item prop="modeId" :label="$t('commons.import_mode')">
         <el-select size="small" v-model="modeId">
-          <el-option
-            v-for="item in modeOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          />
+          <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
 
@@ -30,13 +24,9 @@
           :on-remove="handleRemove"
           :on-exceed="handleExceed"
           :auto-upload="false"
-          accept=".json"
-        >
+          accept=".json">
           <i class="el-icon-upload"></i>
-          <div
-            class="el-upload__text"
-            v-html="$t('load_test.upload_tips')"
-          ></div>
+          <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
           <div class="el-upload__tip" slot="tip">
             {{ $t('api_test.api_import.file_size_limit') }}
             {{ '，' + $t('api_test.api_import.ms_env_import_file_limit') }}
@@ -132,9 +122,7 @@ export default {
               this.dialogVisible = false;
               this.$success(this.$t('commons.save_success'));
             } catch (exception) {
-              this.$warning(
-                this.$t('api_test.api_import.ms_env_import_file_limit')
-              );
+              this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
             }
           };
         }

@@ -1,17 +1,7 @@
 <template>
-  <el-form
-    :model="editData"
-    label-position="right"
-    label-width="80px"
-    size="small"
-    ref="form5"
-    :rules="rules"
-  >
+  <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form5" :rules="rules">
     <el-form-item :label="$t('api_test.variable_name')" prop="name">
-      <el-input
-        v-model="editData.name"
-        :placeholder="$t('api_test.variable_name')"
-      ></el-input>
+      <el-input v-model="editData.name" :placeholder="$t('api_test.variable_name')"></el-input>
     </el-form-item>
 
     <el-form-item :label="$t('commons.description')" prop="description">
@@ -22,32 +12,17 @@
         :disabled="disabled"
         :autosize="{ minRows: 2, maxRows: 10 }"
         :rows="2"
-        size="small"
-      />
+        size="small" />
     </el-form-item>
 
     <el-form-item :label="$t('schema.minimum')" prop="minNumber">
-      <el-input
-        :disabled="disabled"
-        size="small"
-        v-model="editData.minNumber"
-        placeholder="0"
-      />
+      <el-input :disabled="disabled" size="small" v-model="editData.minNumber" placeholder="0" />
     </el-form-item>
     <el-form-item :label="$t('schema.maximum')" prop="maxNumber">
-      <el-input
-        :disabled="disabled"
-        size="small"
-        v-model="editData.maxNumber"
-        placeholder="10"
-      />
+      <el-input :disabled="disabled" size="small" v-model="editData.maxNumber" placeholder="10" />
     </el-form-item>
     <el-form-item :label="$t('variables.format')" prop="value">
-      <el-input
-        :disabled="disabled"
-        v-model="editData.value"
-        :placeholder="$t('variables.counter_info')"
-      ></el-input>
+      <el-input :disabled="disabled" v-model="editData.value" :placeholder="$t('variables.counter_info')"></el-input>
     </el-form-item>
   </el-form>
 </template>

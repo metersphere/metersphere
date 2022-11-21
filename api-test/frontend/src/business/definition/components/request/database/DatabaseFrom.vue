@@ -6,66 +6,44 @@
       label-width="150px"
       size="small"
       :disabled="isReadOnly"
-      ref="databaseFrom"
-    >
+      ref="databaseFrom">
       <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="name">
         <el-input
           v-model="currentConfig.name"
           maxlength="300"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.request.sql.database_driver')"
-        prop="driver"
-      >
-        <el-select
-          v-model="currentConfig.driver"
-          class="select-100"
-          @change="driverChange"
-          clearable
-        >
+      <el-form-item :label="$t('api_test.request.sql.database_driver')" prop="driver">
+        <el-select v-model="currentConfig.driver" class="select-100" @change="driverChange" clearable>
           <el-option v-for="p in drivers" :key="p" :label="p" :value="p" />
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.request.sql.database_url')"
-        prop="dbUrl"
-      >
+      <el-form-item :label="$t('api_test.request.sql.database_url')" prop="dbUrl">
         <el-input
           v-model="currentConfig.dbUrl"
           maxlength="500"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.request.sql.username')"
-        prop="username"
-      >
+      <el-form-item :label="$t('api_test.request.sql.username')" prop="username">
         <el-input
           v-model="currentConfig.username"
           maxlength="300"
           show-word-limit
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.request.sql.password')"
-        prop="password"
-      >
+      <el-form-item :label="$t('api_test.request.sql.password')" prop="password">
         <el-input
           v-model="currentConfig.password"
           type="password"
           autocomplete="new-password"
           maxlength="200"
-          :placeholder="$t('commons.input_content')"
-        />
+          :placeholder="$t('commons.input_content')" />
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.pool_max')" prop="poolMax">
@@ -75,8 +53,7 @@
           v-model="currentConfig.poolMax"
           :placeholder="$t('commons.please_select')"
           :max="1000 * 10000000"
-          :min="0"
-        />
+          :min="0" />
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.timeout')" prop="timeout">
@@ -86,31 +63,18 @@
           v-model="currentConfig.timeout"
           :placeholder="$t('commons.millisecond')"
           :max="1000 * 10000000"
-          :min="0"
-        />
+          :min="0" />
       </el-form-item>
 
       <el-form-item>
         <div class="buttons">
-          <el-button
-            type="primary"
-            v-show="currentConfig.id"
-            size="small"
-            @click="validate()"
-          >
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="validate()">
             {{ $t('commons.validate') }}
           </el-button>
-          <el-button
-            type="primary"
-            v-show="currentConfig.id"
-            size="small"
-            @click="save('update')"
-          >
+          <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">
             {{ $t('commons.update') }}
           </el-button>
-          <el-button type="primary" size="small" @click="save('add')">{{
-            $t('commons.add')
-          }}</el-button>
+          <el-button type="primary" size="small" @click="save('add')">{{ $t('commons.add') }}</el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -245,13 +209,11 @@ export default {
       if (type === 'com.mysql.jdbc.Driver') {
         this.currentConfig.dbUrl = 'jdbc:mysql://127.0.0.1:3306/database';
       } else if (type === 'com.microsoft.sqlserver.jdbc.SQLServerDriver') {
-        this.currentConfig.dbUrl =
-          'jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database';
+        this.currentConfig.dbUrl = 'jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database';
       } else if (type === 'org.postgresql.Driver') {
         this.currentConfig.dbUrl = 'jdbc:postgresql://127.0.0.1:5432/database';
       } else if (type === 'oracle.jdbc.OracleDriver') {
-        this.currentConfig.dbUrl =
-          'jdbc:oracle:thin:@192.168.2.1:1521:database';
+        this.currentConfig.dbUrl = 'jdbc:oracle:thin:@192.168.2.1:1521:database';
       }
     },
   },

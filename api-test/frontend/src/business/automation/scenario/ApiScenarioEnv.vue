@@ -4,8 +4,7 @@
     :visible.sync="dialogVisible"
     width="30%"
     :destroy-on-close="true"
-    :before-close="handleClose"
-  >
+    :before-close="handleClose">
     <div v-loading="result">
       <div v-for="pe in data" :key="pe.id" style="margin-left: 20px">
         {{ getProjectName(pe.id) }}
@@ -13,30 +12,18 @@
           v-model="pe['selectEnv']"
           placeholder="请选择环境"
           style="margin-left: 10px; margin-top: 10px"
-          size="small"
-        >
+          size="small">
           <el-option
             v-for="(environment, index) in pe.envs"
             :key="index"
             :label="environment.name"
-            :value="environment.id"
-          />
-          <el-button
-            class="ms-scenario-button"
-            size="mini"
-            type="primary"
-            @click="openEnvironmentConfig(pe.id)"
-          >
+            :value="environment.id" />
+          <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
             {{ $t('api_test.environment.environment_config') }}
           </el-button>
           <template v-slot:empty>
             <div class="empty-environment">
-              <el-button
-                class="ms-scenario-button"
-                size="mini"
-                type="primary"
-                @click="openEnvironmentConfig(pe.id)"
-              >
+              <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
                 {{ $t('api_test.environment.environment_config') }}
               </el-button>
             </div>
@@ -47,16 +34,11 @@
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false" size="small">取 消</el-button>
-      <el-button type="primary" @click="handleConfirm" size="small"
-        >确 定</el-button
-      >
+      <el-button type="primary" @click="handleConfirm" size="small">确 定</el-button>
     </span>
 
     <!-- 环境配置 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </el-dialog>
 </template>
 

@@ -2,169 +2,99 @@
   <div>
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
-        <div
-          style="
-            border: 1px #dcdfe6 solid;
-            height: 100%;
-            border-radius: 4px;
-            width: 100%;
-          "
-        >
+        <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
           <el-form
             class="tcp"
             :model="request"
             :rules="rules"
             ref="request"
             :disabled="isReadOnly"
-            style="margin: 20px"
-          >
-            <el-tabs
-              v-model="activeName"
-              class="request-tabs"
-              @tab-click="tabClick"
-            >
+            style="margin: 20px">
+            <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
               <!--query 参数-->
               <el-tab-pane name="parameters" v-if="isBodyShow">
                 <template v-slot:label>
                   {{ $t('api_test.definition.request.req_param') }}
-                  <ms-instructions-icon
-                    :content="$t('api_test.definition.request.esb_title')"
-                  />
+                  <ms-instructions-icon :content="$t('api_test.definition.request.esb_title')" />
                 </template>
                 <esb-table
                   :table-data="request.esbDataStruct"
                   :show-options-button="true"
                   @saveTableData="validateEsbDataStruct"
-                  ref="esbTable"
-                ></esb-table>
+                  ref="esbTable"></esb-table>
               </el-tab-pane>
               <!--报文模版-->
-              <el-tab-pane
-                :label="$t('api_test.definition.request.message_template')"
-                name="request"
-              >
+              <el-tab-pane :label="$t('api_test.definition.request.message_template')" name="request">
                 <div class="send-request">
                   <ms-code-edit
                     mode="text"
                     :read-only="isReadOnly"
                     :data.sync="request.request"
                     :modes="['text', 'json', 'xml', 'html']"
-                    theme="eclipse"
-                  />
+                    theme="eclipse" />
                 </div>
               </el-tab-pane>
 
               <!--其他设置-->
-              <el-tab-pane
-                :label="$t('api_test.definition.request.other_config')"
-                name="other"
-                class="other-config"
-              >
+              <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
                 <el-row>
                   <el-col :span="8">
                     <el-form-item label="TCPClient" prop="classname">
-                      <el-select
-                        v-model="request.classname"
-                        style="width: 100%"
-                        size="small"
-                      >
-                        <el-option
-                          v-for="c in classes"
-                          :key="c"
-                          :label="c"
-                          :value="c"
-                        />
+                      <el-select v-model="request.classname" style="width: 100%" size="small">
+                        <el-option v-for="c in classes" :key="c" :label="c" :value="c" />
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :span="8">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.connect')"
-                      prop="ctimeout"
-                    >
-                      <el-input-number
-                        v-model="request.ctimeout"
-                        controls-position="right"
-                        :min="0"
-                        size="small"
-                      />
+                    <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
+                      <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="8">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.response')"
-                      prop="timeout"
-                    >
-                      <el-input-number
-                        v-model="request.timeout"
-                        controls-position="right"
-                        :min="0"
-                        size="small"
-                      />
+                    <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
+                      <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small" />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="10">
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.so_linger')"
-                      prop="soLinger"
-                    >
+                    <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
                       <el-input v-model="request.soLinger" size="small" />
                     </el-form-item>
                   </el-col>
 
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.eol_byte')"
-                      prop="eolByte"
-                    >
+                    <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
                       <el-input v-model="request.eolByte" size="small" />
                     </el-form-item>
                   </el-col>
 
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.username')"
-                      prop="username"
-                    >
-                      <el-input
-                        v-model="request.username"
-                        maxlength="100"
-                        show-word-limit
-                        size="small"
-                      />
+                    <el-form-item :label="$t('api_test.request.tcp.username')" prop="username">
+                      <el-input v-model="request.username" maxlength="100" show-word-limit size="small" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.password')"
-                      prop="password"
-                    >
+                    <el-form-item :label="$t('api_test.request.tcp.password')" prop="password">
                       <el-input
                         v-model="request.password"
                         maxlength="30"
                         show-word-limit
                         show-password
                         autocomplete="new-password"
-                        size="small"
-                      />
+                        size="small" />
                     </el-form-item>
                   </el-col>
                 </el-row>
 
                 <el-row :gutter="10" style="margin-left: 30px">
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.re_use_connection')"
-                    >
+                    <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
                       <el-checkbox v-model="request.reUseConnection" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="6">
-                    <el-form-item
-                      :label="$t('api_test.request.tcp.close_connection')"
-                    >
+                    <el-form-item :label="$t('api_test.request.tcp.close_connection')">
                       <el-checkbox v-model="request.closeConnection" />
                     </el-form-item>
                   </el-col>
@@ -175,17 +105,12 @@
                   </el-col>
                   <el-col :span="6">
                     <el-form-item label="Connect encoding">
-                      <el-select
-                        v-model="request.connectEncoding"
-                        style="width: 100px"
-                        size="small"
-                      >
+                      <el-select v-model="request.connectEncoding" style="width: 100px" size="small">
                         <el-option
                           v-for="item in connectEncodingArr"
                           :key="item.key"
                           :label="item.value"
-                          :value="item.key"
-                        />
+                          :value="item.key" />
                       </el-select>
                     </el-form-item>
                   </el-col>
@@ -193,22 +118,10 @@
               </el-tab-pane>
 
               <!-- 脚本步骤/断言步骤 -->
-              <el-tab-pane
-                :label="$t('api_test.definition.request.pre_operation')"
-                name="preOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.pre_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.preSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
@@ -217,25 +130,15 @@
                   :apiId="request.id"
                   :response="response"
                   :tab-type="'pre'"
-                  ref="preStep"
-                />
+                  ref="preStep" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.post_operation')"
                 name="postOperate"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.post_operation') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.postSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.postSize }}
                     </div>
@@ -247,25 +150,15 @@
                   :response="response"
                   :tab-type="'post'"
                   ref="postStep"
-                  protocol="TCP"
-                />
+                  protocol="TCP" />
               </el-tab-pane>
               <el-tab-pane
                 :label="$t('api_test.definition.request.assertions_rule')"
                 name="assertionsRule"
-                v-if="showScript"
-              >
-                <span
-                  class="item-tabs"
-                  effect="dark"
-                  placement="top-start"
-                  slot="label"
-                >
+                v-if="showScript">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                   {{ $t('api_test.definition.request.assertions_rule') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.ruleSize > 0"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
                     <div class="el-step__icon-inner">
                       {{ request.ruleSize }}
                     </div>
@@ -278,8 +171,7 @@
                   @reload="reloadBody"
                   :tab-type="'assertionsRule'"
                   ref="assertionsRule"
-                  protocol="TCP"
-                />
+                  protocol="TCP" />
               </el-tab-pane>
             </el-tabs>
           </el-form>
@@ -298,10 +190,7 @@ import ApiDefinitionStepButton from '@/business/definition/components/request/co
 import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
 import EsbTable from './EsbTable';
 import MsJmxStep from '@/business/definition/components/step/JmxStep';
-import {
-  stepCompute,
-  hisDataProcessing,
-} from '@/business/definition/api-definition';
+import { stepCompute, hisDataProcessing } from '@/business/definition/api-definition';
 import { operationConfirm } from 'metersphere-frontend/src/utils';
 
 export default {
@@ -333,9 +222,7 @@ export default {
         },
       ],
       rules: {
-        classname: [
-          { required: true, message: '请选择TCPClient', trigger: 'change' },
-        ],
+        classname: [{ required: true, message: '请选择TCPClient', trigger: 'change' }],
         server: [
           {
             required: true,
@@ -468,9 +355,7 @@ export default {
       return result;
     },
     validate() {
-      let validateResult = this.validateEsbDataStruct(
-        this.request.esbDataStruct
-      );
+      let validateResult = this.validateEsbDataStruct(this.request.esbDataStruct);
       if (validateResult) {
         this.$emit('callback');
       }

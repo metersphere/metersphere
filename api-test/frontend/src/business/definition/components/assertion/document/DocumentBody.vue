@@ -8,9 +8,7 @@
             {{ $t('commons.import') }}
           </span>
           <span v-if="apiId !== 'none'">
-            <el-checkbox v-model="checked" @change="checkedAPI">{{
-              $t('commons.follow_api')
-            }}</el-checkbox>
+            <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
           </span>
         </el-col>
       </el-row>
@@ -28,35 +26,25 @@
       :load="loadChild"
       :height="300"
       v-loading="loading"
-      ref="table"
-    >
-      <el-table-column
-        prop="name"
-        :label="$t('api_test.definition.request.esb_table.name')"
-        width="230"
-        fixed="left"
-      >
+      ref="table">
+      <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230" fixed="left">
         <template slot-scope="scope">
           <el-input
             v-if="
-              (scope.row.status &&
-                scope.column.fixed &&
-                scope.row.id !== 'root') ||
+              (scope.row.status && scope.column.fixed && scope.row.id !== 'root') ||
               (scope.row.type !== 'object' && !scope.row.name)
             "
             v-model="scope.row.name"
             style="width: 140px"
             size="mini"
-            :placeholder="$t('api_test.definition.request.esb_table.name')"
-          />
+            :placeholder="$t('api_test.definition.request.esb_table.name')" />
           <el-input
             v-else
             :disabled="document.type === 'JSON'"
             v-model="scope.row.name"
             style="width: 140px"
             size="mini"
-            :placeholder="$t('api_test.definition.request.esb_table.name')"
-          />
+            :placeholder="$t('api_test.definition.request.esb_table.name')" />
         </template>
       </el-table-column>
 
@@ -64,14 +52,12 @@
         prop="include"
         width="78"
         :label="$t('api_test.request.assertions.must_contain')"
-        :scoped-slot="renderHeader"
-      >
+        :scoped-slot="renderHeader">
         <template slot-scope="scope">
           <el-checkbox
             v-model="scope.row.include"
             @change="handleCheckOneChange"
-            :disabled="checked || scope.row.type === 'array'"
-          />
+            :disabled="checked || scope.row.type === 'array'" />
         </template>
       </el-table-column>
 
@@ -79,36 +65,21 @@
         prop="typeVerification"
         width="100"
         :label="$t('api_test.request.assertions.type_verification')"
-        :scoped-slot="renderHeaderType"
-      >
+        :scoped-slot="renderHeaderType">
         <template slot-scope="scope">
-          <el-checkbox
-            v-model="scope.row.typeVerification"
-            @change="handleCheckOneChange"
-            :disabled="checked"
-          />
+          <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked" />
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="type"
-        :label="$t('api_test.definition.request.esb_table.type')"
-        width="120"
-      >
+      <el-table-column prop="type" :label="$t('api_test.definition.request.esb_table.type')" width="120">
         <template slot-scope="scope">
           <el-select
             v-model="scope.row.type"
             :placeholder="$t('commons.please_select')"
             size="mini"
             @change="changeType(scope.row)"
-            :disabled="checked"
-          >
-            <el-option
-              v-for="item in typeSelectOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            :disabled="checked">
+            <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
       </el-table-column>
@@ -116,35 +87,23 @@
       <el-table-column
         prop="contentVerification"
         :label="$t('api_test.request.assertions.content_verification')"
-        width="200"
-      >
+        width="200">
         <template slot-scope="scope">
           <el-select
             v-model="scope.row.contentVerification"
             :placeholder="$t('commons.please_select')"
             size="mini"
-            :disabled="checked"
-          >
-            <el-option
-              v-for="item in verificationOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            :disabled="checked">
+            <el-option v-for="item in verificationOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
       </el-table-column>
       <el-table-column
         prop="expectedOutcome"
         :label="$t('api_test.request.assertions.expected_results')"
-        min-width="200"
-      >
+        min-width="200">
         <template slot-scope="scope">
-          <el-input
-            v-if="scope.row.status && scope.column.fixed"
-            v-model="scope.row.expectedOutcome"
-            size="mini"
-          />
+          <el-input v-if="scope.row.status && scope.column.fixed" v-model="scope.row.expectedOutcome" size="mini" />
           <span v-else>{{ scope.row.expectedOutcome }}</span>
         </template>
       </el-table-column>
@@ -153,30 +112,20 @@
         prop="arrayVerification"
         width="140"
         :label="$t('api_test.request.assertions.check')"
-        :scoped-slot="renderHeaderArray"
-      >
+        :scoped-slot="renderHeaderArray">
         <template slot-scope="scope">
           <el-checkbox
             v-model="scope.row.arrayVerification"
             @change="handleCheckOneChange"
             v-if="scope.row.type === 'array'"
-            :disabled="checked"
-          />
+            :disabled="checked" />
         </template>
       </el-table-column>
 
-      <el-table-column
-        :label="$t('commons.operating')"
-        width="130"
-        fixed="right"
-      >
+      <el-table-column :label="$t('commons.operating')" width="130" fixed="right">
         <template v-slot:default="scope">
           <span>
-            <el-tooltip
-              effect="dark"
-              :content="$t('api_test.request.assertions.add_check')"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="$t('api_test.request.assertions.add_check')" placement="top-start">
               <el-button
                 icon="el-icon-document-checked"
                 circle
@@ -184,18 +133,10 @@
                 size="mini"
                 @click="addVerification(scope.row)"
                 :disabled="
-                  scope.row.type === 'object' ||
-                  scope.row.type === 'array' ||
-                  checked ||
-                  scope.row.id === 'root'
-                "
-              />
+                  scope.row.type === 'object' || scope.row.type === 'array' || checked || scope.row.id === 'root'
+                " />
             </el-tooltip>
-            <el-tooltip
-              effect="dark"
-              :content="$t('api_test.request.assertions.add_subfield')"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="$t('api_test.request.assertions.add_subfield')" placement="top-start">
               <el-button
                 icon="el-icon-plus"
                 circle
@@ -203,17 +144,9 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="addRow(scope.row)"
-                :disabled="
-                  (scope.row.type !== 'object' && scope.row.type !== 'array') ||
-                  checked
-                "
-              />
+                :disabled="(scope.row.type !== 'object' && scope.row.type !== 'array') || checked" />
             </el-tooltip>
-            <el-tooltip
-              effect="dark"
-              :content="$t('commons.remove')"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button
                 icon="el-icon-delete"
                 type="primary"
@@ -221,18 +154,13 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="remove(scope.row)"
-                :disabled="checked || scope.row.id === 'root'"
-              />
+                :disabled="checked || scope.row.id === 'root'" />
             </el-tooltip>
           </span>
         </template>
       </el-table-column>
     </el-table>
-    <ms-document-import
-      :document="document"
-      @setJSONData="setJSONData"
-      ref="import"
-    />
+    <ms-document-import :document="document" @setJSONData="setJSONData" ref="import" />
   </div>
 </template>
 
@@ -315,34 +243,18 @@ export default {
 
   created() {
     if (this.document.type === 'JSON') {
-      this.checked =
-        this.document.data.jsonFollowAPI &&
-        this.document.data.jsonFollowAPI !== 'false'
-          ? true
-          : false;
+      this.checked = this.document.data.jsonFollowAPI && this.document.data.jsonFollowAPI !== 'false' ? true : false;
     } else if (this.document.type === 'XML') {
-      this.checked =
-        this.document.data.xmlFollowAPI &&
-        this.document.data.xmlFollowAPI !== 'false'
-          ? true
-          : false;
+      this.checked = this.document.data.xmlFollowAPI && this.document.data.xmlFollowAPI !== 'false' ? true : false;
     }
     this.changeData();
   },
   watch: {
     'document.type'() {
       if (this.document.type === 'JSON') {
-        this.checked =
-          this.document.data.jsonFollowAPI &&
-          this.document.data.jsonFollowAPI !== 'false'
-            ? true
-            : false;
+        this.checked = this.document.data.jsonFollowAPI && this.document.data.jsonFollowAPI !== 'false' ? true : false;
       } else if (this.document.type === 'XML') {
-        this.checked =
-          this.document.data.xmlFollowAPI &&
-          this.document.data.xmlFollowAPI !== 'false'
-            ? true
-            : false;
+        this.checked = this.document.data.xmlFollowAPI && this.document.data.xmlFollowAPI !== 'false' ? true : false;
       }
       this.changeData();
     },
@@ -441,21 +353,15 @@ export default {
       });
     },
     getAPI(id) {
-      getApiDocument(id ? id : this.apiId, this.document.type).then(
-        (response) => {
-          if (response.data) {
-            this.tableDataList(response.data);
-          }
+      getApiDocument(id ? id : this.apiId, this.document.type).then((response) => {
+        if (response.data) {
+          this.tableDataList(response.data);
         }
-      );
+      });
     },
     getDocument() {
       // 来自场景步骤，请求id为用例id
-      if (
-        this.document &&
-        this.document.nodeType &&
-        this.document.nodeType === 'scenario'
-      ) {
+      if (this.document && this.document.nodeType && this.document.nodeType === 'scenario') {
         this.getCase();
       } else if (
         this.document &&
@@ -495,12 +401,7 @@ export default {
       }
     },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (
-        columnIndex === 0 ||
-        columnIndex === 1 ||
-        columnIndex === 2 ||
-        columnIndex === 3
-      ) {
+      if (columnIndex === 0 || columnIndex === 1 || columnIndex === 2 || columnIndex === 3) {
         return {
           rowspan: row.rowspan,
           colspan: row.rowspan > 0 ? 1 : 0,
@@ -795,18 +696,8 @@ export default {
       }
     },
     removeTableRow(row) {
-      this.removeVerSet(
-        this.mapData.get(row.parentId)
-          ? this.mapData.get(row.parentId)
-          : this.tableData,
-        row
-      );
-      this.removeFromDataStruct(
-        this.mapData.get(row.parentId)
-          ? this.mapData.get(row.parentId)
-          : this.tableData,
-        row
-      );
+      this.removeVerSet(this.mapData.get(row.parentId) ? this.mapData.get(row.parentId) : this.tableData, row);
+      this.removeFromDataStruct(this.mapData.get(row.parentId) ? this.mapData.get(row.parentId) : this.tableData, row);
     },
     removeFromDataStruct(dataStruct, row) {
       if (dataStruct == null || dataStruct.length === 0) {

@@ -14,23 +14,14 @@
               :report="report"
               :project-env-map="projectEnvMap"
               @reportExport="handleExport"
-              @reportSave="handleSave"
-            />
+              @reportSave="handleSave" />
 
             <!-- content -->
             <main v-if="isNotRunning">
               <!-- content header chart -->
-              <ms-metric-chart
-                :content="content"
-                :totalTime="totalTime"
-                :report="report"
-              />
+              <ms-metric-chart :content="content" :totalTime="totalTime" :report="report" />
 
-              <el-tabs
-                v-model="activeName"
-                @tab-click="handleClick"
-                style="min-width: 1200px"
-              >
+              <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1200px">
                 <!-- all step-->
                 <el-tab-pane label="All" name="total">
                   <ms-scenario-results
@@ -40,8 +31,7 @@
                     :is-share="isShare"
                     :share-id="shareId"
                     v-on:requestResult="requestResult"
-                    ref="resultsTree"
-                  />
+                    ref="resultsTree" />
                 </el-tab-pane>
                 <!-- fail step -->
                 <el-tab-pane name="fail">
@@ -54,8 +44,7 @@
                     :share-id="shareId"
                     :treeData="fullTreeNodes"
                     ref="failsTree"
-                    :errorReport="content.error"
-                  />
+                    :errorReport="content.error" />
                 </el-tab-pane>
                 <!--error step -->
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
@@ -69,8 +58,7 @@
                     :share-id="shareId"
                     :console="content.console"
                     :treeData="fullTreeNodes"
-                    ref="errorReportTree"
-                  />
+                    ref="errorReportTree" />
                 </el-tab-pane>
                 <!-- Not performed step -->
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
@@ -84,8 +72,7 @@
                     :share-id="shareId"
                     :console="content.console"
                     :treeData="fullTreeNodes"
-                    ref="unExecuteTree"
-                  />
+                    ref="unExecuteTree" />
                 </el-tab-pane>
                 <!-- console -->
                 <el-tab-pane name="console">
@@ -96,8 +83,7 @@
                     :mode="'text'"
                     :read-only="true"
                     :data.sync="content.console"
-                    height="calc(100vh - 500px)"
-                  />
+                    height="calc(100vh - 500px)" />
                 </el-tab-pane>
               </el-tabs>
             </main>
@@ -114,8 +100,7 @@
       :title="report.name"
       :content="content"
       :report="report"
-      :total-time="totalTime"
-    />
+      :total-time="totalTime" />
   </div>
 </template>
 
@@ -243,12 +228,7 @@ export default {
       }
     },
     rerunVerify() {
-      if (
-        hasLicense() &&
-        this.fullTreeNodes &&
-        this.fullTreeNodes.length > 0 &&
-        !this.isShare
-      ) {
+      if (hasLicense() && this.fullTreeNodes && this.fullTreeNodes.length > 0 && !this.isShare) {
         this.fullTreeNodes.forEach((item) => {
           item.redirect = true;
           if (
@@ -264,11 +244,7 @@ export default {
     },
     handleClick(tab, event) {
       this.isRequestResult = false;
-      if (
-        this.report &&
-        this.report.reportVersion &&
-        this.report.reportVersion > 1
-      ) {
+      if (this.report && this.report.reportVersion && this.report.reportVersion > 1) {
         this.filter(tab.index);
       }
     },
@@ -324,9 +300,7 @@ export default {
             node.children = [];
           } else {
             if (item.subRequestResults && item.subRequestResults.length > 0) {
-              let itemChildren = this.deepFormatTreeNode(
-                item.subRequestResults
-              );
+              let itemChildren = this.deepFormatTreeNode(item.subRequestResults);
               node.children = itemChildren;
               if (node.label.indexOf('UUID=')) {
                 node.label = node.label.split('UUID=')[0];
@@ -370,8 +344,7 @@ export default {
                 if (i !== nodeArray.length - 1 && !children[j].children) {
                   children[j].children = [];
                 }
-                children =
-                  i === nodeArray.length - 1 ? children : children[j].children;
+                children = i === nodeArray.length - 1 ? children : children[j].children;
                 isExist = true;
                 break;
               }
@@ -379,16 +352,10 @@ export default {
           }
           if (!isExist) {
             children.push(node);
-            if (
-              i !== nodeArray.length - 1 &&
-              !children[children.length - 1].children
-            ) {
+            if (i !== nodeArray.length - 1 && !children[children.length - 1].children) {
               children[children.length - 1].children = [];
             }
-            children =
-              i === nodeArray.length - 1
-                ? children
-                : children[children.length - 1].children;
+            children = i === nodeArray.length - 1 ? children : children[children.length - 1].children;
           }
         }
       });
@@ -444,10 +411,7 @@ export default {
         // 排序
         if (scenarioDefinition[i]) {
           scenarioDefinition[i].index = Number(i) + 1;
-          if (
-            scenarioDefinition[i].children &&
-            scenarioDefinition[i].children.length > 0
-          ) {
+          if (scenarioDefinition[i].children && scenarioDefinition[i].children.length > 0) {
             this.recursiveSorting(scenarioDefinition[i].children);
           }
         }
@@ -468,8 +432,7 @@ export default {
             this.fullTreeNodes = report.steps;
             this.content.console = report.console;
             this.content.error = report.error;
-            let successCount =
-              report.total - report.error - report.errorCode - report.unExecute;
+            let successCount = report.total - report.error - report.errorCode - report.unExecute;
             this.content.success = successCount;
             this.totalTime = report.totalTime;
           }
@@ -529,18 +492,13 @@ export default {
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
-              let successCount =
-                report.total -
-                report.error -
-                report.errorCode -
-                report.unExecute;
+              let successCount = report.total - report.error - report.errorCode - report.unExecute;
               this.content.success = successCount;
               this.totalTime = report.totalTime;
             }
             // 增加失败重跑校验
             if (
-              (this.report &&
-                this.report.reportType === 'SCENARIO_INTEGRATED') ||
+              (this.report && this.report.reportType === 'SCENARIO_INTEGRATED') ||
               this.report.reportType === 'API_INTEGRATED'
             ) {
               this.rerunVerify();
@@ -579,11 +537,7 @@ export default {
           let tempMap = new Map();
 
           for (let i = 0; i < children.length; i++) {
-            if (
-              !children[i].value ||
-              !children[i].value.startTime ||
-              children[i].value.startTime === 0
-            ) {
+            if (!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0) {
               //若没有value或未执行的，则step留在当前位置
               tempArr[i] = children[i];
               //进行标识
@@ -702,10 +656,7 @@ export default {
     },
     formatExportApi(array, scenario) {
       array.forEach((item) => {
-        if (
-          this.stepFilter &&
-          this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1
-        ) {
+        if (this.stepFilter && this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1) {
           if (item.errorCode) {
             item.value.errorCode = item.errorCode;
           }
@@ -721,10 +672,7 @@ export default {
     },
     startExport() {
       if (this.report.reportVersion && this.report.reportVersion > 1) {
-        if (
-          this.report.reportType === 'API_INTEGRATED' ||
-          this.report.reportType === 'UI_INTEGRATED'
-        ) {
+        if (this.report.reportType === 'API_INTEGRATED' || this.report.reportType === 'UI_INTEGRATED') {
           let scenario = { name: '', requestResults: [] };
           this.content.scenarios = [scenario];
           this.formatExportApi(this.fullTreeNodes, scenario);
@@ -733,10 +681,7 @@ export default {
             this.fullTreeNodes.forEach((item) => {
               if (item.type === 'scenario') {
                 let scenario = { name: item.label, requestResults: [] };
-                if (
-                  this.content.scenarios &&
-                  this.content.scenarios.length > 0
-                ) {
+                if (this.content.scenarios && this.content.scenarios.length > 0) {
                   this.content.scenarios.push(scenario);
                 } else {
                   this.content.scenarios = [scenario];
@@ -752,10 +697,7 @@ export default {
       let name = this.report.name;
       this.$nextTick(() => {
         setTimeout(() => {
-          downloadPDF(
-            document.getElementById('apiTestReport'),
-            name || 'scenario-report'
-          );
+          downloadPDF(document.getElementById('apiTestReport'), name || 'scenario-report');
           reset();
         }, 5000);
       });

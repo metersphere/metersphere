@@ -7,12 +7,7 @@
           {{ $t('commons.name') }}
         </el-col>
         <el-col :span="9">
-          <el-input
-            class="ms-http-input"
-            style="width: 80%"
-            size="small"
-            v-model="mockExpectConfig.name"
-          />
+          <el-input class="ms-http-input" style="width: 80%" size="small" v-model="mockExpectConfig.name" />
         </el-col>
         <el-col :span="1">
           {{ $t('commons.tag') }}
@@ -20,15 +15,9 @@
         <el-col :span="9">
           <ms-input-tag
             :currentScenario="mockExpectConfig"
-            style="
-              width: 80%;
-              height: 100%;
-              white-space: nowrap;
-              overflow: hidden;
-            "
+            style="width: 80%; height: 100%; white-space: nowrap; overflow: hidden"
             v-if="showHeadTable"
-            ref="tag"
-          />
+            ref="tag" />
         </el-col>
         <el-col :span="4">
           <el-button

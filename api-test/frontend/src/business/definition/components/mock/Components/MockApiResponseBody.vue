@@ -16,20 +16,14 @@
     </el-radio-group>
     <div class="ms-body" v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch
-          active-text="JSON-SCHEMA"
-          v-model="body.format"
-          @change="formatChange"
-          active-value="JSON-SCHEMA"
-        />
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA" />
       </div>
       <ms-json-code-edit
         v-if="body.format === 'JSON-SCHEMA'"
         :body="body"
         :show-mock-vars="true"
         :need-mock="needMock"
-        ref="jsonCodeEdit"
-      />
+        ref="jsonCodeEdit" />
       <ms-code-edit
         v-else-if="codeEditActive && loadIsOver"
         :read-only="isReadOnly"
@@ -37,8 +31,7 @@
         :modes="modes"
         :mode="'json'"
         height="90%"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'fromApi'">
@@ -49,16 +42,11 @@
         :mode="'text'"
         v-if="loadIsOver"
         height="90%"
-        ref="fromApiCodeEdit"
-      />
+        ref="fromApiCodeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <el-input
-        v-model="body.xmlHeader"
-        size="small"
-        style="width: 400px; margin-bottom: 5px"
-      />
+      <el-input v-model="body.xmlHeader" size="small" style="width: 400px; margin-bottom: 5px" />
       <ms-code-edit
         :read-only="isReadOnly"
         :data.sync="body.xmlRaw"
@@ -66,8 +54,7 @@
         :mode="'xml'"
         v-if="loadIsOver"
         height="90%"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
@@ -77,8 +64,7 @@
         :modes="modes"
         v-if="loadIsOver"
         height="90%"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
 
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
@@ -292,9 +278,7 @@ export default {
         }
       });
       if (!isType) {
-        this.headers.unshift(
-          new KeyValue({ name: 'Content-Type', value: value })
-        );
+        this.headers.unshift(new KeyValue({ name: 'Content-Type', value: value }));
         this.$emit('headersChange');
       }
     },

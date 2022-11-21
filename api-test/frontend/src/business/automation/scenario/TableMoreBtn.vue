@@ -5,11 +5,7 @@
         <i class="el-icon-more ms-icon-more" />
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
-        <el-dropdown-item
-          v-for="(btn, index) in buttons"
-          :key="index"
-          @click.native.stop="click(btn)"
-        >
+        <el-dropdown-item v-for="(btn, index) in buttons" :key="index" @click.native.stop="click(btn)">
           {{ btn.name }}
         </el-dropdown-item>
       </el-dropdown-menu>

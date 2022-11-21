@@ -25,21 +25,15 @@ export const SCRIPT_MENU = [
         value: 'vars.put("variable_name", "variable_value")',
       },
       {
-        title: i18n.t(
-          'api_test.request.processor.code_template_get_response_header'
-        ),
+        title: i18n.t('api_test.request.processor.code_template_get_response_header'),
         value: 'prev.getResponseHeaders()',
       },
       {
-        title: i18n.t(
-          'api_test.request.processor.code_template_get_response_code'
-        ),
+        title: i18n.t('api_test.request.processor.code_template_get_response_code'),
         value: 'prev.getResponseCode()',
       },
       {
-        title: i18n.t(
-          'api_test.request.processor.code_template_get_response_result'
-        ),
+        title: i18n.t('api_test.request.processor.code_template_get_response_result'),
         value: 'prev.getResponseDataAsString()',
       },
     ],
@@ -48,12 +42,8 @@ export const SCRIPT_MENU = [
     title: i18n.t('project.code_segment.project_env'),
     children: [
       {
-        title: i18n.t(
-          'api_test.request.processor.param_environment_set_global_variable'
-        ),
-        value:
-          'vars.put(${__metersphere_env_id}+"key","value");\n' +
-          'vars.put("key","value")',
+        title: i18n.t('api_test.request.processor.param_environment_set_global_variable'),
+        value: 'vars.put(${__metersphere_env_id}+"key","value");\n' + 'vars.put("key","value")',
       },
     ],
   },
@@ -71,8 +61,7 @@ export const SCRIPT_MENU = [
     children: [
       {
         title: i18n.t('project.code_segment.stop_test'),
-        value:
-          'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
+        value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
       },
     ],
   },

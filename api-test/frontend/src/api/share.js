@@ -1,8 +1,4 @@
-import {
-  post,
-  generateShareUrl,
-  get,
-} from 'metersphere-frontend/src/plugins/request';
+import { post, generateShareUrl, get } from 'metersphere-frontend/src/plugins/request';
 
 export function generateApiDocumentShareInfo(param) {
   return post('/share/generate/api/document', param);
@@ -22,9 +18,7 @@ export function getShareContent(shareId, stepId) {
 }
 
 export function getShareApiReport(shareId, testId) {
-  return get(
-    '/share/api/definition/report/getReport/' + shareId + '/' + testId
-  );
+  return get('/share/api/definition/report/getReport/' + shareId + '/' + testId);
 }
 
 export function getShareInfo(id) {

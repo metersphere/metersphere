@@ -8,10 +8,7 @@
           :show-create="!readOnly"
           @search="search"
           @create="createEnvironment"
-          :create-permission="[
-            'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP',
-          ]"
-        >
+          :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP']">
         </ms-table-header>
       </template>
       <el-table
@@ -20,24 +17,17 @@
         ref="table"
         row-key="id"
         @expand-change="expandChange"
-        :height="screenHeight"
-      >
+        :height="screenHeight">
         <el-table-column type="expand" prop="id">
           <template v-slot:default="scope">
             <environment-group-row
               :env-group-id="scope.row.id"
               ref="environmentGroupRow"
               :read-only="!scope.row.readOnly"
-              style="overflow-x: hidden; overflow-y: auto; height: 180px"
-            />
+              style="overflow-x: hidden; overflow-y: auto; height: 180px" />
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('commons.name')"
-          prop="name"
-          show-overflow-tooltip
-          min-width="200"
-        >
+        <el-table-column :label="$t('commons.name')" prop="name" show-overflow-tooltip min-width="200">
           <template v-slot:default="scope">
             <span @click.stop v-if="scope.row.showNameInput">
               <el-input
@@ -48,8 +38,7 @@
                 show-word-limit
                 maxlength="50"
                 :placeholder="$t('commons.input_name')"
-                ref="nameEdit"
-              />
+                ref="nameEdit" />
             </span>
             <span v-else>
               <span>{{ scope.row.name }}</span>
@@ -57,35 +46,21 @@
                 class="el-icon-edit"
                 style="cursor: pointer; margin-left: 4px"
                 @click="editName(scope.row)"
-                v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']"
-              />
+                v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP']" />
             </span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="createTime"
-          :label="$t('commons.create_time')"
-          min-width="200"
-        >
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" min-width="200">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination
-        :change="init"
-        :current-page.sync="currentPage"
-        :page-size.sync="pageSize"
-        :total="total"
-      />
+      <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
     </el-card>
 
     <edit-environment-group ref="editEnvironmentGroup" @refresh="init" />
-    <ms-delete-confirm
-      :title="$t('workspace.env_group.delete')"
-      @delete="_handleDelete"
-      ref="deleteConfirm"
-    />
+    <ms-delete-confirm :title="$t('workspace.env_group.delete')" @delete="_handleDelete" ref="deleteConfirm" />
   </div>
 </template>
 
@@ -160,11 +135,7 @@ export default {
   },
   methods: {
     init() {
-      this.result = envGroupList(
-        this.currentPage,
-        this.pageSize,
-        this.condition
-      ).then((res) => {
+      this.result = envGroupList(this.currentPage, this.pageSize, this.condition).then((res) => {
         let data = res.data;
         let { listObject, itemCount } = data;
         this.environmentGroupList = listObject;

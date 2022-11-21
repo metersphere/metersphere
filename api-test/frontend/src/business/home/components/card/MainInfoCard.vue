@@ -5,16 +5,12 @@
         {{ title }}
       </span>
       <div style="margin-top: 4px; height: 40px">
-        <span v-if="isExecuteInfo" class="addition-num">{{
-          countData.executedTimesInWeek
-        }}</span>
+        <span v-if="isExecuteInfo" class="addition-num">{{ countData.executedTimesInWeek }}</span>
         <span v-else class="main-num">{{ countData.total }}</span>
       </div>
       <div style="margin-top: 32px">
         <div v-if="isExecuteInfo">
-          <span class="main-info-card-title">{{
-            $t('home.dashboard.public.executed_times')
-          }}</span>
+          <span class="main-info-card-title">{{ $t('home.dashboard.public.executed_times') }}</span>
           <div class="common-amount">
             <span class="addition-num">
               {{ countData.executedTimes }}
@@ -24,40 +20,26 @@
         <div v-else>
           <el-row>
             <el-col :span="12">
-              <span class="main-info-card-title">{{
-                $t('home.dashboard.public.this_week')
-              }}</span>
+              <span class="main-info-card-title">{{ $t('home.dashboard.public.this_week') }}</span>
               <div class="common-amount">
                 <el-button
                   class="common-amount-button"
                   v-permission-disable="linkPermission"
-                  @click="redirect('createdInWeek')"
-                >
+                  @click="redirect('createdInWeek')">
                   +{{ countData.createdInWeek }}
-                  <img
-                    class="main-info-card-right"
-                    src="/assets/figma/icon_right_outlined.svg"
-                    alt=""
-                  />
+                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
             </el-col>
             <el-col :span="12">
-              <span class="main-info-card-title">{{
-                $t('home.dashboard.public.fake_error')
-              }}</span>
+              <span class="main-info-card-title">{{ $t('home.dashboard.public.fake_error') }}</span>
               <div class="common-amount">
                 <el-button
                   class="common-amount-button"
                   v-permission-disable="linkPermission"
-                  @click="redirect('fakeError')"
-                >
+                  @click="redirect('fakeError')">
                   {{ countData.fakeErrorCount }}
-                  <img
-                    class="main-info-card-right"
-                    src="/assets/figma/icon_right_outlined.svg"
-                    alt=""
-                  />
+                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
             </el-col>
@@ -81,13 +63,7 @@ export default {
   },
   methods: {
     redirect(seletDataType) {
-      this.$emit(
-        'redirectPage',
-        this.redirectPageName,
-        this.redirectDataType,
-        seletDataType,
-        null
-      );
+      this.$emit('redirectPage', this.redirectPageName, this.redirectDataType, seletDataType, null);
     },
   },
 };

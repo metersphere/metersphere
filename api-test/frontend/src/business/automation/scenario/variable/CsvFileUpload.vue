@@ -10,8 +10,7 @@
           :beforeUpload="uploadValidate"
           :on-exceed="exceed"
           :limit="1"
-          ref="upload"
-        >
+          ref="upload">
           <div class="upload-default" @click.stop>
             <el-popover placement="right" trigger="hover">
               <div>
@@ -22,11 +21,8 @@
                   :limit="1"
                   :on-exceed="exceed"
                   :beforeUpload="uploadValidate"
-                  ref="uploadLocal"
-                >
-                  <el-button type="text">
-                    {{ $t('permission.project_file.local_upload') }}</el-button
-                  >
+                  ref="uploadLocal">
+                  <el-button type="text"> {{ $t('permission.project_file.local_upload') }}</el-button>
                   <span slot="file" />
                 </el-upload>
               </div>
@@ -36,52 +32,23 @@
               <i class="el-icon-plus" slot="reference" />
             </el-popover>
           </div>
-          <div
-            class="upload-item"
-            slot="file"
-            slot-scope="{ file }"
-            v-loading="loading"
-          >
-            <span>{{
-              file.file && file.file.name ? file.file.name : file.name
-            }}</span>
-            <span
-              class="el-upload-list__item-actions"
-              v-if="file.storage === 'FILE_REF'"
-            >
-              <span
-                v-if="!disabled"
-                class="ms-list__item-delete"
-                @click="handleUnlock(file)"
-              >
+          <div class="upload-item" slot="file" slot-scope="{ file }" v-loading="loading">
+            <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
+            <span class="el-upload-list__item-actions" v-if="file.storage === 'FILE_REF'">
+              <span v-if="!disabled" class="ms-list__item-delete" @click="handleUnlock(file)">
                 <i class="el-icon-unlock" />
                 <span style="font-size: 13px">
-                  {{
-                    file.isExist
-                      ? $t('permission.project_file.file_delete_tip')
-                      : ''
-                  }}
+                  {{ file.isExist ? $t('permission.project_file.file_delete_tip') : '' }}
                 </span>
               </span>
             </span>
             <span class="el-upload-list__item-actions" v-else>
-              <span
-                v-if="!disabled"
-                class="ms-list__item-delete"
-                @click="handleUpload(file)"
-              >
-                <el-tooltip
-                  :content="$t('permission.project_file.save_to_file_manage')"
-                  placement="top"
-                >
+              <span v-if="!disabled" class="ms-list__item-delete" @click="handleUpload(file)">
+                <el-tooltip :content="$t('permission.project_file.save_to_file_manage')" placement="top">
                   <i class="el-icon-upload" style="font-size: 23px" />
                 </el-tooltip>
               </span>
-              <span
-                v-if="!disabled"
-                class="ms-list__item-delete"
-                @click="handleRemove(file)"
-              >
+              <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
                 <i class="el-icon-delete" />
               </span>
             </span>
@@ -89,9 +56,7 @@
         </el-upload>
       </el-col>
       <el-col :span="6">
-        <el-button size="small" style="margin: 3px 5px" @click="download"
-          >下载</el-button
-        >
+        <el-button size="small" style="margin: 3px 5px" @click="download">下载</el-button>
       </el-col>
     </el-row>
     <ms-file-batch-move ref="module" @setModuleId="setModuleId" />
@@ -100,10 +65,7 @@
 </template>
 
 <script>
-import {
-  dumpFile,
-  getFileMetadata,
-} from 'metersphere-frontend/src/api/file-metadata';
+import { dumpFile, getFileMetadata } from 'metersphere-frontend/src/api/file-metadata';
 import { downloadFile, getUUID } from 'metersphere-frontend/src/utils';
 import MsFileBatchMove from '@/business/commons/FileBatchMove';
 import MsFileMetadataList from '@/business/commons/QuoteFileList';
@@ -203,10 +165,7 @@ export default {
         this.parameter.files[0].file &&
         this.parameter.files[0].file.name
       ) {
-        downloadFile(
-          this.parameter.files[0].file.name,
-          this.parameter.files[0].file
-        );
+        downloadFile(this.parameter.files[0].file.name, this.parameter.files[0].file);
       }
       // 远程下载文件
       if (
@@ -238,33 +197,26 @@ export default {
     },
     handleRemove(file) {
       let fileName = file.name ? file.name : file.file.name;
-      this.$alert(
-        this.$t('api_test.environment.csv_delete') +
-          '：【 ' +
-          fileName +
-          ' 】？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.$refs.upload.handleRemove(file);
-              this.$refs.uploadLocal.handleRemove(file);
-              for (let i = 0; i < this.parameter.files.length; i++) {
-                let paramFileName = this.parameter.files[i].name
-                  ? this.parameter.files[i].name
-                  : this.parameter.files[i].file.name;
-                if (fileName === paramFileName) {
-                  this.parameter.files.splice(i, 1);
-                  this.$refs.upload.handleRemove(file);
-                  this.$refs.uploadLocal.handleRemove(file);
-                  break;
-                }
+      this.$alert(this.$t('api_test.environment.csv_delete') + '：【 ' + fileName + ' 】？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$refs.upload.handleRemove(file);
+            this.$refs.uploadLocal.handleRemove(file);
+            for (let i = 0; i < this.parameter.files.length; i++) {
+              let paramFileName = this.parameter.files[i].name
+                ? this.parameter.files[i].name
+                : this.parameter.files[i].file.name;
+              if (fileName === paramFileName) {
+                this.parameter.files.splice(i, 1);
+                this.$refs.upload.handleRemove(file);
+                this.$refs.uploadLocal.handleRemove(file);
+                break;
               }
             }
-          },
-        }
-      );
+          }
+        },
+      });
     },
     exceed() {
       this.$warning(this.$t('test_track.case.import.upload_limit_count'));

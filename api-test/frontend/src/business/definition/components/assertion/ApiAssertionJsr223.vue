@@ -5,20 +5,10 @@
         {{ assertion.desc }}
       </div>
       <div class="assertion-item btn">
-        <el-button
-          :disabled="isReadOnly"
-          type="success"
-          size="mini"
-          @click="detail"
-        >
+        <el-button :disabled="isReadOnly" type="success" size="mini" @click="detail">
           {{ $t('commons.edit') }}
         </el-button>
-        <el-button
-          :disabled="isReadOnly"
-          type="primary"
-          size="mini"
-          @click="add"
-        >
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </div>
@@ -28,39 +18,17 @@
         {{ assertion.desc }}
       </div>
       <div class="assertion-item btn circle">
-        <i
-          class="el-icon-view el-button el-button--primary el-button--mini is-circle"
-          circle
-          @click="showPage"
-        />
-        <el-button
-          :disabled="isReadOnly"
-          type="success"
-          size="mini"
-          icon="el-icon-edit"
-          circle
-          @click="detail"
-        />
-        <el-tooltip
-          :content="$t('test_resource_pool.enable_disable')"
-          placement="top"
-        >
+        <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle @click="showPage" />
+        <el-button :disabled="isReadOnly" type="success" size="mini" icon="el-icon-edit" circle @click="detail" />
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
           <el-switch
             v-model="assertion.enable"
             class="enable-switch"
             size="mini"
             :disabled="isReadOnly"
-            style="width: 30px; margin: 0px 10px 0px 10px"
-          />
+            style="width: 30px; margin: 0px 10px 0px 10px" />
         </el-tooltip>
-        <el-button
-          :disabled="isReadOnly"
-          type="danger"
-          size="mini"
-          icon="el-icon-delete"
-          circle
-          @click="remove"
-        />
+        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" />
       </div>
     </el-row>
 
@@ -69,22 +37,15 @@
       :visible.sync="visible"
       width="900px"
       append-to-body
-      :close-on-click-modal="false"
-    >
-      <el-row
-        type="flex"
-        justify="space-between"
-        align="middle"
-        class="quick-script-block"
-      >
+      :close-on-click-modal="false">
+      <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <div class="assertion-item input">
           <el-input
             size="small"
             v-model="assertion.variable"
             :placeholder="$t('api_test.request.assertions.variable_name')"
             @change="quickScript"
-            :disabled="disabled"
-          />
+            :disabled="disabled" />
         </div>
 
         <div class="assertion-item select">
@@ -93,14 +54,8 @@
             :placeholder="$t('commons.please_select')"
             size="small"
             @change="changeOperator"
-            :disabled="disabled"
-          >
-            <el-option
-              v-for="o in operators"
-              :key="o.value"
-              :label="$t(o.label)"
-              :value="o.value"
-            />
+            :disabled="disabled">
+            <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value" />
           </el-select>
         </div>
         <div class="assertion-item input">
@@ -110,8 +65,7 @@
             :placeholder="$t('api_test.value')"
             @change="quickScript"
             v-if="!hasEmptyOperator"
-            :disabled="disabled"
-          />
+            :disabled="disabled" />
         </div>
       </el-row>
       <el-input
@@ -119,16 +73,14 @@
         v-model="assertion.desc"
         :placeholder="$t('api_test.request.assertions.script_name')"
         class="quick-script-block"
-        :disabled="disabled"
-      />
+        :disabled="disabled" />
       <ms-jsr233-processor
         ref="jsr233"
         :is-read-only="disabled"
         :jsr223-processor="assertion"
         :templates="templates"
         :height="300"
-        @languageChange="quickScript"
-      />
+        @languageChange="quickScript" />
       <template v-slot:footer v-if="!edit">
         <ms-dialog-footer @cancel="close" @confirm="confirm" />
       </template>
@@ -252,20 +204,12 @@ export default {
           case '>':
             desc = '${' + variable + '} ' + operator + ' ' + value;
             msgScript = '" + value + " ' + operator + ' ' + value;
-            script +=
-              'number = Integer.parseInt(value);\n' +
-              'result = number > ' +
-              value +
-              ';\n';
+            script += 'number = Integer.parseInt(value);\n' + 'result = number > ' + value + ';\n';
             break;
           case '<':
             desc = '${' + variable + '} ' + operator + ' ' + value;
             msgScript = '" + value + " ' + operator + ' ' + value;
-            script +=
-              'number = Integer.parseInt(value);\n' +
-              'result = number < ' +
-              value +
-              ';\n';
+            script += 'number = Integer.parseInt(value);\n' + 'result = number < ' + value + ';\n';
             break;
           case 'is empty':
             desc = '${' + variable + '} ' + operator;
@@ -388,10 +332,7 @@ export default {
 
   computed: {
     hasEmptyOperator() {
-      return (
-        !!this.assertion.operator &&
-        this.assertion.operator.indexOf('empty') > 0
-      );
+      return !!this.assertion.operator && this.assertion.operator.indexOf('empty') > 0;
     },
   },
 };

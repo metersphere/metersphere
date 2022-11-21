@@ -12,8 +12,7 @@
             @change="change"
             :value="item.uuid"
             v-model="item.enable"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
 
         <el-col>
@@ -26,8 +25,7 @@
             maxlength="200"
             @change="change"
             :placeholder="$t('api_test.variable_name')"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
         <el-col>
           <el-input
@@ -36,8 +34,7 @@
             size="small"
             @change="change"
             :placeholder="$t('api_test.value')"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
         <el-col class="kv-delete">
           <el-button
@@ -45,8 +42,7 @@
             class="el-icon-delete-solid"
             circle
             @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
       </el-row>
     </div>

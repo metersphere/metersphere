@@ -7,26 +7,16 @@
       :size="size"
       @change="change"
       @input="input"
-      @click.native="savePreParams(value)"
-    />
-    <div
-      :class="{ hidden: !showVariable }"
-      class="variable-combine"
-      v-if="value"
-    >
+      @click.native="savePreParams(value)" />
+    <div :class="{ hidden: !showVariable }" class="variable-combine" v-if="value">
       <el-tooltip
         v-if="showCopy"
         :content="$t('api_test.copied')"
         manual
         v-model="visible"
         placement="top"
-        :visible-arrow="false"
-      >
-        <i
-          class="el-icon-copy-document copy"
-          @click="copy"
-          style="margin-top: 10px"
-        />
+        :visible-arrow="false">
+        <i class="el-icon-copy-document copy" @click="copy" style="margin-top: 10px" />
       </el-tooltip>
     </div>
   </div>
@@ -94,11 +84,7 @@ export default {
   },
   computed: {
     variable() {
-      return (
-        '${' +
-        (this.showCopyTipWithMultiple ? this.value + '_n' : this.value) +
-        '}'
-      );
+      return '${' + (this.showCopyTipWithMultiple ? this.value + '_n' : this.value) + '}';
     },
   },
 };

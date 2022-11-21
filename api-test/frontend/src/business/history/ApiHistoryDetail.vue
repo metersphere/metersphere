@@ -6,20 +6,13 @@
     width="900px"
     :destroy-on-close="true"
     @close="handleClose"
-    append-to-body
-  >
+    append-to-body>
     <div style="height: 700px; overflow: auto">
       <div v-if="detail.createUser">
-        <p class="tip">
-          {{ this.$t('report.user_name') }} ：{{ detail.createUser }}
-        </p>
+        <p class="tip">{{ this.$t('report.user_name') }} ：{{ detail.createUser }}</p>
       </div>
       <div>
-        <p class="tip">
-          {{ this.$t('operating_log.time') }} ：{{
-            detail.operTime | datetimeFormat
-          }}
-        </p>
+        <p class="tip">{{ this.$t('operating_log.time') }} ：{{ detail.operTime | datetimeFormat }}</p>
       </div>
       <div style="overflow: auto">
         <p class="tip">{{ this.$t('report.test_log_details') }}</p>
@@ -62,10 +55,7 @@ export default {
   methods: {
     getDiff(v1, v2) {
       if (this.detail.columnName === 'request' && v1 && v2) {
-        let delta = jsondiffpatch.diff(
-          JSON.parse(JSON.stringify(v1)),
-          JSON.parse(JSON.stringify(v2))
-        );
+        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
         return formattersHtml.format(delta, JSON.parse(JSON.stringify(v1)));
       }
       let delta = jsondiffpatch.diff(v1, v2);

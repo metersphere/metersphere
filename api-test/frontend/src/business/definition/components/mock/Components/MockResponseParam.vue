@@ -1,14 +1,6 @@
 <template>
   <div v-if="reloaded">
-    <div
-      class="text-container"
-      style="
-        border: 1px #dcdfe6 solid;
-        height: 100%;
-        border-radius: 4px;
-        width: 100%;
-      "
-    >
+    <div class="text-container" style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
       <el-form :model="response" ref="response" label-width="100px">
         <el-collapse-transition>
           <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
@@ -16,20 +8,14 @@
               v-if="!isTcp"
               :label="$t('api_test.definition.request.response_header')"
               name="headers"
-              class="pane"
-            >
+              class="pane">
               <ms-api-key-value
                 style="width: 95%"
                 :isShowEnable="false"
                 :suggestions="headerSuggestions"
-                :items="response.headers"
-              />
+                :items="response.headers" />
             </el-tab-pane>
-            <el-tab-pane
-              :label="$t('api_test.definition.request.response_body')"
-              name="body"
-              class="pane"
-            >
+            <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
               <mock-api-response-body
                 :isReadOnly="false"
                 :isShowEnable="false"
@@ -37,33 +23,23 @@
                 :body="response.body"
                 :headers="response.headers"
                 :use-post-script="response.usePostScript"
-                :need-mock="false"
-              />
+                :need-mock="false" />
             </el-tab-pane>
 
             <el-tab-pane
               v-if="!isTcp"
               :label="$t('api_test.definition.request.status_code')"
               name="status_code"
-              class="pane"
-            >
+              class="pane">
               <el-row>
                 <el-col :span="2" />
                 <el-col :span="20">
-                  <el-input
-                    size="small"
-                    style="width: 180px; margin-top: 10px"
-                    v-model="response.httpCode"
-                  />
+                  <el-input size="small" style="width: 180px; margin-top: 10px" v-model="response.httpCode" />
                 </el-col>
                 <el-col :span="2" />
               </el-row>
             </el-tab-pane>
-            <el-tab-pane
-              :label="$t('commons.response_time_delay')"
-              name="delayed"
-              class="pane"
-            >
+            <el-tab-pane :label="$t('commons.response_time_delay')" name="delayed" class="pane">
               <el-row>
                 <el-input-number v-model="response.delayed" :min="0">
                   <template slot="append">ms</template>
@@ -83,20 +59,9 @@
           <i class="el-icon-close" @click="removePostScript" />
         </el-col>
       </el-row>
-      <div
-        class="text-container"
-        style="
-          border: 1px #dcdfe6 solid;
-          height: 100%;
-          border-radius: 4px;
-          width: 100%;
-        "
-      >
+      <div class="text-container" style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
         <div style="padding: 15px 0">
-          <mock-api-script-editor
-            v-if="response.body.scriptObject"
-            :jsr223-processor="response.body.scriptObject"
-          />
+          <mock-api-script-editor v-if="response.body.scriptObject" :jsr223-processor="response.body.scriptObject" />
         </div>
       </div>
     </div>

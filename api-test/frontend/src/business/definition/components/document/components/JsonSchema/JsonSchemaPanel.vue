@@ -5,11 +5,8 @@
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
           v-if="pickValue.type === 'object' || pickValue.type === 'array'"
-          :class="
-            hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'
-          "
-          @click="hidden = !hidden"
-        />
+          :class="hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'"
+          @click="hidden = !hidden" />
         <span v-else style="width: 10px; display: inline-block"></span>
         <input
           class="el-input el-input__inner"
@@ -17,8 +14,7 @@
           :disabled="disabled || root"
           :value="pickKey"
           @blur="onInputName"
-          size="small"
-        />
+          size="small" />
       </el-col>
       <el-col :span="4">
         <el-select
@@ -26,8 +22,7 @@
           :disabled="disabled || disabledType"
           class="ms-col-type"
           @change="onChangeType"
-          size="small"
-        >
+          size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
@@ -43,8 +38,7 @@
           :schema="pickValue"
           :scenario-definition="scenarioDefinition"
           :show-mock-vars="showMockVars"
-          @editScenarioAdvance="editScenarioAdvance"
-        />
+          @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
       <el-col :span="5">
         <el-input
@@ -52,31 +46,23 @@
           v-model="pickValue.description"
           class="ms-col-title"
           :placeholder="$t('schema.description')"
-          size="small"
-        />
+          size="small" />
       </el-col>
       <el-col :span="2">
         <div v-if="hasAdvancedSetting">
-          <el-link @click="changeCollapseStatus">{{
-            getCollapseOption()
-          }}</el-link>
+          <el-link @click="changeCollapseStatus">{{ getCollapseOption() }}</el-link>
         </div>
       </el-col>
     </el-row>
     <div>
       <el-collapse-transition>
-        <div
-          v-show="collapseStatus && hasAdvancedSetting"
-          :style="{ marginLeft: `${10 * deep + 10}px` }"
-        >
+        <div v-show="collapseStatus && hasAdvancedSetting" :style="{ marginLeft: `${10 * deep + 10}px` }">
           <json-advanced-setting :json-data="pickValue" />
         </div>
       </el-collapse-transition>
     </div>
 
-    <template
-      v-if="!hidden && pickValue.properties && !isArray && reloadItemOver"
-    >
+    <template v-if="!hidden && pickValue.properties && !isArray && reloadItemOver">
       <json-schema-panel
         v-for="(item, key, index) in pickValue.properties"
         :value="{ [key]: item }"
@@ -92,8 +78,7 @@
         @editScenarioAdvance="editScenarioAdvance"
         :lang="lang"
         :custom="custom"
-        @changeAllItemsType="changeAllItemsType"
-      />
+        @changeAllItemsType="changeAllItemsType" />
     </template>
     <template v-if="!hidden && isArray && reloadItemOver">
       <json-schema-panel
@@ -110,18 +95,13 @@
         @editScenarioAdvance="editScenarioAdvance"
         :lang="lang"
         :custom="custom"
-        @changeAllItemsType="changeAllItemsType"
-      />
+        @changeAllItemsType="changeAllItemsType" />
     </template>
   </div>
 </template>
 <script>
 import { getUUID } from 'metersphere-frontend/src/utils';
-import {
-  TYPE,
-  TYPE_NAME,
-  TYPES,
-} from '@/business/commons/json-schema/schema/editor/type/type';
+import { TYPE, TYPE_NAME, TYPES } from '@/business/commons/json-schema/schema/editor/type/type';
 import MsMock from '@/business/commons/json-schema/schema/editor/mock/MockComplete';
 import JsonAdvancedSetting from '@/business/definition/components/document/components/plugin/JsonAdvancedSetting';
 
@@ -201,11 +181,7 @@ export default {
       return this.pickValue.type === 'array';
     },
     checked() {
-      return (
-        this.parent &&
-        this.parent.required &&
-        this.parent.required.indexOf(this.pickKey) >= 0
-      );
+      return this.parent && this.parent.required && this.parent.required.indexOf(this.pickKey) >= 0;
     },
     advanced() {
       return TYPE[this.pickValue.type];
@@ -307,18 +283,12 @@ export default {
         delete this.pickValue['required'];
         delete this.pickValue['mock'];
         if (this.isArray) {
-          this.$set(this.pickValue, 'items', [
-            { type: 'string', mock: { mock: '' } },
-          ]);
+          this.$set(this.pickValue, 'items', [{ type: 'string', mock: { mock: '' } }]);
         }
       }
     },
     changeAllItemsType(changeType) {
-      if (
-        this.isArray &&
-        this.pickValue.items &&
-        this.pickValue.items.length > 0
-      ) {
+      if (this.isArray && this.pickValue.items && this.pickValue.items.length > 0) {
         this.pickValue.items.forEach((item) => {
           item.type = changeType;
           delete item['properties'];
@@ -337,23 +307,11 @@ export default {
     },
     _deepCheck(checked, node) {
       if (node.type === 'object' && node.properties) {
-        checked
-          ? this.$set(node, 'required', Object.keys(node.properties))
-          : delete node['required'];
-        Object.keys(node.properties).forEach((key) =>
-          this._deepCheck(checked, node.properties[key])
-        );
+        checked ? this.$set(node, 'required', Object.keys(node.properties)) : delete node['required'];
+        Object.keys(node.properties).forEach((key) => this._deepCheck(checked, node.properties[key]));
       } else if (node.type === 'array' && node.items.type === 'object') {
-        checked
-          ? this.$set(
-              node.items,
-              'required',
-              Object.keys(node.items.properties)
-            )
-          : delete node.items['required'];
-        Object.keys(node.items.properties).forEach((key) =>
-          this._deepCheck(checked, node.items.properties[key])
-        );
+        checked ? this.$set(node.items, 'required', Object.keys(node.items.properties)) : delete node.items['required'];
+        Object.keys(node.items.properties).forEach((key) => this._deepCheck(checked, node.items.properties[key]));
       }
     },
     confirmAddCustomNode() {
@@ -362,10 +320,7 @@ export default {
       this.customing = false;
     },
     _joinName() {
-      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(
-        0,
-        5
-      )}`;
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`;
     },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
@@ -441,10 +396,7 @@ export default {
   display: flex;
 }
 
-.json-schema-editor-advanced-modal
-  .ms-advanced-search-form
-  .ms-form-item
-  .ms-form-item-control-wrapper {
+.json-schema-editor-advanced-modal .ms-advanced-search-form .ms-form-item .ms-form-item-control-wrapper {
   flex: 1;
 }
 

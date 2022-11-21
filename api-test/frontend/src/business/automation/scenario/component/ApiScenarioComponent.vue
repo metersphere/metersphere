@@ -19,59 +19,35 @@
     :environmentType="environmentType"
     :environmentGroupId="environmentGroupId"
     :envMap="envMap"
-    :title="$t('commons.scenario')"
-  >
+    :title="$t('commons.scenario')">
     <template v-slot:afterTitle>
-      <span v-if="isShowNum" @click="clickResource(scenario)">{{
-        '（ ID: ' + scenario.num + '）'
-      }}</span>
+      <span v-if="isShowNum" @click="clickResource(scenario)">
+        {{ '（ ID: ' + scenario.num + '）' }}
+      </span>
       <span v-else>
-        <el-tooltip
-          class="ms-num"
-          effect="dark"
-          :content="$t('api_test.automation.scenario.num_none')"
-          placement="top"
-        >
+        <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning" />
         </el-tooltip>
       </span>
-      <span v-xpack v-if="scenario.versionEnable"
-        >{{ $t('project.version.name') }}: {{ scenario.versionName }}</span
-      >
+      <span v-xpack v-if="scenario.versionEnable">{{ $t('project.version.name') }}: {{ scenario.versionName }}</span>
     </template>
 
     <template v-slot:behindHeaderLeft>
-      <el-tag
-        size="small"
-        class="ms-tag"
-        v-if="scenario.referenced === 'Deleted'"
-        type="danger"
-      >
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Deleted'" type="danger">
         {{ $t('api_test.automation.reference_deleted') }}
       </el-tag>
-      <el-tag
-        size="small"
-        class="ms-tag"
-        v-if="scenario.referenced === 'Copy'"
-        >{{ $t('commons.copy') }}</el-tag
-      >
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Copy'"> {{ $t('commons.copy') }} </el-tag>
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'REF'"
         >{{ $t('api_test.scenario.reference') }}
       </el-tag>
-      <span class="ms-tag ms-step-name-api">{{
-        getProjectName(scenario.projectId)
-      }}</span>
+      <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
       <el-tooltip
-        v-if="
-          (!scenario.hashTree || scenario.hashTree.length === 0) &&
-          scenario.referenced === 'REF'
-        "
+        v-if="(!scenario.hashTree || scenario.hashTree.length === 0) && scenario.referenced === 'REF'"
         class="ms-num"
         effect="dark"
         :content="$t('api_test.scenario.base_scenario_step_is_empty')"
         placement="top"
-        style="margin-left: 5px"
-      >
+        style="margin-left: 5px">
         <i class="el-icon-warning" />
       </el-tooltip>
     </template>
@@ -83,17 +59,12 @@
       <span
         class="ms-step-debug-code"
         :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-        v-if="!loading && node.data.debug && !node.data.testing"
-      >
+        v-if="!loading && node.data.debug && !node.data.testing">
         {{ getCode() }}
       </span>
     </template>
     <template v-slot:button v-if="!ifFromVariableAdvance">
-      <el-tooltip
-        :content="$t('api_test.run')"
-        placement="top"
-        v-if="!scenario.run"
-      >
+      <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
         <el-button
           :disabled="!scenario.enable"
           @click="run"
@@ -101,23 +72,16 @@
           style="padding: 5px"
           class="ms-btn"
           size="mini"
-          circle
-        />
+          circle />
       </el-tooltip>
-      <el-tooltip
-        :content="$t('report.stop_btn')"
-        placement="top"
-        :enterable="false"
-        v-else
-      >
+      <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
         <el-button
           :disabled="!scenario.enable"
           @click.once="stop"
           size="mini"
           style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
           class="stop-btn"
-          circle
-        >
+          circle>
           <div style="transform: scale(0.66)">
             <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
           </div>
@@ -133,18 +97,11 @@ import MsTcpBasisParameters from '../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from '../../../definition/components/request/dubbo/BasisParameters';
 import MsApiRequestForm from '../../../definition/components/request/http/ApiHttpRequestForm';
 import ApiBaseComponent from '../common/ApiBaseComponent';
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { STEP } from '@/business/automation/scenario/Setting';
 import { getOwnerProjectIds, getProject } from '@/api/project';
-import {
-  checkScenarioEnv,
-  getScenarioById,
-  setScenarioDomain,
-} from '@/api/scenario';
+import { checkScenarioEnv, getScenarioById, setScenarioDomain } from '@/api/scenario';
 
 export default {
   name: 'ApiScenarioComponent',
@@ -186,23 +143,14 @@ export default {
       this.reload();
     },
     'node.data.isBatchProcess'() {
-      if (
-        this.node.data &&
-        this.node.data.isBatchProcess &&
-        this.node.data.referenced === 'REF'
-      ) {
+      if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
         this.node.expanded = false;
       }
     },
   },
   created() {
     this.isShowNum = this.scenario.num ? true : false;
-    if (
-      this.scenario.id &&
-      this.scenario.referenced === 'REF' &&
-      !this.scenario.loaded &&
-      this.scenario.hashTree
-    ) {
+    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.scenario.root = this.node.parent.parent ? false : true;
       this.scenario.disabled = true;
       this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
@@ -225,10 +173,7 @@ export default {
   },
   computed: {
     isDeletedOrRef() {
-      return (
-        (this.scenario.referenced && this.scenario.referenced === 'Deleted') ||
-        this.scenario.referenced === 'REF'
-      );
+      return (this.scenario.referenced && this.scenario.referenced === 'Deleted') || this.scenario.referenced === 'REF';
     },
   },
   methods: {
@@ -239,9 +184,7 @@ export default {
       }
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
-      let variables = JSON.parse(
-        JSON.stringify(this.currentScenario.variables)
-      );
+      let variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
 
       // 合并自身依赖场景变量
       if (runScenario && runScenario.variableEnable && runScenario.variables) {
@@ -297,9 +240,7 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         let status = this.node.data.code;
-        return (
-          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1)
-        );
+        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
       }
       return '';
     },
@@ -308,19 +249,14 @@ export default {
     },
     active() {
       if (this.node) {
-        if (
-          this.node.data &&
-          this.node.data.isBatchProcess &&
-          this.node.data.referenced === 'REF'
-        ) {
+        if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
           this.node.expanded = false;
         } else {
           this.node.expanded = !this.node.expanded;
         }
       }
       if (this.scenario && this.scenario.hashTree && this.node.expanded) {
-        this.scenario.disabled =
-          this.scenario.id && this.scenario.referenced === 'REF';
+        this.scenario.disabled = this.scenario.id && this.scenario.referenced === 'REF';
         this.recursive(
           this.scenario.hashTree,
           this.scenario.projectId,
@@ -346,11 +282,7 @@ export default {
         arr[i].disabled = disabled;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
         // 处理子请求环境
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(arr[i].type) !== -1) {
           arr[i].refEevMap = new Map();
           arr[i].environmentEnable = this.scenario.environmentEnable;

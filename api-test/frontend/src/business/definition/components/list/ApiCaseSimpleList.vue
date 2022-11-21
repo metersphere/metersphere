@@ -4,11 +4,7 @@
       <div class="ms-opt-btn" v-if="apiDefinitionId && versionEnable">
         {{ $t('project.version.name') }}: {{ apiDefinition.versionName }}
       </div>
-      <ms-search
-        :condition.sync="condition"
-        :base-search-tip="$t('commons.search_by_id_name_tag')"
-        @search="search"
-      >
+      <ms-search :condition.sync="condition" :base-search-tip="$t('commons.search_by_id_name_tag')" @search="search">
       </ms-search>
       <el-button
         type="primary"
@@ -40,16 +36,14 @@
         operator-width="190px"
         @refresh="initTable"
         ref="caseTable"
-        class="api-case-simple-list"
-      >
+        class="api-case-simple-list">
         <ms-table-column
           prop="deleteTime"
           sortable
           v-if="this.trashEnable"
           :fields-width="fieldsWidth"
           :label="$t('commons.delete_time')"
-          min-width="150px"
-        >
+          min-width="150px">
           <template v-slot:default="scope">
             <span>{{ scope.row.deleteTime | datetimeFormat }}</span>
           </template>
@@ -60,17 +54,9 @@
           :fields-width="fieldsWidth"
           v-if="this.trashEnable"
           :label="$t('commons.delete_user')"
-          min-width="120"
-        />
+          min-width="120" />
         <span v-for="item in fields" :key="item.key">
-          <ms-table-column
-            prop="num"
-            label="ID"
-            :field="item"
-            :fields-width="fieldsWidth"
-            min-width="80px"
-            sortable
-          >
+          <ms-table-column prop="num" label="ID" :field="item" :fields-width="fieldsWidth" min-width="80px" sortable>
             <template slot-scope="scope" v-if="!trashEnable">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor: pointer" v-if="isReadOnly">
@@ -90,8 +76,7 @@
             prop="name"
             sortable="custom"
             min-width="160px"
-            :label="$t('test_track.case.name')"
-          />
+            :label="$t('test_track.case.name')" />
 
           <ms-table-column
             prop="priority"
@@ -100,8 +85,7 @@
             :fields-width="fieldsWidth"
             min-width="120px"
             sortable
-            :label="$t('test_track.case.priority')"
-          >
+            :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority" />
             </template>
@@ -114,8 +98,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="120px"
-            :label="$t('commons.status')"
-          >
+            :label="$t('commons.status')">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.caseStatus" />
             </template>
@@ -127,8 +110,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="120px"
-            :label="$t('commons.status')"
-          >
+            :label="$t('commons.status')">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status" />
             </template>
@@ -141,15 +123,11 @@
             :fields-width="fieldsWidth"
             min-width="120px"
             :label="$t('test_track.plan_view.execute_result')"
-            v-if="!trashEnable"
-          >
+            v-if="!trashEnable">
             <template v-slot:default="scope">
               <el-link
                 @click="getExecResult(scope.row)"
-                :disabled="
-                  !scope.row.execResult || scope.row.execResult === 'PENDING'
-                "
-              >
+                :disabled="!scope.row.execResult || scope.row.execResult === 'PENDING'">
                 <ms-api-report-status :status="scope.row.execResult" />
               </el-link>
             </template>
@@ -160,8 +138,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('commons.pass_rate')"
-          >
+            :label="$t('commons.pass_rate')">
           </ms-table-column>
 
           <ms-table-column
@@ -171,34 +148,26 @@
             :field="item"
             :fields-width="fieldsWidth"
             :show-overflow-tooltip="false"
-            :label="'API' + $t('api_test.definition.api_path')"
-          />
+            :label="'API' + $t('api_test.definition.api_path')" />
 
           <ms-table-column
             v-if="item.id == 'tags'"
             prop="tags"
             width="120px"
             :label="$t('commons.tag')"
-            :show-overflow-tooltip="false"
-          >
+            :show-overflow-tooltip="false">
             <template v-slot:default="scope">
               <el-tooltip class="item" effect="dark" placement="top">
-                <div
-                  v-html="getTagToolTips(scope.row.tags)"
-                  slot="content"
-                ></div>
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
                 <div class="oneLine">
                   <ms-tag
                     v-for="(itemName, index) in scope.row.tags"
                     :key="index"
                     type="success"
                     effect="plain"
-                    :show-tooltip="
-                      scope.row.tags.length === 1 && itemName.length * 12 <= 100
-                    "
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
                     :content="itemName"
-                    style="margin-left: 0px; margin-right: 2px"
-                  />
+                    style="margin-left: 0px; margin-right: 2px" />
                 </div>
               </el-tooltip>
               <span />
@@ -211,8 +180,7 @@
             :fields-width="fieldsWidth"
             :filters="versionFilters"
             min-width="100px"
-            prop="versionId"
-          >
+            prop="versionId">
             <template v-slot:default="scope">
               <span>{{ scope.row.versionName }}</span>
             </template>
@@ -224,8 +192,7 @@
             :filters="environmentsFilters"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('commons.environment')"
-          >
+            :label="$t('commons.environment')">
           </ms-table-column>
 
           <ms-table-column
@@ -233,8 +200,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             :filters="userFilters"
-            :label="$t('commons.create_user')"
-          />
+            :label="$t('commons.create_user')" />
 
           <ms-table-column
             sortable="updateTime"
@@ -242,8 +208,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             :label="$t('api_test.definition.api_last_time')"
-            prop="updateTime"
-          >
+            prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | datetimeFormat }}</span>
             </template>
@@ -254,8 +219,7 @@
             :fields-width="fieldsWidth"
             :label="$t('commons.create_time')"
             sortable
-            min-width="180px"
-          >
+            min-width="180px">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | datetimeFormat }}</span>
             </template>
@@ -268,8 +232,7 @@
             @showEnvironment="showEnvironment"
             @createPerformance="createPerformance"
             @showHistory="openHis"
-            :row="scope.row"
-          />
+            :row="scope.row" />
         </template>
       </ms-table>
 
@@ -277,8 +240,7 @@
         :change="initTable"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total"
-      />
+        :total="total" />
     </span>
 
     <api-case-list
@@ -287,22 +249,16 @@
       :currentApi="selectCase"
       ref="caseList"
       @stop="stop"
-      @reLoadCase="initTable"
-    />
+      @reLoadCase="initTable" />
     <!--批量编辑-->
     <ms-batch-edit
       ref="batchEdit"
       :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
       @batchEdit="batchEdit"
       :typeArr="typeArr"
-      :value-arr="valueArr"
-    />
+      :value-arr="valueArr" />
     <!--选择环境(当创建性能测试的时候)-->
-    <ms-set-environment
-      ref="setEnvironment"
-      :testCase="clickRow"
-      @createPerformance="createPerformance"
-    />
+    <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance" />
     <!--查看引用-->
     <ms-show-reference ref="viewRef" />
 
@@ -314,8 +270,7 @@
       :run-case-ids="runCaseIds"
       @handleRunBatch="runBatch"
       @close="initTable"
-      ref="apiBatchRun"
-    />
+      ref="apiBatchRun" />
 
     <el-dialog
       :close-on-click-modal="false"
@@ -324,28 +279,18 @@
       :visible.sync="resVisible"
       class="api-import"
       destroy-on-close
-      @close="resVisible = false"
-    >
+      @close="resVisible = false">
       <ms-request-result-tail :response="response" ref="debugResult" />
     </el-dialog>
 
-    <el-dialog
-      :visible.sync="batchSyncCaseVisible"
-      :title="$t('commons.batch') + $t('workstation.sync')"
-    >
+    <el-dialog :visible.sync="batchSyncCaseVisible" :title="$t('commons.batch') + $t('workstation.sync')">
       <span>{{ $t('workstation.sync') + $t('commons.setting') }}</span
       ><br />
       <sync-setting ref="synSetting"></sync-setting>
-      <span style="color: red">{{
-        $t('workstation.batch_sync_api_tips')
-      }}</span>
+      <span style="color: red">{{ $t('workstation.batch_sync_api_tips') }}</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="batchSyncCaseVisible = false">{{
-          $t('commons.cancel')
-        }}</el-button>
-        <el-button type="primary" @click="batchSync()">{{
-          $t('commons.confirm')
-        }}</el-button>
+        <el-button @click="batchSyncCaseVisible = false">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="batchSync()">{{ $t('commons.confirm') }}</el-button>
       </span>
     </el-dialog>
     <!--  删除接口提示  -->
@@ -354,8 +299,7 @@
       :show-case="showCase"
       @showCaseRef="showCaseRef"
       @handleDeleteCase="handleDeleteCase"
-      ref="apiDeleteConfirm"
-    />
+      ref="apiDeleteConfirm" />
   </span>
 </template>
 
@@ -379,11 +323,7 @@ import { getDefinitionById } from '@/api/definition';
 import { getApiReportDetail } from '@/api/definition-report';
 import { genPerformanceTestXml } from '@/api/home';
 import { getMaintainer } from '@/api/project';
-import {
-  getProjectVersions,
-  synCaseBatch,
-  versionEnableByProjectId,
-} from '@/api/xpack';
+import { getProjectVersions, synCaseBatch, versionEnableByProjectId } from '@/api/xpack';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsTableOperator from 'metersphere-frontend/src/components/MsTableOperator';
@@ -417,10 +357,7 @@ import ThreadGroup from '@/business/definition/components/jmeter/components/thre
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import MsTableHeaderSelectPopover from 'metersphere-frontend/src/components/table/MsTableHeaderSelectPopover';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
-import {
-  API_CASE_CONFIGS,
-  API_CASE_CONFIGS_TRASH,
-} from 'metersphere-frontend/src/components/search/search-components';
+import { API_CASE_CONFIGS, API_CASE_CONFIGS_TRASH } from 'metersphere-frontend/src/components/search/search-components';
 import {
   _filter,
   _sort,
@@ -474,11 +411,9 @@ export default {
     SyncSetting,
     MsShowReference,
     ApiDeleteConfirm,
-    MsApiReportStatus: () =>
-      import('../../../automation/report/ApiReportStatus'),
+    MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
     PlanStatusTableItem: () => import('@/business/commons/PlanStatusTableItem'),
-    MsTaskCenter: () =>
-      import('metersphere-frontend/src/components/task/TaskCenter'),
+    MsTaskCenter: () => import('metersphere-frontend/src/components/task/TaskCenter'),
   },
   data() {
     return {
@@ -487,9 +422,7 @@ export default {
       fields: getCustomTableHeader('API_CASE', undefined),
       fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
-        components: this.trashEnable
-          ? API_CASE_CONFIGS_TRASH
-          : API_CASE_CONFIGS,
+        components: this.trashEnable ? API_CASE_CONFIGS_TRASH : API_CASE_CONFIGS,
       },
       selectCase: {},
       result: false,
@@ -825,9 +758,7 @@ export default {
       }
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
       if (this.condition.orders) {
-        const index = this.condition.orders.findIndex(
-          (d) => d.name && d.name === 'case_path'
-        );
+        const index = this.condition.orders.findIndex((d) => d.name && d.name === 'case_path');
         if (index !== -1) {
           this.condition.orders.splice(index, 1);
         }
@@ -849,11 +780,7 @@ export default {
       this.initCondition();
       let isNext = false;
       if (this.condition.projectId) {
-        this.result = apiTestCasePage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = apiTestCasePage(this.currentPage, this.pageSize, this.condition).then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
           this.tableData.forEach((item) => {
@@ -939,11 +866,7 @@ export default {
     refreshStatus(id) {
       this.initCondition();
       if (this.condition.projectId) {
-        this.result = apiTestCasePage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = apiTestCasePage(this.currentPage, this.pageSize, this.condition).then((response) => {
           let isNext = false;
           let tableData = response.data.listObject;
           this.tableData.forEach((item) => {
@@ -960,12 +883,7 @@ export default {
               isNext = true;
             }
           });
-          if (
-            isNext &&
-            store.currentApiCase &&
-            store.currentApiCase.case &&
-            this.timeoutIndex < 12
-          ) {
+          if (isNext && store.currentApiCase && store.currentApiCase.case && this.timeoutIndex < 12) {
             this.timeoutIndex++;
             setTimeout(() => {
               this.refreshStatus();
@@ -1105,28 +1023,24 @@ export default {
       });
     },
     handleDeleteBatch() {
-      this.$alert(
-        this.$t('api_test.definition.request.delete_case_confirm') + '？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let obj = {};
-              obj.projectId = this.projectId;
-              obj.selectAllDate = this.selectAll;
-              obj.unSelectIds = this.unSelection;
-              obj.ids = Array.from(this.selectRows).map((row) => row.id);
-              obj = Object.assign(obj, this.condition);
-              delCaseBatchByParam(obj).then(() => {
-                this.$refs.caseTable.clearSelectRows();
-                this.$emit('refreshTable');
-                this.$success(this.$t('commons.delete_success'));
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + '？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let obj = {};
+            obj.projectId = this.projectId;
+            obj.selectAllDate = this.selectAll;
+            obj.unSelectIds = this.unSelection;
+            obj.ids = Array.from(this.selectRows).map((row) => row.id);
+            obj = Object.assign(obj, this.condition);
+            delCaseBatchByParam(obj).then(() => {
+              this.$refs.caseTable.clearSelectRows();
+              this.$emit('refreshTable');
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        },
+      });
     },
     handleDeleteToGcBatch() {
       let obj = {};
@@ -1140,13 +1054,10 @@ export default {
       this.hasRef = false;
       checkDeleteData(obj).then((response) => {
         let checkResult = response.data;
-        let alertMsg =
-          this.$t('api_test.definition.request.delete_case_confirm') + ' ？';
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ？';
         if (checkResult.deleteFlag) {
           alertMsg =
-            this.$t('api_definition.case_is_referenced', [
-              checkResult.refCount,
-            ]) +
+            this.$t('api_definition.case_is_referenced', [checkResult.refCount]) +
             ', ' +
             this.$t('api_test.is_continue') +
             ' ？';
@@ -1210,24 +1121,17 @@ export default {
       }
     },
     handleDelete(apiCase) {
-      this.$alert(
-        this.$t('api_test.definition.request.delete_case_confirm') +
-          ' ' +
-          apiCase.name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delApiTestCase(apiCase.id).then(() => {
-                this.$success(this.$t('commons.delete_success'));
-                this.$emit('refreshTable');
-              });
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            delApiTestCase(apiCase.id).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.$emit('refreshTable');
+            });
+          }
+        },
+      });
       return;
     },
     handleDeleteCase(apiCase) {
@@ -1258,12 +1162,7 @@ export default {
       this.hasRef = false;
       checkDeleteData(obj).then((response) => {
         let checkResult = response.data;
-        let alertMsg =
-          this.$t('api_test.definition.request.delete_case_confirm') +
-          '[' +
-          apiCase.name +
-          ']' +
-          '?';
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + '[' + apiCase.name + ']' + '?';
         if (checkResult.deleteFlag) {
           alertMsg =
             '[' +
@@ -1271,16 +1170,10 @@ export default {
             '] ' +
             this.$t('api_definition.case_is') +
             (checkResult.scenarioCount > 0
-              ? this.$t('api_definition.scenario_count', [
-                  checkResult.scenarioCount,
-                ])
+              ? this.$t('api_definition.scenario_count', [checkResult.scenarioCount])
               : '') +
-            (checkResult.planCount > 0 && checkResult.scenarioCount > 0
-              ? '、 '
-              : '') +
-            (checkResult.planCount > 0
-              ? this.$t('api_definition.plan_count', [checkResult.planCount])
-              : '') +
+            (checkResult.planCount > 0 && checkResult.scenarioCount > 0 ? '、 ' : '') +
+            (checkResult.planCount > 0 ? this.$t('api_definition.plan_count', [checkResult.planCount]) : '') +
             this.$t('api_test.scenario.reference') +
             ', ' +
             this.$t('api_test.is_continue') +
@@ -1459,14 +1352,8 @@ export default {
               },
             };
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sortHashTree(stepArray[i].hashTree);

@@ -7,14 +7,10 @@
         ref="request"
         label-width="100px"
         :disabled="request.disabled"
-        style="margin: 10px"
-      >
+        style="margin: 10px">
         <el-row>
           <el-col :span="8">
-            <el-form-item
-              prop="environmentId"
-              :label="$t('api_test.definition.request.run_env')"
-            >
+            <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
               <el-select
                 v-model="request.environmentId"
                 size="small"
@@ -22,30 +18,18 @@
                 :placeholder="$t('api_test.definition.request.run_env')"
                 @change="environmentChange"
                 clearable
-                :disabled="isReadOnly"
-              >
+                :disabled="isReadOnly">
                 <el-option
                   v-for="(environment, index) in environments"
                   :key="index"
                   :label="environment.name"
-                  :value="environment.id"
-                />
-                <el-button
-                  class="environment-button"
-                  size="small"
-                  type="primary"
-                  @click="openEnvironmentConfig"
-                >
+                  :value="environment.id" />
+                <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
                   {{ $t('api_test.environment.environment_config') }}
                 </el-button>
                 <template v-slot:empty>
                   <div class="empty-environment">
-                    <el-button
-                      class="environment-button"
-                      size="small"
-                      type="primary"
-                      @click="openEnvironmentConfig"
-                    >
+                    <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
                       {{ $t('api_test.environment.environment_config') }}
                     </el-button>
                   </div>
@@ -54,83 +38,45 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item
-              :label="$t('api_test.request.sql.dataSource')"
-              prop="dataSourceId"
-              style="margin-left: 10px"
-            >
-              <el-select
-                v-model="request.dataSourceId"
-                size="small"
-                @change="reload"
-                :disabled="request.disabled"
-              >
+            <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
+              <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
                 <el-option
                   v-for="(item, index) in databaseConfigsOptions"
                   :key="index"
                   :value="item.id"
-                  :label="item.name"
-                />
+                  :label="item.name" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item
-              :label="$t('api_test.request.sql.timeout')"
-              prop="queryTimeout"
-              style="margin-left: 10px"
-            >
+            <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
               <el-input-number
                 :disabled="request.disabled"
                 size="small"
                 v-model="request.queryTimeout"
                 :placeholder="$t('commons.millisecond')"
                 :max="1000 * 10000000"
-                :min="0"
-              />
+                :min="0" />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item
-          :label="$t('api_test.request.sql.result_variable')"
-          prop="resultVariable"
-        >
-          <el-input
-            v-model="request.resultVariable"
-            maxlength="500"
-            show-word-limit
-            size="small"
-          />
+        <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
+          <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small" />
         </el-form-item>
 
-        <el-form-item
-          :label="$t('api_test.request.sql.variable_names')"
-          prop="variableNames"
-        >
-          <el-input
-            v-model="request.variableNames"
-            maxlength="500"
-            show-word-limit
-            size="small"
-          />
+        <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
+          <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small" />
         </el-form-item>
 
         <el-tabs v-model="activeName" class="ms-sql-tabs">
-          <el-tab-pane
-            :label="$t('api_test.scenario.variables')"
-            name="variables"
-          >
+          <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
             <ms-api-scenario-variables
               :is-read-only="isReadOnly"
               :items="request.variables"
-              :description="$t('api_test.scenario.kv_description')"
-            />
+              :description="$t('api_test.scenario.kv_description')" />
           </el-tab-pane>
-          <el-tab-pane
-            :label="$t('api_test.request.sql.sql_script')"
-            name="sql"
-          >
+          <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
             <ms-code-edit
               :height="120"
               :read-only="isReadOnly"
@@ -138,18 +84,14 @@
               :data.sync="request.query"
               theme="eclipse"
               mode="sql"
-              ref="codeEdit"
-            />
+              ref="codeEdit" />
           </el-tab-pane>
         </el-tabs>
       </el-form>
     </div>
 
     <!-- 环境 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </div>
 </template>
 
@@ -296,13 +238,8 @@ export default {
     getEnvironments(environmentId) {
       let envId = '';
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      let scenarioEnvId =
-        this.scenarioId !== '' ? this.scenarioId + '_' + id : id;
-      if (
-        store.scenarioEnvMap &&
-        store.scenarioEnvMap instanceof Map &&
-        store.scenarioEnvMap.has(scenarioEnvId)
-      ) {
+      let scenarioEnvId = this.scenarioId !== '' ? this.scenarioId + '_' + id : id;
+      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map && store.scenarioEnvMap.has(scenarioEnvId)) {
         envId = store.scenarioEnvMap.get(scenarioEnvId);
       }
       if (!this.scenarioId && !this.request.customizeReq) {
@@ -317,23 +254,15 @@ export default {
           .match(/\[object (\w+)\]/)[1]
           .toLowerCase();
         if (obj !== 'object' && obj !== 'map') {
-          this.request.refEevMap = objToStrMap(
-            JSON.parse(this.request.refEevMap)
-          );
+          this.request.refEevMap = objToStrMap(JSON.parse(this.request.refEevMap));
         } else if (obj === 'object' && obj !== 'map') {
           this.request.refEevMap = objToStrMap(this.request.refEevMap);
         }
-        if (
-          this.request.refEevMap instanceof Map &&
-          this.request.refEevMap.has(id)
-        ) {
+        if (this.request.refEevMap instanceof Map && this.request.refEevMap.has(id)) {
           envId = this.request.refEevMap.get(id);
         }
       }
-      if (
-        envId === this.request.originalEnvironmentId &&
-        this.request.originalDataSourceId
-      ) {
+      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       let targetDataSourceName = '';
@@ -343,10 +272,7 @@ export default {
         this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
-          if (
-            environment.id === this.request.environmentId &&
-            environment.id !== envId
-          ) {
+          if (environment.id === this.request.environmentId && environment.id !== envId) {
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
@@ -367,13 +293,9 @@ export default {
       this.$refs.environmentConfig.open(getCurrentProjectID());
     },
     setStep(envId, currentEnvironment, targetDataSourceName) {
-      let envs = this.environments.filter(
-        (item) => this.request && item.id === this.request.environmentId
-      );
+      let envs = this.environments.filter((item) => this.request && item.id === this.request.environmentId);
       if (envs && envs.length === 0) {
-        let id = this.request.projectId
-          ? this.request.projectId
-          : this.projectId;
+        let id = this.request.projectId ? this.request.projectId : this.projectId;
         this.result = getEnvironmentByProjectId(id).then((response) => {
           this.environments = response.data;
           this.environments.forEach((environment) => {
@@ -398,11 +320,7 @@ export default {
         }
       }
       let flag = false;
-      if (
-        currentEnvironment &&
-        currentEnvironment.config &&
-        currentEnvironment.config.databaseConfigs
-      ) {
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach((item) => {
           if (item.id === this.request.dataSourceId) {
             flag = true;
@@ -415,8 +333,7 @@ export default {
           this.databaseConfigsOptions.push(item);
         });
         if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
-          this.request.dataSourceId =
-            currentEnvironment.config.databaseConfigs[0].id;
+          this.request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }

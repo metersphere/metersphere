@@ -1,19 +1,11 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio
-        :disabled="isReadOnly"
-        :label="type.FORM_DATA"
-        @change="modeChange"
-      >
+      <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
         {{ $t('api_test.definition.request.body_form_data') }}
       </el-radio>
 
-      <el-radio
-        :disabled="isReadOnly"
-        :label="type.WWW_FORM"
-        @change="modeChange"
-      >
+      <el-radio :disabled="isReadOnly" :label="type.WWW_FORM" @change="modeChange">
         {{ $t('api_test.definition.request.body_x_www_from_urlencoded') }}
       </el-radio>
 
@@ -29,14 +21,9 @@
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
     </el-radio-group>
-    <div
-      style="width: 98%"
-      v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'"
-    >
+    <div style="width: 98%" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-        <el-link class="ms-el-link" @click="batchAdd">
-          {{ $t('commons.batch_add') }}</el-link
-        >
+        <el-link class="ms-el-link" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
       </el-row>
       <mock-combination-condition
         :filter-type-object="body"
@@ -44,24 +31,13 @@
         :is-show-enable="isShowEnable"
         :suggestions="suggestions"
         :disable-variable-tip="true"
-        :parameters="body.kvs"
-      />
+        :parameters="body.kvs" />
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch
-          active-text="JSON-SCHEMA"
-          v-model="body.format"
-          @change="formatChange"
-          active-value="JSON-SCHEMA"
-        />
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA" />
       </div>
-      <ms-json-code-edit
-        v-if="body.format === 'JSON-SCHEMA'"
-        :body="body"
-        :need-mock="needMock"
-        ref="jsonCodeEdit"
-      />
+      <ms-json-code-edit v-if="body.format === 'JSON-SCHEMA'" :body="body" :need-mock="needMock" ref="jsonCodeEdit" />
       <ms-code-edit
         v-else-if="codeEditActive"
         :read-only="isReadOnly"
@@ -69,27 +45,15 @@
         :modes="modes"
         :mode="'json'"
         height="400px"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        :mode="'text'"
-        ref="codeEdit"
-      />
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" :mode="'text'" ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
-      <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        ref="codeEdit"
-      />
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit" />
     </div>
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
   </div>
@@ -267,9 +231,7 @@ export default {
         }
       });
       if (!isType) {
-        this.headers.unshift(
-          new KeyValue({ name: 'Content-Type', value: value })
-        );
+        this.headers.unshift(new KeyValue({ name: 'Content-Type', value: value }));
         this.$emit('headersChange');
       }
     },

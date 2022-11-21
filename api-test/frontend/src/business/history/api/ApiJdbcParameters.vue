@@ -4,17 +4,10 @@
       <el-tab-pane
         :label="$t('api_test.definition.request.req_param')"
         name="parameters"
-        v-if="request.base && request.base.length > 0"
-      >
+        v-if="request.base && request.base.length > 0">
         <el-table :data="request.base">
-          <el-table-column
-            prop="columnTitle"
-            :label="$t('operating_log.change_field')"
-          />
-          <el-table-column
-            prop="originalValue"
-            :label="$t('operating_log.before_change')"
-          >
+          <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" />
+          <el-table-column prop="originalValue" :label="$t('operating_log.before_change')">
             <template v-slot:default="scope">
               <el-tooltip :content="scope.row.originalValue">
                 <div class="current-value ms-tag-del">
@@ -23,10 +16,7 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="newValue"
-            :label="$t('operating_log.after_change')"
-          >
+          <el-table-column prop="newValue" :label="$t('operating_log.after_change')">
             <template v-slot:default="scope">
               <el-tooltip :content="scope.row.newValue">
                 <div class="current-value ms-tag-add">
@@ -40,19 +30,10 @@
       <el-tab-pane
         :label="$t('api_test.scenario.variables')"
         name="variables"
-        v-if="request.variables && request.variables.length > 0"
-      >
-        <ms-api-key-value-detail
-          :items="request.variables"
-          :showDesc="true"
-          :format="request.headerId"
-        />
+        v-if="request.variables && request.variables.length > 0">
+        <ms-api-key-value-detail :items="request.variables" :showDesc="true" :format="request.headerId" />
       </el-tab-pane>
-      <el-tab-pane
-        :label="$t('api_test.request.sql.sql_script')"
-        name="sql"
-        v-if="request.query_1 || request.query_2"
-      >
+      <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql" v-if="request.query_1 || request.query_2">
         <pre v-html="getDiff(request.query_2, request.query_1)" />
       </el-tab-pane>
     </el-tabs>

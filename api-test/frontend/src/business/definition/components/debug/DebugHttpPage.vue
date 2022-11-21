@@ -1,13 +1,7 @@
 <template>
   <div class="card-container">
     <el-card class="card-content">
-      <el-form
-        :model="debugForm"
-        :rules="rules"
-        ref="debugForm"
-        :inline="true"
-        label-position="right"
-      >
+      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
         <p class="tip">{{ $t('test_track.plan_view.base_info') }}</p>
 
         <el-form-item :label="$t('api_report.request')" prop="url">
@@ -17,20 +11,9 @@
             class="ms-http-input"
             size="small"
             :disabled="testCase != undefined"
-            @blur="urlChange"
-          >
-            <el-select
-              v-model="debugForm.method"
-              slot="prepend"
-              style="width: 100px"
-              size="small"
-            >
-              <el-option
-                v-for="item in reqOptions"
-                :key="item.id"
-                :label="item.label"
-                :value="item.id"
-              />
+            @blur="urlChange">
+            <el-select v-model="debugForm.method" slot="prepend" style="width: 100px" size="small">
+              <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id" />
             </el-select>
           </el-input>
         </el-form-item>
@@ -47,8 +30,7 @@
               @click="handleCommand"
               @command="handleCommand"
               size="small"
-              v-if="testCase === undefined && !scenario"
-            >
+              v-if="testCase === undefined && !scenario">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="save_as"
@@ -56,12 +38,7 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <el-button
-              v-if="scenario"
-              size="small"
-              type="primary"
-              @click="handleCommand"
-            >
+            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
               {{ $t('commons.test') }}
             </el-button>
             <el-button
@@ -70,11 +47,7 @@
               @click.stop
               @click="generate"
               style="margin-left: 10px"
-              v-if="
-                hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') &&
-                hasLicense()
-              "
-            >
+              v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
               {{ $t('commons.generate_test_data') }}
             </el-button>
           </div>
@@ -89,16 +62,11 @@
           :headers="request.headers"
           :request="request"
           :response="responseData"
-          ref="apiRequestForm"
-        />
+          ref="apiRequestForm" />
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <ms-request-result-tail
-          v-if="!loading"
-          :response="responseData"
-          ref="debugResult"
-        />
+        <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult" />
         <!-- 执行组件 -->
         <ms-run
           :debug="true"
@@ -106,27 +74,17 @@
           :isStop="isStop"
           :run-data="runData"
           @runRefresh="runRefresh"
-          ref="runTest"
-        />
+          ref="runTest" />
       </div>
     </el-card>
 
     <div v-if="scenario">
-      <el-button
-        style="float: right; margin: 20px"
-        type="primary"
-        @click="handleCommand('save_as_api')"
-      >
+      <el-button style="float: right; margin: 20px" type="primary" @click="handleCommand('save_as_api')">
         {{ $t('commons.save') }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list
-      :currentApi="debugForm"
-      @refreshModule="refreshModule"
-      :loaded="false"
-      ref="caseList"
-    />
+    <ms-api-case-list :currentApi="debugForm" @refreshModule="refreshModule" :loaded="false" ref="caseList" />
   </div>
 </template>
 
@@ -137,10 +95,7 @@ import MsResponseResult from '../response/ResponseResult';
 import MsRequestMetric from '../response/RequestMetric';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import MsResponseText from '../response/ResponseText';
 import MsRun from '../Run';
 import { createComponent } from '../jmeter/components';
@@ -313,14 +268,8 @@ export default {
           if (!stepArray[i].clazzName) {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.compatibleHistory(stepArray[i].hashTree);
@@ -343,9 +292,7 @@ export default {
           this.debugForm.saved = true;
           // 历史数据兼容处理
           if (this.debugForm.request) {
-            this.debugForm.request.clazzName = TYPE_TO_C.get(
-              this.debugForm.request.type
-            );
+            this.debugForm.request.clazzName = TYPE_TO_C.get(this.debugForm.request.type);
             this.compatibleHistory(this.debugForm.request.hashTree);
           }
           this.$refs.caseList.saveApiAndCase(this.debugForm);
@@ -359,9 +306,7 @@ export default {
       let url = this.getURL(this.debugForm.url);
       if (url && url.pathname) {
         if (this.debugForm.url.indexOf('?') != -1) {
-          this.debugForm.url = decodeURIComponent(
-            this.debugForm.url.substr(0, this.debugForm.url.indexOf('?'))
-          );
+          this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf('?')));
         }
         this.debugForm.path = url.pathname;
       } else {

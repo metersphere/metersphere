@@ -2,9 +2,7 @@
   <div class="dashboard-card">
     <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">
-        <span class="dashboard-title">{{
-          $t('home.dashboard.scenario.title')
-        }}</span>
+        <span class="dashboard-title">{{ $t('home.dashboard.scenario.title') }}</span>
       </div>
       <div v-loading="loading" element-loading-background="#FFFFFF">
         <div
@@ -16,15 +14,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-          "
-        >
-          <img
-            style="height: 100px; width: 100px"
-            src="/assets/figma/icon_load_error.svg"
-          />
-          <span class="addition-info-title" style="color: #646a73">{{
-            $t('home.dashboard.public.load_error')
-          }}</span>
+          ">
+          <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+          <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
         <div v-show="!loadError">
           <div class="main-info">
@@ -37,16 +29,14 @@
                   redirect-data-type="scenario"
                   :link-permission="['PROJECT_API_SCENARIO:READ']"
                   @redirectPage="redirectPage"
-                  :is-execute-info="false"
-                />
+                  :is-execute-info="false" />
               </el-col>
               <el-col :span="12">
                 <main-info-card
                   :link-permission="['PROJECT_API_SCENARIO:READ']"
                   :title="$t('home.dashboard.public.executed_times_in_week')"
                   :count-data="scenarioData"
-                  :is-execute-info="true"
-                />
+                  :is-execute-info="true" />
               </el-col>
             </el-row>
           </div>
@@ -57,8 +47,7 @@
                 <hover-card
                   :title="$t('home.dashboard.scenario.covered_rate')"
                   :main-info="scenarioData.apiCoveredRate"
-                  :tool-tip="apiCoveredRateToolTip"
-                >
+                  :tool-tip="apiCoveredRateToolTip">
                   <!--未覆盖、已覆盖-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -70,18 +59,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'api',
-                                  'coveredScenario',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'coveredScenario', null)">
                               {{ formatAmount(scenarioData.coveredCount) }}
                             </el-link>
                           </div>
@@ -93,18 +72,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_DEFINITION:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'api',
-                                  'api',
-                                  'notCoveredScenario',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
+                              @click="redirectPage('api', 'api', 'notCoveredScenario', null)">
                               {{ formatAmount(scenarioData.notCoveredCount) }}
                             </el-link>
                           </div>
@@ -119,8 +88,7 @@
                 <hover-card
                   :title="$t('home.dashboard.scenario.executed_rate')"
                   :main-info="scenarioData.executedRate"
-                  :tool-tip="executeRateToolTip"
-                >
+                  :tool-tip="executeRateToolTip">
                   <!--已执行、未执行-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -132,18 +100,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'scenario',
-                                  'executedCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'scenario', 'executedCount', null)">
                               {{ formatAmount(scenarioData.executedCount) }}
                             </el-link>
                           </div>
@@ -155,18 +113,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'scenario',
-                                  'unExecuteCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'scenario', 'unExecuteCount', null)">
                               {{ formatAmount(scenarioData.notExecutedCount) }}
                             </el-link>
                           </div>
@@ -181,8 +129,7 @@
                 <hover-card
                   :title="$t('home.dashboard.scenario.pass_rate')"
                   :main-info="scenarioData.passRate"
-                  :tool-tip="passRateToolTip"
-                >
+                  :tool-tip="passRateToolTip">
                   <!--已完成、进行中、未开始-->
                   <template v-slot:mouseOut>
                     <div style="margin: 16px 0px 0px 16px">
@@ -194,18 +141,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'scenario',
-                                  'executionPassCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'scenario', 'executionPassCount', null)">
                               {{ formatAmount(scenarioData.passCount) }}
                             </el-link>
                           </div>
@@ -217,18 +154,8 @@
                           <div class="common-amount">
                             <el-link
                               class="addition-info-num"
-                              v-permission-disable="[
-                                'PROJECT_API_SCENARIO:READ',
-                              ]"
-                              @click="
-                                redirectPage(
-                                  'scenario',
-                                  'scenario',
-                                  'executionFailedCount',
-                                  null
-                                )
-                              "
-                            >
+                              v-permission-disable="['PROJECT_API_SCENARIO:READ']"
+                              @click="redirectPage('scenario', 'scenario', 'executionFailedCount', null)">
                               {{ formatAmount(scenarioData.unPassCount) }}
                             </el-link>
                           </div>
@@ -259,12 +186,8 @@ export default {
     return {
       loading: false,
       loadError: false,
-      apiCoveredRateToolTip: this.$t(
-        'api_test.home_page.formula.interface_coverage'
-      ),
-      executeRateToolTip: this.$t(
-        'api_test.home_page.formula.scenario_execute'
-      ),
+      apiCoveredRateToolTip: this.$t('api_test.home_page.formula.interface_coverage'),
+      executeRateToolTip: this.$t('api_test.home_page.formula.scenario_execute'),
       passRateToolTip: this.$t('api_test.home_page.formula.pass'),
       scenarioData: {
         total: 0,
@@ -310,13 +233,7 @@ export default {
       if (selectRange === 'fakeError') {
         selectRange = 'fakeErrorCount';
       }
-      this.$emit(
-        'redirectPage',
-        redirectPage,
-        dataType,
-        selectRange,
-        selectParam
-      );
+      this.$emit('redirectPage', redirectPage, dataType, selectRange, selectParam);
     },
   },
 };

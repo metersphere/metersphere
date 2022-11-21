@@ -46,10 +46,7 @@ export default {
     },
     handleItemCollapseClick(item) {
       if (this.accordion) {
-        this.setActiveNames(
-          (this.activeNames[0] || this.activeNames[0] === 0) && item.name,
-          item
-        );
+        this.setActiveNames((this.activeNames[0] || this.activeNames[0] === 0) && item.name, item);
       } else {
         let activeNames = this.activeNames.slice(0);
         let index = activeNames.indexOf(item.name);

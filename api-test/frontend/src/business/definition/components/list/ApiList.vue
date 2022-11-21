@@ -6,8 +6,7 @@
         :condition.sync="condition"
         :base-search-tip="$t('commons.search_by_id_name_tag_path')"
         :base-search-width="260"
-        @search="search"
-      >
+        @search="search">
       </ms-search>
 
       <ms-table
@@ -30,16 +29,14 @@
         :field-key="tableHeaderKey"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
-        ref="table"
-      >
+        ref="table">
         <ms-table-column
           prop="deleteTime"
           sortable
           v-if="this.trashEnable"
           :fields-width="fieldsWidth"
           :label="$t('commons.delete_time')"
-          min-width="150px"
-        >
+          min-width="150px">
           <template v-slot:default="scope">
             <span>{{ scope.row.deleteTime | datetimeFormat }}</span>
           </template>
@@ -50,17 +47,9 @@
           :fields-width="fieldsWidth"
           v-if="this.trashEnable"
           :label="$t('commons.delete_user')"
-          min-width="120"
-        />
+          min-width="120" />
         <span v-for="item in fields" :key="item.key">
-          <ms-table-column
-            prop="num"
-            label="ID"
-            :field="item"
-            min-width="100px"
-            :fields-width="fieldsWidth"
-            sortable
-          >
+          <ms-table-column prop="num" label="ID" :field="item" min-width="100px" :fields-width="fieldsWidth" sortable>
             <template slot-scope="scope" v-if="!trashEnable">
               <el-tooltip content="编辑">
                 <a style="cursor: pointer" @click="editApi(scope.row)">
@@ -76,8 +65,7 @@
             sortable="custom"
             :fields-width="fieldsWidth"
             min-width="120"
-            :field="item"
-          />
+            :field="item" />
 
           <ms-table-column
             prop="status"
@@ -86,8 +74,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="120px"
-            :label="$t('api_test.definition.api_status')"
-          >
+            :label="$t('api_test.definition.api_status')">
             <template v-slot:default="scope">
               <span class="el-dropdown-link">
                 <api-status :value="scope.row.status" />
@@ -102,8 +89,7 @@
             :filters="methodFilters"
             :fields-width="fieldsWidth"
             min-width="120px"
-            :label="getApiRequestTypeName"
-          >
+            :label="getApiRequestTypeName">
             <template v-slot:default="scope" class="request-method">
               <el-tag
                 size="mini"
@@ -111,8 +97,7 @@
                   'background-color': getColor(true, scope.row.method),
                   border: getColor(true, scope.row.method),
                 }"
-                class="api-el-tag"
-              >
+                class="api-el-tag">
                 {{ scope.row.method }}
               </el-tag>
             </template>
@@ -125,15 +110,13 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.request.responsible')"
-          />
+            :label="$t('api_test.definition.request.responsible')" />
           <ms-table-column
             prop="path"
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_path')"
-          />
+            :label="$t('api_test.definition.api_path')" />
 
           <ms-table-column
             prop="tags"
@@ -141,26 +124,19 @@
             :fields-width="fieldsWidth"
             min-width="80px"
             :show-overflow-tooltip="false"
-            :label="$t('commons.tag')"
-          >
+            :label="$t('commons.tag')">
             <template v-slot:default="scope">
               <el-tooltip class="item" effect="dark" placement="top">
-                <div
-                  v-html="getTagToolTips(scope.row.tags)"
-                  slot="content"
-                ></div>
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
                 <div class="oneLine">
                   <ms-tag
                     v-for="(itemName, index) in scope.row.tags"
                     :key="index"
                     type="success"
                     effect="plain"
-                    :show-tooltip="
-                      scope.row.tags.length === 1 && itemName.length * 12 <= 100
-                    "
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
                     :content="itemName"
-                    style="margin-left: 0px; margin-right: 2px"
-                  />
+                    style="margin-left: 0px; margin-right: 2px" />
                 </div>
               </el-tooltip>
               <span />
@@ -173,8 +149,7 @@
             :fields-width="fieldsWidth"
             :filters="versionFilters"
             min-width="100px"
-            prop="versionId"
-          >
+            prop="versionId">
             <template v-slot:default="scope">
               <span>{{ scope.row.versionName }}</span>
             </template>
@@ -186,8 +161,7 @@
             :fields-width="fieldsWidth"
             sortable="custom"
             min-width="140px"
-            prop="updateTime"
-          >
+            prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | datetimeFormat }}</span>
             </template>
@@ -198,8 +172,7 @@
             :fields-width="fieldsWidth"
             :label="$t('commons.create_time')"
             sortable
-            min-width="180px"
-          >
+            min-width="180px">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | datetimeFormat }}</span>
             </template>
@@ -210,16 +183,14 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_case_number')"
-          />
+            :label="$t('api_test.definition.api_case_number')" />
 
           <ms-table-column
             :field="item"
             prop="caseStatus"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_case_status')"
-          >
+            :label="$t('api_test.definition.api_case_status')">
             <template v-slot:default="{ row }">
               <ms-api-report-status :status="row.caseStatus" />
             </template>
@@ -230,62 +201,37 @@
             :field="item"
             min-width="120px"
             :fields-width="fieldsWidth"
-            :label="$t('api_test.definition.api_case_passing_rate')"
-          />
+            :label="$t('api_test.definition.api_case_passing_rate')" />
 
           <ms-table-column
             prop="description"
             :field="item"
             min-width="120px"
             :fields-width="fieldsWidth"
-            :label="$t('commons.description')"
-          />
+            :label="$t('commons.description')" />
         </span>
       </ms-table>
       <ms-table-pagination
         :change="initTable"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total"
-      />
+        :total="total" />
     </span>
-    <ms-api-case-list
-      @refresh="initTable"
-      @showExecResult="showExecResult"
-      :currentApi="selectApi"
-      ref="caseList"
-    />
+    <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList" />
     <!--批量编辑-->
     <ms-batch-edit
       ref="batchEdit"
       @batchEdit="batchEdit"
       :data-count="$refs.table ? $refs.table.selectDataCounts : 0"
       :typeArr="typeArr"
-      :value-arr="valueArr"
-    />
+      :value-arr="valueArr" />
     <!--高级搜索-->
-    <ms-table-adv-search-bar
-      :condition.sync="condition"
-      :showLink="false"
-      ref="searchBar"
-      @search="search"
-    />
-    <case-batch-move
-      @refresh="initTable"
-      @moveSave="moveSave"
-      ref="testCaseBatchMove"
-    />
+    <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search" />
+    <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove" />
 
-    <mx-relationship-graph-drawer
-      v-xpack
-      :graph-data="graphData"
-      ref="relationshipGraph"
-    />
+    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph" />
     <!--  删除接口提示  -->
-    <list-item-delete-confirm
-      ref="apiDeleteConfirm"
-      @handleDelete="_handleDelete"
-    />
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete" />
   </span>
 </template>
 
@@ -319,14 +265,7 @@ import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsBottomContainer from '../BottomContainer';
 import MsBatchEdit from '../basis/BatchEdit';
-import {
-  API_METHOD_COLOUR,
-  API_STATUS,
-  DUBBO_METHOD,
-  REQ_METHOD,
-  SQL_METHOD,
-  TCP_METHOD,
-} from '../../model/JsonData';
+import { API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD } from '../../model/JsonData';
 import { downloadFile, operationConfirm } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
@@ -335,10 +274,7 @@ import MsTableHeaderSelectPopover from 'metersphere-frontend/src/components/tabl
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
 import { API_DEFINITION_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
-import {
-  API_DEFINITION_CONFIGS_TRASH,
-  getProtocolFilter,
-} from '@/business/definition/api-definition';
+import { API_DEFINITION_CONFIGS_TRASH, getProtocolFilter } from '@/business/definition/api-definition';
 import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
 import CaseBatchMove from '@/business/definition/components/basis/BatchMove';
 import {
@@ -380,12 +316,8 @@ export default {
     MsTable,
     MsTableColumn,
     MsSearch,
-    MsApiReportStatus: () =>
-      import('../../../automation/report/ApiReportStatus'),
-    MxRelationshipGraphDrawer: () =>
-      import(
-        'metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'
-      ),
+    MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
+    MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
   },
   data() {
     return {
@@ -394,9 +326,7 @@ export default {
       fields: getCustomTableHeader('API_DEFINITION', undefined),
       fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
-        components: this.trashEnable
-          ? API_DEFINITION_CONFIGS_TRASH
-          : API_DEFINITION_CONFIGS,
+        components: this.trashEnable ? API_DEFINITION_CONFIGS_TRASH : API_DEFINITION_CONFIGS,
       },
       selectApi: {},
       result: false,
@@ -517,9 +447,7 @@ export default {
         },
       ],
 
-      statusFiltersTrash: [
-        { text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash' },
-      ],
+      statusFiltersTrash: [{ text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash' }],
 
       caseStatusFilters: [
         {
@@ -701,39 +629,22 @@ export default {
       });
     },
     generateGraph() {
-      if (
-        getSelectDataCounts(
-          this.condition,
-          this.total,
-          this.$refs.table.selectRows
-        ) > 100
-      ) {
+      if (getSelectDataCounts(this.condition, this.total, this.$refs.table.selectRows) > 100) {
         this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
         return;
       }
-      getGraphByCondition(
-        'API',
-        buildBatchParam(this, this.$refs.table.selectIds)
-      ).then((data) => {
+      getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds)).then((data) => {
         this.graphData = data.data;
         this.$refs.relationshipGraph.open();
       });
     },
     handleBatchMove() {
       this.isMoveBatch = true;
-      this.$refs.testCaseBatchMove.open(
-        this.moduleTree,
-        [],
-        this.moduleOptionsNew
-      );
+      this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptionsNew);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testCaseBatchMove.open(
-        this.moduleTree,
-        this.$refs.table.selectIds,
-        this.moduleOptionsNew
-      );
+      this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptionsNew);
     },
     closeCaseModel() {
       //关闭案例弹窗
@@ -752,9 +663,7 @@ export default {
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
-      this.enableOrderDrag = !(
-        this.condition.orders && this.condition.orders.length > 0
-      );
+      this.enableOrderDrag = !(this.condition.orders && this.condition.orders.length > 0);
 
       //检查是否只查询本周数据
       this.getSelectDataRange();
@@ -880,11 +789,7 @@ export default {
     refreshTable() {
       this.initTableCondition();
       if (this.condition.projectId) {
-        this.result = getDefinitionPage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = getDefinitionPage(this.currentPage, this.pageSize, this.condition).then((response) => {
           getProtocolFilter(this.condition.protocol);
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
@@ -898,11 +803,7 @@ export default {
     initTable(currentProtocol) {
       this.initTableCondition(currentProtocol);
       if (this.condition.projectId) {
-        this.result = getDefinitionPage(
-          this.currentPage,
-          this.pageSize,
-          this.condition
-        ).then((response) => {
+        this.result = getDefinitionPage(this.currentPage, this.pageSize, this.condition).then((response) => {
           getProtocolFilter(this.condition.protocol);
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
@@ -975,11 +876,7 @@ export default {
         request = row ? row.request : {};
       }
       let response = '';
-      if (
-        row.response != null &&
-        row.response != 'null' &&
-        row.response != undefined
-      ) {
+      if (row.response != null && row.response != 'null' && row.response != undefined) {
         if (
           Object.prototype.toString
             .call(row.response)
@@ -1042,35 +939,23 @@ export default {
     },
     handleDeleteBatch() {
       if (this.trashEnable) {
-        operationConfirm(
-          this,
-          this.$t('api_test.definition.request.delete_confirm') + '？',
-          () => {
-            deleteBatchByParams(
-              buildBatchParam(this, this.$refs.table.selectIds)
-            ).then(() => {
-              this.$refs.table.clear();
-              // this.initTable();
-              this.$emit('refreshTable');
-              this.$success(this.$t('commons.delete_success'));
-            });
-          }
-        );
+        operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + '？', () => {
+          deleteBatchByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
+            this.$refs.table.clear();
+            // this.initTable();
+            this.$emit('refreshTable');
+            this.$success(this.$t('commons.delete_success'));
+          });
+        });
       } else {
-        operationConfirm(
-          this,
-          this.$t('api_test.definition.request.delete_confirm') + '？',
-          () => {
-            removeToGcByParams(
-              buildBatchParam(this, this.$refs.table.selectIds)
-            ).then(() => {
-              this.$refs.table.clear();
-              this.$emit('refreshTable');
-              this.$success(this.$t('commons.delete_success'));
-              this.$refs.caseList.apiCaseClose();
-            });
-          }
-        );
+        operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + '？', () => {
+          removeToGcByParams(buildBatchParam(this, this.$refs.table.selectIds)).then(() => {
+            this.$refs.table.clear();
+            this.$emit('refreshTable');
+            this.$success(this.$t('commons.delete_success'));
+            this.$refs.caseList.apiCaseClose();
+          });
+        });
       }
     },
     handleEditBatch() {
@@ -1137,20 +1022,11 @@ export default {
       getDefinitionVersions(api.id).then((response) => {
         if (hasLicense() && this.versionEnable && response.data.length > 1) {
           // 删除提供列表删除和全部版本删除
-          this.$refs.apiDeleteConfirm.open(
-            api,
-            this.$t('api_test.definition.request.delete_confirm')
-          );
+          this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
         } else {
-          operationConfirm(
-            this,
-            this.$t('api_test.definition.request.delete_confirm') +
-              ' ' +
-              api.name,
-            () => {
-              this._handleDelete(api, false);
-            }
-          );
+          operationConfirm(this, this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name, () => {
+            this._handleDelete(api, false);
+          });
         }
       });
     },
@@ -1224,15 +1100,9 @@ export default {
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
           obj.nodeTree = this.getExportNodeTree(nodeTree, obj.data);
-          downloadFile(
-            'Metersphere_Api_' + this.projectName + '.json',
-            JSON.stringify(obj)
-          );
+          downloadFile('Metersphere_Api_' + this.projectName + '.json', JSON.stringify(obj));
         } else {
-          downloadFile(
-            'Swagger_Api_' + this.projectName + '.json',
-            JSON.stringify(obj)
-          );
+          downloadFile('Swagger_Api_' + this.projectName + '.json', JSON.stringify(obj));
         }
       });
     },

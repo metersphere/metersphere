@@ -1,42 +1,12 @@
 <template>
   <div class="database-config-list">
-    <el-table
-      border
-      :data="tableData"
-      class="adjust-table table-content"
-      highlight-current-row
-      @row-click="handleView"
-    >
-      <el-table-column
-        prop="name"
-        :label="$t('api_test.request.sql.dataSource')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="driver"
-        :label="$t('api_test.request.sql.database_driver')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="dbUrl"
-        :label="$t('api_test.request.sql.database_url')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="username"
-        :label="$t('api_test.request.sql.username')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="poolMax"
-        :label="$t('api_test.request.sql.pool_max')"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        prop="timeout"
-        :label="$t('api_test.request.sql.query_timeout')"
-        show-overflow-tooltip
-      />
+    <el-table border :data="tableData" class="adjust-table table-content" highlight-current-row @row-click="handleView">
+      <el-table-column prop="name" :label="$t('api_test.request.sql.dataSource')" show-overflow-tooltip />
+      <el-table-column prop="driver" :label="$t('api_test.request.sql.database_driver')" show-overflow-tooltip />
+      <el-table-column prop="dbUrl" :label="$t('api_test.request.sql.database_url')" show-overflow-tooltip />
+      <el-table-column prop="username" :label="$t('api_test.request.sql.username')" show-overflow-tooltip />
+      <el-table-column prop="poolMax" :label="$t('api_test.request.sql.pool_max')" show-overflow-tooltip />
+      <el-table-column prop="timeout" :label="$t('api_test.request.sql.query_timeout')" show-overflow-tooltip />
 
       <el-table-column :label="$t('commons.operating')" min-width="100">
         <template v-slot:default="scope">
@@ -45,14 +15,12 @@
               :tip="$t('commons.copy')"
               icon="el-icon-document-copy"
               type="success"
-              @exec="handleCopy(scope.$index, scope.row)"
-            />
+              @exec="handleCopy(scope.$index, scope.row)" />
             <ms-table-operator-button
               :tip="$t('commons.delete')"
               icon="el-icon-delete"
               type="danger"
-              @exec="handleDelete(scope.$index)"
-            />
+              @exec="handleDelete(scope.$index)" />
           </div>
         </template>
       </el-table-column>

@@ -3,11 +3,7 @@
     <div style="margin: 0px 10px 10px 10px">
       <el-form label-position="left" v-model="advancedValue">
         <div :span="8" v-for="(item, key) in advancedValue" :key="key">
-          <el-form-item
-            v-if="isNotEmptyValue(jsonData[key])"
-            :label="$t('schema.' + key) + ' : '"
-            style="margin: 0"
-          >
+          <el-form-item v-if="isNotEmptyValue(jsonData[key])" :label="$t('schema.' + key) + ' : '" style="margin: 0">
             {{ jsonData[key] }}
           </el-form-item>
         </div>

@@ -11,8 +11,7 @@
     color="#783887"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.automation.transaction_controller')"
-  >
+    :title="$t('api_test.automation.transaction_controller')">
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
         <i class="el-icon-loading" style="font-size: 16px" />
@@ -21,8 +20,7 @@
       <span
         class="ms-step-debug-code"
         :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-        v-if="!loading && !node.data.testing && node.data.debug"
-      >
+        v-if="!loading && !node.data.testing && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -33,21 +31,15 @@
         size="mini"
         v-model="controller.name"
         style="width: 20%"
-        :placeholder="$t('api_test.automation.transaction_controller')"
-      />
+        :placeholder="$t('api_test.automation.transaction_controller')" />
       <el-checkbox
         v-model="controller.generateParentSample"
         @change="changeGenerateParantSample"
         :disabled="controller.disabled"
-        class="ms-btn"
-      >
+        class="ms-btn">
         Generate Parent Sample
       </el-checkbox>
-      <el-checkbox
-        v-model="controller.includeTimers"
-        @change="changeIncludeTimers"
-        :disabled="controller.disabled"
-      >
+      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.disabled">
         Include Timers
       </el-checkbox>
     </template>
@@ -170,10 +162,7 @@ export default {
   },
   computed: {
     hasEmptyOperator() {
-      return (
-        !!this.controller.operator &&
-        this.controller.operator.indexOf('empty') > 0
-      );
+      return !!this.controller.operator && this.controller.operator.indexOf('empty') > 0;
     },
   },
 };

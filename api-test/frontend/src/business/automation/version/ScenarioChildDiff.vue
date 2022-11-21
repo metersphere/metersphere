@@ -7,8 +7,7 @@
         :current-scenario="oldData"
         :node="oldNode"
         :env-map="oldProjectEnvMap"
-        :show-version="false"
-      />
+        :show-version="false" />
     </el-card>
     <el-card ref="new" style="width: 50%">
       <ms-component-config
@@ -17,8 +16,7 @@
         :current-scenario="newData"
         :node="newNode"
         :env-map="newProjectEnvMap"
-        :show-version="false"
-      />
+        :show-version="false" />
     </el-card>
   </div>
 </template>

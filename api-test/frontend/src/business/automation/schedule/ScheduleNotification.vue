@@ -2,12 +2,7 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button
-          icon="el-icon-circle-plus-outline"
-          plain
-          size="mini"
-          @click="handleAddTaskModel"
-        >
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -21,8 +16,7 @@
           :receive-type-options="receiveTypeOptions"
           @handleReceivers="handleReceivers"
           @handleTemplate="handleTemplate"
-          @refresh="initForm"
-        />
+          @refresh="initForm" />
       </el-col>
     </el-row>
     <mx-notice-template v-xpack ref="noticeTemplate" :variables="variables" />
@@ -42,8 +36,7 @@ export default {
     NotificationTable,
     MsTipButton,
     MsCodeEdit,
-    MxNoticeTemplate: () =>
-      import('metersphere-frontend/src/components/MxNoticeTemplate'),
+    MxNoticeTemplate: () => import('metersphere-frontend/src/components/MxNoticeTemplate'),
   },
   props: {
     testId: String,
@@ -264,9 +257,7 @@ export default {
       }
     },
     handleReceivers(row) {
-      row.receiverOptions = JSON.parse(
-        JSON.stringify(this.scheduleReceiverOptions)
-      );
+      row.receiverOptions = JSON.parse(JSON.stringify(this.scheduleReceiverOptions));
     },
   },
 };

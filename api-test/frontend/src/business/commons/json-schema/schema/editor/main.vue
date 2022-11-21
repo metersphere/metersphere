@@ -5,11 +5,8 @@
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
           v-if="pickValue.type === 'object' || pickValue.type === 'array'"
-          :class="
-            hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'
-          "
-          @click="hidden = !hidden"
-        />
+          :class="hidden ? 'el-icon-caret-left ms-transform' : 'el-icon-caret-bottom'"
+          @click="hidden = !hidden" />
         <span v-else style="width: 10px; display: inline-block"></span>
         <input
           class="el-input el-input__inner"
@@ -17,20 +14,14 @@
           :disabled="disabled || root"
           :value="pickKey"
           @blur="onInputName"
-          size="small"
-        />
+          size="small" />
 
-        <el-tooltip
-          v-if="root"
-          :content="$t('schema.checked_all')"
-          placement="top"
-        >
+        <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
           <input
             type="checkbox"
             :disabled="disabled || (!isObject && !isArray(pickValue))"
             class="ms-col-name-required"
-            @change="onRootCheck"
-          />
+            @change="onRootCheck" />
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
           <input
@@ -38,8 +29,7 @@
             :disabled="disabled || isItem"
             :checked="checked"
             class="ms-col-name-required"
-            @change="onCheck"
-          />
+            @change="onCheck" />
         </el-tooltip>
       </el-col>
       <el-col :span="4">
@@ -48,8 +38,7 @@
           :disabled="disabled || disabledType"
           class="ms-col-type"
           @change="onChangeType"
-          size="small"
-        >
+          size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
@@ -66,8 +55,7 @@
           :scenario-definition="scenarioDefinition"
           :show-mock-vars="showMockVars"
           :need-mock="needMock"
-          @editScenarioAdvance="editScenarioAdvance"
-        />
+          @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
       <el-col :span="4">
         <el-input
@@ -75,44 +63,22 @@
           v-model="pickValue.description"
           class="ms-col-title"
           :placeholder="$t('schema.description')"
-          size="small"
-        />
+          size="small" />
       </el-col>
       <el-col :span="4" class="col-item-setting" v-if="!disabled">
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="$t('schema.adv_setting')"
-          placement="top"
-        >
+        <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting" />
         </el-tooltip>
-        <el-tooltip
-          v-if="isObject || isArray(pickValue)"
-          :content="$t('schema.add_child_node')"
-          placement="top"
-        >
+        <el-tooltip v-if="isObject || isArray(pickValue)" :content="$t('schema.add_child_node')" placement="top">
           <i class="el-icon-plus" @click="addChild" style="margin-left: 10px" />
         </el-tooltip>
-        <el-tooltip
-          v-if="!root && !isItem"
-          :content="$t('schema.remove_node')"
-          placement="top"
-        >
-          <i
-            class="el-icon-close"
-            @click="removeNode"
-            style="margin-left: 10px"
-          />
+        <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
+          <i class="el-icon-close" @click="removeNode" style="margin-left: 10px" />
         </el-tooltip>
       </el-col>
     </el-row>
 
-    <template
-      v-if="
-        !hidden && pickValue.properties && !isArray(pickValue) && reloadItemOver
-      "
-    >
+    <template v-if="!hidden && pickValue.properties && !isArray(pickValue) && reloadItemOver">
       <json-schema-editor
         v-for="(item, key, index) in pickValue.properties"
         :value="{ [key]: item }"
@@ -129,8 +95,7 @@
         :custom="custom"
         @changeAllItemsType="changeAllItemsType"
         :need-mock="needMock"
-        @reloadItems="reloadItems"
-      />
+        @reloadItems="reloadItems" />
     </template>
     <template v-if="!hidden && isArray(pickValue) && reloadItemOver">
       <json-schema-editor
@@ -149,8 +114,7 @@
         :lang="lang"
         :custom="custom"
         @changeAllItemsType="changeAllItemsType"
-        @reloadItems="reloadItems"
-      />
+        @reloadItems="reloadItems" />
     </template>
     <!-- 高级设置-->
     <el-dialog
@@ -160,16 +124,10 @@
       :visible.sync="modalVisible"
       :destroy-on-close="true"
       @close="handleClose"
-      v-if="modalVisible"
-    >
+      v-if="modalVisible">
       <p class="tip">{{ $t('schema.base_setting') }}</p>
 
-      <el-form
-        label-position="left"
-        label-width="100px"
-        v-model="advancedValue"
-        class="ms-advanced-search-form"
-      >
+      <el-form label-position="left" label-width="100px" v-model="advancedValue" class="ms-advanced-search-form">
         <div :span="8" v-for="(item, key) in advancedValue" :key="key">
           <el-form-item :label="$t('schema.' + key)">
             <el-input-number
@@ -177,34 +135,23 @@
               v-if="advancedAttr[key].type === 'integer'"
               style="width: 100%"
               :placeholder="key"
-              size="small"
-            />
+              size="small" />
             <el-input-number
               v-model="advancedValue[key]"
               v-else-if="advancedAttr[key].type === 'number'"
               style="width: 100%"
               :placeholder="key"
-              size="small"
-            />
-            <span
-              v-else-if="advancedAttr[key].type === 'boolean'"
-              style="display: inline-block; width: 100%"
-            >
+              size="small" />
+            <span v-else-if="advancedAttr[key].type === 'boolean'" style="display: inline-block; width: 100%">
               <el-switch v-model="advancedValue[key]" />
             </span>
             <el-select
               v-else-if="advancedAttr[key].type === 'array'"
               v-model="advancedValue[key]"
               style="width: 100%"
-              size="small"
-            >
+              size="small">
               <el-option value="" :label="$t('schema.nothing')"></el-option>
-              <el-option
-                :key="t"
-                :value="t"
-                :label="t"
-                v-for="t in advancedAttr[key].enums"
-              />
+              <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums" />
             </el-select>
             <el-input
               v-else-if="advancedAttr[key].type === 'textarea'"
@@ -212,15 +159,8 @@
               v-model="advancedValue[key]"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 10 }"
-              :rows="2"
-            ></el-input>
-            <el-input
-              v-model="advancedValue[key]"
-              v-else
-              style="width: 100%"
-              :placeholder="key"
-              size="small"
-            />
+              :rows="2"></el-input>
+            <el-input v-model="advancedValue[key]" v-else style="width: 100%" :placeholder="key" size="small" />
           </el-form-item>
         </div>
       </el-form>
@@ -311,11 +251,7 @@ export default {
       return this.pickValue.type === 'object';
     },
     checked() {
-      return (
-        this.parent &&
-        this.parent.required &&
-        this.parent.required.indexOf(this.pickKey) >= 0
-      );
+      return this.parent && this.parent.required && this.parent.required.indexOf(this.pickKey) >= 0;
     },
     advanced() {
       return TYPE[this.pickValue.type];
@@ -399,18 +335,12 @@ export default {
         delete this.pickValue['required'];
         delete this.pickValue['mock'];
         if (this.isArray(this.pickValue)) {
-          this.$set(this.pickValue, 'items', [
-            { type: 'string', mock: { mock: '' } },
-          ]);
+          this.$set(this.pickValue, 'items', [{ type: 'string', mock: { mock: '' } }]);
         }
       }
     },
     changeAllItemsType(changeType) {
-      if (
-        this.isArray(this.pickValue) &&
-        this.pickValue.items &&
-        this.pickValue.items.length > 0
-      ) {
+      if (this.isArray(this.pickValue) && this.pickValue.items && this.pickValue.items.length > 0) {
         this.pickValue.items.forEach((item) => {
           item.type = changeType;
           delete item['properties'];
@@ -432,23 +362,11 @@ export default {
     },
     _deepCheck(checked, node) {
       if (node.type === 'object' && node.properties) {
-        checked
-          ? this.$set(node, 'required', Object.keys(node.properties))
-          : delete node['required'];
-        Object.keys(node.properties).forEach((key) =>
-          this._deepCheck(checked, node.properties[key])
-        );
+        checked ? this.$set(node, 'required', Object.keys(node.properties)) : delete node['required'];
+        Object.keys(node.properties).forEach((key) => this._deepCheck(checked, node.properties[key]));
       } else if (node.type === 'array' && node.items.type === 'object') {
-        checked
-          ? this.$set(
-              node.items,
-              'required',
-              Object.keys(node.items.properties)
-            )
-          : delete node.items['required'];
-        Object.keys(node.items.properties).forEach((key) =>
-          this._deepCheck(checked, node.items.properties[key])
-        );
+        checked ? this.$set(node.items, 'required', Object.keys(node.items.properties)) : delete node.items['required'];
+        Object.keys(node.items.properties).forEach((key) => this._deepCheck(checked, node.items.properties[key]));
       }
     },
     _checked(checked, parent) {
@@ -514,10 +432,7 @@ export default {
       this.parentReloadItems();
     },
     _joinName() {
-      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(
-        0,
-        5
-      )}`;
+      return `field_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`;
     },
     onSetting() {
       this.modalVisible = true;
@@ -626,10 +541,7 @@ export default {
   display: flex;
 }
 
-.json-schema-editor-advanced-modal
-  .ms-advanced-search-form
-  .ms-form-item
-  .ms-form-item-control-wrapper {
+.json-schema-editor-advanced-modal .ms-advanced-search-form .ms-form-item .ms-form-item-control-wrapper {
   flex: 1;
 }
 

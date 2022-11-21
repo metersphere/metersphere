@@ -1,13 +1,7 @@
 <template>
   <div>
     <div class="btn-div">
-      <el-button
-        size="mini"
-        type="primary"
-        class="save-btn"
-        v-if="!rowReadOnly && !showSaveBtn"
-        @click="update"
-      >
+      <el-button size="mini" type="primary" class="save-btn" v-if="!rowReadOnly && !showSaveBtn" @click="update">
         {{ $t('commons.save') }}
       </el-button>
     </div>
@@ -25,15 +19,13 @@
                 :size="itemSize"
                 @clear="clearProjectSelect"
                 :placeholder="$t('workspace.env_group.please_select_project')"
-                :disabled="rowReadOnly"
-              >
+                :disabled="rowReadOnly">
                 <el-option
                   v-for="(project, projectIndex) in projectList"
                   :key="projectIndex"
                   :label="project.name"
                   :disabled="project.disabled"
-                  :value="project.id"
-                ></el-option>
+                  :value="project.id"></el-option>
               </el-select>
             </el-col>
 
@@ -46,14 +38,12 @@
                 @change="environmentChange(item)"
                 :size="itemSize"
                 :placeholder="$t('workspace.env_group.please_select_env')"
-                :disabled="rowReadOnly"
-              >
+                :disabled="rowReadOnly">
                 <el-option
                   v-for="(environment, envIndex) in item.environments"
                   :key="envIndex"
                   :label="environment.name"
-                  :value="environment.id"
-                ></el-option>
+                  :value="environment.id"></el-option>
               </el-select>
             </el-col>
 
@@ -63,16 +53,10 @@
                 icon="el-icon-s-data"
                 style="width: 100%"
                 @click="showDomainInfo(item)"
-                v-if="item.moreDomain"
-              >
+                v-if="item.moreDomain">
                 {{ $t('workspace.env_group.view_details') }}
               </el-button>
-              <el-input
-                v-else
-                v-model="item.domainName"
-                :disabled="true"
-                :size="itemSize"
-              />
+              <el-input v-else v-model="item.domainName" :disabled="true" :size="itemSize" />
             </el-col>
 
             <el-col :span="5">
@@ -84,8 +68,7 @@
                 v-model="item.domainDescription"
                 show-word-limit
                 :size="itemSize"
-                :disabled="true"
-              />
+                :disabled="true" />
             </el-col>
 
             <el-col :span="3">
@@ -95,63 +78,40 @@
                 circle
                 :size="itemSize"
                 :disabled="rowReadOnly"
-                @click="change"
-              ></el-button>
+                @click="change"></el-button>
               <el-button
                 type="danger"
                 icon="el-icon-delete"
                 circle
                 :size="itemSize"
                 :disabled="rowReadOnly"
-                @click="remove(index)"
-              ></el-button>
+                @click="remove(index)"></el-button>
             </el-col>
           </el-row>
         </el-form-item>
       </el-form>
-      <el-dialog
-        :title="$t('workspace.env_group.domain_list')"
-        :visible.sync="domainVisible"
-        append-to-body
-      >
+      <el-dialog :title="$t('workspace.env_group.domain_list')" :visible.sync="domainVisible" append-to-body>
         <el-table :data="conditions">
-          <el-table-column
-            prop="socket"
-            :label="$t('load_test.domain')"
-            show-overflow-tooltip
-            width="180"
-          >
+          <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
             <template v-slot:default="{ row }">
               {{ row.conditionType ? row.server : getUrl(row) }}
             </template>
           </el-table-column>
-          <el-table-column
-            :label="$t('commons.type')"
-            show-overflow-tooltip
-            min-width="100px"
-          >
+          <el-table-column :label="$t('commons.type')" show-overflow-tooltip min-width="100px">
             <template v-slot:default="{ row }">
-              <el-tag type="info" size="mini">{{
-                row.conditionType ? row.conditionType : 'HTTP'
-              }}</el-tag>
+              <el-tag type="info" size="mini">{{ row.conditionType ? row.conditionType : 'HTTP' }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column
             prop="type"
             :label="$t('api_test.environment.condition_enable')"
             show-overflow-tooltip
-            min-width="100px"
-          >
+            min-width="100px">
             <template v-slot:default="{ row }">
               {{ row.conditionType ? '-' : getName(row) }}
             </template>
           </el-table-column>
-          <el-table-column
-            prop="details"
-            show-overflow-tooltip
-            min-width="120px"
-            :label="$t('api_test.value')"
-          >
+          <el-table-column prop="details" show-overflow-tooltip min-width="120px" :label="$t('api_test.value')">
             <template v-slot:default="{ row }">
               {{ row.conditionType ? '-' : getDetails(row) }}
             </template>
@@ -160,36 +120,21 @@
             prop="description"
             show-overflow-tooltip
             min-width="120px"
-            :label="$t('commons.description')"
-          >
+            :label="$t('commons.description')">
             <template v-slot:default="{ row }">
               <span>{{ row.description ? row.description : '-' }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="createTime"
-            show-overflow-tooltip
-            min-width="120px"
-            :label="$t('commons.create_time')"
-          >
+          <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
             <template v-slot:default="{ row }">
-              <span v-if="!row.conditionType">{{
-                row.time | datetimeFormat
-              }}</span>
+              <span v-if="!row.conditionType">{{ row.time | datetimeFormat }}</span>
               <span v-else>-</span>
             </template>
           </el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="domainVisible = false" size="small">{{
-            $t('commons.cancel')
-          }}</el-button>
-          <el-button
-            type="primary"
-            @click="domainVisible = false"
-            size="small"
-            >{{ $t('commons.confirm') }}</el-button
-          >
+          <el-button @click="domainVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+          <el-button type="primary" @click="domainVisible = false" size="small">{{ $t('commons.confirm') }}</el-button>
         </span>
       </el-dialog>
     </div>
@@ -198,10 +143,7 @@
 
 <script>
 import { getAll } from '@/api/project';
-import {
-  environmentGroupList,
-  getEnvironmentByProjectId,
-} from 'metersphere-frontend/src/api/environment';
+import { environmentGroupList, getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 
 export default {
   name: 'EnvironmentGroupRow',
@@ -257,9 +199,7 @@ export default {
   methods: {
     projectChange(item) {
       if (item && item.projectId) {
-        let project = this.projectList.find(
-          (project) => project.id === item.projectId
-        );
+        let project = this.projectList.find((project) => project.id === item.projectId);
         if (project) {
           project.disabled = true;
         }
@@ -299,14 +239,9 @@ export default {
         const config = JSON.parse(environment);
         if (config.httpConfig && !config.httpConfig.conditions) {
           if (config.httpConfig.protocol && config.httpConfig.domain) {
-            let domain =
-              config.httpConfig.protocol + '://' + config.httpConfig.domain;
+            let domain = config.httpConfig.protocol + '://' + config.httpConfig.domain;
             this.$set(item, 'domainName', domain);
-            this.$set(
-              item,
-              'domainDescription',
-              config.httpConfig.description ? config.httpConfig.description : ''
-            );
+            this.$set(item, 'domainDescription', config.httpConfig.description ? config.httpConfig.description : '');
             return;
           }
         } else {
@@ -318,11 +253,7 @@ export default {
             let obj = config.httpConfig.conditions[0];
             if (obj.protocol && obj.socket) {
               this.$set(item, 'domainName', obj.protocol + '://' + obj.socket);
-              this.$set(
-                item,
-                'domainDescription',
-                obj.description ? obj.description : ''
-              );
+              this.$set(item, 'domainDescription', obj.description ? obj.description : '');
               return;
             }
           } else if (config.httpConfig.conditions.length > 1) {
@@ -335,25 +266,15 @@ export default {
           }
         }
       } else {
-        this.$set(
-          item,
-          'domainName',
-          environment.protocol + '://' + environment.domain
-        );
-        this.$set(
-          item,
-          'domainDescription',
-          environment.description ? environment.description : ''
-        );
+        this.$set(item, 'domainName', environment.protocol + '://' + environment.domain);
+        this.$set(item, 'domainDescription', environment.description ? environment.description : '');
         return;
       }
       this.$set(item, 'domainName', '');
       this.$set(item, 'domainDescription', '');
     },
     showDomainInfo(item) {
-      const index = item.environments.findIndex(
-        (e) => e.id === item.environmentId
-      );
+      const index = item.environments.findIndex((e) => e.id === item.environmentId);
       if (index === -1) {
         return '';
       }
@@ -413,14 +334,9 @@ export default {
         const config = JSON.parse(environment);
         if (config.httpConfig && !config.httpConfig.conditions) {
           if (config.httpConfig.protocol && config.httpConfig.domain) {
-            let domain =
-              config.httpConfig.protocol + '://' + config.httpConfig.domain;
+            let domain = config.httpConfig.protocol + '://' + config.httpConfig.domain;
             this.$set(item, 'domainName', domain);
-            this.$set(
-              item,
-              'domainDescription',
-              config.httpConfig.description ? config.httpConfig.description : ''
-            );
+            this.$set(item, 'domainDescription', config.httpConfig.description ? config.httpConfig.description : '');
           }
         } else {
           if (config.httpConfig.conditions.length === 1) {
@@ -431,11 +347,7 @@ export default {
             let obj = config.httpConfig.conditions[0];
             if (obj.protocol && obj.socket) {
               this.$set(item, 'domainName', obj.protocol + '://' + obj.socket);
-              this.$set(
-                item,
-                'domainDescription',
-                obj.description ? obj.description : ''
-              );
+              this.$set(item, 'domainDescription', obj.description ? obj.description : '');
             }
           } else if (config.httpConfig.conditions.length > 1) {
             this.$set(item, 'moreDomain', true);
@@ -447,16 +359,8 @@ export default {
           }
         }
       } else {
-        this.$set(
-          item,
-          'domainName',
-          environment.protocol + '://' + environment.domain
-        );
-        this.$set(
-          item,
-          'domainDescription',
-          environment.description ? environment.description : ''
-        );
+        this.$set(item, 'domainName', environment.protocol + '://' + environment.domain);
+        this.$set(item, 'domainDescription', environment.description ? environment.description : '');
       }
     },
     getName(row) {
@@ -484,25 +388,17 @@ export default {
           }
           return value;
         }
-      } else if (
-        row &&
-        row.type === 'PATH' &&
-        row.details.length > 0 &&
-        row.details[0].name
-      ) {
+      } else if (row && row.type === 'PATH' && row.details.length > 0 && row.details[0].name) {
         return row.details[0].value === 'equals'
           ? this.$t('commons.adv_search.operators.equals') + row.details[0].name
-          : this.$t('api_test.request.assertions.contains') +
-              row.details[0].name;
+          : this.$t('api_test.request.assertions.contains') + row.details[0].name;
       } else {
         return '';
       }
     },
     remove(index) {},
     disabledOption(projectId, sign) {
-      let project = this.projectList.find(
-        (project) => project.id === projectId
-      );
+      let project = this.projectList.find((project) => project.id === projectId);
       if (project) {
         project.disabled = sign;
       }

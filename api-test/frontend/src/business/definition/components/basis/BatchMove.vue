@@ -5,14 +5,9 @@
       :visible.sync="dialogVisible"
       :before-close="close"
       :destroy-on-close="true"
-      width="20%"
-    >
+      width="20%">
       <div>
-        <el-input
-          :placeholder="$t('test_track.module.search')"
-          v-model="filterText"
-          size="small"
-        />
+        <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" />
         <el-tree
           class="filter-tree node-tree"
           :data="treeNodes"
@@ -22,8 +17,7 @@
           highlight-current
           style="overflow: auto"
           @node-click="nodeClick"
-          ref="tree"
-        >
+          ref="tree">
           <template v-slot:default="{ node }">
             <span>
               <span class="node-icon">
