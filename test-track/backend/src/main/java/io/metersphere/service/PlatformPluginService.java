@@ -10,6 +10,7 @@ import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.platform.domain.PlatformRequest;
+import io.metersphere.platform.domain.SelectOption;
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
@@ -21,6 +22,7 @@ import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -100,5 +102,20 @@ public class PlatformPluginService {
             return false;
         }
         return true;
+    }
+
+    public List<SelectOption> getPlatformOptions() {
+        List<SelectOption> options = pluginManager.getPluginMetaInfoList()
+                .stream()
+                .map(pluginMetaInfo -> new SelectOption(pluginMetaInfo.getLabel(), pluginMetaInfo.getKey()))
+                .collect(Collectors.toList());
+        List<ServiceIntegration> integrations = baseIntegrationService.getAll(SessionUtils.getCurrentWorkspaceId());
+        // 过滤掉服务集成中没有的选项
+        return options.stream()
+                .filter(option ->
+                        integrations.stream()
+                                .filter(integration -> StringUtils.equals(integration.getPlatform(), option.getValue()))
+                                .collect(Collectors.toList()).size() > 0
+                ).collect(Collectors.toList());
     }
 }

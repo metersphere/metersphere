@@ -195,7 +195,7 @@ import {
   getIssues,
   syncIssues,
   deleteIssue,
-  getIssuesById, batchDeleteIssue
+  getIssuesById, batchDeleteIssue, getPlatformOption
 } from "@/api/issue";
 import {
   getCustomFieldValue,
@@ -268,7 +268,8 @@ export default {
       isThirdPart: false,
       creatorFilters: [],
       loading: false,
-      dataSelectRange: ""
+      dataSelectRange: "",
+      platformOptions: []
     };
   },
   watch: {
@@ -297,10 +298,17 @@ export default {
         });
       this.getIssues();
     });
+
+    getPlatformOption()
+      .then((r) => {
+        this.platformOptions = r.data;
+      });
   },
   computed: {
     platformFilters() {
-      return ISSUE_PLATFORM_OPTION;
+      let options = [...ISSUE_PLATFORM_OPTION];
+      options.push(...this.platformOptions);
+      return options;
     },
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
