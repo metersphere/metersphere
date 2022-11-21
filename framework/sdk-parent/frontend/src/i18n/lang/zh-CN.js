@@ -3008,6 +3008,12 @@ const message = {
     command_steps_label: "指令步骤",
     command_step_info: "在右侧添加指令步骤",
     unplanned_scenario: "未规划场景",
+    check_grid: "连接失败，请检查 selenium-grid 服务状态",
+    check_grid_ip: "连接失败，请检查 selenium-grid 地址信息",
+    view_config: "查看配置信息",
+    config_ip: "没有检测到本地ip和端口信息，请在",
+    personal_info: "个人信息",
+    in_config: "中设置",
   },
   project_application: {
     workstation: {
