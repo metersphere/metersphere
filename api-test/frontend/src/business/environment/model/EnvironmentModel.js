@@ -1,9 +1,4 @@
-import {
-  TCPConfig,
-  BaseConfig,
-  DatabaseConfig,
-  KeyValue,
-} from '@/business/definition/model/ApiTestModel';
+import { TCPConfig, BaseConfig, DatabaseConfig, KeyValue } from '@/business/definition/model/ApiTestModel';
 
 export class Environment extends BaseConfig {
   constructor(options = {}) {

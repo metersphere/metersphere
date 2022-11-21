@@ -6,8 +6,7 @@
           :class="'body-pane'"
           :label="$t('api_test.definition.request.response_body')"
           name="body"
-          class="pane"
-        >
+          class="pane">
           <ms-sql-result-table v-if="isSqlType" :body="response.body" />
           <ms-code-edit
             v-if="!isSqlType"
@@ -15,39 +14,22 @@
             :read-only="true"
             :data="response.body"
             :modes="modes"
-            ref="codeEdit"
-          />
+            ref="codeEdit" />
         </el-tab-pane>
 
-        <el-tab-pane
-          :label="$t('api_test.definition.request.response_header')"
-          name="headers"
-          class="pane"
-        >
+        <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
           <pre>{{ response.headers }}</pre>
         </el-tab-pane>
 
-        <el-tab-pane
-          :label="$t('api_report.assertions')"
-          name="assertions"
-          class="pane assertions"
-        >
+        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
           <ms-assertion-results :assertions="response.assertions" />
         </el-tab-pane>
 
-        <el-tab-pane
-          :label="$t('api_test.request.extract.label')"
-          name="label"
-          class="pane"
-        >
+        <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
           <pre>{{ response.vars }}</pre>
         </el-tab-pane>
 
-        <el-tab-pane
-          :label="$t('api_report.request_body')"
-          name="request_body"
-          class="pane"
-        >
+        <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
           <div class="ms-div">
             {{ $t('api_test.request.address') }} :
             <pre>{{ request.url }}</pre>
@@ -66,26 +48,14 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane
-          v-if="activeName == 'body'"
-          :disabled="true"
-          name="mode"
-          class="pane assertions"
-        >
+        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
           <template v-slot:label>
             <ms-dropdown
               v-if="request.method === 'SQL'"
               :commands="sqlModes"
               :default-command="mode"
-              @command="sqlModeChange"
-            />
-            <ms-dropdown
-              v-else
-              :commands="modes"
-              :default-command="mode"
-              @command="modeChange"
-              ref="modeDropdown"
-            />
+              @command="sqlModeChange" />
+            <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown" />
           </template>
         </el-tab-pane>
       </el-tabs>
@@ -97,12 +67,7 @@
 import MsAssertionResults from './AssertionResults';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import MsDropdown from '../../../../business/commons/MsDropdown';
-import {
-  BODY_FORMAT,
-  RequestFactory,
-  Request,
-  SqlRequest,
-} from '../../../../business/definition/model/ApiTestModel';
+import { BODY_FORMAT, RequestFactory, Request, SqlRequest } from '../../../../business/definition/model/ApiTestModel';
 import MsSqlResultTable from './SqlResultTable';
 
 export default {
@@ -156,8 +121,7 @@ export default {
   computed: {
     isSqlType() {
       return (
-        (this.requestType === RequestFactory.TYPES.SQL ||
-          this.request.method === RequestFactory.TYPES.SQL) &&
+        (this.requestType === RequestFactory.TYPES.SQL || this.request.method === RequestFactory.TYPES.SQL) &&
         this.response.responseCode === '200' &&
         this.mode === 'table'
       );

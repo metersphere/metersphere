@@ -4,16 +4,12 @@
       <el-col :span="12">
         <el-tag>当前{{ oldData.versionName }}</el-tag>
         <span style="margin-left: 10px">{{ oldData.userName }}</span
-        ><span style="margin-left: 10px">{{
-          oldData.createTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ oldData.createTime | datetimeFormat }}</span>
       </el-col>
       <el-col :span="12">
         <el-tag>{{ newData.versionName }}</el-tag>
         <span style="margin-left: 10px">{{ newData.userName }}</span
-        ><span style="margin-left: 10px">{{
-          newData.createTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ newData.createTime | datetimeFormat }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -29,8 +25,7 @@
                 :method-types="methodTypes"
                 :moduleOptions="moduleOptions"
                 :basisData="oldData"
-                ref="basicForm"
-              />
+                ref="basicForm" />
             </el-col>
           </el-row>
           <!-- MOCK信息 -->
@@ -39,20 +34,10 @@
             <el-row>
               <el-col :span="20">
                 Mock地址：
-                <el-link
-                  v-if="this.mockInfo !== ''"
-                  target="_blank"
-                  style="color: black"
-                  type="primary"
+                <el-link v-if="this.mockInfo !== ''" target="_blank" style="color: black" type="primary"
                   >{{ this.mockInfo }}
                 </el-link>
-                <el-link
-                  v-else
-                  target="_blank"
-                  style="color: darkred"
-                  type="primary"
-                  >当前项目未开启Mock服务
-                </el-link>
+                <el-link v-else target="_blank" style="color: darkred" type="primary">当前项目未开启Mock服务 </el-link>
               </el-col>
             </el-row>
           </div>
@@ -60,11 +45,7 @@
           <div v-if="oldApiProtocol === 'TCP'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
 
-            <ms-tcp-format-parameters
-              :show-script="false"
-              :request="oldRequest"
-              ref="tcpFormatParameter"
-            />
+            <ms-tcp-format-parameters :show-script="false" :request="oldRequest" ref="tcpFormatParameter" />
           </div>
           <div v-else-if="oldApiProtocol === 'ESB'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
@@ -73,15 +54,9 @@
               :show-script="false"
               :is-read-only="true"
               :request="oldRequest"
-              ref="esbDefinition"
-            />
+              ref="esbDefinition" />
             <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-            <mx-esb-definition-response
-              v-xpack
-              :is-api-component="true"
-              :is-read-only="true"
-              :request="oldRequest"
-            />
+            <mx-esb-definition-response v-xpack :is-api-component="true" :is-read-only="true" :request="oldRequest" />
             <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
           </div>
 
@@ -90,37 +65,24 @@
             <el-form :model="oldData" ref="api-form" label-width="100px">
               <el-collapse-transition>
                 <el-tabs v-model="activeName" style="margin: 20px">
-                  <el-tab-pane
-                    :label="$t('commons.remark')"
-                    name="remark"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
                     <form-rich-text-item
                       class="remark-item"
                       :disabled="true"
                       :data="oldData"
                       prop="remark"
-                      label-width="0"
-                    />
+                      label-width="0" />
                   </el-tab-pane>
-                  <el-tab-pane
-                    :label="$t('commons.relationship.name')"
-                    name="dependencies"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
                     <template v-slot:label>
-                      <tab-pane-count
-                        :title="$t('commons.relationship.name')"
-                        :count="oldRelationshipCount"
-                      />
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount" />
                     </template>
                     <dependencies-list
                       @setCount="setOldCount"
                       :read-only="true"
                       :resource-id="oldData.id"
                       resource-type="API"
-                      ref="oldDependencies"
-                    />
+                      ref="oldDependencies" />
                   </el-tab-pane>
                 </el-tabs>
               </el-collapse-transition>
@@ -140,8 +102,7 @@
                 :method-types="methodTypes"
                 :moduleOptions="moduleOptions"
                 :basisData="newData"
-                ref="basicForm"
-              />
+                ref="basicForm" />
             </el-col>
           </el-row>
           <!-- MOCK信息 -->
@@ -150,31 +111,17 @@
             <el-row>
               <el-col :span="20">
                 Mock地址：
-                <el-link
-                  v-if="this.mockInfo !== ''"
-                  target="_blank"
-                  style="color: black"
-                  type="primary"
+                <el-link v-if="this.mockInfo !== ''" target="_blank" style="color: black" type="primary"
                   >{{ this.mockInfo }}
                 </el-link>
-                <el-link
-                  v-else
-                  target="_blank"
-                  style="color: darkred"
-                  type="primary"
-                  >当前项目未开启Mock服务
-                </el-link>
+                <el-link v-else target="_blank" style="color: darkred" type="primary">当前项目未开启Mock服务 </el-link>
               </el-col>
             </el-row>
           </div>
           <!-- 请求参数 -->
           <div v-if="apiProtocol == 'TCP'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-            <ms-tcp-format-parameters
-              :show-script="false"
-              :request="request"
-              ref="tcpFormatParameter"
-            />
+            <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter" />
           </div>
           <div v-else-if="apiProtocol == 'ESB'">
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
@@ -183,15 +130,9 @@
               :show-script="false"
               :is-read-only="true"
               :request="request"
-              ref="esbDefinition"
-            />
+              ref="esbDefinition" />
             <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-            <mx-esb-definition-response
-              v-xpack
-              :is-api-component="true"
-              :is-read-only="true"
-              :request="request"
-            />
+            <mx-esb-definition-response v-xpack :is-api-component="true" :is-read-only="true" :request="request" />
           </div>
 
           <!-- 其他信息-->
@@ -200,37 +141,24 @@
             <el-form :model="newData" ref="api-form" label-width="100px">
               <el-collapse-transition>
                 <el-tabs v-model="activeName" style="margin: 20px">
-                  <el-tab-pane
-                    :label="$t('commons.remark')"
-                    name="remark"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
                     <form-rich-text-item
                       class="remark-item"
                       :disabled="true"
                       :data="newData"
                       prop="remark"
-                      label-width="0"
-                    />
+                      label-width="0" />
                   </el-tab-pane>
-                  <el-tab-pane
-                    :label="$t('commons.relationship.name')"
-                    name="dependencies"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
                     <template v-slot:label>
-                      <tab-pane-count
-                        :title="$t('commons.relationship.name')"
-                        :count="relationshipCount"
-                      />
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount" />
                     </template>
                     <dependencies-list
                       @setCount="setCount"
                       :read-only="true"
                       :resource-id="newData.id"
                       resource-type="API"
-                      ref="newDependencies"
-                    />
+                      ref="newDependencies" />
                   </el-tab-pane>
                 </el-tabs>
               </el-collapse-transition>
@@ -263,10 +191,8 @@ export default {
     TabPaneCount,
     FormRichTextItem,
     DependenciesList,
-    MxEsbDefinition: () =>
-      import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () =>
-      import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
+    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
+    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   props: {
     oldData: {
@@ -361,10 +287,7 @@ export default {
       this.oldRelationshipCount = data;
     });
     this.$nextTick(function () {
-      setTimeout(
-        this.getDiff,
-        ((this.$refs.old.$children.length + 1) / 2) * 1000
-      );
+      setTimeout(this.getDiff, ((this.$refs.old.$children.length + 1) / 2) * 1000);
     });
   },
 };

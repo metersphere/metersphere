@@ -1,17 +1,7 @@
 <template>
-  <el-form
-    :model="editData"
-    label-position="right"
-    label-width="80px"
-    size="small"
-    ref="form3"
-    :rules="rules"
-  >
+  <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form3" :rules="rules">
     <el-form-item :label="$t('api_test.variable_name')" prop="name">
-      <el-input
-        v-model="editData.name"
-        :placeholder="$t('api_test.variable_name')"
-      ></el-input>
+      <el-input v-model="editData.name" :placeholder="$t('api_test.variable_name')"></el-input>
     </el-form-item>
 
     <el-form-item :label="$t('commons.description')" prop="description">
@@ -23,14 +13,9 @@
         :placeholder="$t('commons.input_content')"
         :autosize="{ minRows: 2, maxRows: 10 }"
         :rows="2"
-        size="small"
-      />
+        size="small" />
     </el-form-item>
-    <el-tabs
-      v-model="activeName"
-      @tab-click="handleClick"
-      style="margin-left: 40px"
-    >
+    <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
       <el-tab-pane :label="$t('variables.config')" name="config">
         <el-row>
           <el-col :span="5" style="margin-top: 5px">
@@ -51,8 +36,7 @@
               v-model="editData.encoding"
               :disabled="disabled"
               :fetch-suggestions="querySearch"
-              :placeholder="$t('commons.input_content')"
-            ></el-autocomplete>
+              :placeholder="$t('commons.input_content')"></el-autocomplete>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -60,11 +44,7 @@
             <span>{{ $t('variables.delimiter') }}</span>
           </el-col>
           <el-col :span="19">
-            <el-input
-              v-model="editData.delimiter"
-              size="small"
-              :disabled="disabled"
-            />
+            <el-input v-model="editData.delimiter" size="small" :disabled="disabled" />
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -72,11 +52,7 @@
             <span>{{ $t('variables.quoted_data') }}</span>
           </el-col>
           <el-col :span="19">
-            <el-select
-              v-model="editData.quotedData"
-              size="small"
-              :disabled="disabled"
-            >
+            <el-select v-model="editData.quotedData" size="small" :disabled="disabled">
               <el-option label="true" :value="true" />
               <el-option label="false" :value="false" />
             </el-select>
@@ -85,20 +61,14 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('schema.preview')" name="preview">
         <div v-if="showMessage">{{ $t('variables.csv_message') }}</div>
-        <el-table
-          :data="previewData"
-          style="width: 100%"
-          height="200px"
-          v-loading="loading"
-        >
+        <el-table :data="previewData" style="width: 100%" height="200px" v-loading="loading">
           <!-- 自定义列的遍历-->
           <el-table-column
             v-for="(item, index) in columns"
             :key="index"
             :label="columns[index]"
             align="left"
-            width="180"
-          >
+            width="180">
             <!-- 数据的遍历  scope.row就代表数据的每一个对象-->
             <template slot-scope="scope">
               <span>{{ scope.row[index] }}</span>
@@ -227,10 +197,7 @@ export default {
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
 
@@ -242,9 +209,7 @@ export default {
         { value: 'ISO-8859-15' },
         { value: 'US-ASCll' },
       ];
-      let results = queryString
-        ? restaurants.filter(this.createFilter(queryString))
-        : restaurants;
+      let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },

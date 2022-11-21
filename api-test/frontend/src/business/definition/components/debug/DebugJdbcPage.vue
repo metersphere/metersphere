@@ -7,8 +7,7 @@
         class="ms-api-button"
         style="float: right; margin-right: 20px"
         @click="stop"
-        v-if="isStop"
-      >
+        v-if="isStop">
         {{ $t('report.stop_btn') }}
       </el-button>
       <div v-else>
@@ -17,8 +16,7 @@
           style="float: right; margin-right: 20px"
           size="small"
           type="primary"
-          @click="handleCommand"
-        >
+          @click="handleCommand">
           {{ $t('commons.test') }}
         </el-button>
         <el-dropdown
@@ -29,32 +27,24 @@
           @click="handleCommand"
           @command="handleCommand"
           size="small"
-          style="float: right; margin-right: 20px"
-        >
+          style="float: right; margin-right: 20px">
           {{ $t('commons.test') }}
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="save_as">{{
-              $t('api_test.definition.request.save_as_case')
-            }}</el-dropdown-item>
+            <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
       <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
       <div v-loading="loading">
         <!-- JDBC 请求参数 -->
-        <ms-basis-parameters
-          :request="request"
-          @callback="runDebug"
-          ref="requestForm"
-        />
+        <ms-basis-parameters :request="request" @callback="runDebug" ref="requestForm" />
         <!-- JDBC 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <ms-request-result-tail
           v-if="!loading"
           :response="responseData"
           :currentProtocol="currentProtocol"
-          ref="debugResult"
-        />
+          ref="debugResult" />
       </div>
 
       <!-- 执行组件 -->
@@ -64,24 +54,15 @@
         :isStop="isStop"
         :run-data="runData"
         @runRefresh="runRefresh"
-        ref="runTest"
-      />
+        ref="runTest" />
     </el-card>
     <div v-if="scenario">
-      <el-button
-        style="float: right; margin: 20px"
-        type="primary"
-        @click="handleCommand('save_as_api')"
-      >
+      <el-button style="float: right; margin: 20px" type="primary" @click="handleCommand('save_as_api')">
         {{ $t('commons.save') }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list
-      @refreshModule="refreshModule"
-      :loaded="false"
-      ref="caseList"
-    />
+    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList" />
   </div>
 </template>
 

@@ -6,41 +6,24 @@
     :visible.sync="visible"
     class="api-import"
     v-loading="result"
-    @close="close"
-  >
+    @close="close">
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue">
-        <el-radio
-          v-for="(item, index) in platforms"
-          :key="index"
-          :label="item.value"
-          >{{ item.name }}</el-radio
-        >
+        <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{ item.name }}</el-radio>
       </el-radio-group>
 
       <div class="operate-button">
         <el-button class="save-button" type="primary" plain @click="save">
           {{ $t('commons.save') }}
         </el-button>
-        <el-button
-          class="cancel-button"
-          type="warning"
-          plain
-          @click="visible = false"
-        >
+        <el-button class="cancel-button" type="warning" plain @click="visible = false">
           {{ $t('commons.cancel') }}
         </el-button>
       </div>
     </div>
 
-    <el-form
-      :model="formData"
-      :rules="rules"
-      label-width="105px"
-      v-loading="result"
-      ref="form"
-    >
+    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result" ref="form">
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')">
@@ -51,91 +34,41 @@
               @getValue="setModule"
               :obj="moduleObj"
               clearable
-              checkStrictly
-            />
+              checkStrictly />
           </el-form-item>
           <el-form-item :label="$t('commons.import_mode')" prop="modeId">
-            <el-select
-              size="small"
-              v-model="formData.modeId"
-              class="project-select"
-              clearable
-            >
-              <el-option
-                v-for="item in modeOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
+              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
-            <el-checkbox
-              size="mini"
-              v-if="formData.modeId === 'fullCoverage'"
-              v-model="formData.coverModule"
-            >
+            <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule">
               {{ this.$t('commons.cover_scenario') }}
             </el-checkbox>
           </el-form-item>
           <el-form-item
             v-xpack
-            v-if="
-              projectVersionEnable && formData.modeId === 'incrementalMerge'
-            "
+            v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
             :label="$t('api_test.api_import.import_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.versionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
             :label="$t('api_test.api_import.data_update_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.updateVersionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
             :label="$t('api_test.api_import.data_new_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.versionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -153,13 +86,9 @@
             :on-remove="handleRemove"
             :file-list="fileList"
             :on-exceed="handleExceed"
-            multiple
-          >
+            multiple>
             <i class="el-icon-upload"></i>
-            <div
-              class="el-upload__text"
-              v-html="$t('load_test.upload_tips')"
-            ></div>
+            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
             <div class="el-upload__tip" slot="tip">
               {{ $t('api_test.api_import.file_size_limit') }}
             </div>
@@ -170,16 +99,10 @@
 
     <div class="format-tip">
       <div>
-        <span
-          >{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span
-        >
+        <span>{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span>
       </div>
       <div>
-        <span
-          >{{ $t('api_test.api_import.export_tip') }}：{{
-            selectedPlatform.exportTip
-          }}</span
-        >
+        <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
       </div>
       <div>
         <span>
@@ -203,10 +126,7 @@ import { importScenario } from '@/api/scenario';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 
 export default {
@@ -351,10 +271,7 @@ export default {
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-      if (
-        this.selectedPlatform.suffixes &&
-        !this.selectedPlatform.suffixes.has(suffix)
-      ) {
+      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
         this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
         return false;
       }
@@ -370,30 +287,22 @@ export default {
         this.$warning('请添加一个文件');
         return;
       }
-      let suffix = this.formData.file.name.substring(
-        this.formData.file.name.lastIndexOf('.') + 1
-      );
-      if (
-        this.selectedPlatform.suffixes &&
-        !this.selectedPlatform.suffixes.has(suffix)
-      ) {
+      let suffix = this.formData.file.name.substring(this.formData.file.name.lastIndexOf('.') + 1);
+      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
         this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
         return false;
       }
       this.$refs.form.validate((valid) => {
         if (valid) {
           let param = this.buildParam();
-          this.result = importScenario(
-            '/api/automation/import',
-            param.file,
-            null,
-            this.buildParam()
-          ).then((response) => {
-            let res = response.data;
-            this.$success(this.$t('test_track.case.import.success'));
-            this.visible = false;
-            this.$emit('refreshAll', res);
-          });
+          this.result = importScenario('/api/automation/import', param.file, null, this.buildParam()).then(
+            (response) => {
+              let res = response.data;
+              this.$success(this.$t('test_track.case.import.success'));
+              this.visible = false;
+              this.$emit('refreshAll', res);
+            }
+          );
         } else {
           return false;
         }
@@ -442,13 +351,10 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         getProjectVersions(getCurrentProjectID()).then((response) => {
-          this.versionOptions = response.data.filter(
-            (v) => v.status === 'open'
-          );
+          this.versionOptions = response.data.filter((v) => v.status === 'open');
           this.versionOptions.forEach((v) => {
             if (v.latest) {
-              v.name =
-                v.name + ' ' + this.$t('api_test.api_import.latest_version');
+              v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
             }
           });
         });

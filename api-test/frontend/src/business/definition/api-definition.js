@@ -186,8 +186,7 @@ export function hisDataProcessing(array, request) {
         if (
           item.document &&
           item.document.data &&
-          (item.document.data.json.length > 0 ||
-            item.document.data.xml.length > 0)
+          (item.document.data.json.length > 0 || item.document.data.xml.length > 0)
         ) {
           assertions.document = item.document;
         }
@@ -195,9 +194,7 @@ export function hisDataProcessing(array, request) {
     }
   }
   assertionsIndex.forEach((item) => {
-    const rmIndex = request.hashTree.findIndex(
-      (d) => d.id === item.id && d.resourceId === item.resourceId
-    );
+    const rmIndex = request.hashTree.findIndex((d) => d.id === item.id && d.resourceId === item.resourceId);
     request.hashTree.splice(rmIndex, 1);
   });
 
@@ -209,29 +206,16 @@ export function stepCompute(array, request) {
   let postSize = 0;
   let ruleSize = 0;
   array.forEach((item) => {
-    if (
-      ['JSR223PreProcessor', 'JDBCPreProcessor', 'ConstantTimer'].indexOf(
-        item.type
-      ) !== -1
-    ) {
+    if (['JSR223PreProcessor', 'JDBCPreProcessor', 'ConstantTimer'].indexOf(item.type) !== -1) {
       preSize++;
-    } else if (
-      ['JSR223PostProcessor', 'JDBCPostProcessor', 'Extract'].indexOf(
-        item.type
-      ) !== -1
-    ) {
+    } else if (['JSR223PostProcessor', 'JDBCPostProcessor', 'Extract'].indexOf(item.type) !== -1) {
       postSize++;
     } else if (item.type === 'Assertions') {
-      ruleSize =
-        item.jsonPath.length +
-        item.jsr223.length +
-        item.regex.length +
-        item.xpath2.length;
+      ruleSize = item.jsonPath.length + item.jsr223.length + item.regex.length + item.xpath2.length;
       if (
         item.document &&
         item.document.data &&
-        (item.document.data.json.length > 0 ||
-          item.document.data.xml.length > 0)
+        (item.document.data.json.length > 0 || item.document.data.xml.length > 0)
       ) {
         ruleSize++;
       }
@@ -270,9 +254,7 @@ export function mergeDocumentData(originalData, childMap, rootName, rootType) {
 
 export function mergeRequestDocumentData(request) {
   if (request && request.hashTree && request.hashTree.length > 0) {
-    let index = request.hashTree.findIndex(
-      (item) => item.type === 'Assertions'
-    );
+    let index = request.hashTree.findIndex((item) => item.type === 'Assertions');
     if (index !== -1) {
       if (
         request.hashTree[index].document &&
@@ -287,11 +269,9 @@ export function mergeRequestDocumentData(request) {
           request.hashTree[index].document.rootType
         );
         if (request.hashTree[index].document.type === 'json') {
-          request.hashTree[index].document.data.json =
-            request.hashTree[index].document.originalData;
+          request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
         } else {
-          request.hashTree[index].document.data.xml =
-            request.hashTree[index].document.originalData;
+          request.hashTree[index].document.data.xml = request.hashTree[index].document.originalData;
         }
       }
     }
@@ -304,10 +284,7 @@ export function mergeRequestDocumentData(request) {
     request.document.tableData.size &&
     request.document.tableData.size !== 0
   ) {
-    mergeDocumentData(
-      request.document.originalData,
-      request.document.tableData
-    );
+    mergeDocumentData(request.document.originalData, request.document.tableData);
     if (request.document.type === 'json') {
       request.document.data.json = request.document.originalData;
     } else {
@@ -335,12 +312,7 @@ export function getBodyUploadFiles(obj, runData) {
 
 export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
   let body = null;
-  if (
-    request.hashTree &&
-    request.hashTree.length > 0 &&
-    request.hashTree[0] &&
-    request.hashTree[0].body
-  ) {
+  if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0] && request.hashTree[0].body) {
     obj.requestId = request.hashTree[0].id;
     body = request.hashTree[0].body;
   } else if (request.body) {

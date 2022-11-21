@@ -1,100 +1,58 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <el-tabs v-model="activeName">
     <!-- 认证-->
-    <el-tab-pane
-      :label="$t('api_test.definition.request.verified')"
-      name="verified"
-    >
-      <el-form
-        :model="authConfig"
-        :rules="rule"
-        ref="authConfig"
-        label-position="right"
-      >
-        <el-form-item
-          :label="$t('api_test.definition.request.verification_method')"
-          prop="verification"
-        >
+    <el-tab-pane :label="$t('api_test.definition.request.verified')" name="verified">
+      <el-form :model="authConfig" :rules="rule" ref="authConfig" label-position="right">
+        <el-form-item :label="$t('api_test.definition.request.verification_method')" prop="verification">
           <el-select
             v-model="authConfig.verification"
             @change="change"
             :disabled="isReadOnly"
             :placeholder="$t('api_test.definition.request.verification_method')"
             filterable
-            size="small"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.name"
-              :label="item.name"
-              :value="item.name"
-            >
-            </el-option>
+            size="small">
+            <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name"> </el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item
           :label="$t('api_test.request.tcp.username')"
           prop="username"
-          v-if="
-            authConfig.verification != undefined &&
-            authConfig.verification != 'No Auth'
-          "
-        >
+          v-if="authConfig.verification != undefined && authConfig.verification != 'No Auth'">
           <el-input
             :placeholder="$t('api_test.request.tcp.username')"
             v-model="authConfig.username"
             class="ms-http-input"
-            size="small"
-          >
+            size="small">
           </el-input>
         </el-form-item>
 
         <el-form-item
           :label="$t('commons.password')"
           prop="password"
-          v-if="
-            authConfig.verification != undefined &&
-            authConfig.verification != 'No Auth'
-          "
-        >
+          v-if="authConfig.verification != undefined && authConfig.verification != 'No Auth'">
           <el-input
             v-model="authConfig.password"
             :placeholder="$t('commons.password')"
             show-password
             autocomplete="off"
             maxlength="100"
-            show-word-limit
-          />
+            show-word-limit />
         </el-form-item>
       </el-form>
     </el-tab-pane>
 
     <!--加密-->
-    <el-tab-pane
-      :label="$t('api_test.definition.request.encryption')"
-      name="encryption"
-      v-if="encryptShow"
-    >
+    <el-tab-pane :label="$t('api_test.definition.request.encryption')" name="encryption" v-if="encryptShow">
       <el-form :model="authConfig" size="small" :rules="rule" ref="authConfig">
-        <el-form-item
-          :label="$t('api_test.definition.request.encryption')"
-          prop="encryption"
-        >
+        <el-form-item :label="$t('api_test.definition.request.encryption')" prop="encryption">
           <el-select
             v-model="authConfig.encrypt"
             :disabled="isReadOnly"
             :placeholder="$t('api_test.definition.request.verification_method')"
             filterable
-            size="small"
-          >
-            <el-option
-              v-for="item in encryptOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            >
-            </el-option>
+            size="small">
+            <el-option v-for="item in encryptOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -135,11 +93,7 @@ export default {
   },
   data() {
     return {
-      originalOptions: [
-        { name: 'No Auth' },
-        { name: 'Basic Auth' },
-        { name: 'Digest Auth' },
-      ],
+      originalOptions: [{ name: 'No Auth' }, { name: 'Basic Auth' }, { name: 'Digest Auth' }],
       swaggerOptions: [{ name: 'No Auth' }, { name: 'Basic Auth' }],
       options: [],
       encryptOptions: [{ id: false, name: this.$t('commons.encrypted') }],
@@ -150,10 +104,7 @@ export default {
   },
   methods: {
     change() {
-      if (
-        this.authConfig.verification === 'Basic Auth' ||
-        this.authConfig.verification === 'Digest Auth'
-      ) {
+      if (this.authConfig.verification === 'Basic Auth' || this.authConfig.verification === 'Digest Auth') {
         let authManager = createComponent('AuthManager');
         authManager.verification = this.authConfig.verification;
         authManager.environment = this.request.useEnvironment;

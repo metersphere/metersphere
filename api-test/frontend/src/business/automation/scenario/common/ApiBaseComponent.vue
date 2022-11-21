@@ -5,16 +5,12 @@
         <div
           v-if="data.index"
           class="el-step__icon is-text"
-          :style="{ color: color, 'background-color': backgroundColor }"
-        >
+          :style="{ color: color, 'background-color': backgroundColor }">
           <div class="el-step__icon-inner" :key="forceRerenderIndex">
             {{ data.index }}
           </div>
         </div>
-        <el-tag
-          class="ms-left-btn"
-          size="small"
-          :style="{ color: color, 'background-color': backgroundColor }"
+        <el-tag class="ms-left-btn" size="small" :style="{ color: color, 'background-color': backgroundColor }"
           >{{ title }}
         </el-tag>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
@@ -27,8 +23,7 @@
             :class="{ 'is-active': data.active }"
             @click="active(data)"
             v-if="data.type != 'scenario' && !isMax"
-            @click.stop
-          />
+            @click.stop />
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input
               :draggable="draggable"
@@ -39,8 +34,7 @@
               @blur="isShowInput = false"
               :placeholder="$t('commons.input_name')"
               ref="nameEdit"
-              :disabled="data.disabled"
-            />
+              :disabled="data.disabled" />
           </span>
 
           <span
@@ -48,21 +42,16 @@
             id="moveout"
             @mouseenter="enter($event)"
             @mouseleave="leave($event)"
-            v-else
-          >
+            v-else>
             <i
               class="el-icon-edit"
               style="cursor: pointer"
               @click="editName"
-              v-show="data.referenced != 'REF' && !data.disabled"
-            />
+              v-show="data.referenced != 'REF' && !data.disabled" />
             <span>{{ data.name }}</span>
-            <el-tag
-              size="mini"
-              v-if="data.method && !data.pluginId"
-              style="margin-left: 1rem"
-              >{{ getMethod() }}</el-tag
-            >
+            <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{
+              getMethod()
+            }}</el-tag>
             <slot name="afterTitle" />
           </span>
         </slot>
@@ -81,24 +70,18 @@
           'PROJECT_API_SCENARIO:READ+EDIT',
           'PROJECT_API_SCENARIO:READ+CREATE',
           'PROJECT_API_SCENARIO:READ+COPY',
-        ]"
-      >
+        ]">
         <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
 
         <slot name="button" v-if="showVersion"></slot>
 
-        <el-tooltip
-          :content="$t('test_resource_pool.enable_disable')"
-          placement="top"
-          v-if="showBtn"
-        >
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch
             v-model="data.enable"
             class="enable-switch"
             size="mini"
-            :disabled="data.refEnable || !showVersion || isDeleted"
-          />
+            :disabled="data.refEnable || !showVersion || isDeleted" />
         </el-tooltip>
 
         <el-button
@@ -108,8 +91,7 @@
           circle
           @click="copyRow"
           style="padding: 5px"
-          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"
-        />
+          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted" />
 
         <el-button
           v-show="isSingleButton"
@@ -119,8 +101,7 @@
           style="padding: 5px"
           circle
           @click="remove"
-          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"
-        />
+          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted" />
 
         <step-extend-btns
           style="display: contents"
@@ -133,8 +114,7 @@
           @copy="copyRow"
           @remove="remove"
           @openScenario="openScenario"
-          v-show="isMoreButton"
-        />
+          v-show="isMoreButton" />
       </div>
     </div>
     <!--最大化不显示具体内容-->
@@ -245,10 +225,7 @@ export default {
   },
   watch: {
     selectStep() {
-      if (
-        store.selectStep &&
-        store.selectStep.resourceId === this.data.resourceId
-      ) {
+      if (store.selectStep && store.selectStep.resourceId === this.data.resourceId) {
         this.colorStyle = this.color;
       } else {
         this.colorStyle = '';
@@ -264,10 +241,7 @@ export default {
         this.$refs.nameEdit.focus();
       });
     }
-    if (
-      this.data &&
-      this.stepFilter.get('AllSamplerProxy').indexOf(this.data.type) != -1
-    ) {
+    if (this.data && this.stepFilter.get('AllSamplerProxy').indexOf(this.data.type) != -1) {
       if (!this.data.method) {
         this.data.method = this.data.protocol;
       }
@@ -281,33 +255,21 @@ export default {
       return store.forceRerenderIndex;
     },
     isSingleButton() {
-      if (
-        this.data.type === 'ConstantTimer' ||
-        this.data.type === 'Assertions'
-      ) {
+      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
         return (
-          this.innerStep &&
-          this.showVersion &&
-          this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1
+          this.innerStep && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1
         );
       }
-      return (
-        this.showVersion &&
-        this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1
-      );
+      return this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1;
     },
     isMoreButton() {
-      if (
-        this.data.type === 'ConstantTimer' ||
-        this.data.type === 'Assertions'
-      ) {
+      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
         return (
           !this.innerStep ||
           (this.showBtn &&
             (!this.data.disabled || this.data.root) &&
             this.showVersion &&
-            this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) ===
-              -1)
+            this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1)
         );
       }
       return (

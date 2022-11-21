@@ -6,23 +6,10 @@
       :visible.sync="createVisible"
       destroy-on-close
       @close="handleClose"
-      width="60%"
-    >
-      <el-form
-        :model="form"
-        :rules="rules"
-        ref="form"
-        label-position="right"
-        label-width="90px"
-        size="small"
-      >
+      width="60%">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="90px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input
-            v-model="form.name"
-            autocomplete="off"
-            show-word-limit
-            maxlength="50"
-          ></el-input>
+          <el-input v-model="form.name" autocomplete="off" show-word-limit maxlength="50"></el-input>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input
@@ -30,25 +17,19 @@
             autocomplete="off"
             type="textarea"
             show-word-limit
-            maxlength="200"
-          ></el-input>
+            maxlength="200"></el-input>
         </el-form-item>
         <el-form-item>
           <environment-group-row
             ref="environmentGroupRow"
             :env-group-id="environmentId"
             :read-only="false"
-            :show-save-btn="true"
-          />
+            :show-save-btn="true" />
         </el-form-item>
       </el-form>
       <template v-slot:footer>
         <div class="dialog-footer">
-          <ms-dialog-footer
-            btn-size="medium"
-            @cancel="createVisible = false"
-            @confirm="submit('form')"
-          />
+          <ms-dialog-footer btn-size="medium" @cancel="createVisible = false" @confirm="submit('form')" />
         </div>
       </template>
     </el-dialog>
@@ -75,9 +56,7 @@ export default {
         name: [
           {
             required: true,
-            message: this.$t(
-              'api_test.environment.please_input_env_group_name'
-            ),
+            message: this.$t('api_test.environment.please_input_env_group_name'),
             trigger: 'blur',
           },
           {

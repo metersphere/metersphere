@@ -7,13 +7,8 @@
       v-bind="$attrs"
       :size="size"
       @change="change"
-      @input="input"
-    />
-    <div
-      :class="{ hidden: !showVariable }"
-      class="variable-combine"
-      v-if="value"
-    >
+      @input="input" />
+    <div :class="{ hidden: !showVariable }" class="variable-combine" v-if="value">
       <div v-if="showCopy" class="variable">{{ variable }}</div>
       <el-tooltip
         v-if="showCopy"
@@ -21,8 +16,7 @@
         manual
         v-model="visible"
         placement="top"
-        :visible-arrow="false"
-      >
+        :visible-arrow="false">
         <i class="el-icon-copy-document copy" @click="copy" />
       </el-tooltip>
     </div>
@@ -86,11 +80,7 @@ export default {
 
   computed: {
     variable() {
-      return (
-        '${' +
-        (this.showCopyTipWithMultiple ? this.value + '_n' : this.value) +
-        '}'
-      );
+      return '${' + (this.showCopyTipWithMultiple ? this.value + '_n' : this.value) + '}';
     },
   },
 };

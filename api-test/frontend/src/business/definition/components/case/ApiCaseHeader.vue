@@ -9,8 +9,7 @@
               'background-color': getColor(true, api.method),
               border: getColor(true, api.method),
             }"
-            class="api-el-tag"
-          >
+            class="api-el-tag">
             {{ api.method }}
           </el-tag>
         </el-col>
@@ -29,8 +28,7 @@
             :useEnvironment="useEnvironment"
             @setEnvironment="setEnvironment"
             ref="environmentSelect"
-            v-if="api.protocol === 'HTTP' || api.protocol === 'TCP'"
-          />
+            v-if="api.protocol === 'HTTP' || api.protocol === 'TCP'" />
         </el-col>
         <el-col :span="2">
           <!-- 保存操作 -->
@@ -40,8 +38,7 @@
             size="small"
             @click="saveTestCase()"
             v-prevent-re-click
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
-          >
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
             {{ saveButtonText }}
           </el-button>
           <el-dropdown
@@ -52,8 +49,7 @@
             type="primary"
             size="small"
             @click="saveTestCase"
-            @command="handleCommand"
-          >
+            @command="handleCommand">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="openSyncRule"
@@ -73,10 +69,7 @@ import MsTag from 'metersphere-frontend/src/components/MsTag';
 import MsEnvironmentSelect from './MsEnvironmentSelect';
 import { API_METHOD_COLOUR } from '../../model/JsonData';
 import ApiCaseItem from '@/business/definition/components/case/ApiCaseItem';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 
 export default {
   name: 'ApiCaseHeader',

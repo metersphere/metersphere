@@ -42,9 +42,7 @@ export class IntProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements
-      ? parseInt(options.elements[0].text)
-      : undefined;
+    this.value = options.elements ? parseInt(options.elements[0].text) : undefined;
   }
 }
 
@@ -56,9 +54,7 @@ export class LongProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements
-      ? parseInt(options.elements[0].text)
-      : undefined;
+    this.value = options.elements ? parseInt(options.elements[0].text) : undefined;
   }
 }
 
@@ -70,9 +66,7 @@ class BoolProp extends BasicProp {
 
   constructor(options = {}) {
     super(options);
-    this.value = options.elements
-      ? options.elements[0].text === 'true'
-      : undefined;
+    this.value = options.elements ? options.elements[0].text === 'true' : undefined;
   }
 }
 

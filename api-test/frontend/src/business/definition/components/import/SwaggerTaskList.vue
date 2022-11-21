@@ -6,41 +6,19 @@
     @row-click="handleRowClick"
     :data="tableData"
     class="adjust-table table-content"
-    height="300px"
-  >
-    <el-table-column
-      prop="index"
-      width="60"
-      :label="$t('home.table.index')"
-      show-overflow-tooltip
-    />
-    <el-table-column
-      prop="swaggerUrl"
-      :label="$t('swaggerUrl')"
-      min-width="170"
-      show-overflow-tooltip
-    >
+    height="300px">
+    <el-table-column prop="index" width="60" :label="$t('home.table.index')" show-overflow-tooltip />
+    <el-table-column prop="swaggerUrl" :label="$t('swaggerUrl')" min-width="170" show-overflow-tooltip>
     </el-table-column>
-    <el-table-column
-      prop="modulePath"
-      :label="$t('导入模块')"
-      min-width="100"
-      show-overflow-tooltip
-    />
-    <el-table-column
-      prop="rule"
-      label="同步规则"
-      min-width="140"
-      show-overflow-tooltip
-    />
+    <el-table-column prop="modulePath" :label="$t('导入模块')" min-width="100" show-overflow-tooltip />
+    <el-table-column prop="rule" label="同步规则" min-width="140" show-overflow-tooltip />
     <el-table-column width="100" :label="$t('home.table.task_status')">
       <template v-slot:default="scope">
         <div>
           <el-switch
             v-model="scope.row.enable"
             class="captcha-img"
-            @click.native="closeTaskConfirm(scope.row)"
-          ></el-switch>
+            @click.native="closeTaskConfirm(scope.row)"></el-switch>
         </div>
       </template>
     </el-table-column>
@@ -55,19 +33,14 @@
           type="danger"
           icon="el-icon-delete"
           size="mini"
-          @click.native.prevent="deleteRowTask(scope.row)"
-        ></el-button>
+          @click.native.prevent="deleteRowTask(scope.row)"></el-button>
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <script>
-import {
-  definitionSwitch,
-  delDefinitionSchedule,
-  scheduleTask,
-} from '@/api/definition';
+import { definitionSwitch, delDefinitionSchedule, scheduleTask } from '@/api/definition';
 import { operationConfirm } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 
@@ -98,13 +71,9 @@ export default {
       this.$emit('rowClick', row);
     },
     closeTaskConfirm(row) {
-      let message = this.$t(
-        'api_test.home_page.running_task_list.confirm.close_title'
-      );
+      let message = this.$t('api_test.home_page.running_task_list.confirm.close_title');
       if (row.enable) {
-        message = this.$t(
-          'api_test.home_page.running_task_list.confirm.open_title'
-        );
+        message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
       }
       row.enable = !row.enable;
       operationConfirm(this, message, () => {

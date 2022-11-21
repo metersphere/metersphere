@@ -4,14 +4,7 @@
       <el-form label-position="left" v-model="advancedValue">
         <div :span="8" v-for="(item, key) in advancedValue" :key="key">
           <el-form-item :label="$t(key) + ' : '" style="margin: 0">
-            <span
-              style="
-                display: inline-block;
-                overflow-wrap: break-word;
-                text-align: left;
-                max-width: 100%;
-              "
-            >
+            <span style="display: inline-block; overflow-wrap: break-word; text-align: left; max-width: 100%">
               {{ advancedValue[key] }}
             </span>
           </el-form-item>
@@ -53,8 +46,7 @@ export default {
           this.advancedValue['commons.encode'] = this.$t('commons.yes');
         }
         if (this.isNotEmptyValue(this.tableData['description'])) {
-          this.advancedValue['commons.description'] =
-            this.tableData['description'];
+          this.advancedValue['commons.description'] = this.tableData['description'];
         }
         if (JSON.stringify(this.advancedValue) === '{}') {
           this.advancedValue = null;

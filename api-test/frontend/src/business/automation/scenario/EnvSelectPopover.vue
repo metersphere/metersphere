@@ -1,32 +1,20 @@
 <template>
   <div>
     <div v-for="(pe, pIndex) in eventData" :key="pe.id">
-      <el-card
-        shadow="never"
-        style="margin-top: 8px; background: #f5f6f7; border-radius: 4px"
-      >
+      <el-card shadow="never" style="margin-top: 8px; background: #f5f6f7; border-radius: 4px">
         <i
           @click="expandCard(pIndex)"
           v-if="pe.expendStatus === 'close'"
           class="el-icon-caret-right"
-          style="color: var(--primary_color)"
-        />
-        <i
-          @click="expandCard(pIndex)"
-          v-else
-          class="el-icon-caret-bottom"
-          style="color: var(--primary_color)"
-        />
-        <span class="project-name" :title="getProjectName(pe.id)">
-          {{ getProjectName(pe.id) }} </span
-        ><br />
+          style="color: var(--primary_color)" />
+        <i @click="expandCard(pIndex)" v-else class="el-icon-caret-bottom" style="color: var(--primary_color)" />
+        <span class="project-name" :title="getProjectName(pe.id)"> {{ getProjectName(pe.id) }} </span><br />
         <div v-if="pe.expendStatus === 'open'">
           <el-radio-group
             v-model="pe.envRadio"
             style="width: 100%"
             @change="envRadioChange(pe.envRadio, pIndex)"
-            class="radio-change"
-          >
+            class="radio-change">
             <el-radio label="DEFAULT_ENV" style="margin-top: 7px">{{
               $t('api_test.environment.default_environment')
             }}</el-radio>
@@ -48,14 +36,12 @@
             :placeholder="$t('api_test.environment.select_environment')"
             style="margin-top: 8px; width: 100%"
             size="small"
-            @change="chooseEnv"
-          >
+            @change="chooseEnv">
             <el-option
               v-for="(environment, index) in pe.envs"
               :key="index"
               :label="environment.name"
-              :value="environment.id"
-            />
+              :value="environment.id" />
           </el-select>
         </div>
       </el-card>
@@ -121,8 +107,7 @@ export default {
     },
     envRadioChange(val, index) {
       this.eventData[index].envRadio = val;
-      this.eventData[index].showEnvSelect =
-        this.eventData[index].envRadio === 'CUSTOMIZE_ENV';
+      this.eventData[index].showEnvSelect = this.eventData[index].envRadio === 'CUSTOMIZE_ENV';
     },
     viewGroup() {
       this.visible = true;
@@ -165,8 +150,7 @@ export default {
           if (this.envMap && this.envMap.size > 0) {
             let envId = this.envMap.get(id);
             // 选中环境是否存在
-            temp.selectEnv =
-              envs.filter((e) => e.id === envId).length === 0 ? null : envId;
+            temp.selectEnv = envs.filter((e) => e.id === envId).length === 0 ? null : envId;
           }
           if (this.isScenario) {
             if (this.projectEnvMap) {

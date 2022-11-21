@@ -2,50 +2,34 @@
   <div>
     <el-row>
       <el-col :span="8">
-        <el-select
-          class="protocol-select"
-          size="small"
-          v-model="condition.protocol"
-        >
+        <el-select class="protocol-select" size="small" v-model="condition.protocol">
           <el-option
             v-for="item in options"
             :key="item.value"
             :name="item.name"
             :value="item.value"
-            :disabled="item.disabled"
-          >
+            :disabled="item.disabled">
           </el-option>
         </el-select>
       </el-col>
       <el-col :span="15">
-        <ms-search-bar
-          :show-operator="showOperator && !isTrashData"
-          :condition="condition"
-          :commands="operators"
-        />
+        <ms-search-bar :show-operator="showOperator && !isTrashData" :condition="condition" :commands="operators" />
       </el-col>
     </el-row>
 
-    <module-trash-button
-      v-if="showTrashNode"
-      :condition="condition"
-      :total="total"
-      :exe="enableTrash"
-    />
+    <module-trash-button v-if="showTrashNode" :condition="condition" :total="total" :exe="enableTrash" />
 
     <ms-add-basis-api
       :current-protocol="condition.protocol"
       :module-options="moduleOptions"
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
-      ref="basisApi"
-    />
+      ref="basisApi" />
     <api-import
       :protocol="condition.protocol"
       ref="apiImport"
       :moduleOptions="moduleOptions"
-      @refresh="$emit('refresh')"
-    />
+      @refresh="$emit('refresh')" />
   </div>
 </template>
 

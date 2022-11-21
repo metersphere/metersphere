@@ -1,10 +1,7 @@
 export function getUrl(d) {
   let url = '/#';
   let resourceId = d.sourceId;
-  if (
-    resourceId &&
-    (resourceId.startsWith('"') || resourceId.startsWith('['))
-  ) {
+  if (resourceId && (resourceId.startsWith('"') || resourceId.startsWith('['))) {
     resourceId = JSON.parse(d.sourceId);
   }
   if (resourceId instanceof Array) {
@@ -21,13 +18,7 @@ export function getUrl(d) {
           url += '/api/definition?resourceId=' + resourceId;
           break;
         case 'CASE':
-          url +=
-            '/api/definition?caseId=' +
-            d.id +
-            '&projectId=' +
-            d.projectId +
-            '&workspaceId=' +
-            d.workspaceId;
+          url += '/api/definition?caseId=' + d.id + '&projectId=' + d.projectId + '&workspaceId=' + d.workspaceId;
           break;
       }
       break;
@@ -37,13 +28,7 @@ export function getUrl(d) {
           url += '/api/definition?resourceId=' + resourceId;
           break;
         case 'CASE':
-          url +=
-            '/api/definition?caseId=' +
-            d.id +
-            '&projectId=' +
-            d.projectId +
-            '&workspaceId=' +
-            d.workspaceId;
+          url += '/api/definition?caseId=' + d.id + '&projectId=' + d.projectId + '&workspaceId=' + d.workspaceId;
           break;
       }
       break;
@@ -53,13 +38,7 @@ export function getUrl(d) {
           url += '/api/definition?resourceId=' + resourceId;
           break;
         case 'CASE':
-          url +=
-            '/api/definition?caseId=' +
-            d.id +
-            '&projectId=' +
-            d.projectId +
-            '&workspaceId=' +
-            d.workspaceId;
+          url += '/api/definition?caseId=' + d.id + '&projectId=' + d.projectId + '&workspaceId=' + d.workspaceId;
           break;
       }
       break;
@@ -69,13 +48,7 @@ export function getUrl(d) {
           url += '/api/definition?resourceId=' + resourceId;
           break;
         case 'CASE':
-          url +=
-            '/api/definition?caseId=' +
-            d.id +
-            '&projectId=' +
-            d.projectId +
-            '&workspaceId=' +
-            d.workspaceId;
+          url += '/api/definition?caseId=' + d.id + '&projectId=' + d.projectId + '&workspaceId=' + d.workspaceId;
           break;
       }
       break;
@@ -85,13 +58,7 @@ export function getUrl(d) {
           url += '/api/definition?resourceId=' + resourceId;
           break;
         case 'CASE':
-          url +=
-            '/api/definition?caseId=' +
-            d.id +
-            '&projectId=' +
-            d.projectId +
-            '&workspaceId=' +
-            d.workspaceId;
+          url += '/api/definition?caseId=' + d.id + '&projectId=' + d.projectId + '&workspaceId=' + d.workspaceId;
           break;
       }
       break;

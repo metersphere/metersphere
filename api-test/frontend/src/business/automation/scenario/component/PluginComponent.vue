@@ -11,16 +11,11 @@
       :show-btn="showBtn"
       :show-version="showVersion"
       :background-color="defBackgroundColor"
-      :title="pluginName"
-    >
+      :title="pluginName">
       <template v-slot:request>
         <legend style="width: 100%; display: table-column">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-          <el-tabs
-            v-model="activeName"
-            class="request-tabs"
-            @tab-click="tabClick"
-          >
+          <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
             <!-- 请求头-->
             <el-tab-pane label="插件数据" name="base">
               <div class="ms-form">
@@ -33,29 +28,16 @@
                     @prefix-change="change"
                     @prefix-click="change"
                     @display-change="changeDisplay"
-                    @prefix-visible-change="visibleChange"
-                  />
+                    @prefix-visible-change="visibleChange" />
                 </div>
               </div>
             </el-tab-pane>
 
             <!-- 脚本步骤/断言步骤 -->
-            <el-tab-pane
-              :label="$t('api_test.definition.request.pre_operation')"
-              name="preOperate"
-              v-if="showOther"
-            >
-              <span
-                class="item-tabs"
-                effect="dark"
-                placement="top-start"
-                slot="label"
-              >
+            <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showOther">
+              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                 {{ $t('api_test.definition.request.pre_operation') }}
-                <div
-                  class="el-step__icon is-text ms-api-col ms-header"
-                  v-if="request.preSize > 0"
-                >
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
                   <div class="el-step__icon-inner">{{ request.preSize }}</div>
                 </div>
               </span>
@@ -65,25 +47,12 @@
                 :scenario-id="currentScenario.id"
                 :response="response"
                 :tab-type="'pre'"
-                ref="preStep"
-              />
+                ref="preStep" />
             </el-tab-pane>
-            <el-tab-pane
-              :label="$t('api_test.definition.request.post_operation')"
-              name="postOperate"
-              v-if="showOther"
-            >
-              <span
-                class="item-tabs"
-                effect="dark"
-                placement="top-start"
-                slot="label"
-              >
+            <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate" v-if="showOther">
+              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                 {{ $t('api_test.definition.request.post_operation') }}
-                <div
-                  class="el-step__icon is-text ms-api-col ms-header"
-                  v-if="request.postSize > 0"
-                >
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
                   <div class="el-step__icon-inner">{{ request.postSize }}</div>
                 </div>
               </span>
@@ -93,25 +62,15 @@
                 :scenario-id="currentScenario.id"
                 :response="response"
                 :tab-type="'post'"
-                ref="postStep"
-              />
+                ref="postStep" />
             </el-tab-pane>
             <el-tab-pane
               :label="$t('api_test.definition.request.assertions_rule')"
               name="assertionsRule"
-              v-if="showOther"
-            >
-              <span
-                class="item-tabs"
-                effect="dark"
-                placement="top-start"
-                slot="label"
-              >
+              v-if="showOther">
+              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
                 {{ $t('api_test.definition.request.assertions_rule') }}
-                <div
-                  class="el-step__icon is-text ms-api-col ms-header"
-                  v-if="request.ruleSize > 0"
-                >
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
                   <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                 </div>
               </span>
@@ -123,8 +82,7 @@
                   :response="response"
                   @reload="reload"
                   :tab-type="'assertionsRule'"
-                  ref="assertionsRule"
-                />
+                  ref="assertionsRule" />
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -138,26 +96,14 @@
         </span>
         <span
           class="ms-step-debug-code"
-          :class="
-            request.requestResult[0].success ? 'ms-req-success' : 'ms-req-error'
-          "
-          v-if="
-            !loading &&
-            request.debug &&
-            request.requestResult[0] &&
-            request.requestResult[0].responseResult
-          "
-        >
+          :class="request.requestResult[0].success ? 'ms-req-success' : 'ms-req-error'"
+          v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'Success' : 'Error' }}
         </span>
       </template>
 
       <template v-slot:button v-if="allSampler.indexOf(request.type) !== -1">
-        <el-tooltip
-          :content="$t('api_test.run')"
-          placement="top"
-          v-if="!loading"
-        >
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
           <el-button
             :disabled="!request.enable"
             @click="run"
@@ -165,23 +111,16 @@
             style="padding: 5px"
             class="ms-btn"
             size="mini"
-            circle
-          />
+            circle />
         </el-tooltip>
-        <el-tooltip
-          :content="$t('report.stop_btn')"
-          placement="top"
-          :enterable="false"
-          v-else
-        >
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
             :disabled="!request.enable"
             @click.once="stop"
             size="mini"
             style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
             class="stop-btn"
-            circle
-          >
+            circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
             </div>
@@ -199,13 +138,8 @@
                   v-for="(item, i) in scenario.requestResults"
                   :label="'循环' + (i + 1)"
                   :key="i"
-                  style="margin-bottom: 5px"
-                >
-                  <api-response-component
-                    :currentProtocol="request.protocol"
-                    :apiActive="true"
-                    :result="item"
-                  />
+                  style="margin-bottom: 5px">
+                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
                 </el-tab-pane>
               </el-tabs>
             </div>
@@ -215,27 +149,20 @@
               v-model="request.activeName"
               closable
               class="ms-tabs"
-              v-if="request.requestResult && request.requestResult.length > 1"
-            >
+              v-if="request.requestResult && request.requestResult.length > 1">
               <el-tab-pane
                 v-for="(item, i) in request.requestResult"
                 :label="'循环' + (i + 1)"
                 :key="i"
-                style="margin-bottom: 5px"
-              >
-                <api-response-component
-                  :currentProtocol="request.protocol"
-                  :apiActive="true"
-                  :result="item"
-                />
+                style="margin-bottom: 5px">
+                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
               </el-tab-pane>
             </el-tabs>
             <api-response-component
               :currentProtocol="request.protocol"
               :apiActive="true"
               :result="request.requestResult[0]"
-              v-else
-            />
+              v-else />
           </div>
         </div>
       </template>
@@ -247,8 +174,7 @@
       :env-map="envMap"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
   </div>
 </template>
 
@@ -260,10 +186,7 @@ import MsUpload from '../common/MsPluginUpload';
 import { PLUGIN_ELEMENTS } from '@/business/automation/scenario/Setting';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsJmxStep from '@/business/definition/components/step/JmxStep';
-import {
-  stepCompute,
-  hisDataProcessing,
-} from '@/business/definition/api-definition';
+import { stepCompute, hisDataProcessing } from '@/business/definition/api-definition';
 import MsPluginContentAssertions from '@/business/automation/scenario/component/PluginContentAssertions';
 import { execStop } from '@/api/scenario';
 import { customMethod, getPlugin } from '@/api/plugin';
@@ -336,8 +259,7 @@ export default {
   computed: {
     isApiImport() {
       if (
-        (this.request.referenced != undefined &&
-          this.request.referenced === 'Deleted') ||
+        (this.request.referenced != undefined && this.request.referenced === 'Deleted') ||
         this.request.referenced == 'REF' ||
         this.request.referenced === 'Copy'
       ) {
@@ -358,10 +280,7 @@ export default {
       return false;
     },
     isDeletedOrRef() {
-      if (
-        (this.request.referenced && this.request.referenced === 'Deleted') ||
-        this.request.referenced === 'REF'
-      ) {
+      if ((this.request.referenced && this.request.referenced === 'Deleted') || this.request.referenced === 'REF') {
         return true;
       }
       return false;
@@ -373,9 +292,7 @@ export default {
       this.request.requestResult = [];
     }
     this.data = this.request;
-    this.pluginName = this.request.stepName
-      ? this.request.stepName
-      : this.request.type;
+    this.pluginName = this.request.stepName ? this.request.stepName : this.request.type;
     if (this.request.type === 'GenericController') {
       this.showOther = false;
     }
@@ -430,20 +347,12 @@ export default {
     blur(d) {},
     change(fileName) {},
     changeDisplay(fileName) {
-      if (
-        fileName === 'number of received messages' &&
-        this.pluginForm &&
-        this.pluginForm.hidden instanceof Function
-      ) {
+      if (fileName === 'number of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
         this.pluginForm.hidden(false, 'conditionTime');
         this.pluginForm.hidden(false, 'conditionValue');
         this.pluginForm.hidden(true, 'conditionContent');
       }
-      if (
-        fileName === 'specified elapsed time (ms)' &&
-        this.pluginForm &&
-        this.pluginForm.hidden instanceof Function
-      ) {
+      if (fileName === 'specified elapsed time (ms)' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
         this.pluginForm.hidden(false, 'conditionTime');
         this.pluginForm.hidden(true, 'conditionValue');
         this.pluginForm.hidden(true, 'conditionContent');
@@ -468,13 +377,9 @@ export default {
       if (
         store.scenarioEnvMap &&
         store.scenarioEnvMap instanceof Map &&
-        store.scenarioEnvMap.has(
-          this.currentScenario.id + '_' + this.request.projectId
-        )
+        store.scenarioEnvMap.has(this.currentScenario.id + '_' + this.request.projectId)
       ) {
-        currentEnvironmentId = store.scenarioEnvMap.get(
-          this.currentScenario.id + '_' + this.request.projectId
-        );
+        currentEnvironmentId = store.scenarioEnvMap.get(this.currentScenario.id + '_' + this.request.projectId);
       }
       let debugData = {
         id: this.currentScenario.id,
@@ -515,10 +420,7 @@ export default {
         let result;
         while ((result = reg.exec(val)) !== null) {
           if (this.pluginForm.getRule(result[1])) {
-            val = val.replace(
-              '$' + result[0],
-              this.pluginForm.getRule(result[1]).value
-            );
+            val = val.replace('$' + result[0], this.pluginForm.getRule(result[1]).value);
           }
         }
         return val;
@@ -534,9 +436,7 @@ export default {
           };
           customMethod(req).then((response) => {
             if (response.data && this.pluginForm.getRule(d.inject[0]).options) {
-              this.pluginForm.getRule(d.inject[0]).options = JSON.parse(
-                response.data
-              );
+              this.pluginForm.getRule(d.inject[0]).options = JSON.parse(response.data);
             }
           });
           this.reload();
@@ -559,11 +459,7 @@ export default {
             }
             this.option.submitBtn = { show: false };
             this.request.clazzName = plugin.clazzName;
-            if (
-              this.request &&
-              this.pluginForm &&
-              this.pluginForm.setValue instanceof Function
-            ) {
+            if (this.request && this.pluginForm && this.pluginForm.setValue instanceof Function) {
               this.pluginForm.setValue(this.request);
             }
             if (this.request.condition) {
@@ -588,10 +484,7 @@ export default {
             }
           });
         });
-      } else if (
-        this.request.requestResult &&
-        this.request.requestResult.length > 1
-      ) {
+      } else if (this.request.requestResult && this.request.requestResult.length > 1) {
         this.request.requestResult.forEach((item) => {
           if (!item.success) {
             this.reqSuccess = item.success;
@@ -629,12 +522,7 @@ export default {
     },
     active() {
       this.request.active = !this.request.active;
-      if (
-        this.request &&
-        this.request.active &&
-        this.pluginForm &&
-        this.pluginForm.setValue instanceof Function
-      ) {
+      if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
         this.pluginForm.setValue(this.request);
       }
     },

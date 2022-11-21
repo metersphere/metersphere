@@ -1,8 +1,6 @@
 <template>
   <el-row>
-    <el-link class="ms-el-link" @click="open">
-      {{ $t('commons.batch_add') }}</el-link
-    >
+    <el-link class="ms-el-link" @click="open"> {{ $t('commons.batch_add') }}</el-link>
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
   </el-row>
 </template>
@@ -23,11 +21,7 @@ export default {
           let line = item.split(/:|：/);
           let values = item.split(line[0] + ':');
           let required = false;
-          if (
-            line[1] === '必填' ||
-            line[1] === 'Required' ||
-            line[1] === 'true'
-          ) {
+          if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
             required = true;
           }
           keyValues.push(

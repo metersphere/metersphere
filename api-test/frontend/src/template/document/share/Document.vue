@@ -6,8 +6,7 @@
       :project-id="projectId"
       :module-ids="moduleIds"
       :document-id="documentId"
-      ref="documentAnchor"
-    />
+      ref="documentAnchor" />
   </div>
 </template>
 

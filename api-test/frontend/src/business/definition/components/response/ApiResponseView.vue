@@ -1,9 +1,5 @@
 <template>
-  <ms-request-result
-    :report-id="reportId"
-    :is-test-plan="isTestPlan"
-    :response="response"
-  />
+  <ms-request-result :report-id="reportId" :is-test-plan="isTestPlan" :response="response" />
 </template>
 
 <script>

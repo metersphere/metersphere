@@ -148,12 +148,7 @@ export function buttons(this_) {
     },
     {
       title: this_.$t('api_test.automation.api_list_import'),
-      show: this_.showButton(
-        'HTTPSamplerProxy',
-        'DubboSampler',
-        'JDBCSampler',
-        'TCPSampler'
-      ),
+      show: this_.showButton('HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler'),
       titleColor: '#F56C6C',
       titleBgColor: '#FCF1F1',
       icon: 'api',
@@ -182,32 +177,20 @@ export function scenarioAssertion(data, node) {
 
 export function setNode(_this, node) {
   if (_this.selectedTreeNode) {
-    if (
-      _this.stepFilter
-        .get('SpecialSteps')
-        .indexOf(_this.selectedTreeNode.type) !== -1
-    ) {
+    if (_this.stepFilter.get('SpecialSteps').indexOf(_this.selectedTreeNode.type) !== -1) {
       if (_this.selectedNode.parent.data.hashTree) {
         //同级请求添加断言，添加到父级
         if (node.type === 'Assertions') {
           scenarioAssertion(_this.selectedNode.parent.data.hashTree, node);
         } else {
-          _this.selectedNode.parent.data.hashTree.splice(
-            _this.selectedTreeNode.index,
-            0,
-            node
-          );
+          _this.selectedNode.parent.data.hashTree.splice(_this.selectedTreeNode.index, 0, node);
         }
       } else {
         //没有父级的直接加到当前的置顶
         if (node.type === 'Assertions') {
           scenarioAssertion(_this.scenarioDefinition, node);
         } else {
-          _this.scenarioDefinition.splice(
-            _this.selectedTreeNode.index,
-            0,
-            node
-          );
+          _this.scenarioDefinition.splice(_this.selectedTreeNode.index, 0, node);
         }
       }
       store.forceRerenderIndex = getUUID();
@@ -280,16 +263,10 @@ export function setComponent(type, _this, plugin) {
       );
       break;
     case ELEMENT_TYPE.Assertions:
-      setNode(
-        _this,
-        new Assertions({ label: 'SCENARIO-REF-STEP', id: getUUID() })
-      );
+      setNode(_this, new Assertions({ label: 'SCENARIO-REF-STEP', id: getUUID() }));
       break;
     case ELEMENT_TYPE.Extract:
-      setNode(
-        _this,
-        new Extract({ label: 'SCENARIO-REF-STEP', id: getUUID() })
-      );
+      setNode(_this, new Extract({ label: 'SCENARIO-REF-STEP', id: getUUID() }));
       break;
     case ELEMENT_TYPE.CustomizeReq:
       _this.customizeRequest = {

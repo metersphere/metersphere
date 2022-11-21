@@ -1,23 +1,12 @@
 <template>
   <div style="border-bottom-width: 2px" ref="baseDiv">
     <div style="font-size: 17px">
-      <el-popover
-        v-if="projectId"
-        placement="right"
-        width="260"
-        @show="shareApiDocument('false')"
-      >
+      <el-popover v-if="projectId" placement="right" width="260" @show="shareApiDocument('false')">
         <p>{{ shareUrl }}</p>
         <div style="text-align: right; margin: 0">
-          <el-button type="primary" size="mini" v-clipboard:copy="shareUrl"
-            >{{ $t('commons.copy') }}
-          </el-button>
+          <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{ $t('commons.copy') }} </el-button>
         </div>
-        <i
-          class="el-icon-share"
-          slot="reference"
-          style="margin-right: 10px; cursor: pointer"
-        ></i>
+        <i class="el-icon-share" slot="reference" style="margin-right: 10px; cursor: pointer"></i>
       </el-popover>
       {{ apiInfo.name }}
       <span class="apiStatusTag">
@@ -35,31 +24,19 @@
             borderRadius: '0px',
             marginRight: '20px',
             color: 'white',
-          }"
-        >
+          }">
           {{ apiInfo.method }}
         </el-tag>
         {{ apiInfo.uri }}
       </div>
       <div class="attacInfo">
         <el-row :gutter="10">
-          <el-col :span="6">
-            {{ $t('test_track.module.module') }} : {{ apiInfo.modules }}</el-col
-          >
-          <el-col :span="6"
-            >{{ $t('commons.tag') }} : {{ apiInfo.tags }}</el-col
-          >
-          <el-col :span="6"
-            >{{ $t('api_test.definition.request.responsible') }} :
-            {{ apiInfo.responsibler }}</el-col
-          >
-          <el-col :span="6"
-            >{{ $t('commons.create_user') }} : {{ apiInfo.createUser }}</el-col
-          >
+          <el-col :span="6"> {{ $t('test_track.module.module') }} : {{ apiInfo.modules }}</el-col>
+          <el-col :span="6">{{ $t('commons.tag') }} : {{ apiInfo.tags }}</el-col>
+          <el-col :span="6">{{ $t('api_test.definition.request.responsible') }} : {{ apiInfo.responsibler }}</el-col>
+          <el-col :span="6">{{ $t('commons.create_user') }} : {{ apiInfo.createUser }}</el-col>
         </el-row>
-        <el-row style="margin-top: 10px">
-          {{ $t('commons.description') }} : {{ apiInfo.desc }}
-        </el-row>
+        <el-row style="margin-top: 10px"> {{ $t('commons.description') }} : {{ apiInfo.desc }} </el-row>
       </div>
     </el-row>
     <!--api请求头-->
@@ -68,29 +45,25 @@
       v-if="isArrayHasData(apiInfo.requestHead)"
       table-column-type="nameAndValue"
       :title="$t('api_test.definition.document.request_head')"
-      :string-data="apiInfo.requestHead"
-    />
+      :string-data="apiInfo.requestHead" />
     <!--QUERY参数-->
     <api-info-collapse
       v-if="isArrayHasData(apiInfo.urlParams)"
       table-column-type="simple"
       :title="'QUERY' + $t('api_test.definition.document.request_param')"
-      :string-data="apiInfo.urlParams"
-    />
+      :string-data="apiInfo.urlParams" />
     <!--REST参数-->
     <api-info-collapse
       v-if="isArrayHasData(apiInfo.restParams)"
       table-column-type="simple"
       :title="'REST' + $t('api_test.definition.document.request_param')"
-      :string-data="apiInfo.restParams"
-    />
+      :string-data="apiInfo.restParams" />
     <!--api请求体 以及表格-->
     <api-info-collapse
       v-if="hasRequestParams(apiInfo)"
       :is-request="true"
       :remarks="apiInfo.requestBodyParamType"
-      :title="$t('api_test.definition.document.request_body')"
-    >
+      :title="$t('api_test.definition.document.request_body')">
       <api-request-info slot="request" :api-info="apiInfo"></api-request-info>
     </api-info-collapse>
 
@@ -100,19 +73,14 @@
       v-if="isArrayHasData(apiInfo.responseHead)"
       table-column-type="nameAndValue"
       :title="$t('api_test.definition.document.response_head')"
-      :string-data="apiInfo.responseHead"
-    />
+      :string-data="apiInfo.responseHead" />
     <!--响应体-->
     <api-info-collapse
       v-if="hasResponseBody(apiInfo)"
       :is-response="true"
       :remarks="apiInfo.responseBodyParamType"
-      :title="$t('api_test.definition.document.response_body')"
-    >
-      <api-response-info
-        slot="response"
-        :api-info="apiInfo"
-      ></api-response-info>
+      :title="$t('api_test.definition.document.response_body')">
+      <api-response-info slot="response" :api-info="apiInfo"></api-response-info>
     </api-info-collapse>
 
     <!--响应状态码-->
@@ -121,8 +89,7 @@
       v-if="hasResponseCode(apiInfo.responseCode)"
       :is-text="true"
       :string-data="getName(apiInfo.responseCode)"
-      :title="$t('api_test.definition.document.response_code')"
-    />
+      :title="$t('api_test.definition.document.response_code')" />
     <!--  备注  -->
     <api-remark-show :data="apiInfo.remark"></api-remark-show>
     <el-divider></el-divider>
@@ -220,10 +187,7 @@ export default {
       let hasParams = false;
       if (apiInfo) {
         if (this.formParamTypes.includes(apiInfo.requestBodyParamType)) {
-          if (
-            apiInfo.requestBodyFormData &&
-            apiInfo.requestBodyFormData !== '无'
-          ) {
+          if (apiInfo.requestBodyFormData && apiInfo.requestBodyFormData !== '无') {
             let jsonArr = JSON.parse(apiInfo.requestBodyFormData);
             //遍历，把必填项空的数据去掉
             for (let index = 0; index < jsonArr.length; index++) {
@@ -233,21 +197,11 @@ export default {
               }
             }
           }
-        } else if (
-          apiInfo.requestBodyParamType === 'JSON-SCHEMA' ||
-          apiInfo.requestBodyParamType === 'JSON'
-        ) {
-          if (
-            apiInfo.jsonSchemaBody &&
-            apiInfo.jsonSchemaBody !== '' &&
-            apiInfo.jsonSchemaBody !== '[]'
-          ) {
+        } else if (apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON') {
+          if (apiInfo.jsonSchemaBody && apiInfo.jsonSchemaBody !== '' && apiInfo.jsonSchemaBody !== '[]') {
             hasParams = true;
           }
-        } else if (
-          apiInfo.requestBodyStructureData &&
-          apiInfo.requestBodyStructureData !== ''
-        ) {
+        } else if (apiInfo.requestBodyStructureData && apiInfo.requestBodyStructureData !== '') {
           hasParams = true;
         }
       }
@@ -257,10 +211,7 @@ export default {
       let hasParams = false;
       if (apiInfo) {
         if (this.formParamTypes.includes(apiInfo.responseBodyParamType)) {
-          if (
-            apiInfo.responseBodyFormData &&
-            apiInfo.responseBodyFormData !== '无'
-          ) {
+          if (apiInfo.responseBodyFormData && apiInfo.responseBodyFormData !== '无') {
             let jsonArr = JSON.parse(apiInfo.responseBodyFormData);
             //遍历，把必填项空的数据去掉
             for (let index = 0; index < jsonArr.length; index++) {
@@ -278,10 +229,7 @@ export default {
           ) {
             hasParams = true;
           }
-        } else if (
-          apiInfo.requestBodyStructureData &&
-          apiInfo.requestBodyStructureData !== ''
-        ) {
+        } else if (apiInfo.requestBodyStructureData && apiInfo.requestBodyStructureData !== '') {
           try {
             JSON.parse(apiInfo.requestBodyStructureData);
             hasParams = true;

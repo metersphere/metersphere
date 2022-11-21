@@ -4,8 +4,7 @@
     :title="$t('load_test.runtime_config')"
     width="550px"
     @close="close"
-    :visible.sync="runModeVisible"
-  >
+    :visible.sync="runModeVisible">
     <div class="env-container">
       <div>
         <div>{{ $t('commons.environment') }}：</div>
@@ -19,8 +18,7 @@
           @setProjectEnvMap="setProjectEnvMap"
           @setEnvGroup="setEnvGroup"
           ref="envSelectPopover"
-          class="mode-row"
-        ></env-select-popover>
+          class="mode-row"></env-select-popover>
       </div>
 
       <div>
@@ -30,8 +28,7 @@
             v-model="runConfig.mode"
             @change="changeMode"
             style="width: 100%"
-            class="radio-change mode-row"
-          >
+            class="radio-change mode-row">
             <el-radio label="serial">{{ $t('run_mode.serial') }}</el-radio>
             <el-radio label="parallel">{{ $t('run_mode.parallel') }}</el-radio>
           </el-radio-group>
@@ -42,19 +39,11 @@
         <div class="mode-row">{{ $t('run_mode.other_config') }}：</div>
         <div class="mode-row">
           <el-radio-group v-model="runConfig.reportType">
-            <el-radio label="iddReport">{{
-              $t('run_mode.idd_report')
-            }}</el-radio>
-            <el-radio label="setReport">{{
-              $t('run_mode.set_report')
-            }}</el-radio>
+            <el-radio label="iddReport">{{ $t('run_mode.idd_report') }}</el-radio>
+            <el-radio label="setReport">{{ $t('run_mode.set_report') }}</el-radio>
           </el-radio-group>
         </div>
-        <div
-          class="ms-mode-span-label"
-          style="margin-top: 8px"
-          v-if="runConfig.reportType === 'setReport'"
-        >
+        <div class="ms-mode-span-label" style="margin-top: 8px" v-if="runConfig.reportType === 'setReport'">
           {{ $t('run_mode.report_name') }}：
         </div>
         <div class="mode-row" v-if="runConfig.reportType === 'setReport'">
@@ -62,14 +51,10 @@
             v-model="runConfig.reportName"
             :placeholder="$t('commons.input_content')"
             size="small"
-            style="width: 100%"
-          />
+            style="width: 100%" />
         </div>
         <div class="mode-row">
-          <el-checkbox
-            v-model="runConfig.runWithinResourcePool"
-            :disabled="runMode === 'POOL'"
-          >
+          <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="runMode === 'POOL'">
             {{ $t('run_mode.run_with_resource_pool') }} </el-checkbox
           ><br />
           <el-select
@@ -77,15 +62,13 @@
             v-model="runConfig.resourcePoolId"
             size="mini"
             class="mode-row"
-            style="width: 100%"
-          >
+            style="width: 100%">
             <el-option
               v-for="item in resourcePools"
               :key="item.id"
               :label="item.name"
               :disabled="!item.api"
-              :value="item.id"
-            >
+              :value="item.id">
             </el-option>
           </el-select>
         </div>
@@ -199,21 +182,15 @@ export default {
     },
     handleRunBatch() {
       if (
-        (this.runConfig.mode === 'serial' ||
-          this.runConfig.mode === 'parallel') &&
+        (this.runConfig.mode === 'serial' || this.runConfig.mode === 'parallel') &&
         this.runConfig.reportType === 'setReport' &&
         this.runConfig.reportName.trim() === ''
       ) {
         this.$warning(this.$t('commons.input_name'));
         return;
       }
-      if (
-        this.runConfig.runWithinResourcePool &&
-        this.runConfig.resourcePoolId == null
-      ) {
-        this.$warning(
-          this.$t('workspace.env_group.please_select_run_within_resource_pool')
-        );
+      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
         return;
       }
       this.$emit('handleRunBatch', this.runConfig);

@@ -4,8 +4,7 @@
     @save="save"
     :plan-id="planId"
     :dialog-title="dialogTitle"
-    ref="baseRelevance"
-  >
+    ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
         :options="options"
@@ -15,8 +14,7 @@
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
-        ref="nodeTree"
-      />
+        ref="nodeTree" />
     </template>
 
     <relevance-api-list
@@ -29,8 +27,7 @@
       :is-script="isScript"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiList"
-    />
+      ref="apiList" />
 
     <relevance-case-list
       v-if="!isApiListEnable"
@@ -42,8 +39,7 @@
       :is-script="isScript"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
-      ref="apiCaseList"
-    />
+      ref="apiCaseList" />
   </test-case-relevance-base>
 </template>
 
@@ -101,9 +97,7 @@ export default {
   created() {
     if (this.isScript) {
       if (this.isApiListEnable) {
-        this.dialogTitle = this.$t(
-          'permission.project_api_definition.import_api'
-        );
+        this.dialogTitle = this.$t('permission.project_api_definition.import_api');
       } else {
         this.dialogTitle = this.$t('permission.project_track_case.import');
       }
@@ -116,9 +110,7 @@ export default {
     isApiListEnable() {
       if (this.isScript) {
         if (this.isApiListEnable) {
-          this.dialogTitle = this.$t(
-            'permission.project_api_definition.import_api'
-          );
+          this.dialogTitle = this.$t('permission.project_api_definition.import_api');
         } else {
           this.dialogTitle = this.$t('permission.project_track_case.import');
         }

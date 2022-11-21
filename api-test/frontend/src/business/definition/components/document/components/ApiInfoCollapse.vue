@@ -5,15 +5,7 @@
         <el-row>
           <div class="tip" style="float: left">
             <span>{{ title }}</span>
-            <span
-              v-if="remarks"
-              style="
-                font-weight: 400;
-                font-size: smaller;
-                background: #f1f0f0;
-                margin-left: 5px;
-              "
-            >
+            <span v-if="remarks" style="font-weight: 400; font-size: smaller; background: #f1f0f0; margin-left: 5px">
               {{ remarks }}
             </span>
           </div>
@@ -51,22 +43,15 @@
                   :row-class-name="getRowClassName"
                   :data="tableData"
                   :class="getTableClass()"
-                  ref="expandTable"
-                >
+                  ref="expandTable">
                   <el-table-column
                     v-for="item in tableColumnArr"
                     :key="item.id"
                     :prop="item.prop"
                     :label="item.label"
-                    show-overflow-tooltip
-                  >
+                    show-overflow-tooltip>
                   </el-table-column>
-                  <el-table-column
-                    type="expand"
-                    v-if="tableCanExpand"
-                    :label="getCollapseOption()"
-                    width="80px"
-                  >
+                  <el-table-column type="expand" v-if="tableCanExpand" :label="getCollapseOption()" width="80px">
                     <template slot="header">
                       <el-button type="text" size="mini" @click="expandAllRows">
                         <span :id="tableExpandButtonId">
@@ -75,9 +60,7 @@
                       </el-button>
                     </template>
                     <template v-slot:default="scope">
-                      <table-advanced-setting
-                        :table-data="scope.row"
-                      ></table-advanced-setting>
+                      <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -195,9 +178,7 @@ export default {
           });
         }
       }
-      this.expandTitle = this.expandAllRow
-        ? this.$t('commons.close_all')
-        : this.$t('commons.expand_all');
+      this.expandTitle = this.expandAllRow ? this.$t('commons.close_all') : this.$t('commons.expand_all');
       let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
       tableHeaderDom.innerText = this.expandTitle;
     },

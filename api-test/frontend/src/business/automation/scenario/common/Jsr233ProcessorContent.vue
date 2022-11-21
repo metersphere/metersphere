@@ -9,20 +9,14 @@
           :data.sync="jsr223ProcessorData.script"
           theme="eclipse"
           :modes="['java', 'python']"
-          ref="codeEdit"
-        />
+          ref="codeEdit" />
       </el-col>
       <div style="width: 14px; margin-right: 5px">
         <div style="height: 12px; width: 12px; line-height: 12px">
           <i
-            :class="
-              showMenu
-                ? 'el-icon-remove-outline'
-                : 'el-icon-circle-plus-outline'
-            "
+            :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
             class="show-menu"
-            @click="switchMenu"
-          ></i>
+            @click="switchMenu"></i>
         </div>
       </div>
       <el-col :span="menuSpan" class="script-index" v-if="isReadOnly !== true">
@@ -30,14 +24,12 @@
           :default-command="jsr223ProcessorData.scriptLanguage"
           :commands="languages"
           style="margin-bottom: 5px; margin-left: 15px"
-          @command="languageChange"
-        />
+          @command="languageChange" />
         <script-nav-menu
           ref="scriptNavMenu"
           :language="jsr223ProcessorData.scriptLanguage"
           :menus="codeTemplates"
-          @handleCode="handleCodeTemplate"
-        />
+          @handleCode="handleCodeTemplate" />
       </el-col>
     </el-row>
   </div>
@@ -72,35 +64,25 @@ export default {
           title: this.$t('project.code_segment.custom_value'),
           children: [
             {
-              title: this.$t(
-                'api_test.request.processor.code_template_get_variable'
-              ),
+              title: this.$t('api_test.request.processor.code_template_get_variable'),
               value: 'vars.get("variable_name")',
             },
             {
-              title: this.$t(
-                'api_test.request.processor.code_template_set_variable'
-              ),
+              title: this.$t('api_test.request.processor.code_template_set_variable'),
               value: 'vars.put("variable_name", "variable_value")',
             },
             {
-              title: this.$t(
-                'api_test.request.processor.code_template_get_response_header'
-              ),
+              title: this.$t('api_test.request.processor.code_template_get_response_header'),
               value: 'prev.getResponseHeaders()',
               disabled: this.isPreProcessor,
             },
             {
-              title: this.$t(
-                'api_test.request.processor.code_template_get_response_code'
-              ),
+              title: this.$t('api_test.request.processor.code_template_get_response_code'),
               value: 'prev.getResponseCode()',
               disabled: this.isPreProcessor,
             },
             {
-              title: this.$t(
-                'api_test.request.processor.code_template_get_response_result'
-              ),
+              title: this.$t('api_test.request.processor.code_template_get_response_result'),
               value: 'prev.getResponseDataAsString()',
               disabled: this.isPreProcessor,
             },
@@ -110,12 +92,8 @@ export default {
           title: this.$t('project.code_segment.project_env'),
           children: [
             {
-              title: this.$t(
-                'api_test.request.processor.param_environment_set_global_variable'
-              ),
-              value:
-                'vars.put(${__metersphere_env_id}+"key","value");\n' +
-                'vars.put("key","value")',
+              title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
+              value: 'vars.put(${__metersphere_env_id}+"key","value");\n' + 'vars.put("key","value")',
             },
           ],
         },
@@ -133,8 +111,7 @@ export default {
           children: [
             {
               title: this.$t('project.code_segment.stop_test'),
-              value:
-                'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
+              value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName());',
             },
           ],
         },
@@ -143,9 +120,7 @@ export default {
           hideScript: this.isHideScript(),
           children: [
             {
-              title: this.$t(
-                'api_test.request.processor.code_add_report_length'
-              ),
+              title: this.$t('api_test.request.processor.code_add_report_length'),
               value:
                 'String report = ctx.getCurrentSampler().getRequestData();\n' +
                 'if(report!=null){\n' +
@@ -156,9 +131,7 @@ export default {
                 '}',
             },
             {
-              title: this.$t(
-                'api_test.request.processor.code_hide_report_length'
-              ),
+              title: this.$t('api_test.request.processor.code_hide_report_length'),
               value:
                 '//Get response data\n' +
                 'String returnData = prev.getResponseDataAsString();\n' +

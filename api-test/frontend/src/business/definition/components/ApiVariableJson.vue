@@ -1,32 +1,17 @@
 <template>
-  <el-dialog
-    :append-to-body="appendToBody"
-    :visible.sync="dialogVisible"
-    destroy-on-close
-    @close="close"
-  >
+  <el-dialog :append-to-body="appendToBody" :visible.sync="dialogVisible" destroy-on-close @close="close">
     <div style="padding: 10px">
-      <el-switch
-        active-text="JSON-SCHEMA"
-        v-model="item.jsonType"
-        @change="formatChange"
-        active-value="JSON-SCHEMA"
-      />
+      <el-switch active-text="JSON-SCHEMA" v-model="item.jsonType" @change="formatChange" active-value="JSON-SCHEMA" />
     </div>
     <div v-if="codeEditActive">
-      <ms-json-code-edit
-        v-if="item.jsonType === 'JSON-SCHEMA'"
-        :body="item"
-        ref="jsonCodeEdit"
-      />
+      <ms-json-code-edit v-if="item.jsonType === 'JSON-SCHEMA'" :body="item" ref="jsonCodeEdit" />
       <ms-code-edit
         v-else
         :read-only="isReadOnly"
         :data.sync="item.value"
         :mode="'json'"
         height="400px"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
   </el-dialog>
 </template>

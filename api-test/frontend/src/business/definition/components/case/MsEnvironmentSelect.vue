@@ -7,40 +7,25 @@
       class="environment-select"
       :placeholder="$t('api_test.definition.request.run_env')"
       clearable
-      @clear="clear"
-    >
+      @clear="clear">
       <el-option
         v-for="(environment, key) in environments"
         :key="key"
         :label="environment.name"
-        :value="environment.id"
-      />
-      <el-button
-        class="environment-button"
-        size="mini"
-        type="primary"
-        @click="openEnvironmentConfig"
-      >
+        :value="environment.id" />
+      <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
         {{ $t('api_test.environment.environment_config') }}
       </el-button>
       <template v-slot:empty>
         <div class="empty-environment">
-          <el-button
-            class="environment-button"
-            size="mini"
-            type="primary"
-            @click="openEnvironmentConfig"
-          >
+          <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
             {{ $t('api_test.environment.environment_config') }}
           </el-button>
         </div>
       </template>
     </el-select>
     <!-- 环境 -->
-    <api-environment-config
-      ref="environmentConfig"
-      @close="environmentConfigClose"
-    />
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
   </span>
 </template>
 
@@ -51,10 +36,7 @@ import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environm
 export default {
   name: 'MsEnvironmentSelect',
   components: {
-    ApiEnvironmentConfig: () =>
-      import(
-        'metersphere-frontend/src/components/environment/ApiEnvironmentConfig'
-      ),
+    ApiEnvironmentConfig: () => import('metersphere-frontend/src/components/environment/ApiEnvironmentConfig'),
   },
   data() {
     return {

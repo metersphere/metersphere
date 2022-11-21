@@ -15,8 +15,7 @@
             maxlength="200"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          >
+            show-word-limit>
           </el-input>
 
           <el-autocomplete
@@ -27,18 +26,12 @@
             :fetch-suggestions="querySearch"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
 
         <el-col class="kv-select">
           <el-select v-model="item.required" size="small">
-            <el-option
-              v-for="req in requireds"
-              :key="req.id"
-              :label="req.name"
-              :value="req.id"
-            />
+            <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
           </el-select>
         </el-col>
 
@@ -52,13 +45,8 @@
             :placeholder="valueText"
             value-key="name"
             highlight-first-item
-            @select="change"
-          >
-            <i
-              slot="suffix"
-              class="el-input__icon el-icon-edit pointer"
-              @click="advanced(item)"
-            ></i>
+            @select="change">
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
 
@@ -68,8 +56,7 @@
             size="small"
             maxlength="200"
             :placeholder="$t('commons.description')"
-            show-word-limit
-          >
+            show-word-limit>
           </el-input>
 
           <el-autocomplete
@@ -80,8 +67,7 @@
             :fetch-suggestions="querySearch"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          />
+            show-word-limit />
         </el-col>
 
         <el-col class="kv-delete">
@@ -90,8 +76,7 @@
             class="el-icon-delete-solid"
             circle
             @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
       </el-row>
     </div>
@@ -100,17 +85,13 @@
       :environment="environment"
       :scenario="scenario"
       :parameters="parameters"
-      :current-item="currentItem"
-    />
+      :current-item="currentItem" />
   </div>
 </template>
 
 <script>
 import { KeyValue, Scenario } from '../../model/ApiTestModel';
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 import MsApiVariableAdvance from '../ApiVariableAdvance';
 import MsApiBodyFileUpload from '../body/ApiBodyFileUpload';
 import { REQUIRED } from '../../model/JsonData';
@@ -187,24 +168,17 @@ export default {
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
-      let results = queryString
-        ? suggestions.filter(this.createFilter(queryString))
-        : suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
       cb(results);
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
     funcSearch(queryString, cb) {
       let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString
-        ? funcs.filter(this.funcFilter(queryString))
-        : funcs;
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
@@ -225,10 +199,7 @@ export default {
     },
   },
   created() {
-    if (
-      this.parameters.length === 0 ||
-      this.parameters[this.parameters.length - 1].name
-    ) {
+    if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
       this.parameters.push(
         new KeyValue({
           type: 'text',

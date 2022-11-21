@@ -1,19 +1,11 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio
-        :disabled="isReadOnly"
-        :label="type.FORM_DATA"
-        @change="modeChange"
-      >
+      <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
         {{ $t('api_test.definition.request.body_form_data') }}
       </el-radio>
 
-      <el-radio
-        :disabled="isReadOnly"
-        :label="type.WWW_FORM"
-        @change="modeChange"
-      >
+      <el-radio :disabled="isReadOnly" :label="type.WWW_FORM" @change="modeChange">
         {{ $t('api_test.definition.request.body_x_www_from_urlencoded') }}
       </el-radio>
 
@@ -29,19 +21,13 @@
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
 
-      <el-radio
-        :disabled="isReadOnly"
-        :label="type.BINARY"
-        @change="modeChange"
-      >
+      <el-radio :disabled="isReadOnly" :label="type.BINARY" @change="modeChange">
         {{ $t('api_test.definition.request.body_binary') }}
       </el-radio>
     </el-radio-group>
     <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-        <el-link class="ms-el-link" @click="batchAdd">
-          {{ $t('commons.batch_add') }}</el-link
-        >
+        <el-link class="ms-el-link" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
       </el-row>
       <ms-api-variable
         :with-more-setting="true"
@@ -52,25 +38,18 @@
         :scenario-definition="scenarioDefinition"
         :id="id"
         @editScenarioAdvance="editScenarioAdvance"
-        type="body"
-      />
+        type="body" />
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch
-          active-text="JSON-SCHEMA"
-          v-model="body.format"
-          @change="formatChange"
-          active-value="JSON-SCHEMA"
-        />
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA" />
       </div>
       <ms-json-code-edit
         v-if="body.format === 'JSON-SCHEMA'"
         :body="body"
         :scenario-definition="scenarioDefinition"
         @editScenarioAdvance="editScenarioAdvance"
-        ref="jsonCodeEdit"
-      />
+        ref="jsonCodeEdit" />
       <ms-code-edit
         v-else-if="codeEditActive"
         :read-only="isReadOnly"
@@ -78,27 +57,15 @@
         :modes="modes"
         :mode="'json'"
         height="400px"
-        ref="codeEdit"
-      />
+        ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        :mode="'text'"
-        ref="codeEdit"
-      />
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" :mode="'text'" ref="codeEdit" />
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
-      <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        ref="codeEdit"
-      />
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit" />
     </div>
 
     <ms-api-binary-variable
@@ -106,8 +73,7 @@
       :parameters="body.binary"
       :isShowEnable="isShowEnable"
       type="body"
-      v-if="body.type == 'BINARY'"
-    />
+      v-if="body.type == 'BINARY'" />
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
   </div>
 </template>
@@ -214,21 +180,10 @@ export default {
           this.assignKey(to, from, key);
         }
       }
-      let property = [
-        'description',
-        'maxLength',
-        'minLength',
-        'pattern',
-        'format',
-        'enum',
-        'default',
-      ];
+      let property = ['description', 'maxLength', 'minLength', 'pattern', 'format', 'enum', 'default'];
       // 清除多出部分属性
       for (let key in to) {
-        if (
-          !this.hasOwnProperty.call(from, key) &&
-          property.indexOf(key) === -1
-        ) {
+        if (!this.hasOwnProperty.call(from, key) && property.indexOf(key) === -1) {
           delete to[key];
         }
       }
@@ -262,21 +217,14 @@ export default {
         if (this.body.raw) {
           try {
             if (!this.body.jsonSchema) {
-              this.body.jsonSchema = MsConvert.format(
-                JSON.parse(this.body.raw)
-              );
+              this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
             } else {
               let data = MsConvert.format(JSON.parse(this.body.raw));
-              this.body.jsonSchema = this.deepAssign(
-                this.body.jsonSchema,
-                data
-              );
+              this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
             }
           } catch (e) {
             this.body.format = 'JSON';
-            this.$message.error(
-              this.$t('api_definition.body.json_format_error')
-            );
+            this.$message.error(this.$t('api_definition.body.json_format_error'));
           }
         }
       } else {
@@ -316,19 +264,13 @@ export default {
           isType = true;
         }
       });
-      if (
-        this.body &&
-        this.body.kvs &&
-        value === 'application/x-www-form-urlencoded'
-      ) {
+      if (this.body && this.body.kvs && value === 'application/x-www-form-urlencoded') {
         this.body.kvs.forEach((item) => {
           item.urlEncode = true;
         });
       }
       if (!isType) {
-        this.headers.unshift(
-          new KeyValue({ name: 'Content-Type', value: value })
-        );
+        this.headers.unshift(new KeyValue({ name: 'Content-Type', value: value }));
         this.$emit('headersChange');
       }
     },

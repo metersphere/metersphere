@@ -14,15 +14,9 @@
       :show-btn="showBtn"
       :show-version="showVersion"
       :title="displayTitle"
-      :if-from-variable-advance="ifFromVariableAdvance"
-    >
-      <template
-        v-slot:afterTitle
-        v-if="request.refType === 'API' || request.refType === 'CASE'"
-      >
-        <span v-if="request.num" @click="clickResource(request)">{{
-          '（ ID: ' + request.num + '）'
-        }}</span>
+      :if-from-variable-advance="ifFromVariableAdvance">
+      <template v-slot:afterTitle v-if="request.refType === 'API' || request.refType === 'CASE'">
+        <span v-if="request.num" @click="clickResource(request)">{{ '（ ID: ' + request.num + '）' }}</span>
         <span v-else>
           <el-tooltip
             class="ms-num"
@@ -32,8 +26,7 @@
                 ? $t('api_test.automation.scenario.api_none')
                 : $t('api_test.automation.scenario.case_none')
             "
-            placement="top"
-          >
+            placement="top">
             <i class="el-icon-warning" />
           </el-tooltip>
         </span>
@@ -43,26 +36,14 @@
       </template>
 
       <template v-slot:behindHeaderLeft>
-        <el-tag
-          size="small"
-          class="ms-tag"
-          v-if="request.referenced === 'Deleted'"
-          type="danger"
-        >
+        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'Deleted'" type="danger">
           {{ $t('api_test.automation.reference_deleted') }}
         </el-tag>
-        <el-tag
-          size="small"
-          class="ms-tag"
-          v-if="request.referenced === 'Copy'"
-          >{{ $t('commons.copy') }}</el-tag
-        >
+        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="small" class="ms-tag" v-if="request.referenced === 'REF'"
           >{{ $t('api_test.scenario.reference') }}
         </el-tag>
-        <span class="ms-tag ms-step-name-api">{{
-          getProjectName(request.projectId)
-        }}</span>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
         <span v-if="request.testing" class="ms-test-running">
@@ -80,59 +61,40 @@
             request.requestResult[0] &&
             request.requestResult[0].responseResult &&
             request.requestResult[0].status === 'FAKE_ERROR'
-          "
-        >
+          ">
           FakeError
         </span>
         <span
           class="ms-step-debug-code"
           @click="active"
-          :class="
-            request.requestResult[0].success && reqSuccess
-              ? 'ms-req-success'
-              : 'ms-req-error'
-          "
+          :class="request.requestResult[0].success && reqSuccess ? 'ms-req-success' : 'ms-req-error'"
           v-else-if="
             !loading &&
             !request.testing &&
             request.debug &&
             request.requestResult[0] &&
             request.requestResult[0].responseResult
-          "
-        >
-          {{
-            request.requestResult[0].success && reqSuccess ? 'Success' : 'Error'
-          }}
+          ">
+          {{ request.requestResult[0].success && reqSuccess ? 'Success' : 'Error' }}
         </span>
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
-        <el-tooltip
-          :content="$t('api_test.run')"
-          placement="top"
-          v-if="!loading"
-        >
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
           <el-button
             :disabled="!request.enable"
             @click="run"
             icon="el-icon-video-play"
             class="ms-btn"
             size="mini"
-            circle
-          />
+            circle />
         </el-tooltip>
-        <el-tooltip
-          :content="$t('report.stop_btn')"
-          placement="top"
-          :enterable="false"
-          v-else
-        >
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
             @click.once="stop"
             size="mini"
             style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
             class="stop-btn"
-            circle
-          >
+            circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
             </div>
@@ -143,17 +105,10 @@
       <template v-slot:request>
         <legend style="width: 100%; display: table-column">
           <div v-if="!ifFromVariableAdvance">
-            <customize-req-info
-              :is-customize-req="isCustomizeReq"
-              :request="request"
-              @setDomain="setDomain"
-            />
+            <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain" />
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
             <ms-api-request-form
-              v-if="
-                request.protocol === 'HTTP' ||
-                request.type === 'HTTPSamplerProxy'
-              "
+              v-if="request.protocol === 'HTTP' || request.type === 'HTTPSamplerProxy'"
               :scenario-definition="scenarioDefinition"
               @editScenarioAdvance="editScenarioAdvance"
               :isShowEnable="true"
@@ -162,8 +117,7 @@
               :scenarioId="currentScenario.id"
               :headers="request.headers"
               :is-read-only="isCompReadOnly"
-              :request="request"
-            />
+              :request="request" />
             <mx-esb-definition
               v-if="request.esbDataStruct != null"
               v-xpack
@@ -172,44 +126,31 @@
               :showScript="true"
               :show-pre-script="true"
               :is-read-only="isCompReadOnly"
-              ref="esbDefinition"
-            />
+              ref="esbDefinition" />
             <ms-tcp-format-parameters
-              v-if="
-                (request.protocol === 'TCP' || request.type === 'TCPSampler') &&
-                request.esbDataStruct == null
-              "
+              v-if="(request.protocol === 'TCP' || request.type === 'TCPSampler') && request.esbDataStruct == null"
               :is-read-only="isCompReadOnly"
               :response="response"
               :show-pre-script="true"
               :scenarioId="currentScenario.id"
               :show-script="true"
-              :request="request"
-            />
+              :request="request" />
 
             <ms-sql-basis-parameters
-              v-if="
-                request.protocol === 'SQL' || request.type === 'JDBCSampler'
-              "
+              v-if="request.protocol === 'SQL' || request.type === 'JDBCSampler'"
               :request="request"
               :response="response"
               :scenarioId="currentScenario.id"
               :is-read-only="isCompReadOnly"
-              :showScript="true"
-            />
+              :showScript="true" />
 
             <ms-dubbo-basis-parameters
-              v-if="
-                request.protocol === 'DUBBO' ||
-                request.protocol === 'dubbo://' ||
-                request.type === 'DubboSampler'
-              "
+              v-if="request.protocol === 'DUBBO' || request.protocol === 'dubbo://' || request.type === 'DubboSampler'"
               :request="request"
               :scenarioId="currentScenario.id"
               :response="response"
               :is-read-only="isCompReadOnly"
-              :showScript="true"
-            />
+              :showScript="true" />
           </div>
         </legend>
       </template>
@@ -225,35 +166,27 @@
               :show-options-button="false"
               :show-header="true"
               :result="request.requestResult"
-              v-xpack
-            />
+              v-xpack />
           </div>
           <div v-else>
             <el-tabs
               v-model="request.activeName"
               closable
               class="ms-tabs"
-              v-if="request.requestResult && request.requestResult.length > 1"
-            >
+              v-if="request.requestResult && request.requestResult.length > 1">
               <el-tab-pane
                 v-for="(item, i) in request.requestResult"
                 :label="'循环' + (i + 1)"
                 :key="i"
-                style="margin-bottom: 5px"
-              >
-                <api-response-component
-                  :currentProtocol="request.protocol"
-                  :apiActive="true"
-                  :result="item"
-                />
+                style="margin-bottom: 5px">
+                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
               </el-tab-pane>
             </el-tabs>
             <api-response-component
               :currentProtocol="request.protocol"
               :apiActive="true"
               :result="request.requestResult[0]"
-              v-else
-            />
+              v-else />
           </div>
         </div>
       </template>
@@ -265,17 +198,13 @@
       :env-map="environmentMap"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest"
-    />
+      ref="runTest" />
   </div>
 </template>
 
 <script>
 import { getApiCaseById, getCaseById } from '@/api/api-test-case';
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getUrl } from '@/business/automation/scenario/component/urlhelper';
 import { getCurrentByResourceId } from '@/api/user';
@@ -319,25 +248,17 @@ export default {
     },
   },
   components: {
-    CustomizeReqInfo: () =>
-      import('@/business/automation/scenario/common/CustomizeReqInfo'),
+    CustomizeReqInfo: () => import('@/business/automation/scenario/common/CustomizeReqInfo'),
     ApiBaseComponent: () => import('../common/ApiBaseComponent'),
     ApiResponseComponent: () => import('./ApiResponseComponent'),
-    MsSqlBasisParameters: () =>
-      import('../../../definition/components/request/database/BasisParameters'),
-    MsTcpFormatParameters: () =>
-      import('../../../definition/components/request/tcp/TcpFormatParameters'),
-    MsDubboBasisParameters: () =>
-      import('../../../definition/components/request/dubbo/BasisParameters'),
-    MsApiRequestForm: () =>
-      import('../../../definition/components/request/http/ApiHttpRequestForm'),
-    MsRequestResultTail: () =>
-      import('../../../definition/components/response/RequestResultTail'),
+    MsSqlBasisParameters: () => import('../../../definition/components/request/database/BasisParameters'),
+    MsTcpFormatParameters: () => import('../../../definition/components/request/tcp/TcpFormatParameters'),
+    MsDubboBasisParameters: () => import('../../../definition/components/request/dubbo/BasisParameters'),
+    MsApiRequestForm: () => import('../../../definition/components/request/http/ApiHttpRequestForm'),
+    MsRequestResultTail: () => import('../../../definition/components/response/RequestResultTail'),
     MsRun: () => import('../../../definition/components/Run'),
-    MxEsbDefinition: () =>
-      import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () =>
-      import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
+    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
+    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {
@@ -362,8 +283,7 @@ export default {
       this.request.requestResult = [{ responseResult: {} }];
     } else if (
       this.request.requestResult &&
-      Object.prototype.toString.call(this.request.requestResult) !==
-        '[object Array]'
+      Object.prototype.toString.call(this.request.requestResult) !== '[object Array]'
     ) {
       let obj = JSON.parse(JSON.stringify(this.request.requestResult));
       this.request.requestResult = [obj];
@@ -454,10 +374,7 @@ export default {
     },
     isApiImport() {
       let verifies = ['Deleted', 'REF', 'Copy'];
-      return (
-        this.request.referenced &&
-        verifies.indexOf(this.request.referenced) !== -1
-      );
+      return this.request.referenced && verifies.indexOf(this.request.referenced) !== -1;
     },
     isExternalImport() {
       return this.request.referenced && this.request.referenced === 'TO_IMPORT';
@@ -467,10 +384,7 @@ export default {
     },
     isDeletedOrRef() {
       let verifies = ['Deleted', 'REF'];
-      return (
-        this.request.referenced &&
-        verifies.indexOf(this.request.referenced) !== -1
-      );
+      return this.request.referenced && verifies.indexOf(this.request.referenced) !== -1;
     },
     projectId() {
       return getCurrentProjectID();
@@ -479,18 +393,11 @@ export default {
   methods: {
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
           scenarioDefinition[i].currentScenarioId = this.currentScenario.id;
         }
-        if (
-          scenarioDefinition[i].hashTree &&
-          scenarioDefinition[i].hashTree.length > 0
-        ) {
+        if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree);
         }
       }
@@ -505,10 +412,7 @@ export default {
             }
           });
         });
-      } else if (
-        this.request.requestResult &&
-        this.request.requestResult.length > 1
-      ) {
+      } else if (this.request.requestResult && this.request.requestResult.length > 1) {
         this.request.requestResult.forEach((item) => {
           if (!item.success) {
             this.reqSuccess = item.success;
@@ -534,10 +438,7 @@ export default {
         new URL(url);
         this.request.url = url;
       } catch (e) {
-        if (
-          url &&
-          (!url.startsWith('http://') || !url.startsWith('https://'))
-        ) {
+        if (url && (!url.startsWith('http://') || !url.startsWith('https://'))) {
           if (!this.isCustomizeReq) {
             this.request.path = url;
             this.request.url = undefined;
@@ -548,11 +449,7 @@ export default {
     mergeHashTree(targetHashTree) {
       let sourceHashTree = this.request.hashTree;
       // 历史数据兼容
-      if (
-        sourceHashTree &&
-        targetHashTree &&
-        sourceHashTree.length < targetHashTree.length
-      ) {
+      if (sourceHashTree && targetHashTree && sourceHashTree.length < targetHashTree.length) {
         this.request.hashTree = targetHashTree;
         return;
       }
@@ -593,11 +490,7 @@ export default {
             }
           }
           // 历史数据兼容
-          if (
-            !source.id &&
-            source.label !== 'SCENARIO-REF-STEP' &&
-            index < targetHashTree.length
-          ) {
+          if (!source.id && source.label !== 'SCENARIO-REF-STEP' && index < targetHashTree.length) {
             Object.assign(sourceHashTree[index], targetHashTree[index]);
             sourceHashTree[index].disabled = true;
             sourceHashTree[index].label = '';
@@ -607,9 +500,7 @@ export default {
       }
       // 删除多余的步骤
       delIds.forEach((item) => {
-        const removeIndex = sourceHashTree.findIndex(
-          (d) => d.id && d.id === item
-        );
+        const removeIndex = sourceHashTree.findIndex((d) => d.id && d.id === item);
         sourceHashTree.splice(removeIndex, 1);
       });
 
@@ -659,13 +550,9 @@ export default {
               if (
                 store.scenarioEnvMap &&
                 store.scenarioEnvMap instanceof Map &&
-                store.scenarioEnvMap.has(
-                  this.currentScenario.id + '_' + this.request.projectId
-                )
+                store.scenarioEnvMap.has(this.currentScenario.id + '_' + this.request.projectId)
               ) {
-                selectEnvId = store.scenarioEnvMap.get(
-                  this.currentScenario.id + '_' + this.request.projectId
-                );
+                selectEnvId = store.scenarioEnvMap.get(this.currentScenario.id + '_' + this.request.projectId);
                 this.environmentMap = this.envMap;
               }
               if (!selectEnvId) {
@@ -690,9 +577,7 @@ export default {
           // 场景变量
           let variables = [];
           if (this.currentScenario && this.currentScenario.variables) {
-            variables = JSON.parse(
-              JSON.stringify(this.currentScenario.variables)
-            );
+            variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
           }
           let debugData = {
             id: this.currentScenario.id,
@@ -797,10 +682,7 @@ export default {
     clickCase(resource) {
       let uri = getUrl(resource);
       let resourceId = resource.sourceId;
-      if (
-        resourceId &&
-        resourceId.startsWith('"' || resourceId.startsWith('['))
-      ) {
+      if (resourceId && resourceId.startsWith('"' || resourceId.startsWith('['))) {
         resourceId = JSON.parse(resource.sourceId);
       }
       if (resourceId instanceof Array) {

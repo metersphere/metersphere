@@ -1,27 +1,11 @@
 <template>
   <el-row>
     <el-col :span="spanNum">
-      <div
-        style="
-          border: 1px #dcdfe6 solid;
-          height: 100%;
-          border-radius: 4px;
-          width: 100%;
-        "
-      >
-        <el-form
-          class="tcp"
-          :model="request"
-          ref="request"
-          :disabled="isReadOnly"
-          style="margin: 20px"
-        >
+      <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
+        <el-form class="tcp" :model="request" ref="request" :disabled="isReadOnly" style="margin: 20px">
           <el-card v-if="showHeader" class="api-component">
             <div class="header" @click="active">
-              <i
-                class="icon el-icon-arrow-right"
-                :class="{ 'is-active': isActive }"
-              />
+              <i class="icon el-icon-arrow-right" :class="{ 'is-active': isActive }" />
               <ms-request-metric :response="response" />
             </div>
 
@@ -33,8 +17,7 @@
                   :is-api-component="false"
                   :show-metric="false"
                   :response="response"
-                  :request="request"
-                />
+                  :request="request" />
               </div>
             </el-collapse-transition>
           </el-card>
@@ -45,8 +28,7 @@
             @refreshEsbDataStruct="refreshEsbDataStruct"
             :is-api-component="isApiComponent"
             :show-metric="false"
-            :response="response"
-          />
+            :response="response" />
         </el-form>
       </div>
     </el-col>

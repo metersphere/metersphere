@@ -6,8 +6,7 @@
     :visible="visible"
     destroy-on-close
     :append-to-body="appendToBody"
-    @close="handleClose"
-  >
+    @close="handleClose">
     <slot name="header"></slot>
 
     <slot></slot>

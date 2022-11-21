@@ -1,10 +1,5 @@
 <template>
-  <relevance-dialog
-    :width="width"
-    :title="dialogTitle"
-    ref="relevanceDialog"
-    :full-screen="isFullScreen"
-  >
+  <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog" :full-screen="isFullScreen">
     <!-- todo -->
     <template slot="headerBtn" v-if="$slots.headerBtn">
       <div>
@@ -17,13 +12,9 @@
         :enable-cancel="false"
         @confirm="save"
         btn-size="mini"
-        @fullScreen="isFullScreen = !isFullScreen"
-      >
+        @fullScreen="isFullScreen = !isFullScreen">
         <template #other>
-          <table-select-count-bar
-            :count="selectCounts"
-            style="float: left; margin: 5px"
-          />
+          <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px" />
 
           <div v-if="flag" style="margin: 5px; float: left">
             <el-checkbox v-model="checked" class="el-checkbox__label"
@@ -45,14 +36,8 @@
         v-model="workspaceId"
         @change="changeWorkspace"
         class="ms-header-workspace"
-        size="small"
-      >
-        <el-option
-          v-for="(item, index) in workspaceList"
-          :key="index"
-          :label="item.name"
-          :value="item.id"
-        />
+        size="small">
+        <el-option v-for="(item, index) in workspaceList" :key="index" :label="item.name" :value="item.id" />
       </el-select>
       <select-menu
         :data="projects"
@@ -60,8 +45,7 @@
         width="155px"
         :current-data="currentProject"
         :title="$t('test_track.switch_project')"
-        @dataChange="changeProject"
-      />
+        @dataChange="changeProject" />
       <slot name="aside"></slot>
     </template>
 
@@ -74,11 +58,7 @@ import { getUserWorkspace, projectRelated } from '@/api/project';
 import MsDialogHeader from 'metersphere-frontend/src/components/MsDialogHeader';
 import SelectMenu from '@/business/commons/SelectMenu';
 import RelevanceDialog from './RelevanceDialog';
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import TableSelectCountBar from '@/business/automation/scenario/api/TableSelectCountBar';
 
 export default {
@@ -156,9 +136,7 @@ export default {
     },
 
     getProject() {
-      let realWorkSpaceId = this.isAcrossSpace
-        ? this.workspaceId
-        : this.currentWorkSpaceId;
+      let realWorkSpaceId = this.isAcrossSpace ? this.workspaceId : this.currentWorkSpaceId;
       this.result = projectRelated({
         userId: getCurrentUserId(),
         workspaceId: realWorkSpaceId,
@@ -178,10 +156,7 @@ export default {
           }
         } else {
           this.$message.warning(
-            this.$t('commons.current_workspace') +
-              this.$t('commons.not_exist') +
-              this.$t('commons.project') +
-              '!'
+            this.$t('commons.current_workspace') + this.$t('commons.not_exist') + this.$t('commons.project') + '!'
           );
         }
       });

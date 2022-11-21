@@ -9,8 +9,7 @@
     :destroy-on-close="true"
     :fullscreen="fullScreen"
     top="50px"
-    append-to-body
-  >
+    append-to-body>
     <template #title>
       <slot name="title" :title="title"></slot>
     </template>

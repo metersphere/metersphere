@@ -1,20 +1,8 @@
 <template>
   <div v-if="reloadOver">
     <el-row type="flex" justify="left" align="left">
-      <div
-        style="
-          height: 208px;
-          width: 100%;
-          margin-left: 26px;
-          margin-right: 30px;
-        "
-      >
-        <ms-chart
-          :options="options"
-          :height="208"
-          width="100%"
-          :autoresize="true"
-        />
+      <div style="height: 208px; width: 100%; margin-left: 26px; margin-right: 30px">
+        <ms-chart :options="options" :height="208" width="100%" :autoresize="true" />
       </div>
     </el-row>
   </div>
@@ -162,17 +150,8 @@ export default {
           },
         },
         title: {
-          text:
-            '{mainTitle|' +
-            this.$t('home.dashboard.api.api_total') +
-            '}\n\n{number|' +
-            this.getAmount() +
-            '}\n\n',
-          subtext:
-            this.$t('home.dashboard.public.this_week') +
-            '：+' +
-            formatNumber(this.apiData.createdInWeek) +
-            ' >',
+          text: '{mainTitle|' + this.$t('home.dashboard.api.api_total') + '}\n\n{number|' + this.getAmount() + '}\n\n',
+          subtext: this.$t('home.dashboard.public.this_week') + '：+' + formatNumber(this.apiData.createdInWeek) + ' >',
           top: 'center',
           left: '100px',
           textAlign: 'center',

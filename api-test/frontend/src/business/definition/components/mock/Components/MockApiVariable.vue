@@ -6,16 +6,8 @@
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <span style="margin-left: 10px"></span>
-        <i
-          class="el-icon-top"
-          style="cursor: pointer"
-          @click="moveTop(index)"
-        />
-        <i
-          class="el-icon-bottom"
-          style="cursor: pointer"
-          @click="moveBottom(index)"
-        />
+        <i class="el-icon-top" style="cursor: pointer" @click="moveTop(index)" />
+        <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(index)" />
 
         <el-col class="item">
           <el-input
@@ -26,16 +18,14 @@
             maxlength="200"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          >
+            show-word-limit>
             <template v-slot:prepend>
               <el-select
                 v-if="type === 'body'"
                 :disabled="isReadOnly"
                 class="kv-type"
                 v-model="item.type"
-                @change="typeChange(item)"
-              >
+                @change="typeChange(item)">
                 <el-option value="text" />
                 <el-option value="file" />
                 <el-option value="json" />
@@ -51,16 +41,14 @@
             @input="change"
             @change="change"
             :placeholder="keyText"
-            show-word-limit
-          >
+            show-word-limit>
             <template v-slot:prepend>
               <el-select
                 v-if="type === 'body'"
                 :disabled="isReadOnly"
                 class="kv-type"
                 v-model="item.type"
-                @change="typeChange(item)"
-              >
+                @change="typeChange(item)">
                 <el-option value="text" />
                 <el-option value="file" />
                 <el-option value="json" />
@@ -70,19 +58,12 @@
         </el-col>
 
         <el-col class="item" v-if="isActive && item.type !== 'file'">
-          <el-select
-            :disabled="isReadOnly"
-            :maxlength="100"
-            v-model="item.rangeType"
-            size="small"
-            style="width: 100%"
-          >
+          <el-select :disabled="isReadOnly" :maxlength="100" v-model="item.rangeType" size="small" style="width: 100%">
             <el-option
               v-for="item in rangeTypeOptions"
               :key="item.value"
               :label="item.label"
-              :value="item.value"
-            ></el-option>
+              :value="item.value"></el-option>
           </el-select>
         </el-col>
         <el-col class="item" v-if="isActive && item.type !== 'file'">
@@ -96,8 +77,7 @@
             v-model="item.value"
             size="small"
             :placeholder="valueText"
-            show-word-limit
-          />
+            show-word-limit />
           <el-autocomplete
             v-else
             :disabled="isReadOnly"
@@ -108,14 +88,12 @@
             :placeholder="valueText"
             value-key="name"
             highlight-first-item
-            @select="change"
-          >
+            @select="change">
             <i
               v-if="!disableVariableTip"
               slot="suffix"
               class="el-input__icon el-icon-edit pointer"
-              @click="advanced(item)"
-            ></i>
+              @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
 
@@ -125,8 +103,7 @@
             size="small"
             maxlength="200"
             :placeholder="$t('commons.description')"
-            show-word-limit
-          >
+            show-word-limit>
           </el-input>
         </el-col>
 
@@ -141,8 +118,7 @@
             size="small"
             @change="change"
             :placeholder="$t('api_test.request.content_type')"
-            show-word-limit
-          >
+            show-word-limit>
           </el-input>
         </el-col>
 
@@ -152,8 +128,7 @@
             class="el-icon-delete-solid"
             circle
             @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly"
-          />
+            :disabled="isDisable(index) || isReadOnly" />
         </el-col>
       </el-row>
     </div>
@@ -163,27 +138,16 @@
       :scenario="scenario"
       :append-to-body="appendDialogToBody"
       :parameters="parameters"
-      :current-item="currentItem"
-    />
-    <ms-api-variable-json
-      :append-to-body="appendDialogToBody"
-      ref="variableJson"
-      @callback="callback"
-    />
+      :current-item="currentItem" />
+    <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback" />
 
-    <api-variable-setting
-      :append-to-body="appendDialogToBody"
-      ref="apiVariableSetting"
-    />
+    <api-variable-setting :append-to-body="appendDialogToBody" ref="apiVariableSetting" />
   </div>
 </template>
 
 <script>
 import { KeyValue, Scenario } from '@/business/definition/model/ApiTestModel';
-import {
-  JMETER_FUNC,
-  MOCKJS_FUNC,
-} from 'metersphere-frontend/src/utils/constants';
+import { JMETER_FUNC, MOCKJS_FUNC } from 'metersphere-frontend/src/utils/constants';
 import MsApiVariableAdvance from '@/business/definition/components/ApiVariableAdvance';
 import MsApiVariableJson from '@/business/definition/components/ApiVariableJson';
 import MsApiBodyFileUpload from '@/business/definition/components/body/ApiBodyFileUpload';
@@ -348,17 +312,12 @@ export default {
     },
     querySearch(queryString, cb) {
       let suggestions = this.suggestions;
-      let results = queryString
-        ? suggestions.filter(this.createFilter(queryString))
-        : suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
       cb(results);
     },
     createFilter(queryString) {
       return (restaurant) => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
+        return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0;
       };
     },
     funcSearch(queryString, cb) {
@@ -367,9 +326,7 @@ export default {
         return;
       }
       let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-      let results = queryString
-        ? funcs.filter(this.funcFilter(queryString))
-        : funcs;
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
@@ -425,10 +382,7 @@ export default {
     },
   },
   created() {
-    if (
-      this.parameters.length === 0 ||
-      this.parameters[this.parameters.length - 1].name
-    ) {
+    if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
       this.parameters.push(
         new KeyValue({
           type: 'text',

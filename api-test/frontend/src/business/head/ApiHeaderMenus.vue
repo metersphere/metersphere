@@ -3,37 +3,19 @@
     <el-row type="flex">
       <project-change :project-name="currentProject" />
       <el-col :span="14">
-        <el-menu
-          class="header-menu"
-          :unique-opened="true"
-          mode="horizontal"
-          router
-          :default-active="currentPath"
-        >
-          <el-menu-item
-            :index="'/api/home'"
-            v-permission="['PROJECT_API_HOME:READ']"
-          >
+        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active="currentPath">
+          <el-menu-item :index="'/api/home'" v-permission="['PROJECT_API_HOME:READ']">
             {{ $t('i18n.home') }}
           </el-menu-item>
-          <el-menu-item
-            :index="'/api/definition'"
-            v-permission="['PROJECT_API_DEFINITION:READ']"
-          >
+          <el-menu-item :index="'/api/definition'" v-permission="['PROJECT_API_DEFINITION:READ']">
             {{ $t('i18n.definition') }}
           </el-menu-item>
 
-          <el-menu-item
-            :index="'/api/automation'"
-            v-permission="['PROJECT_API_SCENARIO:READ']"
-          >
+          <el-menu-item :index="'/api/automation'" v-permission="['PROJECT_API_SCENARIO:READ']">
             {{ $t('i18n.automation') }}
           </el-menu-item>
 
-          <el-menu-item
-            :index="'/api/automation/report'"
-            v-permission="['PROJECT_API_REPORT:READ']"
-          >
+          <el-menu-item :index="'/api/automation/report'" v-permission="['PROJECT_API_REPORT:READ']">
             {{ $t('i18n.report') }}
           </el-menu-item>
         </el-menu>

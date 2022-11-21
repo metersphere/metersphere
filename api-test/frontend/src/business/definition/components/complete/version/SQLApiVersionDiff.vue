@@ -4,16 +4,12 @@
       <el-col :span="12">
         <el-tag>当前{{ oldData.versionName }}</el-tag
         ><span style="margin-left: 10px">{{ oldData.userName }}</span
-        ><span style="margin-left: 10px">{{
-          oldData.createTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ oldData.createTime | datetimeFormat }}</span>
       </el-col>
       <el-col :span="12">
         <el-tag>{{ newData.versionName }}</el-tag
         ><span style="margin-left: 10px">{{ newData.userName }}</span
-        ><span style="margin-left: 10px">{{
-          newData.createTime | datetimeFormat
-        }}</span>
+        ><span style="margin-left: 10px">{{ newData.createTime | datetimeFormat }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -24,58 +20,36 @@
           <br />
           <el-row>
             <el-col>
-              <ms-basis-api
-                :moduleOptions="moduleOptions"
-                :is-read-only="true"
-                :basisData="oldData"
-                ref="basicForm"
-              />
+              <ms-basis-api :moduleOptions="moduleOptions" :is-read-only="true" :basisData="oldData" ref="basicForm" />
             </el-col>
           </el-row>
           <!-- 请求参数 -->
           <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-          <ms-basis-parameters
-            :showScript="false"
-            :request="oldRequest"
-            :is-read-only="true"
-          />
+          <ms-basis-parameters :showScript="false" :request="oldRequest" :is-read-only="true" />
 
           <ms-form-divider :title="$t('test_track.case.other_info')" />
           <api-info-container>
             <el-form :model="oldData" ref="api-form" label-width="100px">
               <el-collapse-transition>
                 <el-tabs v-model="activeName" style="margin: 20px">
-                  <el-tab-pane
-                    :label="$t('commons.remark')"
-                    name="remark"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
                     <form-rich-text-item
                       class="remark-item"
                       :disabled="true"
                       :data="oldData"
                       prop="remark"
-                      label-width="0"
-                    />
+                      label-width="0" />
                   </el-tab-pane>
-                  <el-tab-pane
-                    :label="$t('commons.relationship.name')"
-                    name="dependencies"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
                     <template v-slot:label>
-                      <tab-pane-count
-                        :title="$t('commons.relationship.name')"
-                        :count="oldRelationshipCount"
-                      />
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="oldRelationshipCount" />
                     </template>
                     <dependencies-list
                       @setCount="setOldCount"
                       :read-only="true"
                       :resource-id="oldData.id"
                       resource-type="API"
-                      ref="oldDependencies"
-                    />
+                      ref="oldDependencies" />
                   </el-tab-pane>
                 </el-tabs>
               </el-collapse-transition>
@@ -90,21 +64,12 @@
           <br />
           <el-row>
             <el-col>
-              <ms-basis-api
-                :moduleOptions="moduleOptions"
-                :is-read-only="true"
-                :basisData="newData"
-                ref="basicForm"
-              />
+              <ms-basis-api :moduleOptions="moduleOptions" :is-read-only="true" :basisData="newData" ref="basicForm" />
             </el-col>
           </el-row>
           <!-- 请求参数 -->
           <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-          <ms-basis-parameters
-            :showScript="false"
-            :request="request"
-            :is-read-only="true"
-          />
+          <ms-basis-parameters :showScript="false" :request="request" :is-read-only="true" />
 
           <!-- 其他信息-->
           <ms-form-divider :title="$t('test_track.case.other_info')" />
@@ -112,37 +77,24 @@
             <el-form :model="newData" ref="api-form" label-width="100px">
               <el-collapse-transition>
                 <el-tabs v-model="activeName" style="margin: 20px">
-                  <el-tab-pane
-                    :label="$t('commons.remark')"
-                    name="remark"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
                     <form-rich-text-item
                       class="remark-item"
                       :disabled="true"
                       :data="newData"
                       prop="remark"
-                      label-width="0"
-                    />
+                      label-width="0" />
                   </el-tab-pane>
-                  <el-tab-pane
-                    :label="$t('commons.relationship.name')"
-                    name="dependencies"
-                    class="pane"
-                  >
+                  <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
                     <template v-slot:label>
-                      <tab-pane-count
-                        :title="$t('commons.relationship.name')"
-                        :count="relationshipCount"
-                      />
+                      <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount" />
                     </template>
                     <dependencies-list
                       @setCount="setCount"
                       :read-only="true"
                       :resource-id="newData.id"
                       resource-type="API"
-                      ref="newDependencies"
-                    />
+                      ref="newDependencies" />
                   </el-tab-pane>
                 </el-tabs>
               </el-collapse-transition>
@@ -263,10 +215,7 @@ export default {
       this.oldRelationshipCount = data;
     });
     this.$nextTick(function () {
-      setTimeout(
-        this.getDiff,
-        ((this.$refs.old.$children.length + 1) / 2) * 1000
-      );
+      setTimeout(this.getDiff, ((this.$refs.old.$children.length + 1) / 2) * 1000);
     });
   },
 };

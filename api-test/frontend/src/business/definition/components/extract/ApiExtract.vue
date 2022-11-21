@@ -11,8 +11,7 @@
     color="#015478"
     background-color="#E6EEF2"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.definition.request.extract_param')"
-  >
+    :title="$t('api_test.definition.request.extract_param')">
     <div style="margin: 10px" v-loading="loading">
       <el-row>
         <span>{{ $t('api_test.request.extract.description') }}</span>
@@ -21,8 +20,7 @@
             :open-tip="$t('api_test.request.extract.json_path_suggest')"
             :clear-tip="$t('api_test.request.extract.json_path_clear')"
             @open="suggestJsonOpen"
-            @clear="clearJson"
-          />
+            @clear="clearJson" />
         </span>
       </el-row>
       <div class="extract-add">
@@ -33,12 +31,8 @@
               class="extract-item"
               v-model="type"
               :placeholder="$t('api_test.request.extract.select_type')"
-              size="small"
-            >
-              <el-option
-                :label="$t('api_test.request.extract.regex')"
-                :value="options.REGEX"
-              />
+              size="small">
+              <el-option :label="$t('api_test.request.extract.regex')" :value="options.REGEX" />
               <el-option label="JSONPath" :value="options.JSON_PATH" />
               <el-option label="XPath" :value="options.XPATH" />
             </el-select>
@@ -50,17 +44,10 @@
               :extract-type="type"
               :list="list"
               v-if="type"
-              :callback="after"
-            />
+              :callback="after" />
           </el-col>
 
-          <el-button
-            v-if="!type"
-            :disabled="true"
-            type="primary"
-            size="small"
-            >{{ $t('commons.add') }}</el-button
-          >
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">{{ $t('commons.add') }}</el-button>
         </el-row>
       </div>
 
@@ -69,14 +56,12 @@
         @savePreParams="savePreParams"
         :is-read-only="isReadOnly"
         :reloadData="reloadData"
-        :extract="extract"
-      />
+        :extract="extract" />
     </div>
     <ms-api-jsonpath-suggest
       :tip="$t('api_test.request.extract.suggest_tip')"
       @addSuggest="addJsonPathSuggest"
-      ref="jsonpathSuggest"
-    />
+      ref="jsonpathSuggest" />
   </api-base-component>
 </template>
 
@@ -169,11 +154,7 @@ export default {
     suggestJsonOpen() {
       this.$emit('suggestClick');
       this.$nextTick(() => {
-        if (
-          !this.response ||
-          !this.response.responseResult ||
-          !this.response.responseResult.body
-        ) {
+        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
           this.$message(this.$t('api_test.request.assertions.debug_first'));
           return;
         }

@@ -3,11 +3,7 @@
     <span class="table-title">
       {{ $t('api_test.home_page.new_case_list.title') }}
     </span>
-    <div
-      style="margin-top: 16px"
-      v-loading="loading"
-      element-loading-background="#FFFFFF"
-    >
+    <div style="margin-top: 16px" v-loading="loading" element-loading-background="#FFFFFF">
       <div
         v-show="loadError"
         style="
@@ -17,15 +13,9 @@
           flex-direction: column;
           justify-content: center;
           align-items: center;
-        "
-      >
-        <img
-          style="height: 100px; width: 100px"
-          src="/assets/figma/icon_load_error.svg"
-        />
-        <span class="addition-info-title" style="color: #646a73">{{
-          $t('home.dashboard.public.load_error')
-        }}</span>
+        ">
+        <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+        <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
       </div>
       <div v-show="!loadError">
         <el-table
@@ -35,26 +25,15 @@
           style="min-height: 228px"
           @row-click="clickRow"
           header-cell-class-name="home-table-cell"
-          element-loading-background="#FFFFFF"
-        >
+          element-loading-background="#FFFFFF">
           <!--ID-->
-          <el-table-column
-            prop="num"
-            :label="$t('home.new_case.index')"
-            width="100"
-            show-overflow-tooltip
-          >
+          <el-table-column prop="num" :label="$t('home.new_case.index')" width="100" show-overflow-tooltip>
             <template v-slot:default="{ row }">
               {{ row.num }}
             </template>
           </el-table-column>
           <!--名称-->
-          <el-table-column
-            prop="name"
-            :label="$t('commons.name')"
-            show-overflow-tooltip
-            min-width="170"
-          >
+          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip min-width="170">
             <template v-slot:default="{ row }">
               <span class="redirectColumn">
                 {{ row.name }}
@@ -62,19 +41,10 @@
             </template>
           </el-table-column>
           <!--路径-->
-          <el-table-column
-            prop="path"
-            :label="$t('home.new_case.path')"
-            min-width="260"
-            show-overflow-tooltip
-          >
+          <el-table-column prop="path" :label="$t('home.new_case.path')" min-width="260" show-overflow-tooltip>
           </el-table-column>
           <!--状态-->
-          <el-table-column
-            prop="status"
-            :label="$t('home.new_case.api_status')"
-            width="100"
-          >
+          <el-table-column prop="status" :label="$t('home.new_case.api_status')" width="100">
             <template v-slot:default="scope">
               <span class="el-dropdown-link">
                 <basic-status-label :value="scope.row.status" />
@@ -82,30 +52,19 @@
             </template>
           </el-table-column>
           <!--更新时间-->
-          <el-table-column
-            :label="$t('home.new_case.update_time')"
-            min-width="170"
-          >
+          <el-table-column :label="$t('home.new_case.update_time')" min-width="170">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
-          <el-table-column
-            prop="caseTotal"
-            :label="$t('home.new_case.relation_case')"
-            align="right"
-            width="120"
-          >
+          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="120">
             <template v-slot:default="{ row }">
               <el-link
                 style="color: #783887; width: 100%"
                 type="info"
                 :underline="false"
                 v-permission-disable="['PROJECT_API_DEFINITION:READ']"
-                @click="
-                  redirectPage('api', 'apiTestCase', 'singleList:' + row.id)
-                "
-              >
+                @click="redirectPage('api', 'apiTestCase', 'singleList:' + row.id)">
                 <span style="float: right">
                   {{ row.caseTotal }}
                 </span>
@@ -116,22 +75,14 @@
             prop="scenarioTotal"
             :label="$t('home.new_case.relation_scenario')"
             align="right"
-            width="140"
-          >
+            width="140">
             <template v-slot:default="{ row }">
               <el-link
                 style="color: #783887; width: 100%"
                 type="info"
                 :underline="false"
                 v-permission-disable="['PROJECT_API_SCENARIO:READ']"
-                @click="
-                  redirectPage(
-                    'scenario',
-                    'scenario',
-                    'list:' + row.scenarioIds
-                  )
-                "
-              >
+                @click="redirectPage('scenario', 'scenario', 'list:' + row.scenarioIds)">
                 <span style="float: right">
                   {{ row.scenarioTotal }}
                 </span>
@@ -148,15 +99,9 @@
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-              "
-            >
-              <img
-                style="height: 100px; width: 100px; margin-bottom: 8px"
-                src="/assets/figma/icon_none.svg"
-              />
-              <span class="addition-info-title">{{
-                $t('home.dashboard.public.no_data')
-              }}</span>
+              ">
+              <img style="height: 100px; width: 100px; margin-bottom: 8px" src="/assets/figma/icon_none.svg" />
+              <span class="addition-info-title">{{ $t('home.dashboard.public.no_data') }}</span>
             </div>
           </template>
         </el-table>
@@ -165,8 +110,7 @@
           :current-page.sync="currentPage"
           :page-size.sync="pageSize"
           layout="prev, pager, next, sizes"
-          :total="total"
-        />
+          :total="total" />
       </div>
     </div>
   </div>
@@ -205,10 +149,7 @@ export default {
   },
   methods: {
     clickRow(row, column, event) {
-      if (
-        column.property !== 'caseTotal' &&
-        column.property !== 'scenarioTotal'
-      ) {
+      if (column.property !== 'caseTotal' && column.property !== 'scenarioTotal') {
         if (!hasPermission('PROJECT_API_DEFINITION:READ')) {
           return;
         }
@@ -220,11 +161,7 @@ export default {
       this.loading = true;
       this.loadError = false;
 
-      this.result = definitionWeekList(
-        projectId,
-        this.currentPage,
-        this.pageSize
-      )
+      this.result = definitionWeekList(projectId, this.currentPage, this.pageSize)
         .then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

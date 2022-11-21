@@ -1,38 +1,16 @@
 <template>
-  <el-dialog
-    :title="title"
-    :visible.sync="deleteApiVisible"
-    class="delete-body"
-    width="30%"
-  >
+  <el-dialog :title="title" :visible.sync="deleteApiVisible" class="delete-body" width="30%">
     <p>{{ this.content }}</p>
-    <el-link style="color: #6c327a" @click="showRef" v-if="hasRef">{{
-      $t('api_test.automation.view_ref')
-    }}</el-link>
-    <el-link
-      style="color: #6c327a"
-      v-if="showCase"
-      @click="redirectPage('api', 'apiTestCase', 'ref')"
-    >
+    <el-link style="color: #6c327a" @click="showRef" v-if="hasRef">{{ $t('api_test.automation.view_ref') }}</el-link>
+    <el-link style="color: #6c327a" v-if="showCase" @click="redirectPage('api', 'apiTestCase', 'ref')">
       {{ $t('api_definition.view_case') }}
     </el-link>
-    <el-link
-      style="color: #6c327a"
-      v-if="showScenario"
-      @click="redirectPage('scenario', 'scenario', 'ref')"
+    <el-link style="color: #6c327a" v-if="showScenario" @click="redirectPage('scenario', 'scenario', 'ref')"
       >{{ $t('api_definition.view_scenario') }}
     </el-link>
     <span slot="footer">
-      <el-button @click="close" size="mini">{{
-        $t('commons.cancel')
-      }}</el-button>
-      <el-button
-        v-prevent-re-click
-        type="primary"
-        @click="handleDelete"
-        @keydown.enter.native.prevent
-        size="mini"
-      >
+      <el-button @click="close" size="mini">{{ $t('commons.cancel') }}</el-button>
+      <el-button v-prevent-re-click type="primary" @click="handleDelete" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.confirm') }}
       </el-button>
     </span>

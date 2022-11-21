@@ -4,28 +4,19 @@
     :title="$t('api_test.automation.add_scenario')"
     :visible.sync="visible"
     width="45%"
-    :destroy-on-close="true"
-  >
+    :destroy-on-close="true">
     <el-form
       :model="scenarioForm"
       label-position="right"
       label-width="100px"
       size="small"
       :rules="rule"
-      ref="scenarioForm"
-    >
+      ref="scenarioForm">
       <el-form-item :label="$t('commons.name')" prop="name">
-        <el-input
-          v-model="scenarioForm.name"
-          autocomplete="off"
-          :placeholder="$t('commons.name')"
-        />
+        <el-input v-model="scenarioForm.name" autocomplete="off" :placeholder="$t('commons.name')" />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('test_track.module.module')"
-        prop="apiScenarioModuleId"
-      >
+      <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
         <ms-select-tree
           size="small"
           :data="moduleOptions"
@@ -33,66 +24,50 @@
           @getValue="setModule"
           :obj="moduleObj"
           clearable
-          checkStrictly
-        />
+          checkStrictly />
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.automation.scenario.principal')"
-        prop="principal"
-      >
+      <el-form-item :label="$t('api_test.automation.scenario.principal')" prop="principal">
         <el-select
           v-model="scenarioForm.principal"
           :placeholder="$t('api_test.automation.scenario.principal')"
           filterable
           size="small"
-          style="width: 100%"
-        >
+          style="width: 100%">
           <el-option
             v-for="item in userOptions"
             :key="item.id"
             :label="item.id + ' (' + item.name + ')'"
-            :value="item.id"
-          >
+            :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        :label="$t('api_test.automation.scenario.follow_people')"
-        prop="followPeople"
-      >
+      <el-form-item :label="$t('api_test.automation.scenario.follow_people')" prop="followPeople">
         <el-select
           v-model="scenarioForm.follows"
           multiple
           :placeholder="$t('api_test.automation.scenario.follow_people')"
           filterable
           size="small"
-          style="width: 100%"
-        >
+          style="width: 100%">
           <el-option
             v-for="item in userOptions"
             :key="item.id"
             :label="item.id + ' (' + item.name + ')'"
-            :value="item.id"
-          >
+            :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
 
-      <el-form-item
-        :label="$t('commons.description')"
-        prop="description"
-        style="margin-bottom: 29px"
-      >
+      <el-form-item :label="$t('commons.description')" prop="description" style="margin-bottom: 29px">
         <el-input
           class="ms-http-textarea"
           v-model="scenarioForm.description"
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 10 }"
           :rows="2"
-          size="small"
-        />
+          size="small" />
       </el-form-item>
     </el-form>
 
@@ -102,8 +77,7 @@
         :isShow="true"
         :title="$t('commons.edit_info')"
         @saveAsEdit="saveScenario(true)"
-        @confirm="saveScenario"
-      >
+        @confirm="saveScenario">
       </ms-dialog-footer>
     </template>
   </el-dialog>
@@ -111,10 +85,7 @@
 
 <script>
 import { getMaintainer } from '@/api/project';
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-} from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { saveScenario } from '@/business/automation/api-automation';
@@ -184,9 +155,7 @@ export default {
           this.scenarioForm.status = 'Underway';
           this.scenarioForm.level = 'P0';
           if (saveAs) {
-            this.scenarioForm.request = JSON.stringify(
-              this.scenarioForm.request
-            );
+            this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
             this.$emit('saveAsEdit', this.scenarioForm);
             this.visible = false;
           } else {
@@ -221,10 +190,7 @@ export default {
     open(currentModule) {
       this.scenarioForm = { principal: getCurrentUser().id };
       this.currentModule = currentModule;
-      if (
-        this.scenarioForm.apiScenarioModuleId === undefined &&
-        !currentModule.id
-      ) {
+      if (this.scenarioForm.apiScenarioModuleId === undefined && !currentModule.id) {
         this.scenarioForm.apiScenarioModuleId = this.moduleOptions[0].id;
       } else if (currentModule.id) {
         this.scenarioForm.apiScenarioModuleId = currentModule.id;

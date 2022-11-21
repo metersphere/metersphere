@@ -1,17 +1,13 @@
 <template>
   <div id="app" v-loading="loading">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane
-        :label="$t('organization.message.template')"
-        name="apiTemplate"
-      >
+      <el-tab-pane :label="$t('organization.message.template')" name="apiTemplate">
         <el-button
           v-show="!jsonSchemaDisable"
           type="primary"
           size="mini"
           style="margin: 10px 10px 0px"
-          @click="openOneClickOperation"
-        >
+          @click="openOneClickOperation">
           {{ this.$t('commons.import') }}
         </el-button>
         <div :style="jsonSchemaDisable ? '' : 'min-height: 200px'">
@@ -24,15 +20,10 @@
             @editScenarioAdvance="editScenarioAdvance"
             :need-mock="needMock"
             lang="zh_CN"
-            custom
-          />
+            custom />
         </div>
       </el-tab-pane>
-      <el-tab-pane
-        v-if="showPreview"
-        :label="$t('schema.preview')"
-        name="preview"
-      >
+      <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
         <div style="min-height: 200px">
           <pre>{{ this.preview }}</pre>
         </div>
@@ -78,11 +69,7 @@ export default {
     },
   },
   created() {
-    if (
-      !this.body.jsonSchema &&
-      this.body.raw &&
-      this.checkIsJson(this.body.raw)
-    ) {
+    if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
       let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
       this.schema = obj;
     } else if (this.body.jsonSchema) {
@@ -99,11 +86,7 @@ export default {
     },
     body: {
       handler(newValue, oldValue) {
-        if (
-          !this.body.jsonSchema &&
-          this.body.raw &&
-          this.checkIsJson(this.body.raw)
-        ) {
+        if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
           let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
           this.schema = obj;
         } else if (this.body.jsonSchema) {

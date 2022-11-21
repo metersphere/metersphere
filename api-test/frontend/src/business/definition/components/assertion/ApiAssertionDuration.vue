@@ -13,22 +13,16 @@
           @input="input"
           :min="1"
           :placeholder="$t('api_test.request.assertions.response_in_time')"
-          onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
-        />
+          onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
       </el-col>
       <el-col class="assertion-btn">
-        <el-tooltip
-          :content="$t('test_resource_pool.enable_disable')"
-          placement="top"
-          v-if="edit"
-        >
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
           <el-switch
             v-model="duration.enable"
             class="enable-switch"
             size="mini"
             :disabled="isReadOnly"
-            style="width: 30px; margin-right: 10px"
-          />
+            style="width: 30px; margin-right: 10px" />
         </el-tooltip>
         <el-button
           :disabled="isReadOnly"
@@ -37,15 +31,8 @@
           icon="el-icon-delete"
           circle
           @click="remove"
-          v-if="edit"
-        />
-        <el-button
-          :disabled="isReadOnly"
-          type="primary"
-          size="mini"
-          @click="add"
-          v-else
-        >
+          v-if="edit" />
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>

@@ -5,28 +5,14 @@
       <el-row :gutter="10" type="flex" align="middle" class="info">
         <el-col :span="6" v-if="indexNumber != undefined">
           <div class="method">
-            <div
-              style="
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              <div
-                class="el-step__icon is-text ms-api-col"
-                v-if="indexNumber % 2 == 0"
-              >
+            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+              <div class="el-step__icon is-text ms-api-col" v-if="indexNumber % 2 == 0">
                 <div class="el-step__icon-inner">{{ indexNumber + 1 }}</div>
               </div>
               <div class="el-step__icon is-text ms-api-col-create" v-else>
                 <div class="el-step__icon-inner">{{ indexNumber + 1 }}</div>
               </div>
-              <i
-                class="icon el-icon-arrow-right"
-                :class="{ 'is-active': isActive }"
-                @click="active"
-                @click.stop
-              />
+              <i class="icon el-icon-arrow-right" :class="{ 'is-active': isActive }" @click="active" @click.stop />
               {{ getName(request.name) }}
             </div>
           </div>
@@ -40,14 +26,9 @@
           <div class="url">
             <el-tooltip
               :content="request.url"
-              style="
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
+              style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
               placement="bottom"
-              :open-delay="800"
-            >
+              :open-delay="800">
               <div>
                 {{ request.url }}
               </div>
@@ -55,26 +36,17 @@
           </div>
         </el-col>
         <el-col :span="5">
-          <el-tooltip
-            effect="dark"
-            :content="request.responseResult.responseCode"
-            placement="bottom"
-            :open-delay="800"
-          >
+          <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
             <div class="url" style="color: #5daf34">
               {{ request.responseResult.responseCode }}
             </div>
           </el-tooltip>
         </el-col>
-        <el-col :span="3">
-          {{ request.responseResult.responseTime }} ms
-        </el-col>
+        <el-col :span="3"> {{ request.responseResult.responseTime }} ms </el-col>
 
         <el-col :span="2">
           <div class="success">
-            <el-tag size="mini" type="success" v-if="request.success">
-              Success
-            </el-tag>
+            <el-tag size="mini" type="success" v-if="request.success"> Success </el-tag>
             <el-tag size="mini" type="danger" v-else> Error </el-tag>
           </div>
         </el-col>
@@ -86,8 +58,7 @@
           :scenario-name="scenarioName"
           :request-type="requestType"
           v-if="isActive"
-          :request="request"
-        />
+          :request="request" />
       </div>
     </el-collapse-transition>
   </div>

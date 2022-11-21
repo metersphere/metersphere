@@ -50,8 +50,7 @@ function groovyCode(requestObj) {
   let path = getMockPath(domain, port, host);
   requestPath = path + replaceRestParams(requestPath, requestRest);
   if (protocol && host && requestPath) {
-    requestUrl =
-      protocol + '://' + domain + (port ? ':' + port : '') + requestPath;
+    requestUrl = protocol + '://' + domain + (port ? ':' + port : '') + requestPath;
   }
   let body = JSON.stringify(requestBody);
   if (requestMethod === 'POST' && bodyType === 'kvs') {
@@ -170,23 +169,9 @@ function getGroovyHeaders(requestHeaders) {
 }
 
 function _pythonCodeTemplate(obj) {
-  let {
-    requestBody,
-    requestBodyKvs,
-    bodyType,
-    headers,
-    requestPath,
-    requestMethod,
-    connType,
-    domain,
-    port,
-  } = obj;
+  let { requestBody, requestBodyKvs, bodyType, headers, requestPath, requestMethod, connType, domain, port } = obj;
   let reqBody = obj.requestBody;
-  if (
-    requestMethod.toLowerCase() === 'post' &&
-    obj.bodyType === 'kvs' &&
-    obj.requestBodyKvs
-  ) {
+  if (requestMethod.toLowerCase() === 'post' && obj.bodyType === 'kvs' && obj.requestBodyKvs) {
     reqBody = 'urllib.urlencode({';
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
@@ -194,8 +179,7 @@ function _pythonCodeTemplate(obj) {
     }
     reqBody += `})`;
     if (headers === '{}') {
-      headers =
-        "{'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}";
+      headers = "{'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}";
     }
   }
 
@@ -275,9 +259,7 @@ function _beanshellTemplate(obj) {
                 .setPath("${requestPath}")
                 `;
   // http 请求类型
-  let method = requestMethod
-    .toLowerCase()
-    .replace(/^\S/, (s) => s.toUpperCase());
+  let method = requestMethod.toLowerCase().replace(/^\S/, (s) => s.toUpperCase());
   let httpMethodCode = `Http${method} request = new Http${method}(uri);`;
   // 设置参数
   for (let [k, v] of requestArguments) {
@@ -322,10 +304,7 @@ function _beanshellTemplate(obj) {
   let postMethodCode = '';
   if (requestMethod === 'POST') {
     if (bodyType === 'kvs') {
-      postMethodCode =
-        postKvsParam +
-        '\r\n' +
-        `request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));`;
+      postMethodCode = postKvsParam + '\r\n' + `request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));`;
     } else {
       postMethodCode = `request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));`;
     }

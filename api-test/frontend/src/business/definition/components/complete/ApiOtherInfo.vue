@@ -5,37 +5,24 @@
       <el-form :model="api" ref="api-form" label-width="100px">
         <el-collapse-transition>
           <el-tabs v-model="activeName" style="margin: 20px">
-            <el-tab-pane
-              :label="$t('commons.remark')"
-              name="remark"
-              class="pane"
-            >
+            <el-tab-pane :label="$t('commons.remark')" name="remark" class="pane">
               <form-rich-text-item
                 class="remark-item"
                 :disabled="readOnly && !hasPermissions"
                 :data="api"
                 prop="remark"
-                label-width="0"
-              />
+                label-width="0" />
             </el-tab-pane>
-            <el-tab-pane
-              :label="$t('commons.relationship.name')"
-              name="dependencies"
-              class="pane"
-            >
+            <el-tab-pane :label="$t('commons.relationship.name')" name="dependencies" class="pane">
               <template v-slot:label>
-                <tab-pane-count
-                  :title="$t('commons.relationship.name')"
-                  :count="relationshipCount"
-                />
+                <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount" />
               </template>
               <dependencies-list
                 @setCount="setCount"
                 :read-only="readOnly"
                 :resource-id="api.id"
                 resource-type="API"
-                ref="dependencies"
-              />
+                ref="dependencies" />
             </el-tab-pane>
           </el-tabs>
         </el-collapse-transition>

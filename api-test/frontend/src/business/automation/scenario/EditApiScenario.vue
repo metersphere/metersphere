@@ -9,8 +9,7 @@
           label-width="80px"
           size="small"
           :rules="rules"
-          ref="currentScenario"
-        >
+          ref="currentScenario">
           <!-- 基础信息 -->
           <el-form-item :label="$t('commons.name')" prop="name">
             <el-input
@@ -18,14 +17,10 @@
               size="small"
               v-model="currentScenario.name"
               maxlength="100"
-              show-word-limit
-            />
+              show-word-limit />
           </el-form-item>
 
-          <el-form-item
-            :label="$t('test_track.module.module')"
-            prop="apiScenarioModuleId"
-          >
+          <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
             <ms-select-tree
               size="small"
               :data="moduleOptions"
@@ -33,58 +28,34 @@
               @getValue="setModule"
               :obj="moduleObj"
               clearable
-              checkStrictly
-            />
+              checkStrictly />
           </el-form-item>
 
           <el-form-item :label="$t('commons.status')" prop="status">
-            <el-select
-              class="ms-scenario-input"
-              size="small"
-              v-model="currentScenario.status"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.id"
-                :label="$t(item.label)"
-                :value="item.id"
-              />
+            <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
+              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
             </el-select>
           </el-form-item>
 
-          <el-form-item
-            :label="$t('api_test.definition.request.responsible')"
-            prop="principal"
-          >
+          <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
             <el-select
               v-model="currentScenario.principal"
               :placeholder="$t('api_test.definition.request.responsible')"
               filterable
               size="small"
-              class="ms-scenario-input"
-            >
+              class="ms-scenario-input">
               <el-option
                 v-for="item in maintainerOptions"
                 :key="item.id"
                 :label="item.name + ' (' + item.id + ')'"
-                :value="item.id"
-              >
+                :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
 
           <el-form-item :label="$t('test_track.case.priority')" prop="level">
-            <el-select
-              class="ms-scenario-input"
-              size="small"
-              v-model="currentScenario.level"
-            >
-              <el-option
-                v-for="item in levels"
-                :key="item.id"
-                :label="item.label"
-                :value="item.id"
-              />
+            <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
+              <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id" />
             </el-select>
           </el-form-item>
 
@@ -99,68 +70,43 @@
               type="textarea"
               :autosize="{ minRows: 1, maxRows: 10 }"
               :rows="1"
-              size="small"
-            />
+              size="small" />
           </el-form-item>
           <el-form-item label="ID" prop="customNum" v-if="customNum">
-            <el-input
-              v-model.trim="currentScenario.customNum"
-              size="small"
-            ></el-input>
+            <el-input v-model.trim="currentScenario.customNum" size="small"></el-input>
           </el-form-item>
         </el-form>
       </div>
     </ms-aside-container>
 
     <!-- 右侧部分 -->
-    <ms-main-container
-      style="overflow: hidden"
-      class="ms-scenario-main-container"
-    >
+    <ms-main-container style="overflow: hidden" class="ms-scenario-main-container">
       <!-- header 调试部分 -->
       <div class="ms-debug-div" @click="showAll" ref="debugHeader">
         <el-row style="margin: 5px">
-          <el-col
-            :span="1"
-            class="ms-col-one ms-font"
-            v-show="scenarioDefinition.length > 1"
-          >
+          <el-col :span="1" class="ms-col-one ms-font" v-show="scenarioDefinition.length > 1">
             <el-tooltip
               :content="$t('test_track.case.batch_operate')"
               placement="top"
               effect="light"
-              v-show="!isBatchProcess"
-            >
+              v-show="!isBatchProcess">
               <font-awesome-icon
                 class="ms-batch-btn"
                 :icon="['fa', 'bars']"
                 v-prevent-re-click
-                @click="batchProcessing"
-              />
+                @click="batchProcessing" />
             </el-tooltip>
-            <el-checkbox
-              v-show="isBatchProcess"
-              v-model="isCheckedAll"
-              @change="checkedAll"
-            />
-            <el-tooltip
-              :content="$t('commons.cancel')"
-              placement="top"
-              effect="light"
-              v-show="isBatchProcess"
-            >
+            <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
+            <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
               <font-awesome-icon
                 class="ms-batch-btn"
                 :icon="['fa', 'times']"
                 v-prevent-re-click
-                @click="cancelBatchProcessing"
-              />
+                @click="cancelBatchProcessing" />
             </el-tooltip>
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
-            {{ $t('api_test.automation.step_total') }}：{{
-              scenarioDefinition.length
-            }}
+            {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
             <el-link class="head" @click="showScenarioParameters"
@@ -170,16 +116,12 @@
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
             <el-checkbox v-model="enableCookieShare"
-              ><span style="font-size: 13px">{{
-                $t('api_test.scenario.share_cookie')
-              }}</span></el-checkbox
+              ><span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox
             >
           </el-col>
           <el-col :span="3" class="ms-col-one ms-font">
             <el-checkbox v-model="onSampleError"
-              ><span style="font-size: 13px">{{
-                $t('commons.failure_continues')
-              }}</span></el-checkbox
+              ><span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span></el-checkbox
             >
           </el-col>
 
@@ -193,16 +135,13 @@
               :isReadOnly="scenarioDefinition.length < 1"
               :group-id="envGroupId"
               :project-list="projectList"
-              :show-config-button-with-out-permission="
-                showConfigButtonWithOutPermission
-              "
+              :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
               @setProjectEnvMap="setProjectEnvMap"
               @setEnvGroup="setEnvGroup"
               @showPopover="showPopover"
               :has-option-group="true"
               ref="envPopover"
-              class="ms-message-right"
-            />
+              class="ms-message-right" />
             <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
               <el-dropdown
                 split-button
@@ -215,19 +154,14 @@
                   'PROJECT_API_SCENARIO:READ+EDIT',
                   'PROJECT_API_SCENARIO:READ+CREATE',
                   'PROJECT_API_SCENARIO:READ+COPY',
-                ]"
-              >
+                ]">
                 {{ $t('api_test.request.debug') }}
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>{{
-                    $t('api_test.automation.generate_report')
-                  }}</el-dropdown-item>
+                  <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </el-tooltip>
-            <el-button size="mini" type="primary" v-else @click="stop">{{
-              $t('report.stop_btn')
-            }}</el-button>
+            <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
 
             <el-button
               id="inputDelay"
@@ -240,41 +174,24 @@
                 'PROJECT_API_SCENARIO:READ+EDIT',
                 'PROJECT_API_SCENARIO:READ+CREATE',
                 'PROJECT_API_SCENARIO:READ+COPY',
-              ]"
-            >
+              ]">
               {{ $t('commons.save') }}
             </el-button>
 
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('commons.refresh')"
-              placement="top-start"
-            >
+            <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
               <el-button
                 :disabled="scenarioDefinition.length < 1"
                 size="mini"
                 icon="el-icon-refresh"
                 v-prevent-re-click
-                @click="refreshApiScenario"
-              ></el-button>
+                @click="refreshApiScenario"></el-button>
             </el-tooltip>
             <!--操作按钮-->
-            <el-link
-              type="primary"
-              @click.stop
-              @click="showHistory"
-              style="margin: 0px 5px"
-            >
+            <el-link type="primary" @click.stop @click="showHistory" style="margin: 0px 5px">
               {{ $t('commons.debug_history') }}
             </el-link>
 
-            <el-tooltip
-              :content="$t('commons.follow')"
-              placement="bottom"
-              effect="dark"
-              v-show="!showFollow"
-            >
+            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
               <i
                 class="el-icon-star-off"
                 style="
@@ -285,15 +202,9 @@
                   position: relative;
                   top: 3px;
                 "
-                @click="saveFollow"
-              />
+                @click="saveFollow" />
             </el-tooltip>
-            <el-tooltip
-              :content="$t('commons.cancel')"
-              placement="bottom"
-              effect="dark"
-              v-show="showFollow"
-            >
+            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
               <i
                 class="el-icon-star-on"
                 style="
@@ -304,8 +215,7 @@
                   position: relative;
                   top: 3px;
                 "
-                @click="saveFollow"
-              />
+                @click="saveFollow" />
             </el-tooltip>
             <el-link
               type="primary"
@@ -323,21 +233,14 @@
               @compare="compare"
               @checkout="checkout"
               @create="create"
-              @del="del"
-            />
+              @del="del" />
           </el-col>
           <el-tooltip
             effect="dark"
             :content="$t('commons.full_screen_editing')"
             placement="top-start"
-            style="margin-top: 6px"
-          >
-            <font-awesome-icon
-              class="alt-ico"
-              :icon="['fa', 'expand-alt']"
-              size="lg"
-              @click="fullScreen"
-            />
+            style="margin-top: 6px">
+            <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen" />
           </el-tooltip>
         </el-row>
       </div>
@@ -349,14 +252,8 @@
             <el-col :span="21">
               <div class="ms-debug-result" v-show="debug">
                 <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
-                <span class="ms-message-right"
-                  >{{ $t('api_test.automation.request_total') }}
-                  {{ reqTotal }}</span
-                >
-                <span class="ms-message-right"
-                  >{{ $t('api_test.automation.request_success') }}
-                  {{ reqSuccess }}</span
-                >
+                <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
+                <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
                 <span class="ms-message-right">
                   {{ $t('api_test.automation.request_error') }}
                   {{ reqError }}</span
@@ -385,57 +282,38 @@
                   @node-click="nodeClick"
                   draggable
                   ref="stepTree"
-                  :key="reloadTree"
-                >
+                  :key="reloadTree">
                   <el-row
                     class="custom-tree-node"
                     :gutter="10"
                     type="flex"
                     align="middle"
                     slot-scope="{ node, data }"
-                    style="width: 100%"
-                  >
+                    style="width: 100%">
                     <span
                       class="custom-tree-node-col"
                       style="padding-left: 0px; padding-right: 0px"
-                      v-show="
-                        node &&
-                        data.hashTree &&
-                        data.hashTree.length > 0 &&
-                        !data.isLeaf
-                      "
-                    >
+                      v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span
                         v-show="!node.expanded"
                         class="el-icon-circle-plus-outline custom-node_e"
-                        @click="openOrClose(node, data)"
-                      />
+                        @click="openOrClose(node, data)" />
                       <span
                         v-show="node.expanded"
                         class="el-icon-remove-outline custom-node_e"
-                        @click="openOrClose(node, data)"
-                      />
+                        @click="openOrClose(node, data)" />
                     </span>
                     <!-- 批量操作 -->
                     <span
-                      :class="
-                        data.checkBox
-                          ? 'custom-tree-node-hide'
-                          : 'custom-tree-node-col'
-                      "
+                      :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
                       style="padding-left: 0px; padding-right: 0px"
-                      v-show="
-                        (data.hashTree && data.hashTree.length === 0) ||
-                        data.isLeaf
-                      "
-                    >
+                      v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
                       <show-more-btn
                         :is-show="node.checked"
                         :buttons="batchOperators"
                         :size="selectDataCounts"
                         v-show="data.checkBox"
-                        style="margin-right: 10px"
-                      />
+                        style="margin-right: 10px" />
                     </span>
                     <span style="width: calc(100% - 40px)">
                       <!-- 步骤组件-->
@@ -462,21 +340,12 @@
                         @editScenarioAdvance="editScenarioAdvance"
                         ref="componentConfig"
                         v-if="
-                          stepFilter
-                            .get('ALlSamplerStep')
-                            .indexOf(data.type) === -1 ||
+                          stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
                           !node.parent ||
                           !node.parent.data ||
-                          stepFilter
-                            .get('AllSamplerProxy')
-                            .indexOf(node.parent.data.type) === -1
-                        "
-                      />
-                      <div
-                        v-else
-                        class="el-tree-node is-hidden is-focusable is-leaf"
-                        style="display: none"
-                      >
+                          stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                        " />
+                      <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
                         {{ hideNode(node) }}
                       </div>
                     </span>
@@ -488,11 +357,7 @@
             <el-col :span="3">
               <div
                 @click="fabClick"
-                v-permission="[
-                  'PROJECT_API_SCENARIO:READ+EDIT',
-                  'PROJECT_API_SCENARIO:READ+CREATE',
-                ]"
-              >
+                v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                 <vue-fab
                   id="fab"
                   mainBtnColor="#783887"
@@ -500,8 +365,7 @@
                   :global-options="globalOptions"
                   :click-auto-close="false"
                   v-outside-click="outsideClick"
-                  ref="refFab"
-                >
+                  ref="refFab">
                   <fab-item
                     v-for="(item, index) in buttonData"
                     :key="index"
@@ -511,8 +375,7 @@
                     :title-color="item.titleColor"
                     :color="item.titleColor"
                     :icon="item.icon"
-                    @clickItem="item.click"
-                  />
+                    @clickItem="item.click" />
                 </vue-fab>
               </div>
             </el-col>
@@ -525,8 +388,7 @@
           :append-to-body="true"
           :current-item="currentItem"
           :variables="currentScenario.variables"
-          :scenario-definition="scenarioDefinition"
-        />
+          :scenario-definition="scenarioDefinition" />
 
         <!--接口列表-->
         <scenario-api-relevance
@@ -534,8 +396,7 @@
           @close="setHideBtn"
           ref="scenarioApiRelevance"
           :is-across-space="true"
-          v-if="type !== 'detail'"
-        />
+          v-if="type !== 'detail'" />
 
         <!--自定义接口-->
         <el-drawer
@@ -547,12 +408,8 @@
           :title="$t('api_test.automation.customize_req')"
           style="overflow: auto"
           :modal="false"
-          size="90%"
-        >
-          <ms-api-customize
-            :request="customizeRequest"
-            @addCustomizeApi="addCustomizeApi"
-          />
+          size="90%">
+          <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
         </el-drawer>
         <!--场景导入 -->
         <scenario-relevance
@@ -560,15 +417,10 @@
           @save="addScenario"
           @close="setHideBtn"
           :is-across-space="true"
-          ref="scenarioRelevance"
-        />
+          ref="scenarioRelevance" />
 
         <!-- 环境 -->
-        <api-environment-config
-          v-if="type !== 'detail'"
-          ref="environmentConfig"
-          @close="environmentConfigClose"
-        />
+        <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
 
         <!--执行组件-->
         <ms-run
@@ -583,8 +435,7 @@
           :executeType="executeType"
           @runRefresh="runRefresh"
           @errorRefresh="errorRefresh"
-          ref="runTest"
-        />
+          ref="runTest" />
         <!-- 调试结果 -->
         <el-drawer
           v-if="type !== 'detail'"
@@ -593,15 +444,13 @@
           direction="ltr"
           :withHeader="true"
           :modal="false"
-          size="80%"
-        >
+          size="80%">
           <ms-api-report-detail
             :scenario="currentScenario"
             :report-id="reportId"
             :debug="true"
             :currentProjectId="projectId"
-            @refresh="detailRefresh"
-          />
+            @refresh="detailRefresh" />
         </el-drawer>
 
         <!--场景公共参数-->
@@ -609,15 +458,9 @@
           v-if="type !== 'detail'"
           @setVariables="setVariables"
           ref="scenarioParameters"
-          class="ms-sc-variable-header"
-        />
+          class="ms-sc-variable-header" />
         <!--外部导入-->
-        <api-import
-          v-if="type !== 'detail'"
-          ref="apiImport"
-          :saved="false"
-          @refresh="apiImport"
-        />
+        <api-import v-if="type !== 'detail'" ref="apiImport" :saved="false" @refresh="apiImport" />
 
         <!--步骤最大化-->
         <ms-drawer
@@ -628,8 +471,7 @@
           :show-full-screen="false"
           :is-show-close="false"
           style="overflow: hidden"
-          v-if="drawer"
-        >
+          v-if="drawer">
           <maximize-scenario
             :scenario-definition="scenarioDefinition"
             :projectIds.sync="projectIds"
@@ -665,15 +507,10 @@
             @runScenario="runDebug"
             @stopScenario="stop"
             @editScenarioAdvance="editScenarioAdvance"
-            ref="maximizeScenario"
-          />
+            ref="maximizeScenario" />
         </ms-drawer>
         <ms-change-history ref="changeHistory" />
-        <el-backtop
-          target=".card-content"
-          :visibility-height="100"
-          :right="20"
-        ></el-backtop>
+        <el-backtop target=".card-content" :visibility-height="100" :right="20"></el-backtop>
       </div>
       <ms-task-center ref="taskCenter" :show-menu="false" />
 
@@ -683,8 +520,7 @@
         :visible.sync="dialogVisible"
         :destroy-on-close="true"
         @close="closeDiff"
-        width="100%"
-      >
+        width="100%">
         <scenario-diff
           v-if="dialogVisible"
           :custom-num="customNum"
@@ -699,8 +535,7 @@
           :new-create-time="newCreateTime"
           :old-create-time="oldCreateTime"
           :old-user-name="oldUserName"
-          :type="type"
-        />
+          :type="type" />
       </el-dialog>
     </ms-main-container>
   </ms-container>
@@ -725,19 +560,9 @@ import { parseEnvironment } from '@/business/environment/model/EnvironmentModel'
 import { ELEMENT_TYPE, STEP, TYPE_TO_C } from './Setting';
 import { KeyValue } from '@/business/definition/model/ApiTestModel';
 
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-} from 'metersphere-frontend/src/utils/token';
-import {
-  getUUID,
-  objToStrMap,
-  strMapToObj,
-} from 'metersphere-frontend/src/utils';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
+import { getUUID, objToStrMap, strMapToObj } from 'metersphere-frontend/src/utils';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import OutsideClick from './common/outside-click';
 import {
   getReportMessageSocket,
@@ -768,16 +593,12 @@ export default {
   },
   components: {
     MsComponentConfig,
-    MxVersionHistory: () =>
-      import('metersphere-frontend/src/components/version/MxVersionHistory'),
+    MxVersionHistory: () => import('metersphere-frontend/src/components/version/MxVersionHistory'),
     ScenarioDiff: () => import('@/business/automation/version/ScenarioDiff'),
     MsVariableList: () => import('./variable/VariableList'),
     ScenarioRelevance: () => import('./api/ScenarioRelevance'),
     ScenarioApiRelevance: () => import('./api/ApiRelevance'),
-    ApiEnvironmentConfig: () =>
-      import(
-        'metersphere-frontend/src/components/environment/ApiEnvironmentConfig'
-      ),
+    ApiEnvironmentConfig: () => import('metersphere-frontend/src/components/environment/ApiEnvironmentConfig'),
     MsApiReportDetail: () => import('../report/SyncApiReportDetail'),
     MsInputTag: () => import('./MsInputTag'),
     MsRun: () => import('./DebugRun'),
@@ -786,19 +607,13 @@ export default {
     EnvPopover: () => import('@/business/automation/scenario/EnvPopover'),
     MaximizeScenario: () => import('./maximize/MaximizeScenario'),
     MsDrawer: () => import('metersphere-frontend/src/components/MsDrawer'),
-    MsSelectTree: () =>
-      import('metersphere-frontend/src/components/select-tree/SelectTree'),
+    MsSelectTree: () => import('metersphere-frontend/src/components/select-tree/SelectTree'),
     MsChangeHistory: () => import('@/business/history/ApiHistory'),
-    MsTaskCenter: () =>
-      import('metersphere-frontend/src/components/task/TaskCenter'),
-    MsApiVariableAdvance: () =>
-      import('./../../definition/components/ApiVariableAdvance'),
-    MsMainContainer: () =>
-      import('metersphere-frontend/src/components/MsMainContainer'),
-    MsAsideContainer: () =>
-      import('metersphere-frontend/src/components/MsAsideContainer'),
-    MsContainer: () =>
-      import('metersphere-frontend/src/components/MsContainer'),
+    MsTaskCenter: () => import('metersphere-frontend/src/components/task/TaskCenter'),
+    MsApiVariableAdvance: () => import('./../../definition/components/ApiVariableAdvance'),
+    MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
+    MsAsideContainer: () => import('metersphere-frontend/src/components/MsAsideContainer'),
+    MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
     ShowMoreBtn: () => import('@/business/commons/ShowMoreBtn'),
   },
   data() {
@@ -1025,11 +840,7 @@ export default {
       }
     },
     checkedAll(v) {
-      if (
-        this.$refs.stepTree &&
-        this.$refs.stepTree.root &&
-        this.$refs.stepTree.root.childNodes
-      ) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
         this.recursionChecked(v, this.$refs.stepTree.root.childNodes);
       }
     },
@@ -1040,11 +851,7 @@ export default {
             this.recursionChecked(v, item.childNodes);
           }
           item.checked = v;
-          if (
-            item.data &&
-            item.data.type === 'scenario' &&
-            item.data.referenced === 'REF'
-          ) {
+          if (item.data && item.data.type === 'scenario' && item.data.referenced === 'REF') {
             item.expanded = false;
           }
         });
@@ -1053,11 +860,7 @@ export default {
     batchProcessing() {
       this.isBatchProcess = true;
       this.hideAllTreeNode(this.scenarioDefinition);
-      if (
-        this.$refs.stepTree &&
-        this.$refs.stepTree.root &&
-        this.$refs.stepTree.root.childNodes
-      ) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
         this.recursionExpansion([], this.$refs.stepTree.root.childNodes);
       }
       this.reloadTreeStatus();
@@ -1065,11 +868,7 @@ export default {
     cancelBatchProcessing() {
       this.isBatchProcess = false;
       this.isCheckedAll = false;
-      if (
-        this.$refs.stepTree &&
-        this.$refs.stepTree.root &&
-        this.$refs.stepTree.root.childNodes
-      ) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
         this.recursionChecked(false, this.$refs.stepTree.root.childNodes);
       }
       this.selectDataCounts = 0;
@@ -1081,10 +880,7 @@ export default {
         let row = { resourceId: 'ms-reload-test' };
         if (this.$refs.stepTree && this.$refs.stepTree.root.data) {
           this.$refs.stepTree.root.data.push(row);
-          this.$refs.stepTree.root.data.splice(
-            this.$refs.stepTree.root.data.length - 1,
-            1
-          );
+          this.$refs.stepTree.root.data.splice(this.$refs.stepTree.root.data.length - 1, 1);
         }
       });
     },
@@ -1122,10 +918,7 @@ export default {
       let isLeaf = true;
       array.forEach((item) => {
         item.checkBox = false;
-        if (
-          isLeaf &&
-          this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1
-        ) {
+        if (isLeaf && this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
           isLeaf = false;
         }
         if (item.hashTree && item.hashTree.length > 0) {
@@ -1157,9 +950,7 @@ export default {
           environmentMap: strMapToObj(this.projectEnvMap),
           hashTree: this.scenarioDefinition,
           onSampleError: this.onSampleError,
-          projectId: this.currentScenario.projectId
-            ? this.currentScenario.projectId
-            : this.projectId,
+          projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
         };
         let param = {
           definition: JSON.stringify(scenario),
@@ -1218,10 +1009,7 @@ export default {
               this.addComponent(item.name, item);
             },
           };
-          if (
-            this.operatingElements &&
-            this.operatingElements.includes(item.jmeterClazz)
-          ) {
+          if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
             this.buttonData.push(plugin);
           }
           this.$nextTick(() => {
@@ -1359,10 +1147,7 @@ export default {
     },
     margeTransaction(item, console, arr) {
       arr.forEach((sub) => {
-        if (
-          item.data &&
-          item.data.id + '_' + item.data.parentIndex === sub.resourceId
-        ) {
+        if (item.data && item.data.id + '_' + item.data.parentIndex === sub.resourceId) {
           sub.responseResult.console = console;
           item.data.requestResult.push(sub);
           // 更新父节点状态
@@ -1379,22 +1164,11 @@ export default {
       arr.forEach((item) => {
         if (resultData && resultData.startsWith('result_')) {
           let data = JSON.parse(resultData.substring(7));
-          if (
-            data.method === 'Request' &&
-            data.subRequestResults &&
-            data.subRequestResults.length > 0
-          ) {
-            this.margeTransaction(
-              item,
-              data.responseResult.console,
-              data.subRequestResults
-            );
+          if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+            this.margeTransaction(item, data.responseResult.console, data.subRequestResults);
           } else if (
-            (item.data &&
-              item.data.id + '_' + item.data.parentIndex === data.resourceId) ||
-            (item.data &&
-              item.data.resourceId + '_' + item.data.parentIndex ===
-                data.resourceId)
+            (item.data && item.data.id + '_' + item.data.parentIndex === data.resourceId) ||
+            (item.data && item.data.resourceId + '_' + item.data.parentIndex === data.resourceId)
           ) {
             if (item.data.requestResult) {
               item.data.requestResult.push(data);
@@ -1406,10 +1180,7 @@ export default {
             item.data.testing = false;
             item.data.debug = true;
           }
-        } else if (
-          item.data &&
-          item.data.id + '_' + item.data.parentIndex === resultData
-        ) {
+        } else if (item.data && item.data.id + '_' + item.data.parentIndex === resultData) {
           item.data.testing = true;
           this.runningEditParent(item.parent);
         }
@@ -1421,30 +1192,15 @@ export default {
     runningEvaluation(resultData) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach((item) => {
-          if (
-            item.data &&
-            item.data.id + '_' + item.data.parentIndex === resultData
-          ) {
+          if (item.data && item.data.id + '_' + item.data.parentIndex === resultData) {
             item.data.testing = true;
           } else if (resultData && resultData.startsWith('result_')) {
             let data = JSON.parse(resultData.substring(7));
-            if (
-              data.method === 'Request' &&
-              data.subRequestResults &&
-              data.subRequestResults.length > 0
-            ) {
-              this.margeTransaction(
-                item,
-                data.responseResult.console,
-                data.subRequestResults
-              );
+            if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
+              this.margeTransaction(item, data.responseResult.console, data.subRequestResults);
             } else if (
-              (item.data &&
-                item.data.id + '_' + item.data.parentIndex ===
-                  data.resourceId) ||
-              (item.data &&
-                item.data.resourceId + '_' + item.data.parentIndex ===
-                  data.resourceId)
+              (item.data && item.data.id + '_' + item.data.parentIndex === data.resourceId) ||
+              (item.data && item.data.resourceId + '_' + item.data.parentIndex === data.resourceId)
             ) {
               item.data.requestResult.push(data);
               // 更新父节点状态
@@ -1600,11 +1356,7 @@ export default {
     },
     showButton(...names) {
       for (const name of names) {
-        if (
-          name &&
-          this.operatingElements &&
-          this.operatingElements.includes(name)
-        ) {
+        if (name && this.operatingElements && this.operatingElements.includes(name)) {
           return true;
         }
       }
@@ -1618,11 +1370,7 @@ export default {
     },
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
-        if (
-          (this.selectedTreeNode &&
-            this.selectedTreeNode.referenced === 'REF') ||
-          this.selectedTreeNode.disabled
-        ) {
+        if ((this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF') || this.selectedTreeNode.disabled) {
           this.$warning(this.$t('api_test.scenario.scenario_warning'));
         } else {
           this.$warning(this.$t('api_test.scenario.scenario_step_warning'));
@@ -1643,10 +1391,7 @@ export default {
     },
     nodeClick(data, node) {
       if (
-        (data.referenced != 'REF' &&
-          data.referenced != 'Deleted' &&
-          !data.disabled &&
-          this.stepFilter) ||
+        (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) ||
         data.refType === 'CASE'
       ) {
         this.operatingElements = this.stepFilter.get(data.type);
@@ -1664,11 +1409,7 @@ export default {
       store.selectStep = data;
       this.buttonData = buttons(this);
       this.initPlugins();
-      if (
-        this.buttonData.length === 0 &&
-        this.$refs.refFab &&
-        this.$refs.refFab.active
-      ) {
+      if (this.buttonData.length === 0 && this.$refs.refFab && this.$refs.refFab.active) {
         this.$refs.refFab.openMenu();
       }
     },
@@ -1723,12 +1464,7 @@ export default {
         // 添加debug结果
         step.parentIndex = fullPath ? fullPath + '_' + step.index : step.index;
         if (step.hashTree && step.hashTree.length > 0) {
-          this.recursionStep(
-            step.hashTree,
-            step.projectId,
-            step.parentIndex,
-            step.type === 'GenericController'
-          );
+          this.recursionStep(step.hashTree, step.projectId, step.parentIndex, step.type === 'GenericController');
         }
       }
     },
@@ -1736,16 +1472,8 @@ export default {
       this.customizeVisible = false;
       request.enable === undefined ? (request.enable = true) : request.enable;
       if (this.selectedTreeNode) {
-        if (
-          this.stepFilter
-            .get('SpecialSteps')
-            .indexOf(this.selectedTreeNode.type) !== -1
-        ) {
-          this.scenarioDefinition.splice(
-            this.selectedTreeNode.index,
-            0,
-            request
-          );
+        if (this.stepFilter.get('SpecialSteps').indexOf(this.selectedTreeNode.type) !== -1) {
+          this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, request);
           store.forceRerenderIndex = getUUID();
         } else {
           this.selectedTreeNode.hashTree.push(request);
@@ -1770,19 +1498,10 @@ export default {
           }
           this.resetResourceId(item.hashTree);
           item.enable === undefined ? (item.enable = true) : item.enable;
-          item.variableEnable =
-            item.variableEnable === undefined ? true : item.variableEnable;
+          item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
           if (this.selectedTreeNode) {
-            if (
-              this.stepFilter
-                .get('SpecialSteps')
-                .indexOf(this.selectedTreeNode.type) !== -1
-            ) {
-              this.scenarioDefinition.splice(
-                this.selectedTreeNode.index,
-                0,
-                item
-              );
+            if (this.stepFilter.get('SpecialSteps').indexOf(this.selectedTreeNode.type) !== -1) {
+              this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, item);
               store.forceRerenderIndex = getUUID();
             } else {
               this.selectedTreeNode.hashTree.push(item);
@@ -1794,10 +1513,7 @@ export default {
       }
       this.isBtnHide = false;
       // 历史数据兼容处理
-      if (
-        this.selectedTreeNode &&
-        this.selectedTreeNode.type === 'GenericController'
-      ) {
+      if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
         this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
@@ -1841,16 +1557,8 @@ export default {
         this.recursiveSorting(request.hashTree);
       }
       if (this.selectedTreeNode) {
-        if (
-          this.stepFilter
-            .get('SpecialSteps')
-            .indexOf(this.selectedTreeNode.type) !== -1
-        ) {
-          this.scenarioDefinition.splice(
-            this.selectedTreeNode.index,
-            0,
-            request
-          );
+        if (this.stepFilter.get('SpecialSteps').indexOf(this.selectedTreeNode.type) !== -1) {
+          this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, request);
           store.forceRerenderIndex = getUUID();
         } else {
           this.selectedTreeNode.hashTree.push(request);
@@ -1866,10 +1574,7 @@ export default {
       this.isBtnHide = false;
       this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       // 历史数据兼容处理
-      if (
-        this.selectedTreeNode &&
-        this.selectedTreeNode.type === 'GenericController'
-      ) {
+      if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
         this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
@@ -1890,50 +1595,35 @@ export default {
     },
     remove(row, node) {
       let name = row === undefined || row.name === undefined ? '' : row.name;
-      this.$alert(
-        this.$t('api_test.definition.request.delete_confirm_step') +
-          ' ' +
-          name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let parent = node.parent;
-              let hashTree = parent.data.hashTree || parent.data;
-              let index = hashTree.findIndex(
-                (d) =>
-                  d.resourceId &&
-                  row.resourceId &&
-                  d.resourceId === row.resourceId
-              );
-              hashTree.splice(index, 1);
-              //删除空步骤
-              while (
-                parent &&
-                parent.data &&
-                parent.data.hashTree &&
-                parent.data.hashTree.length <= 0 &&
-                parent.data.type === 'scenario'
-              ) {
-                parent = parent.parent;
-                if (!parent) {
-                  break;
-                }
-                hashTree = parent.data.hashTree || parent.data;
-                index = hashTree.findIndex(
-                  (d) =>
-                    d.id != undefined && row.id != undefined && d.id === row.id
-                );
-                hashTree.splice(index, 1);
+      this.$alert(this.$t('api_test.definition.request.delete_confirm_step') + ' ' + name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let parent = node.parent;
+            let hashTree = parent.data.hashTree || parent.data;
+            let index = hashTree.findIndex((d) => d.resourceId && row.resourceId && d.resourceId === row.resourceId);
+            hashTree.splice(index, 1);
+            //删除空步骤
+            while (
+              parent &&
+              parent.data &&
+              parent.data.hashTree &&
+              parent.data.hashTree.length <= 0 &&
+              parent.data.type === 'scenario'
+            ) {
+              parent = parent.parent;
+              if (!parent) {
+                break;
               }
-              this.sort();
-              this.forceRerender();
+              hashTree = parent.data.hashTree || parent.data;
+              index = hashTree.findIndex((d) => d.id != undefined && row.id != undefined && d.id === row.id);
+              hashTree.splice(index, 1);
             }
-          },
-        }
-      );
+            this.sort();
+            this.forceRerender();
+          }
+        },
+      });
     },
     resetResourceId(hashTree) {
       hashTree.forEach((item) => {
@@ -2044,16 +1734,11 @@ export default {
             id: scenario ? scenario.id : this.currentScenario.id,
             name: scenario ? scenario.name : this.currentScenario.name,
             type: 'scenario',
-            variables: scenario
-              ? scenario.variables
-              : this.currentScenario.variables,
+            variables: scenario ? scenario.variables : this.currentScenario.variables,
             referenced: 'Created',
             enableCookieShare: this.enableCookieShare,
             headers: scenario ? scenario.headers : this.currentScenario.headers,
-            environmentMap:
-              scenario && scenario.environmentEnable
-                ? scenario.environmentMap
-                : this.projectEnvMap,
+            environmentMap: scenario && scenario.environmentEnable ? scenario.environmentMap : this.projectEnvMap,
             hashTree: scenario ? scenario.hashTree : this.scenarioDefinition,
             onSampleError: this.onSampleError,
           };
@@ -2100,21 +1785,13 @@ export default {
       this.getEnvironments();
     },
     allowDrag(node) {
-      if (
-        node.data &&
-        node.data.disabled &&
-        node.parent.data &&
-        node.parent.data.disabled
-      ) {
+      if (node.data && node.data.disabled && node.parent.data && node.parent.data.disabled) {
         return false;
       }
       return true;
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (
-        draggingNode.data.type === 'Assertions' ||
-        dropNode.data.type === 'Assertions'
-      ) {
+      if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
         return false;
       }
       // 增加插件权限控制
@@ -2137,9 +1814,7 @@ export default {
         dropNode.data.referenced !== 'Deleted' &&
         !dropNode.data.disabled &&
         this.stepFilter.get(dropNode.data.type) &&
-        this.stepFilter
-          .get(dropNode.data.type)
-          .indexOf(draggingNode.data.type) != -1
+        this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1
       ) {
         return true;
       }
@@ -2172,66 +1847,50 @@ export default {
             if (valid) {
               await this.setParameter();
               if (!this.currentScenario.versionId) {
-                if (
-                  this.$refs.versionHistory &&
-                  this.$refs.versionHistory.currentVersion
-                ) {
-                  this.currentScenario.versionId =
-                    this.$refs.versionHistory.currentVersion.id;
+                if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
+                  this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
                 }
               }
               this.isPreventReClick = true;
-              saveScenario(
-                this.path,
-                this.currentScenario,
-                this.scenarioDefinition,
-                this,
-                (response) => {
-                  this.$success(this.$t('commons.save_success'));
-                  this.isPreventReClick = false;
-                  this.path = '/api/automation/update';
-                  store.pluginFiles = [];
-                  if (response.data) {
-                    this.currentScenario.id = response.data.id;
-                    if (!this.currentScenario.refId && response.data.refId) {
-                      this.currentScenario.refId = response.data.refId;
-                    }
+              saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
+                this.$success(this.$t('commons.save_success'));
+                this.isPreventReClick = false;
+                this.path = '/api/automation/update';
+                store.pluginFiles = [];
+                if (response.data) {
+                  this.currentScenario.id = response.data.id;
+                  if (!this.currentScenario.refId && response.data.refId) {
+                    this.currentScenario.refId = response.data.refId;
                   }
-                  // 保存成功后刷新历史版本
-                  this.getVersionHistory();
-                  if (this.currentScenario.tags instanceof String) {
-                    this.currentScenario.tags = JSON.parse(
-                      this.currentScenario.tags
-                    );
-                  }
-                  if (this.currentScenario.copy) {
-                    this.currentScenario.copy = null;
-                  }
-                  if (this.currentScenario.type) {
-                    this.currentScenario.type = null;
-                  }
-                  this.pluginDelStep = false;
-                  // 记录改变后的数据数据
-                  let v1 = {
-                    apiScenarioModuleId:
-                      this.currentScenario.apiScenarioModuleId,
-                    name: this.currentScenario.name,
-                    status: this.currentScenario.status,
-                    principal: this.currentScenario.principal,
-                    level: this.currentScenario.level,
-                    tags: this.currentScenario.tags,
-                    description: this.currentScenario.description,
-                    scenarioDefinition: JSON.parse(
-                      JSON.stringify(this.scenarioDefinition)
-                    ),
-                  };
-                  this.currentScenario.scenarioDefinitionOrg = v1;
-                  this.currentScenario.scenarioDefinition =
-                    this.scenarioDefinition;
-                  this.$emit('refresh', this.currentScenario);
-                  resolve();
                 }
-              );
+                // 保存成功后刷新历史版本
+                this.getVersionHistory();
+                if (this.currentScenario.tags instanceof String) {
+                  this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+                }
+                if (this.currentScenario.copy) {
+                  this.currentScenario.copy = null;
+                }
+                if (this.currentScenario.type) {
+                  this.currentScenario.type = null;
+                }
+                this.pluginDelStep = false;
+                // 记录改变后的数据数据
+                let v1 = {
+                  apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
+                  name: this.currentScenario.name,
+                  status: this.currentScenario.status,
+                  principal: this.currentScenario.principal,
+                  level: this.currentScenario.level,
+                  tags: this.currentScenario.tags,
+                  description: this.currentScenario.description,
+                  scenarioDefinition: JSON.parse(JSON.stringify(this.scenarioDefinition)),
+                };
+                this.currentScenario.scenarioDefinitionOrg = v1;
+                this.currentScenario.scenarioDefinition = this.scenarioDefinition;
+                this.$emit('refresh', this.currentScenario);
+                resolve();
+              });
             } else {
               if (this.$refs.versionHistory) {
                 this.$refs.versionHistory.loading = false;
@@ -2273,122 +1932,103 @@ export default {
         this.currentScenario.headers = [];
       }
       if (this.currentScenario && this.currentScenario.id) {
-        this.result = getScenarioWithBLOBsById(this.currentScenario.id).then(
-          (response) => {
-            if (response.data) {
-              this.currentScenario.apiScenarioModuleId =
-                response.data.apiScenarioModuleId;
-              this.currentScenario.modulePath = response.data.modulePath;
-              this.path = '/api/automation/update';
-              if (response.data.scenarioDefinition != null) {
-                let obj = JSON.parse(response.data.scenarioDefinition);
-                if (obj) {
-                  if (response.data.environmentJson) {
-                    this.projectEnvMap = objToStrMap(
-                      JSON.parse(response.data.environmentJson)
-                    );
-                  } else {
+        this.result = getScenarioWithBLOBsById(this.currentScenario.id).then((response) => {
+          if (response.data) {
+            this.currentScenario.apiScenarioModuleId = response.data.apiScenarioModuleId;
+            this.currentScenario.modulePath = response.data.modulePath;
+            this.path = '/api/automation/update';
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              if (obj) {
+                if (response.data.environmentJson) {
+                  this.projectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.projectEnvMap.set(this.projectId, obj.environmentId);
+                }
+                if (!store.scenarioEnvMap || !(store.scenarioEnvMap instanceof Map)) {
+                  store.scenarioEnvMap = new Map();
+                }
+                this.projectEnvMap.forEach((v, k) => {
+                  store.scenarioEnvMap.set(this.currentScenario.id + '_' + k, v);
+                });
+                this.envGroupId = response.data.environmentGroupId;
+                if (response.data.environmentType) {
+                  this.environmentType = response.data.environmentType;
+                }
+                this.currentScenario.variables = [];
+                if (obj.headers) {
+                  this.currentScenario.headers = obj.headers;
+                }
+                let index = 1;
+                if (obj.variables) {
+                  obj.variables.forEach((item) => {
                     // 兼容历史数据
-                    this.projectEnvMap.set(this.projectId, obj.environmentId);
-                  }
-                  if (
-                    !store.scenarioEnvMap ||
-                    !(store.scenarioEnvMap instanceof Map)
-                  ) {
-                    store.scenarioEnvMap = new Map();
-                  }
-                  this.projectEnvMap.forEach((v, k) => {
-                    store.scenarioEnvMap.set(
-                      this.currentScenario.id + '_' + k,
-                      v
-                    );
-                  });
-                  this.envGroupId = response.data.environmentGroupId;
-                  if (response.data.environmentType) {
-                    this.environmentType = response.data.environmentType;
-                  }
-                  this.currentScenario.variables = [];
-                  if (obj.headers) {
-                    this.currentScenario.headers = obj.headers;
-                  }
-                  let index = 1;
-                  if (obj.variables) {
-                    obj.variables.forEach((item) => {
-                      // 兼容历史数据
-                      if (item.name) {
-                        if (!item.type) {
-                          item.type = 'CONSTANT';
-                          item.id = getUUID();
-                        }
-                        item.num = index;
-                        this.currentScenario.variables.push(item);
-                        index++;
+                    if (item.name) {
+                      if (!item.type) {
+                        item.type = 'CONSTANT';
+                        item.id = getUUID();
                       }
-                    });
-                  }
-                  this.enableCookieShare = obj.enableCookieShare;
-                  if (obj.onSampleError === undefined) {
-                    this.onSampleError = true;
-                  } else {
-                    this.onSampleError = obj.onSampleError;
-                  }
-                  this.dataProcessing(obj.hashTree);
-                  this.scenarioDefinition = obj.hashTree;
-                }
-              }
-              if (this.currentScenario.copy) {
-                this.path = '/api/automation/create';
-              }
-              getFollowByScenarioId(this.currentScenario.id).then(
-                (response) => {
-                  this.currentScenario.follows = response.data;
-                  for (let i = 0; i < response.data.length; i++) {
-                    if (response.data[i] === this.currentUser().id) {
-                      this.showFollow = true;
-                      break;
+                      item.num = index;
+                      this.currentScenario.variables.push(item);
+                      index++;
                     }
-                  }
-                  //检查场景是否需要先进行保存
-                  this.checkDataIsCopy();
+                  });
                 }
-              );
+                this.enableCookieShare = obj.enableCookieShare;
+                if (obj.onSampleError === undefined) {
+                  this.onSampleError = true;
+                } else {
+                  this.onSampleError = obj.onSampleError;
+                }
+                this.dataProcessing(obj.hashTree);
+                this.scenarioDefinition = obj.hashTree;
+              }
             }
-            this.loading = false;
-            this.sort();
-            this.$nextTick(() => {
-              this.cancelBatchProcessing();
+            if (this.currentScenario.copy) {
+              this.path = '/api/automation/create';
+            }
+            getFollowByScenarioId(this.currentScenario.id).then((response) => {
+              this.currentScenario.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if (response.data[i] === this.currentUser().id) {
+                  this.showFollow = true;
+                  break;
+                }
+              }
+              //检查场景是否需要先进行保存
+              this.checkDataIsCopy();
             });
-            if (isRefresh) {
-              this.reloadTree = getUUID();
-            }
-            // 记录初始化数据
-            let v1 = {
-              apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
-              name: this.currentScenario.name,
-              status: this.currentScenario.status,
-              principal: this.currentScenario.principal,
-              level: this.currentScenario.level,
-              tags: this.currentScenario.tags,
-              description: this.currentScenario.description,
-              scenarioDefinition: JSON.parse(
-                JSON.stringify(this.scenarioDefinition)
-              ),
-            };
-
-            this.currentScenario.scenarioDefinitionOrg = v1;
-            this.currentScenario.scenarioDefinition = this.scenarioDefinition;
           }
-        );
+          this.loading = false;
+          this.sort();
+          this.$nextTick(() => {
+            this.cancelBatchProcessing();
+          });
+          if (isRefresh) {
+            this.reloadTree = getUUID();
+          }
+          // 记录初始化数据
+          let v1 = {
+            apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
+            name: this.currentScenario.name,
+            status: this.currentScenario.status,
+            principal: this.currentScenario.principal,
+            level: this.currentScenario.level,
+            tags: this.currentScenario.tags,
+            description: this.currentScenario.description,
+            scenarioDefinition: JSON.parse(JSON.stringify(this.scenarioDefinition)),
+          };
+
+          this.currentScenario.scenarioDefinitionOrg = v1;
+          this.currentScenario.scenarioDefinition = this.scenarioDefinition;
+        });
       }
     },
     dataProcessing(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
-          let typeArray = [
-            'JDBCPostProcessor',
-            'JDBCSampler',
-            'JDBCPreProcessor',
-          ];
+          let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
             stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
             stepArray[i].originalEnvironmentId = stepArray[i].environmentId;
@@ -2416,21 +2056,11 @@ export default {
 
     formatData(hashTree) {
       for (let i in hashTree) {
-        if (
-          hashTree[i] &&
-          TYPE_TO_C.get(hashTree[i].type) &&
-          !hashTree[i].clazzName
-        ) {
+        if (hashTree[i] && TYPE_TO_C.get(hashTree[i].type) && !hashTree[i].clazzName) {
           hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
         }
-        if (
-          hashTree[i] &&
-          hashTree[i].authManager &&
-          !hashTree[i].authManager.clazzName
-        ) {
-          hashTree[i].authManager.clazzName = TYPE_TO_C.get(
-            hashTree[i].authManager.type
-          );
+        if (hashTree[i] && hashTree[i].authManager && !hashTree[i].authManager.clazzName) {
+          hashTree[i].authManager.clazzName = TYPE_TO_C.get(hashTree[i].authManager.type);
         }
         if (hashTree[i].hashTree && hashTree[i].hashTree.length > 0) {
           this.formatData(hashTree[i].hashTree);
@@ -2455,27 +2085,21 @@ export default {
         environmentMap: strMapToObj(this.projectEnvMap),
         hashTree: this.scenarioDefinition,
         onSampleError: this.onSampleError,
-        projectId: this.currentScenario.projectId
-          ? this.currentScenario.projectId
-          : this.projectId,
+        projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
       };
       // 历史数据处理
       if (scenario.hashTree) {
         this.formatData(scenario.hashTree);
       }
       this.currentScenario.environmentType = this.environmentType;
-      this.currentScenario.environmentJson = JSON.stringify(
-        strMapToObj(this.projectEnvMap)
-      );
+      this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
       this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
       }
       if (this.currentModule != null) {
-        this.currentScenario.modulePath = this.currentModule.method
-          ? this.currentModule.method
-          : null;
+        this.currentScenario.modulePath = this.currentModule.method ? this.currentModule.method : null;
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
     },
@@ -2501,10 +2125,7 @@ export default {
       this.debugData = {};
     },
     showScenarioParameters() {
-      this.$refs.scenarioParameters.open(
-        this.currentScenario.variables,
-        this.currentScenario.headers
-      );
+      this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
     },
     apiImport(importData) {
       if (importData && importData.data) {
@@ -2520,10 +2141,7 @@ export default {
       if (this.currentScenario.variables) {
         size += this.currentScenario.variables.length;
       }
-      if (
-        this.currentScenario.headers &&
-        this.currentScenario.headers.length > 1
-      ) {
+      if (this.currentScenario.headers && this.currentScenario.headers.length > 1) {
         size += this.currentScenario.headers.length - 1;
       }
       return size;
@@ -2547,11 +2165,7 @@ export default {
     },
     setStep(stepArray) {
       for (let i in stepArray) {
-        let typeArray = [
-          'JDBCPostProcessor',
-          'JDBCSampler',
-          'JDBCPreProcessor',
-        ];
+        let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(stepArray[i].type) !== -1) {
           if (stepArray[i].customizeReq) {
             if (stepArray[i].isRefEnvironment) {
@@ -2584,27 +2198,18 @@ export default {
         } else if (obj === 'object' && obj !== 'map') {
           request.refEevMap = objToStrMap(request.refEevMap);
         }
-        if (
-          request.refEevMap instanceof Map &&
-          request.refEevMap.has(projectId)
-        ) {
+        if (request.refEevMap instanceof Map && request.refEevMap.has(projectId)) {
           envId = request.refEevMap.get(projectId);
         }
       }
-      if (
-        envId === request.originalEnvironmentId &&
-        request.originalDataSourceId
-      ) {
+      if (envId === request.originalEnvironmentId && request.originalDataSourceId) {
         request.dataSourceId = request.originalDataSourceId;
       }
       let targetDataSourceName = '';
       let currentEnvironment = {};
       this.environments.forEach((environment) => {
         // 找到原始环境和数据源名称
-        if (
-          environment.id === request.environmentId &&
-          environment.id !== envId
-        ) {
+        if (environment.id === request.environmentId && environment.id !== envId) {
           if (environment.config && environment.config.databaseConfigs) {
             environment.config.databaseConfigs.forEach((item) => {
               if (item.id === request.dataSourceId) {
@@ -2617,12 +2222,7 @@ export default {
           currentEnvironment = environment;
         }
       });
-      this.initDataSource(
-        envId,
-        currentEnvironment,
-        targetDataSourceName,
-        request
-      );
+      this.initDataSource(envId, currentEnvironment, targetDataSourceName, request);
     },
     initDataSource(envId, currentEnvironment, targetDataSourceName, request) {
       this.databaseConfigsOptions = [];
@@ -2637,11 +2237,7 @@ export default {
         }
       }
       let flag = false;
-      if (
-        currentEnvironment &&
-        currentEnvironment.config &&
-        currentEnvironment.config.databaseConfigs
-      ) {
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach((item) => {
           if (item.id === request.dataSourceId) {
             flag = true;
@@ -2654,8 +2250,7 @@ export default {
           this.databaseConfigsOptions.push(item);
         });
         if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
-          request.dataSourceId =
-            currentEnvironment.config.databaseConfigs[0].id;
+          request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }
@@ -2704,18 +2299,11 @@ export default {
     },
     changeNodeStatus(resourceIds, nodes) {
       for (let i in nodes) {
-        if (
-          nodes[i] &&
-          !(nodes[i].type === 'scenario' && nodes[i].referenced === 'REF')
-        ) {
+        if (nodes[i] && !(nodes[i].type === 'scenario' && nodes[i].referenced === 'REF')) {
           if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
             nodes[i].active = this.expandedStatus;
           }
-          if (
-            nodes[i].hashTree &&
-            nodes[i].hashTree.length > 0 &&
-            !this.expandedStatus
-          ) {
+          if (nodes[i].hashTree && nodes[i].hashTree.length > 0 && !this.expandedStatus) {
             this.changeNodeStatus(resourceIds, nodes[i].hashTree);
           }
         }
@@ -2741,11 +2329,7 @@ export default {
     recursionExpansion(resourceIds, array) {
       if (array) {
         array.forEach((item) => {
-          if (
-            item.data &&
-            item.data.type === 'scenario' &&
-            item.data.referenced === 'REF'
-          ) {
+          if (item.data && item.data.type === 'scenario' && item.data.referenced === 'REF') {
             item.expanded = false;
           } else {
             if (resourceIds.indexOf(item.data.resourceId) !== -1) {
@@ -2822,10 +2406,7 @@ export default {
           if (resourceId === nodes[i].resourceId) {
             nodes.splice(i, 1);
           } else {
-            if (
-              nodes[i].hashTree != undefined &&
-              nodes[i].hashTree.length > 0
-            ) {
+            if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
               this.recursionDelete(resourceId, nodes[i].hashTree);
             }
           }
@@ -2845,10 +2426,7 @@ export default {
           }
         }
         if (this.currentScenario.id) {
-          updateScenarioFollows(
-            this.currentScenario.id,
-            this.currentScenario.follows
-          ).then(() => {
+          updateScenarioFollows(this.currentScenario.id, this.currentScenario.follows).then(() => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
@@ -2859,10 +2437,7 @@ export default {
         }
         this.currentScenario.follows.push(this.currentUser().id);
         if (this.currentScenario.id) {
-          updateScenarioFollows(
-            this.currentScenario.id,
-            this.currentScenario.follows
-          ).then(() => {
+          updateScenarioFollows(this.currentScenario.id, this.currentScenario.follows).then(() => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
@@ -2879,9 +2454,7 @@ export default {
       }
       getScenarioVersions(this.currentScenario.id).then((response) => {
         if (this.currentScenario.copy) {
-          this.versionData = response.data.filter(
-            (v) => v.versionId === this.currentScenario.versionId
-          );
+          this.versionData = response.data.filter((v) => v.versionId === this.currentScenario.versionId);
         } else {
           this.versionData = response.data;
         }
@@ -2924,26 +2497,17 @@ export default {
         });
     },
     del(row) {
-      this.$alert(
-        this.$t('load_test.delete_threadgroup_confirm') +
-          ' ' +
-          row.name +
-          ' ？',
-        '',
-        {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              delByScenarioIdAndRefId(row.id, this.currentScenario.refId).then(
-                () => {
-                  this.$success(this.$t('commons.delete_success'));
-                  this.getVersionHistory();
-                }
-              );
-            }
-          },
-        }
-      );
+      this.$alert(this.$t('load_test.delete_threadgroup_confirm') + ' ' + row.name + ' ？', '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            delByScenarioIdAndRefId(row.id, this.currentScenario.refId).then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getVersionHistory();
+            });
+          }
+        },
+      });
     },
   },
 };
@@ -2967,8 +2531,7 @@ export default {
 
 .ms-font {
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
 }
 
@@ -3010,8 +2573,7 @@ export default {
 
 :deep(.el-checkbox) {
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }
@@ -3023,8 +2585,7 @@ export default {
 .head {
   border-bottom: 1px solid #303133;
   color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
   font-size: 13px;
 }
 

@@ -6,15 +6,8 @@
     label-width="100px"
     size="small"
     v-loading="loading"
-    :disabled="isReadOnly"
-  >
-    <el-button
-      class="get-provider"
-      type="primary"
-      size="mini"
-      @click="getProviderList"
-      >Get Provider List</el-button
-    >
+    :disabled="isReadOnly">
+    <el-button class="get-provider" type="primary" size="mini" @click="getProviderList">Get Provider List</el-button>
     <el-row>
       <el-col :span="12">
         <el-form-item label="Interfaces" prop="interfaces">
@@ -23,25 +16,14 @@
             v-model="serviceInterface"
             class="select-100"
             @change="changeInterface"
-            :disabled="isDisable"
-          >
-            <el-option
-              v-for="i in interfaces"
-              :key="i.value"
-              :label="i.label"
-              :value="i.value"
-            />
+            :disabled="isDisable">
+            <el-option v-for="i in interfaces" :key="i.value" :label="i.label" :value="i.value" />
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="Methods" prop="methods">
-          <el-select
-            v-model="method"
-            class="select-100"
-            @change="changeMethod"
-            :disabled="isDisable"
-          >
+          <el-select v-model="method" class="select-100" @change="changeMethod" :disabled="isDisable">
             <el-option v-for="m in methods" :key="m" :label="m" :value="m" />
           </el-select>
         </el-form-item>
@@ -55,8 +37,7 @@
             v-model="request.interface"
             maxlength="300"
             show-word-limit
-            :placeholder="$t('commons.input_content')"
-          />
+            :placeholder="$t('commons.input_content')" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
@@ -65,8 +46,7 @@
             v-model="request.method"
             maxlength="300"
             show-word-limit
-            :placeholder="$t('commons.input_content')"
-          />
+            :placeholder="$t('commons.input_content')" />
         </el-form-item>
       </el-col>
     </el-row>
@@ -156,9 +136,7 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          this.$warning(
-            this.$t('api_test.request.dubbo.check_registry_center')
-          );
+          this.$warning(this.$t('api_test.request.dubbo.check_registry_center'));
         });
     },
   },

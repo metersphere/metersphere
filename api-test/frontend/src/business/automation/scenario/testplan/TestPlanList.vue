@@ -5,8 +5,7 @@
         :condition.sync="condition"
         @search="initTableData"
         :title="$t('test_track.plan.test_plan')"
-        :show-create="false"
-      >
+        :show-create="false">
       </ms-table-header>
     </template>
     <env-popover
@@ -20,8 +19,7 @@
       @setEnvGroup="setEnvGroup"
       ref="envPopover"
       class="env-popover"
-      style="float: right; margin-top: 4px"
-    />
+      style="float: right; margin-top: 4px" />
     <el-table
       border
       class="adjust-table"
@@ -29,29 +27,18 @@
       @filter-change="filter"
       @sort-change="sort"
       @select-all="select"
-      @select="select"
-    >
+      @select="select">
       <el-table-column type="selection" />
 
-      <el-table-column
-        prop="name"
-        :label="$t('commons.name')"
-        show-overflow-tooltip
-      >
-      </el-table-column>
-      <el-table-column
-        prop="principalName"
-        :label="$t('test_track.plan.plan_principal')"
-        show-overflow-tooltip
-      >
+      <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip> </el-table-column>
+      <el-table-column prop="principalName" :label="$t('test_track.plan.plan_principal')" show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         prop="status"
         column-key="status"
         :filters="statusFilters"
         :label="$t('test_track.plan.plan_status')"
-        show-overflow-tooltip
-      >
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
             <el-dropdown class="test-case-status" @command="statusChange">
@@ -61,20 +48,17 @@
               <el-dropdown-menu slot="dropdown" chang>
                 <el-dropdown-item
                   :disabled="!isTestManagerOrTestUser"
-                  :command="{ id: scope.row.id, status: 'Prepare' }"
-                >
+                  :command="{ id: scope.row.id, status: 'Prepare' }">
                   {{ $t('test_track.plan.plan_status_prepare') }}
                 </el-dropdown-item>
                 <el-dropdown-item
                   :disabled="!isTestManagerOrTestUser"
-                  :command="{ id: scope.row.id, status: 'Underway' }"
-                >
+                  :command="{ id: scope.row.id, status: 'Underway' }">
                   {{ $t('test_track.plan.plan_status_running') }}
                 </el-dropdown-item>
                 <el-dropdown-item
                   :disabled="!isTestManagerOrTestUser"
-                  :command="{ id: scope.row.id, status: 'Completed' }"
-                >
+                  :command="{ id: scope.row.id, status: 'Completed' }">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -82,18 +66,13 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.plan.plan_project')"
-        show-overflow-tooltip
-      >
+      <el-table-column prop="projectName" :label="$t('test_track.plan.plan_project')" show-overflow-tooltip>
       </el-table-column>
       <el-table-column
         sortable
         prop="plannedStartTime"
         :label="$t('test_track.plan.planned_start_time')"
-        show-overflow-tooltip
-      >
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.plannedStartTime | datetimeFormat }}</span>
         </template>
@@ -102,8 +81,7 @@
         sortable
         prop="plannedEndTime"
         :label="$t('test_track.plan.planned_end_time')"
-        show-overflow-tooltip
-      >
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.plannedEndTime | datetimeFormat }}</span>
         </template>
@@ -112,8 +90,7 @@
         sortable
         prop="actualStartTime"
         :label="$t('test_track.plan.actual_start_time')"
-        show-overflow-tooltip
-      >
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.actualStartTime | datetimeFormat }}</span>
         </template>
@@ -122,8 +99,7 @@
         sortable
         prop="actualEndTime"
         :label="$t('test_track.plan.actual_end_time')"
-        show-overflow-tooltip
-      >
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.actualEndTime | datetimeFormat }}</span>
         </template>
@@ -133,23 +109,16 @@
       :change="initTableData"
       :current-page.sync="currentPage"
       :page-size.sync="pageSize"
-      :total="total"
-    />
+      :total="total" />
     <ms-delete-confirm
       :title="$t('test_track.plan.plan_delete')"
       @delete="_handleDelete"
       ref="deleteConfirm"
-      :with-tip="enableDeleteTip"
-    >
+      :with-tip="enableDeleteTip">
       {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
 
-    <ms-dialog-footer
-      style="float: right; margin: 20px"
-      @confirm="confirm"
-      @cancel="cancel"
-    >
-    </ms-dialog-footer>
+    <ms-dialog-footer style="float: right; margin: 20px" @confirm="confirm" @cancel="cancel"> </ms-dialog-footer>
   </el-card>
 </template>
 
@@ -167,15 +136,8 @@ import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { _filter, _sort } from 'metersphere-frontend/src/utils/tableUtils';
 import EnvPopover from '@/business/automation/scenario/EnvPopover';
 import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
-import {
-  getPlanStageOption,
-  planPage,
-  testPlanGetPrincipal,
-} from '@/api/test-plan';
-import {
-  getApiScenarioProjectIdByConditions,
-  getScenarioByProjectId,
-} from '@/api/scenario';
+import { getPlanStageOption, planPage, testPlanGetPrincipal } from '@/api/test-plan';
+import { getApiScenarioProjectIdByConditions, getScenarioByProjectId } from '@/api/scenario';
 import { getOwnerProjects } from '@/api/project';
 
 export default {
@@ -266,27 +228,14 @@ export default {
         if (!sign) {
           return false;
         }
-        if (
-          this.environmentType === ENV_TYPE.JSON &&
-          (!this.projectEnvMap || this.projectEnvMap.size < 1)
-        ) {
+        if (this.environmentType === ENV_TYPE.JSON && (!this.projectEnvMap || this.projectEnvMap.size < 1)) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return false;
-        } else if (
-          this.environmentType === ENV_TYPE.GROUP &&
-          !this.envGroupId
-        ) {
+        } else if (this.environmentType === ENV_TYPE.GROUP && !this.envGroupId) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return false;
         }
-        this.$emit(
-          'addTestPlan',
-          this.selection,
-          this.projectEnvMap,
-          this.map,
-          this.environmentType,
-          this.envGroupId
-        );
+        this.$emit('addTestPlan', this.selection, this.projectEnvMap, this.map, this.environmentType, this.envGroupId);
       }
     },
     cancel() {
@@ -342,11 +291,7 @@ export default {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
-      this.result = planPage(
-        this.currentPage,
-        this.pageSize,
-        this.condition
-      ).then((response) => {
+      this.result = planPage(this.currentPage, this.pageSize, this.condition).then((response) => {
         let data = response.data;
         this.total = data.itemCount;
         data.listObject.forEach((item) => {

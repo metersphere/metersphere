@@ -4,13 +4,8 @@
       <el-icon class="el-icon-more"></el-icon>
     </el-link>
     <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item command="ref">{{
-        $t('api_test.automation.view_ref')
-      }}</el-dropdown-item>
-      <el-dropdown-item
-        command="create_performance"
-        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']"
-      >
+      <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
+      <el-dropdown-item command="create_performance" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
     </el-dropdown-menu>
@@ -75,14 +70,8 @@ export default {
               },
             };
           }
-          if (
-            stepArray[i] &&
-            stepArray[i].authManager &&
-            !stepArray[i].authManager.clazzName
-          ) {
-            stepArray[i].authManager.clazzName = TYPE_TO_C.get(
-              stepArray[i].authManager.type
-            );
+          if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
+            stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sortHashTree(stepArray[i].hashTree);

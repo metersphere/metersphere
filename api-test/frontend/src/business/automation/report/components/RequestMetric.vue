@@ -2,64 +2,22 @@
   <div class="metric-container">
     <el-row type="flex">
       <el-col>
-        <div style="font-size: 14px; color: #aaaaaa; float: left">
-          {{ $t('api_report.response_code') }} :
-        </div>
-        <div
-          style="
-            font-size: 14px;
-            color: #61c550;
-            margin-top: 2px;
-            margin-left: 10px;
-            float: left;
-          "
-        >
-          {{
-            request.responseResult.responseCode
-              ? request.responseResult.responseCode
-              : '0'
-          }}
+        <div style="font-size: 14px; color: #aaaaaa; float: left">{{ $t('api_report.response_code') }} :</div>
+        <div style="font-size: 14px; color: #61c550; margin-top: 2px; margin-left: 10px; float: left">
+          {{ request.responseResult.responseCode ? request.responseResult.responseCode : '0' }}
         </div>
       </el-col>
       <el-col>
-        <div style="font-size: 14px; color: #aaaaaa; float: left">
-          {{ $t('api_report.response_time') }} :
-        </div>
-        <div
-          style="
-            font-size: 14px;
-            color: #61c550;
-            margin-top: 2px;
-            margin-left: 10px;
-            float: left;
-          "
-        >
-          {{
-            request.responseResult.responseTime
-              ? request.responseResult.responseTime
-              : 0
-          }}
+        <div style="font-size: 14px; color: #aaaaaa; float: left">{{ $t('api_report.response_time') }} :</div>
+        <div style="font-size: 14px; color: #61c550; margin-top: 2px; margin-left: 10px; float: left">
+          {{ request.responseResult.responseTime ? request.responseResult.responseTime : 0 }}
           ms
         </div>
       </el-col>
       <el-col>
-        <div style="font-size: 14px; color: #aaaaaa; float: left">
-          {{ $t('api_report.response_size') }} :
-        </div>
-        <div
-          style="
-            font-size: 14px;
-            color: #61c550;
-            margin-top: 2px;
-            margin-left: 10px;
-            float: left;
-          "
-        >
-          {{
-            request.responseResult.responseSize
-              ? request.responseResult.responseSize
-              : 0
-          }}
+        <div style="font-size: 14px; color: #aaaaaa; float: left">{{ $t('api_report.response_size') }} :</div>
+        <div style="font-size: 14px; color: #61c550; margin-top: 2px; margin-left: 10px; float: left">
+          {{ request.responseResult.responseSize ? request.responseResult.responseSize : 0 }}
           bytes
         </div>
       </el-col>

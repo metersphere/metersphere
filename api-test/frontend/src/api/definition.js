@@ -62,16 +62,11 @@ export function apiListBatch(params) {
 }
 
 export function definitionWeekList(projectId, page, pageSize) {
-  return post(
-    '/api/definition/list/week/' + projectId + '/' + page + '/' + pageSize
-  );
+  return post('/api/definition/list/week/' + projectId + '/' + page + '/' + pageSize);
 }
 
 export function getRelevanceDefinitionPage(page, pageSize, params) {
-  return post(
-    '/api/definition/list/relevance/' + page + '/' + pageSize,
-    params
-  );
+  return post('/api/definition/list/relevance/' + page + '/' + pageSize, params);
 }
 
 export function getDefinitionPage(page, pageSize, params) {
@@ -115,10 +110,7 @@ export function definitionReduction(params) {
 }
 
 export function definitionRelationship(currentPage, pageSize, params) {
-  return post(
-    '/api/definition/relationship/relate/' + currentPage + '/' + pageSize,
-    params
-  );
+  return post('/api/definition/relationship/relate/' + currentPage + '/' + pageSize, params);
 }
 
 export function addRelationship(params) {
@@ -130,17 +122,11 @@ export function jsonGenerator(params) {
 }
 
 export function getDefinitionReference(currentPage, pageSize, params) {
-  return post(
-    '/api/definition/get-reference/' + currentPage + '/' + pageSize,
-    params
-  );
+  return post('/api/definition/get-reference/' + currentPage + '/' + pageSize, params);
 }
 
 export function getPlanReference(currentPage, pageSize, params) {
-  return post(
-    '/test/plan/api/case/get-reference/' + currentPage + '/' + pageSize,
-    params
-  );
+  return post('/test/plan/api/case/get-reference/' + currentPage + '/' + pageSize, params);
 }
 
 export function deleteBatchByParams(params) {

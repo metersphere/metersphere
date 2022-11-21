@@ -11,16 +11,10 @@
               :report="report"
               :project-env-map="projectEnvMap"
               @reportExport="handleExport"
-              @reportSave="handleSave"
-            />
+              @reportSave="handleSave" />
           </div>
           <main>
-            <ms-metric-chart
-              :content="content"
-              :totalTime="totalTime"
-              :report="report"
-              v-if="!loading"
-            />
+            <ms-metric-chart :content="content" :totalTime="totalTime" :report="report" v-if="!loading" />
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="All" name="total">
@@ -29,8 +23,7 @@
                     :report="report"
                     :default-expand="true"
                     :console="content.console"
-                    v-on:requestResult="requestResult"
-                  />
+                    v-on:requestResult="requestResult" />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label"> Error </template>
@@ -39,8 +32,7 @@
                     :report="report"
                     :treeData="fullTreeNodes"
                     v-on:requestResult="requestResult"
-                    ref="failsTree"
-                  />
+                    ref="failsTree" />
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
                   <template slot="label">
@@ -50,8 +42,7 @@
                     v-on:requestResult="requestResult"
                     :console="content.console"
                     :treeData="fullTreeNodes"
-                    ref="errorReportTree"
-                  />
+                    ref="errorReportTree" />
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
@@ -62,8 +53,7 @@
                     :report="report"
                     :console="content.console"
                     :treeData="fullTreeNodes"
-                    ref="unExecuteTree"
-                  />
+                    ref="unExecuteTree" />
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
@@ -79,8 +69,7 @@
               :total-time="totalTime"
               :project-env-map="projectEnvMap"
               id="apiTestReport"
-              v-if="reportExportVisible"
-            />
+              v-if="reportExportVisible" />
           </main>
         </section>
       </el-card>
@@ -151,8 +140,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       if (this.scenario && this.scenario.scenarioDefinition) {
-        this.content.scenarioStepTotal =
-          this.scenario.scenarioDefinition.hashTree.length;
+        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
         this.initTree();
         this.initMessageSocket();
         this.clearDebug();
@@ -186,12 +174,7 @@ export default {
         children: [],
         unsolicited: true,
       };
-      this.formatContent(
-        this.scenario.scenarioDefinition.hashTree,
-        obj,
-        '',
-        'root'
-      );
+      this.formatContent(this.scenario.scenarioDefinition.hashTree, obj, '', 'root');
       this.fullTreeNodes.push(obj);
     },
     compare() {
@@ -230,14 +213,9 @@ export default {
       if (hashTree) {
         hashTree.forEach((item) => {
           if (item.enable) {
-            item.parentIndex = fullPath
-              ? fullPath + '_' + item.index
-              : item.index;
+            item.parentIndex = fullPath ? fullPath + '_' + item.index : item.index;
             let name = item.name ? item.name : this.getType(item.type);
-            let id =
-              item.type === 'JSR223Processor' || !item.id
-                ? item.resourceId
-                : item.id;
+            let id = item.type === 'JSR223Processor' || !item.id ? item.resourceId : item.id;
             let obj = {
               pid: pid,
               resId: id + '_' + item.parentIndex,
@@ -254,9 +232,7 @@ export default {
               unsolicited: true,
             };
             tree.children.push(obj);
-            if (
-              this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1
-            ) {
+            if (this.stepFilter.get('AllSamplerProxy').indexOf(item.type) !== -1) {
               obj.unsolicited = false;
               obj.type = item.type;
             } else if (item.type === 'scenario') {
@@ -268,12 +244,7 @@ export default {
               this.stepFilter &&
               this.stepFilter.get('AllSamplerProxy').indexOf(item.type) === -1
             ) {
-              this.formatContent(
-                item.hashTree,
-                obj,
-                item.parentIndex,
-                obj.resId
-              );
+              this.formatContent(item.hashTree, obj, item.parentIndex, obj.resId);
             }
           }
         });
@@ -386,10 +357,7 @@ export default {
           this.content.error = this.content ? this.content.error : '';
 
           this.content.success =
-            this.content.total -
-            this.content.error -
-            this.content.errorCode -
-            this.content.unExecute;
+            this.content.total - this.content.error - this.content.errorCode - this.content.unExecute;
           this.totalTime = this.content.totalTime;
           this.fullTreeNodes = this.content.steps;
           this.recursiveSorting(this.fullTreeNodes);
@@ -424,11 +392,7 @@ export default {
           let tempMap = new Map();
 
           for (let i = 0; i < children.length; i++) {
-            if (
-              !children[i].value ||
-              !children[i].value.startTime ||
-              children[i].value.startTime === 0
-            ) {
+            if (!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0) {
               //若没有value或未执行的，则step留在当前位置
               tempArr[i] = children[i];
               //进行标识
@@ -474,11 +438,7 @@ export default {
           if (!data.status && data.success) {
             data.status = 'SUCCESS';
           }
-          if (
-            data.method === 'Request' &&
-            data.subRequestResults &&
-            data.subRequestResults.length > 0
-          ) {
+          if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
             this.margeTransaction(item, data.subRequestResults);
           } else if (item.resId === data.resourceId) {
             if (item.value && item.value.id && !item.mark) {
@@ -514,11 +474,7 @@ export default {
             if (!data.status && data.success) {
               data.status = 'SUCCESS';
             }
-            if (
-              data.method === 'Request' &&
-              data.subRequestResults &&
-              data.subRequestResults.length > 0
-            ) {
+            if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
               data.subRequestResults.forEach((subItem) => {
                 if (item.resId === subItem.resourceId) {
                   item.value = subItem;

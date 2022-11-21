@@ -3,15 +3,7 @@
     <el-row>
       <el-col :span="spanCount">
         <!-- HTTP 请求参数 -->
-        <div
-          style="
-            border: 1px #dcdfe6 solid;
-            height: 100%;
-            border-radius: 4px;
-            width: 100%;
-          "
-          v-loading="isReloadData"
-        >
+        <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%" v-loading="isReloadData">
           <el-tabs v-model="activeName" class="request-tabs">
             <!-- 请求头-->
             <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
@@ -20,14 +12,10 @@
                 effect="dark"
                 :content="$t('api_test.request.headers')"
                 placement="top-start"
-                slot="label"
-              >
+                slot="label">
                 <span
                   >{{ $t('api_test.request.headers') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.headers.length > 1"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.headers.length > 1">
                     <div class="el-step__icon-inner">
                       {{ request.headers.length - 1 }}
                     </div>
@@ -35,11 +23,7 @@
                 </span>
               </el-tooltip>
               <el-row>
-                <el-link
-                  class="ms-el-link"
-                  @click="batchAdd"
-                  style="color: var(--primary_color)"
-                >
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
                   {{ $t('commons.batch_add') }}
                 </el-link>
               </el-row>
@@ -50,28 +34,20 @@
                 :isShowEnable="isShowEnable"
                 :suggestions="headerSuggestions"
                 :items="request.headers"
-                :need-mock="false"
-              />
+                :need-mock="false" />
             </el-tab-pane>
 
             <!--query 参数-->
-            <el-tab-pane
-              :label="$t('api_test.definition.request.query_param')"
-              name="parameters"
-            >
+            <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
               <el-tooltip
                 class="item-tabs"
                 effect="dark"
                 :content="$t('api_test.definition.request.query_info')"
                 placement="top-start"
-                slot="label"
-              >
+                slot="label">
                 <span
                   >{{ $t('api_test.definition.request.query_param') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.arguments.length > 1"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length > 1">
                     <div class="el-step__icon-inner">
                       {{ request.arguments.length - 1 }}
                     </div>
@@ -79,11 +55,7 @@
                 >
               </el-tooltip>
               <el-row>
-                <el-link
-                  class="ms-el-link"
-                  @click="batchAdd"
-                  style="color: var(--primary_color)"
-                >
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
                   {{ $t('commons.batch_add') }}
                 </el-link>
               </el-row>
@@ -93,28 +65,20 @@
                 :is-show-enable="isShowEnable"
                 :suggestions="apiParams.query"
                 :disable-variable-tip="true"
-                :parameters="request.arguments"
-              />
+                :parameters="request.arguments" />
             </el-tab-pane>
 
             <!--REST 参数-->
-            <el-tab-pane
-              :label="$t('api_test.definition.request.rest_param')"
-              name="rest"
-            >
+            <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
               <el-tooltip
                 class="item-tabs"
                 effect="dark"
                 :content="$t('api_test.definition.request.rest_info')"
                 placement="top-start"
-                slot="label"
-              >
+                slot="label">
                 <span>
                   {{ $t('api_test.definition.request.rest_param') }}
-                  <div
-                    class="el-step__icon is-text ms-api-col ms-header"
-                    v-if="request.rest.length > 1"
-                  >
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length > 1">
                     <div class="el-step__icon-inner">
                       {{ request.rest.length - 1 }}
                     </div>
@@ -122,11 +86,7 @@
                 </span>
               </el-tooltip>
               <el-row>
-                <el-link
-                  class="ms-el-link"
-                  @click="batchAdd"
-                  style="color: var(--primary_color)"
-                >
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
                   {{ $t('commons.batch_add') }}
                 </el-link>
               </el-row>
@@ -137,17 +97,11 @@
                 :is-show-enable="isShowEnable"
                 :suggestions="apiParams.rest"
                 :disable-variable-tip="true"
-                :parameters="request.rest"
-              />
+                :parameters="request.rest" />
             </el-tab-pane>
 
             <!--请求体-->
-            <el-tab-pane
-              v-if="isBodyShow"
-              :label="$t('api_test.request.body')"
-              name="body"
-              style="overflow: auto"
-            >
+            <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body" style="overflow: auto">
               <mock-api-body
                 @headersChange="reloadBody"
                 :suggestions="apiParams.form"
@@ -155,23 +109,13 @@
                 :isShowEnable="isShowEnable"
                 :need-mock="false"
                 :headers="request.headers"
-                :body="request.body"
-              />
+                :body="request.body" />
             </el-tab-pane>
             <el-tab-pane
               name="create"
-              v-if="
-                hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') &&
-                hasLicense() &&
-                definitionTest
-              "
-            >
+              v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
               <template v-slot:label>
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click.stop
-                  @click="generate"
+                <el-button size="mini" type="primary" @click.stop @click="generate"
                   >{{ $t('commons.generate_test_data') }}
                 </el-button>
               </template>
@@ -194,10 +138,7 @@ import MsApiAssertions from '@/business/definition/components/assertion/ApiAsser
 import MsApiExtract from '@/business/definition/components/extract/ApiExtract';
 import { Body, KeyValue } from '@/business/definition/model/ApiTestModel';
 import { getUUID } from 'metersphere-frontend/src/utils';
-import {
-  hasLicense,
-  hasPermission,
-} from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
 import MsApiAdvancedConfig from '@/business/definition/components/request/http/ApiAdvancedConfig';
 import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
@@ -304,15 +245,10 @@ export default {
     hasPermission,
     hasLicense,
     generate() {
-      if (
-        this.request.body &&
-        (this.request.body.jsonSchema || this.request.body.raw)
-      ) {
+      if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
         if (!this.request.body.jsonSchema) {
           const MsConvert = new Convert();
-          this.request.body.jsonSchema = MsConvert.format(
-            JSON.parse(this.request.body.raw)
-          );
+          this.request.body.jsonSchema = MsConvert.format(JSON.parse(this.request.body.raw));
         }
         testDataGenerator(this.request.body.jsonSchema).then((response) => {
           if (response.data) {
@@ -321,10 +257,7 @@ export default {
             } else {
               const MsConvert = new Convert();
               let data = MsConvert.format(JSON.parse(response.data));
-              this.request.body.jsonSchema = this.deepAssign(
-                this.request.body.jsonSchema,
-                data
-              );
+              this.request.body.jsonSchema = this.deepAssign(this.request.body.jsonSchema, data);
             }
             this.reloadBody();
           }

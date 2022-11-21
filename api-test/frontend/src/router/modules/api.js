@@ -29,8 +29,7 @@ export default {
     {
       path: 'definition/report/view/:reportId',
       name: 'ApiReportView',
-      component: () =>
-        import('@/business/definition/components/response/ApiResponseView'),
+      component: () => import('@/business/definition/components/response/ApiResponseView'),
     },
     {
       path: 'definition',

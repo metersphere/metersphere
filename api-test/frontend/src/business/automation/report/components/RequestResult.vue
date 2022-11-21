@@ -3,27 +3,14 @@
     <div class="request-result">
       <div @click="active">
         <el-row :gutter="18" type="flex" align="middle" class="info">
-          <el-col
-            class="ms-req-name-col"
-            :span="18"
-            v-if="indexNumber != undefined"
-          >
+          <el-col class="ms-req-name-col" :span="18" v-if="indexNumber != undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
               <span class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner">{{ indexNumber }}</div>
                 </div>
-                <i
-                  class="icon el-icon-arrow-right"
-                  :class="{ 'is-active': showActive }"
-                  @click="active"
-                  @click.stop
-                />
-                <span
-                  class="report-label-req"
-                  @click="isLink"
-                  v-if="redirect && resourceId"
-                >
+                <i class="icon el-icon-arrow-right" :class="{ 'is-active': showActive }" @click="active" @click.stop />
+                <span class="report-label-req" @click="isLink" v-if="redirect && resourceId">
                   {{ request.name }}
                 </span>
                 <span v-else>{{ getName(request.name) }}</span>
@@ -36,21 +23,13 @@
               effect="dark"
               v-if="baseErrorCode && baseErrorCode !== ''"
               :content="baseErrorCode"
-              style="
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
+              style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
               placement="bottom"
-              :open-delay="800"
-            >
+              :open-delay="800">
               <div
                 :style="{
-                  color: statusColor(
-                    totalStatus ? totalStatus : request.status
-                  ),
-                }"
-              >
+                  color: statusColor(totalStatus ? totalStatus : request.status),
+                }">
                 {{ baseErrorCode }}
               </div>
             </el-tooltip>
@@ -60,21 +39,13 @@
             <el-tooltip
               effect="dark"
               :content="request.responseResult.responseCode"
-              style="
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
+              style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
               placement="bottom"
-              :open-delay="800"
-            >
+              :open-delay="800">
               <div
                 :style="{
-                  color: statusColor(
-                    totalStatus ? totalStatus : request.status
-                  ),
-                }"
-              >
+                  color: statusColor(totalStatus ? totalStatus : request.status),
+                }">
                 {{ request.responseResult.responseCode }}
               </div>
             </el-tooltip>
@@ -84,8 +55,7 @@
             <div
               :style="{
                 color: statusColor(totalStatus ? totalStatus : request.status),
-              }"
-            >
+              }">
               {{ request.responseResult.responseTime }} ms
             </div>
           </el-col>
@@ -94,10 +64,7 @@
               <i class="el-icon-loading" style="font-size: 16px" />
               {{ $t('commons.testing') }}
             </el-tag>
-            <ms-api-report-status
-              :status="totalStatus || request.status"
-              v-else
-            />
+            <ms-api-report-status :status="totalStatus || request.status" v-else />
           </el-col>
         </el-row>
       </div>
@@ -110,8 +77,7 @@
             :request-type="requestType"
             :request="requestInfo"
             :console="console"
-            v-if="showActive"
-          />
+            v-if="showActive" />
         </div>
       </el-collapse-transition>
     </div>
@@ -129,9 +95,7 @@ import { getShareContent } from '../../../../api/share';
 import { getScenarioReportStepDetail } from '../../../../api/scenario-report';
 import MsApiReportStatus from '../ApiReportStatus';
 
-const {
-  getReportStatusColor,
-} = require('../../../../business/commons/js/commons');
+const { getReportStatusColor } = require('../../../../business/commons/js/commons');
 export default {
   name: 'MsRequestResult',
   components: {
@@ -204,10 +168,7 @@ export default {
       handler(n) {
         if (this.request.errorCode) {
           this.baseErrorCode = this.request.errorCode;
-        } else if (
-          this.request.attachInfoMap &&
-          this.request.attachInfoMap.FAKE_ERROR
-        ) {
+        } else if (this.request.attachInfoMap && this.request.attachInfoMap.FAKE_ERROR) {
           if (this.request.attachInfoMap.FAKE_ERROR !== '') {
             this.baseErrorCode = this.request.attachInfoMap.FAKE_ERROR;
           }

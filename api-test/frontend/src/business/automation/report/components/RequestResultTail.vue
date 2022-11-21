@@ -8,23 +8,14 @@
           </div>
         </el-col>
         <el-col :span="8">
-          <el-tooltip
-            effect="dark"
-            :content="request.url"
-            placement="bottom"
-            :open-delay="800"
-          >
+          <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{ request.url }}</div>
           </el-tooltip>
         </el-col>
         <el-col :span="8">
           <div class="url">
-            {{ $t('api_report.start_time') }}：{{
-              request.startTime | datetimeFormat(true)
-            }}
-            {{ $t('report.test_end_time') }}：{{
-              request.endTime | datetimeFormat(true)
-            }}
+            {{ $t('api_report.start_time') }}：{{ request.startTime | datetimeFormat(true) }}
+            {{ $t('report.test_end_time') }}：{{ request.endTime | datetimeFormat(true) }}
           </div>
         </el-col>
       </el-row>
@@ -38,16 +29,14 @@
               v-for="(sub, index) in request.subRequestResults"
               :key="index"
               :indexNumber="index"
-              :request="sub"
-            />
+              :request="sub" />
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
             <ms-response-text
               :console="console"
               :request-type="requestType"
               :response="request.responseResult"
-              :request="request"
-            />
+              :request="request" />
           </el-tab-pane>
         </el-tabs>
         <div v-else>
@@ -56,8 +45,7 @@
             :request-type="requestType"
             v-if="isCodeEditAlive"
             :response="request.responseResult"
-            :request="request"
-          />
+            :request="request" />
         </div>
       </div>
     </el-collapse-transition>

@@ -3,8 +3,7 @@
     :is-across-space="isAcrossSpace"
     @setProject="setProject"
     :dialog-title="$t('api_test.definition.api_import')"
-    ref="baseRelevance"
-  >
+    ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
         @nodeSelectEvent="nodeChange"
@@ -14,8 +13,7 @@
         :is-relevance="true"
         :is-read-only="true"
         :select-project-id="projectId"
-        ref="nodeTree"
-      />
+        ref="nodeTree" />
     </template>
 
     <scenario-relevance-api-list
@@ -28,15 +26,13 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
       @selectCountChange="setSelectCounts"
-      ref="apiList"
-    >
+      ref="apiList">
       <template v-slot:version>
         <mx-version-select
           v-xpack
           :project-id="projectId"
           :default-version="currentVersion"
-          @changeVersion="currentVersionChange"
-        />
+          @changeVersion="currentVersionChange" />
       </template>
     </scenario-relevance-api-list>
 
@@ -50,33 +46,22 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
       @selectCountChange="setSelectCounts"
-      ref="apiCaseList"
-    >
+      ref="apiCaseList">
       <template v-slot:version>
         <mx-version-select
           v-xpack
           :project-id="projectId"
           :default-version="currentVersion"
-          @changeVersion="currentVersionChange"
-        />
+          @changeVersion="currentVersionChange" />
       </template>
     </scenario-relevance-case-list>
 
     <template v-slot:headerBtn>
       <!--  显示数量    -->
-      <table-select-count-bar
-        :count="selectCounts"
-        style="float: left; margin: 5px"
-      />
+      <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px" />
 
       <el-button size="mini" icon="el-icon-refresh" @click="refresh" />
-      <el-button
-        type="primary"
-        @click="copy"
-        :loading="buttonIsWorking"
-        @keydown.enter.native.prevent
-        size="mini"
-      >
+      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.copy') }}
       </el-button>
       <el-button
@@ -85,8 +70,7 @@
         :loading="buttonIsWorking"
         @click="reference"
         size="mini"
-        @keydown.enter.native.prevent
-      >
+        @keydown.enter.native.prevent>
         {{ $t('api_test.scenario.reference') }}
       </el-button>
     </template>
@@ -111,8 +95,7 @@ import TableSelectCountBar from '@/business/automation/scenario/api/TableSelectC
 export default {
   name: 'ApiRelevance',
   components: {
-    MxVersionSelect: () =>
-      import('metersphere-frontend/src/components/version/MxVersionSelect'),
+    MxVersionSelect: () => import('metersphere-frontend/src/components/version/MxVersionSelect'),
     TableSelectCountBar,
     TestCaseRelevanceBase,
     RelevanceDialog,

@@ -6,40 +6,23 @@
     width="900px"
     :destroy-on-close="true"
     @close="handleClose"
-    append-to-body
-  >
+    append-to-body>
     <div style="height: 700px; overflow: auto">
       <div v-if="detail.createUser">
-        <p class="tip">
-          {{ this.$t('report.user_name') }} ：{{ detail.createUser }}
-        </p>
+        <p class="tip">{{ this.$t('report.user_name') }} ：{{ detail.createUser }}</p>
       </div>
       <div>
-        <p class="tip">
-          {{ this.$t('operating_log.time') }} ：{{
-            detail.operTime | datetimeFormat
-          }}
-        </p>
+        <p class="tip">{{ this.$t('operating_log.time') }} ：{{ detail.operTime | datetimeFormat }}</p>
       </div>
       <div style="overflow: auto">
         <p class="tip">{{ this.$t('report.test_log_details') }}</p>
         <ms-api-http-request-params
           :request="detail"
-          v-if="detail.type === 'HTTPSamplerProxy' || detail.type === 'HTTP'"
-        />
-        <ms-api-tcp-parameters
-          :request="detail"
-          v-if="detail.type === 'TCPSampler'"
-        />
+          v-if="detail.type === 'HTTPSamplerProxy' || detail.type === 'HTTP'" />
+        <ms-api-tcp-parameters :request="detail" v-if="detail.type === 'TCPSampler'" />
         <ms-api-tcp-esb :request="detail" v-if="detail.type === 'ESB'" />
-        <ms-api-jdbc-parameters
-          :request="detail"
-          v-if="detail.type === 'JDBCSampler'"
-        />
-        <ms-api-dubbo-parameters
-          :request="detail"
-          v-if="detail.type === 'DubboSampler'"
-        />
+        <ms-api-jdbc-parameters :request="detail" v-if="detail.type === 'JDBCSampler'" />
+        <ms-api-dubbo-parameters :request="detail" v-if="detail.type === 'DubboSampler'" />
       </div>
     </div>
   </el-dialog>
@@ -82,12 +65,7 @@ export default {
       this.detail = value;
       let diffValue = value.diffValue;
       if (diffValue) {
-        if (
-          value != null &&
-          value.diffValue != 'null' &&
-          value.diffValue != '' &&
-          value.diffValue != undefined
-        ) {
+        if (value != null && value.diffValue != 'null' && value.diffValue != '' && value.diffValue != undefined) {
           if (
             Object.prototype.toString
               .call(value.diffValue)
@@ -122,35 +100,21 @@ export default {
         for (let key in properties) {
           let value = JSON.stringify(properties[key].mock);
           if (value && value.indexOf('**mock') !== -1) {
-            properties['++' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
-            properties['--' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
+            properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
             properties['--' + key].mock = { mock: JSON.parse(value)['**mock'] };
             delete properties[key];
           }
           if (properties[key] && properties[key]['++description']) {
-            properties['++' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
-            properties['++' + key].description =
-              properties[key]['++description'];
-            properties['--' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
+            properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['++' + key].description = properties[key]['++description'];
+            properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
             delete properties[key];
           }
           if (properties[key] && properties[key]['**description']) {
-            properties['++' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
-            properties['--' + key] = JSON.parse(
-              JSON.stringify(properties[key])
-            );
-            properties['--' + key].description =
-              properties[key]['**description'];
+            properties['++' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['--' + key] = JSON.parse(JSON.stringify(properties[key]));
+            properties['--' + key].description = properties[key]['**description'];
             delete properties[key];
           }
           if (properties[key] && properties[key].properties) {
@@ -160,12 +124,7 @@ export default {
       }
     },
     removeBlankLines(array) {
-      if (
-        array &&
-        array.length > 0 &&
-        !array[array.length - 1].name &&
-        !array[array.length - 1].value
-      ) {
+      if (array && array.length > 0 && !array[array.length - 1].name && !array[array.length - 1].value) {
         array.splice(array.length - 1, 1);
       }
     },
@@ -250,12 +209,8 @@ export default {
         this.detail.headerId = getUUID();
       }
       if (diffValue.body_raw_1 || diffValue.body_raw_2) {
-        this.detail.body.raw_1 = diffValue.body_raw_1
-          ? diffValue.body_raw_1
-          : '';
-        this.detail.body.raw_2 = diffValue.body_raw_2
-          ? diffValue.body_raw_2
-          : '';
+        this.detail.body.raw_1 = diffValue.body_raw_1 ? diffValue.body_raw_1 : '';
+        this.detail.body.raw_2 = diffValue.body_raw_2 ? diffValue.body_raw_2 : '';
         this.detail.headerId = getUUID();
       }
       if (diffValue.body_xml) {

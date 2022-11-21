@@ -7,17 +7,12 @@
     class="api-import"
     v-loading="result"
     @close="close"
-    :destroy-on-close="true"
-  >
+    :destroy-on-close="true">
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue">
         <span v-for="(item, index) in platforms" :key="index">
-          <el-radio
-            v-if="!isScenarioModel || item.name != 'Swagger'"
-            :label="item.value"
-            >{{ item.name }}</el-radio
-          >
+          <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
         </span>
       </el-radio-group>
 
@@ -25,24 +20,13 @@
         <el-button class="save-button" type="primary" plain @click="save">
           {{ $t('commons.save') }}
         </el-button>
-        <el-button
-          class="cancel-button"
-          type="warning"
-          plain
-          @click="visible = false"
-        >
+        <el-button class="cancel-button" type="warning" plain @click="visible = false">
           {{ $t('commons.cancel') }}
         </el-button>
       </div>
     </div>
 
-    <el-form
-      :model="formData"
-      :rules="rules"
-      label-width="105px"
-      v-loading="result"
-      ref="form"
-    >
+    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result" ref="form">
       <el-row>
         <el-col :span="isSwagger2 && authEnable && swaggerUrlEnable ? 8 : 11">
           <el-form-item :label="$t('commons.import_module')" prop="moduleId">
@@ -53,96 +37,45 @@
               @getValue="setModule"
               :obj="moduleObj"
               clearable
-              checkStrictly
-            />
+              checkStrictly />
           </el-form-item>
-          <el-form-item
-            v-if="!isScenarioModel && showImportModel"
-            :label="$t('commons.import_mode')"
-            prop="modeId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.modeId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in modeOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+          <el-form-item v-if="!isScenarioModel && showImportModel" :label="$t('commons.import_mode')" prop="modeId">
+            <el-select size="small" v-model="formData.modeId" clearable style="width: 100%">
+              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
             <el-checkbox
               size="mini"
               v-if="formData.modeId === 'fullCoverage'"
               v-model="formData.coverModule"
-              style="display: block"
-            >
+              style="display: block">
               {{ this.$t('commons.cover_api') }}
             </el-checkbox>
           </el-form-item>
           <el-form-item
             v-xpack
-            v-if="
-              projectVersionEnable && formData.modeId === 'incrementalMerge'
-            "
+            v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
             :label="$t('api_test.api_import.import_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.versionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
             :label="$t('api_test.api_import.data_update_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.updateVersionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
             :label="$t('api_test.api_import.data_new_version')"
-            prop="versionId"
-          >
-            <el-select
-              size="small"
-              v-model="formData.versionId"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in versionOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              />
+            prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
           <el-form-item v-if="showTemplate">
@@ -151,10 +84,7 @@
             </el-button>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
-            <el-switch
-              v-model="swaggerUrlEnable"
-              :active-text="$t('api_test.api_import.swagger_url_import')"
-            >
+            <el-switch v-model="swaggerUrlEnable" :active-text="$t('api_test.api_import.swagger_url_import')">
             </el-switch>
           </el-form-item>
         </el-col>
@@ -162,83 +92,50 @@
           <el-divider direction="vertical" />
         </el-col>
 
-        <el-col
-          :span="12"
-          v-show="isSwagger2 && swaggerUrlEnable"
-          style="margin-top: 40px"
-        >
-          <el-form-item
-            :label="'Swagger URL'"
-            prop="swaggerUrl"
-            class="swagger-url"
-          >
-            <el-input
-              size="small"
-              v-model="formData.swaggerUrl"
-              clearable
-              show-word-limit
-            />
+        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEnable" style="margin-top: 40px">
+          <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
+            <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit />
           </el-form-item>
           <el-switch
             v-model="authEnable"
             :active-text="$t('api_test.api_import.add_request_params')"
-            @change="changeAuthEnable"
-          ></el-switch>
+            @change="changeAuthEnable"></el-switch>
         </el-col>
 
-        <el-col
-          :span="14"
-          v-show="isSwagger2 && authEnable && swaggerUrlEnable"
-        >
+        <el-col :span="14" v-show="isSwagger2 && authEnable && swaggerUrlEnable">
           <!--请求头 -->
           <div style="margin-top: 15px">
-            <span
-              >{{ $t('api_test.request.headers')
-              }}{{ $t('api_test.api_import.optional') }}：</span
-            >
+            <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
           </div>
           <ms-api-key-value
             :show-desc="true"
             :isShowEnable="isShowEnable"
             :suggestions="headerSuggestions"
-            :items="headers"
-          />
+            :items="headers" />
           <!--query 参数-->
           <div style="margin-top: 10px">
-            <span
-              >{{ $t('api_test.definition.request.query_param')
-              }}{{ $t('api_test.api_import.optional') }}：</span
-            >
+            <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
           </div>
           <ms-api-variable
             :with-more-setting="true"
             :is-read-only="isReadOnly"
             :isShowEnable="isShowEnable"
-            :parameters="queryArguments"
-          />
+            :parameters="queryArguments" />
           <!--认证配置-->
           <div style="margin-top: 10px">
-            <span
-              >{{ $t('api_test.definition.request.auth_config')
-              }}{{ $t('api_test.api_import.optional') }}：</span
-            >
+            <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
           </div>
           <ms-api-auth-config
             :is-read-only="isReadOnly"
             :request="authConfig"
             :encryptShow="false"
             :is-swagger="true"
-            ref="importAuth"
-          />
+            ref="importAuth" />
         </el-col>
 
         <el-col
           :span="12"
-          v-if="
-            selectedPlatformValue != 'Swagger2' ||
-            (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)
-          "
-        >
+          v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)">
           <el-upload
             class="api-upload"
             drag
@@ -249,13 +146,9 @@
             :on-remove="handleRemove"
             :file-list="fileList"
             :on-exceed="handleExceed"
-            multiple
-          >
+            multiple>
             <i class="el-icon-upload"></i>
-            <div
-              class="el-upload__text"
-              v-html="$t('load_test.upload_tips')"
-            ></div>
+            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
             <div class="el-upload__tip" slot="tip">
               {{ $t('api_test.api_import.file_size_limit') }}
             </div>
@@ -266,30 +159,18 @@
 
     <div class="format-tip">
       <div>
-        <span
-          >{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span
-        >
+        <span>{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span>
       </div>
       <div>
-        <span
-          >{{ $t('api_test.api_import.export_tip') }}：{{
-            selectedPlatform.exportTip
-          }}</span
-        >
+        <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
       </div>
       <div>
         <span>
           {{ $t('api_test.api_import.import_tip') }} : <br />
-          <span class="ms-import"
-            >{{ $t('api_test.api_import.import_tip1') }} <br
-          /></span>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
-            $t('api_test.api_import.import_tip2')
-          }}
+          <span class="ms-import">{{ $t('api_test.api_import.import_tip1') }} <br /></span>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip2') }}
           <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
-            $t('api_test.api_import.import_tip3')
-          }}
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip3') }}
           <br />
           {{ $t('api_test.api_import.cover_tip') }} :<br />
           {{ $t('api_test.api_import.cover_tip_1') }}<br />
@@ -311,10 +192,7 @@ import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
 import { importScenario } from '@/api/scenario';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from 'metersphere-frontend/src/utils';
+import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import MsApiKeyValue from '../ApiKeyValue';
@@ -567,10 +445,7 @@ export default {
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-      if (
-        this.selectedPlatform.suffixes &&
-        !this.selectedPlatform.suffixes.has(suffix)
-      ) {
+      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
         this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
         return false;
       }
@@ -597,8 +472,7 @@ export default {
         if (valid) {
           if (
             (this.selectedPlatformValue != 'Swagger2' ||
-              (this.selectedPlatformValue == 'Swagger2' &&
-                !this.swaggerUrlEnable)) &&
+              (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) &&
             !this.formData.file
           ) {
             this.$warning(this.$t('commons.please_upload'));
@@ -609,12 +483,7 @@ export default {
             url = '/api/automation/import';
           }
           let param = this.buildParam();
-          this.result = importScenario(
-            url,
-            param.file,
-            null,
-            this.buildParam()
-          ).then((response) => {
+          this.result = importScenario(url, param.file, null, this.buildParam()).then((response) => {
             let res = response.data;
             this.$success(this.$t('test_track.case.import.success'));
             this.visible = false;
@@ -688,13 +557,10 @@ export default {
     getVersionOptions() {
       if (hasLicense()) {
         getProjectVersions(getCurrentProjectID()).then((response) => {
-          this.versionOptions = response.data.filter(
-            (v) => v.status === 'open'
-          );
+          this.versionOptions = response.data.filter((v) => v.status === 'open');
           this.versionOptions.forEach((v) => {
             if (v.latest) {
-              v.name =
-                v.name + ' ' + this.$t('api_test.api_import.latest_version');
+              v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
             }
           });
         });

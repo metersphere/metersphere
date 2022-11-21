@@ -3,8 +3,7 @@
     @setProject="setProject"
     @save="saveCaseRelevance"
     :multiple-project="false"
-    ref="baseRelevance"
-  >
+    ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
         :relevance-project-id="projectId"
@@ -14,16 +13,14 @@
         :is-read-only="true"
         :show-case-num="false"
         :is-relevance="true"
-        ref="nodeTree"
-      />
+        ref="nodeTree" />
     </template>
 
     <mx-version-select
       v-xpack
       :project-id="projectId"
       :default-version="currentVersion"
-      @changeVersion="currentVersionChange"
-    />
+      @changeVersion="currentVersionChange" />
 
     <api-table-list
       :table-data="tableData"
@@ -34,8 +31,7 @@
       :result="result"
       :current-protocol="currentProtocol"
       @refreshTable="initTable"
-      ref="apitable"
-    />
+      ref="apitable" />
   </test-case-relevance-base>
 </template>
 
@@ -51,8 +47,7 @@ export default {
     ApiTableList,
     TestCaseRelevanceBase,
     MsApiModule,
-    MxVersionSelect: () =>
-      import('metersphere-frontend/src/components/version/MxVersionSelect'),
+    MxVersionSelect: () => import('metersphere-frontend/src/components/version/MxVersionSelect'),
   },
   props: ['apiDefinitionId', 'relationshipType'],
   data() {
@@ -124,13 +119,7 @@ export default {
       });
     },
     buildPagePath(path) {
-      return (
-        path +
-        '/' +
-        this.$refs.apitable.currentPage +
-        '/' +
-        this.$refs.apitable.pageSize
-      );
+      return path + '/' + this.$refs.apitable.currentPage + '/' + this.$refs.apitable.pageSize;
     },
     setProject(projectId) {
       this.projectId = projectId;

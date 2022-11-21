@@ -2,12 +2,7 @@
   <div id="app" v-loading="loading">
     <el-row>
       <el-col>
-        <el-button
-          style="float: right"
-          type="text"
-          size="mini"
-          @click="expandAll"
-        >
+        <el-button style="float: right" type="text" size="mini" @click="expandAll">
           {{ expandTitle }}
         </el-button>
       </el-col>
@@ -22,8 +17,7 @@
         :expand-all-params="expandAllParams"
         @editScenarioAdvance="editScenarioAdvance"
         lang="zh_CN"
-        custom
-      />
+        custom />
     </div>
   </div>
 </template>
@@ -56,11 +50,7 @@ export default {
     scenarioDefinition: Array,
   },
   created() {
-    if (
-      !this.body.jsonSchema &&
-      this.body.raw &&
-      this.checkIsJson(this.body.raw)
-    ) {
+    if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
       let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
       this.schema = obj;
     } else if (this.body.jsonSchema) {
@@ -77,11 +67,7 @@ export default {
     },
     body: {
       handler(newValue, oldValue) {
-        if (
-          !this.body.jsonSchema &&
-          this.body.raw &&
-          this.checkIsJson(this.body.raw)
-        ) {
+        if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
           let obj = { root: MsConvert.format(JSON.parse(this.body.raw)) };
           this.schema = obj;
         } else if (this.body.jsonSchema) {
@@ -106,9 +92,7 @@ export default {
   },
   computed: {
     expandTitle() {
-      return this.expandAllParams
-        ? this.$t('commons.close_all')
-        : this.$t('commons.expand_all');
+      return this.expandAllParams ? this.$t('commons.close_all') : this.$t('commons.expand_all');
     },
   },
   methods: {
