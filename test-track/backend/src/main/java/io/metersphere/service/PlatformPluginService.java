@@ -1,7 +1,9 @@
 package io.metersphere.service;
 
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.i18n.Translator;
 import io.metersphere.platform.api.Platform;
 import io.metersphere.platform.api.PluginMetaInfo;
 import io.metersphere.base.domain.PluginWithBLOBs;
@@ -32,6 +34,8 @@ public class PlatformPluginService {
     private BasePluginService basePluginService;
     @Resource
     private BaseIntegrationService baseIntegrationService;
+
+    private static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
     private PlatformPluginManager pluginManager;
 
@@ -82,7 +86,11 @@ public class PlatformPluginService {
 
         PlatformRequest pluginRequest = new PlatformRequest();
         pluginRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
-        return getPluginManager().getPlatformByKey(platformKey, pluginRequest);
+        Platform platform = getPluginManager().getPlatformByKey(platformKey, pluginRequest);
+        if (platform == null) {
+            MSException.throwException(Translator.get("platform_plugin_not_exit") + PLUGIN_DOWNLOAD_URL);
+        }
+        return platform;
     }
 
     public Platform getPlatform(String platformKey) {
