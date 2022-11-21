@@ -428,9 +428,10 @@ public class TestCaseService {
         }
         issuesRequest.setProjectId(testCase.getProjectId());
         issuesRequest.setWorkspaceId(project.getWorkspaceId());
-        IssueFactory.createPlatform(issuesService.getPlatform(testCase.getProjectId()), issuesRequest)
-                .updateDemandIssueLink(testCase, project);
-
+        IssuesPlatform platform = IssueFactory.createPlatform(issuesService.getPlatform(testCase.getProjectId()), issuesRequest);
+        if (platform != null) {
+            platform.updateDemandIssueLink(testCase, project);
+        }
     }
 
     /**

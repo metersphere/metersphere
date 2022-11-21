@@ -30,8 +30,6 @@ public class PlatformPluginService {
     private BasePluginService basePluginService;
     @Resource
     private BaseIntegrationService baseIntegrationService;
-    @Resource
-    private BaseProjectService baseProjectService;
 
     private PlatformPluginManager pluginManager;
 
