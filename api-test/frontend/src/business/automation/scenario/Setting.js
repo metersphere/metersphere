@@ -70,7 +70,15 @@ export function STEP() {
     ['DEFINITION', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler']],
     [
       'ALlSamplerStep',
-      ['JSR223PreProcessor', 'JSR223PostProcessor', 'JDBCPreProcessor', 'JDBCPostProcessor', 'Assertions', 'Extract'],
+      [
+        'JSR223PreProcessor',
+        'JSR223PostProcessor',
+        'JDBCPreProcessor',
+        'JDBCPostProcessor',
+        'Assertions',
+        'Extract',
+        'ConstantTimer',
+      ],
     ],
     [
       'AllCanExecType',
