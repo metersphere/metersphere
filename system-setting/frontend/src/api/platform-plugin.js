@@ -1,4 +1,5 @@
-import {post, get} from "metersphere-frontend/src/plugins/request";
+import {post, get, generateModuleUrl} from "metersphere-frontend/src/plugins/request";
+
 const BASE_URL = "/platform/plugin/";
 
 export function getIntegrationInfo() {
@@ -26,4 +27,8 @@ export function getPlatformOption() {
 
 export function getThirdPartTemplateSupportPlatform() {
   return get(BASE_URL + 'template/support/list');
+}
+
+export function generatePlatformResourceUrl(configId, fileName) {
+  return generateModuleUrl(BASE_URL + `resource/${configId}?fileName=${fileName}`);
 }

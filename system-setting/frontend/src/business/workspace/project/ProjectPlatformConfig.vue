@@ -22,7 +22,7 @@
         <ms-instructions-icon v-if="item.instructionsIcon" effect="light">
           <template>
             <img class="jira-image"
-                 :src="'/platform/plugin/resource/' + config.id + '?fileName=' + item.instructionsIcon"/>
+                 :src="getPlatformImageUrl(config, item)"/>
           </template>
         </ms-instructions-icon>
       </el-form-item>
@@ -34,6 +34,7 @@
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {
+  generatePlatformResourceUrl,
   getPlatformProjectInfo,
   getPlatformProjectOption,
   validateProjectConfig,
@@ -140,6 +141,9 @@ export default {
           callback();
         }
       });
+    },
+    getPlatformImageUrl(config, item) {
+      return generatePlatformResourceUrl(config.id, item.instructionsIcon);
     }
   }
 }

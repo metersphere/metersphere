@@ -5,7 +5,7 @@
       <el-radio-group v-model="platform" style="margin-top: 10px">
         <span v-for="config in platformConfigs" :key="config.key">
            <el-radio :label="config.label">
-            <img class="platform" :src="'/platform/plugin/resource/' + config.id + '?fileName=' + config.image"
+            <img class="platform" :src="getPlatformImageUrl(config)"
                  alt="Jira"/>
           </el-radio>
         </span>
@@ -41,7 +41,7 @@ import ZentaoSetting from '@/business/workspace/integration/ZentaoSetting';
 import AzuredevopsSetting from '@/business/workspace/integration/AzureDevopsSetting';
 import {AZURE_DEVOPS, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
 import PlatformConfig from "@/business/workspace/integration/PlatformConfig";
-import {getIntegrationInfo} from "@/api/platform-plugin";
+import {generatePlatformResourceUrl, getIntegrationInfo} from "@/api/platform-plugin";
 
 export default {
   name: "BugManagement",
@@ -72,9 +72,13 @@ export default {
     },
     azuredevopsEnable() {
       return this.platform === AZURE_DEVOPS;
-    },
+    }
   },
-  methods: {}
+  methods: {
+    getPlatformImageUrl(config) {
+      return generatePlatformResourceUrl(config.id, config.image);
+    }
+  }
 }
 </script>
 
