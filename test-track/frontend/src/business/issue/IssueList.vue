@@ -7,7 +7,21 @@
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
-              <ms-table-button icon="el-icon-refresh" :content="$t('test_track.issue.sync_bugs')" v-if="isThirdPart && hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="syncIssues"/>
+
+              <span v-if="isThirdPart && hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')">
+                <ms-table-button
+                  v-if="hasLicense"
+                  icon="el-icon-refresh"
+                  :content="$t('test_track.issue.sync_bugs')"
+                  @click="syncAllIssues"/>
+                <ms-table-button
+                  v-if="!hasLicense"
+                  icon="el-icon-refresh"
+                  :content="$t('test_track.issue.sync_bugs')"
+                  @click="syncIssues"/>
+              </span>
+
+
               <ms-table-button icon="el-icon-upload2" :content="$t('commons.import')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="handleImport"/>
               <ms-table-button icon="el-icon-download" :content="$t('commons.export')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ')" @click="handleExport"/>
             </template>
@@ -195,7 +209,7 @@ import {
   getIssues,
   syncIssues,
   deleteIssue,
-  getIssuesById, batchDeleteIssue, getPlatformOption
+  getIssuesById, batchDeleteIssue, getPlatformOption, syncAllIssues
 } from "@/api/issue";
 import {
   getCustomFieldValue,
@@ -214,6 +228,7 @@ import {
   getAdvSearchCustomField
 } from "metersphere-frontend/src/components/search/custom-component";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "IssueList",
@@ -269,7 +284,8 @@ export default {
       creatorFilters: [],
       loading: false,
       dataSelectRange: "",
-      platformOptions: []
+      platformOptions: [],
+      hasLicense: false
     };
   },
   watch: {
@@ -303,6 +319,8 @@ export default {
       .then((r) => {
         this.platformOptions = r.data;
       });
+
+    this.hasLicense = hasLicense();
   },
   computed: {
     platformFilters() {
@@ -467,7 +485,7 @@ export default {
       }
       return false;
     },
-    syncIssues() {
+    syncAllIssues() {
       this.$refs.issueSyncSelect.open();
     },
     handleImport() {
@@ -500,7 +518,20 @@ export default {
         "createTime": data.createTime.getTime(),
         "pre": data.preValue
       }
-      syncIssues(param)
+      syncAllIssues(param)
+        .then((response) => {
+          if (response.data === false) {
+            checkSyncIssues(this.loading);
+          } else {
+            this.$success(this.$t('test_track.issue.sync_complete'));
+            this.loading = false;
+            this.getIssues();
+          }
+        });
+    },
+    syncIssues() {
+      this.loading = true;
+      syncIssues()
         .then((response) => {
           if (response.data === false) {
             checkSyncIssues(this.loading);
