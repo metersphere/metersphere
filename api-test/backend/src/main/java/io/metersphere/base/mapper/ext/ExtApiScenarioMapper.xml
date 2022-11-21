@@ -782,7 +782,7 @@
                  LEFT JOIN project_version
                            on project_version.project_id = api_scenario.project_id and project_version.id = version_id
                  LEFT JOIN project on api_scenario.project_id = project.id
-        WHERE api_scenario.id = #{id} and api_scenario.status != 'Trash';
+        WHERE api_scenario.id = #{id}
     </select>
 
     <sql id="queryVersionCondition">
