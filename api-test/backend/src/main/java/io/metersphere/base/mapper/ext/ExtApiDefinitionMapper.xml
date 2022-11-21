@@ -810,7 +810,7 @@
 
                 </if>
             </if>
-            <if test="request.apiCoverage == 'coverage' ">
+            <if test="request.apiCoverage == 'covered' ">
                 and
                 (
                 api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
@@ -829,7 +829,7 @@
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
-            <if test="request.apiCaseCoverage == 'coverage' ">
+            <if test="request.apiCaseCoverage == 'covered' ">
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
@@ -842,7 +842,7 @@
 
                 </if>
             </if>
-            <if test="request.scenarioCoverage == 'coverage' ">
+            <if test="request.scenarioCoverage == 'covered' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
@@ -926,7 +926,7 @@
 
                 </if>
             </if>
-            <if test="request.apiCoverage == 'coverage' ">
+            <if test="request.apiCoverage == 'covered' ">
                 and
                 (
                 api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
@@ -945,7 +945,7 @@
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
-            <if test="request.apiCaseCoverage == 'coverage' ">
+            <if test="request.apiCaseCoverage == 'covered' ">
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
@@ -958,7 +958,7 @@
 
                 </if>
             </if>
-            <if test="request.scenarioCoverage == 'coverage' ">
+            <if test="request.scenarioCoverage == 'covered' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">

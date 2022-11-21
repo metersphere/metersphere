@@ -399,8 +399,7 @@ public class ApiDefinitionService {
             if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算没有用例接口的覆盖数量
                 definitionList = this.selectEffectiveIdByProjectIdAndHaveNotCase(request.getProjectId());
-            }
-            if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
+            } else if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算全部用例
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
             }
