@@ -123,11 +123,7 @@ public class IssuesService {
     @Resource
     StringRedisTemplate stringRedisTemplate;
     @Resource
-    IssueFileMapper issueFileMapper;
-    @Resource
     private AttachmentService attachmentService;
-    @Resource
-    private AttachmentModuleRelationMapper attachmentModuleRelationMapper;
     @Resource
     private ProjectMapper projectMapper;
     @Resource
