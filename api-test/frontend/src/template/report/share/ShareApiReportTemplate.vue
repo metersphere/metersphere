@@ -1,16 +1,21 @@
 <template>
-  <ms-api-report :report-id="reportId" :share-id="shareId" :is-share="isShare" :is-plan="true"
-                 :show-cancel-button="false"></ms-api-report>
+  <ms-api-report
+    :report-id="reportId"
+    :share-id="shareId"
+    :is-share="isShare"
+    :is-plan="true"
+    :show-cancel-button="false"
+  ></ms-api-report>
 </template>
 
 <script>
-import {getShareId} from "@/api/share";
-import {getShareInfo} from "@/api/share";
-import MsApiReport from "@/business/automation/report/ApiReportDetail";
+import { getShareId } from '@/api/share';
+import { getShareInfo } from '@/api/share';
+import MsApiReport from '@/business/automation/report/ApiReportDetail';
 
 export default {
-  name: "ShareApiReportTemplate",
-  components: {MsApiReport},
+  name: 'ShareApiReportTemplate',
+  components: { MsApiReport },
   data() {
     return {
       reportId: '',
@@ -33,5 +38,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

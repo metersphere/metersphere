@@ -1,5 +1,5 @@
-import {get, post} from "metersphere-frontend/src/plugins/request"
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import { get, post } from 'metersphere-frontend/src/plugins/request';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 
 export function getPlanStageOption() {
   let projectID = getCurrentProjectID();
@@ -7,7 +7,7 @@ export function getPlanStageOption() {
 }
 
 export function planPage(page, pageSize, params) {
-  return post('/test/plan/list/all/'+ page + '/' + pageSize, params);
+  return post('/test/plan/list/all/' + page + '/' + pageSize, params);
 }
 
 export function testPlanGetPrincipal(id) {

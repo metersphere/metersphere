@@ -1,20 +1,20 @@
-import Sampler from "../sampler";
+import Sampler from '../sampler';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "TestBeanGUI",
-      testclass: "JDBCSampler",
-      testname: "JDBC Request",
-      enabled: "true"
+      guiclass: 'TestBeanGUI',
+      testclass: 'JDBCSampler',
+      testname: 'JDBC Request',
+      enabled: 'true',
     },
-  }
+  },
 };
 
 export default class JDBCSampler extends Sampler {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.type = "JDBCSampler";
+    this.type = 'JDBCSampler';
     this.hashTree = [];
     this.variables = [];
     this.environmentId = undefined;
@@ -33,5 +33,5 @@ export default class JDBCSampler extends Sampler {
 }
 
 export const schema = {
-  JDBCSampler: JDBCSampler
-}
+  JDBCSampler: JDBCSampler,
+};

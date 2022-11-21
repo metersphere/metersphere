@@ -1,34 +1,60 @@
 <template>
-  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
-             append-to-body @close="close">
+  <el-dialog
+    :close-on-click-modal="false"
+    width="60%"
+    class="schedule-edit"
+    :visible.sync="dialogVisible"
+    append-to-body
+    @close="close"
+  >
     <template>
       <div>
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
             <el-form :model="form" :rules="rules" ref="from">
-              <el-form-item
-                prop="cronValue">
-                <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                          :placeholder="$t('schedule.please_input_cron_expression')"/>
-                <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
-                    $t('commons.save')
-                  }}
+              <el-form-item prop="cronValue">
+                <el-input
+                  :disabled="isReadOnly"
+                  v-model="form.cronValue"
+                  class="inp"
+                  :placeholder="$t('schedule.please_input_cron_expression')"
+                />
+                <el-button
+                  :disabled="isReadOnly"
+                  type="primary"
+                  @click="saveCron"
+                  >{{ $t('commons.save') }}
                 </el-button>
               </el-form-item>
               <el-form-item>
-                <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
+                <el-link
+                  :disabled="isReadOnly"
+                  type="primary"
+                  @click="showCronDialog"
+                >
                   {{ $t('schedule.generate_expression') }}
                 </el-link>
               </el-form-item>
-              <crontab-result :ex="form.cronValue" ref="crontabResult"/>
+              <crontab-result :ex="form.cronValue" ref="crontabResult" />
             </el-form>
-            <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
-                       :modal="false">
-              <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
-                       ref="crontab"/>
+            <el-dialog
+              width="60%"
+              :title="$t('schedule.generate_expression')"
+              :visible.sync="showCron"
+              :modal="false"
+            >
+              <crontab
+                @hide="showCron = false"
+                @fill="crontabFill"
+                :expression="schedule.value"
+                ref="crontab"
+              />
             </el-dialog>
           </el-tab-pane>
-          <el-tab-pane :label="$t('api_test.home_page.running_task_list.title')" name="second">
+          <el-tab-pane
+            :label="$t('api_test.home_page.running_task_list.title')"
+            name="second"
+          >
             <swagger-task-list></swagger-task-list>
           </el-tab-pane>
         </el-tabs>
@@ -38,44 +64,49 @@
 </template>
 
 <script>
-import {createDefinitionSchedule, getDefinitionByResourceId, updateDefinitionSchedule} from "@/api/definition";
-import {getScheduleByIdAndType} from "@/api/schedule";
 import {
-  getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
+  createDefinitionSchedule,
+  getDefinitionByResourceId,
+  updateDefinitionSchedule,
+} from '@/api/definition';
+import { getScheduleByIdAndType } from '@/api/schedule';
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentWorkspaceId,
+} from 'metersphere-frontend/src/utils/token';
 import {
   listenGoBack,
-  removeGoBackListener
-} from "metersphere-frontend/src/utils";
-import Crontab from "metersphere-frontend/src/components/cron/Crontab";
-import CrontabResult from "metersphere-frontend/src/components/cron/CrontabResult";
-import {cronValidate} from "metersphere-frontend/src/utils/cron";
-import SwaggerTaskList from "@/business/definition/components/import/SwaggerTaskList";
+  removeGoBackListener,
+} from 'metersphere-frontend/src/utils';
+import Crontab from 'metersphere-frontend/src/components/cron/Crontab';
+import CrontabResult from 'metersphere-frontend/src/components/cron/CrontabResult';
+import { cronValidate } from 'metersphere-frontend/src/utils/cron';
+import SwaggerTaskList from '@/business/definition/components/import/SwaggerTaskList';
 
 function defaultCustomValidate() {
-  return {pass: true};
+  return { pass: true };
 }
 
 export default {
-  name: "ImportScheduleEdit",
-  components: {SwaggerTaskList, CrontabResult, Crontab},
+  name: 'ImportScheduleEdit',
+  components: { SwaggerTaskList, CrontabResult, Crontab },
 
   props: {
     customValidate: {
       type: Function,
-      default: defaultCustomValidate
+      default: defaultCustomValidate,
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
-
 
   watch: {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
-    }
+    },
   },
   data() {
     const validateCron = (rule, cronValue, callback) => {
@@ -96,11 +127,11 @@ export default {
       operation: true,
       dialogVisible: false,
       schedule: {
-        value: "",
+        value: '',
       },
       showCron: false,
       form: {
-        cronValue: ""
+        cronValue: '',
       },
       activeName: 'first',
       swaggerUrl: String,
@@ -110,9 +141,11 @@ export default {
       modulePath: String,
       modeId: String,
       rules: {
-        cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
-      }
-    }
+        cronValue: [
+          { required: true, validator: validateCron, trigger: 'blur' },
+        ],
+      },
+    };
   },
   methods: {
     currentUser: () => {
@@ -125,11 +158,10 @@ export default {
       return true;
     },
     open(param) {
-      getDefinitionByResourceId(param).then(response => {
-        this.paramSwaggerUrlId = response.data
+      getDefinitionByResourceId(param).then((response) => {
+        this.paramSwaggerUrlId = response.data;
         if (this.paramSwaggerUrlId) {
           this.findSchedule(this.paramSwaggerUrlId);
-
         }
         this.project = param.projectId;
         this.swaggerUrl = param.swaggerUrl;
@@ -139,21 +171,22 @@ export default {
         this.modulePath = param.modulePath;
         this.modeId = param.modeId;
         listenGoBack(this.close);
-      })
+      });
 
       this.activeName = 'first';
     },
     findSchedule(paramSwaggerUrlId) {
       let scheduleResourceID = paramSwaggerUrlId;
-      let taskType = "SWAGGER_IMPORT";
-      this.result = getScheduleByIdAndType(scheduleResourceID, taskType).then(response => {
-        if (response.data != null) {
-          this.schedule = response.data;
-        } else {
-          this.schedule = {};
+      let taskType = 'SWAGGER_IMPORT';
+      this.result = getScheduleByIdAndType(scheduleResourceID, taskType).then(
+        (response) => {
+          if (response.data != null) {
+            this.schedule = response.data;
+          } else {
+            this.schedule = {};
+          }
         }
-      });
-
+      );
     },
     crontabFill(value, resultList) {
       //确定后回传的值
@@ -173,7 +206,7 @@ export default {
       this.$refs['from'].validate((valid) => {
         if (valid) {
           this.intervalShortValidate();
-          let formCronValue = this.form.cronValue
+          let formCronValue = this.form.cronValue;
           this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
@@ -235,18 +268,16 @@ export default {
       let time2 = new Date(resultList[1]);
       return time2 - time1;
     },
-
   },
   computed: {
     isTesterPermission() {
       return true;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .inp {
   width: 50%;
   margin-right: 20px;
@@ -255,5 +286,4 @@ export default {
 .el-form-item {
   margin-bottom: 10px;
 }
-
 </style>

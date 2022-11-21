@@ -2,53 +2,85 @@
   <div>
     <el-container>
       <el-aside width="110px" style="overflow: hidden">
-        <div v-if="parameters && parameters.length > 1" style="height: 100%" id="moreOptionTypeDiv">
-          <div class="top-line-box" :style="{ height:lineDivTopHeight+'px',marginTop:lineDivMarginTopHeight+'px'}">
-          </div>
+        <div
+          v-if="parameters && parameters.length > 1"
+          style="height: 100%"
+          id="moreOptionTypeDiv"
+        >
+          <div
+            class="top-line-box"
+            :style="{
+              height: lineDivTopHeight + 'px',
+              marginTop: lineDivMarginTopHeight + 'px',
+            }"
+          ></div>
           <div>
-            <el-select v-if="isRest" class="ms-http-select" size="small" v-model="filterTypeObject.restFilterType"
-                       style="width: 100px">
-              <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id"/>
+            <el-select
+              v-if="isRest"
+              class="ms-http-select"
+              size="small"
+              v-model="filterTypeObject.restFilterType"
+              style="width: 100px"
+            >
+              <el-option
+                v-for="item in filterTypes"
+                :key="item.id"
+                :label="item.label"
+                :value="item.id"
+              />
             </el-select>
-            <el-select v-else class="ms-http-select" size="small" v-model="filterTypeObject.paramsFilterType"
-                       style="width: 100px">
-              <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id"/>
+            <el-select
+              v-else
+              class="ms-http-select"
+              size="small"
+              v-model="filterTypeObject.paramsFilterType"
+              style="width: 100px"
+            >
+              <el-option
+                v-for="item in filterTypes"
+                :key="item.id"
+                :label="item.label"
+                :value="item.id"
+              />
             </el-select>
           </div>
-          <div class="bottom-line-box" :style="{ height:lineDivBottomHeight+'px'}">
-          </div>
+          <div
+            class="bottom-line-box"
+            :style="{ height: lineDivBottomHeight + 'px' }"
+          ></div>
         </div>
       </el-aside>
       <el-main style="padding: 0px">
-        <mock-api-variable ref="mockApiVariableComp"
-                           :append-dialog-to-body="true"
-                           :suggestions="suggestions"
-                           :is-read-only="isReadOnly"
-                           :isShowEnable="isShowEnable"
-                           :disable-variable-tip="disableVariableTip"
-                           :parameters="parameters"/>
+        <mock-api-variable
+          ref="mockApiVariableComp"
+          :append-dialog-to-body="true"
+          :suggestions="suggestions"
+          :is-read-only="isReadOnly"
+          :isShowEnable="isShowEnable"
+          :disable-variable-tip="disableVariableTip"
+          :parameters="parameters"
+        />
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script>
-
-import MockApiVariable from "@/business/definition/components/mock/Components/MockApiVariable";
+import MockApiVariable from '@/business/definition/components/mock/Components/MockApiVariable';
 
 export default {
-  name: "CombinationCondition",
-  components: {MockApiVariable},
+  name: 'CombinationCondition',
+  components: { MockApiVariable },
   data() {
     return {
       lineDivTopHeight: 0,
       lineDivMarginTopHeight: 0,
       lineDivBottomHeight: 0,
       filterTypes: [
-        {id: 'And', label: 'AND'},
-        {id: 'Or', label: 'OR'},
+        { id: 'And', label: 'AND' },
+        { id: 'Or', label: 'OR' },
       ],
-    }
+    };
   },
   props: {
     suggestions: Array,
@@ -57,16 +89,15 @@ export default {
     isRest: Boolean,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShowEnable: {
       type: Boolean,
-      default: true
+      default: true,
     },
-    disableVariableTip: Boolean
+    disableVariableTip: Boolean,
   },
-  created() {
-  },
+  created() {},
   mounted() {
     this.initFilterDiv();
   },
@@ -79,8 +110,8 @@ export default {
           }, 100);
         });
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     initFilterDiv() {
@@ -92,19 +123,21 @@ export default {
         let firstHeight = 32;
         let endHeight = 32;
 
-        let marginTopHeight = ((firstHeight - 32) / 2 + 21);
-        let topHeightLine = ((optionTypeHeight / 2 - marginTopHeight - 16));
-        let divMarginBottom = ((endHeight - 32) / 2 + 16);
-        let bottomHeight = optionTypeHeight - 32 - (topHeightLine + marginTopHeight + divMarginBottom);
+        let marginTopHeight = (firstHeight - 32) / 2 + 21;
+        let topHeightLine = optionTypeHeight / 2 - marginTopHeight - 16;
+        let divMarginBottom = (endHeight - 32) / 2 + 16;
+        let bottomHeight =
+          optionTypeHeight -
+          32 -
+          (topHeightLine + marginTopHeight + divMarginBottom);
 
         this.lineDivTopHeight = topHeightLine;
         this.lineDivMarginTopHeight = marginTopHeight;
-        this.lineDivBottomHeight = (bottomHeight > 0 ? bottomHeight : 0);
+        this.lineDivBottomHeight = bottomHeight > 0 ? bottomHeight : 0;
       }
-    }
-  }
-
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

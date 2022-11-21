@@ -1,20 +1,20 @@
-import PostProcessor from "../pre-processor";
+import PostProcessor from '../pre-processor';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "TestBeanGUI",
-      testclass: "JDBCPreProcessor",
-      testname: "JDBC PreProcessor",
-      enabled: "true"
+      guiclass: 'TestBeanGUI',
+      testclass: 'JDBCPreProcessor',
+      testname: 'JDBC PreProcessor',
+      enabled: 'true',
     },
-  }
+  },
 };
 
 export default class JDBCPreProcessor extends PostProcessor {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.type = "JDBCPreProcessor";
+    this.type = 'JDBCPreProcessor';
     this.hashTree = [];
     this.variables = [];
     this.environmentId = undefined;
@@ -34,5 +34,5 @@ export default class JDBCPreProcessor extends PostProcessor {
 }
 
 export const schema = {
-  JDBCPreProcessor: JDBCPreProcessor
-}
+  JDBCPreProcessor: JDBCPreProcessor,
+};

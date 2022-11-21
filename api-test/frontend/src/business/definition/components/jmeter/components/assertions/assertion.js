@@ -1,6 +1,6 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
-export const TYPE = "Assertion";
+export const TYPE = 'Assertion';
 
 export default class Assertion extends HashTreeElement {
   constructor(options = {}) {

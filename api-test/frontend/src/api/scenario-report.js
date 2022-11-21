@@ -1,4 +1,4 @@
-import {post, get} from 'metersphere-frontend/src/plugins/request'
+import { post, get } from 'metersphere-frontend/src/plugins/request';
 
 export function getReportPage(currentPage, pageSize, condition) {
   let url = '/api/scenario/report/list/' + currentPage + '/' + pageSize;
@@ -12,7 +12,7 @@ export function getReportPageDetail(currentPage, pageSize, condition) {
 
 export function delReport(id) {
   let url = '/api/scenario/report/delete';
-  return post(url, {id: id});
+  return post(url, { id: id });
 }
 
 export function delBatchReport(condition) {

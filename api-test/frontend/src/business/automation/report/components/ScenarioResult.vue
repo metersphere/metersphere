@@ -1,7 +1,13 @@
 <template>
   <div class="scenario-result">
-    <div v-if="(node.children && node.children.length >0) || node.unsolicited
-    || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
+    <div
+      v-if="
+        (node.children && node.children.length > 0) ||
+        node.unsolicited ||
+        (node.type &&
+          this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)
+      "
+    >
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">
@@ -9,7 +15,11 @@
           </div>
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
-          <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
+          <el-link
+            v-if="node.redirect"
+            class="report-label-head"
+            @click="isLink"
+          >
             {{ getLabel(node.label) }}
           </el-link>
           <span v-else>{{ getLabel(node.label) }}</span>
@@ -37,14 +47,14 @@
 </template>
 
 <script>
-import MsRequestResult from "./RequestResult";
-import {STEP} from "../../../../business/automation/scenario/Setting";
-import {getCurrentByResourceId} from "../../../../api/user";
+import MsRequestResult from './RequestResult';
+import { STEP } from '../../../../business/automation/scenario/Setting';
+import { getCurrentByResourceId } from '../../../../api/user';
 
 export default {
-  name: "MsScenarioResult",
+  name: 'MsScenarioResult',
   components: {
-    MsRequestResult
+    MsRequestResult,
   },
   props: {
     scenario: Object,
@@ -56,25 +66,25 @@ export default {
   },
   data() {
     return {
-      stepFilter: new STEP,
-    }
+      stepFilter: new STEP(),
+    };
   },
   methods: {
     getLabel(label) {
       switch (label) {
-        case "ConstantTimer":
-          return "等待控制器";
-        case "LoopController":
-          return "循环控制器";
-        case "Assertion":
-          return "场景断言";
+        case 'ConstantTimer':
+          return '等待控制器';
+        case 'LoopController':
+          return '循环控制器';
+        case 'Assertion':
+          return '场景断言';
         default:
           return label;
       }
     },
     isLink() {
-      let uri = "/#/api/automation?resourceId=" + this.node.resourceId;
-      this.clickResource(uri)
+      let uri = '/#/api/automation?resourceId=' + this.node.resourceId;
+      this.clickResource(uri);
     },
     clickResource(uri) {
       getCurrentByResourceId(this.node.resourceId).then(() => {
@@ -82,11 +92,11 @@ export default {
       });
     },
     toPage(uri) {
-      let id = "new_a";
-      let a = document.createElement("a");
-      a.setAttribute("href", uri);
-      a.setAttribute("target", "_blank");
-      a.setAttribute("id", id);
+      let id = 'new_a';
+      let a = document.createElement('a');
+      a.setAttribute('href', uri);
+      a.setAttribute('target', '_blank');
+      a.setAttribute('id', id);
       document.body.appendChild(a);
       a.click();
 
@@ -97,19 +107,21 @@ export default {
       this.isActive = !this.isActive;
     },
     requestResult(requestResult) {
-      this.$emit("requestResult", requestResult);
-    }
+      this.$emit('requestResult', requestResult);
+    },
   },
 
   computed: {
     assertion() {
-      return this.scenario.passAssertions + " / " + this.scenario.totalAssertions;
+      return (
+        this.scenario.passAssertions + ' / ' + this.scenario.totalAssertions
+      );
     },
     success() {
       return this.scenario.error === 0;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -119,7 +131,7 @@ export default {
 }
 
 .scenario-result + .scenario-result {
-  border-top: 1px solid #DCDFE6;
+  border-top: 1px solid #dcdfe6;
 }
 
 .ms-card :deep(.el-card__body) {
@@ -143,15 +155,15 @@ export default {
 }
 
 .ms-api-col {
-  background-color: #EFF0F0;
-  border-color: #EFF0F0;
+  background-color: #eff0f0;
+  border-color: #eff0f0;
   margin-right: 10px;
   font-size: 12px;
-  color: #64666A;
+  color: #64666a;
 }
 
 .ms-card .ms-api-col-create {
-  background-color: #EBF2F2;
+  background-color: #ebf2f2;
   border-color: #008080;
   margin-right: 10px;
   font-size: 12px;
@@ -161,7 +173,8 @@ export default {
 .report-label-head {
   border-bottom: 1px solid #303133;
   color: #303133;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    Arial, sans-serif;
   font-size: 13px;
 }
 

@@ -28,7 +28,8 @@
   }
 }
 
-.dubbo-form-item, .dubbo-form-item-long {
+.dubbo-form-item,
+.dubbo-form-item-long {
   display: inline-block;
 }
 

@@ -11,12 +11,16 @@
       :show-btn="showBtn"
       :show-version="showVersion"
       :background-color="defBackgroundColor"
-      :title="pluginName">
-
+      :title="pluginName"
+    >
       <template v-slot:request>
-        <legend style="width: 100%;display:table-column">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
+        <legend style="width: 100%; display: table-column">
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
+          <el-tabs
+            v-model="activeName"
+            class="request-tabs"
+            @tab-click="tabClick"
+          >
             <!-- 请求头-->
             <el-tab-pane label="插件数据" name="base">
               <div class="ms-form">
@@ -36,88 +40,189 @@
             </el-tab-pane>
 
             <!-- 脚本步骤/断言步骤 -->
-            <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showOther">
-              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            <el-tab-pane
+              :label="$t('api_test.definition.request.pre_operation')"
+              name="preOperate"
+              v-if="showOther"
+            >
+              <span
+                class="item-tabs"
+                effect="dark"
+                placement="top-start"
+                slot="label"
+              >
                 {{ $t('api_test.definition.request.pre_operation') }}
-                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+                <div
+                  class="el-step__icon is-text ms-api-col ms-header"
+                  v-if="request.preSize > 0"
+                >
                   <div class="el-step__icon-inner">{{ request.preSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response"
-                           :tab-type="'pre'" ref="preStep"/>
+              <ms-jmx-step
+                :request="request"
+                :apiId="request.id"
+                :scenario-id="currentScenario.id"
+                :response="response"
+                :tab-type="'pre'"
+                ref="preStep"
+              />
             </el-tab-pane>
-            <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate" v-if="showOther">
-                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            <el-tab-pane
+              :label="$t('api_test.definition.request.post_operation')"
+              name="postOperate"
+              v-if="showOther"
+            >
+              <span
+                class="item-tabs"
+                effect="dark"
+                placement="top-start"
+                slot="label"
+              >
                 {{ $t('api_test.definition.request.post_operation') }}
-                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+                <div
+                  class="el-step__icon is-text ms-api-col ms-header"
+                  v-if="request.postSize > 0"
+                >
                   <div class="el-step__icon-inner">{{ request.postSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response"
-                           :tab-type="'post'" ref="postStep"/>
+              <ms-jmx-step
+                :request="request"
+                :apiId="request.id"
+                :scenario-id="currentScenario.id"
+                :response="response"
+                :tab-type="'post'"
+                ref="postStep"
+              />
             </el-tab-pane>
-            <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
-                         v-if="showOther">
-                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+            <el-tab-pane
+              :label="$t('api_test.definition.request.assertions_rule')"
+              name="assertionsRule"
+              v-if="showOther"
+            >
+              <span
+                class="item-tabs"
+                effect="dark"
+                placement="top-start"
+                slot="label"
+              >
                 {{ $t('api_test.definition.request.assertions_rule') }}
-                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+                <div
+                  class="el-step__icon is-text ms-api-col ms-header"
+                  v-if="request.ruleSize > 0"
+                >
                   <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                 </div>
               </span>
               <div style="margin-right: 20px">
-                <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id"
-                             :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+                <ms-jmx-step
+                  :request="request"
+                  :apiId="request.id"
+                  :scenario-id="currentScenario.id"
+                  :response="response"
+                  @reload="reload"
+                  :tab-type="'assertionsRule'"
+                  ref="assertionsRule"
+                />
               </div>
             </el-tab-pane>
-
           </el-tabs>
         </legend>
       </template>
 
       <template v-slot:debugStepCode>
-       <span v-if="request.testing" class="ms-test-running">
-         <i class="el-icon-loading" style="font-size: 16px"/>
-         {{ $t('commons.testing') }}
-       </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'"
-              v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span v-if="request.testing" class="ms-test-running">
+          <i class="el-icon-loading" style="font-size: 16px" />
+          {{ $t('commons.testing') }}
+        </span>
+        <span
+          class="ms-step-debug-code"
+          :class="
+            request.requestResult[0].success ? 'ms-req-success' : 'ms-req-error'
+          "
+          v-if="
+            !loading &&
+            request.debug &&
+            request.requestResult[0] &&
+            request.requestResult[0].responseResult
+          "
+        >
           {{ request.requestResult[0].success ? 'Success' : 'Error' }}
         </span>
       </template>
 
-      <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
-        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px"
-                     class="ms-btn" size="mini" circle/>
+      <template v-slot:button v-if="allSampler.indexOf(request.type) !== -1">
+        <el-tooltip
+          :content="$t('api_test.run')"
+          placement="top"
+          v-if="!loading"
+        >
+          <el-button
+            :disabled="!request.enable"
+            @click="run"
+            icon="el-icon-video-play"
+            style="padding: 5px"
+            class="ms-btn"
+            size="mini"
+            circle
+          />
         </el-tooltip>
-        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-          <el-button :disabled="!request.enable" @click.once="stop" size="mini"
-                     style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+        <el-tooltip
+          :content="$t('report.stop_btn')"
+          placement="top"
+          :enterable="false"
+          v-else
+        >
+          <el-button
+            :disabled="!request.enable"
+            @click.once="stop"
+            size="mini"
+            style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
+            class="stop-btn"
+            circle
+          >
             <div style="transform: scale(0.66)">
-              <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+              <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
             </div>
           </el-button>
         </el-tooltip>
       </template>
 
       <template v-slot:result>
-        <div v-if="allSampler.indexOf(request.type) !==-1">
-          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <div v-if="allSampler.indexOf(request.type) !== -1">
+          <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
           <div v-if="request.result">
-            <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+            <div v-for="(scenario, h) in request.result.scenarios" :key="h">
               <el-tabs v-model="request.activeName" closable class="ms-tabs">
-                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i"
-                             style="margin-bottom: 5px">
-                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+                <el-tab-pane
+                  v-for="(item, i) in scenario.requestResults"
+                  :label="'循环' + (i + 1)"
+                  :key="i"
+                  style="margin-bottom: 5px"
+                >
+                  <api-response-component
+                    :currentProtocol="request.protocol"
+                    :apiActive="true"
+                    :result="item"
+                  />
                 </el-tab-pane>
               </el-tabs>
             </div>
           </div>
           <div v-else>
-            <el-tabs v-model="request.activeName" closable class="ms-tabs"
-                     v-if="request.requestResult && request.requestResult.length > 1">
-              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i"
-                           style="margin-bottom: 5px">
+            <el-tabs
+              v-model="request.activeName"
+              closable
+              class="ms-tabs"
+              v-if="request.requestResult && request.requestResult.length > 1"
+            >
+              <el-tab-pane
+                v-for="(item, i) in request.requestResult"
+                :label="'循环' + (i + 1)"
+                :key="i"
+                style="margin-bottom: 5px"
+              >
                 <api-response-component
                   :currentProtocol="request.protocol"
                   :apiActive="true"
@@ -129,42 +234,53 @@
               :currentProtocol="request.protocol"
               :apiActive="true"
               :result="request.requestResult[0]"
-              v-else/>
+              v-else
+            />
           </div>
         </div>
       </template>
     </api-base-component>
-    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
+    <ms-run
+      :debug="true"
+      :reportId="reportId"
+      :run-data="runData"
+      :env-map="envMap"
+      @runRefresh="runRefresh"
+      @errorRefresh="errorRefresh"
+      ref="runTest"
+    />
   </div>
 </template>
 
 <script>
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import formCreate from "@form-create/element-ui";
-import MsUpload from "../common/MsPluginUpload";
-import {PLUGIN_ELEMENTS} from "@/business/automation/scenario/Setting";
-import {getUUID} from "metersphere-frontend/src/utils";
-import MsJmxStep from "@/business/definition/components/step/JmxStep";
-import {stepCompute, hisDataProcessing} from "@/business/definition/api-definition";
-import MsPluginContentAssertions from "@/business/automation/scenario/component/PluginContentAssertions";
-import {execStop} from "@/api/scenario";
-import {customMethod, getPlugin} from "@/api/plugin";
-import {useApiStore} from "@/store";
+import ApiBaseComponent from '../common/ApiBaseComponent';
+import ApiResponseComponent from './ApiResponseComponent';
+import formCreate from '@form-create/element-ui';
+import MsUpload from '../common/MsPluginUpload';
+import { PLUGIN_ELEMENTS } from '@/business/automation/scenario/Setting';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import MsJmxStep from '@/business/definition/components/step/JmxStep';
+import {
+  stepCompute,
+  hisDataProcessing,
+} from '@/business/definition/api-definition';
+import MsPluginContentAssertions from '@/business/automation/scenario/component/PluginContentAssertions';
+import { execStop } from '@/api/scenario';
+import { customMethod, getPlugin } from '@/api/plugin';
+import { useApiStore } from '@/store';
 
 const store = useApiStore();
-formCreate.component("msUpload", MsUpload);
-formCreate.component("msPluginContentAssertions", MsPluginContentAssertions);
+formCreate.component('msUpload', MsUpload);
+formCreate.component('msPluginContentAssertions', MsPluginContentAssertions);
 
 export default {
-  name: "PluginComponent",
+  name: 'PluginComponent',
   components: {
     ApiBaseComponent,
     ApiResponseComponent,
     MsJmxStep,
-    MsRun: () => import("@/business/definition/components/Run"),
-    MsPluginContentAssertions
+    MsRun: () => import('@/business/definition/components/Run'),
+    MsPluginContentAssertions,
   },
   props: {
     draggable: {
@@ -174,8 +290,7 @@ export default {
     message: String,
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     isMax: {
       type: Boolean,
@@ -193,41 +308,46 @@ export default {
       type: Object,
     },
     currentScenario: {},
-    defTitle: {type: String, default: "Plugin"},
-    defColor: {type: String, default: "#555855"},
-    defBackgroundColor: {type: String, default: "#F4F4FF"},
+    defTitle: { type: String, default: 'Plugin' },
+    defColor: { type: String, default: '#555855' },
+    defBackgroundColor: { type: String, default: '#F4F4FF' },
     node: {},
     envMap: Map,
   },
   data() {
     return {
-      activeName: "base",
+      activeName: 'base',
       loading: false,
       runData: [],
-      reportId: "",
+      reportId: '',
       pluginForm: {},
-      execEntry: "",
-      allSampler: PLUGIN_ELEMENTS.get("menu_generative_controller"),
+      execEntry: '',
+      allSampler: PLUGIN_ELEMENTS.get('menu_generative_controller'),
       data: {},
       rules: [],
       option: formCreate.parseJson(
         '{"form":{"labelPosition":"right","size":"mini","labelWidth":"120px","hideRequiredAsterisk":false,"showMessage":false,"inlineMessage":false}}'
       ),
-      pluginName: "",
+      pluginName: '',
       response: {},
-      showOther: true
-    }
+      showOther: true,
+    };
   },
   computed: {
     isApiImport() {
-      if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced == 'REF' || this.request.referenced === 'Copy') {
-        return true
+      if (
+        (this.request.referenced != undefined &&
+          this.request.referenced === 'Deleted') ||
+        this.request.referenced == 'REF' ||
+        this.request.referenced === 'Copy'
+      ) {
+        return true;
       }
       return false;
     },
     isExternalImport() {
       if (this.request.referenced && this.request.referenced === 'TO_IMPORT') {
-        return true
+        return true;
       }
       return false;
     },
@@ -238,7 +358,10 @@ export default {
       return false;
     },
     isDeletedOrRef() {
-      if (this.request.referenced && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
+      if (
+        (this.request.referenced && this.request.referenced === 'Deleted') ||
+        this.request.referenced === 'REF'
+      ) {
         return true;
       }
       return false;
@@ -250,7 +373,9 @@ export default {
       this.request.requestResult = [];
     }
     this.data = this.request;
-    this.pluginName = this.request.stepName ? this.request.stepName : this.request.type;
+    this.pluginName = this.request.stepName
+      ? this.request.stepName
+      : this.request.type;
     if (this.request.type === 'GenericController') {
       this.showOther = false;
     }
@@ -274,14 +399,14 @@ export default {
           this.changeDisplay(this.request.condition);
         }
       },
-      deep: true
+      deep: true,
     },
     request: {
       handler(v) {
-        this.data = this.request
+        this.data = this.request;
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     tabClick() {
@@ -302,25 +427,35 @@ export default {
       stepCompute(array, this.request);
       this.reload();
     },
-    blur(d) {
-    },
-    change(fileName) {
-    },
+    blur(d) {},
+    change(fileName) {},
     changeDisplay(fileName) {
-      if (fileName === 'number of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
-        this.pluginForm.hidden(false, "conditionTime");
-        this.pluginForm.hidden(false, "conditionValue");
-        this.pluginForm.hidden(true, "conditionContent");
+      if (
+        fileName === 'number of received messages' &&
+        this.pluginForm &&
+        this.pluginForm.hidden instanceof Function
+      ) {
+        this.pluginForm.hidden(false, 'conditionTime');
+        this.pluginForm.hidden(false, 'conditionValue');
+        this.pluginForm.hidden(true, 'conditionContent');
       }
-      if (fileName === 'specified elapsed time (ms)' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
-        this.pluginForm.hidden(false, "conditionTime");
-        this.pluginForm.hidden(true, "conditionValue")
-        this.pluginForm.hidden(true, "conditionContent");
+      if (
+        fileName === 'specified elapsed time (ms)' &&
+        this.pluginForm &&
+        this.pluginForm.hidden instanceof Function
+      ) {
+        this.pluginForm.hidden(false, 'conditionTime');
+        this.pluginForm.hidden(true, 'conditionValue');
+        this.pluginForm.hidden(true, 'conditionContent');
       }
-      if (fileName === 'content of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
-        this.pluginForm.hidden(false, "conditionContent");
-        this.pluginForm.hidden(true, "conditionValue");
-        this.pluginForm.hidden(true, "conditionTime");
+      if (
+        fileName === 'content of received messages' &&
+        this.pluginForm &&
+        this.pluginForm.hidden instanceof Function
+      ) {
+        this.pluginForm.hidden(false, 'conditionContent');
+        this.pluginForm.hidden(true, 'conditionValue');
+        this.pluginForm.hidden(true, 'conditionTime');
       }
     },
     run() {
@@ -330,14 +465,27 @@ export default {
       this.runData.projectId = this.request.projectId;
       this.request.customizeReq = this.isCustomizeReq;
       let currentEnvironmentId;
-      if (store.scenarioEnvMap && store.scenarioEnvMap instanceof Map
-        && store.scenarioEnvMap.has((this.currentScenario.id + "_" + this.request.projectId))) {
-        currentEnvironmentId = store.scenarioEnvMap.get((this.currentScenario.id + "_" + this.request.projectId));
+      if (
+        store.scenarioEnvMap &&
+        store.scenarioEnvMap instanceof Map &&
+        store.scenarioEnvMap.has(
+          this.currentScenario.id + '_' + this.request.projectId
+        )
+      ) {
+        currentEnvironmentId = store.scenarioEnvMap.get(
+          this.currentScenario.id + '_' + this.request.projectId
+        );
       }
       let debugData = {
-        id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-        variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
-        enableCookieShare: this.enableCookieShare, environmentId: currentEnvironmentId, hashTree: [this.request],
+        id: this.currentScenario.id,
+        name: this.currentScenario.name,
+        type: 'scenario',
+        variables: this.currentScenario.variables,
+        referenced: 'Created',
+        headers: this.currentScenario.headers,
+        enableCookieShare: this.enableCookieShare,
+        environmentId: currentEnvironmentId,
+        hashTree: [this.request],
       };
       this.runData.push(debugData);
       this.request.requestResult = [];
@@ -363,26 +511,34 @@ export default {
     },
     getValue(val) {
       let reg = /\{(\w+)\}/gi;
-      if (val.indexOf("${") !== -1) {
+      if (val.indexOf('${') !== -1) {
         let result;
         while ((result = reg.exec(val)) !== null) {
           if (this.pluginForm.getRule(result[1])) {
-            val = val.replace("$" + result[0], this.pluginForm.getRule(result[1]).value);
+            val = val.replace(
+              '$' + result[0],
+              this.pluginForm.getRule(result[1]).value
+            );
           }
         }
-        return val
+        return val;
       }
       return val;
     },
     visibleChange(d) {
       if (d && d.inject) {
         if (this.pluginForm.getRule(d.inject[0])) {
-          let req = {entry: this.execEntry, request: this.getValue(d.inject[1])};
-          customMethod(req).then(response => {
+          let req = {
+            entry: this.execEntry,
+            request: this.getValue(d.inject[1]),
+          };
+          customMethod(req).then((response) => {
             if (response.data && this.pluginForm.getRule(d.inject[0]).options) {
-              this.pluginForm.getRule(d.inject[0]).options = JSON.parse(response.data);
+              this.pluginForm.getRule(d.inject[0]).options = JSON.parse(
+                response.data
+              );
             }
-          })
+          });
           this.reload();
         }
       }
@@ -390,7 +546,7 @@ export default {
     getPlugin() {
       let id = this.request.pluginId;
       if (id) {
-        getPlugin(id).then(response => {
+        getPlugin(id).then((response) => {
           let plugin = response.data;
           if (plugin) {
             this.pluginName = plugin.name;
@@ -401,9 +557,13 @@ export default {
             if (plugin.formOption) {
               this.option = formCreate.parseJson(plugin.formOption);
             }
-            this.option.submitBtn = {show: false};
+            this.option.submitBtn = { show: false };
             this.request.clazzName = plugin.clazzName;
-            if (this.request && this.pluginForm && this.pluginForm.setValue instanceof Function) {
+            if (
+              this.request &&
+              this.pluginForm &&
+              this.pluginForm.setValue instanceof Function
+            ) {
               this.pluginForm.setValue(this.request);
             }
             if (this.request.condition) {
@@ -421,32 +581,35 @@ export default {
     forStatus() {
       this.reqSuccess = true;
       if (this.request.result && this.request.result.length > 0) {
-        this.request.result.forEach(item => {
-          item.requestResult.forEach(req => {
+        this.request.result.forEach((item) => {
+          item.requestResult.forEach((req) => {
             if (!req.success) {
               this.reqSuccess = req.success;
             }
-          })
-        })
-      } else if (this.request.requestResult && this.request.requestResult.length > 1) {
-        this.request.requestResult.forEach(item => {
+          });
+        });
+      } else if (
+        this.request.requestResult &&
+        this.request.requestResult.length > 1
+      ) {
+        this.request.requestResult.forEach((item) => {
           if (!item.success) {
             this.reqSuccess = item.success;
             if (this.node && this.node.parent && this.node.parent.data) {
               this.node.parent.data.code = 'ERROR';
             }
           }
-        })
+        });
       }
       if (this.request.requestResult && this.request.requestResult.length > 0) {
         this.response = this.request.requestResult[0];
       }
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
@@ -466,12 +629,17 @@ export default {
     },
     active() {
       this.request.active = !this.request.active;
-      if (this.request && this.request.active && this.pluginForm && this.pluginForm.setValue instanceof Function) {
+      if (
+        this.request &&
+        this.request.active &&
+        this.pluginForm &&
+        this.pluginForm.setValue instanceof Function
+      ) {
         this.pluginForm.setValue(this.request);
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -480,15 +648,15 @@ export default {
 }
 
 .ms-req-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-req-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-btn {
-  background-color: #409EFF;
+  background-color: #409eff;
   color: white;
 }
 
@@ -530,15 +698,15 @@ export default {
 }
 
 .ms-form {
-  border: 1px #DCDFE6 solid;
+  border: 1px #dcdfe6 solid;
   height: 100%;
   border-radius: 4px;
   width: 100%;
 }
 
 .stop-btn {
-  background-color: #E62424;
-  border-color: #EE6161;
+  background-color: #e62424;
+  border-color: #ee6161;
   color: white;
 }
 
@@ -552,5 +720,4 @@ export default {
   height: 18px;
   border-radius: 42%;
 }
-
 </style>

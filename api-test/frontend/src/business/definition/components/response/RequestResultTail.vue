@@ -1,20 +1,26 @@
 <template>
   <div class="request-result" v-loading="loading">
-    <ms-request-metric v-if="showMetric" :response="reportId ? report: response"/>
-    <ms-response-result :currentProtocol="currentProtocol" :response="reportId ? report: response"
-                        :isTestPlan="isTestPlan"/>
+    <ms-request-metric
+      v-if="showMetric"
+      :response="reportId ? report : response"
+    />
+    <ms-response-result
+      :currentProtocol="currentProtocol"
+      :response="reportId ? report : response"
+      :isTestPlan="isTestPlan"
+    />
   </div>
 </template>
 
 <script>
-import MsResponseResult from "../response/ResponseResult";
-import MsRequestMetric from "../response/RequestMetric";
-import {getApiReportDetail} from "../../../../api/definition-report";
-import {baseSocket} from "@/api/base-network";
+import MsResponseResult from '../response/ResponseResult';
+import MsRequestMetric from '../response/RequestMetric';
+import { getApiReportDetail } from '../../../../api/definition-report';
+import { baseSocket } from '@/api/base-network';
 
 export default {
-  name: "MsRequestResultTail",
-  components: {MsRequestMetric, MsResponseResult},
+  name: 'MsRequestResultTail',
+  components: { MsRequestMetric, MsResponseResult },
   props: {
     response: Object,
     currentProtocol: String,
@@ -23,14 +29,14 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     isTestPlan: {
       type: Boolean,
       default() {
         return false;
-      }
-    }
+      },
+    },
   },
   watch: {
     reportId: {
@@ -44,13 +50,13 @@ export default {
     return {
       loading: false,
       report: {},
-    }
+    };
   },
   methods: {
     getExecResult() {
       if (this.reportId) {
         this.loading = true;
-        getApiReportDetail(this.reportId).then(response => {
+        getApiReportDetail(this.reportId).then((response) => {
           this.loading = false;
           let data = response.data;
           if (data) {
@@ -59,9 +65,9 @@ export default {
               this.loading = true;
               this.socketSync();
             } else if (data.status === 'SUCCESS') {
-              this.$EventBus.$emit("API_TEST_END", this.reportId);
+              this.$EventBus.$emit('API_TEST_END', this.reportId);
             } else {
-              this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+              this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
             }
           }
         });
@@ -73,27 +79,27 @@ export default {
       this.websocket.onerror = this.onError;
     },
     onError() {
-      this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+      this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
     },
     onMessages(e) {
-      if (e.data && e.data.startsWith("result_")) {
+      if (e.data && e.data.startsWith('result_')) {
         try {
           let data = e.data.substring(7);
           this.report = JSON.parse(data);
           this.websocket.close();
           this.loading = false;
-          this.$EventBus.$emit("API_TEST_END", this.reportId);
+          this.$EventBus.$emit('API_TEST_END', this.reportId);
         } catch (e) {
-          console.log(e) // for debug
+          console.log(e); // for debug
           this.websocket.close();
-          this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+          this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
         }
-      } else if (e.data === "MS_TEST_END") {
-        this.$EventBus.$emit("API_TEST_ERROR", this.reportId);
+      } else if (e.data === 'MS_TEST_END') {
+        this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
       }
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -104,13 +110,13 @@ export default {
 }
 
 .request-result .info {
-  background-color: #F9F9F9;
+  background-color: #f9f9f9;
   margin-left: 20px;
   cursor: pointer;
 }
 
 .request-result .method {
-  color: #1E90FF;
+  color: #1e90ff;
   font-size: 14px;
   font-weight: 500;
   line-height: 40px;
@@ -138,20 +144,19 @@ export default {
 }
 
 .sub-result .info {
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .sub-result .method {
-  border-left: 5px solid #1E90FF;
+  border-left: 5px solid #1e90ff;
   padding-left: 20px;
 }
 
 .sub-result:last-child {
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .request-result .icon.is-active {
   transform: rotate(90deg);
 }
-
 </style>

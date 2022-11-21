@@ -1,12 +1,13 @@
 <template>
-  <el-dialog :close-on-click-modal="closeOnClickModal"
-             :title="title"
-             :width="width"
-             :visible="visible"
-             destroy-on-close
-             :append-to-body="appendToBody"
-             @close="handleClose">
-
+  <el-dialog
+    :close-on-click-modal="closeOnClickModal"
+    :title="title"
+    :width="width"
+    :visible="visible"
+    destroy-on-close
+    :append-to-body="appendToBody"
+    @close="handleClose"
+  >
     <slot name="header"></slot>
 
     <slot></slot>
@@ -14,55 +15,52 @@
     <template v-slot:footer>
       <slot name="footer">
         <div v-if="withFooter" class="dialog-footer">
-          <ms-dialog-footer
-            @cancel="handleCancel"
-            @confirm="handleConfirm"/>
+          <ms-dialog-footer @cancel="handleCancel" @confirm="handleConfirm" />
         </div>
       </slot>
     </template>
-
   </el-dialog>
 </template>
 
 <script>
-import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 export default {
-  name: "MsEditDialog",
-  components: {MsDialogFooter},
+  name: 'MsEditDialog',
+  components: { MsDialogFooter },
   props: {
     title: {
       type: String,
       default() {
         return 'title';
-      }
+      },
     },
     visible: {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     appendToBody: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     width: {
       type: String,
       default() {
-        return "50%";
-      }
+        return '50%';
+      },
     },
     withFooter: {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     closeOnClickModal: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   methods: {
@@ -77,10 +75,8 @@ export default {
       this.$emit('update:visible', false);
       this.$emit('close');
     },
-  }
+  },
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

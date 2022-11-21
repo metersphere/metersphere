@@ -1,79 +1,121 @@
 <template>
-
   <div class="card-container">
     <div class="ms-opt-btn" v-if="versionEnable">
       {{ $t('project.version.name') }}: {{ apiData.versionName }}
     </div>
     <el-card class="card-content">
       <!-- 操作按钮 -->
-      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px" v-if="!runLoading"
-                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
+      <el-dropdown
+        split-button
+        type="primary"
+        class="ms-api-buttion"
+        @click="handleCommand('add')"
+        @command="handleCommand"
+        size="small"
+        style="float: right; margin-right: 20px"
+        v-if="!runLoading"
+        v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+      >
         {{ $t('commons.test') }}
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
+          <el-dropdown-item command="load_case"
+            >{{ $t('api_test.definition.request.load_case') }}
           </el-dropdown-item>
-          <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
+          <el-dropdown-item command="save_as_case"
+            >{{ $t('api_test.definition.request.save_as_case') }}
           </el-dropdown-item>
-          <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
-          <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
+          <el-dropdown-item command="update_api">{{
+            $t('api_test.definition.request.update_api')
+          }}</el-dropdown-item>
+          <el-dropdown-item command="save_as_api">{{
+            $t('api_test.definition.request.save_as')
+          }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">
+      <el-button
+        size="small"
+        type="primary"
+        v-else
+        @click.once="stop"
+        style="float: right; margin-right: 20px"
+      >
         {{ $t('report.stop_btn') }}
       </el-button>
-      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
       <div v-loading="loading">
         <!-- TCP 请求参数 -->
-        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm" :response="responseData"/>
+        <ms-basis-parameters
+          :request="api.request"
+          @callback="runTest"
+          ref="requestForm"
+          :response="responseData"
+        />
 
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
+        <ms-request-result-tail
+          :response="responseData"
+          :currentProtocol="currentProtocol"
+          ref="runResult"
+        />
       </div>
-
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
-                      :refreshSign="refreshSign"
-                      :loaded="loaded" :createCase="createCase" :save-button-text="loadCaseConfirmButton"
-                      ref="caseList"/>
+    <ms-api-case-list
+      @apiCaseClose="apiCaseClose"
+      @refresh="refresh"
+      @selectTestCase="selectTestCase"
+      :currentApi="api"
+      :refreshSign="refreshSign"
+      :loaded="loaded"
+      :createCase="createCase"
+      :save-button-text="loadCaseConfirmButton"
+      ref="caseList"
+    />
 
     <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+    <api-environment-config
+      ref="environmentConfig"
+      @close="environmentConfigClose"
+    />
     <!-- 执行组件 -->
-    <ms-run :debug="false" :reportId="reportId" :run-data="runData"
-            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
-
+    <ms-run
+      :debug="false"
+      :reportId="reportId"
+      :run-data="runData"
+      @runRefresh="runRefresh"
+      @errorRefresh="errorRefresh"
+      ref="runTest"
+    />
   </div>
 </template>
 
 <script>
-import {updateDefinition} from "@/api/definition";
-import {getApiReportDetail} from "@/api/definition-report";
-import {versionEnableByProjectId} from "@/api/xpack";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {getUUID} from "metersphere-frontend/src/utils";
-import MsApiCaseList from "../case/EditApiCase";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
-import MsBottomContainer from "../BottomContainer";
-import {parseEnvironment} from "@/business/environment/model/EnvironmentModel";
-import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsRun from "../Run";
-import MsBasisParameters from "../request/database/BasisParameters";
-import {REQ_METHOD} from "../../model/JsonData";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {mergeRequestDocumentData} from "@/business/definition/api-definition";
-import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
-import {execStop} from "@/api/scenario";
-import {useApiStore} from "@/store";
+import { updateDefinition } from '@/api/definition';
+import { getApiReportDetail } from '@/api/definition-report';
+import { versionEnableByProjectId } from '@/api/xpack';
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import MsApiCaseList from '../case/EditApiCase';
+import MsContainer from 'metersphere-frontend/src/components/MsContainer';
+import MsBottomContainer from '../BottomContainer';
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import ApiEnvironmentConfig from 'metersphere-frontend/src/components/environment/ApiEnvironmentConfig';
+import MsRequestResultTail from '../response/RequestResultTail';
+import MsRun from '../Run';
+import MsBasisParameters from '../request/database/BasisParameters';
+import { REQ_METHOD } from '../../model/JsonData';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import { mergeRequestDocumentData } from '@/business/definition/api-definition';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
+import { execStop } from '@/api/scenario';
+import { useApiStore } from '@/store';
 
 const store = useApiStore();
 export default {
-  name: "RunTestSQLPage",
+  name: 'RunTestSQLPage',
   components: {
     MsApiCaseList,
     MsContainer,
@@ -81,44 +123,67 @@ export default {
     MsRequestResultTail,
     ApiEnvironmentConfig,
     MsRun,
-    MsBasisParameters
+    MsBasisParameters,
   },
   data() {
     return {
-      loadCaseConfirmButton: this.$t("commons.confirm"),
+      loadCaseConfirmButton: this.$t('commons.confirm'),
       visible: false,
       api: {},
       loaded: false,
       loading: false,
       currentRequest: {},
-      responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
+      responseData: { type: 'HTTP', responseResult: {}, subRequestResults: [] },
       reqOptions: REQ_METHOD,
-      refreshSign: "",
-      createCase: "",
+      refreshSign: '',
+      createCase: '',
       environments: [],
       rules: {
-        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
-        environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
+        method: [
+          {
+            required: true,
+            message: this.$t('test_track.case.input_maintainer'),
+            trigger: 'change',
+          },
+        ],
+        url: [
+          {
+            required: true,
+            message: this.$t('api_test.definition.request.path_info'),
+            trigger: 'blur',
+          },
+        ],
+        environmentId: [
+          {
+            required: true,
+            message: this.$t('api_test.definition.request.run_env'),
+            trigger: 'change',
+          },
+        ],
       },
       runData: [],
-      reportId: "",
+      reportId: '',
       runLoading: false,
       versionEnable: false,
-    }
+    };
   },
-  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  props: {
+    apiData: {},
+    currentProtocol: String,
+    syncTabs: Array,
+    projectId: String,
+  },
   methods: {
     handleCommand(e) {
       mergeRequestDocumentData(this.api.request);
       switch (e) {
-        case "load_case":
+        case 'load_case':
           return this.loadCase();
-        case "save_as_case":
+        case 'save_as_case':
           return this.saveAsCase();
-        case "update_api":
+        case 'update_api':
           return this.updateApi();
-        case "save_as_api":
+        case 'save_as_api':
           return this.saveAsApi();
         default:
           return this.$refs['requestForm'].validate();
@@ -163,9 +228,9 @@ export default {
       this.api.bodyUploadIds = [];
       let request = this.api.request;
       if (request.body) {
-        request.body.kvs.forEach(param => {
+        request.body.kvs.forEach((param) => {
           if (param.files) {
-            param.files.forEach(item => {
+            param.files.forEach((item) => {
               if (item.file) {
                 let fileId = getUUID().substring(0, 8);
                 item.name = item.file.name;
@@ -210,7 +275,12 @@ export default {
     },
     updateApi() {
       let bodyFiles = this.getBodyUploadFiles();
-      if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      if (
+        Object.prototype.toString
+          .call(this.api.response)
+          .match(/\[object (\w+)\]/)[1]
+          .toLowerCase() !== 'object'
+      ) {
         this.api.response = JSON.parse(this.api.response);
       }
       if (this.api.tags instanceof Array) {
@@ -237,9 +307,9 @@ export default {
       }
     },
     getEnvironments() {
-      getEnvironmentByProjectId(this.projectId).then(response => {
+      getEnvironmentByProjectId(this.projectId).then((response) => {
         this.environments = response.data;
-        this.environments.forEach(environment => {
+        this.environments.forEach((environment) => {
           parseEnvironment(environment);
         });
         let hasEnvironment = false;
@@ -272,7 +342,7 @@ export default {
     },
     getResult() {
       if (this.api.id) {
-        getApiReportDetail(this.api.id).then(response => {
+        getApiReportDetail(this.api.id).then((response) => {
           if (response.data) {
             let data = JSON.parse(response.data.content);
             this.responseData = data;
@@ -292,11 +362,11 @@ export default {
         return;
       }
       if (hasLicense()) {
-        versionEnableByProjectId(this.projectId).then(response => {
+        versionEnableByProjectId(this.projectId).then((response) => {
           this.versionEnable = response.data;
         });
       }
-    }
+    },
   },
   created() {
     // 深度复制
@@ -313,12 +383,12 @@ export default {
     this.getEnvironments();
     this.getResult();
     this.checkVersionEnable();
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-:deep( .el-drawer) {
+:deep(.el-drawer) {
   overflow: auto;
 }
 </style>

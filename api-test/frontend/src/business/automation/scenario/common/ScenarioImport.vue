@@ -1,60 +1,146 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.scenario_import')" width="30%"
-             :visible.sync="visible" class="api-import" v-loading="result" @close="close">
-
+  <el-dialog
+    :close-on-click-modal="false"
+    :title="$t('api_test.automation.scenario_import')"
+    width="30%"
+    :visible.sync="visible"
+    class="api-import"
+    v-loading="result"
+    @close="close"
+  >
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue">
-        <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{ item.name }}</el-radio>
+        <el-radio
+          v-for="(item, index) in platforms"
+          :key="index"
+          :label="item.value"
+          >{{ item.name }}</el-radio
+        >
       </el-radio-group>
 
       <div class="operate-button">
         <el-button class="save-button" type="primary" plain @click="save">
           {{ $t('commons.save') }}
         </el-button>
-        <el-button class="cancel-button" type="warning" plain @click="visible = false">
+        <el-button
+          class="cancel-button"
+          type="warning"
+          plain
+          @click="visible = false"
+        >
           {{ $t('commons.cancel') }}
         </el-button>
       </div>
     </div>
 
-    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result" ref="form">
+    <el-form
+      :model="formData"
+      :rules="rules"
+      label-width="105px"
+      v-loading="result"
+      ref="form"
+    >
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')">
-            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="formData.moduleId" @getValue="setModule"
-                            :obj="moduleObj" clearable checkStrictly/>
+            <ms-select-tree
+              size="small"
+              :data="moduleOptions"
+              :defaultKey="formData.moduleId"
+              @getValue="setModule"
+              :obj="moduleObj"
+              clearable
+              checkStrictly
+            />
           </el-form-item>
           <el-form-item :label="$t('commons.import_mode')" prop="modeId">
-            <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
-              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            <el-select
+              size="small"
+              v-model="formData.modeId"
+              class="project-select"
+              clearable
+            >
+              <el-option
+                v-for="item in modeOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
-            <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'"
-                         v-model="formData.coverModule">
+            <el-checkbox
+              size="mini"
+              v-if="formData.modeId === 'fullCoverage'"
+              v-model="formData.coverModule"
+            >
               {{ this.$t('commons.cover_scenario') }}
             </el-checkbox>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
-                        :label="$t('api_test.api_import.import_version')" prop="versionId">
-            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="
+              projectVersionEnable && formData.modeId === 'incrementalMerge'
+            "
+            :label="$t('api_test.api_import.import_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.versionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-                        :label="$t('api_test.api_import.data_update_version')" prop="versionId">
-            <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+            :label="$t('api_test.api_import.data_update_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.updateVersionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-                        :label="$t('api_test.api_import.data_new_version')" prop="versionId">
-            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
-              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-form-item
+            v-xpack
+            v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+            :label="$t('api_test.api_import.data_new_version')"
+            prop="versionId"
+          >
+            <el-select
+              size="small"
+              v-model="formData.versionId"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in versionOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="1">
-          <el-divider direction="vertical"/>
+          <el-divider direction="vertical" />
         </el-col>
         <el-col :span="12">
           <el-upload
@@ -67,32 +153,43 @@
             :on-remove="handleRemove"
             :file-list="fileList"
             :on-exceed="handleExceed"
-            multiple>
+            multiple
+          >
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-            <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
+            <div
+              class="el-upload__text"
+              v-html="$t('load_test.upload_tips')"
+            ></div>
+            <div class="el-upload__tip" slot="tip">
+              {{ $t('api_test.api_import.file_size_limit') }}
+            </div>
           </el-upload>
         </el-col>
-
       </el-row>
     </el-form>
 
     <div class="format-tip">
       <div>
-        <span>{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span>
+        <span
+          >{{ $t('api_test.api_import.tip') }}：{{ selectedPlatform.tip }}</span
+        >
       </div>
       <div>
-        <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
+        <span
+          >{{ $t('api_test.api_import.export_tip') }}：{{
+            selectedPlatform.exportTip
+          }}</span
+        >
       </div>
       <div>
-         <span>
-          {{ $t('api_test.api_import.cover_tip') }} :<br/>
-          {{ $t('api_test.api_import.cover_tip_scenario_1') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_scenario_2') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_scenario_3') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_scenario_4') }}<br/>
-           {{ $t('api_test.api_import.no_cover_tip') }} :<br/>
-          {{ $t('api_test.api_import.no_cover_tip_scenario_1') }}<br/>
+        <span>
+          {{ $t('api_test.api_import.cover_tip') }} :<br />
+          {{ $t('api_test.api_import.cover_tip_scenario_1') }}<br />
+          {{ $t('api_test.api_import.cover_tip_scenario_2') }}<br />
+          {{ $t('api_test.api_import.cover_tip_scenario_3') }}<br />
+          {{ $t('api_test.api_import.cover_tip_scenario_4') }}<br />
+          {{ $t('api_test.api_import.no_cover_tip') }} :<br />
+          {{ $t('api_test.api_import.no_cover_tip_scenario_1') }}<br />
           {{ $t('api_test.api_import.no_cover_tip_scenario_2') }}
         </span>
       </div>
@@ -101,17 +198,20 @@
 </template>
 
 <script>
-import {getProjectVersions, versionEnableByProjectId} from "@/api/xpack";
-import {importScenario} from "@/api/scenario";
-import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
-import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
+import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
+import { importScenario } from '@/api/scenario';
+import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import {
+  listenGoBack,
+  removeGoBackListener,
+} from 'metersphere-frontend/src/utils';
+import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 
 export default {
-  name: "ScenarioImport",
-  components: {MsDialogFooter, MsSelectTree},
+  name: 'ScenarioImport',
+  components: { MsDialogFooter, MsSelectTree },
   props: {
     saved: {
       type: Boolean,
@@ -125,44 +225,46 @@ export default {
       swaggerUrlEable: false,
       swaggerSynchronization: false,
       showEnvironmentSelect: true,
-      modeOptions: [{
-        id: 'fullCoverage',
-        name: this.$t('commons.cover')
-      },
+      modeOptions: [
+        {
+          id: 'fullCoverage',
+          name: this.$t('commons.cover'),
+        },
         {
           id: 'incrementalMerge',
-          name: this.$t('commons.not_cover')
-        }],
-      protocol: "",
+          name: this.$t('commons.not_cover'),
+        },
+      ],
+      protocol: '',
       platforms: [
         {
           name: 'MeterSphere',
           value: 'Metersphere',
           tip: this.$t('api_test.api_import.ms_tip'),
           exportTip: this.$t('api_test.api_import.ms_export_tip'),
-          suffixes: new Set(['json'])
+          suffixes: new Set(['json']),
         },
         {
           name: 'Postman',
           value: 'Postman',
           tip: this.$t('api_test.api_import.postman_tip'),
           exportTip: this.$t('api_test.api_import.post_export_tip'),
-          suffixes: new Set(['json'])
+          suffixes: new Set(['json']),
         },
         {
           name: 'JMeter',
           value: 'Jmeter',
           tip: this.$t('api_test.api_import.jmeter_tip'),
           exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
-          suffixes: new Set(['jmx'])
+          suffixes: new Set(['jmx']),
         },
         {
           name: 'HAR',
           value: 'Har',
           tip: this.$t('api_test.api_import.har_tip'),
           exportTip: this.$t('api_test.api_import.har_export_tip'),
-          suffixes: new Set(['har'])
-        }
+          suffixes: new Set(['har']),
+        },
       ],
       selectedPlatform: {},
       selectedPlatformValue: 'Metersphere',
@@ -175,11 +277,15 @@ export default {
         swaggerUrl: '',
         modeId: 'incrementalMerge',
         moduleId: '',
-        coverModule: false
+        coverModule: false,
       },
       rules: {
         modeId: [
-          {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
+          {
+            required: true,
+            message: this.$t('commons.please_select_import_mode'),
+            trigger: 'change',
+          },
         ],
       },
       currentModule: {},
@@ -190,7 +296,7 @@ export default {
       },
       versionOptions: [],
       projectVersionEnable: false,
-    }
+    };
   },
   created() {
     this.getVersionOptions();
@@ -205,7 +311,7 @@ export default {
           break;
         }
       }
-    }
+    },
   },
   computed: {
     projectId() {
@@ -216,7 +322,7 @@ export default {
     scheduleEdit() {
       if (!this.formData.swaggerUrl) {
         this.$warning(this.$t('commons.please_fill_path'));
-        this.swaggerSynchronization = !this.swaggerSynchronization
+        this.swaggerSynchronization = !this.swaggerSynchronization;
       } else {
         if (this.swaggerSynchronization) {
           this.$refs.scheduleEdit.open(this.buildParam());
@@ -245,7 +351,10 @@ export default {
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
+      if (
+        this.selectedPlatform.suffixes &&
+        !this.selectedPlatform.suffixes.has(suffix)
+      ) {
         this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
         return false;
       }
@@ -258,18 +367,28 @@ export default {
     save() {
       localStorage.setItem('scenarioModule', this.formData.moduleId);
       if (!this.formData.file) {
-        this.$warning("请添加一个文件");
+        this.$warning('请添加一个文件');
         return;
       }
-      let suffix = this.formData.file.name.substring(this.formData.file.name.lastIndexOf('.') + 1);
-      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
+      let suffix = this.formData.file.name.substring(
+        this.formData.file.name.lastIndexOf('.') + 1
+      );
+      if (
+        this.selectedPlatform.suffixes &&
+        !this.selectedPlatform.suffixes.has(suffix)
+      ) {
         this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
         return false;
       }
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate((valid) => {
         if (valid) {
           let param = this.buildParam();
-          this.result = importScenario('/api/automation/import', param.file, null, this.buildParam()).then(response => {
+          this.result = importScenario(
+            '/api/automation/import',
+            param.file,
+            null,
+            this.buildParam()
+          ).then((response) => {
             let res = response.data;
             this.$success(this.$t('test_track.case.import.success'));
             this.visible = false;
@@ -286,16 +405,16 @@ export default {
       param.platform = this.selectedPlatformValue;
       param.saved = this.saved;
       if (this.currentModule) {
-        param.moduleId = this.formData.moduleId
-        this.moduleOptions.filter(item => {
+        param.moduleId = this.formData.moduleId;
+        this.moduleOptions.filter((item) => {
           if (item.id === this.formData.moduleId) {
-            param.modulePath = item.path
+            param.modulePath = item.path;
           }
-        })
-        param.modeId = this.formData.modeId
+        });
+        param.modeId = this.formData.modeId;
       }
       if (this.formData.moduleId.length === 0) {
-        param.moduleId = ''
+        param.moduleId = '';
       }
       param.projectId = this.projectId;
       if (!this.swaggerUrlEable) {
@@ -310,7 +429,7 @@ export default {
         swaggerUrl: '',
         modeId: this.formData.modeId,
         moduleId: '',
-        coverModule: false
+        coverModule: false,
       };
       this.fileList = [];
       removeGoBackListener(this.close);
@@ -322,11 +441,14 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID()).then(response => {
-          this.versionOptions = response.data.filter(v => v.status === 'open');
-          this.versionOptions.forEach(v => {
+        getProjectVersions(getCurrentProjectID()).then((response) => {
+          this.versionOptions = response.data.filter(
+            (v) => v.status === 'open'
+          );
+          this.versionOptions.forEach((v) => {
             if (v.latest) {
-              v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
+              v.name =
+                v.name + ' ' + this.$t('api_test.api_import.latest_version');
             }
           });
         });
@@ -337,23 +459,22 @@ export default {
         return;
       }
       if (hasLicense()) {
-        versionEnableByProjectId(this.projectId).then(response => {
+        versionEnableByProjectId(this.projectId).then((response) => {
           this.projectVersionEnable = response.data;
         });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .api-import :deep(.el-dialog) {
   min-width: 700px;
 }
 
 .format-tip {
-  background: #EDEDED;
+  background: #ededed;
 }
 
 .api-upload {
@@ -374,8 +495,10 @@ export default {
   margin: 10px 0;
 }
 
-.header-bar, .format-tip, .el-form {
-  border: solid #E1E1E1 1px;
+.header-bar,
+.format-tip,
+.el-form {
+  border: solid #e1e1e1 1px;
   margin: 10px 0;
   padding: 10px;
   border-radius: 3px;
@@ -414,6 +537,4 @@ export default {
 .el-divider {
   height: 200px;
 }
-
-
 </style>

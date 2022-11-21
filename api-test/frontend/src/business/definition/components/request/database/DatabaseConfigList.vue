@@ -1,55 +1,86 @@
 <template>
   <div class="database-config-list">
-
-    <el-table border :data="tableData"
-              class="adjust-table table-content"
-              highlight-current-row
-              @row-click="handleView">
-
-      <el-table-column prop="name" :label="$t('api_test.request.sql.dataSource')" show-overflow-tooltip/>
-      <el-table-column prop="driver" :label="$t('api_test.request.sql.database_driver')" show-overflow-tooltip/>
-      <el-table-column prop="dbUrl" :label="$t('api_test.request.sql.database_url')" show-overflow-tooltip/>
-      <el-table-column prop="username" :label="$t('api_test.request.sql.username')" show-overflow-tooltip/>
-      <el-table-column prop="poolMax" :label="$t('api_test.request.sql.pool_max')" show-overflow-tooltip/>
-      <el-table-column prop="timeout" :label="$t('api_test.request.sql.query_timeout')" show-overflow-tooltip/>
+    <el-table
+      border
+      :data="tableData"
+      class="adjust-table table-content"
+      highlight-current-row
+      @row-click="handleView"
+    >
+      <el-table-column
+        prop="name"
+        :label="$t('api_test.request.sql.dataSource')"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="driver"
+        :label="$t('api_test.request.sql.database_driver')"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="dbUrl"
+        :label="$t('api_test.request.sql.database_url')"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="username"
+        :label="$t('api_test.request.sql.username')"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="poolMax"
+        :label="$t('api_test.request.sql.pool_max')"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        prop="timeout"
+        :label="$t('api_test.request.sql.query_timeout')"
+        show-overflow-tooltip
+      />
 
       <el-table-column :label="$t('commons.operating')" min-width="100">
         <template v-slot:default="scope">
           <div>
-            <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy" type="success"
-                                      @exec="handleCopy(scope.$index, scope.row)"/>
-            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
-                                      @exec="handleDelete(scope.$index)"/>
+            <ms-table-operator-button
+              :tip="$t('commons.copy')"
+              icon="el-icon-document-copy"
+              type="success"
+              @exec="handleCopy(scope.$index, scope.row)"
+            />
+            <ms-table-operator-button
+              :tip="$t('commons.delete')"
+              icon="el-icon-delete"
+              type="danger"
+              @exec="handleDelete(scope.$index)"
+            />
           </div>
         </template>
       </el-table-column>
-
     </el-table>
-
   </div>
 </template>
 
 <script>
-import {DatabaseConfig} from "../../../model/ApiTestModel";
-import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
-import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
-import {getUUID} from "metersphere-frontend/src/utils";
+import { DatabaseConfig } from '../../../model/ApiTestModel';
+import MsTableOperator from 'metersphere-frontend/src/components/MsTableOperator';
+import MsTableOperatorButton from 'metersphere-frontend/src/components/MsTableOperatorButton';
+import { getUUID } from 'metersphere-frontend/src/utils';
 
 export default {
-  name: "MsDatabaseConfigList",
-  components: {MsTableOperatorButton, MsTableOperator},
+  name: 'MsDatabaseConfigList',
+  components: { MsTableOperatorButton, MsTableOperator },
   props: {
     tableData: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       drivers: DatabaseConfig.DRIVER_CLASS,
       result: false,
-    }
+    };
   },
   methods: {
     handleView(row) {
@@ -73,14 +104,12 @@ export default {
       }
       return name;
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .addButton {
   float: right;
 }
-
 </style>

@@ -1,5 +1,5 @@
-import {fileUpload} from "@/api/base-network";
-import {get, post} from "metersphere-frontend/src/plugins/request"
+import { fileUpload } from '@/api/base-network';
+import { get, post } from 'metersphere-frontend/src/plugins/request';
 
 export function apiCountByProjectId(projectId) {
   return get('/home/api/count/' + projectId);
@@ -17,7 +17,6 @@ export function scheduleTaskCountByProjectId(projectId) {
   return get('/home/schedule/task/count/' + projectId);
 }
 
-
 export function dubboProviders(params) {
   return post('/home/api/dubbo/providers', params);
 }
@@ -32,11 +31,20 @@ export function genPerformanceTestXml(file, files, params) {
 }
 
 export function getRunningTask(selectProjectId, currentPage, pageSize, param) {
-  return post("/task/center/runningTask/" + selectProjectId + "/" + currentPage + "/" + pageSize, param);
+  return post(
+    '/task/center/runningTask/' +
+      selectProjectId +
+      '/' +
+      currentPage +
+      '/' +
+      pageSize,
+    param
+  );
 }
 
 export function formatNumber(param) {
-  let num = (param || 0).toString(), result = '';
+  let num = (param || 0).toString(),
+    result = '';
   while (num.length > 3) {
     result = ',' + num.slice(-3) + result;
     num = num.slice(0, num.length - 3);
