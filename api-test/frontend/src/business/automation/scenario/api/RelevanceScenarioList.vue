@@ -164,9 +164,11 @@ export default {
       };
       this.selectNodeIds.length = 0;
       this.search();
+      this.getProject();
     },
   },
   created() {
+    this.getProject();
     this.getWsProjects();
     this.getVersionOptions();
   },
@@ -211,15 +213,12 @@ export default {
         this.projectList = res.data;
       });
     },
-    getProject(projectId) {
-      if (projectId) {
-        getProjectConfig(projectId, '/SCENARIO_CUSTOM_NUM').then((result) => {
-          let data = result.data;
-          if (data) {
-            this.customNum = data.scenarioCustomNum;
-          }
-        });
-      }
+    getProject() {
+      getProjectConfig(this.projectId, '/SCENARIO_CUSTOM_NUM').then((result) => {
+        if (result.data) {
+          this.customNum = result.data.scenarioCustomNum;
+        }
+      });
     },
     getConditions() {
       this.condition.tableDataIds = Array.from(this.tableData).map((row) => row.id);
