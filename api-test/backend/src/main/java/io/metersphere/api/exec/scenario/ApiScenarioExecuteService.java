@@ -298,7 +298,8 @@ public class ApiScenarioExecuteService {
                 Map<String, String> diffEnvMap = new HashMap<>();
                 Map<String, String> envMap = runModeConfig.getEnvMap();
                 planEnvMap.forEach((k,v)->{
-                    if (envMap.get(k)!=null){
+                    if (envMap != null && envMap.get(k)!=null){
+
                         diffEnvMap.put(k,envMap.get(k));
                     }
                 });
