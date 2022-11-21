@@ -486,7 +486,7 @@ export default {
                 h(
                   "span",
                   null,
-                  "连接失败，请检查 selenium-grid 服务状态"
+                  this.$t("ui.check_grid")
                 ),
                 h(
                   "p",
@@ -498,15 +498,15 @@ export default {
                       },
                     },
                   },
-                  "查看配置信息"
-                ),
+                this.$t("ui.view_config")
+              ),
               ])
             );
             validate = false;
           } else {
             this.showServerMessageBox(
               h("p", null, [
-                h("span", null, "连接失败，请检查 selenium-grid 地址信息"),
+                h("span", null, this.$t("ui.check_grid_ip")),
                 h(
                   "p",
                   {
@@ -517,7 +517,7 @@ export default {
                       },
                     },
                   },
-                  "查看配置信息"
+                  this.$t("ui.view_config")
                 ),
               ])
             );
