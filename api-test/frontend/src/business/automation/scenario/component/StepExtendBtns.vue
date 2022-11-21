@@ -104,9 +104,6 @@ export default {
   mounted() {
     this.allSamplers = this.filter.get('DEFINITION');
   },
-  created() {
-    console.log(this.data)
-  },
   methods: {
     handleCommand(cmd) {
       switch (cmd) {

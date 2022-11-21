@@ -45,7 +45,11 @@ export default {
   ,
   methods: {
     saveApi() {
-      this.saveCase(this.httpForm);
+      this.$refs.httpForm.validate(async (valid) => {
+        if (valid) {
+          this.saveCase(this.httpForm);
+        }
+      });
     },
     saveCase(api) {
       let obj = {
@@ -111,7 +115,7 @@ export default {
     },
     open(api) {
       if (api) {
-        this.httpForm = api;
+        this.httpForm = JSON.parse(JSON.stringify(api));
         this.httpVisible = true;
       }
     },
