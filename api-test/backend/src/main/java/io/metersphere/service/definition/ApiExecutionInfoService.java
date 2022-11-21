@@ -56,7 +56,7 @@ public class ApiExecutionInfoService {
                 } else {
                     String apiCaseIdInTestPlan = extTestPlanApiCaseMapper.getApiTestCaseIdById(resourceID);
                     if (StringUtils.isNotEmpty(apiCaseIdInTestPlan)) {
-                        apiBasieInfoByCaseId = extApiTestCaseMapper.selectApiBasicInfoByCaseId(resourceID);
+                        apiBasieInfoByCaseId = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCaseIdInTestPlan);
                         if (apiBasieInfoByCaseId != null) {
                             this.insertApiCaseExecutionInfo(resourceID, result.getStatus(), result.getTriggerMode(), result.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiBasieInfoByCaseId.getVersionId());
                         }

@@ -1,16 +1,15 @@
 <template>
-  <el-card class="table-card" shadow="never">
-    <div slot="header">
-      <span class="table-title">
-        {{ $t('test_track.home.case_review') }}
-      </span>
+  <div style="margin: 24px" class="review-case-table">
+    <span class="table-title">
+      {{ $t('test_track.home.case_review') }}
+    </span>
 
-      <div class="btn-group">
-        <ms-table-button icon="" :class="!showMyCreator ? 'hover reviewedBtn' : 'reviewedBtn'" :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator('false')" style="border-color: #FFFFFF"/>
-        <ms-table-button icon="" :class="showMyCreator ? 'hover createBtn' : 'createBtn'" :content="$t('test_track.review.my_create')" @click="searchMyCreator('true')" style="border-color: #FFFFFF; margin-left: 3px"/>
-      </div>
+    <div class="btn-group">
+      <ms-table-button icon="" :class="!showMyCreator ? 'hover reviewedBtn' : 'reviewedBtn'" :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator('false')" style="border-color: #FFFFFF"/>
+      <ms-table-button icon="" :class="showMyCreator ? 'hover createBtn' : 'createBtn'" :content="$t('test_track.review.my_create')" @click="searchMyCreator('true')" style="border-color: #FFFFFF; margin-left: 3px"/>
     </div>
-    <div v-loading="loading" element-loading-background="#FFFFFF">
+
+    <div style="margin-top: 16px" v-loading="loading" element-loading-background="#FFFFFF">
       <div v-show="loadError"
            style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
         <img style="height: 100px;width: 100px;"
@@ -18,18 +17,18 @@
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
       <div v-show="!loadError">
-        <el-table class="adjust-table" :data="tableData" @row-click="intoPlan"
-                  header-cell-class-name="home-table-cell" max-height="226px">
-          <el-table-column type="index" width="100" :label="$t('home.table.index')" show-overflow-tooltip />
-          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip />
-          <el-table-column prop="status" :label="$t('test_track.plan.plan_status')">
+        <el-table class="adjust-table table-content" :data="tableData" @row-click="intoPlan"
+                  header-cell-class-name="home-table-cell" style="min-height: 228px">
+          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip width="100" />
+          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip min-width="200" />
+          <el-table-column prop="status" :label="$t('test_track.plan.plan_status')" width="90">
             <template v-slot:default="scope">
               <basic-status-label :value="scope.row.status"></basic-status-label>
             </template>
           </el-table-column>
-          <el-table-column prop="creator" :label="$t('test_track.review.creator')" show-overflow-tooltip />
-          <el-table-column prop="reviewerName" :label="$t('test_track.review.reviewer')" show-overflow-tooltip />
-          <el-table-column :label="$t('test_track.review.result_distribution')" show-overflow-tooltip>
+          <el-table-column prop="creator" :label="$t('test_track.review.creator')" show-overflow-tooltip min-width="150" />
+          <el-table-column prop="reviewerName" :label="$t('test_track.review.reviewer')" show-overflow-tooltip min-width="150" />
+          <el-table-column :label="$t('test_track.review.result_distribution')" show-overflow-tooltip min-width="200">
             <template v-slot:default="scope">
               <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass)"
                           placement="top" :enterable="false" class="item" effect="dark">
@@ -50,7 +49,7 @@
                          :total="total"/>
       </div>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
@@ -129,15 +128,14 @@ export default {
 </script>
 
 <style scoped>
-.table-title {
-  color: #1F2329;
-  font-weight: 500;
-  font-size: 18px!important;
-  line-height: 26px;
+.review-case-table :deep(.el-link--inner) {
+  width: 100%;
+  float: left;
 }
 
-.el-card :deep( .el-card__header ) {
-  border-bottom: 0px solid #EBEEF5;
+.review-case-table :deep(.status-label) {
+  width: 80px;
+  text-align: center;
 }
 
 .btn-group {
@@ -162,16 +160,16 @@ export default {
   width: 100px;
   height: 24px;
   position: relative;
-  left: 4px;
-  top: 4px;
+  left: 3px;
+  top: 3px;
 }
 
 :deep(button.el-button.el-button--mini.is-plain.reviewedBtn) {
   width: 72px;
   height: 24px;
   position: relative;
-  left: 4px;
-  top: 4px;
+  left: 3px;
+  top: 3px;
 }
 
 :deep(.reviewedBtn.el-button--mini.is-plain:hover) {

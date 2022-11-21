@@ -70,7 +70,7 @@
                           {{ $t("home.case_review_dashboard.not_pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('UnPass')">
+                            <el-link class="addition-info-num" @click="redirectPage('reviewFail')">
                               {{ formatAmount(trackData.unPassCount) }}
                             </el-link>
                           </div>
@@ -80,7 +80,7 @@
                           {{ $t("home.case_review_dashboard.pass") }}
                         </span>
                           <div class="common-amount">
-                            <el-link class="addition-info-num" @click="redirectPage('Pass')">
+                            <el-link class="addition-info-num" @click="redirectPage('reviewSuccess')">
                               {{ formatAmount(trackData.passCount) }}
                             </el-link>
                           </div>

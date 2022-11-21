@@ -14,7 +14,7 @@
         </div>
         <div v-show="!loadError">
           <el-container>
-            <ms-chart ref="chart1" :options="caseOption" :autoresize="true" style="width: 100%;height: 323px;"></ms-chart>
+            <ms-chart ref="chart1" :options="caseOption" :autoresize="true" style="width: 100%;height: 340px;"></ms-chart>
           </el-container>
         </div>
       </div>
@@ -91,11 +91,10 @@ export default {
         grid: {
           left: 0,
           containLabel: true,
-          bottom: 24,
-          top: 60,
+          top: 80,
           right: 24,
           width: 600,
-          height: 250
+          height: 255
         },
         legend: {
           itemWidth: 8,
@@ -103,7 +102,7 @@ export default {
           data: [{icon: 'rect', name: this.$t('test_track.home.function_case_count')}, {icon: 'rect', name: this.$t('test_track.home.relevance_case_count')}],
           orient: 'horizontal',
           left: '0',
-          top: '10'
+          top: '24'
         },
         series: [
           {

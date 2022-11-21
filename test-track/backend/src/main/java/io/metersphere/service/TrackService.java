@@ -243,6 +243,11 @@ public class TrackService {
                 }
             });
         }
+        if (MapUtils.isEmpty(bugStatusMap)) {
+            for (IssueStatus statusEnum : IssueStatus.values()) {
+                bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), 0);
+            }
+        }
         return bugStatusMap;
     }
 
