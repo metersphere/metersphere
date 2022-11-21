@@ -146,14 +146,16 @@ export function getRelateIssues(page) {
     });
 }
 
-export function syncIssues(param) {
-  let url = 'issues/sync';
-  if (hasLicense()) {
-    url = 'xpack/issue/sync';
-  }
+export function syncAllIssues(param) {
   // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
-  url = url + "?stamp=" + getUUID();
+  let url = 'xpack/issue/sync' + "?stamp=" + getUUID();
   return post(url, param);
+}
+
+export function syncIssues() {
+  // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
+  let url = 'issues/sync/' + getCurrentProjectID() + "?stamp=" + getUUID();
+  return get(url);
 }
 
 // 轮询同步状态

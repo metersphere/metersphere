@@ -3,7 +3,6 @@ package io.metersphere.service.wapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.PlatformPluginService;
-import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -35,10 +34,7 @@ public class IssueProxyResourceService {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
         if (StringUtils.isNotBlank(platform)) {
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(projectId);
-            issuesRequest.setWorkspaceId(workspaceId);
-            return platformPluginService.getPlatform(platform)
+            return platformPluginService.getPlatform(platform, workspaceId)
                     .proxyForGet(url, byte[].class);
 
         }

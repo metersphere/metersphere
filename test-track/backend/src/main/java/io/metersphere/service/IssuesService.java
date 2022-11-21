@@ -886,9 +886,7 @@ public class IssuesService {
         List<String> projectIds = trackProjectService.getThirdPartProjectIds();
         projectIds.forEach(id -> {
             try {
-                IssueSyncRequest request = new IssueSyncRequest();
-                request.setProjectId(id);
-                syncThirdPartyIssues(request);
+                syncThirdPartyIssues(id);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -931,38 +929,35 @@ public class IssuesService {
         stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
     }
 
-    public boolean syncThirdPartyIssues(IssueSyncRequest syncRequest) {
-        if (StringUtils.isNotBlank(syncRequest.getProjectId())) {
-            String syncValue = getSyncKey(syncRequest.getProjectId());
+    public boolean syncThirdPartyIssues(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            String syncValue = getSyncKey(projectId);
             if (StringUtils.isNotEmpty(syncValue)) {
                 return false;
             }
 
-            setSyncKey(syncRequest.getProjectId());
+            setSyncKey(projectId);
 
-            Project project = baseProjectService.getProjectById(syncRequest.getProjectId());
-            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(syncRequest.getProjectId(), project.getPlatform());
-            if (syncRequest.getCreateTime() != null) {
-                issues = filterSyncIssuesByCreated(issues, syncRequest);
-            }
+            Project project = baseProjectService.getProjectById(projectId);
+            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId, project.getPlatform());
 
             if (CollectionUtils.isEmpty(issues)) {
                 return true;
             }
 
             IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(syncRequest.getProjectId());
+            issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
 
             try {
                 if (!trackProjectService.isThirdPartTemplate(project)) {
-                    String defaultCustomFields = getDefaultCustomFields(syncRequest.getProjectId());
+                    String defaultCustomFields = getDefaultCustomFields(projectId);
                     issuesRequest.setDefaultCustomFields(defaultCustomFields);
                 }
                 if (PlatformPluginService.isPluginPlatform(project.getPlatform())) {
                     // 分批处理
                     SubListUtil.dealForSubList(issues, 500, (subIssue) ->
-                            syncPluginThirdPartyIssues(subIssue, project));
+                            syncPluginThirdPartyIssues(subIssue, project, issuesRequest.getDefaultCustomFields()));
                 } else {
                     IssuesPlatform platform = IssueFactory.createPlatform(project.getPlatform(), issuesRequest);
                     syncThirdPartyIssues(platform::syncIssues, project, issues);
@@ -970,13 +965,13 @@ public class IssuesService {
             } catch (Exception e) {
                 throw e;
             } finally {
-                deleteSyncKey(syncRequest.getProjectId());
+                deleteSyncKey(projectId);
             }
         }
         return true;
     }
 
-    public void syncPluginThirdPartyIssues(List<IssuesDao> issues, Project project) {
+    public void syncPluginThirdPartyIssues(List<IssuesDao> issues, Project project, String defaultCustomFields) {
         List<PlatformIssuesDTO> platformIssues = JSON.parseArray(JSON.toJSONString(issues), PlatformIssuesDTO.class);
         platformIssues.stream().forEach(item -> {
             // 给缺陷添加自定义字段
@@ -991,6 +986,7 @@ public class IssuesService {
         });
         SyncIssuesRequest request = new SyncIssuesRequest();
         request.setIssues(platformIssues);
+        request.setDefaultCustomFields(defaultCustomFields);
         request.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
         Platform platform = platformPluginService.getPlatform(project.getPlatform());
 
@@ -999,38 +995,39 @@ public class IssuesService {
         List<IssuesWithBLOBs> updateIssues = syncIssuesResult.getUpdateIssues();
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        IssuesMapper issueBatchMapper = sqlSession.getMapper(IssuesMapper.class);
-        AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
-
-        // 批量更新
-        updateIssues.stream()
-                .map(item -> {
-                    IssuesWithBLOBs issuesWithBLOBs = new IssuesWithBLOBs();
-                    BeanUtils.copyBean(issuesWithBLOBs, item);
-                    return issuesWithBLOBs;
-                })
-                .forEach(issueBatchMapper::updateByPrimaryKeySelective);
-
-        // 批量删除
-        syncIssuesResult.getDeleteIssuesIds()
-                .stream()
-                .forEach(issueBatchMapper::deleteByPrimaryKey);
-
         try {
-            // 同步附件
-            syncPluginIssueAttachment(platform, syncIssuesResult, batchAttachmentModuleRelationMapper);
+            IssuesMapper issueBatchMapper = sqlSession.getMapper(IssuesMapper.class);
+            AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+
+            // 批量更新
+            updateIssues.forEach(issueBatchMapper::updateByPrimaryKeySelective);
+
+            // 批量删除
+            syncIssuesResult.getDeleteIssuesIds()
+                    .stream()
+                    .forEach(issueBatchMapper::deleteByPrimaryKey);
+
+            try {
+                // 同步附件
+                syncPluginIssueAttachment(platform, syncIssuesResult, batchAttachmentModuleRelationMapper);
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+
+            HashMap<String, List<CustomFieldResourceDTO>> customFieldMap = new HashMap<>();
+            updateIssues.forEach(item -> {
+                List<CustomFieldResourceDTO> customFieldResource = baseCustomFieldService.getCustomFieldResourceDTO(item.getCustomFields());
+                customFieldMap.put(item.getId(), customFieldResource);
+            });
+
+            // 修改自定义字段
+            customFieldIssuesService.batchEditFields(customFieldMap);
+
+            sqlSession.commit();
         } catch (Exception e) {
-            LogUtil.error(e);
+            sqlSession.close();
+            MSException.throwException(e);
         }
-
-        HashMap<String, List<CustomFieldResourceDTO>> customFieldMap = new HashMap<>();
-        updateIssues.forEach(item -> {
-            List<CustomFieldResourceDTO> customFieldResource = baseCustomFieldService.getCustomFieldResourceDTO(item.getCustomFields());
-            customFieldMap.put(item.getId(), customFieldResource);
-        });
-
-        // 修改自定义字段
-        customFieldIssuesService.batchEditFields(customFieldMap);
     }
 
     private void syncPluginIssueAttachment(Platform platform, SyncIssuesResult syncIssuesResult, AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
@@ -1049,8 +1046,8 @@ public class IssuesService {
 
                 List<PlatformAttachment> syncAttachments = attachmentMap.get(issueId);
                 for (PlatformAttachment syncAttachment : syncAttachments) {
-                    jiraAttachmentSet.add(syncAttachment.getFileName());
                     if (!attachmentsNameSet.contains(syncAttachment.getFileName())) {
+                        jiraAttachmentSet.add(syncAttachment.getFileName());
                         try {
                             byte[] content = platform.getAttachmentContent(syncAttachment.getFileKey());
                             if (content == null) {
