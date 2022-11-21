@@ -842,7 +842,7 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.id = null;
       this.condition.redirectFilter = null;
-      if (this.selectDataRange == 'thisWeekCount') {
+      if (this.selectDataRange == 'createdInWeek') {
         this.condition.selectThisWeedData = true;
       } else if (
         this.selectDataRange === 'executionPassCount' ||

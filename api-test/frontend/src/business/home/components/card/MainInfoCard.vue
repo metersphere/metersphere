@@ -5,15 +5,15 @@
         {{ title }}
       </span>
       <div style="margin-top: 4px; height: 40px">
-        <span v-if="isExecuteInfo" class="addition-num">{{ countData.executedTimesInWeek }}</span>
-        <span v-else class="main-num">{{ countData.total }}</span>
+        <span v-if="isExecuteInfo" class="addition-num">{{ formatAmount(countData.executedTimesInWeek) }}</span>
+        <span v-else class="main-num">{{ formatAmount(countData.total) }}</span>
       </div>
       <div style="margin-top: 32px">
         <div v-if="isExecuteInfo">
           <span class="main-info-card-title">{{ $t('home.dashboard.public.executed_times') }}</span>
           <div class="common-amount">
             <span class="addition-num">
-              {{ countData.executedTimes }}
+              {{ formatAmount(countData.executedTimes) }}
             </span>
           </div>
         </div>
@@ -26,7 +26,7 @@
                   class="common-amount-button"
                   v-permission-disable="linkPermission"
                   @click="redirect('createdInWeek')">
-                  +{{ countData.createdInWeek }}
+                  +{{ formatAmount(countData.createdInWeek) }}
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
@@ -38,7 +38,7 @@
                   class="common-amount-button"
                   v-permission-disable="linkPermission"
                   @click="redirect('fakeError')">
-                  {{ countData.fakeErrorCount }}
+                  {{ formatAmount(countData.fakeErrorCount) }}
                   <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { formatNumber } from '@/api/home';
+
 export default {
   name: 'MainInfoCard',
   props: {
@@ -64,6 +66,9 @@ export default {
   methods: {
     redirect(seletDataType) {
       this.$emit('redirectPage', this.redirectPageName, this.redirectDataType, seletDataType, null);
+    },
+    formatAmount(param) {
+      return formatNumber(param);
     },
   },
 };
