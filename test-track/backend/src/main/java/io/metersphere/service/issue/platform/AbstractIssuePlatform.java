@@ -384,15 +384,17 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {
         List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
-        customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
-                if (item.getValue() instanceof String) {
-                    paramMap.add(item.getCustomData(), ((String) item.getValue()).trim());
-                } else {
-                    paramMap.add(item.getCustomData(), item.getValue());
+        if (!CollectionUtils.isEmpty(customFields)) {
+            customFields.forEach(item -> {
+                if (StringUtils.isNotBlank(item.getCustomData())) {
+                    if (item.getValue() instanceof String) {
+                        paramMap.add(item.getCustomData(), ((String) item.getValue()).trim());
+                    } else {
+                        paramMap.add(item.getCustomData(), item.getValue());
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     protected Object getSyncJsonParamValue(Object value) {
