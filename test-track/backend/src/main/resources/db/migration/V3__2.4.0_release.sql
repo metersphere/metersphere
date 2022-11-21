@@ -1,0 +1,1 @@
+ALTER TABLE test_case_issues ADD relate_time BIGINT(13) NULL COMMENT 'relate time';
