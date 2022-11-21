@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.i18n.Translator;
 import io.metersphere.platform.api.Platform;
 import io.metersphere.platform.api.PluginMetaInfo;
 import io.metersphere.base.domain.PluginWithBLOBs;
@@ -7,7 +9,6 @@ import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.PluginScenario;
-import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -45,6 +46,8 @@ public class PlatformPluginService {
     private BaseIntegrationService baseIntegrationService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
+
+    private static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
     private PlatformPluginManager pluginManager;
 
@@ -133,14 +136,7 @@ public class PlatformPluginService {
     }
 
     public List<SelectOption> getProjectOption(PlatformProjectOptionRequest request) {
-        IntegrationRequest integrationRequest = new IntegrationRequest();
-        BeanUtils.copyBean(integrationRequest, request);
-        ServiceIntegration serviceIntegration = baseIntegrationService.get(integrationRequest);
-
-        PlatformRequest platformRequest = new PlatformRequest();
-        platformRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
-
-        Platform platform = getPluginManager().getPlatformByKey(request.getPlatform(), platformRequest);
+        Platform platform = getPlatform(request.getPlatform(), request.getWorkspaceId());
         GetOptionRequest getOptionRequest = new GetOptionRequest();
         getOptionRequest.setOptionMethod(request.getOptionMethod());
         getOptionRequest.setProjectConfig(request.getProjectConfig());
@@ -150,6 +146,21 @@ public class PlatformPluginService {
             return new ArrayList<>();
         }
 
+    }
+
+    public Platform getPlatform(String platformKey, String workspaceId) {
+        IntegrationRequest integrationRequest = new IntegrationRequest();
+        integrationRequest.setPlatform(platformKey);
+        integrationRequest.setWorkspaceId(StringUtils.isBlank(workspaceId) ? SessionUtils.getCurrentWorkspaceId() : workspaceId);
+        ServiceIntegration serviceIntegration = baseIntegrationService.get(integrationRequest);
+
+        PlatformRequest pluginRequest = new PlatformRequest();
+        pluginRequest.setIntegrationConfig(serviceIntegration.getConfiguration());
+        Platform platform = getPluginManager().getPlatformByKey(platformKey, pluginRequest);
+        if (platform == null) {
+            MSException.throwException(Translator.get("platform_plugin_not_exit") + PLUGIN_DOWNLOAD_URL);
+        }
+        return platform;
     }
 
     public Map getFrontendMetaDataConfig(PluginWithBLOBs plugin, String configName) {
