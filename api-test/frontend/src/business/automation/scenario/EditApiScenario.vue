@@ -916,11 +916,22 @@ export default {
         array = this.scenarioDefinition;
       }
       let isLeaf = true;
+      let nodeType = '';
+      if (node) {
+        nodeType = node.type;
+      }
       array.forEach((item) => {
         item.checkBox = false;
         if (isLeaf && this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
           isLeaf = false;
+        } else if (
+          isLeaf &&
+          item.type === 'ConstantTimer' &&
+          this.stepFilter.get('AllSamplerProxy').indexOf(nodeType) === -1
+        ) {
+          isLeaf = false;
         }
+
         if (item.hashTree && item.hashTree.length > 0) {
           this.commandTreeNode(item, item.hashTree);
         } else {
