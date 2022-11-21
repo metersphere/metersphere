@@ -1628,6 +1628,10 @@ export default {
     resetResourceId(hashTree) {
       hashTree.forEach((item) => {
         item.resourceId = item.resourceId || getUUID();
+        //引用的场景如果原场景的步骤被禁用了，引用的场景的步骤不可以启用
+        if (item.referenced === 'REF' && !item.enable) {
+          item.refEnable = true;
+        }
         if (item.hashTree && item.hashTree.length > 0) {
           this.resetResourceId(item.hashTree);
         }
