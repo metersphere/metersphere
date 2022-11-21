@@ -157,21 +157,18 @@ export default {
         if (!this.response.responseResult.vars) {
           this.response.responseResult.vars = '';
         }
-        this.reqMessages =
-          this.$t('api_test.request.address') +
-          ':\n' +
-          this.response.url +
-          '\n' +
-          this.$t('api_test.scenario.headers') +
-          ':\n' +
-          this.response.headers +
-          '\n' +
-          'Cookies :\n' +
-          this.response.cookies +
-          '\n' +
-          'Body:' +
-          '\n' +
-          this.response.body;
+        this.reqMessages = '';
+        if (this.response.url) {
+          this.reqMessages += this.$t('api_test.request.address') + ':\n' + this.response.url + '\n';
+        }
+        if (this.response.headers) {
+          this.reqMessages += this.$t('api_test.scenario.headers') + ':\n' + this.response.headers + '\n';
+        }
+
+        if (this.response.cookies) {
+          this.reqMessages += 'Cookies :\n' + this.response.cookies + '\n';
+        }
+        this.reqMessages += 'Body:' + '\n' + this.response.body;
       }
     },
   },
