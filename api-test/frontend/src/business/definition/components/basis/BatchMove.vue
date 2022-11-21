@@ -1,13 +1,18 @@
 <template>
   <div v-if="dialogVisible" class="batch-move" v-loading="result">
-    <el-dialog :title="this.$t('test_track.case.select_catalog')"
-               :visible.sync="dialogVisible"
-               :before-close="close"
-               :destroy-on-close="true"
-               width="20%"
+    <el-dialog
+      :title="this.$t('test_track.case.select_catalog')"
+      :visible.sync="dialogVisible"
+      :before-close="close"
+      :destroy-on-close="true"
+      width="20%"
     >
       <div>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"/>
+        <el-input
+          :placeholder="$t('test_track.module.search')"
+          v-model="filterText"
+          size="small"
+        />
         <el-tree
           class="filter-tree node-tree"
           :data="treeNodes"
@@ -19,33 +24,29 @@
           @node-click="nodeClick"
           ref="tree"
         >
-          <template v-slot:default="{node}">
-          <span>
-            <span class="node-icon">
-              <i class="el-icon-folder"/>
+          <template v-slot:default="{ node }">
+            <span>
+              <span class="node-icon">
+                <i class="el-icon-folder" />
+              </span>
+              <span class="node-title">{{ node.label }}</span>
             </span>
-            <span class="node-title">{{node.label}}</span>
-          </span>
           </template>
         </el-tree>
       </div>
       <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="close"
-          @confirm="save"/>
+        <ms-dialog-footer @cancel="close" @confirm="save" />
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
-
-import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 export default {
-  name: "CaseBatchMove",
+  name: 'CaseBatchMove',
   components: {
-    MsDialogFooter
-
+    MsDialogFooter,
   },
   data() {
     return {
@@ -53,25 +54,23 @@ export default {
       selectIds: [],
       selectNode: {},
       dialogVisible: false,
-      currentKey: "",
+      currentKey: '',
       moduleOptions: [],
-      filterText: "",
+      filterText: '',
       result: false,
-    }
+    };
   },
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
-    }
+    },
   },
   methods: {
     open(treeNodes, selectIds, moduleOptions) {
-
       this.dialogVisible = true;
       this.treeNodes = treeNodes;
       this.selectIds = selectIds;
       this.moduleOptions = moduleOptions;
-
     },
     save() {
       if (!this.currentKey) {
@@ -81,7 +80,7 @@ export default {
       let param = {};
       param.nodeId = this.currentKey;
       if (this.moduleOptions) {
-        this.moduleOptions.forEach(item => {
+        this.moduleOptions.forEach((item) => {
           if (item.id === this.currentKey) {
             param.nodePath = item.path;
           }
@@ -91,10 +90,10 @@ export default {
       this.$emit('moveSave', param);
     },
     refresh() {
-      this.$emit("refresh");
+      this.$emit('refresh');
     },
     close() {
-      this.filterText = "";
+      this.filterText = '';
       this.dialogVisible = false;
       this.selectNode = {};
     },
@@ -104,9 +103,9 @@ export default {
     },
     nodeClick() {
       this.currentKey = this.$refs.tree.getCurrentKey();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -122,5 +121,4 @@ export default {
 .batch-move {
   height: 500px;
 }
-
 </style>

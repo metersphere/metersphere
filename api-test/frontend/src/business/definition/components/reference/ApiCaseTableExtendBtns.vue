@@ -4,12 +4,17 @@
       <el-icon class="el-icon-more"></el-icon>
     </el-link>
     <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
+      <el-dropdown-item command="ref">{{
+        $t('api_test.automation.view_ref')
+      }}</el-dropdown-item>
       <el-dropdown-item command="history" v-modules="['history']">
         {{ $t('commons.execute_history') }}
       </el-dropdown-item>
-      <el-dropdown-item command="create_performance" v-modules="['performance']"
-                        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
+      <el-dropdown-item
+        command="create_performance"
+        v-modules="['performance']"
+        v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']"
+      >
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
     </el-dropdown-menu>
@@ -17,11 +22,10 @@
 </template>
 
 <script>
-
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import { hasPermission } from 'metersphere-frontend/src/utils/permission';
 
 export default {
-  name: "MsApiCaseTableExtendBtns",
+  name: 'MsApiCaseTableExtendBtns',
   components: {},
   props: {
     row: Object,
@@ -29,7 +33,7 @@ export default {
   data() {
     return {
       planVisible: false,
-    }
+    };
   },
 
   methods: {
@@ -37,29 +41,29 @@ export default {
     handleCommand(cmd) {
       if (this.row.id) {
         switch (cmd) {
-          case  "ref":
-            this.$emit("showCaseRef", this.row);
+          case 'ref':
+            this.$emit('showCaseRef', this.row);
             break;
-          case "create_performance":
+          case 'create_performance':
             if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')) {
               this.$warning(this.$t('api_test.create_performance_test_tips'));
               break;
             }
-            this.$emit("showEnvironment", this.row);
+            this.$emit('showEnvironment', this.row);
             break;
-          case "history":
-            this.$emit("showHistory", this.row);
+          case 'history':
+            this.$emit('showHistory', this.row);
             break;
         }
       } else {
-        this.$warning(this.$t('api_test.automation.save_case_info'))
+        this.$warning(this.$t('api_test.automation.save_case_info'));
       }
     },
     createPerformance(row, environment) {
-      this.$emit("createPerformance", row, environment);
-    }
-  }
-}
+      this.$emit('createPerformance', row, environment);
+    },
+  },
+};
 </script>
 
 <style scoped>

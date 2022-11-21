@@ -6,14 +6,16 @@
 
 <script>
 export default {
-  name: "ApiInfoContainer"
-}
+  name: 'ApiInfoContainer',
+};
 </script>
 
 <style scoped>
-
 .info-container {
-  border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%
+  border: 1px #dcdfe6 solid;
+  height: 100%;
+  border-radius: 4px;
+  width: 100%;
 }
 
 .info-container .icon {
@@ -42,5 +44,4 @@ export default {
 .info-container .pane.cookie {
   padding: 0;
 }
-
 </style>

@@ -1,12 +1,17 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
 const DEFAULT_OPTIONS = {
   options: {
-    attributes: {guiclass: "ThreadGroupGui", testclass: "ThreadGroup", testname: "ThreadGroup", enabled: "true"},
-  }
+    attributes: {
+      guiclass: 'ThreadGroupGui',
+      testclass: 'ThreadGroup',
+      testname: 'ThreadGroup',
+      enabled: 'true',
+    },
+  },
 };
 
-export const TYPE = "ThreadGroup";
+export const TYPE = 'ThreadGroup';
 
 export default class ThreadGroup extends HashTreeElement {
   constructor(options = DEFAULT_OPTIONS) {
@@ -17,5 +22,5 @@ export default class ThreadGroup extends HashTreeElement {
 }
 
 export const schema = {
-  ThreadGroup: ThreadGroup
-}
+  ThreadGroup: ThreadGroup,
+};

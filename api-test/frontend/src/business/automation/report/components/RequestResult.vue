@@ -3,14 +3,27 @@
     <div class="request-result">
       <div @click="active">
         <el-row :gutter="18" type="flex" align="middle" class="info">
-          <el-col class="ms-req-name-col" :span="18" v-if="indexNumber!=undefined">
+          <el-col
+            class="ms-req-name-col"
+            :span="18"
+            v-if="indexNumber != undefined"
+          >
             <el-tooltip :content="getName(request.name)" placement="top">
               <span class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
-                  <div class="el-step__icon-inner"> {{ indexNumber }}</div>
+                  <div class="el-step__icon-inner">{{ indexNumber }}</div>
                 </div>
-                <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
-                <span class="report-label-req" @click="isLink" v-if="redirect && resourceId">
+                <i
+                  class="icon el-icon-arrow-right"
+                  :class="{ 'is-active': showActive }"
+                  @click="active"
+                  @click.stop
+                />
+                <span
+                  class="report-label-req"
+                  @click="isLink"
+                  v-if="redirect && resourceId"
+                >
                   {{ request.name }}
                 </span>
                 <span v-else>{{ getName(request.name) }}</span>
@@ -19,36 +32,72 @@
           </el-col>
           <!-- 误报 / 异常状态显示 -->
           <el-col :span="3">
-            <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode !==''" :content="baseErrorCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
-              <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
+            <el-tooltip
+              effect="dark"
+              v-if="baseErrorCode && baseErrorCode !== ''"
+              :content="baseErrorCode"
+              style="
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
+              placement="bottom"
+              :open-delay="800"
+            >
+              <div
+                :style="{
+                  color: statusColor(
+                    totalStatus ? totalStatus : request.status
+                  ),
+                }"
+              >
                 {{ baseErrorCode }}
               </div>
             </el-tooltip>
           </el-col>
           <!-- 请求返回状态 -->
           <el-col :span="6">
-            <el-tooltip effect="dark" :content="request.responseResult.responseCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
-              <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
+            <el-tooltip
+              effect="dark"
+              :content="request.responseResult.responseCode"
+              style="
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
+              placement="bottom"
+              :open-delay="800"
+            >
+              <div
+                :style="{
+                  color: statusColor(
+                    totalStatus ? totalStatus : request.status
+                  ),
+                }"
+              >
                 {{ request.responseResult.responseCode }}
               </div>
             </el-tooltip>
           </el-col>
           <!-- 请求响应时间 -->
           <el-col :span="3">
-            <div :style="{color: statusColor(totalStatus ? totalStatus : request.status)}">
+            <div
+              :style="{
+                color: statusColor(totalStatus ? totalStatus : request.status),
+              }"
+            >
               {{ request.responseResult.responseTime }} ms
             </div>
           </el-col>
           <el-col :span="2">
             <el-tag v-if="request.testing" class="ms-test-running" size="mini">
-              <i class="el-icon-loading" style="font-size: 16px"/>
+              <i class="el-icon-loading" style="font-size: 16px" />
               {{ $t('commons.testing') }}
             </el-tag>
-            <ms-api-report-status :status="totalStatus || request.status" v-else/>
+            <ms-api-report-status
+              :status="totalStatus || request.status"
+              v-else
+            />
           </el-col>
         </el-row>
       </div>
@@ -61,7 +110,8 @@
             :request-type="requestType"
             :request="requestInfo"
             :console="console"
-            v-if="showActive"/>
+            v-if="showActive"
+          />
         </div>
       </el-collapse-transition>
     </div>
@@ -69,27 +119,28 @@
 </template>
 
 <script>
-import MsRequestMetric from "./RequestMetric";
-import MsAssertionResults from "./AssertionResults";
-import MsRequestText from "./RequestText";
-import MsResponseText from "./ResponseText";
-import MsRequestResultTail from "./RequestResultTail";
-import {getCurrentByResourceId} from "../../../../api/user";
-import {getShareContent} from "../../../../api/share";
-import {getScenarioReportStepDetail} from "../../../../api/scenario-report";
-import MsApiReportStatus from "../ApiReportStatus";
+import MsRequestMetric from './RequestMetric';
+import MsAssertionResults from './AssertionResults';
+import MsRequestText from './RequestText';
+import MsResponseText from './ResponseText';
+import MsRequestResultTail from './RequestResultTail';
+import { getCurrentByResourceId } from '../../../../api/user';
+import { getShareContent } from '../../../../api/share';
+import { getScenarioReportStepDetail } from '../../../../api/scenario-report';
+import MsApiReportStatus from '../ApiReportStatus';
 
-
-const {getReportStatusColor} = require("../../../../business/commons/js/commons");
+const {
+  getReportStatusColor,
+} = require('../../../../business/commons/js/commons');
 export default {
-  name: "MsRequestResult",
+  name: 'MsRequestResult',
   components: {
     MsApiReportStatus,
     MsResponseText,
     MsRequestText,
     MsAssertionResults,
     MsRequestMetric,
-    MsRequestResultTail
+    MsRequestResultTail,
   },
   props: {
     request: Object,
@@ -102,11 +153,11 @@ export default {
     redirect: Boolean,
     errorCode: {
       type: String,
-      default: ""
+      default: '',
     },
     isActive: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShare: Boolean,
     shareId: String,
@@ -117,12 +168,12 @@ export default {
   },
   data() {
     return {
-      requestType: "",
+      requestType: '',
       color: {
         type: String,
         default() {
-          return "#B8741A";
-        }
+          return '#B8741A';
+        },
       },
       requestInfo: {
         loading: true,
@@ -130,15 +181,15 @@ export default {
         responseResult: {},
         subRequestResults: [],
       },
-      baseErrorCode: "",
+      baseErrorCode: '',
       backgroundColor: {
         type: String,
         default() {
-          return "#F9F1EA";
-        }
+          return '#F9F1EA';
+        },
       },
       showActive: false,
-    }
+    };
   },
   watch: {
     isActive() {
@@ -153,21 +204,24 @@ export default {
       handler(n) {
         if (this.request.errorCode) {
           this.baseErrorCode = this.request.errorCode;
-        } else if (this.request.attachInfoMap && this.request.attachInfoMap.FAKE_ERROR) {
-          if (this.request.attachInfoMap.FAKE_ERROR !== "") {
+        } else if (
+          this.request.attachInfoMap &&
+          this.request.attachInfoMap.FAKE_ERROR
+        ) {
+          if (this.request.attachInfoMap.FAKE_ERROR !== '') {
             this.baseErrorCode = this.request.attachInfoMap.FAKE_ERROR;
           }
         }
       },
-    }
+    },
   },
   methods: {
     statusColor(status) {
       return getReportStatusColor(status);
     },
     isLink() {
-      let uri = "/#/api/definition?caseId=" + this.resourceId;
-      this.clickResource(uri)
+      let uri = '/#/api/definition?caseId=' + this.resourceId;
+      this.clickResource(uri);
     },
     clickResource(uri) {
       getCurrentByResourceId(this.resourceId).then(() => {
@@ -175,11 +229,11 @@ export default {
       });
     },
     toPage(uri) {
-      let id = "new_a";
-      let a = document.createElement("a");
-      a.setAttribute("href", uri);
-      a.setAttribute("target", "_blank");
-      a.setAttribute("id", id);
+      let id = 'new_a';
+      let a = document.createElement('a');
+      a.setAttribute('href', uri);
+      a.setAttribute('target', '_blank');
+      a.setAttribute('id', id);
       document.body.appendChild(a);
       a.click();
 
@@ -187,23 +241,26 @@ export default {
       element.parentNode.removeChild(element);
     },
     loadRequestInfoExpand() {
-      if (!this.request.responseResult || this.request.responseResult.body === null || this.request.responseResult.body === undefined) {
+      if (
+        !this.request.responseResult ||
+        this.request.responseResult.body === null ||
+        this.request.responseResult.body === undefined
+      ) {
         if (this.isShare) {
-          getShareContent(this.shareId, this.stepId).then(response => {
+          getShareContent(this.shareId, this.stepId).then((response) => {
             this.requestInfo = response.data;
             this.$nextTick(() => {
               this.requestInfo.loading = false;
             });
           });
         } else {
-          getScenarioReportStepDetail(this.stepId).then(response => {
+          getScenarioReportStepDetail(this.stepId).then((response) => {
             this.requestInfo = response.data;
             this.$nextTick(() => {
               this.requestInfo.loading = false;
             });
           });
         }
-
       } else {
         this.requestInfo = this.request;
       }
@@ -219,30 +276,30 @@ export default {
       }
     },
     getName(name) {
-      if (name && name.indexOf("<->") !== -1) {
-        return name.split("<->")[0];
+      if (name && name.indexOf('<->') !== -1) {
+        return name.split('<->')[0];
       }
-      if (name && name.indexOf("^@~@^") !== -1) {
-        let arr = name.split("^@~@^");
+      if (name && name.indexOf('^@~@^') !== -1) {
+        let arr = name.split('^@~@^');
         let value = arr[arr.length - 1];
-        if (value.indexOf("UUID=") !== -1) {
-          return value.split("UUID=")[0];
+        if (value.indexOf('UUID=') !== -1) {
+          return value.split('UUID=')[0];
         }
-        if (value && value.startsWith("UUID=")) {
-          return "";
+        if (value && value.startsWith('UUID=')) {
+          return '';
         }
-        if (value && value.indexOf("<->") !== -1) {
-          return value.split("<->")[0];
+        if (value && value.indexOf('<->') !== -1) {
+          return value.split('<->')[0];
         }
         return value;
       }
-      if (name && name.startsWith("UUID=")) {
-        return "";
+      if (name && name.startsWith('UUID=')) {
+        return '';
       }
       return name;
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -257,7 +314,7 @@ export default {
 }
 
 .request-result .method {
-  color: #1E90FF;
+  color: #1e90ff;
   font-size: 14px;
   font-weight: 500;
   line-height: 35px;
@@ -289,11 +346,11 @@ export default {
 }
 
 .sub-result .info {
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .sub-result .method {
-  border-left: 5px solid #1E90FF;
+  border-left: 5px solid #1e90ff;
   padding-left: 20px;
 }
 
@@ -302,7 +359,7 @@ export default {
 }
 
 .sub-result:last-child {
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .ms-test-running {
@@ -310,21 +367,21 @@ export default {
 }
 
 .ms-test-error_code {
-  color: #F6972A;
-  background-color: #FDF5EA;
-  border-color: #FDF5EA;
+  color: #f6972a;
+  background-color: #fdf5ea;
+  border-color: #fdf5ea;
 }
 
 .ms-api-col {
-  background-color: #EFF0F0;
-  border-color: #EFF0F0;
+  background-color: #eff0f0;
+  border-color: #eff0f0;
   margin-right: 10px;
   font-size: 12px;
-  color: #64666A;
+  color: #64666a;
 }
 
 .ms-api-col-create {
-  background-color: #EBF2F2;
+  background-color: #ebf2f2;
   border-color: #008080;
   margin-right: 10px;
   font-size: 12px;

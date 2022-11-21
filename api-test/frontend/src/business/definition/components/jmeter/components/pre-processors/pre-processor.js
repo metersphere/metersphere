@@ -1,6 +1,6 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
-export const TYPE = "PreProcessor";
+export const TYPE = 'PreProcessor';
 
 export default class PreProcessor extends HashTreeElement {
   constructor(options = {}) {

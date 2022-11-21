@@ -1,45 +1,48 @@
 <template>
-    <span>
-       <el-upload
-         action="#"
-         class="api-body-upload"
-         list-type="picture-card"
-         :http-request="upload"
-         :beforeUpload="uploadValidate"
-         :file-list="plugin.files"
-         :on-exceed="exceed"
-         ref="upload">
-
-         <div class="upload-default">
-           <i class="el-icon-plus"/>
-         </div>
-           <div class="upload-item" slot="file" slot-scope="{file}">
-             <span>{{ file.file ? file.file.name : file.name }}</span>
-             <span class="el-upload-list__item-actions">
-              <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
-                <i class="el-icon-delete"/>
-              </span>
-             </span>
-        </div>
-
-      </el-upload>
-    </span>
+  <span>
+    <el-upload
+      action="#"
+      class="api-body-upload"
+      list-type="picture-card"
+      :http-request="upload"
+      :beforeUpload="uploadValidate"
+      :file-list="plugin.files"
+      :on-exceed="exceed"
+      ref="upload"
+    >
+      <div class="upload-default">
+        <i class="el-icon-plus" />
+      </div>
+      <div class="upload-item" slot="file" slot-scope="{ file }">
+        <span>{{ file.file ? file.file.name : file.name }}</span>
+        <span class="el-upload-list__item-actions">
+          <span
+            v-if="!disabled"
+            class="el-upload-list__item-delete"
+            @click="handleRemove(file)"
+          >
+            <i class="el-icon-delete" />
+          </span>
+        </span>
+      </div>
+    </el-upload>
+  </span>
 </template>
 
 <script>
-import {useApiStore} from "@/store";
+import { useApiStore } from '@/store';
 
 const store = useApiStore();
 export default {
-  name: "MsPluginUpload",
+  name: 'MsPluginUpload',
   data() {
     return {
       disabled: false,
-      plugin: {files: []}
+      plugin: { files: [] },
     };
   },
   props: {
-    value: String
+    value: String,
   },
   mounted() {
     if (this.value) {
@@ -51,8 +54,9 @@ export default {
       this.$refs.upload.handleRemove(file);
       for (let i = 0; i < this.plugin.files.length; i++) {
         let fileName = file.file ? file.file.name : file.name;
-        let paramFileName = this.plugin.files[i].file ?
-          this.plugin.files[i].file.name : this.plugin.files[i].name;
+        let paramFileName = this.plugin.files[i].file
+          ? this.plugin.files[i].file.name
+          : this.plugin.files[i].name;
         if (fileName === paramFileName) {
           this.plugin.files.splice(i, 1);
           this.$refs.upload.handleRemove(file);
@@ -69,14 +73,18 @@ export default {
       if (!(store.pluginFiles instanceof Array)) {
         store.pluginFiles = [];
       }
-      this.plugin.files.forEach(item => {
+      this.plugin.files.forEach((item) => {
         if (item.file) {
-          files.push({uid: item.file.uid, name: item.file.name, size: item.file.size});
-          store.pluginFiles.push({name: item.file.name, file: item.file});
+          files.push({
+            uid: item.file.uid,
+            name: item.file.name,
+            size: item.file.size,
+          });
+          store.pluginFiles.push({ name: item.file.name, file: item.file });
         } else {
           files.push(item);
         }
-      })
+      });
       this.$emit('input', JSON.stringify(files));
     },
     uploadValidate(file) {
@@ -91,12 +99,11 @@ export default {
     if (this.plugin && !this.plugin.files) {
       this.plugin.files = [];
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .el-upload {
   background-color: black;
 }
@@ -128,12 +135,11 @@ export default {
 
 .api-body-upload {
   min-height: 30px;
-  border: 1px solid #EBEEF5;
+  border: 1px solid #ebeef5;
   padding: 2px;
   border-radius: 4px;
 }
 
 .upload-item {
 }
-
 </style>

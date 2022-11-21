@@ -2,54 +2,92 @@
   <div>
     <el-row class="apiInfoRow">
       <div>
-        <el-table border v-if="formParamTypes.includes(apiInfo.requestBodyParamType)" :show-header="true" row-key="id"
-                  :row-class-name="getRowClassName"
-                  :data="tableData" :class="getTableClass()" ref="expandTable">
-          <el-table-column prop="name"
-                           :label="$t('api_definition.document.name')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="contentType"
-                           :label="$t('api_definition.document.type')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="description"
-                           :label="$t('api_definition.document.desc')"
-                           min-width="280px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="required"
-                           :label="$t('api_definition.document.is_required')"
-                           :formatter="formatBoolean"
-                           min-width="80px"
-                           show-overflow-tooltip/>
-          <el-table-column prop="value"
-                           :label="$t('api_definition.document.default_value')"
-                           min-width="120px"
-                           show-overflow-tooltip/>
-          <el-table-column type="expand" :label="getCollapseOption()" width="80px">
+        <el-table
+          border
+          v-if="formParamTypes.includes(apiInfo.requestBodyParamType)"
+          :show-header="true"
+          row-key="id"
+          :row-class-name="getRowClassName"
+          :data="tableData"
+          :class="getTableClass()"
+          ref="expandTable"
+        >
+          <el-table-column
+            prop="name"
+            :label="$t('api_definition.document.name')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="contentType"
+            :label="$t('api_definition.document.type')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="description"
+            :label="$t('api_definition.document.desc')"
+            min-width="280px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="required"
+            :label="$t('api_definition.document.is_required')"
+            :formatter="formatBoolean"
+            min-width="80px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="value"
+            :label="$t('api_definition.document.default_value')"
+            min-width="120px"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            type="expand"
+            :label="getCollapseOption()"
+            width="80px"
+          >
             <template slot="header">
               <el-button type="text" size="mini" @click="expandAllRows">
-                  <span :id="tableExpandButtonId">
+                <span :id="tableExpandButtonId">
                   {{ expandTitle }}
-                  </span>
+                </span>
               </el-button>
             </template>
             <template v-slot:default="scope">
-              <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
+              <table-advanced-setting
+                :table-data="scope.row"
+              ></table-advanced-setting>
             </template>
           </el-table-column>
         </el-table>
-        <div v-else-if="apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON'"
-             style="margin-left: 10px">
-          <json-schema-show :show-preview="false" :json-schema-disable="true" :body="apiInfo.jsonSchemaBody"
-                            ref="jsonCodeEdit"/>
+        <div
+          v-else-if="
+            apiInfo.requestBodyParamType === 'JSON-SCHEMA' ||
+            apiInfo.requestBodyParamType === 'JSON'
+          "
+          style="margin-left: 10px"
+        >
+          <json-schema-show
+            :show-preview="false"
+            :json-schema-disable="true"
+            :body="apiInfo.jsonSchemaBody"
+            ref="jsonCodeEdit"
+          />
         </div>
         <div v-else class="showDataDiv">
-          <br/>
-          <p style="margin: 0px 20px;"
-             v-html="formatRowData(apiInfo.requestBodyParamType,apiInfo.requestBodyStructureData)">
-          </p>
-          <br/>
+          <br />
+          <p
+            style="margin: 0px 20px"
+            v-html="
+              formatRowData(
+                apiInfo.requestBodyParamType,
+                apiInfo.requestBodyStructureData
+              )
+            "
+          ></p>
+          <br />
         </div>
       </div>
     </el-row>
@@ -59,36 +97,34 @@
         {{ $t('api_test.definition.document.example_presentation') }}
       </div>
       <div class="showDataDiv">
-        <br/>
-        <p style="margin: 0px 20px;"
-           v-html="genPreviewData(apiInfo.requestPreviewData)">
-        </p>
-        <br/>
+        <br />
+        <p
+          style="margin: 0px 20px"
+          v-html="genPreviewData(apiInfo.requestPreviewData)"
+        ></p>
+        <br />
       </div>
     </el-row>
   </div>
 </template>
 
 <script>
-
-import JsonSchemaShow
-  from "@/business/definition/components/document/components/JsonSchema/JsonSchemaShow";
-import tableAdvancedSetting
-  from "@/business/definition/components/document/components/plugin/TableAdvancedSetting";
-import {getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {getUUID} from "metersphere-frontend/src/utils";
+import JsonSchemaShow from '@/business/definition/components/document/components/JsonSchema/JsonSchemaShow';
+import tableAdvancedSetting from '@/business/definition/components/document/components/plugin/TableAdvancedSetting';
+import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
+import { getUUID } from 'metersphere-frontend/src/utils';
 
 export default {
-  name: "ApiRequestInfo",
-  components: {JsonSchemaShow, tableAdvancedSetting},
+  name: 'ApiRequestInfo',
+  components: { JsonSchemaShow, tableAdvancedSetting },
   data() {
     return {
       tableData: [],
-      language: "zh_CN",
-      tableExpandButtonId: "docTableExpandBtn" + getUUID(),
+      language: 'zh_CN',
+      tableExpandButtonId: 'docTableExpandBtn' + getUUID(),
       active: true,
       expandAllRow: false,
-      expandTitle: this.$t("commons.expand_all"),
+      expandTitle: this.$t('commons.expand_all'),
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
     };
   },
@@ -131,29 +167,31 @@ export default {
       handler(v) {
         this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
       },
-      deep: true
+      deep: true,
     },
     expandAllRow() {
       if (this.$refs.expandTable) {
         let expand = this.expandAllRow;
         if (this.tableData) {
           this.$nextTick(() => {
-            this.tableData.forEach(i => {
+            this.tableData.forEach((i) => {
               if (i.hasAdvancedSetting) {
-                this.$refs.expandTable.toggleRowExpansion(i, expand)
+                this.$refs.expandTable.toggleRowExpansion(i, expand);
               }
             });
             this.$refs.expandTable.doLayout();
-          })
+          });
         }
       }
-      this.expandTitle = this.expandAllRow ? this.$t("commons.close_all") : this.$t("commons.expand_all");
+      this.expandTitle = this.expandAllRow
+        ? this.$t('commons.close_all')
+        : this.$t('commons.expand_all');
       let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
       tableHeaderDom.innerText = this.expandTitle;
-    }
+    },
   },
   methods: {
-    getRowClassName({row, rowIndex}) {
+    getRowClassName({ row, rowIndex }) {
       let classname = 'autofix-table-row ';
       // 通过判断给不需要展开行功能的数据设置样式，通过样式去隐藏展开行图标
       if (!row.hasAdvancedSetting) {
@@ -178,12 +216,12 @@ export default {
       return hasAdvancedSetting;
     },
     getTableClass() {
-      if (this.language === "zh_TW") {
-        return "test-content document-table tw-table";
-      } else if (this.language === "en_US") {
-        return "test-content document-table us-table";
+      if (this.language === 'zh_TW') {
+        return 'test-content document-table tw-table';
+      } else if (this.language === 'en_US') {
+        return 'test-content document-table us-table';
       } else {
-        return "test-content document-table cn-table";
+        return 'test-content document-table cn-table';
       }
     },
     expandAllRows() {
@@ -197,18 +235,18 @@ export default {
       }
     },
     formatBoolean(row, column, cellValue) {
-      var ret = '';  //你想在页面展示的值
+      var ret = ''; //你想在页面展示的值
       if (cellValue) {
-        ret = "是";  //根据自己的需求设定
+        ret = '是'; //根据自己的需求设定
       } else {
-        ret = "否";
+        ret = '否';
       }
       return ret;
     },
     formatRowData(dataType, data) {
       var returnData = data;
       if (data) {
-        returnData = "<xmp>" + returnData + "</xmp>";
+        returnData = '<xmp>' + returnData + '</xmp>';
       }
       return returnData;
     },
@@ -222,7 +260,7 @@ export default {
       //遍历，把必填项空的数据去掉
       for (var index = 0; index < jsonArr.length; index++) {
         var item = jsonArr[index];
-        if (item.name !== "" && item.name !== null) {
+        if (item.name !== '' && item.name !== null) {
           item.id = getUUID();
           if (this.rowHasAdvancedSetting(item)) {
             item.hasAdvancedSetting = true;
@@ -238,7 +276,7 @@ export default {
       if (jsonType === 'request' && api.requestBodyStructureData) {
         try {
           let bodyStructData = JSON.parse(api.requestBodyStructureData);
-          api.requestJsonSchema = {'raw': bodyStructData};
+          api.requestJsonSchema = { raw: bodyStructData };
           return true;
         } catch (e) {
           return false;
@@ -246,7 +284,7 @@ export default {
       } else if (jsonType === 'response' && api.requestBodyStructureData) {
         try {
           JSON.parse(api.requestBodyStructureData);
-          api.responseJsonSchema = {'raw': api.requestBodyStructureData};
+          api.responseJsonSchema = { raw: api.requestBodyStructureData };
           return true;
         } catch (e) {
           return false;
@@ -274,12 +312,11 @@ export default {
 }
 
 .showDataDiv {
-  background-color: #F5F7F9;
+  background-color: #f5f7f9;
   margin: 10px 10px;
   max-height: 300px;
   overflow: auto;
 }
-
 
 .document-table {
   margin: 10px 0px 10px 10px;
@@ -291,13 +328,13 @@ export default {
   font-weight: initial;
 }
 
-.document-table :deep( .has-gutter ){
+.document-table :deep(.has-gutter) {
   font-size: 12px;
   color: #404040;
 }
 
 .document-table :deep(td) {
-  border-right: 0px solid #EBEEF5
+  border-right: 0px solid #ebeef5;
 }
 
 /*通过样式隐藏图标*/
@@ -320,43 +357,43 @@ export default {
 }
 
 .document-table :deep(th) {
-  background-color: #FAFAFA;
-  border-right: 0px solid #EBEEF5
+  background-color: #fafafa;
+  border-right: 0px solid #ebeef5;
 }
 
 /*展开按钮未点击的样式是加号带边框*/
 .cn-table :deep(.el-table__expand-icon .el-icon-arrow-right:before) {
   position: unset;
-  content: "展开";
+  content: '展开';
   padding: 2px;
 }
 
 /*展开按钮点击后的样式是减号带边框*/
 .cn-table :deep(.el-table__expand-icon--expanded .el-icon-arrow-right:before) {
   position: unset;
-  content: "收起";
+  content: '收起';
 }
 
 .tw-table :deep(.el-table__expand-icon .el-icon-arrow-right:before) {
   position: unset;
-  content: "展開";
+  content: '展開';
   padding: 2px;
 }
 
 .tw-table :deep(.el-table__expand-icon--expanded .el-icon-arrow-right:before) {
   position: unset;
-  content: "收起";
+  content: '收起';
 }
 
 .us-table :deep(.el-table__expand-icon .el-icon-arrow-right:before) {
   position: unset;
-  content: "Open";
+  content: 'Open';
   padding: 2px;
 }
 
 .us-table :deep(.el-table__expand-icon--expanded .el-icon-arrow-right:before) {
   position: unset;
-  content: "Close";
+  content: 'Close';
   padding: 2px;
 }
 </style>

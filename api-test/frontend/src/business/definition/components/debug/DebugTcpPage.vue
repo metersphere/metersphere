@@ -1,14 +1,28 @@
 <template>
-
   <div class="card-container">
     <el-card class="card-content">
-      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+      <el-form
+        :model="debugForm"
+        :rules="rules"
+        ref="debugForm"
+        :inline="true"
+        label-position="right"
+      >
+        <p class="tip">{{ $t('test_track.plan_view.base_info') }}</p>
         <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
-          <el-input v-model="request.server" maxlength="300" show-word-limit size="small"/>
+          <el-input
+            v-model="request.server"
+            maxlength="300"
+            show-word-limit
+            size="small"
+          />
         </el-form-item>
-        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
-          <el-input v-model="request.port" size="small"/>
+        <el-form-item
+          :label="$t('api_test.request.tcp.port')"
+          prop="port"
+          label-width="60px"
+        >
+          <el-input v-model="request.port" size="small" />
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" @click="stop" v-if="isStop">
@@ -16,13 +30,28 @@
           </el-button>
 
           <div v-else>
-            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
+            <el-button
+              v-if="scenario"
+              size="small"
+              type="primary"
+              @click="handleCommand"
+            >
+              {{ $t('commons.test') }}
             </el-button>
-            <el-dropdown v-else split-button type="primary" class="ms-api-button" @click="handleCommand"
-                         @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+            <el-dropdown
+              v-else
+              split-button
+              type="primary"
+              class="ms-api-button"
+              @click="handleCommand"
+              @command="handleCommand"
+              size="small"
+              style="float: right; margin-right: 20px"
+            >
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}
+                <el-dropdown-item command="save_as"
+                  >{{ $t('api_test.definition.request.save_as_case') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -30,52 +59,78 @@
         </el-form-item>
       </el-form>
       <div v-loading="loading">
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
         <!-- TCP 请求参数 -->
-        <ms-tcp-format-parameters :request="request" @callback="runDebug" ref="requestForm"/>
+        <ms-tcp-format-parameters
+          :request="request"
+          @callback="runDebug"
+          ref="requestForm"
+        />
         <!-- TCP 请求返回数据 -->
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol"
-                                ref="debugResult"/>
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
+        <ms-request-result-tail
+          v-if="!loading"
+          :response="responseData"
+          :currentProtocol="currentProtocol"
+          ref="debugResult"
+        />
       </div>
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
-              ref="runTest"/>
+      <ms-run
+        :debug="true"
+        :reportId="reportId"
+        :isStop="isStop"
+        :run-data="runData"
+        @runRefresh="runRefresh"
+        ref="runTest"
+      />
     </el-card>
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')">
+      <el-button
+        style="float: right; margin: 20px"
+        type="primary"
+        @click="handleCommand('save_as_api')"
+      >
         {{ $t('commons.save') }}
       </el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
-
+    <ms-api-case-list
+      @refreshModule="refreshModule"
+      :loaded="false"
+      ref="caseList"
+    />
   </div>
-
 </template>
 
 <script>
-import {getApiReportDetail} from "@/api/definition-report";
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import MsResponseResult from "../response/ResponseResult";
-import MsRequestMetric from "../response/RequestMetric";
-import {getUUID} from "metersphere-frontend/src/utils";
-import MsResponseText from "../response/ResponseText";
-import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsTcpFormatParameters from "@/business/definition/components/request/tcp/TcpFormatParameters";
-import MsApiCaseList from "../case/EditApiCase";
-import {TYPE_TO_C} from "@/business/automation/scenario/Setting";
-import {mergeRequestDocumentData} from "@/business/definition/api-definition";
-import {execStop} from "@/api/scenario";
+import { getApiReportDetail } from '@/api/definition-report';
+import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
+import MsResponseResult from '../response/ResponseResult';
+import MsRequestMetric from '../response/RequestMetric';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import MsResponseText from '../response/ResponseText';
+import MsRun from '../Run';
+import { createComponent } from '../jmeter/components';
+import { REQ_METHOD } from '../../model/JsonData';
+import MsRequestResultTail from '../response/RequestResultTail';
+import MsTcpFormatParameters from '@/business/definition/components/request/tcp/TcpFormatParameters';
+import MsApiCaseList from '../case/EditApiCase';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import { mergeRequestDocumentData } from '@/business/definition/api-definition';
+import { execStop } from '@/api/scenario';
 
 export default {
-  name: "ApiConfig",
+  name: 'ApiConfig',
   components: {
     MsTcpFormatParameters,
-    MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
+    MsRequestResultTail,
+    MsResponseResult,
+    MsApiRequestForm,
+    MsRequestMetric,
+    MsResponseText,
+    MsRun,
+    MsApiCaseList,
   },
   props: {
     currentProtocol: String,
@@ -85,27 +140,39 @@ export default {
   data() {
     return {
       rules: {
-        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
+        method: [
+          {
+            required: true,
+            message: this.$t('test_track.case.input_maintainer'),
+            trigger: 'change',
+          },
+        ],
+        url: [
+          {
+            required: true,
+            message: this.$t('api_test.definition.request.path_all_info'),
+            trigger: 'blur',
+          },
+        ],
       },
-      debugForm: {method: REQ_METHOD[0].id},
+      debugForm: { method: REQ_METHOD[0].id },
       options: [],
-      responseData: {type: 'TCP', responseResult: {}, subRequestResults: []},
+      responseData: { type: 'TCP', responseResult: {}, subRequestResults: [] },
       loading: false,
-      debugResultId: "",
+      debugResultId: '',
       runData: [],
       headers: [],
-      reportId: "",
+      reportId: '',
       reqOptions: REQ_METHOD,
       request: {},
       isStop: false,
-    }
+    };
   },
   created() {
     if (this.testCase) {
       if (this.testCase.id) {
         // 执行结果信息
-        getApiReportDetail(this.testCase.id).then( response => {
+        getApiReportDetail(this.testCase.id).then((response) => {
           if (response.data) {
             let data = JSON.parse(response.data.content);
             this.responseData = data;
@@ -122,18 +189,18 @@ export default {
         }
       }
     } else {
-      this.request = createComponent("TCPSampler");
+      this.request = createComponent('TCPSampler');
     }
   },
   watch: {
     debugResultId() {
-      this.getResult()
-    }
+      this.getResult();
+    },
   },
   methods: {
     handleCommand(e) {
       mergeRequestDocumentData(this.request);
-      if (e === "save_as") {
+      if (e === 'save_as') {
         this.saveAs();
       } else if (e === 'save_as_api') {
         this.saveAsApi();
@@ -169,7 +236,7 @@ export default {
       }
     },
     saveAsApi() {
-      let obj = {request: this.request};
+      let obj = { request: this.request };
       obj.request.id = getUUID();
       this.$emit('saveAs', obj);
     },
@@ -186,13 +253,13 @@ export default {
       }
     },
     saveAs() {
-      let obj = {request: this.request};
+      let obj = { request: this.request };
       obj.server = this.debugForm.server;
       obj.port = this.debugForm.port;
       obj.request.id = getUUID();
       obj.saved = true;
       obj.protocol = this.currentProtocol;
-      obj.status = "Underway";
+      obj.status = 'Underway';
       obj.method = this.currentProtocol;
       // 历史数据兼容处理
       if (obj.request) {
@@ -200,11 +267,9 @@ export default {
         this.compatibleHistory(obj.request.hashTree);
       }
       this.$refs.caseList.saveApiAndCase(obj);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

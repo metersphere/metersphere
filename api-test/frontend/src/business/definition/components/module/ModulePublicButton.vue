@@ -1,33 +1,44 @@
 <template>
-  <div @click="exe" class="recycle" :class="{'is-active': condition.publicEnable}" v-if="this.isXpack">
+  <div
+    @click="exe"
+    class="recycle"
+    :class="{ 'is-active': condition.publicEnable }"
+    v-if="this.isXpack"
+  >
     <el-row>
-      <el-col :span="20"><i class="el-icon-reading"> {{ $t('project.case_public') }}</i></el-col>
-      <el-col :span="4"><span style="color: var(--primary_color);">{{ publicTotal }}</span></el-col>
+      <el-col :span="20"
+        ><i class="el-icon-reading"> {{ $t('project.case_public') }}</i></el-col
+      >
+      <el-col :span="4"
+        ><span style="color: var(--primary_color)">{{
+          publicTotal
+        }}</span></el-col
+      >
     </el-row>
   </div>
 </template>
 
 <script>
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 
 export default {
-  name: "ModulePublicButton",
+  name: 'ModulePublicButton',
   props: {
     condition: {
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     exe: {
-      type: Function
+      type: Function,
     },
     publicTotal: Number,
   },
   data() {
     return {
-      isXPack: false
-    }
+      isXPack: false,
+    };
   },
   created() {
     if (hasLicense()) {
@@ -40,12 +51,11 @@ export default {
     // enableTrash() {
     //
     // }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .recycle {
   padding-left: 25px;
   margin-top: 15px;
@@ -62,5 +72,4 @@ export default {
 .is-active {
   background-color: #f3f6f9;
 }
-
 </style>

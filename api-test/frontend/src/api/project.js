@@ -1,5 +1,5 @@
-import {get, post} from 'metersphere-frontend/src/plugins/request'
-import {getCurrentWorkspaceId} from 'metersphere-frontend/src/utils/token'
+import { get, post } from 'metersphere-frontend/src/plugins/request';
+import { getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 
 export function getProject(projectId) {
   let url = '/project/get/' + projectId;
@@ -11,7 +11,8 @@ export function getOwnerProjectIds() {
   return get(url);
 }
 
-export function getMaintainer() {getAll
+export function getMaintainer() {
+  getAll;
   let url = '/user/project/member/list';
   return get(url);
 }

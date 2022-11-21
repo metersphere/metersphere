@@ -1,19 +1,29 @@
 <template>
-  <ms-drawer class="json-path-picker" :visible="visible" :size="30" @close="close" direction="right"
-             v-clickoutside="close">
+  <ms-drawer
+    class="json-path-picker"
+    :visible="visible"
+    :size="30"
+    @close="close"
+    direction="right"
+    v-clickoutside="close"
+  >
     <template v-slot:header>
-      <ms-instructions-icon :content="tip"/>
+      <ms-instructions-icon :content="tip" />
       {{ tip }}
     </template>
-    <jsonpath-picker :code="data" v-on:path="pathChangeHandler" ref="jsonpathPicker"/>
+    <jsonpath-picker
+      :code="data"
+      v-on:path="pathChangeHandler"
+      ref="jsonpathPicker"
+    />
   </ms-drawer>
 </template>
 
 <script>
-import MsDrawer from "metersphere-frontend/src/components/MsDrawer";
-import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
+import MsDrawer from 'metersphere-frontend/src/components/MsDrawer';
+import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
 
-let dotReplace = "#DOT_MASK#";
+let dotReplace = '#DOT_MASK#';
 
 const clickoutside = {
   // 初始化指令
@@ -21,32 +31,31 @@ const clickoutside = {
     function documentHandler(e) {
       // 这里判断点击的元素是否是本身，是本身，则返回
       if (el.contains(e.target)) {
-        return false
+        return false;
       }
       // 判断指令中是否绑定了函数
       if (binding.expression) {
         // 如果绑定了函数 则调用那个函数，此处binding.value就是handleClose方法
-        binding.value(e)
+        binding.value(e);
       }
     }
 
     // 给当前元素绑定个私有变量，方便在unbind中可以解除事件监听
-    el.__vueClickOutside__ = documentHandler
-    document.addEventListener('click', documentHandler)
+    el.__vueClickOutside__ = documentHandler;
+    document.addEventListener('click', documentHandler);
   },
-  update() {
-  },
+  update() {},
   unbind(el, binding) {
     // 解除事件监听
-    document.removeEventListener('click', el.__vueClickOutside__)
-    delete el.__vueClickOutside__
-  }
-}
+    document.removeEventListener('click', el.__vueClickOutside__);
+    delete el.__vueClickOutside__;
+  },
+};
 
 export default {
-  name: "MsApiJsonpathSuggest",
-  components: {MsInstructionsIcon, MsDrawer},
-  directives: {clickoutside},
+  name: 'MsApiJsonpathSuggest',
+  components: { MsInstructionsIcon, MsDrawer },
+  directives: { clickoutside },
   data() {
     return {
       visible: false,
@@ -58,8 +67,8 @@ export default {
     tip: {
       type: String,
       default() {
-        return ""
-      }
+        return '';
+      },
     },
   },
   methods: {
@@ -71,7 +80,7 @@ export default {
       try {
         let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
         let param;
-        let JSONBig = require('json-bigint')({"storeAsString": true});
+        let JSONBig = require('json-bigint')({ storeAsString: true });
         // 解决精度丢失问题
         try {
           param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
@@ -108,7 +117,7 @@ export default {
       let reg = /\['.*'\]/;
       let searchStr = reg.exec(data);
       if (searchStr) {
-        searchStr.forEach(item => {
+        searchStr.forEach((item) => {
           if (data.startsWith("['")) {
             data = data.replace(item, item.replace('.', dotReplace));
           } else {
@@ -149,22 +158,21 @@ export default {
         if (childObj instanceof Object) {
           childObj = JSON.stringify(childObj);
         } else {
-          childObj = childObj + "";
+          childObj = childObj + '';
         }
         return {
           key: param,
-          value: childObj
+          value: childObj,
         };
       }
       index++;
       return this.getParamValue(childObj, index, params);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .json-path-picker {
   padding: 10px 13px;
 }
@@ -182,5 +190,4 @@ export default {
 :deep(.fulls-screen-btn) {
   position: fixed !important;
 }
-
 </style>

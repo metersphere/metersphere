@@ -1,24 +1,42 @@
 <template>
-  <el-dialog :visible="dialogVisible" :title="dialogTitle"
-             @close="close" :close-on-click-modal="false" append-to-body
-             width="35%">
+  <el-dialog
+    :visible="dialogVisible"
+    :title="dialogTitle"
+    @close="close"
+    :close-on-click-modal="false"
+    append-to-body
+    width="35%"
+  >
     <el-form :rules="rules" label-width="80px" v-model="modeId">
       <el-form-item prop="modeId" :label="$t('commons.import_mode')">
         <el-select size="small" v-model="modeId">
-          <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+          <el-option
+            v-for="item in modeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
         </el-select>
       </el-form-item>
 
       <el-form-item>
         <el-upload
-          class="api-upload" drag action="alert"
+          class="api-upload"
+          drag
+          action="alert"
           :on-change="handleFileChange"
-          :limit="1" :file-list="uploadFiles"
+          :limit="1"
+          :file-list="uploadFiles"
           :on-remove="handleRemove"
           :on-exceed="handleExceed"
-          :auto-upload="false" accept=".json">
+          :auto-upload="false"
+          accept=".json"
+        >
           <i class="el-icon-upload"></i>
-          <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+          <div
+            class="el-upload__text"
+            v-html="$t('load_test.upload_tips')"
+          ></div>
           <div class="el-upload__tip" slot="tip">
             {{ $t('api_test.api_import.file_size_limit') }}
             {{ '，' + $t('api_test.api_import.ms_env_import_file_limit') }}
@@ -35,46 +53,43 @@
 </template>
 
 <script>
-
 export default {
-  name: "VariableImport",
+  name: 'VariableImport',
   props: {
     projectList: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     toImportProjectId: {
       type: String,
       default() {
-        return "";
-      }
-    }
+        return '';
+      },
+    },
   },
   data() {
     return {
-      currentProjectId: '',   //所选中环境的id
+      currentProjectId: '', //所选中环境的id
       uploadFiles: [],
       dialogTitle: this.$t('commons.import_variable'),
       dialogVisible: false,
       modeOptions: [
         {
           id: 'fullCoverage',
-          name: this.$t('commons.cover')
+          name: this.$t('commons.cover'),
         },
         {
           id: 'incrementalMerge',
-          name: this.$t('commons.not_cover')
-        }
+          name: this.$t('commons.not_cover'),
+        },
       ],
       modeId: 'fullCoverage',
       rules: {
-        modeId: [
-          {required: true, message: "", trigger: 'blur'},
-        ],
+        modeId: [{ required: true, message: '', trigger: 'blur' }],
       },
-    }
+    };
   },
   watch: {
     //导入框激活时重置选中的项目和文件
@@ -83,9 +98,8 @@ export default {
         this.currentProjectId = '';
         this.uploadFiles = [];
       }
-    }
+    },
   },
-
 
   methods: {
     handleFileChange(file, uploadFiles) {
@@ -100,27 +114,29 @@ export default {
             continue;
           }
           let reader = new FileReader();
-          reader.readAsText(file.raw)
+          reader.readAsText(file.raw);
           reader.onload = (e) => {
             let fileString = e.target.result;
             let messages = '';
             try {
-              JSON.parse(fileString).map(env => {
+              JSON.parse(fileString).map((env) => {
                 if (!env.name) {
-                  messages = this.$t('api_test.automation.variable_warning')
+                  messages = this.$t('api_test.automation.variable_warning');
                 }
-              })
+              });
               if (messages !== '') {
                 this.$warning(messages);
                 return;
               }
-              this.$emit("mergeData", fileString, this.modeId);
+              this.$emit('mergeData', fileString, this.modeId);
               this.dialogVisible = false;
               this.$success(this.$t('commons.save_success'));
             } catch (exception) {
-              this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
+              this.$warning(
+                this.$t('api_test.api_import.ms_env_import_file_limit')
+              );
             }
-          }
+          };
         }
       } else {
         this.$warning(this.$t('test_track.case.import.import_file_tips'));
@@ -129,10 +145,9 @@ export default {
     handleExceed() {
       this.$warning(this.$t('api_test.api_import.file_exceed_limit'));
     },
-    handleRemove() {
-
-    },
-    uploadValidate(file) {    //判断文件扩展名是不是.json，以及文件大小是否超过20M
+    handleRemove() {},
+    uploadValidate(file) {
+      //判断文件扩展名是不是.json，以及文件大小是否超过20M
       const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       if (!(extension === 'json')) {
         this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
@@ -146,10 +161,9 @@ export default {
     },
     close() {
       this.dialogVisible = false;
-    }
+    },
   },
-
-}
+};
 </script>
 
 <style scoped>

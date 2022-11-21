@@ -10,29 +10,34 @@
     :show-btn="showBtn"
     :show-version="showVersion"
     :background-color="backgroundColor"
-    :title="title" v-loading="loading">
-
+    :title="title"
+    v-loading="loading"
+  >
     <template v-slot:request>
       <jdbc-processor-content
         :showScript="false"
         :scenarioId="scenarioId"
-        :request="request"/>
+        :request="request"
+      />
     </template>
   </api-base-component>
 </template>
 
 <script>
-import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
-import MsDropdown from "@/business/commons/MsDropdown";
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import JdbcProcessorContent from "@/business/automation/scenario/common/JDBCProcessorContent";
+import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
+import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
+import MsDropdown from '@/business/commons/MsDropdown';
+import ApiBaseComponent from '../common/ApiBaseComponent';
+import JdbcProcessorContent from '@/business/automation/scenario/common/JDBCProcessorContent';
 
 export default {
-  name: "MsJdbcProcessor",
+  name: 'MsJdbcProcessor',
   components: {
     JdbcProcessorContent,
-    ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit
+    ApiBaseComponent,
+    MsDropdown,
+    MsInstructionsIcon,
+    MsCodeEdit,
   },
   props: {
     scenarioId: String,
@@ -54,8 +59,7 @@ export default {
     },
     isReadOnly: {
       type: Boolean,
-      default:
-        false
+      default: false,
     },
     request: Object,
     title: String,
@@ -63,10 +67,9 @@ export default {
     backgroundColor: String,
     node: {},
   },
-  created() {
-  },
+  created() {},
   data() {
-    return {loading: false};
+    return { loading: false };
   },
   methods: {
     remove() {
@@ -85,7 +88,7 @@ export default {
       this.request.active = !this.request.active;
       this.reload();
     },
-  }
+  },
 };
 </script>
 
@@ -98,5 +101,4 @@ export default {
   margin-left: 20px;
   padding: 7px;
 }
-
 </style>

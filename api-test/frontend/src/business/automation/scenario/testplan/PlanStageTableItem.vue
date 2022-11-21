@@ -1,26 +1,24 @@
 <template>
-    <div>
-      <span v-for="item in option" :key="item.value">
-        <span v-if="stage == item.value">
-          {{$t(item.text)}}
-        </span>
+  <div>
+    <span v-for="item in option" :key="item.value">
+      <span v-if="stage == item.value">
+        {{ $t(item.text) }}
       </span>
-    </div>
+    </span>
+  </div>
 </template>
 
 <script>
-    export default {
-      name: "PlanStageTableItem",
-      components: {},
-      props: {
-        stage: {
-          type: String
-        },
-        option: []
-      }
-    }
+export default {
+  name: 'PlanStageTableItem',
+  components: {},
+  props: {
+    stage: {
+      type: String,
+    },
+    option: [],
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

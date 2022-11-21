@@ -1,17 +1,17 @@
-import HashTreeElement from "../../hashtree";
+import HashTreeElement from '../../hashtree';
 
 const DEFAULT_OPTIONS = {
   options: {
     attributes: {
-      guiclass: "ViewResultsFullVisualizer",
-      testclass: "ResultCollector",
-      testname: "View Results Tree",
-      enabled: "true"
+      guiclass: 'ViewResultsFullVisualizer',
+      testclass: 'ResultCollector',
+      testname: 'View Results Tree',
+      enabled: 'true',
     },
-  }
+  },
 };
 
-export const TYPE = "ResultCollector";
+export const TYPE = 'ResultCollector';
 
 export default class ResultCollector extends HashTreeElement {
   constructor(options = DEFAULT_OPTIONS) {
@@ -21,5 +21,5 @@ export default class ResultCollector extends HashTreeElement {
 }
 
 export const schema = {
-  ResultCollector: ResultCollector
-}
+  ResultCollector: ResultCollector,
+};

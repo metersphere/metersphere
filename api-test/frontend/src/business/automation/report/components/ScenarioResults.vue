@@ -1,33 +1,62 @@
 <template>
   <el-card class="scenario-results">
     <div v-if="errorReport > 0">
-      <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-        <i class="el-icon-circle-plus-outline  ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
+      <el-tooltip
+        :content="$t('api_test.automation.open_expansion')"
+        placement="top"
+        effect="light"
+      >
+        <i
+          class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"
+          v-prevent-re-click
+          @click="openExpansion"
+        />
       </el-tooltip>
-      <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
-        <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion"/>
+      <el-tooltip
+        :content="$t('api_test.automation.close_expansion')"
+        placement="top"
+        effect="light"
+      >
+        <i
+          class="el-icon-remove-outline ms-open-btn"
+          size="mini"
+          @click="closeExpansion"
+        />
       </el-tooltip>
     </div>
-    <el-tree :data="treeData"
-             :expand-on-click-node="false"
-             :default-expand-all="defaultExpand"
-             :filter-node-method="filterNode"
-             highlight-current
-             class="ms-tree ms-report-tree" ref="resultsTree">
-          <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
-            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"
-                                :isActive="isActive" :is-share="isShare" :share-id="shareId"/>
-          </span>
+    <el-tree
+      :data="treeData"
+      :expand-on-click-node="false"
+      :default-expand-all="defaultExpand"
+      :filter-node-method="filterNode"
+      highlight-current
+      class="ms-tree ms-report-tree"
+      ref="resultsTree"
+    >
+      <span
+        slot-scope="{ node, data }"
+        style="width: 99%"
+        @click="nodeClick(node)"
+      >
+        <ms-scenario-result
+          :node="data"
+          :console="console"
+          v-on:requestResult="requestResult"
+          :isActive="isActive"
+          :is-share="isShare"
+          :share-id="shareId"
+        />
+      </span>
     </el-tree>
   </el-card>
 </template>
 
 <script>
-import MsScenarioResult from "./ScenarioResult";
+import MsScenarioResult from './ScenarioResult';
 
 export default {
-  name: "MsScenarioResults",
-  components: {MsScenarioResult},
+  name: 'MsScenarioResults',
+  components: { MsScenarioResult },
   props: {
     scenarios: Array,
     treeData: Array,
@@ -43,8 +72,8 @@ export default {
   },
   data() {
     return {
-      isActive: false
-    }
+      isActive: false,
+    };
   },
   created() {
     if (this.$refs.resultsTree && this.$refs.resultsTree.root) {
@@ -53,7 +82,11 @@ export default {
   },
   computed: {
     isUi() {
-      return this.report && this.report.reportType && this.report.reportType.startsWith("UI");
+      return (
+        this.report &&
+        this.report.reportType &&
+        this.report.reportType.startsWith('UI')
+      );
     },
   },
   methods: {
@@ -64,7 +97,11 @@ export default {
       if (!value) return true;
       if (data.value) {
         if (value === 'FAKE_ERROR') {
-          if (data.errorCode && data.errorCode !== "" && data.value.status === "FAKE_ERROR") {
+          if (
+            data.errorCode &&
+            data.errorCode !== '' &&
+            data.value.status === 'FAKE_ERROR'
+          ) {
             return true;
           }
         } else if (value === 'PENDING') {
@@ -83,20 +120,20 @@ export default {
       });
     },
     requestResult(requestResult) {
-      this.$emit("requestResult", requestResult);
+      this.$emit('requestResult', requestResult);
     },
     nodeClick(node) {
       node.expanded = !node.expanded;
     },
     // 改变节点的状态
     changeTreeNodeStatus(node, expandCount) {
-      node.expanded = this.expandAll
+      node.expanded = this.expandAll;
       for (let i = 0; i < node.childNodes.length; i++) {
         // 改变节点的自身expanded状态
-        node.childNodes[i].expanded = this.expandAll
+        node.childNodes[i].expanded = this.expandAll;
         // 遍历子节点
         if (node.childNodes[i].childNodes.length > 0) {
-          this.changeTreeNodeStatus(node.childNodes[i])
+          this.changeTreeNodeStatus(node.childNodes[i]);
         }
       }
     },
@@ -109,10 +146,10 @@ export default {
       this.isActive = true;
       this.expandAll = true;
       // 改变每个节点的状态
-      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0)
+      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0);
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -143,7 +180,8 @@ export default {
 
 :deep(.el-checkbox) {
   color: #303133;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    Arial, sans-serif;
   font-size: 13px;
   font-weight: normal;
 }
@@ -163,13 +201,12 @@ export default {
 }
 
 .ms-open-btn:hover {
-  background-color: #F2F9EE;
+  background-color: #f2f9ee;
   cursor: pointer;
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-open-btn-left {
   margin-left: 30px;
 }
-
 </style>

@@ -1,26 +1,32 @@
-import {request, socket} from "metersphere-frontend/src/plugins/request"
-import jsFileDownload from 'js-file-download'
-import {$error} from "metersphere-frontend/src/plugins/message"
+import { request, socket } from 'metersphere-frontend/src/plugins/request';
+import jsFileDownload from 'js-file-download';
+import { $error } from 'metersphere-frontend/src/plugins/message';
 
 export function getUploadConfig(url, formData) {
   return {
-    method: 'POST', url: url, data: formData, headers: {
-      'Content-Type': undefined
-    }
+    method: 'POST',
+    url: url,
+    data: formData,
+    headers: {
+      'Content-Type': undefined,
+    },
   };
 }
 
 export function fileUpload(url, file, files, param) {
   let formData = new FormData();
   if (file) {
-    formData.append("file", file);
+    formData.append('file', file);
   }
   if (files) {
-    files.forEach(f => {
-      formData.append("files", f);
+    files.forEach((f) => {
+      formData.append('files', f);
     });
   }
-  formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
+  formData.append(
+    'request',
+    new Blob([JSON.stringify(param)], { type: 'application/json' })
+  );
   let config = getUploadConfig(url, formData);
   return request(config);
 }
@@ -35,15 +41,18 @@ export function downloadFile(method, url, data, fileName) {
     method: method,
     data: data,
     responseType: 'blob',
-    headers: {"Content-Type": "application/json; charset=utf-8"}
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
   };
   request(config)
     .then((res) => {
-      fileName = fileName ? fileName : window.decodeURI(res.headers['content-disposition'].split('=')[1]);
+      fileName = fileName
+        ? fileName
+        : window.decodeURI(res.headers['content-disposition'].split('=')[1]);
       jsFileDownload(res.data, fileName);
-    }).catch((e) => {
-    $error(e.message);
-  })
+    })
+    .catch((e) => {
+      $error(e.message);
+    });
 }
 
 export function baseSocket(url) {

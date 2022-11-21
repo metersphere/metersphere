@@ -1,32 +1,69 @@
 <template>
   <div v-if="reloaded">
-    <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
+    <div
+      class="text-container"
+      style="
+        border: 1px #dcdfe6 solid;
+        height: 100%;
+        border-radius: 4px;
+        width: 100%;
+      "
+    >
       <el-form :model="response" ref="response" label-width="100px">
-
         <el-collapse-transition>
           <el-tabs v-model="activeName" v-show="isActive" style="margin: 20px">
-            <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.response_header')" name="headers"
-                         class="pane">
-              <ms-api-key-value style="width: 95%" :isShowEnable="false" :suggestions="headerSuggestions"
-                                :items="response.headers"/>
+            <el-tab-pane
+              v-if="!isTcp"
+              :label="$t('api_test.definition.request.response_header')"
+              name="headers"
+              class="pane"
+            >
+              <ms-api-key-value
+                style="width: 95%"
+                :isShowEnable="false"
+                :suggestions="headerSuggestions"
+                :items="response.headers"
+              />
             </el-tab-pane>
-            <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-              <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body"
-                                      :headers="response.headers" :use-post-script="response.usePostScript"
-                                      :need-mock="false"/>
+            <el-tab-pane
+              :label="$t('api_test.definition.request.response_body')"
+              name="body"
+              class="pane"
+            >
+              <mock-api-response-body
+                :isReadOnly="false"
+                :isShowEnable="false"
+                :api-id="apiId"
+                :body="response.body"
+                :headers="response.headers"
+                :use-post-script="response.usePostScript"
+                :need-mock="false"
+              />
             </el-tab-pane>
 
-            <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code"
-                         class="pane">
+            <el-tab-pane
+              v-if="!isTcp"
+              :label="$t('api_test.definition.request.status_code')"
+              name="status_code"
+              class="pane"
+            >
               <el-row>
-                <el-col :span="2"/>
+                <el-col :span="2" />
                 <el-col :span="20">
-                  <el-input size="small" style="width: 180px;margin-top: 10px" v-model="response.httpCode"/>
+                  <el-input
+                    size="small"
+                    style="width: 180px; margin-top: 10px"
+                    v-model="response.httpCode"
+                  />
                 </el-col>
-                <el-col :span="2"/>
+                <el-col :span="2" />
               </el-row>
             </el-tab-pane>
-            <el-tab-pane :label="$t('commons.response_time_delay')" name="delayed" class="pane">
+            <el-tab-pane
+              :label="$t('commons.response_time_delay')"
+              name="delayed"
+              class="pane"
+            >
               <el-row>
                 <el-input-number v-model="response.delayed" :min="0">
                   <template slot="append">ms</template>
@@ -38,17 +75,28 @@
       </el-form>
     </div>
     <div v-show="response.usePostScript">
-      <el-row style="margin-top: 10px;">
+      <el-row style="margin-top: 10px">
         <el-col :span="12">
           <p class="tip">{{ $t('api_test.definition.request.post_script') }}</p>
         </el-col>
         <el-col :span="12">
-          <i class="el-icon-close" @click="removePostScript"/>
+          <i class="el-icon-close" @click="removePostScript" />
         </el-col>
       </el-row>
-      <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
-        <div style="padding: 15px 0;">
-          <mock-api-script-editor v-if="response.body.scriptObject" :jsr223-processor="response.body.scriptObject"/>
+      <div
+        class="text-container"
+        style="
+          border: 1px #dcdfe6 solid;
+          height: 100%;
+          border-radius: 4px;
+          width: 100%;
+        "
+      >
+        <div style="padding: 15px 0">
+          <mock-api-script-editor
+            v-if="response.body.scriptObject"
+            :jsr223-processor="response.body.scriptObject"
+          />
         </div>
       </div>
     </div>
@@ -56,23 +104,23 @@
 </template>
 
 <script>
-import MockApiResponseBody from "@/business/definition/components/mock/Components/MockApiResponseBody";
-import MsApiKeyValue from "@/business/definition/components/ApiKeyValue";
-import MsApiAuthConfig from "@/business/definition/components/auth/ApiAuthConfig";
-import ApiRequestMethodSelect from "@/business/definition/components/collapse/ApiRequestMethodSelect";
-import MsApiVariable from "@/business/definition/components/ApiVariable";
-import MsApiAssertions from "@/business/definition/components/assertion/ApiAssertions";
-import MsApiExtract from "@/business/definition/components/extract/ApiExtract";
-import BatchAddParameter from "@/business/definition/components/basis/BatchAddParameter";
-import MsApiAdvancedConfig from "@/business/definition/components/request/http/ApiAdvancedConfig";
-import MsJsr233Processor from "@/business/automation/scenario/component/Jsr233Processor";
-import MockApiScriptEditor from "@/business/definition/components/mock/Components/MockApiScriptEditor";
-import ApiDefinitionStepButton from "@/business/definition/components/request/components/ApiDefinitionStepButton";
-import {Body, BODY_FORMAT} from "@/business/definition/model/ApiTestModel";
-import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
+import MockApiResponseBody from '@/business/definition/components/mock/Components/MockApiResponseBody';
+import MsApiKeyValue from '@/business/definition/components/ApiKeyValue';
+import MsApiAuthConfig from '@/business/definition/components/auth/ApiAuthConfig';
+import ApiRequestMethodSelect from '@/business/definition/components/collapse/ApiRequestMethodSelect';
+import MsApiVariable from '@/business/definition/components/ApiVariable';
+import MsApiAssertions from '@/business/definition/components/assertion/ApiAssertions';
+import MsApiExtract from '@/business/definition/components/extract/ApiExtract';
+import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
+import MsApiAdvancedConfig from '@/business/definition/components/request/http/ApiAdvancedConfig';
+import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
+import MockApiScriptEditor from '@/business/definition/components/mock/Components/MockApiScriptEditor';
+import ApiDefinitionStepButton from '@/business/definition/components/request/components/ApiDefinitionStepButton';
+import { Body, BODY_FORMAT } from '@/business/definition/model/ApiTestModel';
+import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
 
 export default {
-  name: "MockResponseParam",
+  name: 'MockResponseParam',
   components: {
     ApiDefinitionStepButton,
     MsJsr233Processor,
@@ -85,7 +133,7 @@ export default {
     MockApiResponseBody,
     MockApiScriptEditor,
     MsApiKeyValue,
-    MsApiAssertions
+    MsApiAssertions,
   },
   props: {
     response: {},
@@ -93,18 +141,18 @@ export default {
     isTcp: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   data() {
     return {
       isActive: true,
       reloaded: true,
-      activeName: "body",
+      activeName: 'body',
       modes: ['text', 'json', 'xml', 'html'],
       sqlModes: ['text', 'table'],
       mode: BODY_FORMAT.TEXT,
       isMsCodeEditShow: true,
-      reqMessages: "",
+      reqMessages: '',
       headerSuggestions: REQUEST_HEADERS,
     };
   },
@@ -131,7 +179,7 @@ export default {
       this.reloaded = false;
       this.$nextTick(() => {
         this.reloaded = true;
-      })
+      });
     },
     modeChange(mode) {
       this.mode = mode;
@@ -147,12 +195,17 @@ export default {
         return;
       }
       if (!this.response.httpCode || this.response.httpCode === '') {
-        this.$set(this.response, "httpCode", "200");
+        this.$set(this.response, 'httpCode', '200');
       }
       if (!this.response.delayed) {
         this.response.delayed = 0;
       }
-      if (Object.prototype.toString.call(this.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      if (
+        Object.prototype.toString
+          .call(this.response)
+          .match(/\[object (\w+)\]/)[1]
+          .toLowerCase() !== 'object'
+      ) {
         this.response = JSON.parse(this.response);
       }
       if (!this.response.body) {
@@ -171,7 +224,7 @@ export default {
         this.response.arguments = [];
       }
 
-      if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+      if (this.response.headers.indexOf('Content-Type: application/json') > 0) {
         this.mode = BODY_FORMAT.JSON;
         this.$nextTick(() => {
           if (this.$refs.modeDropdown) {
@@ -190,26 +243,38 @@ export default {
     setReqMessage() {
       if (this.response) {
         if (!this.response.url) {
-          this.response.url = "";
+          this.response.url = '';
         }
         if (!this.response.headers) {
-          this.response.headers = "";
+          this.response.headers = '';
         }
         if (!this.response.cookies) {
-          this.response.cookies = "";
+          this.response.cookies = '';
         }
         if (!this.response.body) {
-          this.response.body = "";
+          this.response.body = '';
         }
         if (!this.response) {
           this.response = {};
         }
         if (!this.response.vars) {
-          this.response.vars = "";
+          this.response.vars = '';
         }
-        this.reqMessages = this.$t('api_test.request.address') + ":\n" + this.response.url + "\n" +
-          this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
-          this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
+        this.reqMessages =
+          this.$t('api_test.request.address') +
+          ':\n' +
+          this.response.url +
+          '\n' +
+          this.$t('api_test.scenario.headers') +
+          ':\n' +
+          this.response.headers +
+          '\n' +
+          'Cookies :\n' +
+          this.response.cookies +
+          '\n' +
+          'Body:' +
+          '\n' +
+          this.response.body;
       }
     },
   },
@@ -220,8 +285,8 @@ export default {
   computed: {
     responseResult() {
       return this.response && this.response ? this.response : {};
-    }
-  }
+    },
+  },
 };
 </script>
 

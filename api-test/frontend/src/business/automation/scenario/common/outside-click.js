@@ -17,8 +17,7 @@ const OutsideClick = {
     el.__vueClickOutside__ = documentHandler;
     document.addEventListener('click', documentHandler);
   },
-  update() {
-  },
+  update() {},
   unbind(el, binding) {
     // 解除事件监听
     document.removeEventListener('click', el.__vueClickOutside__);
@@ -27,5 +26,3 @@ const OutsideClick = {
 };
 
 export default OutsideClick;
-
-

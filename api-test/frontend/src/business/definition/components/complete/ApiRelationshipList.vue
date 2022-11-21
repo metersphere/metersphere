@@ -8,17 +8,19 @@
       :enable-selection="false"
       ref="table"
       :screen-height="null"
-      @refresh="getTableData">
-
+      @refresh="getTableData"
+    >
       <ms-table-column
         prop="targetNum"
         :label="$t('commons.id')"
-        min-width="80"/>
+        min-width="80"
+      />
 
       <ms-table-column
         prop="targetName"
         :label="$t('commons.name')"
-        min-width="120"/>
+        min-width="120"
+      />
 
       <ms-table-column
         v-xpack
@@ -34,47 +36,51 @@
       <ms-table-column
         prop="creator"
         :label="$t('commons.create_user')"
-        min-width="120">
+        min-width="120"
+      >
       </ms-table-column>
 
       <ms-table-column
         prop="status"
         min-width="120px"
-        :label="$t('api_test.definition.api_status')">
+        :label="$t('api_test.definition.api_status')"
+      >
         <template v-slot:default="scope">
           <span class="el-dropdown-link">
-            <api-status :value="scope.row.status"/>
+            <api-status :value="scope.row.status" />
           </span>
         </template>
       </ms-table-column>
-
     </ms-table>
 
     <api-relationship-relevance
       :api-definition-id="apiDefinitionId"
       @refresh="getTableData"
       :relationship-type="relationshipType"
-      ref="testCaseRelevance"/>
-
+      ref="testCaseRelevance"
+    />
   </div>
 </template>
 
 <script>
-import {getProjectVersions} from "@/api/xpack";
-import MsTable from "metersphere-frontend/src/components/table/MsTable";
-import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
-import {getRelationshipApi} from "@/api/definition";
-import ApiRelationshipRelevance from "@/business/definition/components/complete/ApiRelationshipRelevance";
-import ApiStatus from "@/business/definition/components/list/ApiStatus";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { getProjectVersions } from '@/api/xpack';
+import MsTable from 'metersphere-frontend/src/components/table/MsTable';
+import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
+import MsTableSearchBar from 'metersphere-frontend/src/components/MsTableSearchBar';
+import { getRelationshipApi } from '@/api/definition';
+import ApiRelationshipRelevance from '@/business/definition/components/complete/ApiRelationshipRelevance';
+import ApiStatus from '@/business/definition/components/list/ApiStatus';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 
 export default {
-  name: "ApiRelationshipList",
+  name: 'ApiRelationshipList',
   components: {
     ApiStatus,
-    ApiRelationshipRelevance, MsTableSearchBar, MsTableColumn, MsTable
+    ApiRelationshipRelevance,
+    MsTableSearchBar,
+    MsTableColumn,
+    MsTable,
   },
   data() {
     return {
@@ -82,11 +88,13 @@ export default {
       data: [],
       operators: [
         {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+          tip: this.$t('commons.delete'),
+          icon: 'el-icon-delete',
+          type: 'danger',
           exec: this.handleDelete,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
-          isDisable: this.readOnly
-        }
+          isDisable: this.readOnly,
+        },
       ],
       condition: {},
       options: [],
@@ -105,10 +113,12 @@ export default {
   },
   methods: {
     getTableData() {
-      getRelationshipApi(this.apiDefinitionId, this.relationshipType).then((response) => {
-        this.data = response.data;
-        this.$emit('setCount', response.data.length);
-      });
+      getRelationshipApi(this.apiDefinitionId, this.relationshipType).then(
+        (response) => {
+          this.data = response.data;
+          this.$emit('setCount', response.data.length);
+        }
+      );
     },
     openRelevance() {
       this.$refs.testCaseRelevance.open();
@@ -118,17 +128,16 @@ export default {
     },
     getProjectVersions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID()).then(response => {
+        getProjectVersions(getCurrentProjectID()).then((response) => {
           this.versionOptions = response.data.reduce((result, next) => {
             result[next.id] = next.name;
             return result;
           }, {});
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,43 +1,124 @@
 <template>
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive">
-      <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-sql-result-table v-if="isSqlType && activeName === 'body'" :body="responseResult.body"/>
-        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'" :mode="mode" :read-only="true"
-                      :modes="modes" :data.sync="responseResult.body" ref="codeEdit"/>
+      <el-tab-pane
+        :label="$t('api_test.definition.request.response_body')"
+        name="body"
+        class="pane"
+      >
+        <ms-sql-result-table
+          v-if="isSqlType && activeName === 'body'"
+          :body="responseResult.body"
+        />
+        <ms-code-edit
+          v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
+          :mode="mode"
+          :read-only="true"
+          :modes="modes"
+          :data.sync="responseResult.body"
+          ref="codeEdit"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.headers"
-                      v-if="activeName === 'headers'"/>
+      <el-tab-pane
+        :label="$t('api_test.definition.request.response_header')"
+        name="headers"
+        class="pane"
+      >
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.headers"
+          v-if="activeName === 'headers'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane v-if="isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console"
-                      v-if="activeName === 'console'" height="calc(100vh - 300px)"/>
+      <el-tab-pane
+        v-if="isTestPlan"
+        :label="$t('api_test.definition.request.console')"
+        name="console"
+        class="pane"
+      >
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.console"
+          v-if="activeName === 'console'"
+          height="calc(100vh - 300px)"
+        />
       </el-tab-pane>
 
-      <el-tab-pane v-if="!isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console"
-                      v-if="activeName === 'console'"/>
+      <el-tab-pane
+        v-if="!isTestPlan"
+        :label="$t('api_test.definition.request.console')"
+        name="console"
+        class="pane"
+      >
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.console"
+          v-if="activeName === 'console'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'"/>
+      <el-tab-pane
+        :label="$t('api_report.assertions')"
+        name="assertions"
+        class="pane assertions"
+      >
+        <ms-assertion-results
+          :assertions="responseResult.assertions"
+          v-if="activeName === 'assertions'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.vars" v-if="activeName === 'label'"/>
+      <el-tab-pane
+        :label="$t('api_test.request.extract.label')"
+        name="label"
+        class="pane"
+      >
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.vars"
+          v-if="activeName === 'label'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages" v-if="activeName === 'request_body'"/>
+      <el-tab-pane
+        :label="$t('api_report.request_body')"
+        name="request_body"
+        class="pane"
+      >
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="reqMessages"
+          v-if="activeName === 'request_body'"
+        />
       </el-tab-pane>
 
-      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
+      <el-tab-pane
+        v-if="activeName == 'body'"
+        :disabled="true"
+        name="mode"
+        class="pane cookie"
+      >
         <template v-slot:label>
-          <ms-dropdown v-if="currentProtocol==='SQL'" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
-          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
+          <ms-dropdown
+            v-if="currentProtocol === 'SQL'"
+            :commands="sqlModes"
+            :default-command="mode"
+            @command="sqlModeChange"
+          />
+          <ms-dropdown
+            v-else
+            :commands="modes"
+            :default-command="mode"
+            @command="modeChange"
+            ref="modeDropdown"
+          />
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -45,20 +126,20 @@
 </template>
 
 <script>
-import MsAssertionResults from "./AssertionResults";
-import MsCodeEdit from "../MsCodeEdit";
-import MsDropdown from "../../../../business/commons/MsDropdown";
-import {BODY_FORMAT} from "../../model/ApiTestModel";
-import MsSqlResultTable from "./SqlResultTable";
+import MsAssertionResults from './AssertionResults';
+import MsCodeEdit from '../MsCodeEdit';
+import MsDropdown from '../../../../business/commons/MsDropdown';
+import { BODY_FORMAT } from '../../model/ApiTestModel';
+import MsSqlResultTable from './SqlResultTable';
 
 export default {
-  name: "MsResponseResult",
+  name: 'MsResponseResult',
 
   components: {
     MsDropdown,
     MsCodeEdit,
     MsAssertionResults,
-    MsSqlResultTable
+    MsSqlResultTable,
   },
 
   props: {
@@ -68,26 +149,26 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
-    }
+      },
+    },
   },
 
   data() {
     return {
       isActive: true,
-      activeName: "body",
+      activeName: 'body',
       modes: ['text', 'json', 'xml', 'html'],
       sqlModes: ['text', 'table'],
       mode: BODY_FORMAT.TEXT,
       isMsCodeEditShow: true,
-      reqMessages: "",
-    }
+      reqMessages: '',
+    };
   },
   watch: {
     response() {
       this.setBodyType();
       this.setReqMessage();
-    }
+    },
   },
   methods: {
     modeChange(mode) {
@@ -97,15 +178,21 @@ export default {
       this.mode = mode;
     },
     setBodyType() {
-      if (this.response && this.response.responseResult && this.response.responseResult.headers
-        && this.response.responseResult.headers.indexOf("Content-Type: application/json") > 0) {
+      if (
+        this.response &&
+        this.response.responseResult &&
+        this.response.responseResult.headers &&
+        this.response.responseResult.headers.indexOf(
+          'Content-Type: application/json'
+        ) > 0
+      ) {
         this.mode = BODY_FORMAT.JSON;
         this.$nextTick(() => {
           if (this.$refs.modeDropdown) {
             this.$refs.modeDropdown.handleCommand(BODY_FORMAT.JSON);
             this.msCodeReload();
           }
-        })
+        });
       }
     },
     msCodeReload() {
@@ -117,26 +204,38 @@ export default {
     setReqMessage() {
       if (this.response) {
         if (!this.response.url) {
-          this.response.url = "";
+          this.response.url = '';
         }
         if (!this.response.headers) {
-          this.response.headers = "";
+          this.response.headers = '';
         }
         if (!this.response.cookies) {
-          this.response.cookies = "";
+          this.response.cookies = '';
         }
         if (!this.response.body) {
-          this.response.body = "";
+          this.response.body = '';
         }
         if (!this.response.responseResult) {
           this.response.responseResult = {};
         }
         if (!this.response.responseResult.vars) {
-          this.response.responseResult.vars = "";
+          this.response.responseResult.vars = '';
         }
-        this.reqMessages = this.$t('api_test.request.address') + ":\n" + this.response.url + "\n" +
-          this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
-          this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
+        this.reqMessages =
+          this.$t('api_test.request.address') +
+          ':\n' +
+          this.response.url +
+          '\n' +
+          this.$t('api_test.scenario.headers') +
+          ':\n' +
+          this.response.headers +
+          '\n' +
+          'Cookies :\n' +
+          this.response.cookies +
+          '\n' +
+          'Body:' +
+          '\n' +
+          this.response.body;
       }
     },
   },
@@ -146,13 +245,19 @@ export default {
   },
   computed: {
     isSqlType() {
-      return (this.currentProtocol === "SQL" && this.response.responseResult.responseCode === '200' && this.mode === 'table');
+      return (
+        this.currentProtocol === 'SQL' &&
+        this.response.responseResult.responseCode === '200' &&
+        this.mode === 'table'
+      );
     },
     responseResult() {
-      return this.response && this.response.responseResult ? this.response.responseResult : {};
-    }
-  }
-}
+      return this.response && this.response.responseResult
+        ? this.response.responseResult
+        : {};
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -173,7 +278,7 @@ export default {
 }
 
 .text-container .pane {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   padding: 1px 0;
   height: 250px;
   overflow-y: auto;

@@ -1,24 +1,30 @@
-import {post, generateShareUrl, get} from "metersphere-frontend/src/plugins/request"
+import {
+  post,
+  generateShareUrl,
+  get,
+} from 'metersphere-frontend/src/plugins/request';
 
 export function generateApiDocumentShareInfo(param) {
-  return post("/share/generate/api/document", param);
+  return post('/share/generate/api/document', param);
 }
 
 export function selectApiInfoByParam(param, currentPage, pageSize) {
-  return post("/share/list/" + currentPage + "/" + pageSize, param);
+  return post('/share/list/' + currentPage + '/' + pageSize, param);
 }
 
 export function generateShareInfoWithExpired(param) {
-  return post("/share/generate/expired", param);
+  return post('/share/generate/expired', param);
 }
 
 export function getShareContent(shareId, stepId) {
-  let url = "/share/" + shareId + "/scenario/report/detail/" + stepId;
+  let url = '/share/' + shareId + '/scenario/report/detail/' + stepId;
   return get(url);
 }
 
 export function getShareApiReport(shareId, testId) {
-  return get('/share/api/definition/report/getReport/' + shareId + '/' + testId);
+  return get(
+    '/share/api/definition/report/getReport/' + shareId + '/' + testId
+  );
 }
 
 export function getShareInfo(id) {
@@ -36,18 +42,18 @@ export function getShareId() {
     });
     return shareId;
   } else {
-    if (hrefUrl.indexOf("?") > 0) {
-      let paramArr = hrefUrl.split("?");
+    if (hrefUrl.indexOf('?') > 0) {
+      let paramArr = hrefUrl.split('?');
       if (paramArr.length > 1) {
         let shareId = paramArr[1];
-        if (shareId.indexOf("#") > 0) {
-          shareId = shareId.split("#")[0];
+        if (shareId.indexOf('#') > 0) {
+          shareId = shareId.split('#')[0];
         }
         return shareId;
       }
     }
   }
-  return "";
+  return '';
 }
 
 export function getShareRedirectUrl(data) {

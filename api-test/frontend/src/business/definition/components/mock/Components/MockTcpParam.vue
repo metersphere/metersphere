@@ -2,37 +2,47 @@
   <div>
     <el-row>
       <el-col :span="spanCount">
-        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData">
-          <el-tabs v-model="activeName" class="request-tabs">
-          </el-tabs>
+        <div
+          style="
+            border: 1px #dcdfe6 solid;
+            height: 100%;
+            border-radius: 4px;
+            width: 100%;
+          "
+          v-loading="isReloadData"
+        >
+          <el-tabs v-model="activeName" class="request-tabs"> </el-tabs>
         </div>
       </el-col>
     </el-row>
-    <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
+    <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter" />
   </div>
 </template>
 
 <script>
-import {testDataGenerator} from "@/api/xpack";
-import MsApiKeyValue from "@/business/definition/components/ApiKeyValue";
-import MsApiAuthConfig from "@/business/definition/components/auth/ApiAuthConfig";
-import ApiRequestMethodSelect from "@/business/definition/components/collapse/ApiRequestMethodSelect";
-import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
-import MsApiVariable from "@/business/definition/components/ApiVariable";
-import MsApiAssertions from "@/business/definition/components/assertion/ApiAssertions";
-import MsApiExtract from "@/business/definition/components/extract/ApiExtract";
-import {Body, KeyValue} from "@/business/definition/model/ApiTestModel";
-import {getUUID} from "metersphere-frontend/src/utils";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
-import BatchAddParameter from "@/business/definition/components/basis/BatchAddParameter";
-import MsApiAdvancedConfig from "@/business/definition/components/request/http/ApiAdvancedConfig";
-import MsJsr233Processor from "@/business/automation/scenario/component/Jsr233Processor";
-import ApiDefinitionStepButton from "@/business/definition/components/request/components/ApiDefinitionStepButton";
-import Convert from "@/business/commons/json-schema/convert/convert";
-import MockApiBody from "@/business/definition/components/mock/Components/MockApiBody";
+import { testDataGenerator } from '@/api/xpack';
+import MsApiKeyValue from '@/business/definition/components/ApiKeyValue';
+import MsApiAuthConfig from '@/business/definition/components/auth/ApiAuthConfig';
+import ApiRequestMethodSelect from '@/business/definition/components/collapse/ApiRequestMethodSelect';
+import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
+import MsApiVariable from '@/business/definition/components/ApiVariable';
+import MsApiAssertions from '@/business/definition/components/assertion/ApiAssertions';
+import MsApiExtract from '@/business/definition/components/extract/ApiExtract';
+import { Body, KeyValue } from '@/business/definition/model/ApiTestModel';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import {
+  hasLicense,
+  hasPermission,
+} from 'metersphere-frontend/src/utils/permission';
+import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
+import MsApiAdvancedConfig from '@/business/definition/components/request/http/ApiAdvancedConfig';
+import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
+import ApiDefinitionStepButton from '@/business/definition/components/request/components/ApiDefinitionStepButton';
+import Convert from '@/business/commons/json-schema/convert/convert';
+import MockApiBody from '@/business/definition/components/mock/Components/MockApiBody';
 
 export default {
-  name: "MockRequestParam",
+  name: 'MockRequestParam',
   components: {
     ApiDefinitionStepButton,
     MsJsr233Processor,
@@ -44,7 +54,7 @@ export default {
     MsApiAuthConfig,
     MockApiBody,
     MsApiKeyValue,
-    MsApiAssertions
+    MsApiAssertions,
   },
   props: {
     method: String,
@@ -54,7 +64,7 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     showScript: {
       type: Boolean,
@@ -68,7 +78,7 @@ export default {
     jsonPathList: Array,
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     type: String,
   },
@@ -81,18 +91,31 @@ export default {
       }
     };
     return {
-      activeName: this.request.method === "POST" ? "body" : "parameters",
+      activeName: this.request.method === 'POST' ? 'body' : 'parameters',
       rules: {
         name: [
-          {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
+          {
+            max: 300,
+            message: this.$t('commons.input_limit', [1, 300]),
+            trigger: 'blur',
+          },
         ],
         url: [
-          {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
-          {validator: validateURL, trigger: 'blur'}
+          {
+            max: 500,
+            required: true,
+            message: this.$t('commons.input_limit', [1, 500]),
+            trigger: 'blur',
+          },
+          { validator: validateURL, trigger: 'blur' },
         ],
         path: [
-          {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
-        ]
+          {
+            max: 500,
+            message: this.$t('commons.input_limit', [0, 500]),
+            trigger: 'blur',
+          },
+        ],
       },
       spanCount: 21,
       headerSuggestions: REQUEST_HEADERS,
@@ -100,9 +123,8 @@ export default {
       isBodyShow: true,
       dialogVisible: false,
       hasOwnProperty: Object.prototype.hasOwnProperty,
-      propIsEnumerable: Object.prototype.propertyIsEnumerable
-
-    }
+      propIsEnumerable: Object.prototype.propertyIsEnumerable,
+    };
   },
   created() {
     if (!this.referenced && this.showScript) {
@@ -116,19 +138,27 @@ export default {
     hasPermission,
     hasLicense,
     generate() {
-      if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
+      if (
+        this.request.body &&
+        (this.request.body.jsonSchema || this.request.body.raw)
+      ) {
         if (!this.request.body.jsonSchema) {
           const MsConvert = new Convert();
-          this.request.body.jsonSchema = MsConvert.format(JSON.parse(this.request.body.raw));
+          this.request.body.jsonSchema = MsConvert.format(
+            JSON.parse(this.request.body.raw)
+          );
         }
-        testDataGenerator(this.request.body.jsonSchema).then( response => {
+        testDataGenerator(this.request.body.jsonSchema).then((response) => {
           if (response.data) {
             if (this.request.body.format !== 'JSON-SCHEMA') {
               this.request.body.raw = response.data;
             } else {
               const MsConvert = new Convert();
               let data = MsConvert.format(JSON.parse(response.data));
-              this.request.body.jsonSchema = this.deepAssign(this.request.body.jsonSchema, data);
+              this.request.body.jsonSchema = this.deepAssign(
+                this.request.body.jsonSchema,
+                data
+              );
             }
             this.reloadBody();
           }
@@ -147,13 +177,18 @@ export default {
       this.reload();
     },
     reload() {
-      this.isReloadData = true
+      this.isReloadData = true;
       this.$nextTick(() => {
-        this.isReloadData = false
-      })
+        this.isReloadData = false;
+      });
     },
     init() {
-      if (Object.prototype.toString.call(this.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      if (
+        Object.prototype.toString
+          .call(this.request)
+          .match(/\[object (\w+)\]/)[1]
+          .toLowerCase() !== 'object'
+      ) {
         this.request = JSON.parse(this.request);
       }
       if (!this.request.body) {
@@ -194,13 +229,13 @@ export default {
         }
         if (isAdd) {
           switch (this.activeName) {
-            case "parameters":
+            case 'parameters':
               this.request.arguments.unshift(obj);
               break;
-            case "rest":
+            case 'rest':
               this.request.rest.unshift(obj);
               break;
-            case "headers":
+            case 'headers':
               this.request.headers.unshift(obj);
               break;
             default:
@@ -211,40 +246,42 @@ export default {
     },
     batchSave(data) {
       if (data) {
-        let params = data.split("\n");
+        let params = data.split('\n');
         let keyValues = [];
-        params.forEach(item => {
+        params.forEach((item) => {
           let line = item.split(/：|:/);
           let required = false;
-          keyValues.unshift(new KeyValue({
-            name: line[0],
-            required: required,
-            value: line[1],
-            description: line[2],
-            type: "text",
-            valid: false,
-            file: false,
-            encode: true,
-            enable: true,
-            contentType: "text/plain"
-          }));
-        })
+          keyValues.unshift(
+            new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[1],
+              description: line[2],
+              type: 'text',
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: 'text/plain',
+            })
+          );
+        });
 
-        keyValues.forEach(item => {
+        keyValues.forEach((item) => {
           switch (this.activeName) {
-            case "parameters":
+            case 'parameters':
               this.format(this.request.arguments, item);
               break;
-            case "rest":
+            case 'rest':
               this.format(this.request.rest, item);
               break;
-            case "headers":
+            case 'headers':
               this.format(this.request.headers, item);
               break;
             default:
               break;
           }
-        })
+        });
       }
     },
 
@@ -304,9 +341,9 @@ export default {
         this.assign(target, arguments[s]);
       }
       return target;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

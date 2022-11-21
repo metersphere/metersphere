@@ -1,4 +1,4 @@
-import {get, post} from 'metersphere-frontend/src/plugins/request'
+import { get, post } from 'metersphere-frontend/src/plugins/request';
 
 export function getFuncById(id) {
   return get('/custom/func/get/' + id);

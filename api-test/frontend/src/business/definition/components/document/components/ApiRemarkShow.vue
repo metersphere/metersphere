@@ -4,48 +4,51 @@
       <div class="blackFontClass">
         <el-row>
           <div class="tip" style="float: left">
-            <span>{{$t("commons.remark")}}</span>
+            <span>{{ $t('commons.remark') }}</span>
           </div>
         </el-row>
       </div>
     </el-row>
     <el-row>
       <el-form>
-        <form-rich-text-item class="remark-item" :disabled="true" :data="remarkObj" prop="remark" label-width="0"/>
+        <form-rich-text-item
+          class="remark-item"
+          :disabled="true"
+          :data="remarkObj"
+          prop="remark"
+          label-width="0"
+        />
       </el-form>
     </el-row>
   </div>
 </template>
 
 <script>
-import formRichTextItem from "@/business/commons/FormRichTextItem";
+import formRichTextItem from '@/business/commons/FormRichTextItem';
 export default {
-  name: "ApiRemarkShow",
-  components: {formRichTextItem},
+  name: 'ApiRemarkShow',
+  components: { formRichTextItem },
   data() {
     return {
       active: true,
-      remarkObj:null
+      remarkObj: null,
     };
   },
   props: {
     data: String,
   },
-  created() {
-  },
-  activated() {
-  },
-  mounted() {
-  },
+  created() {},
+  activated() {},
+  mounted() {},
   computed: {},
   watch: {
-    data(){
-      if(this.data){
+    data() {
+      if (this.data) {
         this.remarkObj = {
-          "remark":this.data,
+          remark: this.data,
         };
       }
-    }
+    },
   },
   methods: {},
 };
