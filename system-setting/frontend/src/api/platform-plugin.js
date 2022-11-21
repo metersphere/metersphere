@@ -20,7 +20,6 @@ export function validateProjectConfig(pluginId, config) {
 export function getPlatformProjectOption(pluginId, request) {
   return post(BASE_URL + 'project/option', request);
 }
-
 export function getPlatformOption() {
   return get(BASE_URL + 'platform/option');
 }
