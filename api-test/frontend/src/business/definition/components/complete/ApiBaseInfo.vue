@@ -213,7 +213,7 @@ export default {
     },
     'basicForm.description': {
       handler(v, v1) {
-        if (v && v !== v1) {
+        if (v !== v1 && v1 !== undefined) {
           this.apiMapStatus();
         }
       },
