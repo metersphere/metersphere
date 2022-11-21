@@ -3007,7 +3007,7 @@ const message = {
     command_name_label: "指令名称",
     command_steps_label: "指令步骤",
     command_step_info: "在右侧添加指令步骤",
-
+    unplanned_scenario: "未规划场景",
   },
   project_application: {
     workstation: {

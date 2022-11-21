@@ -136,6 +136,8 @@ export default {
       this.treeNodes = data;
       this.treeNodes.forEach(node => {
         node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name;
+        node.name = node.name === '未规划场景' ? this.$t('ui.unplanned_scenario') : node.name;
+        node.label = node.label === '未规划场景' ? this.$t('ui.unplanned_scenario') : node.label;
         this.buildTree(node);
       });
     },
