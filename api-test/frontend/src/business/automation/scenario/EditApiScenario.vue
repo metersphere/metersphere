@@ -115,14 +115,14 @@
             ：{{ getVariableSize() }}
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
-            <el-checkbox v-model="enableCookieShare"
-              ><span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox
-            >
+            <el-checkbox v-model="enableCookieShare">
+              <span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span>
+            </el-checkbox>
           </el-col>
           <el-col :span="3" class="ms-col-one ms-font">
-            <el-checkbox v-model="onSampleError"
-              ><span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span></el-checkbox
-            >
+            <el-checkbox v-model="onSampleError">
+              <span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span>
+            </el-checkbox>
           </el-col>
 
           <el-col :span="13">
