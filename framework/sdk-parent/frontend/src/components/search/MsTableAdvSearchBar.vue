@@ -322,4 +322,18 @@ export default {
   left: 25px;
   bottom: 50px;
 }
+
+:deep(span.el-select__tags-text) {
+  display: inline-block;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(i.el-tag__close.el-icon-close) {
+  position: relative;
+  left: 3px;
+  top: -6px;
+}
 </style>

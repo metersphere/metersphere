@@ -147,7 +147,7 @@ export default {
   padding: 0;
 }
 
-.el-table >>> td:nth-child(1) .cell {
+.el-table :deep(td:nth-child(1) .cell) {
   text-align: center;
 }
 </style>
