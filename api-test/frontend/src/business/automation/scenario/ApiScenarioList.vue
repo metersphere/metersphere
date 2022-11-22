@@ -1409,12 +1409,8 @@ export default {
           this.$refs.apiDeleteConfirmVersion.close();
           this.search();
         });
-      }
-      // 删除全部版本
-      else {
-        let param = {};
-        this.buildBatchParam(param);
-        param.ids = [api.id];
+      } else {
+        let param = { ids: [api.id] };
         removeScenarioToGcByBatch(param).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.$refs.apiDeleteConfirmVersion.close();

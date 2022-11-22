@@ -1708,13 +1708,16 @@ public class ApiScenarioService {
     }
 
     public void removeToGcByBatch(ApiScenarioBatchRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) ->
+                    extApiScenarioMapper.selectIdsByQuery(query));
+        }
         this.removeToGc(request.getIds());
     }
 
     public void deleteBatchByCondition(ApiScenarioBatchRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) ->
+                extApiScenarioMapper.selectIdsByQuery(query));
         List<String> ids = request.getIds();
         this.deleteBatch(ids);
     }
