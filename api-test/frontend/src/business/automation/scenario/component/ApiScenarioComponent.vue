@@ -135,7 +135,7 @@ export default {
   },
   watch: {
     message() {
-      if (this.message === 'STOPPED') {
+      if (['STOPPED', 'STOP'].includes(this.message.toUpperCase())) {
         this.scenario.run = false;
       }
       this.reload();
