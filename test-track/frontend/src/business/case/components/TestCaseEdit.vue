@@ -414,6 +414,7 @@ export default {
     }
     this.projectId = this.projectIds;
     let initAddFuc = this.initAddFuc;
+    this.loading = true;
     getTestTemplate()
       .then((template) => {
         this.testCaseTemplate = template;
@@ -444,10 +445,8 @@ export default {
           }
         }
       });
-    this.loading = true;
     getProjectApplicationConfig('CASE_PUBLIC')
       .then(res => {
-        this.loading = false;
         let data = res.data;
         if (data && data.typeValue === 'true') {
           this.isPublic = true;
@@ -513,6 +512,9 @@ export default {
         if (this.testCaseTemplate.steps) {
           this.form.steps = JSON.parse(this.testCaseTemplate.steps);
         }
+      }
+      if (this.type === 'add' || this.type === 'copy') {
+        this.loading = false;
       }
     },
     setDefaultValue() {
@@ -594,6 +596,7 @@ export default {
       */
       this.projectId = this.projectIds;
       let initFuc = this.initEdit;
+      this.loading = true;
       getTestTemplate()
         .then(template => {
           this.testCaseTemplate = template;
@@ -629,6 +632,7 @@ export default {
             this.showInputTag = true;
           });
           this.form.id = null;
+          this.loading = false;
         } else {
           this.getTestCase(testCase.id);
         }
@@ -651,6 +655,7 @@ export default {
         this.getSelectOptions();
         this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
         this.reload();
+        this.loading = false;
       }
       if (callback) {
         callback();
