@@ -622,6 +622,7 @@ const message = {
     option_check: '请添加选项值',
     option_value_check: '请填写完整选项值',
     sync_issue_tips: '注: 系统在每天00:00:00会自动同步一次',
+    case_priority_option_check_error: '用例等级需按照顺序添加选项值, 例: P',
   },
   workspace: {
     id: '工作空间ID',
