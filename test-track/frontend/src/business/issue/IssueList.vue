@@ -568,4 +568,8 @@ export default {
 :deep(.el-table) {
   overflow: auto;
 }
+
+span.operate-button button {
+  margin-left: 10px;
+}
 </style>
