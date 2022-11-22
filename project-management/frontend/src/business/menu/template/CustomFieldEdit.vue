@@ -63,7 +63,6 @@
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
           :is-kv="form.scene === 'ISSUE'"
-          :disable="form.name === '用例等级'"
           :data="form.options"/>
       </el-form-item>
 
@@ -177,6 +176,14 @@ export default {
           if (this.form.name.indexOf('.') > -1) {
             this.$error("名称不能包含'.'号");
             return;
+          }
+          if (this.form.name === i18n.t('custom_field.case_priority')) {
+            for (let i = 0; i < this.form.options.length; i++) {
+              if (this.form.options[i].text !== "P" + i) {
+                this.$warning(this.$t('custom_field.case_priority_option_check_error') + i);
+                return;
+              }
+            }
           }
           Object.assign(param, this.form);
           param.projectId = getCurrentProjectID();
