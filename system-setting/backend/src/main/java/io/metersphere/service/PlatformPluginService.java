@@ -248,7 +248,9 @@ public class PlatformPluginService {
                     integrations.stream()
                             .filter(integration -> StringUtils.equals(integration.getPlatform(), option.getValue()))
                             .collect(Collectors.toList()).size() > 0
-                ).collect(Collectors.toList());
+                )
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public List<String> getThirdPartTemplateSupportPlatform() {
