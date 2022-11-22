@@ -5,6 +5,7 @@ public enum ExecuteResult {
     ERROR_REPORT_RESULT("errorReportResult"),
     //停止状态
     STOP("STOP"),
+    WAITING("Waiting"),
     //接口执行状态(兼容旧数据)
     API_SUCCESS("success"), API_ERROR("error"),
     //未执行状态
