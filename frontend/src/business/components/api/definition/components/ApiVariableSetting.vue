@@ -4,8 +4,8 @@
       width="700px"
       :title="$t('run_mode.other_config')"
       :with-footer="false"
-      :append-to-body="appendToBody"
-      :close-on-click-modal="true">
+      :close-on-click-modal="true"
+      append-to-body>
     <el-form>
       <el-row>
         <el-col :span="8">
