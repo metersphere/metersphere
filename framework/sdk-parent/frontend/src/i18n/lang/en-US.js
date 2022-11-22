@@ -490,6 +490,7 @@ const message = {
   },
   login: {
     normal_Login: "Normal Login",
+    auth_not_enable: "Authentication is not enabled"
   },
   license: {
     title: 'Authorization management',

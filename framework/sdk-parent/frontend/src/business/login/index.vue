@@ -59,9 +59,17 @@
 
 <script>
 import {getCurrentUserId, publicKeyEncrypt} from "../../utils/token";
-import {CURRENT_LANGUAGE, DEFAULT_LANGUAGE, PRIMARY_COLOR} from "../../utils/constants";
+import {DEFAULT_LANGUAGE, PRIMARY_COLOR} from "../../utils/constants";
 import {hasLicense, hasPermissions, saveLicense} from "../../utils/permission";
-import {checkLdapOpen, getAuthSources, getDisplayInfo, getLanguage, getSystemTheme, saveBaseUrl} from "../../api/user";
+import {
+  checkLdapOpen,
+  getAuthSource,
+  getAuthSources,
+  getDisplayInfo,
+  getLanguage,
+  getSystemTheme,
+  saveBaseUrl
+} from "../../api/user";
 import {useUserStore} from "@/store"
 import {checkMicroMode, operationConfirm} from "../../utils";
 import {getModuleList} from "../../api/module";
@@ -291,38 +299,47 @@ export default {
       if (authId === 'LDAP' || authId === 'LOCAL') {
         return;
       }
-      let source = this.authSources.filter(auth => auth.id === authId)[0];
-      // 以前的cas登录
-      if (source.type === 'CAS') {
-        let config = JSON.parse(source.configuration);
-        if (config.casServerUrl && !config.loginUrl) {
+      getAuthSource(authId).then(res => {
+        if (!res || !res.data) {
           return;
         }
-      }
-      operationConfirm(this, this.$t('commons.auth_redirect_tip'), () => {
-        let config = JSON.parse(source.configuration);
-        let redirectUrl = eval('`' + config.redirectUrl + '`');
-        let url;
+        if (res.data.status !== 'ENABLE') {
+          this.$message.error(this.$t('login.auth_not_enable'));
+          return;
+        }
+        let source = this.authSources.filter(auth => auth.id === authId)[0];
+        // 以前的cas登录
         if (source.type === 'CAS') {
-          url = config.loginUrl + "?service=" + encodeURIComponent(redirectUrl);
+          let config = JSON.parse(source.configuration);
+          if (config.casServerUrl && !config.loginUrl) {
+            return;
+          }
         }
-        if (source.type === 'OIDC') {
-          url = config.authUrl + "?client_id=" + config.clientId + "&redirect_uri=" + redirectUrl +
-            "&response_type=code&scope=openid+profile+email&state=" + authId;
-        }
-        if (source.type === 'OAuth2') {
-          url = config.authUrl
-            + "?client_id=" + config.clientId
-            + "&scope=" + config.scope
-            + "&response_type=code"
-            + "&redirect_uri=" + redirectUrl
-            + "&state=" + authId;
-        }
-        if (url) {
-          window.location.href = url;
-        }
-      }, () => {
-        this.form.authenticate = 'LOCAL';
+        operationConfirm(this, this.$t('commons.auth_redirect_tip'), () => {
+          let config = JSON.parse(source.configuration);
+          let redirectUrl = eval('`' + config.redirectUrl + '`');
+          let url;
+          if (source.type === 'CAS') {
+            url = config.loginUrl + "?service=" + encodeURIComponent(redirectUrl);
+          }
+          if (source.type === 'OIDC') {
+            url = config.authUrl + "?client_id=" + config.clientId + "&redirect_uri=" + redirectUrl +
+              "&response_type=code&scope=openid+profile+email&state=" + authId;
+          }
+          if (source.type === 'OAuth2') {
+            url = config.authUrl
+              + "?client_id=" + config.clientId
+              + "&scope=" + config.scope
+              + "&response_type=code"
+              + "&redirect_uri=" + redirectUrl
+              + "&state=" + authId;
+          }
+          if (url) {
+            window.location.href = url;
+          }
+        }, () => {
+          this.form.authenticate = 'LOCAL';
+        });
       });
     },
   }
