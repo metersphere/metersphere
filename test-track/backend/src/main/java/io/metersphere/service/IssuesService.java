@@ -794,8 +794,11 @@ public class IssuesService {
     }
 
     private String replaceJiraMdUrlParam(String url, String workspaceId, String projectId) {
+        if (url.contains("&workspace_id=")) {
+            return url;
+        }
         return url.replaceAll("platform=Jira&",
-                "platform=Jira&project_id=" + projectId + "&workspace_id=" + workspaceId + "&");
+                "platform=Jira&workspace_id=" + workspaceId + "&");
     }
 
     private Map<String, List<IssueCommentDTO>> getCommentMap(List<IssuesDao> issues) {
