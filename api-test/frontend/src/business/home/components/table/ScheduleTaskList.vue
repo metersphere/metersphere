@@ -65,16 +65,17 @@
           <!--运行规则-->
           <el-table-column prop="rule" :label="$t('home.table.run_rule')" min-width="150" show-overflow-tooltip>
           </el-table-column>
-          <!--下次更新时间-->
+
+          <!--更新时间-->
           <el-table-column :label="$t('home.table.update_time')" width="170">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
-          <!--更新时间-->
+          <!--下次更新时间-->
           <el-table-column :label="$t('home.table.next_execution_time')" width="170">
             <template v-slot:default="scope">
-              {{ scope.row.updateTime | datetimeFormat }}
+              {{ scope.row.nextExecutionTime | datetimeFormat }}
             </template>
           </el-table-column>
 
