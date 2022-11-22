@@ -413,6 +413,7 @@ public class ApiScenarioController {
     public List<String> getEnvProjects(@RequestBody RunScenarioRequest request) {
         return apiAutomationService.getProjects(request);
     }
+
     @PostMapping(value = "/env/map")
     public Map<String, List<String>> getProjectEnvMap(@RequestBody RunScenarioRequest request) {
         return apiAutomationService.getProjectEnvMap(request);

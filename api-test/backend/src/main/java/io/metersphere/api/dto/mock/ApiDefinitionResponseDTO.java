@@ -11,5 +11,5 @@ import java.util.Map;
 public class ApiDefinitionResponseDTO {
     private String returnData;
     private int returnCode = 404;
-    private Map<String,String> headers = new HashMap<>();
+    private Map<String, String> headers = new HashMap<>();
 }

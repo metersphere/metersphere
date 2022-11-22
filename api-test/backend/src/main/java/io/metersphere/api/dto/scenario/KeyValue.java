@@ -59,7 +59,7 @@ public class KeyValue {
     }
 
     public boolean valueIsNotEmpty() {
-       return StringUtils.isNotEmpty(this.getValue());
+        return StringUtils.isNotEmpty(this.getValue());
     }
 
     public boolean isValid() {

@@ -33,7 +33,7 @@ public class ApiCaseRelevanceRequest {
      */
     private Map<String, List<String>> mapping;
     /**
-     *测试评审ID
+     * 测试评审ID
      */
     private String reviewId;
 

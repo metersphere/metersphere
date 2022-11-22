@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 public class TestPlanScenarioStepCountSimpleDTO {
     private TestPlanScenarioStepCountDTO stepCount;
-    private int underwayStepsCounts ;
+    private int underwayStepsCounts;
 }
 

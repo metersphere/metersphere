@@ -14,27 +14,28 @@ import java.util.Map;
  */
 public class TCPPool {
 
-    private  static HashMap<Integer, TCPServer> serverSockedMap = new HashMap<>();
+    private static HashMap<Integer, TCPServer> serverSockedMap = new HashMap<>();
 
-    private TCPPool(){}
+    private TCPPool() {
+    }
 
-    public static String createTcp(int port){
+    public static String createTcp(int port) {
         String returnString = StringUtils.EMPTY;
-        if(port > 0){
+        if (port > 0) {
             TCPServer tcpServer = null;
-            if(serverSockedMap.containsKey(port)){
+            if (serverSockedMap.containsKey(port)) {
                 tcpServer = serverSockedMap.get(port);
-            }else {
+            } else {
                 tcpServer = new TCPServer(port);
-                serverSockedMap.put(port,tcpServer);
+                serverSockedMap.put(port, tcpServer);
             }
             try {
-                if(!tcpServer.isSocketOpen()){
+                if (!tcpServer.isSocketOpen()) {
                     Thread t = new Thread(tcpServer);
                     t.start();
                 }
                 returnString = "OK";
-            }catch (Exception e){
+            } catch (Exception e) {
                 returnString = e.getMessage();
                 LogUtil.error(e);
                 MSException.throwException(e.getMessage());
@@ -44,28 +45,28 @@ public class TCPPool {
         return returnString;
     }
 
-    public static boolean isTcpOpen(int port){
+    public static boolean isTcpOpen(int port) {
         TCPServer server = serverSockedMap.get(port);
-        if(server != null ){
-            return  server.isSocketOpen();
+        if (server != null) {
+            return server.isSocketOpen();
         }
-        return  false;
+        return false;
     }
 
     public static String getTcpStatus() {
-        if(serverSockedMap.isEmpty()){
+        if (serverSockedMap.isEmpty()) {
             return "null";
-        }else {
+        } else {
             StringBuffer stringBuffer = new StringBuffer();
-            for (Map.Entry<Integer, TCPServer> entry:serverSockedMap.entrySet()) {
+            for (Map.Entry<Integer, TCPServer> entry : serverSockedMap.entrySet()) {
                 int port = entry.getKey();
                 TCPServer tcpServer = entry.getValue();
-                if(tcpServer == null){
-                    stringBuffer.append("Port is "+port + ";");
+                if (tcpServer == null) {
+                    stringBuffer.append("Port is " + port + ";");
                     stringBuffer.append("Server is null;");
-                }else {
-                    stringBuffer.append("Port is "+port + ";");
-                    stringBuffer.append("Server is open: "+ tcpServer.isSocketOpen()+";");
+                } else {
+                    stringBuffer.append("Port is " + port + ";");
+                    stringBuffer.append("Server is open: " + tcpServer.isSocketOpen() + ";");
                 }
             }
             return stringBuffer.toString();
@@ -74,14 +75,14 @@ public class TCPPool {
 
     public static String closeTcp(int portNum) {
         TCPServer server = serverSockedMap.get(portNum);
-        if(server == null){
+        if (server == null) {
             return "Tcp Is not create!";
-        }else {
+        } else {
             String returnMsg = null;
             try {
                 server.closeSocket();
                 returnMsg = "OK";
-            }catch (Exception e){
+            } catch (Exception e) {
                 returnMsg = e.getMessage();
                 LogUtil.error(e);
             }

@@ -57,12 +57,12 @@ public class TcpApiParamService {
             if (testElement instanceof MsTCPSampler) {
                 tcpSampler = (MsTCPSampler) testElement;
                 String protocol = tcpSampler.getProtocol();
-                if(StringUtils.equalsIgnoreCase(protocol,"esb")){
-                    if(CollectionUtils.isNotEmpty(tcpSampler.getEsbDataStruct())){
+                if (StringUtils.equalsIgnoreCase(protocol, "esb")) {
+                    if (CollectionUtils.isNotEmpty(tcpSampler.getEsbDataStruct())) {
                         List<KeyValue> keyValueList = esbApiParamService.genKeyValueListByDataStruct(tcpSampler, tcpSampler.getEsbDataStruct());
                         tcpSampler.setParameters(keyValueList);
                     }
-                }else {
+                } else {
                     String reportType = tcpSampler.getReportType();
                     if (StringUtils.isNotEmpty(reportType)) {
                         switch (reportType) {

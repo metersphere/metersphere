@@ -20,11 +20,11 @@ public class ErrorReportLibraryParseDTO {
         this.errorCodeList = new ArrayList<>();
     }
 
-    public String getErrorCodeStr(){
-        if(CollectionUtils.isNotEmpty(this.errorCodeList)){
-            String errorCodeStr = StringUtils.join(this.errorCodeList,";");
+    public String getErrorCodeStr() {
+        if (CollectionUtils.isNotEmpty(this.errorCodeList)) {
+            String errorCodeStr = StringUtils.join(this.errorCodeList, ";");
             return errorCodeStr;
-        }else {
+        } else {
             return StringUtils.EMPTY;
         }
 

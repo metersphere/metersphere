@@ -20,7 +20,7 @@ public class ApiDefinitionExecResultController {
 
     @PostMapping("/plan/report")
     public List<PlanReportCaseDTO> selectForPlanReport(@RequestBody List<String> apiReportIds) {
-       return apiDefinitionExecResultService.selectForPlanReport(apiReportIds);
+        return apiDefinitionExecResultService.selectForPlanReport(apiReportIds);
     }
 
     @PostMapping("/plan/status/map")

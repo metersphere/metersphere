@@ -48,7 +48,6 @@ public class MsDebugSampler extends MsTestElement {
     }
 
 
-
     private DebugSampler debugSampler() {
         DebugSampler debugSampler = new DebugSampler();
         debugSampler.setEnabled(this.isEnable());
@@ -64,9 +63,9 @@ public class MsDebugSampler extends MsTestElement {
         debugSampler.setDisplayJMeterProperties(this.displayJMeterProperties);
 
         //上面三行直接Set属性会导致DebugSampler构建时取不到值，可能是JMeter的Bug,需要SetProperty
-        debugSampler.setProperty("displayJMeterProperties",this.displayJMeterProperties);
-        debugSampler.setProperty("displayJMeterVariables",this.displayJMeterVariables);
-        debugSampler.setProperty("displaySystemProperties",this.displaySystemProperties);
+        debugSampler.setProperty("displayJMeterProperties", this.displayJMeterProperties);
+        debugSampler.setProperty("displayJMeterVariables", this.displayJMeterVariables);
+        debugSampler.setProperty("displaySystemProperties", this.displaySystemProperties);
         return debugSampler;
     }
 

@@ -28,17 +28,17 @@ public class EsbSheetDataStruct {
 
 
     public void setInterfaceInfo(String interfaceCode, String interfaceName, String interfaceDesc) {
-        if(StringUtils.isEmpty(interfaceCode) && StringUtils.isEmpty(interfaceName)){
+        if (StringUtils.isEmpty(interfaceCode) && StringUtils.isEmpty(interfaceName)) {
             MSException.throwException("接口的交易码或服务名称不能都为空");
         }
-         if(StringUtils.isNotEmpty(interfaceCode)){
-             this.serviceName = interfaceCode+":"+interfaceName;
-         }else {
-             this.serviceName = interfaceName;
-         }
-         if (this.serviceName.endsWith(":")){
-             this.serviceName = this.serviceName.substring(0,this.serviceName.length()-1);
-         }
-         this.serviceDesc = interfaceDesc;
+        if (StringUtils.isNotEmpty(interfaceCode)) {
+            this.serviceName = interfaceCode + ":" + interfaceName;
+        } else {
+            this.serviceName = interfaceName;
+        }
+        if (this.serviceName.endsWith(":")) {
+            this.serviceName = this.serviceName.substring(0, this.serviceName.length() - 1);
+        }
+        this.serviceDesc = interfaceDesc;
     }
 }

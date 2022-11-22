@@ -28,7 +28,8 @@ public class TestPlanDeletedListener {
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.TEST_PLAN_DELETED_TOPIC, groupId = "${spring.application.name}")
     public void consume(ConsumerRecord<?, String> record) {
         try {
-            List<String> planIds = objectMapper.readValue(record.value(), new TypeReference<>() {});
+            List<String> planIds = objectMapper.readValue(record.value(), new TypeReference<>() {
+            });
             if (CollectionUtils.isEmpty(planIds)) {
                 return;
             }

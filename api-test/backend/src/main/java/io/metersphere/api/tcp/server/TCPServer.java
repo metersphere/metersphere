@@ -15,7 +15,7 @@ public class TCPServer implements Runnable {
 
     private TCPService servicer;
 
-    public TCPServer(int port){
+    public TCPServer(int port) {
         this.port = port;
     }
 
@@ -25,7 +25,7 @@ public class TCPServer implements Runnable {
         while (true) {
             if (!this.serverSocket.isClosed()) {
                 Socket socket = this.serverSocket.accept();
-                servicer = new TCPService(socket,port);
+                servicer = new TCPService(socket, port);
                 servicer.run();
             }
             if (this.serverSocket.isClosed()) {
@@ -34,17 +34,17 @@ public class TCPServer implements Runnable {
         }
     }
 
-    public boolean  isSocketOpen(){
+    public boolean isSocketOpen() {
         if (this.serverSocket != null && !this.serverSocket.isClosed()) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
     public void closeSocket() throws Exception {
         if (this.serverSocket != null && !this.serverSocket.isClosed()) {
-            if(servicer != null){
+            if (servicer != null) {
                 servicer.close();
             }
             this.serverSocket.close();

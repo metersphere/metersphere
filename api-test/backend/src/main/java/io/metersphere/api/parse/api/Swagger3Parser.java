@@ -103,7 +103,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     authorizationValue.setType("header");
                     authorizationValue.setKeyName(keyValue.getName());
                     authorizationValue.setValue(keyValue.getValue());
-                    authorizationValue.setUrlMatcher((url)->true);
+                    authorizationValue.setUrlMatcher((url) -> true);
                     auths.add(authorizationValue);
                 }
             }
@@ -329,7 +329,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = mediaType.getSchema();
-        if (StringUtils.isBlank(schema.get$ref()) && schema.getItems()==null && StringUtils.isNotBlank(schema.getType()) && StringUtils.equals(schema.getType(),"string")) {
+        if (StringUtils.isBlank(schema.get$ref()) && schema.getItems() == null && StringUtils.isNotBlank(schema.getType()) && StringUtils.equals(schema.getType(), "string")) {
             ObjectSchema objectSchema = new ObjectSchema();
             objectSchema.setExample(schema.getExample());
             schema = objectSchema;
@@ -348,7 +348,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             parseKvBody(schema, body, bodyData, infoMap);
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
-            if (jsonSchemaItem==null){
+            if (jsonSchemaItem == null) {
                 jsonSchemaItem = new JsonSchemaItem();
                 jsonSchemaItem.setType(schema.getType());
             }
@@ -705,7 +705,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     swaggerParam.setIn(typeMap.get(type));  //  利用 map，根据 request 的 key 设置对应的参数类型
                     swaggerParam.setDescription(param.optString("description"));
                     swaggerParam.setName(param.optString("name"));
-                    swaggerParam.setRequired( param.optBoolean(PropertyConstant.REQUIRED));
+                    swaggerParam.setRequired(param.optBoolean(PropertyConstant.REQUIRED));
                     swaggerParam.setExample(param.optString("value"));
                     JSONObject schema = new JSONObject();
                     schema.put(PropertyConstant.TYPE, PropertyConstant.STRING);
