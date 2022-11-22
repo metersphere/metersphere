@@ -942,6 +942,7 @@ public class IssuesService {
             List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId, project.getPlatform());
 
             if (CollectionUtils.isEmpty(issues)) {
+                deleteSyncKey(projectId);
                 return true;
             }
 
