@@ -52,7 +52,8 @@
             v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
             style="margin-right: 10px; z-index: 9999; position: inherit"
             placement="bottom"
-            trigger="click"
+            trigger="manual"
+            v-model="visible"
             width="300">
             <p>{{ shareUrl }}</p>
             <span style="color: red; float: left; margin-left: 10px" v-if="application.typeValue">{{
@@ -150,6 +151,7 @@ export default {
       nameIsEdit: false,
       shareUrl: '',
       application: {},
+      visible: false,
     };
   },
   methods: {
@@ -207,6 +209,7 @@ export default {
       this.$router.push('/api/automation/report');
     },
     handleShare(report) {
+      this.visible = true;
       this.getProjectApplication();
       let pram = {};
       pram.customData = report.id;
