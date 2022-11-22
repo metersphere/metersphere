@@ -35,9 +35,9 @@
         <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
         <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
         <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
-        <el-form-item>
-          <el-button @click="cancel">{{ $t('commons.cancel') }}</el-button>
-          <el-button type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>
+        <el-form-item class="el-form-item-class">
+          <el-button size="small" @click="cancel">{{ $t('commons.cancel') }}</el-button>
+          <el-button size="small" type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>
             {{ $t('commons.confirm') }}
           </el-button>
         </el-form-item>
@@ -245,5 +245,8 @@ export default {
 .setting-item {
   height: 40px;
   line-height: 40px;
+}
+.el-form-item-class {
+  margin-left:110px;
 }
 </style>
