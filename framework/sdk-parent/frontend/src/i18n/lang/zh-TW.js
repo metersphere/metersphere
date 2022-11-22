@@ -2726,6 +2726,7 @@ const message = {
       run: "執行測試計劃",
       batch_run: "批量執行用例",
       batch_edit: "批量編輯用例",
+      batch_delete_plan: "批量刪除測試計劃",
       schedule: "定時任務",
       relevance_or_cancel: "關聯/取消關聯用例",
       batch_delete: "批量取消關聯用例",
