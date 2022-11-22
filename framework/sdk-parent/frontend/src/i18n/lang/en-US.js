@@ -616,6 +616,7 @@ const message = {
     option_check: 'Please add option values',
     option_value_check: 'Please fill in the full option values',
     sync_issue_tips: 'Note: The system will automatically synchronize at 00:00:00 every day',
+    case_priority_option_check_error: 'Use case levels need to add option values in order, for example: P',
   },
   workspace: {
     id: 'Workspace ID',
