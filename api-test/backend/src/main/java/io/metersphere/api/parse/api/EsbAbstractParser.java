@@ -20,7 +20,7 @@ public abstract class EsbAbstractParser extends ApiImportAbstractParser<ApiDefin
                 ApiModule module = ApiDefinitionImportUtil.buildModule(parentModule, tag, this.projectId);
                 apiDefinition.setModuleId(module.getId());
             });
-        }else {
+        } else {
             apiDefinition.setModuleId(parentModule.getId());
         }
     }

@@ -22,7 +22,9 @@ public class GenScenarioRequest extends ApiScenarioWithBLOBs {
 
     private String runMode;
 
-    /**测试情景和测试计划的关联ID*/
+    /**
+     * 测试情景和测试计划的关联ID
+     */
     private String planScenarioId;
 
     private List<String> planCaseIds;

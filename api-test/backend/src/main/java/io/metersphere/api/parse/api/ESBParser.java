@@ -236,7 +236,6 @@ public class ESBParser extends EsbAbstractParser {
         setCellValue(StringUtils.EMPTY, row6.createCell(9), font, cellStyleMap.get(PropertyConstant.DEFAULT));
 
 
-
         XSSFRow row7 = sheet.createRow(6);
         setCellValue(StringUtils.EMPTY, row7.createCell(1), font, cellStyleMap.get(PropertyConstant.DEFAULT));
         setCellValue(StringUtils.EMPTY, row7.createCell(2), font, cellStyleMap.get(PropertyConstant.DEFAULT));

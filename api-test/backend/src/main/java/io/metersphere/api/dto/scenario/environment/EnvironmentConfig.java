@@ -32,7 +32,7 @@ public class EnvironmentConfig {
     //全局前后置脚本都配置
     private GlobalScriptConfig globalScriptConfig;
     private EnvAuthManager authManager;
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,include = JsonTypeInfo.As.WRAPPER_ARRAY,defaultImpl = EnvAssertions.class)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY, defaultImpl = EnvAssertions.class)
     private List<EnvAssertions> assertions;
     private boolean useErrorCode;
     private boolean higherThanSuccess;

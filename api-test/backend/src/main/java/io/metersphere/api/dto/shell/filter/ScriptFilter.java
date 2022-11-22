@@ -28,7 +28,7 @@ public class ScriptFilter {
     }
 
     public static void verify(String language, String label, String script) {
-        if(language == null){
+        if (language == null) {
             language = "";
         }
         if (StringUtils.isNotEmpty(script)) {

@@ -297,10 +297,10 @@ public class ApiScenarioExecuteService {
                 //对报告的envMap做过滤，过滤多余的key
                 Map<String, String> diffEnvMap = new HashMap<>();
                 Map<String, String> envMap = runModeConfig.getEnvMap();
-                planEnvMap.forEach((k,v)->{
-                    if (envMap != null && envMap.get(k)!=null){
+                planEnvMap.forEach((k, v) -> {
+                    if (envMap != null && envMap.get(k) != null) {
 
-                        diffEnvMap.put(k,envMap.get(k));
+                        diffEnvMap.put(k, envMap.get(k));
                     }
                 });
                 runModeConfig.setEnvMap(diffEnvMap);
@@ -428,7 +428,7 @@ public class ApiScenarioExecuteService {
             BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
             runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
         }
-        if(CollectionUtils.isNotEmpty(projectIds)) {
+        if (CollectionUtils.isNotEmpty(projectIds)) {
             runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_ID, JSON.toJSONString(projectIds));
         }
         jMeterService.run(runRequest);
