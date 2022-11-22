@@ -2454,6 +2454,7 @@ const message = {
     change_content: "变更内容",
     ui_element: "UI元素库",
     ui_automation: "UI自动化",
+    ui_automation_schedule: "UI自动化-定时任务",
     ui_automation_report: "UI测试报告"
   },
   plugin: {
