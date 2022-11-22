@@ -20,7 +20,6 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ServiceUtils;
-import io.metersphere.service.plan.remote.TestPlanService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,7 +31,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,8 +60,6 @@ public class ApiDefinitionExecResultService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
-    @Resource
-    private TestPlanService testPlanService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
@@ -283,22 +279,13 @@ public class ApiDefinitionExecResultService {
             for (RequestResult item : dto.getRequestResults()) {
                 LoggerUtil.info("执行结果【 " + item.getName() + " 】入库存储");
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-                    //对响应内容进行进一步解析和处理。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
-                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
-
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                     if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
                         reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
                     }
-                    String status = item.isSuccess() ? ApiReportStatus.SUCCESS.name() : ApiReportStatus.ERROR.name();
                     String triggerMode = StringUtils.EMPTY;
                     if (reportResult != null) {
-                        status = reportResult.getStatus();
                         triggerMode = reportResult.getTriggerMode();
-                    }
-
-                    if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
-                        status = expandDTO.getStatus();
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
@@ -307,9 +294,9 @@ public class ApiDefinitionExecResultService {
                                 String projectId = dto.getExtendedParameters().get("projectId").toString();
                                 ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
                                 String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
-                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
+                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), reportResult.getStatus(), triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
                             }
-                            apiCase.setStatus(status);
+                            apiCase.setStatus(reportResult.getStatus());
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
 
@@ -320,26 +307,11 @@ public class ApiDefinitionExecResultService {
                             }
                         }
                     } else {
-                        this.setExecResult(dto.getTestId(), status, item.getStartTime());
+                        this.setExecResult(dto.getTestId(), reportResult.getStatus(), item.getStartTime());
                     }
                 }
             }
         }
-    }
-
-    public void deleteByResourceId(String resourceId) {
-        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
-        example.createCriteria().andResourceIdEqualTo(resourceId);
-        apiDefinitionExecResultMapper.deleteByExample(example);
-    }
-
-    public void deleteByResourceIds(List<String> ids) {
-        if (CollectionUtils.isEmpty(ids)) {
-            return;
-        }
-        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
-        example.createCriteria().andResourceIdIn(ids);
-        apiDefinitionExecResultMapper.deleteByExample(example);
     }
 
     public long countByTestCaseIDInProjectAndExecutedInThisWeek(String projectId, String version) {
@@ -350,11 +322,6 @@ public class ApiDefinitionExecResultService {
         } else {
             return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
         }
-    }
-
-    public long countByTestCaseIDInProject(String projectId) {
-        return extApiDefinitionExecResultMapper.countByTestCaseIDInProject(projectId);
-
     }
 
     public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, boolean selectFunctionCase, int limitNumber) {
@@ -442,11 +409,6 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    public ApiDefinitionExecResult getInfo(String id) {
-        return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
-    }
-
-
     public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "end_time"));
         this.initReportRequest(request);
@@ -465,14 +427,6 @@ public class ApiDefinitionExecResultService {
             return extApiDefinitionExecResultMapper.selectByResourceIdsAndMaxCreateTime(resourceIds);
         } else {
             return new ArrayList<>();
-        }
-    }
-
-    public void deleteByRelevanceTestPlanReportIds(List<String> testPlanReportIdList) {
-        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
-            ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
-            apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(testPlanReportIdList);
-            apiDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
         }
     }
 
