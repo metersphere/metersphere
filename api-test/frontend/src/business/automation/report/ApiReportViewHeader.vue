@@ -50,7 +50,7 @@
           <el-popover
             v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
             v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
-            style="margin-right: 10px; float: right"
+            style="margin-right: 10px; z-index: 9999; position: inherit"
             placement="bottom"
             trigger="click"
             width="300">
