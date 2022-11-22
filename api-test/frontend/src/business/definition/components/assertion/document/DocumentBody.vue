@@ -284,6 +284,9 @@ export default {
         // hasChildren 表示需要展示一个箭头图标
         item.hasChildren = item.children && item.children.length > 0;
         item.idList = [item.id];
+        if (item.id === 'root') {
+          this.$set(this.document, 'rootData', item);
+        }
         item.children = [];
         return item;
       });
@@ -324,8 +327,7 @@ export default {
       // 渲染子节点
       resolve(resolveArr);
       if (tree.id === 'root') {
-        this.$set(this.document, 'rootName', tree.name);
-        this.$set(this.document, 'rootType', tree.type);
+        this.$set(this.document, 'rootData', tree);
       }
       this.mapData.set(tree.id, resolveArr);
     },
