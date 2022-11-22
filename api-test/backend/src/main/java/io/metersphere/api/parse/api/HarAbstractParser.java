@@ -7,5 +7,5 @@ import io.metersphere.api.parse.ApiImportAbstractParser;
  * @Date 2021/3/10 11:15 上午
  * @Description
  */
-public abstract class HarAbstractParser  extends ApiImportAbstractParser<ApiDefinitionImport> {
+public abstract class HarAbstractParser extends ApiImportAbstractParser<ApiDefinitionImport> {
 }

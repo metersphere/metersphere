@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MsExtractCommon extends MsExtractType{
+public class MsExtractCommon extends MsExtractType {
     private String variable;
     private String value;
     private String expression;

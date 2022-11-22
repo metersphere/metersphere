@@ -19,7 +19,7 @@ public class EsbImportService {
 
     public void templateExport(HttpServletResponse response) {
         try {
-            ESBParser.export(response,"EsbTemplate");
+            ESBParser.export(response, "EsbTemplate");
         } catch (Exception e) {
             MSException.throwException(e);
         }

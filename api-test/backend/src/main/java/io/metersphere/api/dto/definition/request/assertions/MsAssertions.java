@@ -106,22 +106,22 @@ public class MsAssertions extends MsTestElement {
     private ResponseAssertion responseAssertion(MsAssertionRegex assertionRegex) {
         ResponseAssertion assertion = null;
         boolean isErrorReportAssertion = false;
-        if(StringUtils.startsWith(this.getName(),"ErrorReportAssertion:")){
+        if (StringUtils.startsWith(this.getName(), "ErrorReportAssertion:")) {
             assertion = new ErrorReportAssertion();
             isErrorReportAssertion = true;
-        }else {
+        } else {
             assertion = new ResponseAssertion();
         }
         assertion.setEnabled(this.isEnable());
 
         if (StringUtils.isNotEmpty(assertionRegex.getDescription())) {
-            if(!isErrorReportAssertion){
+            if (!isErrorReportAssertion) {
                 //正常断言要在desc增加匹配信息，用于接受结果后和误报断言进行匹配
-                assertionRegex.setDescription(assertionRegex.getDescription() + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject()+":"+assertionRegex.getExpression());
+                assertionRegex.setDescription(assertionRegex.getDescription() + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject() + ":" + assertionRegex.getExpression());
             }
             assertion.setName(this.getName() + delimiter + assertionRegex.getDescription());
         } else {
-            assertion.setName(this.getName() + delimiter + "AssertionRegex" + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject()+":"+assertionRegex.getExpression());
+            assertion.setName(this.getName() + delimiter + "AssertionRegex" + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject() + ":" + assertionRegex.getExpression());
         }
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
