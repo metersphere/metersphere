@@ -98,6 +98,7 @@ export function LOG_MODULE_MAP(_this) {
     ['SYSTEM_AUTHORIZATION_MANAGEMENT', _this.$t('operating_log.system_authorization_management')],
     ['UI_ELEMENT', _this.$t('operating_log.ui_element')],
     ['UI_AUTOMATION', _this.$t('operating_log.ui_automation')],
+    ['UI_AUTOMATION_SCHEDULE', _this.$t('operating_log.ui_automation_schedule')],
     ['UI_AUTOMATION_REPORT', _this.$t('operating_log.ui_automation_report')],
   ]);
   return LOG_MODULE_MAP;
@@ -116,6 +117,11 @@ export function SYSLIST() {
         {
           label: i18n.t('ui.ui_automation'),
           value: [i18n.t('ui.ui_automation'), 'UI_AUTOMATION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('operating_log.ui_automation_schedule'),
+          value: [i18n.t('operating_log.ui_automation_schedule'), 'UI_AUTOMATION_SCHEDULE'],
           leaf: true
         },
         {
@@ -305,6 +311,11 @@ export function WORKSYSLIST() {
         {
           label: i18n.t('ui.ui_automation'),
           value: [i18n.t('ui.ui_automation'), 'UI_AUTOMATION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('operating_log.ui_automation_schedule'),
+          value: [i18n.t('operating_log.ui_automation_schedule'), 'UI_AUTOMATION_SCHEDULE'],
           leaf: true
         },
         {
