@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SwaggerApiExportResult extends ApiExportResult{
+public class SwaggerApiExportResult extends ApiExportResult {
     private String openapi;
     private SwaggerInfo info;
     private JsonNode externalDocs;

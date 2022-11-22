@@ -14,14 +14,15 @@ import java.util.List;
 public class MockTestDataUtil {
     public List<MockTestDataRequest> parseTestDataByRequest(List<MockTestDataRequest> testDataRequestList) {
         for (MockTestDataRequest request : testDataRequestList) {
-            try{
+            try {
                 request.setValue(this.getTestData(request));
-            }catch (Exception e){
+            } catch (Exception e) {
                 LogUtil.error(e);
             }
         }
         return testDataRequestList;
     }
+
     public String getTestData(MockTestDataRequest request) {
         if (StringUtils.equals(MockApiUtils.parseCondition(request.getCondition()), MockParamConditionEnums.VALUE_EQUALS.name())) {
             return request.getValue();
@@ -35,9 +36,9 @@ public class MockTestDataUtil {
             return RandomStringUtils.randomAlphanumeric(length);
         } else if (StringUtils.equals(MockApiUtils.parseCondition(request.getCondition()), MockParamConditionEnums.LENGTH_SHOT_THAN.name())) {
             int length = Integer.parseInt(request.getValue());
-            if(length > 1){
-                return RandomStringUtils.randomAlphanumeric(length-1);
-            }else {
+            if (length > 1) {
+                return RandomStringUtils.randomAlphanumeric(length - 1);
+            } else {
                 return StringUtils.EMPTY;
             }
         } else if (StringUtils.equals(MockApiUtils.parseCondition(request.getCondition()), MockParamConditionEnums.REGULAR_MATCH.name())) {
@@ -45,7 +46,7 @@ public class MockTestDataUtil {
                 Generex generex = new Generex(request.getValue());
                 String randomStr = generex.random();
                 return randomStr;
-            }else {
+            } else {
                 return StringUtils.EMPTY;
             }
         } else {
@@ -66,9 +67,9 @@ public class MockTestDataUtil {
             return RandomStringUtils.randomAlphanumeric(length);
         } else if (StringUtils.equals(MockApiUtils.parseCondition(condition.getCondition()), MockParamConditionEnums.LENGTH_SHOT_THAN.name())) {
             int length = Integer.parseInt(condition.getValue());
-            if(length > 1){
+            if (length > 1) {
                 return RandomStringUtils.randomAlphanumeric(length);
-            }else {
+            } else {
                 return StringUtils.EMPTY;
             }
         } else if (StringUtils.equals(MockApiUtils.parseCondition(condition.getCondition()), MockParamConditionEnums.REGULAR_MATCH.name())) {
@@ -76,7 +77,7 @@ public class MockTestDataUtil {
                 Generex generex = new Generex(condition.getValue());
                 String randomStr = generex.random();
                 return randomStr;
-            }else {
+            } else {
                 return StringUtils.EMPTY;
             }
         } else {
@@ -86,12 +87,12 @@ public class MockTestDataUtil {
 
     public List<TcpTreeTableDataStruct> parseTestDataByTcpTreeTableData(List<TcpTreeTableDataStruct> requestArray) {
         for (TcpTreeTableDataStruct request : requestArray) {
-            try{
+            try {
                 request.setValue(this.getTestData(request));
-                if(!CollectionUtils.isEmpty(request.getChildren())){
+                if (!CollectionUtils.isEmpty(request.getChildren())) {
                     this.parseTestDataByTcpTreeTableData(request.getChildren());
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 LogUtil.error(e);
             }
         }

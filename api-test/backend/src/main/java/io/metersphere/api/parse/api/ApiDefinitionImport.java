@@ -21,7 +21,7 @@ public class ApiDefinitionImport {
     private List<ApiTestCaseWithBLOBs> cases = new ArrayList<>();
 
     //ESB文件导入的附属数据类
-    private Map<String,EsbApiParamsWithBLOBs> esbApiParamsMap;
+    private Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap;
 
     //Mock数据相关
     private List<MockConfigImportDTO> mocks;

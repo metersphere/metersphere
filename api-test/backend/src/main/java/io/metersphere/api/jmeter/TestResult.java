@@ -108,24 +108,24 @@ public class TestResult {
             List<RequestResult> formattedResult = new ArrayList<>();
 
             int successStep = 0;
-            int errorStep  = 0;
-            for (RequestResult item :result.getRequestResults()) {
-                if(!StringUtils.startsWithAny(item.getName(),"PRE_PROCESSOR_ENV_","POST_PROCESSOR_ENV_")){
+            int errorStep = 0;
+            for (RequestResult item : result.getRequestResults()) {
+                if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     formattedResult.add(item);
-                }else {
-                    if(StringUtils.equalsAnyIgnoreCase(item.getName(),"PRE_PROCESSOR_ENV_false","POST_PROCESSOR_ENV_false")){
-                        if(item.isSuccess()){
+                } else {
+                    if (StringUtils.equalsAnyIgnoreCase(item.getName(), "PRE_PROCESSOR_ENV_false", "POST_PROCESSOR_ENV_false")) {
+                        if (item.isSuccess()) {
                             successStep++;
-                        }else {
+                        } else {
                             errorStep++;
                         }
                     }
                 }
             }
             result.setSuccess(result.getSuccess() - successStep);
-            result.setError(result.getError()-errorStep);
+            result.setError(result.getError() - errorStep);
             this.success = this.success - successStep;
-            this.error = this.error-errorStep;
+            this.error = this.error - errorStep;
             this.total = this.total - successStep - errorStep;
 
             result.setRequestResults(formattedResult);

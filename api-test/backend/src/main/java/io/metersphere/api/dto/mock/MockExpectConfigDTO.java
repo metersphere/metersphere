@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MockExpectConfigDTO{
+public class MockExpectConfigDTO {
     private String projectId;
     private MockExpectConfigWithBLOBs mockExpectConfig;
 }

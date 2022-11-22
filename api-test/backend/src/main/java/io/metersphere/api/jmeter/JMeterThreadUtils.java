@@ -15,7 +15,7 @@ public class JMeterThreadUtils {
         currentGroup.enumerate(lstThreads);
         StringBuilder threadNames = new StringBuilder();
         for (int i = 0; i < noThreads; i++) {
-            if (lstThreads[i]!=null && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(name)) {
+            if (lstThreads[i] != null && StringUtils.isNotEmpty(lstThreads[i].getName()) && lstThreads[i].getName().startsWith(name)) {
                 LogUtil.error("异常强制处理线程编号：" + i + " = " + lstThreads[i].getName());
                 threadNames.append(lstThreads[i].getName()).append("；");
                 lstThreads[i].interrupt();

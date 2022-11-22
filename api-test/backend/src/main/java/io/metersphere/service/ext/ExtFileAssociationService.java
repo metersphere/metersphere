@@ -49,6 +49,7 @@ public class ExtFileAssociationService extends FileAssociationService {
             }
         }
     }
+
     private void getHashTree(List<MsTestElement> testElements, List<BodyFile> files) {
         testElements.forEach(item -> {
             if (StringUtils.equalsIgnoreCase(item.getType(), HTTPSamplerProxy.class.getSimpleName())) {

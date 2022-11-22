@@ -56,7 +56,7 @@ import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
-import io.metersphere.service.scenario.dto.ApiScenarioParamDto;
+import io.metersphere.api.dto.scenario.ApiScenarioParamDTO;
 import io.metersphere.xpack.api.service.ApiAutomationRelationshipEdgeService;
 import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
@@ -415,7 +415,7 @@ public class ApiScenarioService {
         return scenario;
     }
 
-    private void checkReferenceCase(ApiScenarioWithBLOBs scenario, ApiScenarioParamDto apiScenarioParamDto) {
+    private void checkReferenceCase(ApiScenarioWithBLOBs scenario, ApiScenarioParamDTO apiScenarioParamDto) {
         if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
             return;
         }
@@ -1184,7 +1184,7 @@ public class ApiScenarioService {
         }
     }
 
-    private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest, ApiScenarioParamDto apiScenarioParamDto) {
+    private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest, ApiScenarioParamDTO apiScenarioParamDto) {
         ApiScenarioMapper batchMapper = apiScenarioParamDto.getBatchMapper();
         ExtApiScenarioMapper extApiScenarioMapper = apiScenarioParamDto.getExtApiScenarioMapper();
         if (CollectionUtils.isEmpty(sameRequest)) {
@@ -1251,7 +1251,7 @@ public class ApiScenarioService {
         }
     }
 
-    private ApiScenarioWithBLOBs importCreate(ApiScenarioWithBLOBs request, ApiTestImportRequest apiTestImportRequest, List<ApiScenarioWithBLOBs> sameList, ApiScenarioParamDto apiScenarioParamDto) {
+    private ApiScenarioWithBLOBs importCreate(ApiScenarioWithBLOBs request, ApiTestImportRequest apiTestImportRequest, List<ApiScenarioWithBLOBs> sameList, ApiScenarioParamDTO apiScenarioParamDto) {
         final ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         ApiScenarioMapper batchMapper = apiScenarioParamDto.getBatchMapper();
         ExtApiScenarioMapper extApiScenarioMapper = apiScenarioParamDto.getExtApiScenarioMapper();
@@ -1443,7 +1443,7 @@ public class ApiScenarioService {
             item.setUserId(SessionUtils.getUserId());
             item.setPrincipal(SessionUtils.getUserId());
             // 导入之后刷新latest
-            ApiScenarioParamDto apiScenarioParamDto = buildParamDto(batchMapper, extApiScenarioMapper, apiTestCaseMapper, apiDefinitionMapper, definitionMap, apiIdCaseNameMap);
+            ApiScenarioParamDTO apiScenarioParamDto = buildParamDto(batchMapper, extApiScenarioMapper, apiTestCaseMapper, apiDefinitionMapper, definitionMap, apiIdCaseNameMap);
             importCreate(item, request, sameList, apiScenarioParamDto);
 
             if (i % 300 == 0) {
@@ -1458,8 +1458,8 @@ public class ApiScenarioService {
     }
 
     @NotNull
-    private static ApiScenarioParamDto buildParamDto(ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap, Map<String, Set<String>> apiIdCaseNameMap) {
-        ApiScenarioParamDto apiScenarioParamDto = new ApiScenarioParamDto();
+    private static ApiScenarioParamDTO buildParamDto(ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap, Map<String, Set<String>> apiIdCaseNameMap) {
+        ApiScenarioParamDTO apiScenarioParamDto = new ApiScenarioParamDTO();
         apiScenarioParamDto.setBatchMapper(batchMapper);
         apiScenarioParamDto.setExtApiScenarioMapper(extApiScenarioMapper);
         apiScenarioParamDto.setApiTestCaseMapper(apiTestCaseMapper);
@@ -2115,7 +2115,7 @@ public class ApiScenarioService {
         return strings;
     }
 
-    private void setReferenced(JSONArray hashTree, String projectId, String versionId, ApiScenarioParamDto apiScenarioParamDto) {
+    private void setReferenced(JSONArray hashTree, String projectId, String versionId, ApiScenarioParamDTO apiScenarioParamDto) {
         // 将引用转成复制
         if (hashTree == null) {
             return;
