@@ -57,6 +57,10 @@ export function getAuthSources() {
   return get('/authsource/list/allenable')
 }
 
+export function getAuthSource(id) {
+  return get('/authsource/' + id)
+}
+
 export function getProjectMemberOption() {
   return get('/user/project/member/option');
 }
