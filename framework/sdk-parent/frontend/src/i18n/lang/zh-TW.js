@@ -2450,6 +2450,7 @@ const message = {
     change_content: "變更內容",
     ui_element: "UI元素庫",
     ui_automation: "UI自動化",
+    ui_automation_schedule: "UI自動化-定時任務",
     ui_automation_report: "UI測試報告"
   },
   plugin: {
