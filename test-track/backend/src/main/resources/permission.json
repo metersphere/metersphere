@@ -163,6 +163,11 @@
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
+      "id": "PROJECT_TRACK_PLAN:READ+BATCH_DELETE",
+      "name": "permission.project_track_plan.batch_delete_plan",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
       "id": "PROJECT_TRACK_PLAN:READ+SCHEDULE",
       "name": "permission.project_track_plan.schedule",
       "resourceId": "PROJECT_TRACK_PLAN"
