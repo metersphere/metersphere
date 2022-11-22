@@ -2730,6 +2730,7 @@ const message = {
       run: "执行测试计划",
       batch_run: "批量执行用例",
       batch_edit: "批量编辑用例",
+      batch_delete_plan: "批量删除测试计划",
       schedule: "定时任务",
       relevance_or_cancel: "关联/取消关联用例",
       batch_delete: "批量取消关联用例",

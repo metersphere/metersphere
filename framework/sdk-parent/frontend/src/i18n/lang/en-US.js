@@ -2721,6 +2721,7 @@ const message = {
       run: "RUN",
       batch_run: "BATCH RUN",
       batch_edit: "BATCH EDIT",
+      batch_delete_plan: "BATCH DELETE PLAN",
       schedule: "SCHEDULE",
       relevance_or_cancel: "RELEVANCE/CANCEL",
       batch_delete: "BATCH DELETE",
