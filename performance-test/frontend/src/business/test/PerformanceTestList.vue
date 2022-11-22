@@ -297,10 +297,8 @@ export default {
         });
     },
     handleRun(test) {
-      this.tableLoading = true
-      runTest(test)
+      this.tableLoading = runTest(test)
         .then(response => {
-          this.tableLoading = false;
           let reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + reportId});
         });
