@@ -31,10 +31,21 @@
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
         <template slot-scope="scope">
           <el-input
-            v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)"
-            v-model="scope.row.name" style="width: 140px" size="mini"
-            :placeholder="$t('api_test.definition.request.esb_table.name')"/>
-          <span v-else>{{ scope.row.name }}</span>
+            v-if="
+              (scope.row.status && scope.column.fixed && scope.row.id !== 'root') ||
+              (scope.row.type !== 'object' && !scope.row.name)
+            "
+            v-model="scope.row.name"
+            style="width: 140px"
+            size="mini"
+            :placeholder="$t('api_test.definition.request.esb_table.name')" />
+          <el-input
+            v-else
+            :disabled="document.type === 'JSON'"
+            v-model="scope.row.name"
+            style="width: 140px"
+            size="mini"
+            :placeholder="$t('api_test.definition.request.esb_table.name')" />
         </template>
       </el-table-column>
 
@@ -207,6 +218,9 @@ export default {
         // hasChildren 表示需要展示一个箭头图标
         item.hasChildren = item.children && item.children.length > 0
         item.idList = [item.id];
+        if (item.id === 'root') {
+          this.$set(this.document, 'rootData', item);
+        }
         item.children = [];
         return item;
       });
@@ -246,6 +260,9 @@ export default {
       tree.loadedChildren = true
       // 渲染子节点
       resolve(resolveArr);
+      if (tree.id === 'root') {
+        this.$set(this.document, 'rootData', tree);
+      }
       this.mapData.set(tree.id, resolveArr);
     },
     checkedAPI() {
