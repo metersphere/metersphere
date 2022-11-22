@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.constants.ZentaoIssuePlatformStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.xpack.track.dto.AttachmentSyncType;
@@ -219,9 +220,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             String openedDate = bug.get("openedDate").toString();
             String lastEditedDate = bug.get("lastEditedDate").toString();
             if (StringUtils.isNotBlank(openedDate) && !openedDate.startsWith("0000-00-00"))
-                issue.setCreateTime((Long) bug.get("openedDate"));
+                issue.setCreateTime(DateUtils.getTime(openedDate).getTime());
             if (StringUtils.isNotBlank(lastEditedDate) && !lastEditedDate.startsWith("0000-00-00"))
-                issue.setUpdateTime((Long) bug.get("lastEditedDate"));
+                issue.setUpdateTime(DateUtils.getTime(lastEditedDate).getTime());
         } catch (Exception e) {
             LogUtil.error("update zentao time" + e.getMessage());
         }
