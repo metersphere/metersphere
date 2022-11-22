@@ -87,7 +87,7 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
                     StringUtils.equalsAnyIgnoreCase(field.getName(), "状态", "严重程度")) {
                 commentText = Translator.get("options").concat(JSON.toJSONString(getOptionValues(field)));
             } else {
-                commentText = Translator.get("options_tips").concat(JSON.toJSONString(getOptionsText(field.getOptions())));
+                commentText = Translator.get("options").concat(JSON.toJSONString(getOptionsText(field.getOptions())));
             }
         }
         if (StringUtils.equalsAnyIgnoreCase(field.getType(), CustomFieldType.MEMBER.getValue())) {
@@ -111,7 +111,7 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
         if (StringUtils.equalsAnyIgnoreCase(field.getType(),
                 CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue())) {
             commentText = Translator.get("multiple_input_import_cell_format_comment").concat(", " +
-                    Translator.get("options_tips").concat(JSON.toJSONString(getOptionsText(field.getOptions()))));
+                    Translator.get("options").concat(JSON.toJSONString(getOptionsText(field.getOptions()))));
         }
         if (StringUtils.equalsAnyIgnoreCase(field.getType(), CustomFieldType.MULTIPLE_MEMBER.getValue())) {
             commentText = Translator.get("multiple_input_import_cell_format_comment").concat(", " +
@@ -153,10 +153,9 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
         List<String> options = new ArrayList<>();
         List<Map> optionMapList = JSON.parseArray(optionStr, Map.class);
         optionMapList.forEach(optionMap -> {
-            StringBuffer option = new StringBuffer("{" + optionMap.get("text") + ":" + optionMap.get("value") + "}");
-            options.add(option.toString());
+            String optionText = optionMap.get("text").toString();
+            options.add(optionText);
         });
-
         return options;
     }
 
