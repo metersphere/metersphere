@@ -52,6 +52,7 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, "Success");
         addToReportStatusResultList(resultMap, statusResult, "SUCCESS");
         addToReportStatusResultList(resultMap, statusResult, "STOP");
+        addToReportStatusResultList(resultMap, statusResult, "unexecute");
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Prepare.name());
         addToReportStatusResultList(resultMap, statusResult, ExecuteResult.ERROR_REPORT_RESULT.toString());
     }
