@@ -766,6 +766,10 @@ public class IssuesService {
                             String format = DateUtils.format(date, "yyyy/MM/dd HH:mm:ss");
                             fieldDao.setValue("\"" + format + "\"");
                         }
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.SELECT.getValue(),
+                                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(), CustomFieldType.RADIO.getValue())) {
+                            fieldDao.setValue(parseOptionValue(customField.getOptions(), fieldDao.getValue()));
+                        }
                     }
                 }
             }
@@ -1650,6 +1654,21 @@ public class IssuesService {
             value = value.replaceAll("]", StringUtils.EMPTY).replaceAll("\\[", StringUtils.EMPTY);
         }
         return value;
+    }
+
+    private String parseOptionValue(String options, String tarVal) {
+        if (StringUtils.isEmpty(options) || StringUtils.isEmpty(tarVal)) {
+            return StringUtils.EMPTY;
+        }
+        List<Map> optionList = JSON.parseArray(options, Map.class);
+        for (Map option : optionList) {
+            String text = option.get("text").toString();
+            String value = option.get("value").toString();
+            if (StringUtils.containsIgnoreCase(tarVal, value)) {
+                tarVal = tarVal.replaceAll(value, text);
+            }
+        }
+        return tarVal;
     }
 
     public Issues checkIssueExist(Integer num, String projectId) {

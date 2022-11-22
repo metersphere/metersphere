@@ -4,13 +4,11 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.util.DateUtils;
+import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.CustomFieldResourceDTO;
@@ -145,12 +143,12 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         }
 
         if (CollectionUtils.isNotEmpty(insertList)) {
-            List<IssuesUpdateRequest> issues = insertList.stream().map(item -> this.convertToIssue(item)).collect(Collectors.toList());
+            List<IssuesUpdateRequest> issues = insertList.stream().map(this::convertToIssue).collect(Collectors.toList());
             issuesService.saveImportData(issues);
         }
 
         if (CollectionUtils.isNotEmpty(updateList)) {
-            List<IssuesUpdateRequest> issues = updateList.stream().map(item -> this.convertToIssue(item)).collect(Collectors.toList());
+            List<IssuesUpdateRequest> issues = updateList.stream().map(this::convertToIssue).collect(Collectors.toList());
             issuesService.updateImportData(issues);
         }
     }
@@ -330,7 +328,15 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
                             customFieldResourceDTO.setValue(v.toString());
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_SELECT.getValue(),
-                                CustomFieldType.CHECKBOX.getValue(), CustomFieldType.MULTIPLE_INPUT.getValue(),
+                                CustomFieldType.CHECKBOX.getValue())) {
+                            if (!v.toString().contains("[")) {
+                                v = List.of("\"" + v + "\"");
+                            }
+                            customFieldResourceDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue(),
+                                CustomFieldType.RADIO.getValue())) {
+                            customFieldResourceDTO.setValue("\"" + parseOptionText(customFieldDao.getOptions(), v.toString()) + "\"");
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue(),
                                 CustomFieldType.MULTIPLE_MEMBER.getValue(), CustomFieldType.CASCADING_SELECT.getValue())) {
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
@@ -423,5 +429,35 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
             }
         }
         return Boolean.FALSE;
+    }
+
+    public String parseOptionText(String options, String tarVal) {
+        if (StringUtils.isEmpty(options)) {
+            return StringUtils.EMPTY;
+        }
+
+        List<Map> optionList = JSON.parseArray(options, Map.class);
+        if (StringUtils.containsAny(tarVal, "[", "]")) {
+            List<String> parseArr = new ArrayList<>();
+            List<String> tarArr = JSONArray.parseArray(tarVal, String.class);
+            for (Map option : optionList) {
+                String text = option.get("text").toString();
+                String value = option.get("value").toString();
+                if (tarArr.contains(text)) {
+                    parseArr.add("\"" + value + "\"");
+                }
+            }
+            return parseArr.toString();
+        } else {
+            tarVal = tarVal + ",";
+            for (Map option : optionList) {
+                String text = option.get("text").toString();
+                String value = option.get("value").toString();
+                if (StringUtils.containsIgnoreCase(tarVal, text + ",")) {
+                    tarVal = tarVal.replaceAll(text, value);
+                }
+            }
+            return tarVal.substring(0, tarVal.length() - 1);
+        }
     }
 }
