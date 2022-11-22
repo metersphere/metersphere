@@ -251,11 +251,11 @@ export default {
         this.issueTemplateId = row.issueTemplateId;
       }
 
+      this.platformOptions = [];
+      this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
       getPlatformOption()
         .then((r) => {
-          this.platformOptions = [];
           this.platformOptions.push(...r.data);
-          this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
           this.loading = getAllServiceIntegration().then(res => {
             let data = res.data;
             let platforms = data.map(d => d.platform);
