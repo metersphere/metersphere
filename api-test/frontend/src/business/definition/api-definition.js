@@ -230,13 +230,20 @@ export function stepCompute(array, request) {
   request.ruleSize = ruleSize;
 }
 
-export function mergeDocumentData(originalData, childMap, rootName, rootType) {
+export function mergeDocumentData(originalData, childMap, rootData) {
   originalData.forEach((item) => {
     if (item.id === 'root') {
-      item.name = rootName;
-      item.type = rootType;
+      item.type = rootData.type;
+      item.name = rootData.name;
+      item.typeVerification = rootData.typeVerification;
+      item.arrayVerification = rootData.arrayVerification;
+      item.contentVerification = rootData.contentVerification;
+      item.jsonPath = rootData.jsonPath;
+      item.expectedOutcome = rootData.expectedOutcome;
+      item.include = rootData.include;
+      item.conditions = rootData.conditions;
     }
-    if (childMap && childMap.has(item.id)) {
+    if (childMap && childMap.size !== 0 && childMap.has(item.id)) {
       let sourceData = JSON.parse(JSON.stringify(item.children));
       item.children = JSON.parse(JSON.stringify(childMap.get(item.id)));
       item.children.forEach((target) => {
@@ -256,19 +263,13 @@ export function mergeRequestDocumentData(request) {
   if (request && request.hashTree && request.hashTree.length > 0) {
     let index = request.hashTree.findIndex((item) => item.type === 'Assertions');
     if (index !== -1) {
-      if (
-        request.hashTree[index].document &&
-        request.hashTree[index].document.originalData &&
-        request.hashTree[index].document.tableData.size &&
-        request.hashTree[index].document.tableData.size !== 0
-      ) {
+      if (request.hashTree[index].document && request.hashTree[index].document.originalData) {
         mergeDocumentData(
           request.hashTree[index].document.originalData,
           request.hashTree[index].document.tableData,
-          request.hashTree[index].document.rootName,
-          request.hashTree[index].document.rootType
+          request.hashTree[index].document.rootData
         );
-        if (request.hashTree[index].document.type === 'json') {
+        if (request.hashTree[index].document.type === 'JSON') {
           request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
         } else {
           request.hashTree[index].document.data.xml = request.hashTree[index].document.originalData;
