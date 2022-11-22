@@ -52,7 +52,7 @@
           <br />
           <p
             style="margin: 0px 20px"
-            v-html="formatRowData(apiInfo.responseBodyParamType, apiInfo.requestBodyStructureData)"></p>
+            v-html="formatRowData(apiInfo.responseBodyParamType, apiInfo.responseBodyStructureData)"></p>
           <br />
         </div>
       </div>
