@@ -121,8 +121,9 @@ import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCa
 import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {getProjectApplicationConfig} from "@/api/project-application";
-import {getAdvSearchCustomField, getVersionFilters} from "@/business/utils/sdk-utils";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getTestTemplate} from "@/api/custom-field-template";
+import {initTestCaseConditionComponents} from "@/business/case/test-case";
 
 export default {
   name: "FunctionalRelevance",
@@ -307,17 +308,7 @@ export default {
     pushCustomFieldToCondition(projectId) {
       getTestTemplate(projectId).then(data => {
         this.testCaseTemplate = data;
-        let comp = getAdvSearchCustomField(this.page.condition, this.testCaseTemplate.customFields);
-        let caseStatus = comp.find(i => i.label === '用例状态');
-        if (caseStatus) {
-          caseStatus.label = this.$t('custom_field.case_status');
-          caseStatus.options.forEach(option => {
-            option.text = this.$t(option.text);
-          });
-          caseStatus.custom = false;
-          this.page.condition.custom = false;
-          this.page.condition.components.push(caseStatus);
-        }
+        this.page.condition.components = initTestCaseConditionComponents(this.page.condition, this.testCaseTemplate.customFields);
       });
     },
   }
