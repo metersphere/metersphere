@@ -2445,6 +2445,7 @@ const message = {
     change_content: "Change content",
     ui_element: "ui element",
     ui_automation: "ui automation",
+    ui_automation_schedule: "Ui automation schedule",
     ui_automation_report: "ui automation report"
   },
   plugin: {
