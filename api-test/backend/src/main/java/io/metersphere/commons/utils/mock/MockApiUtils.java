@@ -103,6 +103,7 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type, "XML")) {
                 if (bodyObj.has("raw")) {
                     String xmlStr = bodyObj.optString("raw");
+                    xmlStr = xmlStr.replaceAll("\r","").replaceAll("\n","");
                     JSONObject matchObj = XMLUtil.xmlStringToJSONObject(xmlStr);
                     returnJson = matchObj;
                 }
