@@ -298,20 +298,25 @@ public class IssuesService {
         }
     }
 
-    protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
+    public void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
         String issuesId = issuesRequest.getId();
         List<String> deleteCaseIds = issuesRequest.getDeleteResourceIds();
 
         if (!org.springframework.util.CollectionUtils.isEmpty(deleteCaseIds)) {
             TestCaseIssuesExample example = new TestCaseIssuesExample();
-            example.createCriteria().andResourceIdIn(deleteCaseIds);
+            example.createCriteria()
+                    .andResourceIdIn(deleteCaseIds)
+                    .andIssuesIdEqualTo(issuesId);
             // 测试计划的用例 deleteCaseIds 是空的， 不会进到这里
-            example.or(example.createCriteria().andRefIdIn(deleteCaseIds));
+            example.or(
+                    example.createCriteria()
+                            .andRefIdIn(deleteCaseIds)
+                            .andIssuesIdEqualTo(issuesId)
+            );
             testCaseIssuesMapper.deleteByExample(example);
         }
 
         List<String> addCaseIds = issuesRequest.getAddResourceIds();
-        TestCaseIssueService testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
 
         if (!org.springframework.util.CollectionUtils.isEmpty(addCaseIds)) {
             if (issuesRequest.getIsPlanEdit()) {

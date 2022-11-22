@@ -164,30 +164,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
-        String issuesId = issuesRequest.getId();
-        List<String> deleteCaseIds = issuesRequest.getDeleteResourceIds();
-
-        if (!CollectionUtils.isEmpty(deleteCaseIds)) {
-            TestCaseIssuesExample example = new TestCaseIssuesExample();
-            example.createCriteria().andResourceIdIn(deleteCaseIds);
-            // 测试计划的用例 deleteCaseIds 是空的， 不会进到这里
-            example.or(example.createCriteria().andRefIdIn(deleteCaseIds));
-            testCaseIssuesMapper.deleteByExample(example);
-        }
-
-        List<String> addCaseIds = issuesRequest.getAddResourceIds();
-        TestCaseIssueService testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
-
-        if (!CollectionUtils.isEmpty(addCaseIds)) {
-            if (issuesRequest.getIsPlanEdit()) {
-                addCaseIds.forEach(caseId -> {
-                    testCaseIssueService.add(issuesId, caseId, issuesRequest.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
-                    testCaseIssueService.updateIssuesCount(caseId);
-                });
-            } else {
-                addCaseIds.forEach(caseId -> testCaseIssueService.add(issuesId, caseId, null, IssueRefType.FUNCTIONAL.name()));
-            }
-        }
+        issuesService.handleTestCaseIssues(issuesRequest);
     }
 
     protected void insertIssuesWithoutContext(String id, IssuesUpdateRequest issuesRequest) {
