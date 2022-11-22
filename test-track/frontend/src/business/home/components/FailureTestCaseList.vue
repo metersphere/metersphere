@@ -115,6 +115,9 @@ export default {
         case "scenario":
           this.$emit('redirectPage', 'scenarioWithQuery', 'scenario', 'edit:' + param);
           break;
+        case "testCase":
+          this.$emit('redirectPage', 'testCase', 'case', 'single:' + param);
+          break;
       }
     }
   },
