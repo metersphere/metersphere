@@ -493,6 +493,7 @@ const message = {
   },
   login: {
     normal_Login: "普通登录",
+    auth_not_enable: "认证未开启"
   },
   license: {
     title: '授权管理',

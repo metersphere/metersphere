@@ -119,6 +119,10 @@ public class LoginController {
         return Mono.just(ResultHolder.success(authSourceService.listAllEnable()));
     }
 
+    @GetMapping("authsource/{authId}")
+    public Mono<ResultHolder> getAuthSource(@PathVariable("authId") String authId) {
+        return Mono.just(ResultHolder.success(authSourceService.getAuthSource(authId)));
+    }
 
     @GetMapping(value = "/services")
     public Mono<ResultHolder> getServices() {
