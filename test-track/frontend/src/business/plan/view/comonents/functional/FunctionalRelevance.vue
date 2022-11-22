@@ -10,6 +10,7 @@
 
     <template v-slot:aside>
       <node-tree class="node-tree"
+                 :scroll="true"
                  v-loading="nodeResult.loading"
                  local-suffix="test_case"
                  default-label="未规划用例"

@@ -1,10 +1,100 @@
 <template>
   <div>
-    <slot name="header">
-      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true"/>
-    </slot>
 
+      <slot name="header">
+        <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true"/>
+      </slot>
+    <ms-left-2-right-container v-if="scroll">
+      <el-tree
+        class="filter-tree node-tree"
+        :data="extendTreeNodes"
+        :default-expanded-keys="expandedNode"
+        :default-expand-all="defaultExpandAll"
+        node-key="id"
+        @node-drag-end="handleDragEnd"
+        @node-expand="nodeExpand"
+        @node-collapse="nodeCollapse"
+        :filter-node-method="filterNode"
+        :expand-on-click-node="false"
+        highlight-current
+        :draggable="!disabled&&!hideOpretor"
+        ref="tree">
+
+        <template v-slot:default="{node,data}">
+      <span class="custom-tree-node father" @click="handleNodeSelect(node)">
+
+        <span v-if="data.isEdit" @click.stop>
+          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
+                    class="name-input" size="mini" ref="nameInput" :draggable="true"/>
+        </span>
+
+        <span v-if="!data.isEdit" class="node-icon">
+          <i class="el-icon-folder"/>
+        </span>
+        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
+          <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
+        </el-tooltip>
+        <span class="count-title" v-if="showCaseNum && data.caseNum !== null && data.caseNum !== undefined">
+          <span style="color: var(--primary_color);">{{ data.caseNum }}</span>
+        </span>
+        <span v-if="!disabled" class="node-operate child">
+          <el-tooltip
+            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
+            class="item"
+            effect="dark"
+            v-permission="updatePermission"
+            :open-delay="200"
+            :content="$t('test_track.module.rename')"
+            placement="top">
+            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+          </el-tooltip>
+          <el-tooltip
+            v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
+            v-permission="updatePermission"
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            :content="$t('test_track.module.rename')"
+            placement="top">
+            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+          </el-tooltip>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            v-permission="addPermission"
+            v-if="!isDefault(data) && !hideOpretor"
+            :content="$t('test_track.module.add_submodule')"
+            placement="top">
+            <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
+          </el-tooltip>
+
+          <el-tooltip
+            v-if="data.name === defaultLabel && data.level !==1 && !hideOpretor"
+            class="item" effect="dark"
+            :open-delay="200"
+            v-permission="deletePermission"
+            :content="$t('commons.delete')"
+            placement="top">
+            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+          </el-tooltip>
+
+          <el-tooltip
+            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
+            class="item" effect="dark"
+            :open-delay="200"
+            :content="$t('commons.delete')"
+            v-permission="deletePermission"
+            placement="top">
+            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+          </el-tooltip>
+        </span>
+      </span>
+        </template>
+      </el-tree>
+    </ms-left-2-right-container>
     <el-tree
+      v-else
       class="filter-tree node-tree"
       :data="extendTreeNodes"
       :default-expanded-keys="expandedNode"
@@ -91,14 +181,16 @@
       </span>
       </template>
     </el-tree>
+
   </div>
 </template>
 
 <script>
+import MsLeft2RightContainer from "../MsLeft2RightContainer";
 
 export default {
   name: "MsNodeTree",
-  components: {},
+  components: {MsLeft2RightContainer},
   data() {
     return {
       result: {},
@@ -113,6 +205,15 @@ export default {
     };
   },
   props: {
+    //是否允许拖拽隐藏侧边栏
+    scroll: {
+      type: Boolean,
+      default: false
+    },
+    existSlotContainer: {
+      type: Boolean,
+      default: false
+    },
     type: {
       type: String,
       default: "view"
