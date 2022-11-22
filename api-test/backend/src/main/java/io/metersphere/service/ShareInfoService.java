@@ -384,7 +384,12 @@ public class ShareInfoService extends BaseShareInfoService {
                                     } else {
                                         apiInfoDTO.setResponseBodyParamType(type);
                                     }
-                                    if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
+                                    if (StringUtils.equalsIgnoreCase(type, "Raw")) {
+                                        if (bodyObj.has("raw")) {
+                                            String raw = bodyObj.get("raw").asText();
+                                            apiInfoDTO.setResponseBodyStructureData(raw);
+                                        }
+                                    } else if (StringUtils.equalsAny(type, "JSON", "XML")) {
 
                                         //判断是否是JsonSchema
                                         boolean isJsonSchema = false;

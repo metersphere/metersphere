@@ -4,7 +4,7 @@
       <el-popover v-if="projectId" placement="right" width="260" @show="shareApiDocument('false')">
         <p>{{ shareUrl }}</p>
         <div style="text-align: right; margin: 0">
-          <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{ $t('commons.copy') }} </el-button>
+          <el-button type="primary" size="mini" v-clipboard:copy="shareUrl">{{ $t('commons.copy') }}</el-button>
         </div>
         <i class="el-icon-share" slot="reference" style="margin-right: 10px; cursor: pointer"></i>
       </el-popover>
@@ -36,7 +36,7 @@
           <el-col :span="6">{{ $t('api_test.definition.request.responsible') }} : {{ apiInfo.responsibler }}</el-col>
           <el-col :span="6">{{ $t('commons.create_user') }} : {{ apiInfo.createUser }}</el-col>
         </el-row>
-        <el-row style="margin-top: 10px"> {{ $t('commons.description') }} : {{ apiInfo.desc }} </el-row>
+        <el-row style="margin-top: 10px"> {{ $t('commons.description') }} : {{ apiInfo.desc }}</el-row>
       </div>
     </el-row>
     <!--api请求头-->
@@ -102,7 +102,7 @@ import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
 import ApiRemarkShow from '@/business/definition/components/document/components/ApiRemarkShow';
-import { generateApiDocumentShareInfo, documentShareUrl } from '@/api/share';
+import { documentShareUrl, generateApiDocumentShareInfo } from '@/api/share';
 import ApiInfoCollapse from '@/business/definition/components/document/components/ApiInfoCollapse';
 import ApiRequestInfo from '@/business/definition/components/document/components/ApiRequestInfo';
 import ApiResponseInfo from '@/business/definition/components/document/components/ApiResponseInfo';
@@ -210,7 +210,9 @@ export default {
     hasResponseBody(apiInfo) {
       let hasParams = false;
       if (apiInfo) {
-        if (this.formParamTypes.includes(apiInfo.responseBodyParamType)) {
+        if (apiInfo.responseBodyParamType === 'Raw') {
+          hasParams = true;
+        } else if (this.formParamTypes.includes(apiInfo.responseBodyParamType)) {
           if (apiInfo.responseBodyFormData && apiInfo.responseBodyFormData !== '无') {
             let jsonArr = JSON.parse(apiInfo.responseBodyFormData);
             //遍历，把必填项空的数据去掉
