@@ -664,6 +664,9 @@ export default {
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
       this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
+      if (this.selectDataRange && this.selectDataRange.indexOf("single") > -1) {
+        this.condition.ids = [this.selectDataRange.substring(7)];
+      }
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
