@@ -2,12 +2,10 @@ package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PropertyConstant;
@@ -56,6 +54,8 @@ public class TestResultService {
     private ApiScenarioExecutionInfoService scenarioExecutionInfoService;
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -202,6 +202,14 @@ public class TestResultService {
             ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
             example.createCriteria().andIdEqualTo(dto.getReportId()).andStatusEqualTo(ApiReportStatus.RUNNING.name());
             apiDefinitionExecResultMapper.updateByExampleSelective(record, example);
+
+            if (StringUtils.isNotEmpty(dto.getTestId())) {
+                ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+                apiTestCase.setLastResultId(dto.getReportId());
+                apiTestCase.setId(dto.getTestId());
+                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+            }
+
         }
     }
 
