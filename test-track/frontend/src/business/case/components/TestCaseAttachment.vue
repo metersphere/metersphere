@@ -175,10 +175,6 @@ export default {
 </script>
 
 <style scoped>
-.el-progress-bar__innerText {
-  color: black;
-}
-
 :deep(.el-progress.row-delete-name .el-progress-bar__innerText) {
   color: lightgrey!important;
 }
@@ -186,7 +182,7 @@ export default {
 :deep(.el-progress-bar__outer),
 :deep(.el-progress-bar__inner) {
   border-radius: inherit ;
-  background-color: transparent;
+  background-color: transparent!important;
 }
 
 :deep(.el-progress-bar__innerText) {
