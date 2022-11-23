@@ -89,7 +89,6 @@ export default {
             if (res && res.code === 'ECONNABORTED') {
               return;
             }
-            clearSessionStorage()
             reject(res)
           })
       });
