@@ -416,6 +416,10 @@ export default {
       return formData;
     },
     syncScenario() {
+      if (!hasPermission('PROJECT_API_SCENARIO:READ')) {
+        this.$warning(this.$t('performance_test.sync_scenario_no_permission_tips'));
+        return;
+      }
       let param = {
         id: this.test.id,
         scenarioId: this.test.scenarioId
@@ -423,7 +427,7 @@ export default {
       syncScenario(param)
         .then(() => {
           this.getTest(this.$route.params.testId);
-          this.$success('更新成功');
+          this.$success('commons.save_success');
         });
     },
     cancel() {
