@@ -109,7 +109,7 @@ export default {
     check() {
       validateProjectConfig(this.config.id, this.form)
         .then(() => {
-          this.$success(this.$t("system.check_third_project_success"));
+          this.$success(this.$t("pj.check_third_project_success"));
         });
     },
     validate() {
