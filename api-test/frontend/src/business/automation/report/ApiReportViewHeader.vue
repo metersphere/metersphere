@@ -50,10 +50,10 @@
           <el-popover
             v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
             v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
-            style="margin-right: 10px; z-index: 9999; position: inherit"
+            style="margin-right: 10px"
             placement="bottom"
-            trigger="manual"
-            v-model="visible"
+            trigger="click"
+            popperClass="ms-custom-message-class"
             width="300">
             <p>{{ shareUrl }}</p>
             <span style="color: red; float: left; margin-left: 10px" v-if="application.typeValue">{{
@@ -151,7 +151,6 @@ export default {
       nameIsEdit: false,
       shareUrl: '',
       application: {},
-      visible: false,
     };
   },
   methods: {
@@ -209,7 +208,6 @@ export default {
       this.$router.push('/api/automation/report');
     },
     handleShare(report) {
-      this.visible = true;
       this.getProjectApplication();
       let pram = {};
       pram.customData = report.id;
