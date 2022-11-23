@@ -13,7 +13,7 @@
                     :data="apiCases">
 
             <ms-table-column
-              :width="80"
+              :width="100"
               :label="$t('commons.id')"
               prop="num">
             </ms-table-column>
