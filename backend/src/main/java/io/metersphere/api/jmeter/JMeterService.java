@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.ApiPoolDebugService;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
@@ -145,6 +146,11 @@ public class JMeterService {
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
             try {
+                // 缓存调试脚本
+                if (request.getHashTree() != null) {
+                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+                }
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
