@@ -311,12 +311,21 @@ export default {
         localStorage.removeItem("ISSUE_LIST");
       }
 
-      let promise = this.form.id ? modifyProject(this.form) : saveProject(this.form);
-      this.loading = promise.then(() => {
-        this.createVisible = false;
-        this.$success(this.$t('commons.save_success'));
-        this.reload();
-      });
+      if (this.form.id) {
+        this.loading = modifyProject(this.form).then(() => {
+          this.createVisible = false;
+          this.$success(this.$t('commons.save_success'));
+          this.reload();
+        });
+      } else {
+        this.loading = saveProject(this.form).then(() => {
+          this.createVisible = false;
+          this.$success(this.$t('commons.save_success'));
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        });
+      }
     },
     handleDelete(project) {
       this.$refs.deleteConfirm.open(project);
