@@ -95,10 +95,10 @@ export default {
         borderWidth = 3;
         dataIsNotEmpty = true;
         protocolData = [
-          { value: this.formatAmount(this.apiData.httpCount), name: 'HTTP' },
-          { value: this.formatAmount(this.apiData.rpcCount), name: 'RPC' },
-          { value: this.formatAmount(this.apiData.tcpCount), name: 'TCP' },
-          { value: this.formatAmount(this.apiData.sqlCount), name: 'SQL' },
+          { value: this.apiData.httpCount, name: 'HTTP' },
+          { value: this.apiData.rpcCount, name: 'RPC' },
+          { value: this.apiData.tcpCount, name: 'TCP' },
+          { value: this.apiData.sqlCount, name: 'SQL' },
         ];
       }
       let optionData = {
