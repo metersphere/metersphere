@@ -661,7 +661,7 @@ export default {
       return "/api/test/edit?id=" + this.report.testId;
     },
     isNotRunning() {
-      return "Running" !== this.report.status;
+      return !["Running", "Waiting"].includes(this.report.status);
     },
     projectId() {
       return getCurrentProjectID();
