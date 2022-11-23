@@ -525,6 +525,7 @@ const message = {
     creation_case_tip: 'No use case has been created yet, create it now',
     creation_issue_tip: 'No defects have been created yet, create them now',
     delNotSame: 'Remove parameters in use cases that cannot correspond to API documentation',
+    apply_tip:'The workbench pending update setting is not enabled',
     table_name: {
       track_case: 'Track Case',
       track_plan: 'Track Plan',
@@ -535,7 +536,7 @@ const message = {
       api_case: 'Api Case',
       performance: 'Performance',
       scenario_case: 'Scenario Case'
-    }
+    },
   },
   display: {
     title: 'Theme',

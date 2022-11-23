@@ -528,6 +528,7 @@ const message = {
     creation_case_tip: '暫時還沒有創建用例，馬上創建',
     creation_issue_tip: '暫時還沒有創建缺陷，馬上創建',
     delNotSame: '刪除用例中無法與API文檔對應的參數',
+    apply_tip:'未開啟工作台待更新設置',
     table_name: {
       track_case: '功能用例',
       track_plan: '測試計劃',
