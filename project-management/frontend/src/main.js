@@ -1,41 +1,43 @@
-import "./public-path"
-import Vue from "vue"
-import "metersphere-frontend/src/styles/index.scss"
+import "./public-path";
+import Vue from "vue";
+import "metersphere-frontend/src/styles/index.scss";
 import ElementUI from "element-ui";
-import App from "./App.vue"
+import App from "./App.vue";
 import i18n from "./i18n";
-import router from "./router"
-import {createPinia, PiniaVuePlugin} from 'pinia'
-import PersistedState from 'pinia-plugin-persistedstate'
-import icons from "metersphere-frontend/src/icons"
+import router from "./router";
+import { createPinia, PiniaVuePlugin } from "pinia";
+import PersistedState from "pinia-plugin-persistedstate";
+import icons from "metersphere-frontend/src/icons";
 import svg from "metersphere-frontend/src/components/svg";
 import plugins from "metersphere-frontend/src/plugins";
 import directives from "metersphere-frontend/src/directive";
 import filters from "metersphere-frontend/src/filters";
 import "metersphere-frontend/src/router/permission";
-import mavonEditor from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
-Vue.config.productionTip = false
+import mavonEditor from "mavon-editor";
+import "mavon-editor/dist/css/index.css";
+import VuePapaParse from "vue-papa-parse";
+Vue.config.productionTip = false;
 
-const pinia = createPinia()
-pinia.use(PersistedState)//开启缓存，存储在localstorage
+const pinia = createPinia();
+pinia.use(PersistedState); //开启缓存，存储在localstorage
 
 Vue.use(ElementUI, {
-  i18n: (key, value) => i18n.t(key, value)
+  i18n: (key, value) => i18n.t(key, value),
 });
 
-Vue.use(mavonEditor)
+Vue.use(mavonEditor);
 Vue.use(svg);
 Vue.use(icons);
 Vue.use(plugins);
 Vue.use(directives);
 Vue.use(filters);
 Vue.use(PiniaVuePlugin);
+Vue.use(VuePapaParse);
 
 let instance = null;
 
 function render(props = {}) {
-  const {container, eventBus = new Vue()} = props;
+  const { container, eventBus = new Vue() } = props;
   // 添加全局事件总线
   Vue.prototype.$EventBus = eventBus;
 
@@ -43,8 +45,8 @@ function render(props = {}) {
     i18n,
     router,
     pinia,
-    render: h => h(App),
-  }).$mount(container ? container.querySelector('#app') : '#app');
+    render: (h) => h(App),
+  }).$mount(container ? container.querySelector("#app") : "#app");
 }
 
 // 独立运行时
@@ -69,7 +71,7 @@ export async function mount(props) {
     // console.log('state: 变更后的状态; prev 变更前的状态')
     // console.log(state, prev);
   });
-  props.setGlobalState({event: 'opendialog'});
+  props.setGlobalState({ event: "opendialog" });
   render(props);
 }
 
