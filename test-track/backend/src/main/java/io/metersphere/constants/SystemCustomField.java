@@ -7,4 +7,5 @@ package io.metersphere.constants;
 public class SystemCustomField {
     public static final String ISSUE_STATUS = "状态";
     public static final String ISSUE_DEGREE = "严重程度";
+    public static final String CASE_PRIORITY = "用例等级";
 }
