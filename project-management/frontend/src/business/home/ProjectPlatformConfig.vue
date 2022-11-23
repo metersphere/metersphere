@@ -59,6 +59,12 @@ export default {
       default() {
         return {}
       },
+    },
+    project: {
+      type: Object,
+      default() {
+        return {}
+      }
     }
   },
   data() {
@@ -83,6 +89,8 @@ export default {
         .then(r => {
           if (r.data) {
             Object.assign(this.form, this.projectConfig);
+            this.handleProjectConfigCompatible();
+
             r.data.formItems.forEach(item => {
               if (!item.options) {
                 item.options = [];
@@ -111,6 +119,18 @@ export default {
         .then(() => {
           this.$success(this.$t("pj.check_third_project_success"));
         });
+    },
+    handleProjectConfigCompatible() {
+      this._handleProjectConfigCompatible("jiraKey");
+      this._handleProjectConfigCompatible("tapdId");
+      this._handleProjectConfigCompatible("azureDevopsId");
+      this._handleProjectConfigCompatible("zentaoId");
+    },
+    _handleProjectConfigCompatible(prop) {
+      if (!this.form[prop] && this.project[prop]) {
+        // 兼容性处理，如果配置中没有值，项目中有值，是旧数据，则赋值
+        this.form[prop] = this.project[prop];
+      }
     },
     validate() {
       return new Promise((resolve, reject) => {
