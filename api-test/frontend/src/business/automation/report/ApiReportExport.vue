@@ -51,11 +51,11 @@
               {{ request.passAssertions + ' / ' + request.totalAssertions }}
             </api-report-request-header-item>
 
-            <api-report-request-header-item :title="$t('api_report.response_code')">
+            <api-report-request-header-item :title="$t('api_report.response_code')" style="width: 300px">
               {{ request.responseResult.responseCode }}
             </api-report-request-header-item>
 
-            <api-report-request-header-item :title="$t('api_report.result')">
+            <api-report-request-header-item :title="$t('api_report.result')" style="width: 50px">
               <el-tag v-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }} </el-tag>
               <el-tag v-else-if="!request.success && request.status && request.status === 'PENDING'"
                 >{{ $t('api_test.home_page.detail_card.unexecute') }}
