@@ -101,12 +101,19 @@ public class PlatformPluginService {
     public static String getCompatibleProjectConfig(Project project) {
         String issueConfig = project.getIssueConfig();
         Map map = JSON.parseMap(issueConfig);
-        map.put("jiraKey", project.getJiraKey());
-        map.put("tapdId", project.getTapdId());
-        map.put("azureDevopsId", project.getAzureDevopsId());
-        map.put("zentaoId", project.getZentaoId());
+        compatibleProjectKey(map, "jiraKey", project.getJiraKey());
+        compatibleProjectKey(map, "tapdId", project.getTapdId());
+        compatibleProjectKey(map, "azureDevopsId", project.getAzureDevopsId());
+        compatibleProjectKey(map, "zentaoId", project.getZentaoId());
         map.put("thirdPartTemplate", project.getThirdPartTemplate());
         return JSON.toJSONString(map);
+    }
+
+    private static void compatibleProjectKey(Map map, String name, String compatibleValue) {
+        if (map.get(name) == null || StringUtils.isBlank(map.get(name).toString())) {
+            // 如果配置里面缺陷对应平台的项目ID则，即使用旧数据的项目ID
+            map.put(name, compatibleValue);
+        }
     }
 
     public static boolean isPluginPlatform(String platform) {
