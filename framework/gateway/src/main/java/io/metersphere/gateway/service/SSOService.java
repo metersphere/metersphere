@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.metersphere.base.domain.AuthSource;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.UserSource;
+import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -306,6 +307,9 @@ public class SSOService {
         } else {
             if (!StringUtils.equals(u.getSource(), UserSource.OAuth2.name())) {
                 MSException.throwException("user already exist, user source type is " + u.getSource());
+            }
+            if (StringUtils.equals(u.getStatus(), UserStatus.DISABLED)) {
+                MSException.throwException("user is disabled!");
             }
         }
 
