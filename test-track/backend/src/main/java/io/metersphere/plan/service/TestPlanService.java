@@ -1639,10 +1639,6 @@ public class TestPlanService {
             return true;
         }
 
-        if (planTestPlanUiScenarioCaseService.haveUiCase(planId)) {
-            return true;
-        }
-
         return planTestPlanLoadCaseService.haveExecCase(planId);
     }
 
