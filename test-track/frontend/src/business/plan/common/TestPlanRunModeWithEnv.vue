@@ -58,7 +58,7 @@
           <!-- 串行 -->
           <div
             class="mode-row"
-            v-if="runConfig.mode === 'serial' && testType === 'API'"
+            v-if="runConfig.mode === 'serial' && testType === 'API' && haveOtherExecCase"
           >
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
@@ -86,7 +86,7 @@
           <!-- 并行 -->
           <div
             class="mode-row"
-            v-if="runConfig.mode === 'parallel' && testType === 'API'"
+            v-if="runConfig.mode === 'parallel' && testType === 'API' && haveOtherExecCase"
           >
             <el-checkbox
               v-model="runConfig.runWithinResourcePool"
@@ -275,6 +275,10 @@ export default {
     },
     //是否含有ui场景 有 ui 场景就要展示 浏览器选项，性能模式
     haveUICase: {
+      type: Boolean,
+      default: false,
+    },
+    haveOtherExecCase: {
       type: Boolean,
       default: false,
     },

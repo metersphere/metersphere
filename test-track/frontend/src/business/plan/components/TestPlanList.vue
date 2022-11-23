@@ -316,7 +316,7 @@
                                     :type="'plan'" :have-u-i-case="haveUICase"/>
     <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refresh="refresh"/>
     <ms-test-plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
-                            :plan-id="currentPlanId" :show-save="true" :have-u-i-case="haveUICase"/>
+                            :plan-id="currentPlanId" :show-save="true" :have-u-i-case="haveUICase" :have-other-exec-case="haveOtherExecCase"/>
     <test-plan-report-review ref="testCaseReportView"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <el-dialog
@@ -477,7 +477,10 @@ export default {
         },
       ],
       batchExecuteType: "serial",
-      haveUICase: false
+      //是否有UI执行用例
+      haveUICase: false,
+      //是否有API/性能执行用例
+      haveOtherExecCase: false,
     };
   },
   watch: {
@@ -823,8 +826,9 @@ export default {
         .then(() => {
           testPlanHaveExecCase(row.id)
             .then(async res => {
-              const haveExecCase = res.data;
-              if (haveExecCase) {
+              this.haveOtherExecCase = res.data;
+              //因为ui没有资源池，这里必须分离两个变量
+              if (this.haveOtherExecCase || this.haveUICase) {
                 this.$refs.runMode.open('API', row.runModeConfig);
               } else {
                 this.$router.push('/track/plan/view/' + row.id);
