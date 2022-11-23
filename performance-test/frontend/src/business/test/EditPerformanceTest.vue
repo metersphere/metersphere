@@ -48,11 +48,10 @@
             </el-button>
 
             <schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
-                             v-permission="['PROJECT_PERFORMANCE_TEST:READ+SCHEDULE']"
+                             v-if="hasPermission('PROJECT_PERFORMANCE_TEST:READ+SCHEDULE')"
                              :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
 
-            <ms-tip-button v-if="test.isNeedUpdate"
-                           v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
+            <ms-tip-button v-if="test.isNeedUpdate && hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT')"
                            class="sync-btn" type="primary" size="small" circle
                            icon="el-icon-connection"
                            @click="syncScenario"
@@ -213,6 +212,7 @@ export default {
     this.getMaintainerOptions();
   },
   methods: {
+    hasPermission,
     currentUser: () => {
       return getCurrentUser();
     },
@@ -416,7 +416,7 @@ export default {
       return formData;
     },
     syncScenario() {
-      if (!hasPermission('PROJECT_API_SCENARIO:READ')) {
+      if (!hasPermission('PROJECT_API_SCENARIO:READ+CREATE')) {
         this.$warning(this.$t('performance_test.sync_scenario_no_permission_tips'));
         return;
       }

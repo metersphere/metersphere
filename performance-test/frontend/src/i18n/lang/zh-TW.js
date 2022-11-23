@@ -8,7 +8,7 @@ const message = {
       test_duration: '{0}時{1}分{2}秒',
       test_duration_tips: '執行時長：{0}時{1}分{2}秒',
     },
-    sync_scenario_no_permission_tips: '沒有查看接口的權限無法執行同步',
+    sync_scenario_no_permission_tips: '沒有创建接口的權限無法執行同步',
   }
 }
 
