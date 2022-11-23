@@ -52,8 +52,9 @@
         </el-form-item>
 
         <project-platform-config
-          v-if="form.platform === 'Jira'"
+          v-if="showPlatformConfig"
           :result="jiraResult"
+          :project="form"
           :platform-key="form.platform"
           :label-width="labelWidth"
           :project-config="platformConfig"
@@ -205,6 +206,9 @@ export default {
     },
     thirdPartTemplateSupport() {
       return this.thirdPartTemplateSupportPlatforms.indexOf(this.form.platform) > -1;
+    },
+    showPlatformConfig() {
+      return ISSUE_PLATFORM_OPTION.map(item => item.value).indexOf(this.form.platform) < 0;
     }
   },
   inject: ['reload'],
