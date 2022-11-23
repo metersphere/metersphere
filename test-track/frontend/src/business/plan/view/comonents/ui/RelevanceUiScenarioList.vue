@@ -174,7 +174,6 @@ export default {
       if (!this.projectId) {
         return;
       }
-      this.getProject(this.projectId);
       this.selectRows = new Set();
       if (this.condition.filters) {
         this.condition.filters.status = ["Prepare", "Underway", "Completed"];
@@ -222,19 +221,6 @@ export default {
         .then(res => {
           this.projectList = res.data;
         });
-    },
-    getProject(projectId) {
-      if (projectId) {
-        getProjectApplicationConfig('SCENARIO_CUSTOM_NUM')
-          .then(result => {
-            let data = result.data;
-            if (data && data.typeValue === 'true') {
-              this.customNum = true;
-            } else {
-              this.customNum = false;
-            }
-          });
-      }
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;
