@@ -568,7 +568,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 if (customFieldDao != null) {
                     CustomFieldResourceDTO customFieldResource = new CustomFieldResourceDTO();
                     customFieldResource.setFieldId(customFieldDao.getId());
-                    if (textFieldSet.contains(customFieldDao.getId())) {
+                    if (textFieldSet.contains(k)) {
                         customFieldResource.setTextValue(v.toString());
                     } else {
                         customFieldResource.setValue(JSON.toJSONString(v));
