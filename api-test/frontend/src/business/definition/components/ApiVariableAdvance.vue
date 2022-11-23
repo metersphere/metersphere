@@ -416,6 +416,7 @@ export default {
       this.operatingElements = this.stepFilter.get('ALL');
     },
     open() {
+      this.itemValue = null;
       if (this.scenarioDefinition != undefined) {
         // 标识为场景编辑入口进入
         this.ifFromVariableAdvance = true;
