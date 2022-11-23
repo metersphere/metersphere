@@ -1509,7 +1509,7 @@ export default {
           if (!item.hashTree) {
             item.hashTree = [];
           }
-          this.resetResourceId(item.hashTree);
+          this.resetResourceId(item.hashTree, item.referenced);
           item.enable === undefined ? (item.enable = true) : item.enable;
           item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
           if (this.selectedTreeNode) {
@@ -1638,15 +1638,15 @@ export default {
         },
       });
     },
-    resetResourceId(hashTree) {
+    resetResourceId(hashTree, referenced) {
       hashTree.forEach((item) => {
         item.resourceId = item.resourceId || getUUID();
         //引用的场景如果原场景的步骤被禁用了，引用的场景的步骤不可以启用
-        if (item.referenced === 'REF' && !item.enable) {
+        if (referenced === 'REF' && !item.enable) {
           item.refEnable = true;
         }
         if (item.hashTree && item.hashTree.length > 0) {
-          this.resetResourceId(item.hashTree);
+          this.resetResourceId(item.hashTree, referenced);
         }
       });
     },
@@ -1657,7 +1657,7 @@ export default {
       let obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
       if (obj.hashTree && obj.hashTree.length > 0) {
-        this.resetResourceId(obj.hashTree);
+        this.resetResourceId(obj.hashTree, obj.referenced);
       }
       if (obj.name) {
         obj.name = obj.name + '_copy';
