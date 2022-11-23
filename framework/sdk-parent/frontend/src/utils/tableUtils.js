@@ -483,7 +483,7 @@ export function getCustomFieldValue(row, field, members) {
           if (field.options) {
             for (let j = 0; j < field.options.length; j++) {
               let option = field.options[j];
-              if (option.value === item.value) {
+              if (option.value == item.value) {
                 return field.system ? i18n.t(option.text) : option.text;
               }
             }
