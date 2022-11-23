@@ -9,6 +9,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.service.BaseUserService;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,8 +23,13 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         this.isKVOption = true;
         BaseUserService userService = CommonBeanFactory.getBean(BaseUserService.class);
         List<User> memberOption = userService.getProjectMemberOption(SessionUtils.getCurrentProjectId());
-        userIdMap = memberOption.stream().collect(Collectors.toMap(user -> user.getId().toLowerCase(), User::getId));
-        userNameMap = memberOption.stream().collect(Collectors.toMap(user -> user.getName().toLowerCase(), User::getId));
+        userIdMap = memberOption.stream()
+                .collect(
+                        Collectors.toMap(user -> user.getId().toLowerCase(), User::getId)
+                );
+        userNameMap = new HashMap<>();
+        memberOption.stream()
+                .forEach(user -> userNameMap.put(user.getName().toLowerCase(), user.getId()));
     }
 
     @Override
