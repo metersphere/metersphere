@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.*;
@@ -23,7 +24,6 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
-import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
@@ -34,7 +34,6 @@ import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -75,6 +74,8 @@ public class TestPlanScenarioCaseService {
     private TestPlanService testPlanService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private JMeterService jMeterService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -99,15 +100,15 @@ public class TestPlanScenarioCaseService {
 
         apiTestCases.forEach(item -> {
             Project project = projectMap.get(item.getProjectId());
-            if(project != null){
+            if (project != null) {
                 ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
                 boolean custom = config.getScenarioCustomNum();
                 if (custom) {
                     item.setCustomNum(item.getCustomNum());
-                }else {
+                } else {
                     item.setCustomNum(item.getNum().toString());
                 }
-            }else {
+            } else {
                 item.setCustomNum(item.getNum().toString());
             }
         });
@@ -169,6 +170,7 @@ public class TestPlanScenarioCaseService {
     }
 
     public List<MsExecResponseDTO> run(RunTestPlanScenarioRequest testPlanScenarioRequest) {
+        jMeterService.verifyPool(testPlanScenarioRequest.getProjectId(), testPlanScenarioRequest.getConfig());
         StringBuilder idStr = new StringBuilder();
         List<String> planCaseIdList = testPlanScenarioRequest.getPlanCaseIds();
         if (testPlanScenarioRequest.getCondition() != null && testPlanScenarioRequest.getCondition().isSelectAll()) {
@@ -215,6 +217,7 @@ public class TestPlanScenarioCaseService {
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
         request.setConfig(testPlanScenarioRequest.getConfig());
         request.setPlanCaseIds(planCaseIdList);
+        request.setProjectId(testPlanScenarioRequest.getProjectId());
         request.setRequestOriginator("TEST_PLAN");
         return apiAutomationService.run(request);
     }
@@ -451,7 +454,7 @@ public class TestPlanScenarioCaseService {
         calculatePlanReport(report, planReportCaseDTOS);
     }
 
-    public void calculatePlanReportByScenarioList(List<TestPlanFailureScenarioDTO> scenarioList,TestPlanSimpleReportDTO report){
+    public void calculatePlanReportByScenarioList(List<TestPlanFailureScenarioDTO> scenarioList, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = new ArrayList<>();
         for (TestPlanFailureScenarioDTO scenario : scenarioList) {
             PlanReportCaseDTO dto = new PlanReportCaseDTO();
@@ -497,7 +500,7 @@ public class TestPlanScenarioCaseService {
     private void calculateScenarioResultDTO(PlanReportCaseDTO item,
                                             TestPlanScenarioStepCountDTO stepCount) {
         if (StringUtils.isNotBlank(item.getReportId())) {
-            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(),false);
+            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(), false);
             if (apiScenarioReportResult != null) {
                 String content = apiScenarioReportResult.getContent();
                 if (StringUtils.isNotBlank(content)) {

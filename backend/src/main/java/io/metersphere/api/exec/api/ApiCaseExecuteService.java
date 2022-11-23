@@ -123,6 +123,7 @@ public class ApiCaseExecuteService {
                     report.setProjectId(plan.getProjectId());
                 }
             }
+            jMeterService.verifyPool(planProjects.get(testPlanApiCase.getTestPlanId()),request.getConfig());
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
             LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
