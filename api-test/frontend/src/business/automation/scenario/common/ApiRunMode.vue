@@ -13,6 +13,7 @@
           :project-list="projectList"
           :case-id-env-name-map="caseIdEnvNameMap"
           :is-scenario="isScenario"
+          :has-option-group="true"
           :project-env-map="projectEnvListMap"
           :group-id="runConfig.environmentGroupId"
           @setProjectEnvMap="setProjectEnvMap"

@@ -31,7 +31,7 @@
     </div>
     <div v-show="radio === ENV_TYPE.GROUP">
       <div>
-        <el-select v-model="groupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
+        <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
                    style="margin-top: 8px;width: 100%;" size="small">
           <el-option v-for="(group, index) in groups" :key="index"
                      :label="group.name"
@@ -75,7 +75,13 @@ export default {
       eventData:[],
       evnList:[],
       selectEnvMap:new Map(),
+      envGroupId: this.groupId,
     }
+  },
+  watch: {
+    groupId(val) {
+      this.envGroupId = val;
+    },
   },
   computed: {
     ENV_TYPE() {
@@ -96,6 +102,7 @@ export default {
   },
   methods: {
     open(){
+      this.envGroupId = this.groupId;
       this.initDefaultEnv();
       this.getgroups();
     },
