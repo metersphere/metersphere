@@ -25,6 +25,7 @@
         <el-date-picker
           v-model="form.createTime"
           type="datetime"
+          @change="changeSyncTime"
           placeholder="选择日期时间">
         </el-date-picker>
       </el-form-item>
@@ -65,6 +66,10 @@ export default {
   methods: {
     open() {
       this.visible = true;
+      let syncTime = localStorage.getItem("ISSUE_SYNC_TIME");
+      if (syncTime) {
+        this.form.createTime = syncTime;
+      }
     },
     save() {
       this.$refs['form'].validate((valid) => {
@@ -78,7 +83,11 @@ export default {
     },
     cancel() {
       this.visible = false;
-      this.$refs.form.resetFields();
+    },
+    changeSyncTime() {
+      if (this.form.createTime) {
+        localStorage.setItem("ISSUE_SYNC_TIME", this.form.createTime);
+      }
     }
   }
 };
