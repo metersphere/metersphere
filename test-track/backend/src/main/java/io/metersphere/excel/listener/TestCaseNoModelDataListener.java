@@ -398,6 +398,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         Map<String, Object> customData = data.getCustomData();
         for (String fieldName : customData.keySet()) {
             Object value = customData.get(fieldName);
+            String originFieldName = fieldName;
+            if (TestCaseImportFiled.MAINTAINER.getFiledLangMap().containsValue(fieldName.replace("(ID)", StringUtils.EMPTY))) {
+                fieldName = fieldName.replace("(ID)", StringUtils.EMPTY); // 兼容旧模板的 责任人(ID)
+            }
             CustomFieldDao customField = customFieldsMap.get(fieldName);
             if (customField == null) {
                 continue;
@@ -407,7 +411,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 customFieldValidator.validate(customField, value.toString());
                 if (customFieldValidator.isKVOption) {
                     // 这里如果填的是选项值，替换成选项ID，保存
-                    customData.put(fieldName, customFieldValidator.parse2Key(value.toString(), customField));
+                    customData.put(originFieldName, customFieldValidator.parse2Key(value.toString(), customField));
                 }
                 if (StringUtils.equalsAny(customField.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue())) {
                     data.getTextFieldSet().add(fieldName);
@@ -420,7 +424,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                 data.setPriority(customData.get(fieldName).toString());
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setMaintainer(customData.get(fieldName).toString());
+                data.setMaintainer(customData.get(originFieldName).toString());
             }
         }
     }
