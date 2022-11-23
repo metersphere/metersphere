@@ -13,6 +13,8 @@
         <env-select-popover :project-ids="projectIds"
                             :project-list="projectList"
                             :project-env-map="projectEnvListMap"
+                            :environment-type.sync="runConfig.environmentType"
+                            :has-option-group="true"
                             :group-id="runConfig.environmentGroupId"
                             @setProjectEnvMap="setProjectEnvMap"
                             @setEnvGroup="setEnvGroup"
