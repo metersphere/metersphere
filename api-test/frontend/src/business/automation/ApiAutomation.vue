@@ -548,6 +548,15 @@ export default {
           if (item.delay) {
             item.delay = Number(item.delay);
           }
+          if (item.disabled || !item.disabled) {
+            delete item.disabled;
+          }
+          if (!item.environmentEnable || item.environmentEnable) {
+            delete item.environmentEnable;
+          }
+          if (item.refEevMap) {
+            delete item.refEevMap;
+          }
           if (item.body && item.body.kvs) {
             item.body.kvs.forEach((v) => {
               if (v.files) {

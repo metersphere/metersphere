@@ -159,6 +159,9 @@ export default {
     },
 
     assignKey(to, from, key) {
+      if (key === 'type') {
+        return;
+      }
       let val = from[key];
       if (val === undefined || val === null) {
         return;
