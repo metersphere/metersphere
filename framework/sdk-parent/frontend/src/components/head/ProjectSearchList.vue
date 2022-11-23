@@ -44,6 +44,7 @@ export default {
     this.userStore = useUserStore();
   },
   inject: [
+    'reload',
     'reloadTopMenus'
   ],
   data() {
@@ -96,7 +97,7 @@ export default {
         return (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
       };
     },
-    reloadPage: function () {
+    reloadPage() {
       // todo refactor permission check
       let redirectUrl = sessionStorage.getItem('redirectUrl');
       let copyRedirectUrl = redirectUrl;
