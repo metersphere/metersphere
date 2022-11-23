@@ -4,7 +4,7 @@
       <div @click="active">
         <el-row :gutter="18" type="flex" align="middle" class="info">
           <el-col class="ms-req-name-col" :span="18" v-if="indexNumber != undefined">
-            <el-tooltip :content="getName(request.name)" placement="top">
+            <el-tooltip :content="getName(request.name)" placement="top" style="z-index: 999">
               <span class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner">{{ indexNumber }}</div>
