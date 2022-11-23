@@ -1082,6 +1082,7 @@ export default {
       this.reqSuccess = 0;
       this.executeType = '';
       this.pluginDelStep = false;
+      this.message = 'STOPPED';
     },
     clearResult(arr) {
       if (arr) {
@@ -1102,6 +1103,7 @@ export default {
           item.data.code = undefined;
           item.testing = undefined;
           item.data.testing = undefined;
+          item.data.debug = false;
           if (item.childNodes && item.childNodes.length > 0) {
             this.clearNodeStatus(item.childNodes);
           }
