@@ -6,6 +6,7 @@ import io.metersphere.base.domain.Plugin;
 import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.mapper.PluginMapper;
+import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -63,6 +64,7 @@ public class PluginService {
     public void loadPlugins() {
         try {
             PluginExample example = new PluginExample();
+            example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
             List<Plugin> plugins = pluginMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(plugins)) {
                 plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
