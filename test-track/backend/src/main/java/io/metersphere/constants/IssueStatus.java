@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public enum IssueStatus {
     status_new("new", "new"),
+    status_created("created", "new"),
     status_resolved("resolved", "resolved"),
     status_closed("closed", "closed"),
     status_active("active", "active"),

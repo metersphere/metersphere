@@ -200,11 +200,21 @@ public class TrackService {
         // 缺陷是否有状态
         List<String> unClosedIds;
         if (MapUtils.isEmpty(statusMap)) {
+            // 未找到自定义字段状态, 则获取平台状态
+            IssuesRequest issuesRequest = new IssuesRequest();
+            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+            issuesRequest.setFilterIds(issueIds);
+            List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
+            statusMap = issues.stream().collect(Collectors.toMap(IssuesDao::getId, IssuesDao::getPlatformStatus));
+        }
+
+        if (MapUtils.isEmpty(statusMap)) {
             unClosedIds = issueIds;
             bugSizeMap.put("unClosed", issueIds.size());
         } else {
+            Map<String, String> tmpStatusMap = statusMap;
             unClosedIds = issueIds.stream()
-                    .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                    .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                     .collect(Collectors.toList());
             bugSizeMap.put("unClosed", unClosedIds.size());
         }
@@ -222,9 +232,18 @@ public class TrackService {
         JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
         Map<String, Integer> bugStatusMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(planIds)) {
-            planIds.forEach(planId -> {
+            for (String planId : planIds) {
                 List<String> issueIds = extTestCaseMapper.getTestPlanBug(planId);
                 Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
+                if (MapUtils.isEmpty(statusMap)) {
+                    // 未找到自定义字段状态, 则获取平台状态
+                    IssuesRequest issuesRequest = new IssuesRequest();
+                    issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                    issuesRequest.setFilterIds(issueIds);
+                    List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
+                    statusMap = issues.stream().collect(Collectors.toMap(IssuesDao::getId, IssuesDao::getPlatformStatus));
+                }
+
                 if (MapUtils.isEmpty(statusMap)) {
                     Integer count = bugStatusMap.get(Translator.get("new"));
                     if (count == null) {
@@ -234,8 +253,9 @@ public class TrackService {
                         bugStatusMap.put(Translator.get("new"), count);
                     }
                 } else {
+                    Map<String, String> tmpStatusMap = statusMap;
                     List<String> unClosedIds = issueIds.stream()
-                            .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                            .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                             .collect(Collectors.toList());
                     for (String unClosedId : unClosedIds) {
                         String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
@@ -264,7 +284,7 @@ public class TrackService {
                         }
                     }
                 }
-            });
+            }
         }
         if (MapUtils.isEmpty(bugStatusMap)) {
             for (IssueStatus statusEnum : IssueStatus.values()) {
