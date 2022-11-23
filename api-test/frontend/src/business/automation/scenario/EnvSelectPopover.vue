@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div v-for="(pe, pIndex) in eventData" :key="pe.id">
+    <el-radio-group v-model="radio" style="width: 100%" @change="radioChange" class="radio-change">
+      <el-radio :label="ENV_TYPE.JSON">{{ $t('workspace.env_group.env_list') }}</el-radio>
+      <el-radio :label="ENV_TYPE.GROUP"  v-if="isScenario">{{ $t('workspace.env_group.name') }}<i class="el-icon-tickets mode-span" @click="viewGroup"></i></el-radio>
+    </el-radio-group>
+    <div v-for="(pe, pIndex) in eventData" :key="pe.id" v-show="!radio || radio === ENV_TYPE.JSON">
       <el-card shadow="never" style="margin-top: 8px; background: #f5f6f7; border-radius: 4px">
         <i
           @click="expandCard(pIndex)"
@@ -46,6 +50,26 @@
         </div>
       </el-card>
     </div>
+    <div v-show="radio === ENV_TYPE.GROUP">
+      <div>
+        <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
+                   style="margin-top: 8px;width: 100%;" size="small">
+          <el-option v-for="(group, index) in groups" :key="index"
+                     :label="group.name"
+                     :value="group.id"/>
+        </el-select>
+
+      </div>
+      <el-dialog :visible="visible" append-to-body :title="$t('workspace.env_group.name')" @close="visible = false"
+                 style="height: 800px;">
+        <template>
+          <environment-group style="overflow-y: auto;"
+                             :screen-height="'350px'"
+                             :read-only="true"
+          ></environment-group>
+        </template>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -55,10 +79,11 @@ import { environmentGetALL } from 'metersphere-frontend/src/api/environment';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
 import { parseEnvironment } from 'metersphere-frontend/src/model/EnvironmentModel';
 import { getEnvironmentByProjectId } from '@/api/api-environment';
+import EnvironmentGroup from '@/business/commons/EnvironmentGroupList';
 
 export default {
   name: 'EnvSelectPopover',
-  components: { MsTag },
+  components: { EnvironmentGroup,MsTag },
   data() {
     return {
       radio: ENV_TYPE.JSON,
@@ -69,6 +94,7 @@ export default {
       eventData: [],
       evnList: [],
       selectEnvMap: new Map(),
+      envGroupId: this.groupId,
     };
   },
   computed: {
@@ -92,11 +118,32 @@ export default {
       type: Boolean,
       default: true,
     },
+    hasOptionGroup: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
+    btnStyle: {
+      type: Object,
+      default() {
+        return { width: '360px' };
+      },
+    },
+  },
+  watch: {
+    groupId(val) {
+      this.envGroupId = val;
+    },
   },
   methods: {
     open() {
+      this.envGroupId = this.groupId;
       this.initDefaultEnv();
       this.getgroups();
+    },
+    chooseEnvGroup(envGroupId){
+      this.$emit("setEnvGroup", envGroupId);
     },
     radioChange(val) {
       this.radio = val;
@@ -155,7 +202,7 @@ export default {
           if (this.isScenario) {
             if (this.projectEnvMap) {
               let projectEnvMapElement = this.projectEnvMap[d];
-              if (projectEnvMapElement.length > 0) {
+              if (projectEnvMapElement && projectEnvMapElement.length > 0) {
                 projectEnvMapElement.forEach((envId) => {
                   let filter = envs.filter((e) => e.id === envId);
                   if (!this.selectedEnvName.has(d)) {
