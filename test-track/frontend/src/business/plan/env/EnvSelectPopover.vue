@@ -38,7 +38,7 @@
                      :value="group.id"/>
         </el-select>
         <el-select v-show="hasOptionGroup" v-model="envGroupId" :placeholder="$t('workspace.env_group.select')"
-                   style="margin-top: 8px;width: 100%;" size="small" clearable>
+                   style="margin-top: 8px;width: 100%;" @change="chooseEnvGroup" size="small" clearable>
           <el-option-group
             v-for="group in groups"
             :key="group.label"
