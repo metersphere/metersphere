@@ -31,11 +31,26 @@
     </div>
     <div v-show="radio === ENV_TYPE.GROUP">
       <div>
-        <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
+        <el-select v-show="!hasOptionGroup" v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
                    style="margin-top: 8px;width: 100%;" size="small">
           <el-option v-for="(group, index) in groups" :key="index"
                      :label="group.name"
                      :value="group.id"/>
+        </el-select>
+        <el-select v-show="hasOptionGroup" v-model="envGroupId" :placeholder="$t('workspace.env_group.select')"
+                   style="margin-top: 8px;width: 100%;" size="small" clearable>
+          <el-option-group
+            v-for="group in groups"
+            :key="group.label"
+            :label="group.label">
+            <el-option
+              v-for="item in group.options"
+              :key="item.name"
+              :label="item.name"
+              :disabled="item.disabled"
+              :value="item.id">
+            </el-option>
+          </el-option-group>
         </el-select>
 
       </div>
@@ -56,7 +71,7 @@
 <script>
 
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {environmentGetALL} from "metersphere-frontend/src/api/environment";
+import {environmentGetALL,getEnvironmentOptions} from "metersphere-frontend/src/api/environment";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import {getEnvironmentByProjectId} from "@/api/remote/api/api-environment";
@@ -67,9 +82,11 @@ export default {
   components: {MsTag,EnvironmentGroup},
   data(){
     return {
-      radio:ENV_TYPE.JSON,
+      radio: this.environmentType,
       visible: false,
       groups:[],
+      disabledGroups: [],
+      notDisabledGroups: [],
       selectedEnvName:new Map(),
       showEnvName:false,
       eventData:[],
@@ -82,6 +99,9 @@ export default {
     groupId(val) {
       this.envGroupId = val;
     },
+    environmentType(val) {
+      this.radio = val;
+    }
   },
   computed: {
     ENV_TYPE() {
@@ -93,10 +113,17 @@ export default {
     projectList:Array,
     projectEnvMap:Object,
     envMap: Map,
+    environmentType: String,
     groupId: {
       type: String,
       default() {
         return "";
+      }
+    },
+    hasOptionGroup: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
   },
@@ -107,7 +134,7 @@ export default {
       this.getgroups();
     },
     radioChange(val){
-      this.radio = val;
+      this.$emit("update:environmentType", val);
     },
     getProjectName(id) {
       const project = this.projectList.find(p => p.id === id);
@@ -121,10 +148,27 @@ export default {
       this.visible = true;
     },
     getgroups(){
-      environmentGetALL().then(res => {
-        let data = res.data;
-        this.groups = data ? data : [];
-      })
+      if (!this.hasOptionGroup){
+        environmentGetALL().then(res => {
+          let data = res.data;
+          this.groups = data ? data : [];
+        })
+      } else {
+        getEnvironmentOptions({projectIds: [...this.projectIds]}).then(res => {
+          let groups = res.data;
+          this.disabledGroups = groups.filter(group => group.disabled === true);
+          this.notDisabledGroups = groups.filter(group => group.disabled === false);
+          this.$set(this.groups, 0, {
+            label: this.$t('workspace.env_group.available_group'),
+            options: this.notDisabledGroups
+          });
+          this.$set(this.groups, 1, {
+            label: this.$t('workspace.env_group.not_available_group'),
+            options: this.disabledGroups
+          });
+        })
+      }
+
     },
     chooseEnv(val){
       let filter = this.evnList.filter(e => e.id === val);

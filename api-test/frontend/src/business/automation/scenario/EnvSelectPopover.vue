@@ -50,15 +50,33 @@
         </div>
       </el-card>
     </div>
-    <div v-show="radio === ENV_TYPE.GROUP">
-      <div>
-        <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
+    <div v-show="radio === ENV_TYPE.GROUP ">
+      <div >
+        <el-select  v-show="!hasOptionGroup" v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" @change="chooseEnvGroup"
                    style="margin-top: 8px;width: 100%;" size="small">
           <el-option v-for="(group, index) in groups" :key="index"
+                     :disabled="group.disabled"
                      :label="group.name"
                      :value="group.id"/>
         </el-select>
-
+        <el-select
+          v-show="hasOptionGroup"
+          v-model="envGroupId"
+          :placeholder="$t('workspace.env_group.select')"
+          style="margin-top: 8px;width: 100%;"
+          size="small"
+          @change="chooseEnvGroup"
+          clearable>
+          <el-option-group v-for="group in groups" :key="group.label" :label="group.label">
+            <el-option
+              v-for="item in group.options"
+              :key="item.name"
+              :label="item.name"
+              :disabled="item.disabled"
+              :value="item.id">
+            </el-option>
+          </el-option-group>
+        </el-select>
       </div>
       <el-dialog :visible="visible" append-to-body :title="$t('workspace.env_group.name')" @close="visible = false"
                  style="height: 800px;">
@@ -70,25 +88,30 @@
         </template>
       </el-dialog>
     </div>
+    <!-- 对环境组选项进行分类 可用｜不可用 -->
+
   </div>
 </template>
 
 <script>
 import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
-import { environmentGetALL } from 'metersphere-frontend/src/api/environment';
+import { environmentGetALL,getEnvironmentOptions } from 'metersphere-frontend/src/api/environment';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
 import { parseEnvironment } from 'metersphere-frontend/src/model/EnvironmentModel';
 import { getEnvironmentByProjectId } from '@/api/api-environment';
 import EnvironmentGroup from '@/business/commons/EnvironmentGroupList';
+import EnvGroupWithOption from "@/business/automation/scenario/EnvGroupWithOption";
 
 export default {
   name: 'EnvSelectPopover',
-  components: { EnvironmentGroup,MsTag },
+  components: { EnvironmentGroup,MsTag,EnvGroupWithOption},
   data() {
     return {
-      radio: ENV_TYPE.JSON,
+      radio: this.environmentType,
       visible: false,
       groups: [],
+      disabledGroups: [],
+      notDisabledGroups: [],
       selectedEnvName: new Map(),
       showEnvName: false,
       eventData: [],
@@ -108,6 +131,7 @@ export default {
     projectEnvMap: Object,
     caseIdEnvNameMap: Object,
     envMap: Map,
+    environmentType: String,
     groupId: {
       type: String,
       default() {
@@ -135,6 +159,9 @@ export default {
     groupId(val) {
       this.envGroupId = val;
     },
+    environmentType(val) {
+      this.radio = val;
+    },
   },
   methods: {
     open() {
@@ -146,7 +173,7 @@ export default {
       this.$emit("setEnvGroup", envGroupId);
     },
     radioChange(val) {
-      this.radio = val;
+      this.$emit('update:environmentType', val);
     },
     getProjectName(id) {
       const project = this.projectList.find((p) => p.id === id);
@@ -160,10 +187,28 @@ export default {
       this.visible = true;
     },
     getgroups() {
-      environmentGetALL().then((res) => {
-        let data = res.data;
-        this.groups = data ? data : [];
-      });
+      if (this.hasOptionGroup) {
+        getEnvironmentOptions({
+          projectIds: [...this.projectIds],
+        }).then((res) => {
+          let groups = res.data;
+          this.disabledGroups = groups.filter((group) => group.disabled === true);
+          this.notDisabledGroups = groups.filter((group) => group.disabled === false);
+          this.$set(this.groups, 0, {
+            label: this.$t('workspace.env_group.available_group'),
+            options: this.notDisabledGroups,
+          });
+          this.$set(this.groups, 1, {
+            label: this.$t('workspace.env_group.not_available_group'),
+            options: this.disabledGroups,
+          });
+        });
+      } else {
+        environmentGetALL().then((res) => {
+          let data = res.data;
+          this.groups = data ? data : [];
+        });
+      }
     },
     chooseEnv(val) {
       let filter = this.evnList.filter((e) => e.id === val);
@@ -234,6 +279,7 @@ export default {
         this.eventData[index].expendStatus = 'open';
       }
     },
+
   },
 };
 </script>
