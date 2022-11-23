@@ -33,13 +33,13 @@
               v-if="item.id == 'num'"
               :fields-width="fieldsWidth"
               sortable
-              prop="customNum"
+              prop="num"
               min-width="80px"
               label="ID">
              <template v-slot:default="scope">
                <el-link @click="openById(scope.row)">
                   <span>
-                    {{ scope.row.customNum }}
+                    {{ scope.row.num }}
                   </span>
                </el-link>
             </template>
