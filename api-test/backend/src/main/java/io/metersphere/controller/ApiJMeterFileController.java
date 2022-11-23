@@ -3,6 +3,9 @@ package io.metersphere.controller;
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.service.ApiJMeterFileService;
+import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,8 @@ public class ApiJMeterFileController {
 
     @Resource
     private ApiJMeterFileService apiJmeterFileService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @GetMapping("stop/{name}")
     public String stop(@PathVariable String name) {
@@ -67,5 +72,13 @@ public class ApiJMeterFileController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getReportId() + ".zip\"")
                 .body(bytes);
+    }
+    @GetMapping("get-script")
+    public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
+        String key = StringUtils.join(reportId, "-", testId);
+        LoggerUtil.info("获取执行脚本", key);
+        Object script = redisTemplate.opsForValue().get(key);
+        redisTemplate.delete(key);
+        return script != null ? script.toString() : "";
     }
 }
