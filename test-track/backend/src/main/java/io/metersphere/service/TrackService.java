@@ -8,7 +8,9 @@ import io.metersphere.base.domain.TestPlanExample;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.commons.constants.CustomFieldScene;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.IssueStatus;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.BugStatistics;
@@ -18,6 +20,7 @@ import io.metersphere.dto.TrackCountResult;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,7 +54,27 @@ public class TrackService {
     private ExtIssuesMapper extIssuesMapper;
 
     public List<TrackCountResult> countPriority(String projectId) {
-        return extTestCaseMapper.countPriority(projectId);
+        List<TrackCountResult> trackCountResults = extTestCaseMapper.countPriority(projectId);
+        trackCountResults.forEach(trackCountResult -> {
+            String groupField = trackCountResult.getGroupField();
+            if (StringUtils.isNotEmpty(groupField) && !StringUtils.equalsAnyIgnoreCase(groupField,
+                    TrackCount.P0, TrackCount.P1, TrackCount.P2, TrackCount.P3)) {
+                // 系统字段自定义选项值
+                CustomField priorityField = baseCustomFieldService.getCustomFieldByName(SessionUtils.getCurrentProjectId(), SystemCustomField.CASE_PRIORITY);
+                if (priorityField != null && StringUtils.equals(priorityField.getScene(), CustomFieldScene.TEST_CASE.name())) {
+                    String options = priorityField.getOptions();
+                    List<Map> optionMapList = JSONArray.parseArray(options, Map.class);
+                    optionMapList.forEach(optionMap -> {
+                        String text = optionMap.get("text").toString();
+                        String value = optionMap.get("value").toString();
+                        if (StringUtils.equals(groupField, value)) {
+                            trackCountResult.setGroupField(text);
+                        }
+                    });
+                }
+            }
+        });
+        return trackCountResults;
     }
 
     public long countCreatedThisWeek(String projectId) {
