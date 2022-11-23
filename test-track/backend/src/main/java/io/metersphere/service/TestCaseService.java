@@ -1771,11 +1771,11 @@ public class TestCaseService {
             for (int j = 0; j < jsonArray.size(); j++) {
                 // 将步骤存储起来，之后生成多条数据，再合并单元格
                 Map item = (Map) jsonArray.get(j);
-                String stepDesc = item.get("desc").toString();
-                String stepResult = item.get("result").toString();
+                String stepDesc = Optional.ofNullable(item.get("desc")).orElse(StringUtils.EMPTY).toString();
+                String stepResult = Optional.ofNullable(item.get("result")).orElse(StringUtils.EMPTY).toString();
                 if (StringUtils.isNotBlank(stepDesc) || StringUtils.isNotBlank(stepResult)) {
-                    stepDescList.add(Optional.ofNullable(stepDesc).orElse(StringUtils.EMPTY));
-                    stepResultList.add(Optional.ofNullable(stepResult).orElse(StringUtils.EMPTY));
+                    stepDescList.add(stepDesc);
+                    stepResultList.add(stepResult);
                 }
             }
         }
