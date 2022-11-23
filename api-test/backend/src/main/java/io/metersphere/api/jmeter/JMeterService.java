@@ -146,11 +146,18 @@ public class JMeterService {
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
             try {
+                // 缓存调试脚本
+                if (request.getHashTree() != null) {
+                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+                }
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
                 remakeReportService.testEnded(request, e.getMessage());
+                String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+                redisTemplate.delete(key);
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -168,13 +175,18 @@ public class JMeterService {
             ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
             if (apiPoolDebugService != null) {
                 List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
-                request.setJmxScript(new MsTestPlan().getJmx(request.getHashTree()));
-                request.setHashTree(null);
+                if (request.getHashTree() != null) {
+                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+                    request.setHashTree(null);
+                }
                 apiPoolDebugService.run(request, resources);
             }
         } catch (Exception e) {
             LoggerUtil.error(e);
             remakeReportService.remake(request);
+            String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+            redisTemplate.delete(key);
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
             MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
         }

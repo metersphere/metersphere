@@ -39,6 +39,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/jar/**", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/plug/jar", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/get-script", "anon");
 
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
