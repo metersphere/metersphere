@@ -30,6 +30,7 @@ import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -594,7 +595,7 @@ public class PerformanceTestService {
         request.setProjectId(copy.getProjectId());
         checkQuota(request, true);
         // copy test
-        String copyName = copy.getName() + " Copy";
+        String copyName = copy.getName() + "_" + RandomStringUtils.randomAlphanumeric(5);
 
         if (StringUtils.length(copyName) > 30) {
             MSException.throwException(Translator.get("load_test_name_length"));
