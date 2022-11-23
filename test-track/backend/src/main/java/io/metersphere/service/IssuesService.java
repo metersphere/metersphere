@@ -1700,11 +1700,21 @@ public class IssuesService {
 
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
         if (MapUtils.isEmpty(statusMap)) {
+            // 未找到自定义字段状态, 则获取平台状态
+            IssuesRequest issuesRequest = new IssuesRequest();
+            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
+            issuesRequest.setFilterIds(issueIds);
+            List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
+            statusMap = issues.stream().collect(Collectors.toMap(IssuesDao::getId, IssuesDao::getPlatformStatus));
+        }
+
+        if (MapUtils.isEmpty(statusMap)) {
             request.setFilterIds(issueIds);
         } else {
             if (request.getThisWeekUnClosedTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
+                Map<String, String> tmpStatusMap = statusMap;
                 List<String> unClosedIds = issueIds.stream()
-                        .filter(id -> !StringUtils.equals(statusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
+                        .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                         .collect(Collectors.toList());
                 request.setFilterIds(unClosedIds);
             } else {
