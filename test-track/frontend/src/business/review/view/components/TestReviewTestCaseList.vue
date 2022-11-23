@@ -40,31 +40,12 @@
     >
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
-          v-if="!customNum"
-          :field="item"
+          v-if="item.id == 'num'"
+          prop="customNum"
+          sortable="custom"
           :fields-width="fieldsWidth"
-          :column-key="'num'"
-          :prop="'num'"
-          sortable
           :label="$t('commons.id')"
-          min-width="80">
-          <template v-slot:default="scope">
-            {{ scope.row.num }}
-          </template>
-        </ms-table-column>
-
-        <ms-table-column
-          v-if="item.id === 'num' && customNum"
-          :fields-width="fieldsWidth"
-          :column-key="'customNum'"
-          :prop="'customNum'"
-          sortable
-          :label="$t('commons.id')"
-          min-width="80">
-          <template v-slot:default="scope">
-            {{ scope.row.customNum }}
-          </template>
-        </ms-table-column>
+          min-width="120px"/>
 
         <ms-table-column
           prop="name"
@@ -340,9 +321,6 @@ export default {
     },
     editTestReviewTestCaseOrder() {
       return editTestReviewTestCaseOrder;
-    },
-    customNum() {
-      return useStore().currentProjectIsCustomNum;
     },
     projectId() {
       return getCurrentProjectID();

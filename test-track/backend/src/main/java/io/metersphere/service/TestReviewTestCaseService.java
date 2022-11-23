@@ -48,15 +48,13 @@ public class TestReviewTestCaseService {
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
     @Resource
-    io.metersphere.service.TestCaseReviewService testCaseReviewService;
+    TestCaseReviewService testCaseReviewService;
     @Resource
     TestCaseMapper testCaseMapper;
     @Resource
-    io.metersphere.service.TestCaseService testCaseService;
-//    @Resource
-//    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    TestCaseService testCaseService;
     @Resource
-    io.metersphere.service.TestCaseCommentService testCaseCommentService;
+    TestCaseCommentService testCaseCommentService;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
