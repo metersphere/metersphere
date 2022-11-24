@@ -185,6 +185,7 @@ export default {
         },
         series: [
           {
+            minAngle: 3,
             type: 'pie',
             radius: [75, 100],
             center: ['104px', '50%'],
