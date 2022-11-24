@@ -19,16 +19,38 @@
       <div v-show="!loadError">
         <el-table class="adjust-table table-content" :data="tableData" @row-click="intoPlan"
                   header-cell-class-name="home-table-cell" style="min-height: 228px">
-          <el-table-column type="index" :label="$t('home.table.index')" show-overflow-tooltip width="100" />
-          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip min-width="200" />
-          <el-table-column prop="status" :label="$t('test_track.plan.plan_status')" width="90">
+          <el-table-column
+            type="index"
+            :label="$t('home.table.index')"
+            show-overflow-tooltip
+            width="100px"/>
+          <el-table-column
+            prop="name"
+            :label="$t('commons.name')"
+            show-overflow-tooltip
+            min-width="200px"/>
+          <el-table-column
+            prop="status"
+            :label="$t('test_track.plan.plan_status')"
+            min-width="100px">
             <template v-slot:default="scope">
               <basic-status-label :value="scope.row.status"></basic-status-label>
             </template>
           </el-table-column>
-          <el-table-column prop="creator" :label="$t('test_track.review.creator')" show-overflow-tooltip min-width="150" />
-          <el-table-column prop="reviewerName" :label="$t('test_track.review.reviewer')" show-overflow-tooltip min-width="150" />
-          <el-table-column :label="$t('test_track.review.result_distribution')" show-overflow-tooltip min-width="200">
+          <el-table-column
+            prop="creator"
+            :label="$t('test_track.review.creator')"
+            show-overflow-tooltip
+            min-width="100px"/>
+          <el-table-column
+            prop="reviewerName"
+            :label="$t('test_track.review.reviewer')"
+            show-overflow-tooltip
+            min-width="300px"/>
+          <el-table-column
+            :label="$t('test_track.review.result_distribution')"
+            show-overflow-tooltip
+            min-width="300px">
             <template v-slot:default="scope">
               <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass)"
                           placement="top" :enterable="false" class="item" effect="dark">

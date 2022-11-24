@@ -13,8 +13,15 @@
       <div v-show="!loadError">
         <el-table :data="tableData" class="adjust-table table-content"
                   header-cell-class-name="home-table-cell" style="min-height: 228px">
-          <el-table-column type="index" :label="$t('home.case.index')" show-overflow-tooltip width="100" />
-          <el-table-column prop="caseName" :label="$t('home.case.case_name')" min-width="200">
+          <el-table-column
+            type="index"
+            :label="$t('home.case.index')"
+            show-overflow-tooltip
+            width="100px"/>
+          <el-table-column
+            prop="caseName"
+            :label="$t('home.case.case_name')"
+            min-width="200px">
             <template v-slot:default="{row}">
               <el-link style="color: #783887; width: 100%;" :underline="false" type="info" @click="redirect(row.caseType,row.id)"
                        :disabled="(row.caseType === 'apiCase' && apiCaseReadOnly) || (row.caseType === 'scenario' && apiScenarioReadOnly) ||
@@ -23,19 +30,31 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="caseType" :label="$t('home.case.case_type')" show-overflow-tooltip column-key="caseType" width="100">
+          <el-table-column
+            prop="caseType"
+            :label="$t('home.case.case_type')"
+            show-overflow-tooltip
+            column-key="caseType"
+            min-width="100px">
             <template v-slot:default="scope">
               <basic-case-type-label :value="scope.row.caseType"></basic-case-type-label>
             </template>
           </el-table-column>
-          <el-table-column prop="testPlan" :label="$t('home.case.test_plan')" min-width="200">
+          <el-table-column
+            prop="testPlan"
+            :label="$t('home.case.test_plan')"
+            min-width="300px">
             <template v-slot:default="{row}">
               <el-link style="color: #783887; width: 100%;" :underline="false" type="info" @click="redirect('testPlanEdit',row.testPlanId)" v-permission-disable="['PROJECT_TRACK_PLAN:READ']">
                 {{ row.testPlan }}
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="failureTimes" :label="$t('home.case.failure_times')" show-overflow-tooltip align="right" width="120"/>
+          <el-table-column
+            prop="failureTimes"
+            :label="$t('home.case.failure_times')"
+            show-overflow-tooltip
+            min-width="100px"/>
           <template #empty>
             <div
               style="width: 100%;height: 144px;display: flex;flex-direction: column;justify-content: center;align-items: center">
