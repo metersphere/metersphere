@@ -1556,7 +1556,7 @@ public class TestPlanService {
 
     public String runPlan(TestPlanRunRequest testplanRunRequest) {
         //检查测试计划下有没有可以执行的用例；
-        if (!haveExecCase(testplanRunRequest.getTestPlanId())) {
+        if (!haveExecCase(testplanRunRequest.getTestPlanId(), false)) {
             MSException.throwException(Translator.get("plan_warning"));
         }
         String envType = testplanRunRequest.getEnvironmentType();
@@ -1626,7 +1626,7 @@ public class TestPlanService {
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 
-    public boolean haveExecCase(String planId) {
+    public boolean haveExecCase(String planId, boolean ignoreUI) {
         if (StringUtils.isBlank(planId)) {
             return false;
         }
@@ -1637,6 +1637,12 @@ public class TestPlanService {
 
         if (planTestPlanScenarioCaseService.haveExecCase(planId)) {
             return true;
+        }
+
+        if (!ignoreUI) {
+            if (planTestPlanUiScenarioCaseService.haveUiCase(planId)) {
+                return true;
+            }
         }
 
         return planTestPlanLoadCaseService.haveExecCase(planId);
@@ -1781,7 +1787,7 @@ public class TestPlanService {
                     append.append("/");
                 }
             }
-            if (!haveExecCase(planList.get(i).getId())) {
+            if (!haveExecCase(planList.get(i).getId(), false)) {
                 haveExecCaseBuilder.append(planList.get(i).getName()).append("; ");
             }
         }
