@@ -14,7 +14,6 @@ import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.ResultDTO;
@@ -27,7 +26,6 @@ import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,17 +86,6 @@ public class TestResultService {
      * @param dto 执行结果
      */
     public void saveResults(ResultDTO dto) {
-        String userId = null;
-        if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
-            userId = dto.getExtendedParameters().get("userId").toString();
-        }
-        if (StringUtils.isNotEmpty(userId)) {
-            User user = new User();
-            user.setId(userId);
-            user.setName(userId);
-            HttpHeaderUtils.runAsUser(user);
-        }
-
         // 处理环境
         List<String> environmentList = new LinkedList<>();
         if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
@@ -118,10 +105,6 @@ public class TestResultService {
         } else if (scenarioRunModes.contains(dto.getRunMode())) {
             // 场景报告结果处理
             apiScenarioReportService.saveResult(dto);
-        }
-
-        if (StringUtils.isNotEmpty(userId)) {
-            HttpHeaderUtils.clearUser();
         }
     }
 
@@ -151,14 +134,11 @@ public class TestResultService {
                 }
             }
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-            if (StringUtils.equals(key, "schedule-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(resultDTOS, true);
-            } else if (StringUtils.equals(key, "api-test-case-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(resultDTOS, false);
+            if (StringUtils.equalsAny(key, "schedule-task", "api-test-case-task")) {
+                apiDefinitionExecResultService.batchSaveApiResult(resultDTOS);
             } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
                 apiScenarioReportService.batchSaveResult(resultDTOS);
             }
-
         }
     }
 
