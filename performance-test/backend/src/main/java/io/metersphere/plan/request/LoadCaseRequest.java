@@ -26,5 +26,8 @@ public class LoadCaseRequest extends TestPlanLoadCase {
 
     private List<String> notInIds;
 
+    // 查询功能用例需要关联的性能测试列表
+    private String testCaseId;
+
     private Boolean allowedRepeatCase = false;
 }
