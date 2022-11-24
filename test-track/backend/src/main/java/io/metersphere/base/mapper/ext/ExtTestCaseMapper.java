@@ -91,7 +91,7 @@ public interface ExtTestCaseMapper {
 
     List<String> getTestPlanBug(@Param("planId") String planId);
 
-    Long getTestPlanThisWeekBugCount(@Param("planId") String planId, @Param("ids") List<String> ids);
+    Long getTestPlanThisWeekBugCount(@Param("projectId") String projectId, @Param("ids") List<String> ids);
 
     int getTestPlanCase(@Param("planId") String planId);
 

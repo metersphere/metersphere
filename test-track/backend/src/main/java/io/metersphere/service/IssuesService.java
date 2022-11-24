@@ -58,6 +58,7 @@ import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
+import jodd.util.CollectionUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -1700,10 +1701,12 @@ public class IssuesService {
             issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
         } else if (request.getAllTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
             issueIds = extIssuesMapper.getTestPlanIssue(request.getProjectId());
+        } else {
+            issueIds = Collections.EMPTY_LIST;
         }
 
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
-        if (MapUtils.isEmpty(statusMap)) {
+        if (MapUtils.isEmpty(statusMap) && CollectionUtils.isNotEmpty(issueIds)) {
             // 未找到自定义字段状态, 则获取平台状态
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
