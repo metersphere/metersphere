@@ -4,8 +4,10 @@ package io.metersphere.api.exec.generator;
 import com.google.gson.*;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.EnumPropertyUtil;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -293,12 +295,12 @@ public class JSONSchemaRunTest {
             }
             Map<String, String> map = new HashMap<>();
             String json = formerJson(jsonSchema, map);
-            if (!map.isEmpty()) {
+            if (MapUtils.isNotEmpty(map)) {
                 for (String str : map.keySet()) {
                     json = json.replace(str, map.get(str));
                 }
             }
-            return json;
+            return JSONUtil.parser(json);
         } catch (Exception ex) {
             return jsonSchema;
         }
