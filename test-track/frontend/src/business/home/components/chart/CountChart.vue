@@ -126,6 +126,7 @@ export default {
           selectedMode: dataIsNotEmpty,
           itemGap: 16,
           left: '50%',
+          top: 50,
           y: 'center',
           itemHeight: 8,
           itemWidth: 8, //修改icon图形大小
@@ -212,6 +213,7 @@ export default {
             avoidLabelOverlap: false,
             hoverAnimation: dataIsNotEmpty,
             legendHoverLink: false,
+            minAngle: 5,
             label: {
               show: false,
             },
