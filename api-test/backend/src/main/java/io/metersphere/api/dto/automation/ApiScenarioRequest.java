@@ -35,6 +35,9 @@ public class ApiScenarioRequest extends BaseQueryRequest {
      */
     private boolean selectEnvironment = false;
 
+    // 查询功能用例需要关联的场景测试列表
+    private String testCaseId;
+
     //测试计划关联场景过滤掉步骤为0的场景
     private String stepTotal;
 }
