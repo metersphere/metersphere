@@ -7,7 +7,6 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
-import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
@@ -38,8 +37,6 @@ public class MsHashTreeService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiDefinitionService apiDefinitionService;
-    @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
