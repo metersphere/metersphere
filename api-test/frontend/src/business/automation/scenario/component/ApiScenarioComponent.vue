@@ -21,7 +21,12 @@
     :envMap="envMap"
     :title="$t('commons.scenario')">
     <template v-slot:afterTitle>
-      <span v-if="isShowNum" @click="clickResource(scenario)">{{ '（ ID: ' + scenario.num + '）' }}</span>
+      <span v-if="isShowNum && !scenario.showCustomNum" @click="clickResource(scenario)">
+        {{ '（ ID: ' + scenario.num + '）' }}
+      </span>
+      <span v-else-if="isShowNum && scenario.showCustomNum" @click="clickResource(scenario)">
+        {{ '（ ID: ' + scenario.customNum + '）' }}
+      </span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning" />
@@ -34,7 +39,7 @@
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Deleted'" type="danger">
         {{ $t('api_test.automation.reference_deleted') }}
       </el-tag>
-      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Copy'"> {{ $t('commons.copy') }} </el-tag>
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'REF'"
         >{{ $t('api_test.scenario.reference') }}
       </el-tag>
