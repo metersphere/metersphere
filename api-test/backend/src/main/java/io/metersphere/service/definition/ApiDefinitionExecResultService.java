@@ -31,6 +31,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,6 +134,17 @@ public class ApiDefinitionExecResultService {
         ApiTestCaseMapper batchApiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
         for (ResultDTO dto : resultDTOS) {
+            String userId = null;
+            if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
+                userId = dto.getExtendedParameters().get("userId").toString();
+            }
+            if (StringUtils.isNotEmpty(userId)) {
+                User user = new User();
+                user.setId(userId);
+                user.setName(userId);
+                HttpHeaderUtils.runAsUser(user);
+            }
+
             this.mergeRetryResults(dto);
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                 for (RequestResult item : dto.getRequestResults()) {
@@ -155,6 +167,10 @@ public class ApiDefinitionExecResultService {
                         }
                     }
                 }
+            }
+
+            if (StringUtils.isNotEmpty(userId)) {
+                HttpHeaderUtils.clearUser();
             }
         }
         sqlSession.flushStatements();

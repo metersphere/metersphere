@@ -68,7 +68,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             sampleResults = RetryResultUtil.clearLoops(sampleResults);
             JMeterBase.resultFormatting(sampleResults, dto);
             testResultService.saveResults(dto);
-
             resultVO = ReportStatusUtil.getStatus(dto, resultVO);
             dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, resultVO);
             sampleResults.clear();
