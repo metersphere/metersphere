@@ -147,6 +147,7 @@ public class GroupService {
         Group group = new Group();
         request.setScopeId(null);
         BeanUtils.copyBean(group, request);
+        group.setCreator(SessionUtils.getUserId());
         group.setUpdateTime(System.currentTimeMillis());
         groupMapper.updateByPrimaryKeySelective(group);
     }
