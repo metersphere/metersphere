@@ -57,12 +57,8 @@
 
             <api-report-request-header-item :title="$t('api_report.result')" style="width: 50px">
               <el-tag v-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }} </el-tag>
-              <el-tag v-else-if="!request.success && request.status && request.status === 'PENDING'"
-                >{{ $t('api_test.home_page.detail_card.unexecute') }}
-              </el-tag>
-              <el-tag v-else-if="request.errorCode" class="ms-test-error_code">
-                {{ $t('error_report_library.option.name') }}
-              </el-tag>
+              <el-tag v-else-if="!request.success && request.status && request.status === 'PENDING'">Pending </el-tag>
+              <el-tag v-else-if="request.errorCode" class="ms-test-error_code"> FakeError </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> Success </el-tag>
               <el-tag size="mini" type="danger" v-else> Error </el-tag>
             </api-report-request-header-item>
