@@ -296,9 +296,14 @@ public class TestPlanController {
         return schedule;
     }
 
+    /***
+     * 只检查是否有API，性能用例
+     * @param id
+     * @return
+     */
     @GetMapping("/have/exec/case/{id}")
     public boolean haveExecCase(@PathVariable String id) {
-        return testPlanService.haveExecCase(id);
+        return testPlanService.haveExecCase(id, true);
     }
 
     /**
