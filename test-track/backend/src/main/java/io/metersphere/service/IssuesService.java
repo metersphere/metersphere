@@ -167,7 +167,7 @@ public class IssuesService {
 
             insertIssues(issues);
             issuesRequest.setId(issues.getId());
-
+            issues.setPlatform(project.getPlatform());
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
 
@@ -261,6 +261,7 @@ public class IssuesService {
                     // 下载文件管理文件, 同步到第三方平台
                     File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
                     if (PlatformPluginService.isPluginPlatform(platform)) {
+                        issuesRequest.setPlatform(platform);
                         attachmentService.syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
                     } else {
                         IssuesRequest addIssueRequest = new IssuesRequest();
