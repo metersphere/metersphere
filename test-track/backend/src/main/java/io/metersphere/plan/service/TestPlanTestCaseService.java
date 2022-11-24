@@ -236,7 +236,13 @@ public class TestPlanTestCaseService {
         testPlanTestCaseMapper.updateByExampleSelective(
                 testPlanTestCase,
                 testPlanTestCaseExample);
-
+        if (StringUtils.isNotBlank(testPlanTestCase.getStatus()) &&
+                !StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
+            //记录功能用例执行信息
+            request.getIds().forEach(caseId -> {
+                functionCaseExecutionInfoService.insertExecutionInfo(caseId, testPlanTestCase.getStatus());
+            });
+        }
         if (StringUtils.isNotBlank(request.getStatus())) {
             List<String> caseIds = extTestPlanTestCaseMapper.getCaseIdsByIds(request.getIds());
             testCaseService.updateLastExecuteStatus(caseIds, request.getStatus());

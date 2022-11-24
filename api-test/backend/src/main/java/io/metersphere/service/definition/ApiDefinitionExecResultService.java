@@ -138,8 +138,12 @@ public class ApiDefinitionExecResultService {
                 for (RequestResult item : dto.getRequestResults()) {
                     if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                         ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), definitionExecResultMapper);
-                        // 批量更新关联关系状态
-                        batchEditStatus(dto.getRunMode(), result.getStatus(), result.getId(), dto.getTestId(), batchApiTestCaseMapper);
+                        if (result != null) {
+                            result.setResourceId(dto.getTestId());
+                            apiExecutionInfoService.insertExecutionInfo(result);
+                            // 批量更新关联关系状态
+                            batchEditStatus(dto.getRunMode(), result.getStatus(), result.getId(), dto.getTestId(), batchApiTestCaseMapper);
+                        }
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
                             User user = null;
                             if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user") && dto.getExtendedParameters().get("user") instanceof User) {
