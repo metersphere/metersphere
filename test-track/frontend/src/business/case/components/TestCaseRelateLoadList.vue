@@ -77,7 +77,6 @@
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-// import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import {TEST_CASE_RELEVANCE_LOAD_CASE} from "metersphere-frontend/src/components/search/search-components";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
@@ -87,7 +86,6 @@ import {getTestCaseRelevanceLoadList} from "@/api/testCase";
 export default {
   name: "TestCaseRelateLoadList",
   components: {
-    // MsPerformanceTestStatus,
     MsTablePagination,
     MsTable,
     MsTableColumn,
@@ -114,7 +112,8 @@ export default {
     notInIds: {
       type: Array,
       default: null
-    }
+    },
+    testCaseId: String
   },
   created: function () {
     this.initTable();
@@ -148,6 +147,7 @@ export default {
         this.condition.projectId = this.projectId;
       }
       this.condition.notInIds = this.notInIds;
+      this.condition.testCaseId = this.testCaseId;
       getTestCaseRelevanceLoadList(this.currentPage, this.pageSize, this.condition)
         .then(response => {
           this.total = response.data.itemCount;
