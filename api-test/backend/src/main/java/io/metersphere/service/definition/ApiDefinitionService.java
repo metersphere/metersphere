@@ -2999,8 +2999,6 @@ public class ApiDefinitionService {
                 }
             }
         }
-
-
         return returnMap;
     }
 
