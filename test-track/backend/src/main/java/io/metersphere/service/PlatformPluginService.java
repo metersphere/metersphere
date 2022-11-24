@@ -35,7 +35,7 @@ public class PlatformPluginService {
     @Resource
     private BaseIntegrationService baseIntegrationService;
 
-    private static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
+    public static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
     private PlatformPluginManager pluginManager;
 
@@ -75,6 +75,9 @@ public class PlatformPluginService {
             return false;
         }
         PluginMetaInfo pluginMetaInfo = pluginManager.getPluginMetaInfoByKey(platform);
+        if (PlatformPluginService.isPluginPlatform(platform) && pluginMetaInfo == null) {
+            MSException.throwException(Translator.get("platform_plugin_not_exit") + PlatformPluginService.PLUGIN_DOWNLOAD_URL);
+        }
         return pluginMetaInfo == null ? false : pluginMetaInfo.isThirdPartTemplateSupport();
     }
 

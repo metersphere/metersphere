@@ -215,7 +215,7 @@ export function getPlatformTransitions(param) {
 }
 
 export function enableThirdPartTemplate(projectId) {
-  return get(BASE_URL + '/third/part/template/enable/' + projectId);
+  return get(BASE_URL + 'third/part/template/enable/' + projectId);
 }
 
 export function buildIssues(page) {
