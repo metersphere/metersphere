@@ -104,7 +104,7 @@ public class Body {
                         if (!this.getRaw().contains("$ref")) {
                             jsonMockParse(jsonObject);
                         }
-                        this.raw = jsonObject.toString();
+                        this.raw = JSONUtil.parser(jsonObject.toString());
                     }
                 } catch (Exception e) {
                     LoggerUtil.error("json mock value is abnormal", e);
