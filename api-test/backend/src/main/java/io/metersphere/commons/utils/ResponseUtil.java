@@ -35,10 +35,14 @@ public class ResponseUtil {
                 expandMap.put("status", ApiReportStatus.FAKE_ERROR.name());
             }
             expandDTO.setAttachInfoMap(expandMap);
+            LogUtil.info(" FAKE_ERROR result.id:" + errorCodeDTO.getRequestStatus() + "; AttachInfoMap:" + JSON.toJSONString(expandDTO.getAttachInfoMap()));
         }
         if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ApiReportStatus.FAKE_ERROR.name())) {
             expandDTO.setStatus(errorCodeDTO.getRequestStatus());
         }
+        LogUtil.info(" FAKE_ERROR result.id:" + errorCodeDTO.getRequestStatus()
+                + ";status:" + expandDTO.getStatus()
+                + " AttachInfoMap:" + (expandDTO.getAttachInfoMap() == null ? "null" : JSON.toJSONString(expandDTO.getAttachInfoMap())));
         return expandDTO;
     }
 
