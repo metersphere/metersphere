@@ -13,4 +13,5 @@ public interface BaseApiTestEnvironmentMapper {
 
     List<ApiModuleDTO> getNodeTreeByProjectId(@Param("projectId") String projectId, @Param("protocol") String protocol);
 
+    List<String> selectNameByIdList(@Param("ids") List<String> envIdList);
 }
