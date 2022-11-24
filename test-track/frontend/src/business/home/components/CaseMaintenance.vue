@@ -110,6 +110,7 @@ export default {
             data: yAxis1,
             type: 'bar',
             barWidth: 16,
+            barMinHeight: 5,
             itemStyle: {
               color: '#AA4FBF',
               barBorderRadius: [2, 2, 0, 0]
@@ -120,6 +121,7 @@ export default {
             data: yAxis2,
             type: 'bar',
             barWidth: 16,
+            barMinHeight: 5,
             itemStyle: {
               color: '#F9CB2E',
               barBorderRadius: [2, 2, 0, 0]
