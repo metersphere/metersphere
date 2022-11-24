@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
 import org.apache.commons.lang3.ObjectUtils;
@@ -222,6 +225,15 @@ public class JSONUtil {
             LogUtil.error(e);
         }
         return objectMapper.createObjectNode();
+    }
+
+    public static String parser(String content) {
+        try {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            return gson.toJson(JsonParser.parseString(content).getAsJsonObject());
+        } catch (Exception e) {
+            return content;
+        }
     }
 
     public static ObjectNode createObj() {
