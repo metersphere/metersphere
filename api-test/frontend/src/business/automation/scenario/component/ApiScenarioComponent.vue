@@ -21,8 +21,11 @@
     :envMap="envMap"
     :title="$t('commons.scenario')">
     <template v-slot:afterTitle>
-      <span v-if="isShowNum" @click="clickResource(scenario)">
+      <span v-if="isShowNum && !customNum" @click="clickResource(scenario)">
         {{ '（ ID: ' + scenario.num + '）' }}
+      </span>
+      <span v-else-if="isShowNum && customNum" @click="clickResource(scenario)">
+        {{ '（ ID: ' + scenario.customNum + '）' }}
       </span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
@@ -100,7 +103,7 @@ import ApiBaseComponent from '../common/ApiBaseComponent';
 import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { STEP } from '@/business/automation/scenario/Setting';
-import { getOwnerProjectIds, getProject } from '@/api/project';
+import { getOwnerProjectIds, getProject, getProjectConfig } from '@/api/project';
 import { checkScenarioEnv, getScenarioById, setScenarioDomain } from '@/api/scenario';
 
 export default {
@@ -149,6 +152,7 @@ export default {
     },
   },
   created() {
+    this.getProject();
     this.isShowNum = this.scenario.num ? true : false;
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.scenario.root = this.node.parent.parent ? false : true;
@@ -169,6 +173,7 @@ export default {
       isShowInput: false,
       isShowNum: false,
       stepFilter: new STEP(),
+      customNum: false,
     };
   },
   computed: {
@@ -355,6 +360,16 @@ export default {
           this.$warning(this.$t('commons.no_permission'));
         } else {
           this.gotoTurn(resource, workspaceId, isTurnSpace);
+        }
+      });
+    },
+    getProject() {
+      getProjectConfig(
+        this.scenario.projectId ? this.scenario.projectId : getCurrentProjectID(),
+        '/SCENARIO_CUSTOM_NUM'
+      ).then((result) => {
+        if (result.data) {
+          this.customNum = result.data.scenarioCustomNum;
         }
       });
     },

@@ -134,6 +134,7 @@ export default {
               hashTree: scenarioDefinition.hashTree,
               projectId: item.projectId,
               num: item.num,
+              customNum: item.customNum,
               versionName: item.versionName,
               versionEnable: item.versionEnable,
             };

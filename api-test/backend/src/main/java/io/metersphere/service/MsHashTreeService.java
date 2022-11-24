@@ -77,6 +77,7 @@ public class MsHashTreeService {
     private static final String PRE = "PRE";
     private static final String POST = "POST";
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
+    public static final String CUSTOMNUM = "customNum";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -214,6 +215,7 @@ public class MsHashTreeService {
             if (!element.has(VARIABLE_ENABLE)) {
                 element.put(VARIABLE_ENABLE, variableEnable);
             }
+            element.put(CUSTOMNUM, scenarioWithBLOBs.getCustomNum());
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
