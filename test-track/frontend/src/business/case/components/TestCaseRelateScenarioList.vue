@@ -130,7 +130,8 @@ export default {
     notInIds: {
       type: Array,
       default: null
-    }
+    },
+    testCaseId: String
   },
   created: function () {
     this.getVersionOptions();
@@ -167,6 +168,7 @@ export default {
         this.condition.projectId = this.projectId;
       }
       this.condition.notInIds = this.notInIds;
+      this.condition.testCaseId = this.testCaseId;
       getTestCaseRelevanceScenarioList(this.currentPage, this.pageSize, this.condition)
         .then(response => {
           this.total = response.data.itemCount;

@@ -968,6 +968,7 @@
         FROM
         api_scenario atc
         LEFT JOIN test_case_test tct ON atc.id = tct.test_id
+        and tct.test_case_id = #{request.testCaseId}
         WHERE
         (atc.status is null or atc.status != 'Trash')
         <if test="request.projectId != null and request.projectId!=''">

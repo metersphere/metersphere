@@ -9,6 +9,7 @@
       :project-id="projectId"
       :not-in-ids="notInIds"
       :versionEnable="versionEnable"
+      :test-case-id="caseId"
       @selectCountChange="setSelectCounts"
       ref="apiCaseList"/>
 
