@@ -1462,6 +1462,7 @@ public class IssuesService {
     }
 
     public void issueExport(IssueExportRequest request, HttpServletResponse response) {
+        EasyExcelExporter.resetCellMaxTextLength();
         Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
         // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
