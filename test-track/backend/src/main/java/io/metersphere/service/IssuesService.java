@@ -6,8 +6,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.constants.IssueStatus;
-import io.metersphere.platform.api.Platform;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssueCommentMapper;
@@ -16,8 +14,8 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.AttachmentType;
+import io.metersphere.constants.IssueStatus;
 import io.metersphere.constants.SystemCustomField;
-import io.metersphere.platform.domain.*;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.IssueExportHeadField;
 import io.metersphere.excel.domain.ExcelErrData;
@@ -38,6 +36,8 @@ import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.platform.api.Platform;
+import io.metersphere.platform.domain.*;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.request.attachment.AttachmentRequest;
 import io.metersphere.request.issues.IssueExportRequest;
@@ -1700,10 +1700,12 @@ public class IssuesService {
             issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
         } else if (request.getAllTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
             issueIds = extIssuesMapper.getTestPlanIssue(request.getProjectId());
+        } else {
+            issueIds = Collections.EMPTY_LIST;
         }
 
         Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, request.getProjectId());
-        if (MapUtils.isEmpty(statusMap)) {
+        if (MapUtils.isEmpty(statusMap) && CollectionUtils.isNotEmpty(issueIds)) {
             // 未找到自定义字段状态, 则获取平台状态
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
