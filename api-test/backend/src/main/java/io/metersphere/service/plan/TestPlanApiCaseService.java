@@ -508,12 +508,19 @@ public class TestPlanApiCaseService {
         Map<String, List<String>> result = new LinkedHashMap<>();
         if (!CollectionUtils.isEmpty(resourceIds)) {
             List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
+            Map<String, List<String>> projectConfigMap = new HashMap<>();
             execResults.forEach(item -> {
                 String envConf = item.getEnvConfig();
                 String projectId = item.getProjectId();
-                Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectId, envConf);
-                this.setProjectEnvMap(result, projectEnvMap);
+                if (projectConfigMap.containsKey(projectId)) {
+                    projectConfigMap.get(projectId).add(envConf);
+                } else {
+                    projectConfigMap.put(projectId, new ArrayList<>() {{
+                        this.add(envConf);
+                    }});
+                }
             });
+            Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectConfigMap);
         }
         return result;
     }
