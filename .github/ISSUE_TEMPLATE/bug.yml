@@ -14,7 +14,7 @@ body:
       required: false
     attributes:
       label: "联系方式"
-      description: "可以快速联系到您的方式：交流群号及昵称、邮箱等"
+      description: "可以快速联系到您进一步沟通的方式：交流群号及昵称、邮箱等"
   - type: markdown
     id: environment
     attributes:
