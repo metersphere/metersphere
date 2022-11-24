@@ -520,7 +520,7 @@ public class TestPlanApiCaseService {
                     }});
                 }
             });
-            Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectConfigMap);
+            result = apiDefinitionService.getProjectEnvNameByEnvConfig(projectConfigMap);
         }
         return result;
     }
