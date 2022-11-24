@@ -21,8 +21,11 @@
     :envMap="envMap"
     :title="$t('commons.scenario')">
     <template v-slot:afterTitle>
-      <span v-if="isShowNum" @click="clickResource(scenario)">
+      <span v-if="isShowNum && !scenario.showCustomNum" @click="clickResource(scenario)">
         {{ '（ ID: ' + scenario.num + '）' }}
+      </span>
+      <span v-else-if="isShowNum && scenario.showCustomNum" @click="clickResource(scenario)">
+        {{ '（ ID: ' + scenario.customNum + '）' }}
       </span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
