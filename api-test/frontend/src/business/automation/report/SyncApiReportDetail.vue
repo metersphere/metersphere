@@ -347,24 +347,28 @@ export default {
       getScenarioReport(this.reportId).then((response) => {
         this.report = response.data || {};
         if (response.data) {
-          this.content = JSON.parse(response.data.content);
-          if (!this.content) {
-            this.content = { scenarios: [] };
-          }
-          if (this.content.projectEnvMap) {
-            this.projectEnvMap = this.content.projectEnvMap;
-          }
-          this.content.error = this.content ? this.content.error : '';
+          if (response.data.status === 'RUNNING') {
+            setTimeout(this.getReport, 2000);
+          } else {
+            this.content = JSON.parse(response.data.content);
+            if (!this.content) {
+              this.content = { scenarios: [] };
+            }
+            if (this.content.projectEnvMap) {
+              this.projectEnvMap = this.content.projectEnvMap;
+            }
+            this.content.error = this.content ? this.content.error : '';
 
-          this.content.success =
-            this.content.total - this.content.error - this.content.errorCode - this.content.unExecute;
-          this.totalTime = this.content.totalTime;
-          this.fullTreeNodes = this.content.steps;
-          this.recursiveSorting(this.fullTreeNodes);
-          this.reload();
-        }
-        if ('Running' !== this.report.status) {
-          this.$emit('finish');
+            this.content.success =
+              this.content.total - this.content.error - this.content.errorCode - this.content.unExecute;
+            this.totalTime = this.content.totalTime;
+            this.fullTreeNodes = this.content.steps;
+            this.recursiveSorting(this.fullTreeNodes);
+            this.reload();
+          }
+          if ('Running' !== this.report.status) {
+            this.$emit('finish');
+          }
         }
       });
     },
