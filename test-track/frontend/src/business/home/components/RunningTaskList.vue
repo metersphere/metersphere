@@ -75,7 +75,7 @@
           </el-table-column>
           <template #empty>
             <div
-              style="width: 100%;height: 144px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+              style="width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center">
               <img style="height: 100px;width: 100px;margin-bottom: 8px"
                    src="/assets/figma/icon_none.svg"/>
               <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
