@@ -470,6 +470,7 @@ export default {
         rows.forEach(row => {
           this.buildExecuteParam(param, row);
         });
+        param.config.envMap = strMapToObj(config.envMap);
         param.condition = selectParam.condition;
         param.triggerMode = "BATCH";
         param.requestOriginator = "TEST_PLAN";
