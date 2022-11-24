@@ -194,29 +194,25 @@ public class ApiJMeterFileService {
         } else {
             return new HashMap<>();
         }
-
     }
 
     private Map<String, byte[]> getPlugJar() {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
-        // jar 包
         List<Plugin> plugins = pluginService.list();
         if (CollectionUtils.isNotEmpty(plugins)) {
-            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
-                    -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
-            if (CollectionUtils.isNotEmpty(plugins)) {
-                plugins.forEach(item -> {
-                    String path = item.getSourcePath();
-                    File file = new File(path);
-                    if (file.isDirectory() && !path.endsWith("/")) {
-                        file = new File(path + "/");
-                    }
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        jarFiles.put(file.getName(), fileByte);
-                    }
-                });
-            }
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                    new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+            plugins.forEach(item -> {
+                File file = new File(item.getSourcePath());
+                if (file.isDirectory() && !item.getSourcePath().endsWith("/")) {
+                    file = new File(item.getSourcePath() + "/");
+                }
+                byte[] fileByte = FileUtils.fileToByte(file);
+                if (fileByte != null) {
+                    jarFiles.put(file.getName(), fileByte);
+                }
+            });
+
         }
         return jarFiles;
     }

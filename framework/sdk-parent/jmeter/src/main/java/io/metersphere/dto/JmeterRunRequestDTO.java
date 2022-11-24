@@ -60,11 +60,6 @@ public class JmeterRunRequestDTO {
     private HashTree hashTree;
 
     /**
-     * Node 执行脚本
-     */
-    private String jmxScript;
-
-    /**
      * 并发数
      */
     private int corePoolSize;
