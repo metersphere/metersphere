@@ -38,7 +38,11 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
             calculatePlanReport(report, planReportCaseDTOS);
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
-            report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+            try {
+                report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
     }
 
