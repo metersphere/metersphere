@@ -6,12 +6,11 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.exception.ExcelException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.ss.SpreadsheetVersion;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -96,6 +95,21 @@ public class EasyExcelExporter {
         } catch (IOException e) {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());
+        }
+    }
+
+    public static void resetCellMaxTextLength() {
+        SpreadsheetVersion excel2007 = SpreadsheetVersion.EXCEL2007;
+        if (excel2007.getMaxTextLength() < Integer.MAX_VALUE) {
+            Field field;
+            try {
+                field = excel2007.getClass().getDeclaredField("_maxTextLength");
+                field.setAccessible(Boolean.TRUE);
+                field.set(excel2007, Integer.MAX_VALUE);
+            }catch (Exception e){
+                LogUtil.error(e);
+                MSException.throwException(e.getMessage());
+            }
         }
     }
 }
