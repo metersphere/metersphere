@@ -18,6 +18,16 @@
         FROM api_test_environment
         WHERE id = #{0}
     </select>
+
+    <select id="selectNameByIdList" resultType="java.lang.String">
+        SELECT name
+        FROM api_test_environment
+        WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="getNodeTreeByProjectId" resultType="io.metersphere.environment.dto.ApiModuleDTO">
         select * from api_module
         where api_module.project_id = #{projectId}

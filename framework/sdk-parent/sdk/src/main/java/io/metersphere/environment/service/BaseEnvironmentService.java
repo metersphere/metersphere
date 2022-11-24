@@ -828,4 +828,12 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         }
         return returnMap;
     }
+
+    public List<String> selectNameByIdList(List<String> envIdList) {
+        if (CollectionUtils.isNotEmpty(envIdList)) {
+            return baseApiTestEnvironmentMapper.selectNameByIdList(envIdList);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }

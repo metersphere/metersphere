@@ -2969,6 +2969,41 @@ public class ApiDefinitionService {
         return returnMap;
     }
 
+    public Map<String, List<String>> getProjectEnvNameByEnvConfig(Map<String, List<String>> projectEnvConfigMap) {
+        Map<String, List<String>> returnMap = new HashMap<>();
+        if (MapUtils.isNotEmpty(projectEnvConfigMap)) {
+            for (Map.Entry<String, List<String>> entry : projectEnvConfigMap.entrySet()) {
+                String projectId = entry.getKey();
+                List<String> configList = entry.getValue();
+                Project project = baseProjectService.getProjectById(projectId);
+                List<String> envIdList = new ArrayList<>();
+                configList.forEach(envConfig -> {
+                    RunModeConfigDTO runModeConfigDTO = null;
+                    try {
+                        runModeConfigDTO = JSON.parseObject(envConfig, RunModeConfigDTO.class);
+                    } catch (Exception e) {
+                        LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
+                    }
+
+                    if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
+                        String envId = runModeConfigDTO.getEnvMap().get(projectId);
+                        if (!envIdList.contains(envId)) {
+                            envIdList.add(envId);
+                        }
+                    }
+                });
+                String projectName = project == null ? null : project.getName();
+                if (StringUtils.isNotEmpty(projectName) && CollectionUtils.isNotEmpty(envIdList)) {
+                    List<String> envNameList = apiTestEnvironmentService.selectNameByIdList(envIdList);
+                    returnMap.put(projectName, envNameList);
+                }
+            }
+        }
+
+
+        return returnMap;
+    }
+
     public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
