@@ -5,8 +5,7 @@
       <el-radio-group v-model="platform" style="margin-top: 10px">
         <span v-for="config in platformConfigs" :key="config.key">
            <el-radio :label="config.label">
-            <img class="platform" :src="getPlatformImageUrl(config)"
-                 alt="Jira"/>
+            <img class="platform" :src="getPlatformImageUrl(config)" :alt="config.label"/>
           </el-radio>
         </span>
         <el-radio label="Tapd">
