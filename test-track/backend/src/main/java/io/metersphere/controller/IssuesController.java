@@ -25,15 +25,20 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.PlatformPluginService;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
-import io.metersphere.xpack.track.dto.*;
+import io.metersphere.xpack.track.dto.IssueTemplateDao;
+import io.metersphere.xpack.track.dto.IssuesDao;
+import io.metersphere.xpack.track.dto.PlatformStatusDTO;
+import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 
 @RequestMapping("issues")
@@ -51,8 +56,13 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
         issuesService.setFilterIds(request);
-        Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, issuesService.list(request));
+        if (request.getThisWeekUnClosedTestPlanIssue() && CollectionUtils.isEmpty(request.getFilterIds())) {
+            Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+            return PageUtils.setPageInfo(page, Collections.EMPTY_LIST);
+        } else {
+            Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+            return PageUtils.setPageInfo(page, issuesService.list(request));
+        }
     }
 
     @PostMapping("/dashboard/list/{goPage}/{pageSize}")

@@ -86,7 +86,9 @@ export default {
           },
           axisTick: {
             show: false
-          }
+          },
+          min: 0,
+          max: data.length === 0 ? 40 : null
         },
         grid: {
           left: 0,
