@@ -16,6 +16,7 @@ import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,6 +42,8 @@ public class MsHashTreeService {
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private BaseProjectApplicationService baseProjectApplicationService;
 
     @Resource
     private ProjectMapper projectMapper;
@@ -77,6 +80,8 @@ public class MsHashTreeService {
     private static final String PRE = "PRE";
     private static final String POST = "POST";
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
+    public static final String CUSTOMNUM = "customNum";
+    public static final String SHOWCUSTOMNUM = "showCustomNum";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -214,6 +219,10 @@ public class MsHashTreeService {
             if (!element.has(VARIABLE_ENABLE)) {
                 element.put(VARIABLE_ENABLE, variableEnable);
             }
+            //获取场景的当前项目是否开启了自定义id
+            ProjectConfig projectApplication = baseProjectApplicationService.getSpecificTypeValue(scenarioWithBLOBs.getProjectId(), "SCENARIO_CUSTOM_NUM");
+            element.put(SHOWCUSTOMNUM, projectApplication.getScenarioCustomNum());
+            element.put(CUSTOMNUM, scenarioWithBLOBs.getCustomNum());
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
