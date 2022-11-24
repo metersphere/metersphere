@@ -15,7 +15,14 @@ body:
     attributes:
       label: "MeterSphere 版本"
       description: "可通过系统右上角下拉菜单中的`关于`选项，或查看安装目录中的 version 文件获取。v1.20 是 MeterSphere 的 LTS（长期支持）版本，建议优先升级到最新的 v1.20.x-lts 版本。"
-- type: markdown
+  - type: input
+    id: contacts
+    validations:
+      required: false
+    attributes:
+      label: "联系方式"
+      description: "可以快速联系到您进一步沟通的方式：交流群号及昵称、邮箱等"      
+  - type: markdown
     id: details
     attributes:
       value: "## 详细信息"
