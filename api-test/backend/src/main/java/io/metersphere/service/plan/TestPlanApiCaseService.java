@@ -579,6 +579,9 @@ public class TestPlanApiCaseService {
 
         testPlanService.statusReset(request.getPlanId());
         sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void relevanceByTestIds(List<String> ids, String planId) {
@@ -634,6 +637,9 @@ public class TestPlanApiCaseService {
                 }
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 
