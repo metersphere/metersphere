@@ -68,7 +68,7 @@ export default {
       this.visible = true;
       let syncTime = localStorage.getItem("ISSUE_SYNC_TIME");
       if (syncTime) {
-        this.form.createTime = syncTime;
+        this.form.createTime = new Date(syncTime);
       }
     },
     save() {
