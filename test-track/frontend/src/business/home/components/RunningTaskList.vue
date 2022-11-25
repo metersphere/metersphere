@@ -22,7 +22,7 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            min-width="200px">
+            width="320px">
             <template v-slot:default="{row}">
               <!-- 若为只读用户不可点击之后跳转-->
               <span v-if="isReadOnly">
@@ -32,12 +32,12 @@
                 {{ row.name }}
               </el-link>
             </template>
-          </el-table-column  >
+          </el-table-column>
           <ms-table-column
             prop="taskType"
             :label="$t('home.table.task_type')"
             :filters="typeFilters"
-            min-width="100px">
+            width="150px">
             <template v-slot:default="scope">
               <basic-task-type-label :value="scope.row.taskGroup"></basic-task-type-label>
             </template>
@@ -46,12 +46,12 @@
             prop="creator"
             :label="$t('home.table.create_user')"
             show-overflow-tooltip
-            min-width="100px"/>
+            min-width="200px"/>
           <el-table-column
             prop="rule"
             :label="$t('home.table.run_rule')"
             show-overflow-tooltip
-            min-width="300px"/>
+            min-width="200px"/>
           <el-table-column
             :label="$t('home.table.task_status')"
             min-width="100px">
