@@ -33,16 +33,14 @@
             </template>
           </el-table-column>
           <!--名称-->
-          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip min-width="170">
+          <el-table-column prop="name" :label="$t('commons.name')" min-width="200" show-overflow-tooltip>
             <template v-slot:default="{ row }">
               <span class="redirectColumn">
                 {{ row.name }}
               </span>
             </template>
           </el-table-column>
-          <!--路径-->
-          <el-table-column prop="path" :label="$t('home.new_case.path')" min-width="260" show-overflow-tooltip>
-          </el-table-column>
+
           <!--状态-->
           <el-table-column prop="status" :label="$t('home.new_case.api_status')" width="100">
             <template v-slot:default="scope">
@@ -51,13 +49,15 @@
               </span>
             </template>
           </el-table-column>
+          <!--路径-->
+          <el-table-column prop="path" :label="$t('home.new_case.path')" min-width="200" show-overflow-tooltip />
           <!--更新时间-->
-          <el-table-column :label="$t('home.new_case.update_time')" min-width="170">
+          <el-table-column :label="$t('home.new_case.update_time')" width="170">
             <template v-slot:default="scope">
               {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
-          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="120">
+          <el-table-column prop="caseTotal" :label="$t('home.new_case.relation_case')" align="right" width="100">
             <template v-slot:default="{ row }">
               <el-link
                 style="color: #783887; width: 100%"
@@ -75,7 +75,7 @@
             prop="scenarioTotal"
             :label="$t('home.new_case.relation_scenario')"
             align="right"
-            width="140">
+            width="100">
             <template v-slot:default="{ row }">
               <el-link
                 style="color: #783887; width: 100%"
@@ -94,7 +94,7 @@
             <div
               style="
                 width: 100%;
-                height: 144px;
+                height: 200px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -106,6 +106,7 @@
           </template>
         </el-table>
         <home-table-pagination
+          v-if="tableData.length > 0"
           :change="search"
           :current-page.sync="currentPage"
           :page-size.sync="pageSize"

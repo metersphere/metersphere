@@ -27,13 +27,13 @@
           header-cell-class-name="home-table-cell"
           element-loading-background="#FFFFFF">
           <!--序号-->
-          <el-table-column prop="index" :label="$t('home.new_case.index')" width="50" show-overflow-tooltip>
+          <el-table-column prop="index" :label="$t('home.new_case.index')" width="100" show-overflow-tooltip>
             <template v-slot:default="{ row }">
               {{ row.index }}
             </template>
           </el-table-column>
           <!--名称-->
-          <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip min-width="200">
+          <el-table-column prop="name" :label="$t('commons.name')" min-width="200" show-overflow-tooltip>
             <template v-slot:default="{ row }">
               <span class="redirectColumn">
                 {{ row.name }}
@@ -41,7 +41,7 @@
             </template>
           </el-table-column>
           <!--任务类型-->
-          <el-table-column prop="taskGroup" :label="$t('home.table.task_type')" min-width="100" show-overflow-tooltip>
+          <el-table-column prop="taskGroup" :label="$t('home.table.task_type')" width="100" show-overflow-tooltip>
             <template v-slot:default="scope">
               <span class="el-dropdown-link">
                 <basic-status-label :value="scope.row.taskGroup" />
@@ -49,27 +49,18 @@
             </template>
           </el-table-column>
 
+          <!--运行规则-->
+          <el-table-column prop="rule" :label="$t('home.table.run_rule')" min-width="120" show-overflow-tooltip />
           <!--任务状态-->
-          <el-table-column prop="status" :label="$t('home.table.task_status')" width="100">
+          <el-table-column prop="status" :label="$t('home.table.task_status')" min-width="80">
             <template v-slot:default="scope">
               <div>
                 <el-switch
                   v-model="scope.row.taskStatus"
+                  style="margin-left: 16px"
                   class="captcha-img"
                   @change="closeTaskConfirm(scope.row)"></el-switch>
               </div>
-            </template>
-          </el-table-column>
-          <!--创建人-->
-          <el-table-column prop="creator" :label="$t('home.table.create_user')" width="100" show-overflow-tooltip />
-          <!--运行规则-->
-          <el-table-column prop="rule" :label="$t('home.table.run_rule')" min-width="150" show-overflow-tooltip>
-          </el-table-column>
-
-          <!--更新时间-->
-          <el-table-column :label="$t('home.table.update_time')" width="170">
-            <template v-slot:default="scope">
-              {{ scope.row.updateTime | datetimeFormat }}
             </template>
           </el-table-column>
           <!--下次更新时间-->
@@ -79,6 +70,8 @@
             </template>
           </el-table-column>
 
+          <!--创建人-->
+          <el-table-column prop="creator" :label="$t('home.table.create_user')" width="200" show-overflow-tooltip />
           <template #empty>
             <div
               style="
@@ -96,6 +89,7 @@
         </el-table>
         <home-table-pagination
           :change="search"
+          v-if="tableData.length > 0"
           :current-page.sync="currentPage"
           :page-size.sync="pageSize"
           layout="prev, pager, next, sizes"
