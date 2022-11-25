@@ -22,7 +22,7 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="320px">
+            min-width="200px">
             <template v-slot:default="{row}">
               <!-- 若为只读用户不可点击之后跳转-->
               <span v-if="isReadOnly">
@@ -43,18 +43,13 @@
             </template>
           </ms-table-column>
           <el-table-column
-            prop="creator"
-            :label="$t('home.table.create_user')"
-            show-overflow-tooltip
-            min-width="200px"/>
-          <el-table-column
             prop="rule"
             :label="$t('home.table.run_rule')"
             show-overflow-tooltip
-            min-width="200px"/>
+            width="150px"/>
           <el-table-column
             :label="$t('home.table.task_status')"
-            min-width="100px">
+            width="150px">
             <template v-slot:default="scope">
               <div>
                 <el-switch
@@ -68,21 +63,26 @@
           </el-table-column>
           <el-table-column
             :label="$t('home.table.next_execution_time')"
-            min-width="200px">
+            width="200px">
             <template v-slot:default="scope">
               <span>{{ scope.row.nextExecutionTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
+          <el-table-column
+            prop="creator"
+            :label="$t('home.table.create_user')"
+            show-overflow-tooltip
+            width="150px"/>
           <template #empty>
             <div
-              style="width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+              style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
               <img style="height: 100px;width: 100px;margin-bottom: 8px"
                    src="/assets/figma/icon_none.svg"/>
               <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
             </div>
           </template>
         </el-table>
-        <home-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
+        <home-pagination v-if="tableData.length > 0" :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
                          :total="total"/>
       </div>
     </div>
