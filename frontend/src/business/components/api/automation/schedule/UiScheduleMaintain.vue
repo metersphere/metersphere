@@ -36,9 +36,6 @@
               </el-form-item>
               <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
-            <div class="el-step__icon is-text" style="margin-right: 10px;">
-              <div class="el-step__icon-inner">2</div>
-            </div>
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
