@@ -28,11 +28,11 @@
             prop="name"
             :label="$t('commons.name')"
             show-overflow-tooltip
-            min-width="200px"/>
+            width="320px"/>
           <el-table-column
             prop="status"
             :label="$t('test_track.plan.plan_status')"
-            min-width="100px">
+            width="150px">
             <template v-slot:default="scope">
               <basic-status-label :value="scope.row.status"></basic-status-label>
             </template>
@@ -41,12 +41,12 @@
             prop="creator"
             :label="$t('test_track.review.creator')"
             show-overflow-tooltip
-            min-width="100px"/>
+            min-width="200px"/>
           <el-table-column
             prop="reviewerName"
             :label="$t('test_track.review.reviewer')"
             show-overflow-tooltip
-            min-width="300px"/>
+            min-width="200px"/>
           <el-table-column
             :label="$t('test_track.review.result_distribution')"
             show-overflow-tooltip

@@ -21,7 +21,7 @@
           <el-table-column
             prop="caseName"
             :label="$t('home.case.case_name')"
-            min-width="200px">
+            width="320px">
             <template v-slot:default="{row}">
               <el-link style="color: #783887; width: 100%;" :underline="false" type="info" @click="redirect(row.caseType,row.id)"
                        :disabled="(row.caseType === 'apiCase' && apiCaseReadOnly) || (row.caseType === 'scenario' && apiScenarioReadOnly) ||
@@ -35,7 +35,7 @@
             :label="$t('home.case.case_type')"
             show-overflow-tooltip
             column-key="caseType"
-            min-width="100px">
+            width="150px">
             <template v-slot:default="scope">
               <basic-case-type-label :value="scope.row.caseType"></basic-case-type-label>
             </template>
@@ -43,7 +43,7 @@
           <el-table-column
             prop="testPlan"
             :label="$t('home.case.test_plan')"
-            min-width="300px">
+            min-width="200px">
             <template v-slot:default="{row}">
               <el-link style="color: #783887; width: 100%;" :underline="false" type="info" @click="redirect('testPlanEdit',row.testPlanId)" v-permission-disable="['PROJECT_TRACK_PLAN:READ']">
                 {{ row.testPlan }}
@@ -54,7 +54,7 @@
             prop="failureTimes"
             :label="$t('home.case.failure_times')"
             show-overflow-tooltip
-            min-width="100px"/>
+            min-width="500px"/>
           <template #empty>
             <div
               style="width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center">
