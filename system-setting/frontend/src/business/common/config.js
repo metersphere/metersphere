@@ -232,7 +232,11 @@ export function SYSLIST() {
           value: [i18n.t('commons.system') + "-" + i18n.t('license.title'), 'SYSTEM_AUTHORIZATION_MANAGEMENT'],
           leaf: true
         },
-
+        {
+          label: i18n.t('commons.system') + "-" + i18n.t('operating_log.group_permission'),
+          value: [i18n.t('commons.system') + "-" + i18n.t('operating_log.group_permission'), 'GROUP_PERMISSION'],
+          leaf: true
+        },
         {
           label: i18n.t('commons.workspace'),
           value: [i18n.t('commons.workspace'), 'SYSTEM_WORKSPACE'],
