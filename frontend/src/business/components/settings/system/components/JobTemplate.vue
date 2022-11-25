@@ -151,10 +151,10 @@ spec:
           name: log-files
 `;
 
-import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
-import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import MsDrawer from "metersphere-frontend/src/components/MsDrawer";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsDrawer from "@/business/components/common/components/MsDrawer";
 
 export default {
   name: "JobTemplate",
