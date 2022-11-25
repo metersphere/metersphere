@@ -1,10 +1,12 @@
 package io.metersphere.websocket;
 
+import com.mchange.lang.IntegerUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.dto.TaskStatisticsDTO;
 import io.metersphere.task.service.TaskService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,11 +17,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/websocket/task/running/{projectId}/{userId}/{hasLicense}")
+@ServerEndpoint("/websocket/task/running/{userId}/{triggerMode}/{hasLicense}")
 @Component
 public class TaskCenterWebSocket {
     private static TaskService taskService;
     private static ConcurrentHashMap<Session, Timer> refreshTasks = new ConcurrentHashMap<>();
+    private final static String ALL = "ALL";
 
     @Resource
     public void setTaskService(TaskService taskService) {
@@ -30,9 +33,11 @@ public class TaskCenterWebSocket {
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("projectId") String projectId, @PathParam("userId") String userId, @PathParam("hasLicense") boolean hasLicense, Session session) {
+    public void onOpen(@PathParam("userId") String userId,
+                       @PathParam("triggerMode") String triggerMode,
+                       @PathParam("hasLicense") boolean hasLicense, Session session) {
         Timer timer = new Timer(true);
-        TaskCenter task = new TaskCenter(session, projectId, userId, hasLicense);
+        TaskCenter task = new TaskCenter(session, userId, triggerMode, hasLicense);
         timer.schedule(task, 0, 10 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
@@ -53,18 +58,15 @@ public class TaskCenterWebSocket {
      * 推送消息
      */
     @OnMessage
-    public void onMessage(@PathParam("projectId") String projectId, @PathParam("userId") String userId, @PathParam("hasLicense") boolean hasLicense, Session session, String message) {
-        int refreshTime = 10;
-        try {
-            refreshTime = Integer.parseInt(message);
-        } catch (Exception e) {
-        }
+    public void onMessage(@PathParam("userId") String userId,
+                          @PathParam("triggerMode") String triggerMode,
+                          @PathParam("hasLicense") boolean hasLicense, Session session, String message) {
         try {
             Timer timer = refreshTasks.get(session);
             timer.cancel();
-
+            int refreshTime = IntegerUtils.parseInt(message, 10);
             Timer newTimer = new Timer(true);
-            newTimer.schedule(new TaskCenter(session, projectId, userId, hasLicense), 0, refreshTime * 1000L);
+            newTimer.schedule(new TaskCenter(session, userId, triggerMode, hasLicense), 0, refreshTime * 1000L);
             refreshTasks.put(session, newTimer);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -84,11 +86,14 @@ public class TaskCenterWebSocket {
         private Session session;
         private TaskCenterRequest request;
 
-        TaskCenter(Session session, String projectId, String userId, boolean hasLicense) {
+        TaskCenter(Session session, String userId, String triggerMode, boolean hasLicense) {
             this.session = session;
             TaskCenterRequest request = new TaskCenterRequest();
-            request.setProjectId(projectId);
+            if (!StringUtils.equals(triggerMode, ALL)) {
+                request.setTriggerMode(triggerMode);
+            }
             request.setUserId(userId);
+            request.setExecutor(userId);
             request.setHasLicense(hasLicense);
             this.request = request;
         }
