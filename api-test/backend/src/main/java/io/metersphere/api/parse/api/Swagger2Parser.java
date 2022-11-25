@@ -49,6 +49,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
+            //注：有一特殊情况，swagger2.0 文件里如果在response的parameter参数下的properties的参数里存在 required 为string类型，
+            //swagger2.0不会导入，需替换一下
+            sourceStr = replaceStr(sourceStr);
+
             JSONObject jsonObject = JSONUtil.parseObject(sourceStr);
             if (jsonObject.opt("swagger") == null || jsonObject.opt("swagger") == "null" || jsonObject.opt("swagger") == StringUtils.SPACE) {
                 if (jsonObject.opt("openapi") == null || jsonObject.opt("openapi") == "null" || jsonObject.opt("openapi") == StringUtils.SPACE) {
@@ -57,15 +61,19 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             }
             swagger = new SwaggerParser().readWithInfo(sourceStr, false).getSwagger();
         }
-        if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
+        if (swagger == null || swagger.getSwagger() == null) {
+            //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
-
             return swagger3Parser.parse(sourceStr, request);
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(swagger, request));
         return definitionImport;
+    }
+
+    public static String replaceStr(String sourceStr) {
+        return sourceStr.replaceAll("\"required\": \".*\"", "\"required\": []");
     }
 
     // 鉴权设置
