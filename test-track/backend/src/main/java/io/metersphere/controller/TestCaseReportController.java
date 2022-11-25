@@ -8,7 +8,7 @@ import io.metersphere.request.testCaseReport.CreateReportRequest;
 import io.metersphere.service.TestCaseReportService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 

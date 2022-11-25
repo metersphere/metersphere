@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.*;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
 @Slf4j

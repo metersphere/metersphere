@@ -38,7 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 

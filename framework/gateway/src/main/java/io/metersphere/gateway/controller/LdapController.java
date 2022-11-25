@@ -11,7 +11,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Locale;
 
 @RestController

@@ -10,4 +10,3 @@ io.metersphere.autoconfigure.ScheduleConfig
 io.metersphere.autoconfigure.ShiroConfig
 io.metersphere.autoconfigure.AsyncConfig
 io.metersphere.autoconfigure.MinIOConfig
-io.metersphere.autoconfigure.RedissonConfig

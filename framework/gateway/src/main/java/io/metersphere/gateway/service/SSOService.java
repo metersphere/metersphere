@@ -10,22 +10,23 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.request.LoginRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
@@ -37,7 +38,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.WebSession;
 
-import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
@@ -102,19 +102,23 @@ public class SSOService {
     private RestTemplate getRestTemplateIgnoreSSL() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
         TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
         SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                NoopHostnameVerifier.INSTANCE);
+        SSLConnectionSocketFactory sslsf = SSLConnectionSocketFactoryBuilder.create()
+                .setSslContext(sslContext)
+                .setHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .build();
 
-        Registry<ConnectionSocketFactory> socketFactoryRegistry =
-                RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("https", sslsf)
-                        .register("http", new PlainConnectionSocketFactory())
-                        .build();
+//        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+//                .register("https", sslsf)
+//                .register("http", new PlainConnectionSocketFactory())
+//                .build();
 
-        BasicHttpClientConnectionManager connectionManager =
-                new BasicHttpClientConnectionManager(socketFactoryRegistry);
-        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf)
-                .setConnectionManager(connectionManager).build();
+        HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setSSLSocketFactory(sslsf)
+                .build();
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(connectionManager)
+                .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
@@ -172,39 +176,44 @@ public class SSOService {
         String redirectUrl = ((String) config.get("redirectUrl")).replace("${authId}", authId);
         String validateUrl = (String) config.get("validateUrl");
 
-        HttpClient httpclient = HttpClientBuilder.create().build();
-        String serviceValidateUrl = validateUrl + "?service=" + redirectUrl + "&ticket=" + ticket;
-        HttpGet httpGet = new HttpGet(serviceValidateUrl);
-        HttpResponse response = httpclient.execute(httpGet);
-        String body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-        String name = StringUtils.substringBetween(body, "<cas:user>", "</cas:user>");
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername(name);
-        loginRequest.setPassword("nothing");
-        loginRequest.setAuthenticate(authSource.getType());
-        User u = userLoginService.selectUser(name, name);
-        if (u == null) {
-            // 新建用户
-            User user = new User();
-            user.setId(name);
-            user.setName(name);
-            user.setEmail(StringUtils.contains(name, "@") ? name : null);
-            user.setSource(authSource.getType());
-            userLoginService.createOssUser(user);
-        } else {
-            if (StringUtils.equals(u.getEmail(), name) && !StringUtils.equals(u.getId(), name)) {
-                MSException.throwException("email already exists!");
-            }
-        }
-        Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
-        session.getAttributes().put("authenticate", authSource.getType());
-        session.getAttributes().put("authId", authSource.getId());
-        session.getAttributes().put("casTicket", ticket);
-        // 记录cas对应关系
-        Duration timeout = env.getProperty("spring.session.timeout", Duration.class, Duration.ofHours(12));
-        stringRedisTemplate.opsForValue().set(ticket, name, timeout);
+        try (
+                CloseableHttpClient httpclient = HttpClients.createDefault()
 
-        return userOptional;
+        ) {
+
+            String serviceValidateUrl = validateUrl + "?service=" + redirectUrl + "&ticket=" + ticket;
+            HttpGet httpGet = new HttpGet(serviceValidateUrl);
+            CloseableHttpResponse response = httpclient.execute(httpGet);
+            String body = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+            String name = StringUtils.substringBetween(body, "<cas:user>", "</cas:user>");
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setUsername(name);
+            loginRequest.setPassword("nothing");
+            loginRequest.setAuthenticate(authSource.getType());
+            User u = userLoginService.selectUser(name, name);
+            if (u == null) {
+                // 新建用户
+                User user = new User();
+                user.setId(name);
+                user.setName(name);
+                user.setEmail(StringUtils.contains(name, "@") ? name : null);
+                user.setSource(authSource.getType());
+                userLoginService.createOssUser(user);
+            } else {
+                if (StringUtils.equals(u.getEmail(), name) && !StringUtils.equals(u.getId(), name)) {
+                    MSException.throwException("email already exists!");
+                }
+            }
+            Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
+            session.getAttributes().put("authenticate", authSource.getType());
+            session.getAttributes().put("authId", authSource.getId());
+            session.getAttributes().put("casTicket", ticket);
+            // 记录cas对应关系
+            Duration timeout = env.getProperty("spring.session.timeout", Duration.class, Duration.ofHours(12));
+            stringRedisTemplate.opsForValue().set(ticket, name, timeout);
+
+            return userOptional;
+        }
     }
 
     public void kickOutUser(String logoutToken) {
@@ -236,7 +245,8 @@ public class SSOService {
 
     public Optional<SessionUser> exchangeOauth2Token(String code, String authId, WebSession session, Locale locale) throws Exception {
         AuthSource authSource = authSourceService.getAuthSource(authId);
-        Map<String, String> config = JSON.parseObject(authSource.getConfiguration(), new TypeReference<HashMap<String, String>>() {});
+        Map<String, String> config = JSON.parseObject(authSource.getConfiguration(), new TypeReference<HashMap<String, String>>() {
+        });
         String url = config.get("tokenUrl")
                 + "?client_id=" + config.get("clientId")
                 + "&client_secret=" + config.get("secret")
@@ -254,7 +264,8 @@ public class SSOService {
             HttpEntity<String> param = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.postForEntity(url, param, String.class);
             String content = response.getBody();
-            resultObj = JSON.parseObject(content, new TypeReference<HashMap<String, String>>() {});
+            resultObj = JSON.parseObject(content, new TypeReference<HashMap<String, String>>() {
+            });
         } catch (Exception e) {
             LogUtil.error("fail to get access_token", e);
             MSException.throwException("fail to get access_token!");
@@ -273,14 +284,16 @@ public class SSOService {
         Map<String, String> oauth2Config = null;
         Map<String, Object> resultObj = null;
         try {
-            oauth2Config = JSON.parseObject(authSource.getConfiguration(), new TypeReference<HashMap<String, String>>() {});
+            oauth2Config = JSON.parseObject(authSource.getConfiguration(), new TypeReference<HashMap<String, String>>() {
+            });
             String userInfoUrl = oauth2Config.get("userInfoUrl");
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + accessToken);
             RestTemplate restTemplate = getRestTemplateIgnoreSSL();
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, httpEntity, String.class);
-            resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, Object>>() {});
+            resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, Object>>() {
+            });
             LogUtil.info("user info: " + response.getBody());
         } catch (Exception e) {
             LogUtil.error("fail to get user info", e);
@@ -341,7 +354,8 @@ public class SSOService {
     private Map<String, String> getOauth2AttrMapping(String mappingStr) {
         Map<String, String> mapping = new HashMap<>();
         try {
-            mapping = JSON.parseObject(mappingStr, new TypeReference<HashMap<String, String>>() {});
+            mapping = JSON.parseObject(mappingStr, new TypeReference<HashMap<String, String>>() {
+            });
         } catch (Exception e) {
             LogUtil.error("get oauth2 mapping config error!", e);
             MSException.throwException(Translator.get("oauth_mapping_config_error"));

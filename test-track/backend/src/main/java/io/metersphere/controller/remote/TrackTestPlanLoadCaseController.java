@@ -4,7 +4,7 @@ import io.metersphere.plan.request.performance.LoadCaseRequest;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RequestMapping("/test/plan/load/case")
 @RestController

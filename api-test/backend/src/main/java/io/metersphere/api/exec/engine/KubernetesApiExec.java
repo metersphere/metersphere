@@ -61,27 +61,28 @@ public class KubernetesApiExec {
 
     private static class SimpleListener implements ExecListener {
         @Override
-        public void onOpen(Response response) {
+        public void onOpen() {
             LoggerUtil.info("The shell will remain open for 10 seconds.");
         }
 
         @Override
         public void onFailure(Throwable t, Response response) {
-            List<String> value = response.request().url().queryParameterValues("command");
-            if (CollectionUtils.isNotEmpty(value) && value.size() > 2 && value.get(2).startsWith("curl")) {
-                String query = "{" + KubernetesApiExec.getQuery(value.get(2)) + "}";
-                JmeterRunRequestDTO runRequest = JSON.parseObject(query, JmeterRunRequestDTO.class);
-                if (runRequest != null) {
-                    RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-                    apiScenarioReportService.testEnded(runRequest, response.networkResponse().message());
-                } else {
-                    MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
-                }
-            } else {
-                MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
-            }
-            LoggerUtil.error("K8S 节点执行错误：" + JSON.toJSONString(value));
-            LoggerUtil.error("K8S 节点执行错误：" + response.networkResponse());
+            // todo k8s 执行api变了
+//            List<String> value = response.request().url().queryParameterValues("command");
+//            if (CollectionUtils.isNotEmpty(value) && value.size() > 2 && value.get(2).startsWith("curl")) {
+//                String query = "{" + KubernetesApiExec.getQuery(value.get(2)) + "}";
+//                JmeterRunRequestDTO runRequest = JSON.parseObject(query, JmeterRunRequestDTO.class);
+//                if (runRequest != null) {
+//                    RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+//                    apiScenarioReportService.testEnded(runRequest, response.networkResponse().message());
+//                } else {
+//                    MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
+//                }
+//            } else {
+//                MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
+//            }
+//            LoggerUtil.error("K8S 节点执行错误：" + JSON.toJSONString(value));
+//            LoggerUtil.error("K8S 节点执行错误：" + response.networkResponse());
         }
 
         @Override

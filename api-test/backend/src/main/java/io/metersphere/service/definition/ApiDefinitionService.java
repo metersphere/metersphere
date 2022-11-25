@@ -73,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.Function;

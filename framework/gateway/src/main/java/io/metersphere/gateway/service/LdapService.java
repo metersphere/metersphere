@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.WebSession;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.naming.directory.DirContext;
 import java.util.*;
 

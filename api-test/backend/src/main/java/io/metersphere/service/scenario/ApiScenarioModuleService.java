@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.collections.CollectionUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;

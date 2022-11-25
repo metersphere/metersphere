@@ -6,7 +6,7 @@ import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 public class SSOSessionHandler {

@@ -6,7 +6,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Component
 public class TrackAppStartListener implements ApplicationListener<ApplicationReadyEvent> {

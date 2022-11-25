@@ -5,7 +5,6 @@ import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.*;
 

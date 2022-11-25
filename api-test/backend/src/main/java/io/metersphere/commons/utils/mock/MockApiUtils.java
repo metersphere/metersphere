@@ -19,7 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.script.ScriptEngine;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;

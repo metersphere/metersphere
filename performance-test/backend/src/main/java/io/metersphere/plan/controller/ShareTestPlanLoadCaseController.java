@@ -6,7 +6,7 @@ import io.metersphere.plan.service.TestPlanLoadCaseService;
 import io.metersphere.service.ShareInfoService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RestController

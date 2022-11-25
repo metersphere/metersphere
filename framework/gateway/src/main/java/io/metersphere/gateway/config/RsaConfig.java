@@ -7,7 +7,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Configuration
 public class RsaConfig implements ApplicationRunner {

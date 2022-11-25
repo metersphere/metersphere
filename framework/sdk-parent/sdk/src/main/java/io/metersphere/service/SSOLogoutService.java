@@ -13,8 +13,8 @@ import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @Service

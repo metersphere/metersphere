@@ -24,8 +24,8 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 

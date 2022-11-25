@@ -7,7 +7,7 @@ import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.service.MicroService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Service
 public class CustomFunctionService {

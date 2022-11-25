@@ -11,7 +11,7 @@ import io.metersphere.service.remote.api.ApiRerunService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Service
 public class TestPlanRerunService {

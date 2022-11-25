@@ -31,8 +31,8 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.mail.MessagingException;
+import jakarta.annotation.Resource;
+import jakarta.mail.MessagingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;

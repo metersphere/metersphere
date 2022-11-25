@@ -5,7 +5,7 @@ import io.metersphere.base.domain.AuthSourceExample;
 import io.metersphere.base.mapper.AuthSourceMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @Service

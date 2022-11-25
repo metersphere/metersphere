@@ -3,7 +3,7 @@ package io.metersphere.i18n;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 public class Translator {
     private static MessageSource messageSource;

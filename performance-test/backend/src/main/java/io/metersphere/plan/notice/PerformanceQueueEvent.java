@@ -8,7 +8,7 @@ import io.metersphere.plan.service.PerfQueueService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Component
 public class PerformanceQueueEvent implements LoadTestFinishEvent {

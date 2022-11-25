@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;

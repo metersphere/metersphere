@@ -6,7 +6,7 @@ import io.metersphere.dto.ShareInfoDTO;
 import io.metersphere.service.BaseShareInfoService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/share")

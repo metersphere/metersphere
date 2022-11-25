@@ -4,8 +4,8 @@ import io.metersphere.service.remote.ApiProjectSettingService;
 import io.metersphere.api.dto.QueryTestPlanRequest;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(path = {

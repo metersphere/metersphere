@@ -7,7 +7,7 @@ import io.metersphere.request.issues.IssueExportRequest;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Locale;
 

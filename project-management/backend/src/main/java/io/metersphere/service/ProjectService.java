@@ -35,11 +35,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import jakarta.annotation.Resource;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service

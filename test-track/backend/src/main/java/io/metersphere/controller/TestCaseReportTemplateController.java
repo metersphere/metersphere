@@ -8,7 +8,7 @@ import io.metersphere.request.testCaseReport.QueryTemplateRequest;
 import io.metersphere.service.TestCaseReportTemplateService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/case/report/template")

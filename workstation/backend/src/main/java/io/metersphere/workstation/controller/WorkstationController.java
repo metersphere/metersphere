@@ -3,7 +3,7 @@ package io.metersphere.workstation.controller;
 import io.metersphere.workstation.service.WorkstationService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Map;
 
 @RequestMapping("workstation")

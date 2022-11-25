@@ -5,7 +5,7 @@ import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.BaseProjectApplicationService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/project_application")

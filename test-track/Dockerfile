@@ -1,4 +1,4 @@
-FROM registry.cn-qingdao.aliyuncs.com/metersphere/alpine-openjdk11-jre
+FROM registry.cn-qingdao.aliyuncs.com/metersphere/alpine-openjdk17-jre
 
 LABEL maintainer="FIT2CLOUD <support@fit2cloud.com>"
 
@@ -22,7 +22,7 @@ RUN mv /app/lib/ms-jmeter-core-*.jar /app/lib/ms-jmeter-core.jar
 ENV JAVA_CLASSPATH=/app:/app/lib/ms-jmeter-core.jar:/opt/jmeter/lib/ext/*:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.TrackApplication
 ENV MS_VERSION=${MS_VERSION}
-ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED"
+ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"
 
 
 CMD ["/deployments/run-java.sh"]

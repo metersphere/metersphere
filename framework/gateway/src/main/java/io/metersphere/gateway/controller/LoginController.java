@@ -26,7 +26,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;

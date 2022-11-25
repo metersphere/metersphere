@@ -9,7 +9,7 @@ import io.metersphere.request.IntegrationRequest;
 import io.metersphere.service.BaseIntegrationService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("service/integration")

@@ -13,7 +13,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/api/module")

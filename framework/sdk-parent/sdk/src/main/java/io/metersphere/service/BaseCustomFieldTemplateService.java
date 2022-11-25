@@ -5,7 +5,7 @@ import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)

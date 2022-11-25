@@ -6,7 +6,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.service.UserKeyService;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class ApiKeyHandler {
 

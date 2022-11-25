@@ -6,7 +6,7 @@ import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanApiDefinitionService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RequestMapping("/api/definition")
 @RestController

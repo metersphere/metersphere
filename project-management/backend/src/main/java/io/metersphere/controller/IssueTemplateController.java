@@ -17,7 +17,7 @@ import io.metersphere.service.IssueTemplateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/field/template/issue")

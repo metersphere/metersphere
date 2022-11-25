@@ -10,10 +10,10 @@ import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.annotation.Resource;
+import jakarta.websocket.*;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

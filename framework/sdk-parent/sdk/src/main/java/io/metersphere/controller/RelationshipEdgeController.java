@@ -5,7 +5,7 @@ import io.metersphere.request.RelationshipEdgeRequest;
 import io.metersphere.service.RelationshipEdgeService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RequestMapping("relationship/edge")
 @RestController

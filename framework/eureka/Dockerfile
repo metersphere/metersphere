@@ -1,4 +1,4 @@
-FROM registry.cn-qingdao.aliyuncs.com/metersphere/alpine-openjdk11-jre
+FROM registry.cn-qingdao.aliyuncs.com/metersphere/alpine-openjdk17-jre
 
 LABEL maintainer="FIT2CLOUD <support@fit2cloud.com>"
 
@@ -13,7 +13,7 @@ COPY ${DEPENDENCY}/BOOT-INF/classes /app
 ENV JAVA_CLASSPATH=/app:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.eureka.EurekaApplication
 ENV MS_VERSION=${MS_VERSION}
-ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED"
+ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED"
 
 
 CMD ["/deployments/run-java.sh"]
