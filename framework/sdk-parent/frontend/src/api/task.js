@@ -5,8 +5,9 @@ import packageInfo from '@/../package.json'
 
 const currentModuleName = packageInfo.name;
 
-export function getTaskSocket(hasLicense) {
-  return socket("/websocket/task/running/" + getCurrentProjectID() + "/" + getCurrentUser().id + "/" + hasLicense)
+export function getTaskSocket(userId,triggerMode,hasLicense) {
+  triggerMode = triggerMode || 'ALL';
+  return socket(`/websocket/task/running/${userId}/${triggerMode}/${hasLicense}`)
 }
 
 export function getCaseData(id) {

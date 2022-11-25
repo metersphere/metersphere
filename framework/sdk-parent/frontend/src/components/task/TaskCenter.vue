@@ -44,7 +44,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="init(true)"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="changeInit"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -64,7 +64,7 @@
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
                   <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="mini"
-                             style="margin-right: 10px" @change="init(true)" :disabled="isDebugHistory">
+                             style="margin-right: 10px" @change="changeInit" :disabled="isDebugHistory">
                     <el-option
                       v-for="item in maintainerOptions"
                       :key="item.id"
@@ -255,7 +255,7 @@ export default {
     },
     initWebSocket() {
       let isLicense = hasLicense();
-      this.websocket = getTaskSocket(isLicense ? isLicense : false);
+      this.websocket = getTaskSocket(this.condition.executor,this.condition.triggerMode,isLicense || false);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
       this.websocket.onerror = this.onError;
@@ -387,6 +387,13 @@ export default {
     nextPage(currentPage, pageSize) {
       this.currentPage = currentPage;
       this.pageSize = pageSize;
+      this.init(true);
+    },
+    changeInit(){
+      if (this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
+      this.getTaskRunning();
       this.init(true);
     },
     init(loading) {
