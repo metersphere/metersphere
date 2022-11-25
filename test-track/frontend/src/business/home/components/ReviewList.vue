@@ -28,7 +28,7 @@
             prop="name"
             :label="$t('commons.name')"
             show-overflow-tooltip
-            width="320px"/>
+            min-width="200px"/>
           <el-table-column
             prop="status"
             :label="$t('test_track.plan.plan_status')"
@@ -41,16 +41,16 @@
             prop="creator"
             :label="$t('test_track.review.creator')"
             show-overflow-tooltip
-            min-width="200px"/>
+            width="150px"/>
           <el-table-column
             prop="reviewerName"
             :label="$t('test_track.review.reviewer')"
             show-overflow-tooltip
-            min-width="200px"/>
+            width="150px"/>
           <el-table-column
             :label="$t('test_track.review.result_distribution')"
             show-overflow-tooltip
-            min-width="300px">
+            width="350px">
             <template v-slot:default="scope">
               <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass)"
                           placement="top" :enterable="false" class="item" effect="dark">
@@ -60,14 +60,14 @@
           </el-table-column>
           <template #empty>
             <div
-              style="width: 100%;height: 200px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+              style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
               <img style="height: 100px;width: 100px;margin-bottom: 8px"
                    src="/assets/figma/icon_none.svg"/>
               <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
             </div>
           </template>
         </el-table>
-        <home-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
+        <home-pagination v-if="tableData.length > 0" :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" layout="prev, pager, next, sizes"
                          :total="total"/>
       </div>
     </div>
