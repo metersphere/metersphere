@@ -27,17 +27,13 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 
 ### UI 展示
 
-![UI展示](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/UIdemo.gif)
-
-> 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
+![UI展示](https://www.fit2cloud.com/metersphere/images/ms-dashboard.jpeg)
 
 ### 功能架构
 
 ![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ms-architecture.png)
 
 ### 在线体验
-
-> 2022 年 7 月 1 日，MeterSphere 专业测试云正式上线！
 
 **[免费试用](https://www.metersphere.com/)**
 
