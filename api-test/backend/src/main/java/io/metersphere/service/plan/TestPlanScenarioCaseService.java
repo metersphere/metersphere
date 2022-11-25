@@ -370,6 +370,9 @@ public class TestPlanScenarioCaseService {
                 mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
 
     }
@@ -727,6 +730,9 @@ public class TestPlanScenarioCaseService {
                 }
             }
             sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
     }
 

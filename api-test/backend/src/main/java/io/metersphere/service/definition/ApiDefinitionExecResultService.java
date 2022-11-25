@@ -132,6 +132,7 @@ public class ApiDefinitionExecResultService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper definitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         ApiTestCaseMapper batchApiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        TestPlanApiCaseMapper planApiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
 
         for (ResultDTO dto : resultDTOS) {
             this.mergeRetryResults(dto);
@@ -143,7 +144,7 @@ public class ApiDefinitionExecResultService {
                             result.setResourceId(dto.getTestId());
                             apiExecutionInfoService.insertExecutionInfo(result);
                             // 批量更新关联关系状态
-                            batchEditStatus(dto.getRunMode(), result.getStatus(), result.getId(), dto.getTestId(), batchApiTestCaseMapper);
+                            batchEditStatus(dto.getRunMode(), result.getStatus(), result.getId(), dto.getTestId(), planApiCaseMapper, batchApiTestCaseMapper);
                         }
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
                             User user = null;
@@ -264,14 +265,30 @@ public class ApiDefinitionExecResultService {
         saveResult.setName(name);
     }
 
-    public void batchEditStatus(String type, String status, String reportId, String testId, ApiTestCaseMapper batchApiTestCaseMapper) {
-        // 更新用例最后执行结果
-        ApiTestCaseWithBLOBs caseWithBLOBs = new ApiTestCaseWithBLOBs();
-        caseWithBLOBs.setId(testId);
-        caseWithBLOBs.setLastResultId(reportId);
-        caseWithBLOBs.setStatus(status);
-        caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        batchApiTestCaseMapper.updateByPrimaryKeySelective(caseWithBLOBs);
+    public void batchEditStatus(String type, String status, String reportId, String testId,
+                                TestPlanApiCaseMapper batchTestPlanApiCaseMapper,
+                                ApiTestCaseMapper batchApiTestCaseMapper) {
+        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+                ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+            TestPlanApiCase apiCase = new TestPlanApiCase();
+            apiCase.setId(testId);
+            apiCase.setStatus(status);
+            apiCase.setUpdateTime(System.currentTimeMillis());
+            batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+
+            TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
+            reviewApiCase.setId(testId);
+            reviewApiCase.setStatus(status);
+            reviewApiCase.setUpdateTime(System.currentTimeMillis());
+        } else {
+            // 更新用例最后执行结果
+            ApiTestCaseWithBLOBs caseWithBLOBs = new ApiTestCaseWithBLOBs();
+            caseWithBLOBs.setId(testId);
+            caseWithBLOBs.setLastResultId(reportId);
+            caseWithBLOBs.setStatus(status);
+            caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+            batchApiTestCaseMapper.updateByPrimaryKeySelective(caseWithBLOBs);
+        }
     }
 
     /**
@@ -388,8 +405,8 @@ public class ApiDefinitionExecResultService {
             if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
-            editStatus(saveResult, type, status, saveResult.getCreateTime(), saveResult.getId(), testId);
             if (batchMapper == null) {
+                editStatus(saveResult, type, status, saveResult.getCreateTime(), saveResult.getId(), testId);
                 apiDefinitionExecResultMapper.updateByPrimaryKeySelective(saveResult);
             } else {
                 batchMapper.updateByPrimaryKeySelective(saveResult);
