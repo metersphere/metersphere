@@ -154,40 +154,38 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="8">
+                <el-col :span="6">
                   <el-form-item :label="$t('test_resource_pool.max_threads')"
                                 :rules="requiredRules">
                     <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="6">
                   <el-form-item :label="$t('test_resource_pool.pod_thread_limit')"
                                 :rules="requiredRules">
                     <el-input-number v-model="item.podThreadLimit" :min="1" :max="1000000"/>
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="4">
                   <el-form-item :label="$t('test_resource_pool.sync_jar')">
                     <el-checkbox v-model="item.enable"/>
                   </el-form-item>
                 </el-col>
-              </el-row>
-              <el-row>
-                <el-col>
+                <el-col :span="8">
                   <el-form-item>
                     <template v-slot:label>
-                      NodeSelector
-                      <el-tooltip :content="$t('test_resource_pool.node_selector_tip')"
+                      <el-link type="primary" @click="jobTemplate">{{ $t('system.test_resource_pool.edit_job_template') }}</el-link>
+                      <el-tooltip :content="$t('system.test_resource_pool.edit_job_template_tip')"
                                   effect="light"
                                   trigger="hover">
                         <i class="el-icon-info"></i>
                       </el-tooltip>
                     </template>
-                    <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
                   </el-form-item>
                 </el-col>
               </el-row>
             </div>
+            <job-template ref="jobTemplate" @saveJobTemplate="saveJobTemplate"/>
           </div>
 
           <div class="node-line" v-if="form.type === 'NODE'">
@@ -284,10 +282,11 @@ import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import BatchAddResource from "@/business/components/settings/system/components/BatchAddResource";
 import {getYaml} from "@/business/components/settings/system/test-resource-pool";
+import JobTemplate from "./components/JobTemplate";
 
 export default {
   name: "MsTestResourcePool",
-  components: {BatchAddResource, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
+  components: {BatchAddResource, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter, JobTemplate},
   data() {
     return {
       result: {},
@@ -378,6 +377,9 @@ export default {
     batchAddResource() {
       this.$refs.batchAddResource.open();
     },
+    jobTemplate() {
+      this.$refs.jobTemplate.open(this.infoList[0].jobTemplate);
+    },
     batchSave(resources) {
       let targets = this._handleBatchVars(resources);
       targets.forEach(row => {
@@ -400,6 +402,11 @@ export default {
         });
       });
       return keyValues;
+    },
+    saveJobTemplate(template) {
+      this.infoList.forEach(item => {
+        item.jobTemplate = template;
+      });
     },
     validateResourceInfo() {
       if (this.infoList.length <= 0) {

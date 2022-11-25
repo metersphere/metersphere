@@ -3476,5 +3476,11 @@ export default {
     store_xpath_count: "Number of elements matching xpath (storeXpathCount)",
     store_wigndow_handle: "Window Handle(storeWindowHandle)",
     store_title: "Web page title (storeTitle)",
+  },
+  system: {
+    test_resource_pool: {
+      edit_job_template: "Edit Job Template",
+      edit_job_template_tip: "The Kubernetes Job template is a text in YAML format that defines the running parameters of the Job. You can edit the Job template here.",
+    }
   }
 };

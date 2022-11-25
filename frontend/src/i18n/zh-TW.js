@@ -3479,5 +3479,11 @@ export default {
     store_xpath_count: "匹配 xpath 的元素數量(storeXpathCount)",
     store_window_handle: "窗口 Handle(storeWindowHandle)",
     store_title: "網頁標題(storeTitle)",
+  },
+  system: {
+    test_resource_pool: {
+      edit_job_template: "編輯Job模版",
+      edit_job_template_tip: "Kubernetes Job模版是一個YAML格式的文本，用於定義Job的運行參數，您可以在此處編輯Job模版。",
+    }
   }
 };
