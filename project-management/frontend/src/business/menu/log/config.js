@@ -241,6 +241,11 @@ export function PROJECTSYSLIST() {
           value: [i18n.t('commons.project') + "-" + i18n.t('permission.project_message.name'), 'WORKSPACE_MESSAGE_SETTINGS'],
           leaf: true
         },
+        {
+          label: i18n.t('commons.project') + "-" + i18n.t('operating_log.group_permission'),
+          value: [i18n.t('commons.project') + "-" + i18n.t('operating_log.group_permission'), 'GROUP_PERMISSION'],
+          leaf: true
+        },
       ]
     },
   ];
