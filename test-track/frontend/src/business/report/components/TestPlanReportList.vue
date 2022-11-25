@@ -234,28 +234,28 @@ export default {
     }
   },
   activated() {
-
-  },
-  created() {
-    this.projectId = this.$route.params.projectId;
-    this.batchButtons = this.publicButtons;
-    this.operators = this.simpleOperators;
-    if (!this.projectId) {
-      this.projectId = getCurrentProjectID();
-    }
-    this.isTestManagerOrTestUser = true;
-
-    this.initTableData();
-
-    // 通知过来的数据跳转到报告
-    if (this.$route.query.resourceId) {
-      testPlanReportGetDb(this.$route.query.resourceId)
-        .then(response => {
-          this.$refs.dbReport.open(response.data);
-        });
-    }
+    this.init();
   },
   methods: {
+    init() {
+      this.projectId = this.$route.params.projectId;
+      this.batchButtons = this.publicButtons;
+      this.operators = this.simpleOperators;
+      if (!this.projectId) {
+        this.projectId = getCurrentProjectID();
+      }
+      this.isTestManagerOrTestUser = true;
+
+      this.initTableData();
+
+      // 通知过来的数据跳转到报告
+      if (this.$route.query.resourceId) {
+        testPlanReportGetDb(this.$route.query.resourceId)
+          .then(response => {
+            this.$refs.dbReport.open(response.data);
+          });
+      }
+    },
     initTableData() {
       initCondition(this.condition, this.condition.selectAll);
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);

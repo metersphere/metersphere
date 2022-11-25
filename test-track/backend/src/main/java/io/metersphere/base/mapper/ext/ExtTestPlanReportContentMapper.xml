@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanReportContentMapper">
+
+    <select id="isDynamicallyGenerateReport" resultType="java.lang.Boolean">
+        select count(*) > 0
+        from test_plan_report_content
+        where test_plan_report_id = #{reportId}
+          and (
+                plan_api_case_report_struct is not null or plan_api_case_report_struct != ''
+                or plan_scenario_report_struct is not null or plan_scenario_report_struct != ''
+                or plan_ui_scenario_report_struct is not null or plan_ui_scenario_report_struct != ''
+                or plan_load_case_report_struct is not null or plan_load_case_report_struct != ''
+            )
+    </select>
+    <select id="selectForPassRate" resultType="io.metersphere.base.domain.TestPlanReportContentWithBLOBs">
+        select id,
+               test_plan_report_id,
+               plan_scenario_report_struct,
+               plan_api_case_report_struct,
+               plan_load_case_report_struct,
+               plan_ui_scenario_report_struct
+        from test_plan_report_content
+        where test_plan_report_id = #{reportId}
+    </select>
+</mapper>
