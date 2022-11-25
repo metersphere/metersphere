@@ -30,15 +30,16 @@
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-          <div class="ms-div">
+          <div class="ms-div" v-if="request.url && request.url !== ''">
             {{ $t('api_test.request.address') }} :
             <pre>{{ request.url }}</pre>
           </div>
-          <div class="ms-div">
+          <!--这里判断url而不是判断cookies是因为通过url来判断是否是http请求，http请求展示以下信息-->
+          <div class="ms-div" v-if="request.url && request.url !== ''">
             {{ $t('api_test.scenario.headers') }} :
             <pre>{{ request.headers }}</pre>
           </div>
-          <div class="ms-div">
+          <div class="ms-div" v-if="request.url && request.url !== ''">
             Cookies :
             <pre>{{ request.cookies }}</pre>
           </div>

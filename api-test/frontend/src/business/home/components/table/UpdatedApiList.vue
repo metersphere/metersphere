@@ -94,7 +94,7 @@
             <div
               style="
                 width: 100%;
-                height: 200px;
+                height: 238px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
