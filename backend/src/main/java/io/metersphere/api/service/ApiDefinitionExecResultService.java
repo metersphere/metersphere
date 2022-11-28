@@ -172,12 +172,8 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            if (user == null) {
-                if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
-                    user = SessionUtils.getUser();
-                } else {
-                    user = userMapper.selectByPrimaryKey(result.getUserId());
-                }
+            if (user == null && StringUtils.isNotBlank(result.getUserId())) {
+                user = userMapper.selectByPrimaryKey(result.getUserId());
             }
             Map paramMap = new HashMap<>(beanMap);
             paramMap.put("operator", user != null ? user.getName() : result.getUserId());
