@@ -531,6 +531,7 @@ public class TestPlanReportService {
         if(testPlanReport != null && reportContent != null){
             TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
             reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            reportContent.setPassRate(reportBuildResultDTO.getTestPlanSimpleReportDTO().getPassRate());
         }
     }
 
