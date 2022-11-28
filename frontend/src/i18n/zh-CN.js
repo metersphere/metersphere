@@ -2484,6 +2484,7 @@ export default {
       trigger_mode: {
         manual: "手动触发",
         automation: "自动触发",
+        schedule: "定时任务",
       },
       overview: "概览",
       testing_time: "测试时间",
