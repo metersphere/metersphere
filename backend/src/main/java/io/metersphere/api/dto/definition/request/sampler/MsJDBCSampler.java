@@ -161,10 +161,11 @@ public class MsJDBCSampler extends MsTestElement {
             String message = "数据源为空请选择数据源";
             MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
         }
-        final HashTree samplerHashTree = tree.add(jdbcSampler(config));
-        tree.add(jdbcDataSource());
+        JDBCSampler jdbcSampler = jdbcSampler(config);
+        final HashTree samplerHashTree = tree.add(jdbcSampler);
+        tree.add(jdbcDataSource(jdbcSampler.getDataSource()));
         Arguments arguments = arguments(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments", this.getVariables());
-        if (arguments != null) {
+        if (arguments != null && !arguments.getArguments().isEmpty()) {
             tree.add(arguments);
         }
         // 环境通用请求头
@@ -332,7 +333,8 @@ public class MsJDBCSampler extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
-        sampler.setProperty("dataSource", this.dataSource.getName());
+        sampler.setDataSource(ElementUtil.getDataSourceName(this.dataSource.getName()));
+        sampler.setProperty("dataSource", sampler.getDataSource());
         sampler.setProperty("query", this.getQuery());
         sampler.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));
         sampler.setProperty("resultVariable", this.getResultVariable());
@@ -342,7 +344,7 @@ public class MsJDBCSampler extends MsTestElement {
         return sampler;
     }
 
-    private DataSourceElement jdbcDataSource() {
+    private DataSourceElement jdbcDataSource(String dataSourceName) {
         DataSourceElement dataSourceElement = new DataSourceElement();
         dataSourceElement.setEnabled(true);
         dataSourceElement.setName(this.getName() + " JDBCDataSource");
@@ -351,7 +353,7 @@ public class MsJDBCSampler extends MsTestElement {
         dataSourceElement.setProperty("autocommit", true);
         dataSourceElement.setProperty("keepAlive", true);
         dataSourceElement.setProperty("preinit", false);
-        dataSourceElement.setProperty("dataSource", dataSource.getName());
+        dataSourceElement.setProperty("dataSource", dataSourceName);
         dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
         dataSourceElement.setProperty("driver", dataSource.getDriver());
         dataSourceElement.setProperty("username", dataSource.getUsername());

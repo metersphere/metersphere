@@ -801,9 +801,11 @@ public class ElementUtil {
                 }
             }
             List<String> finalDataName = dataName;
-            List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getName().equals(finalDataName.get(0))).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(collect)) {
-                return collect.get(0);
+            if (CollectionUtils.isNotEmpty(dataName)) {
+                List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getName().equals(finalDataName.get(0))).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(collect)) {
+                    return collect.get(0);
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e);
@@ -811,4 +813,7 @@ public class ElementUtil {
         return null;
     }
 
+    public static String getDataSourceName(String name) {
+        return StringUtils.join(name, "-", UUID.randomUUID().toString());
+    }
 }
