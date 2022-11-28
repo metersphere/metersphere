@@ -264,7 +264,7 @@ public class ApiScenarioReportService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioNames);
         report.setScenarioId(scenarioIds);
-        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals(CommonConstants.CASE)) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
         apiScenarioReportMapper.insert(report);
@@ -280,14 +280,14 @@ public class ApiScenarioReportService {
         if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
             return report;
         }
-        if (StringUtils.equals(runMode, "CASE")) {
+        if (StringUtils.equals(runMode, CommonConstants.CASE)) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
         report.setStatus(status);
         report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
         report.setEndTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
-        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals(CommonConstants.CASE)) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -309,7 +309,7 @@ public class ApiScenarioReportService {
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
         report.setExecuteType(test.getExecuteType());
-        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals(CommonConstants.CASE)) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);

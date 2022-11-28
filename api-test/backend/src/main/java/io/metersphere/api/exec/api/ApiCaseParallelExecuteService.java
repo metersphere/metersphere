@@ -1,11 +1,12 @@
 package io.metersphere.api.exec.api;
 
 import io.metersphere.api.exec.queue.DBTestQueue;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -45,7 +46,7 @@ public class ApiCaseParallelExecuteService {
             }
             ApiDefinitionExecResultWithBLOBs result = executeQueue.get(testId);
             String reportId = result.getId();
-            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, null);
+            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode);
             runRequest.setPool(pool);
             runRequest.setTestPlanReportId(executionQueue.getReportId());
             runRequest.setPoolId(config.getResourcePoolId());
@@ -57,7 +58,7 @@ public class ApiCaseParallelExecuteService {
             runRequest.setRetryEnable(config.isRetryEnable());
 
             Map<String, Object> extendedParameters = new HashMap<>();
-            extendedParameters.put("userId", result.getUserId());
+            extendedParameters.put(CommonConstants.USER_ID, result.getUserId());
             runRequest.setExtendedParameters(extendedParameters);
             if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
                 runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));

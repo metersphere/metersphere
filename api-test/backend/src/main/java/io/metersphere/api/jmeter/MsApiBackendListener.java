@@ -162,6 +162,4 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         }
         return reportId;
     }
-
-
 }

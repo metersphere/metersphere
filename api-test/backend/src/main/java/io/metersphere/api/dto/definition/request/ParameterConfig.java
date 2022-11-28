@@ -6,12 +6,10 @@ import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiTestCaseService;
-import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
@@ -19,6 +17,9 @@ import io.metersphere.environment.ssl.MsKeyStore;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.service.plan.TestPlanApiCaseService;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +131,7 @@ public class ParameterConfig extends MsParameter {
                     ApiDefinition apiDefinition = null;
                     ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                     ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-                    if (StringUtils.isNotEmpty(samplerProxy.getRefType()) && samplerProxy.getRefType().equals("CASE")) {
+                    if (StringUtils.isNotEmpty(samplerProxy.getRefType()) && samplerProxy.getRefType().equals(CommonConstants.CASE)) {
                         ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(samplerProxy.getId());
                         if (caseWithBLOBs != null) {
                             apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
