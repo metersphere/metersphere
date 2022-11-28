@@ -351,7 +351,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
             if (jsonSchemaItem==null){
                 jsonSchemaItem = new JsonSchemaItem();
-                jsonSchemaItem.setType(schema.getType());
+                if (StringUtils.isNotBlank(schema.getType())) {
+                    jsonSchemaItem.setType(schema.getType());
+                }
             }
             if (MapUtils.isEmpty(jsonSchemaItem.getProperties())) {
                 jsonSchemaItem.setProperties(new HashMap<>());
