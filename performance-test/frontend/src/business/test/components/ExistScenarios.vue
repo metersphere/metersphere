@@ -12,9 +12,10 @@
     </ms-search>
     <el-table v-loading="projectLoadingResult" class="basic-config"
               :data="apiScenarios"
+              row-key="id"
               @select-all="handleSelectAll"
               @select="handleSelectionChange">
-      <el-table-column type="selection"/>
+      <el-table-column type="selection" reserve-selection/>
       <el-table-column
         prop="num"
         label="ID">
