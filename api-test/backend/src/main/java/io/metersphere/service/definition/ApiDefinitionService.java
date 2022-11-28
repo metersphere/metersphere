@@ -1680,7 +1680,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             if (!request.getPlatform().equalsIgnoreCase("Swagger2")) {
                 this.sendFailMessage(request, project);
-                MSException.throwException("文件格式不符合要求");
+                MSException.throwException(Translator.get("file_format_does_not_meet_requirements"));
             }
             try {
                 UrlTestUtils.testUrl(request.getSwaggerUrl(), 30000);
@@ -1773,17 +1773,17 @@ public class ApiDefinitionService {
     private void checkFileSuffixName(ApiTestImportRequest request, String suffixName) {
         if (suffixName.equalsIgnoreCase("jmx")) {
             if (!request.getPlatform().equalsIgnoreCase("JMeter")) {
-                MSException.throwException("文件格式不符合要求");
+                MSException.throwException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
         if (suffixName.equalsIgnoreCase("har")) {
             if (!request.getPlatform().equalsIgnoreCase("Har")) {
-                MSException.throwException("文件格式不符合要求");
+                MSException.throwException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
         if (suffixName.equalsIgnoreCase("json")) {
             if (request.getPlatform().equalsIgnoreCase("Har") || request.getPlatform().equalsIgnoreCase("Jmeter")) {
-                MSException.throwException("文件格式不符合要求");
+                MSException.throwException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
     }
@@ -2203,7 +2203,7 @@ public class ApiDefinitionService {
             schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
         } catch (MalformedURLException e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException("URL 格式不正确！");
+            MSException.throwException(Translator.get("url_is_not_valid"));
         }
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
@@ -2233,7 +2233,7 @@ public class ApiDefinitionService {
             schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
         } catch (MalformedURLException e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException("URL 格式不正确！");
+            MSException.throwException(Translator.get("url_is_not_valid"));
         }
         scheduleService.editSchedule(schedule);
         request.setResourceId(swaggerUrlProject.getId());
