@@ -25,10 +25,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.PlatformPluginService;
 import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
-import io.metersphere.xpack.track.dto.IssueTemplateDao;
-import io.metersphere.xpack.track.dto.IssuesDao;
-import io.metersphere.xpack.track.dto.PlatformStatusDTO;
-import io.metersphere.xpack.track.dto.PlatformUser;
+import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -164,8 +161,13 @@ public class IssuesController {
     }
 
     @GetMapping("/sync/{projectId}")
-    public boolean getPlatformIssue(@PathVariable String projectId) {
+    public boolean syncThirdPartyIssues(@PathVariable String projectId) {
         return issuesService.syncThirdPartyIssues(projectId);
+    }
+
+    @PostMapping("/sync/all")
+    public boolean syncThirdPartyAllIssues(@RequestBody IssueSyncRequest request) {
+        return issuesService.syncThirdPartyAllIssues(request);
     }
 
     @GetMapping("/sync/check/{projectId}")

@@ -38,8 +38,9 @@ import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.platform.api.Platform;
 import io.metersphere.platform.domain.*;
+import io.metersphere.platform.domain.PlatformAttachment;
 import io.metersphere.request.IntegrationRequest;
-import io.metersphere.request.attachment.AttachmentRequest;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.request.issues.IssueExportRequest;
 import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
@@ -59,6 +60,7 @@ import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import jodd.util.CollectionUtil;
+import io.metersphere.xpack.track.service.XpackIssueService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -1006,7 +1008,7 @@ public class IssuesService {
         request.setIssues(platformIssues);
         request.setDefaultCustomFields(defaultCustomFields);
         request.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
-        Platform platform = platformPluginService.getPlatform(project.getPlatform());
+        Platform platform = platformPluginService.getPlatform(project.getPlatform(), project.getWorkspaceId());
 
         // 获取需要变更的缺陷
         SyncIssuesResult syncIssuesResult = platform.syncIssues(request);
@@ -1048,59 +1050,123 @@ public class IssuesService {
         }
     }
 
-    private void syncPluginIssueAttachment(Platform platform, SyncIssuesResult syncIssuesResult, AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
+    private void syncPluginIssueAttachment(Platform platform, SyncIssuesResult syncIssuesResult,
+                                           AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
         Map<String, List<PlatformAttachment>> attachmentMap = syncIssuesResult.getAttachmentMap();
         if (MapUtils.isNotEmpty(attachmentMap)) {
             for (String issueId : attachmentMap.keySet()) {
                 // 查询我们平台的附件
                 Set<String> jiraAttachmentSet = new HashSet<>();
-                AttachmentRequest attachmentRequest = new AttachmentRequest();
-                attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
-                attachmentRequest.setBelongId(issueId);
-                List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(attachmentRequest);
+                List<FileAttachmentMetadata> allMsAttachments = getIssueFileAttachmentMetadata(issueId);
                 Set<String> attachmentsNameSet = allMsAttachments.stream()
                         .map(FileAttachmentMetadata::getName)
                         .collect(Collectors.toSet());
 
                 List<PlatformAttachment> syncAttachments = attachmentMap.get(issueId);
                 for (PlatformAttachment syncAttachment : syncAttachments) {
-                    if (!attachmentsNameSet.contains(syncAttachment.getFileName())) {
-                        jiraAttachmentSet.add(syncAttachment.getFileName());
-                        try {
-                            byte[] content = platform.getAttachmentContent(syncAttachment.getFileKey());
-                            if (content == null) {
-                                continue;
-                            }
-                            FileAttachmentMetadata fileAttachmentMetadata = attachmentService
-                                    .saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issueId, syncAttachment.getFileName());
-                            AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
-                            attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
-                            attachmentModuleRelation.setRelationId(issueId);
-                            attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
-                            batchAttachmentModuleRelationMapper.insert(attachmentModuleRelation);
-                        } catch (Exception e) {
-                            LogUtil.error(e);
-                        }
+                    String fileName = syncAttachment.getFileName();
+                    String fileKey = syncAttachment.getFileKey();
+                    if (!attachmentsNameSet.contains(fileName)) {
+                        jiraAttachmentSet.add(fileName);
+                        saveAttachmentModuleRelation(platform, issueId, fileName, fileKey, batchAttachmentModuleRelationMapper);
                     }
+
                 }
 
                 // 删除Jira中不存在的附件
-                if (CollectionUtils.isNotEmpty(allMsAttachments)) {
-                    List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
-                            .filter(msAttachment -> !jiraAttachmentSet.contains(msAttachment.getName()))
-                            .collect(Collectors.toList());
-                    deleteMsAttachments.forEach(fileAttachmentMetadata -> {
-                        List<String> ids = List.of(fileAttachmentMetadata.getId());
-                        AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
-                        example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
-                        // 删除MS附件及关联数据
-                        attachmentService.deleteAttachmentByIds(ids);
-                        attachmentService.deleteFileAttachmentByIds(ids);
-                        batchAttachmentModuleRelationMapper.deleteByExample(example);
-                    });
-                }
+                deleteSyncAttachment(batchAttachmentModuleRelationMapper, jiraAttachmentSet, allMsAttachments);
             }
         }
+    }
+
+    private void syncAllPluginIssueAttachment(Project project, IssueSyncRequest syncIssuesResult) {
+        // todo 所有平台改造完之后删除
+        if (!StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        try {
+            AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+            Platform platform = platformPluginService.getPlatform(project.getPlatform(), project.getWorkspaceId());
+            Map<String, List<io.metersphere.xpack.track.dto.PlatformAttachment>> attachmentMap = syncIssuesResult.getAttachmentMap();
+            if (MapUtils.isNotEmpty(attachmentMap)) {
+                for (String issueId : attachmentMap.keySet()) {
+                    // 查询我们平台的附件
+                    Set<String> jiraAttachmentSet = new HashSet<>();
+                    List<FileAttachmentMetadata> allMsAttachments = getIssueFileAttachmentMetadata(issueId);
+                    Set<String> attachmentsNameSet = allMsAttachments.stream()
+                            .map(FileAttachmentMetadata::getName)
+                            .collect(Collectors.toSet());
+
+                    List<io.metersphere.xpack.track.dto.PlatformAttachment> syncAttachments = attachmentMap.get(issueId);
+                    for (io.metersphere.xpack.track.dto.PlatformAttachment syncAttachment : syncAttachments) {
+                        String fileName = syncAttachment.getFileName();
+                        String fileKey = syncAttachment.getFileKey();
+                        if (!attachmentsNameSet.contains(fileName)) {
+                            jiraAttachmentSet.add(fileName);
+                            saveAttachmentModuleRelation(platform, issueId, fileName, fileKey, batchAttachmentModuleRelationMapper);
+                        }
+
+                    }
+
+                    // 删除Jira中不存在的附件
+                    deleteSyncAttachment(batchAttachmentModuleRelationMapper, jiraAttachmentSet, allMsAttachments);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void deleteSyncAttachment(AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper,
+                                      Set<String> jiraAttachmentSet,
+                                      List<FileAttachmentMetadata> allMsAttachments) {
+        // 删除Jira中不存在的附件
+        if (CollectionUtils.isNotEmpty(allMsAttachments)) {
+            List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
+                    .filter(msAttachment -> !jiraAttachmentSet.contains(msAttachment.getName()))
+                    .collect(Collectors.toList());
+            deleteMsAttachments.forEach(fileAttachmentMetadata -> {
+                List<String> ids = List.of(fileAttachmentMetadata.getId());
+                AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
+                // 删除MS附件及关联数据
+                attachmentService.deleteAttachmentByIds(ids);
+                attachmentService.deleteFileAttachmentByIds(ids);
+                batchAttachmentModuleRelationMapper.deleteByExample(example);
+            });
+        }
+    }
+
+    private void saveAttachmentModuleRelation(Platform platform, String issueId,
+                                              String fileName, String fileKey,
+                                              AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
+        try {
+            byte[] content = platform.getAttachmentContent(fileKey);
+            if (content == null) {
+                return;
+            }
+            FileAttachmentMetadata fileAttachmentMetadata = attachmentService
+                    .saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issueId, fileName);
+            AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+            attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+            attachmentModuleRelation.setRelationId(issueId);
+            attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+            batchAttachmentModuleRelationMapper.insert(attachmentModuleRelation);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+
+    }
+
+    private List<FileAttachmentMetadata> getIssueFileAttachmentMetadata(String issueId) {
+        AttachmentRequest attachmentRequest = new AttachmentRequest();
+        attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+        attachmentRequest.setBelongId(issueId);
+        List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(attachmentRequest);
+        return allMsAttachments;
     }
 
 
@@ -1408,9 +1474,6 @@ public class IssuesService {
         if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Tapd.name())) {
             TapdPlatform tapd = new TapdPlatform(issuesRequest);
             this.doCheckThirdProjectExist(tapd, project.getTapdId());
-        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
-            JiraPlatform jira = new JiraPlatform(issuesRequest);
-            this.doCheckThirdProjectExist(jira, project.getJiraKey());
         } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Zentao.name())) {
             ZentaoPlatform zentao = new ZentaoPlatform(issuesRequest);
             this.doCheckThirdProjectExist(zentao, project.getZentaoId());
@@ -1755,5 +1818,38 @@ public class IssuesService {
         Project project = baseProjectService.getProjectById(projectId);
         return BooleanUtils.isTrue(project.getThirdPartTemplate())
                 && platformPluginService.isThirdPartTemplateSupport(project.getPlatform());
+    }
+
+    public boolean syncThirdPartyAllIssues(IssueSyncRequest syncRequest) {
+        syncRequest.setProjectId(syncRequest.getProjectId());
+        XpackIssueService xpackIssueService = CommonBeanFactory.getBean(XpackIssueService.class);
+        if (StringUtils.isNotBlank(syncRequest.getProjectId())) {
+            // 获取当前项目执行同步缺陷Key
+            String syncValue = getSyncKey(syncRequest.getProjectId());
+            // 存在即正在同步中
+            if (StringUtils.isNotEmpty(syncValue)) {
+                return false;
+            }
+            // 不存在则设置Key, 设置过期时间, 执行完成后delete掉
+            setSyncKey(syncRequest.getProjectId());
+
+            try {
+                Project project = baseProjectService.getProjectById(syncRequest.getProjectId());
+
+                if (!isThirdPartTemplate(project)) {
+                    syncRequest.setDefaultCustomFields(getDefaultCustomFields(syncRequest.getProjectId()));
+                }
+
+                xpackIssueService.syncThirdPartyIssues(project, syncRequest);
+
+                syncAllPluginIssueAttachment(project, syncRequest);
+            } catch (Exception e) {
+                LogUtil.error(e);
+                MSException.throwException(e);
+            } finally {
+                deleteSyncKey(syncRequest.getProjectId());
+            }
+        }
+        return true;
     }
 }
