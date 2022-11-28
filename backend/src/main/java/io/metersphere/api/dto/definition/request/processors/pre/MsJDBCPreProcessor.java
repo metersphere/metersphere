@@ -146,8 +146,9 @@ public class MsJDBCPreProcessor extends MsTestElement {
                 MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
-        final HashTree samplerHashTree = tree.add(jdbcPreProcessor(config));
-        tree.add(jdbcDataSource());
+        JDBCPreProcessor preProcessor = jdbcPreProcessor(config);
+        final HashTree samplerHashTree = tree.add(preProcessor);
+        tree.add(jdbcDataSource(preProcessor.getDataSource()));
         Arguments arguments = arguments(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments", this.getVariables());
         if (arguments != null) {
             tree.add(arguments);
@@ -259,8 +260,8 @@ public class MsJDBCPreProcessor extends MsTestElement {
         jdbcPreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
 
         ElementUtil.setBaseParams(jdbcPreProcessor, this.getParent(), config, this.getId(), this.getIndex());
-
-        jdbcPreProcessor.setProperty("dataSource", this.dataSource.getName());
+        jdbcPreProcessor.setDataSource(ElementUtil.getDataSourceName(this.dataSource.getName()));
+        jdbcPreProcessor.setProperty("dataSource", jdbcPreProcessor.getDataSource());
         jdbcPreProcessor.setProperty("query", this.getQuery());
         jdbcPreProcessor.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));
         jdbcPreProcessor.setProperty("resultVariable", this.getResultVariable());
@@ -270,7 +271,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         return jdbcPreProcessor;
     }
 
-    private DataSourceElement jdbcDataSource() {
+    private DataSourceElement jdbcDataSource(String sourceName) {
         DataSourceElement dataSourceElement = new DataSourceElement();
         dataSourceElement.setEnabled(true);
         dataSourceElement.setName(this.getName() + " JDBCDataSource");
@@ -279,7 +280,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         dataSourceElement.setProperty("autocommit", true);
         dataSourceElement.setProperty("keepAlive", true);
         dataSourceElement.setProperty("preinit", false);
-        dataSourceElement.setProperty("dataSource", dataSource.getName());
+        dataSourceElement.setProperty("dataSource", sourceName);
         dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
         dataSourceElement.setProperty("driver", dataSource.getDriver());
         dataSourceElement.setProperty("username", dataSource.getUsername());
