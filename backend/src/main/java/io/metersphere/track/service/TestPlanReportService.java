@@ -530,9 +530,24 @@ public class TestPlanReportService {
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
         if(testPlanReport != null && reportContent != null){
             TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
-            reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
-            reportContent.setPassRate(reportBuildResultDTO.getTestPlanSimpleReportDTO().getPassRate());
+            //如果场景报告中出现了 Waiting 或者 Running 则不保存
+            boolean isReportAllFinished = this.checkAllReportFinished(reportBuildResultDTO.getTestPlanSimpleReportDTO());
+            if(isReportAllFinished){
+                reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+                reportContent.setPassRate(reportBuildResultDTO.getTestPlanSimpleReportDTO().getPassRate());
+            }
         }
+    }
+
+    private boolean checkAllReportFinished(TestPlanSimpleReportDTO testPlanSimpleReportDTO) {
+        if(CollectionUtils.isNotEmpty(testPlanSimpleReportDTO.getScenarioAllCases())){
+            for (TestPlanFailureScenarioDTO dto: testPlanSimpleReportDTO.getScenarioAllCases()) {
+                if(StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),"Waiting","Running")){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
