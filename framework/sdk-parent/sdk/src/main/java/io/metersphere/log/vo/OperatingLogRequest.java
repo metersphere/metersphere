@@ -1,5 +1,6 @@
 package io.metersphere.log.vo;
 
+import io.metersphere.log.constants.OperatorLevel;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -36,5 +37,8 @@ public class OperatingLogRequest implements Serializable {
 
     //要查找的日志类型
     private String logType;
+
+    private String level = OperatorLevel.PROJECT;
+    private List<String> levelModules;
 
 }

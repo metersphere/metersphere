@@ -322,6 +322,7 @@ export default {
       } else {
         this.condition.workspaceIds = [];
       }
+      this.condition.level = 'system';
       this.loading = getOperatingLogPages(this.currentPage, this.pageSize, this.condition).then(res => {
         let {listObject, itemCount} = res.data;
         this.tableData = listObject;

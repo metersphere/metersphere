@@ -15,6 +15,9 @@ const message = {
     test_resource_pool: {
       edit_job_template: "编辑Job模版",
       edit_job_template_tip: "Kubernetes Job模版是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模版。",
+    },
+    operating_log: {
+      plugin_manage: "插件管理",
     }
   },
   display: {
