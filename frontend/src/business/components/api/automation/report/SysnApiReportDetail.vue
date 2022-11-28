@@ -52,7 +52,9 @@
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
+                    <span class="fail" style="color: #9C9B9A">{{
+                        $t('api_test.home_page.detail_card.unexecute')
+                      }}</span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :report="report"
@@ -160,7 +162,14 @@ export default {
   methods: {
     initTree() {
       this.fullTreeNodes = [];
-      let obj = {resId: "root", index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
+      let obj = {
+        resId: "root",
+        index: 1,
+        label: this.scenario.name,
+        value: {responseResult: {}, unexecute: true, testing: false},
+        children: [],
+        unsolicited: true
+      };
       this.formatContent(this.scenario.scenarioDefinition.hashTree, obj, "", "root");
       this.fullTreeNodes.push(obj);
     },
@@ -321,67 +330,71 @@ export default {
         this.initHeartBeat();
       }
       this.messageWebSocket.onmessage = this.onMessage;
-      this.messageWebSocket.onerror  = this.cleanHeartBeat;
+      this.messageWebSocket.onerror = this.cleanHeartBeat;
     },
     getReport() {
       let url = "/api/scenario/report/get/" + this.reportId;
       this.$get(url, response => {
         this.report = response.data || {};
         if (response.data) {
-          this.content = JSON.parse(response.data.content);
-          if (!this.content) {
-            this.content = {scenarios: []};
-          }
-          this.content.error = this.content.error;
+          if (response.data.status && response.data.status.toUpperCase() === 'RUNNING') {
+            setTimeout(this.getReport, 2000);
+          } else {
+            this.content = JSON.parse(response.data.content);
+            if (!this.content) {
+              this.content = {scenarios: []};
+            }
+            this.content.error = this.content.error;
 
-          this.content.success = (this.content.total - this.content.error - this.content.errorCode - this.content.unExecute);
-          this.totalTime = this.content.totalTime;
-          this.resetLabel(this.content.steps);
-          if(this.report.reportType === "UI_INDEPENDENT"){
+            this.content.success = (this.content.total - this.content.error - this.content.errorCode - this.content.unExecute);
+            this.totalTime = this.content.totalTime;
+            this.resetLabel(this.content.steps);
+            if (this.report.reportType === "UI_INDEPENDENT") {
               this.tempResult = this.content.steps;
               //校对执行次序
-              try{
+              try {
                 this.checkOrder(this.tempResult);
                 this.fullTreeNodes = this.tempResult;
-              }catch(e){
+              } catch (e) {
                 this.fullTreeNodes = this.content.steps;
               }
-          }else{
-            this.fullTreeNodes = this.content.steps;
+            } else {
+              this.fullTreeNodes = this.content.steps;
+            }
+            this.recursiveSorting(this.fullTreeNodes);
+            this.reload();
           }
-          this.recursiveSorting(this.fullTreeNodes);
-          this.reload();
         }
         if ("Running" !== this.report.status) {
           this.$emit('finish');
         }
       });
     },
-    checkOrder(origin){
-      if(!origin){
+    checkOrder(origin) {
+      if (!origin) {
         return;
       }
-      if(Array.isArray(origin)){
+      if (Array.isArray(origin)) {
         this.sortChildren(origin);
         origin.forEach(v => {
-          if(v.children){
+          if (v.children) {
             this.checkOrder(v.children)
           }
         })
       }
     },
-    sortChildren(source){
-      if(!source){
+    sortChildren(source) {
+      if (!source) {
         return;
       }
-      source.forEach( item =>{
+      source.forEach(item => {
         let children = item.children;
-        if(children && children.length > 0){
+        if (children && children.length > 0) {
           let tempArr = new Array(children.length);
           let tempMap = new Map();
 
-          for(let i = 0; i < children.length; i++){
-            if(!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0){
+          for (let i = 0; i < children.length; i++) {
+            if (!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0) {
               //若没有value或未执行的，则step留在当前位置
               tempArr[i] = children[i];
               //进行标识
@@ -398,8 +411,8 @@ export default {
           });
 
           //找出arr(已经有序，从头取即可)中时间最小的插入 tempArr 可用位置
-          for(let j = 0, i = 0; j < tempArr.length; j++){
-            if(!tempArr[j]){
+          for (let j = 0, i = 0; j < tempArr.length; j++) {
+            if (!tempArr[j]) {
               //占位
               tempArr[j] = arr[i];
               i++;
@@ -511,7 +524,7 @@ export default {
         }
       }
     },
-    websocketKey(){
+    websocketKey() {
       return "ui_ws_" + this.reportId;
     },
     initHeartBeat() {
