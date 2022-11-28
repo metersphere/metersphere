@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
@@ -369,7 +370,7 @@ public class ApiScenarioController {
         try {
             return apiAutomationService.verifyScenarioEnv(request);
         } catch (Exception e) {
-            MSException.throwException("场景步骤解析错误，检查是否包含插件步骤!");
+            MSException.throwException(Translator.get("scenario_step_parsing_error_check"));
         }
         return false;
     }
@@ -379,7 +380,7 @@ public class ApiScenarioController {
         try {
             return apiAutomationService.verifyScenarioEnv(scenarioId);
         } catch (Exception e) {
-            MSException.throwException("场景步骤解析错误，检查是否包含插件步骤!");
+            MSException.throwException(Translator.get("scenario_step_parsing_error_check"));
         }
         return false;
     }
