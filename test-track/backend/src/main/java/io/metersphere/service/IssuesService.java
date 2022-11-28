@@ -771,7 +771,8 @@ public class IssuesService {
                             fieldDao.setValue("\"" + format + "\"");
                         }
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.SELECT.getValue(),
-                                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(), CustomFieldType.RADIO.getValue())) {
+                                CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(), CustomFieldType.RADIO.getValue())
+                                && !StringUtils.equalsAnyIgnoreCase(customField.getName(), SystemCustomField.ISSUE_STATUS)) {
                             fieldDao.setValue(parseOptionValue(customField.getOptions(), fieldDao.getValue()));
                         }
                     }
