@@ -123,7 +123,10 @@ public class SystemProjectService {
         // 设置默认的通知
         baseProjectMapper.setDefaultMessageTask(project.getId());
 
-        quotaService.projectUseDefaultQuota(pjId);
+        if (quotaService != null) {
+            quotaService.projectUseDefaultQuota(pjId);
+        }
+        
         // 创建默认版本
         addProjectVersion(project);
         // 初始化项目应用管理
