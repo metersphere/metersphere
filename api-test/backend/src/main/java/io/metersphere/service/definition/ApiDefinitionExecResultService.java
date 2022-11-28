@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -96,14 +97,14 @@ public class ApiDefinitionExecResultService {
                     apiExecutionInfoService.insertExecutionInfo(result);
                     User user = null;
                     if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
-                        if (dto.getExtendedParameters().containsKey("userId") && dto.getExtendedParameters().containsKey("userName")) {
+                        if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID) && dto.getExtendedParameters().containsKey("userName")) {
                             user = new User() {{
-                                this.setId(dto.getExtendedParameters().get("userId").toString());
+                                this.setId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
                                 this.setName(dto.getExtendedParameters().get("userName").toString());
                             }};
                             result.setUserId(user.getId());
-                        } else if (dto.getExtendedParameters().containsKey("userId")) {
-                            result.setUserId(dto.getExtendedParameters().get("userId").toString());
+                        } else if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID)) {
+                            result.setUserId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
                         }
                     }
                     //如果是测试计划用例，更新接口用例的上次执行结果
@@ -302,8 +303,8 @@ public class ApiDefinitionExecResultService {
                 LoggerUtil.info("执行结果【 " + item.getName() + " 】入库存储");
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
-                    if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
-                        reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
+                    if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey(CommonConstants.USER_ID)) {
+                        reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get(CommonConstants.USER_ID)));
                     }
                     String triggerMode = StringUtils.EMPTY;
                     if (reportResult != null) {
@@ -402,7 +403,7 @@ public class ApiDefinitionExecResultService {
             if (item.getStartTime() >= item.getEndTime()) {
                 saveResult.setEndTime(System.currentTimeMillis());
             }
-            if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
+            if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals(CommonConstants.CASE)) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
             if (batchMapper == null) {

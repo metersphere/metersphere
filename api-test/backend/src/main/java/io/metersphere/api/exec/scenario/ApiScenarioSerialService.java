@@ -12,14 +12,15 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.utils.LoggerUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.RequestParamsUtil;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.environment.service.BaseEnvironmentService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.annotation.Lazy;
@@ -123,7 +124,7 @@ public class ApiScenarioSerialService {
                 report.setCreateTime(System.currentTimeMillis());
                 report.setUpdateTime(System.currentTimeMillis());
                 runRequest.setExtendedParameters(new HashMap<>() {{
-                    this.put("userId", report.getCreateUser());
+                    this.put(CommonConstants.USER_ID, report.getCreateUser());
                 }});
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ]", report.getId());

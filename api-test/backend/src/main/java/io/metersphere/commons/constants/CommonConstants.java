@@ -8,5 +8,7 @@ public class CommonConstants {
     public static final String TRIGGER_MODE = "trigger_mode";
 
     public static final String STATUS = "status";
-
+    public static final String USER_ID = "userId";
+    public static final String METHODS_KEY = "methods";
+    public static final String CASE = "CASE";
 }
