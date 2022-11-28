@@ -7,7 +7,12 @@ import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.PluginDTO;
 import io.metersphere.request.PluginRequest;
 import org.apache.commons.collections4.CollectionUtils;
@@ -125,5 +130,18 @@ public class PluginService {
         if (CollectionUtils.isNotEmpty(plugins)) {
             MSException.throwException("Plugin exist!");
         }
+    }
+
+    public String getLogDetails(String id) {
+        PluginExample example = new PluginExample();
+        example.createCriteria().andPluginIdEqualTo(id);
+        List<PluginWithBLOBs> plugins = pluginMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(plugins)) {
+            Plugin plugin =  plugins.get(0);
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(plugin, SystemReference.pluginColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(plugin.getId()), null, plugin.getSourceName(), plugin.getCreateUserId(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

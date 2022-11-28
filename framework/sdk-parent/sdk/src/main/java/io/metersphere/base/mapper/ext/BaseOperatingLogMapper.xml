@@ -41,6 +41,12 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="request.levelModules != null and request.levelModules != ''">
+                AND t.oper_module IN
+                <foreach collection="request.levelModules" index="index" open="(" close=")" separator="," item="item">
+                    #{item}
+                </foreach>
+            </if>
             <if test="request.startTime != null and request.endTime != null">
                 AND t.oper_time BETWEEN #{request.startTime} AND #{request.endTime}
             </if>

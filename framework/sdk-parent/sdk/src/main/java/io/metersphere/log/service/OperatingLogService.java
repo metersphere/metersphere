@@ -5,9 +5,11 @@ import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.base.mapper.OperatingLogMapper;
 import io.metersphere.base.mapper.OperatingLogResourceMapper;
 import io.metersphere.base.mapper.ext.BaseOperatingLogMapper;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.constants.OperatorLevel;
 import io.metersphere.log.vo.OperatingLogDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.OperatingLogRequest;
@@ -68,6 +70,16 @@ public class OperatingLogService {
             request.setStartTime(request.getTimes().get(0));
             request.setEndTime(request.getTimes().get(1));
         }
+        String level = request.getLevel();
+        List<String> modules = new ArrayList<>(OperLogModule.PROJECT_MODULES);
+        if (StringUtils.equals(level, OperatorLevel.WORKSPACE)) {
+            modules.addAll(OperLogModule.WORKSPACE_MODULES);
+        } else if (StringUtils.equals(level, OperatorLevel.SYSTEM)) {
+            modules.addAll(OperLogModule.SYSTEM_MODULES);
+            modules.addAll(OperLogModule.WORKSPACE_MODULES);
+        }
+        request.setLevelModules(modules);
+
         List<OperatingLogDTO> list = baseOperatingLogMapper.list(request);
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> userIds = list.stream().map(OperatingLogDTO::getOperUser).collect(Collectors.toList());
