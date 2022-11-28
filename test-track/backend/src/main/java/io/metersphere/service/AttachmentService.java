@@ -13,7 +13,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.platform.domain.SyncIssuesAttachmentRequest;
-import io.metersphere.request.attachment.AttachmentRequest;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.service.issue.platform.IssueFactory;
 import io.metersphere.xmind.utils.FileUtil;
 import io.metersphere.xpack.track.dto.AttachmentSyncType;

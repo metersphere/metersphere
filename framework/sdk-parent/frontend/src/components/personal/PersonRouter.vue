@@ -29,7 +29,7 @@
           <platform-account-config
             :config="config"
             :account-config="currentPlatformInfo"
-            v-if="config.key === 'Jira'"
+            v-if="showPlatformConfig(config.key)"
           />
         </div>
         <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
@@ -64,6 +64,7 @@ import {useUserStore} from "@/store";
 import {handleAuth as _handleAuth, getUserInfo, getWsAndPj, updateInfo} from "../../api/user";
 import PlatformAccountConfig from "./PlatformAccountConfig";
 import {getPlatformAccountInfo} from "../../api/platform-plugin";
+import {ISSUE_PLATFORM_OPTION} from "../../utils/table-constants";
 
 
 const userStore = useUserStore();
@@ -124,6 +125,9 @@ export default {
     hasPermission,
     currentUser: () => {
       return getCurrentUser();
+    },
+    showPlatformConfig(platform) {
+      return ISSUE_PLATFORM_OPTION.map(item => item.value).indexOf(platform) < 0;
     },
     handleAuth(type) {
       let param = {...this.currentPlatformInfo};
@@ -246,7 +250,8 @@ export default {
   height: 40px;
   line-height: 40px;
 }
+
 .el-form-item-class {
-  margin-left:110px;
+  margin-left: 110px;
 }
 </style>
