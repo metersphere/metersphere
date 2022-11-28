@@ -3,7 +3,7 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.FileAttachmentMetadata;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.attachment.AttachmentDumpRequest;
-import io.metersphere.request.attachment.AttachmentRequest;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.service.AttachmentService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

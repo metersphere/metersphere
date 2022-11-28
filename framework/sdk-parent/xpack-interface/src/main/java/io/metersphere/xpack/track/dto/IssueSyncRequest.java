@@ -2,6 +2,10 @@ package io.metersphere.xpack.track.dto;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author songcc
  */
@@ -22,4 +26,8 @@ public class IssueSyncRequest {
      * TRUE: 创建时间之前
      */
     private boolean pre;
+
+    private String defaultCustomFields;
+
+    private Map<String, List<io.metersphere.xpack.track.dto.PlatformAttachment>> attachmentMap = new HashMap<>();
 }

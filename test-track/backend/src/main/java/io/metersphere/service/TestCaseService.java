@@ -35,7 +35,7 @@ import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.request.attachment.AttachmentRequest;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testcase.*;
 import io.metersphere.service.issue.platform.IssueFactory;
