@@ -10,6 +10,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.JSON;
@@ -45,7 +46,7 @@ public class MsHashTreeService {
     @Resource
     private ProjectMapper projectMapper;
 
-    public static final String CASE = "CASE";
+    public static final String CASE = CommonConstants.CASE;
     public static final String REFERENCED = "referenced";
     public static final String REF = "REF";
     public static final String COPY = "Copy";
@@ -77,8 +78,8 @@ public class MsHashTreeService {
     private static final String PRE = "PRE";
     private static final String POST = "POST";
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
-    public static final String CUSTOMNUM = "customNum";
-    public static final String SHOWCUSTOMNUM = "showCustomNum";
+    public static final String CUSTOM_NUM = "customNum";
+    public static final String SHOW_CUSTOM_NUM = "showCustomNum";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -218,8 +219,8 @@ public class MsHashTreeService {
             }
             //获取场景的当前项目是否开启了自定义id
             ProjectConfig projectApplication = baseProjectApplicationService.getSpecificTypeValue(scenarioWithBLOBs.getProjectId(), "SCENARIO_CUSTOM_NUM");
-            element.put(SHOWCUSTOMNUM, projectApplication.getScenarioCustomNum());
-            element.put(CUSTOMNUM, scenarioWithBLOBs.getCustomNum());
+            element.put(SHOW_CUSTOM_NUM, projectApplication.getScenarioCustomNum());
+            element.put(CUSTOM_NUM, scenarioWithBLOBs.getCustomNum());
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {

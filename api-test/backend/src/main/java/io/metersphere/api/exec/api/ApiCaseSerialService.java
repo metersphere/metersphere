@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -99,7 +100,7 @@ public class ApiCaseSerialService {
         ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
         if (execResult != null) {
             runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-                this.put("userId", execResult.getUserId());
+                this.put(CommonConstants.USER_ID, execResult.getUserId());
             }});
             execResult.setStartTime(System.currentTimeMillis());
             execResult.setStatus(ApiReportStatus.RUNNING.name());

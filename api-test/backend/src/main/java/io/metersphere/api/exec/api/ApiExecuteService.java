@@ -22,6 +22,7 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -254,7 +255,7 @@ public class ApiExecuteService {
         runRequest.setRunMode(runMode);
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{
             this.put(ExtendedParameter.SYNC_STATUS, request.isSyncResult());
-            this.put("userId", SessionUtils.getUser().getId());
+            this.put(CommonConstants.USER_ID, SessionUtils.getUser().getId());
             this.put("userName", SessionUtils.getUser().getName());
         }});
         if (CollectionUtils.isNotEmpty(projectIds)) {

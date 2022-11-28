@@ -18,6 +18,7 @@ import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
@@ -82,6 +83,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private Boolean isRefEnvironment;
     private String alias;
     private boolean customizeReq;
+    private final static String DEF_TIME_OUT = "60000";
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -134,8 +136,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         config.compatible(this);
         this.initConnectAndResponseTimeout(config);
-        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "60000" : this.getConnectTimeout());
-        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "60000" : this.getResponseTimeout());
+        sampler.setConnectTimeout(this.getConnectTimeout() == null ? DEF_TIME_OUT : this.getConnectTimeout());
+        sampler.setResponseTimeout(this.getResponseTimeout() == null ? DEF_TIME_OUT : this.getResponseTimeout());
         HttpConfig httpConfig = getHttpConfig(config);
         setSamplerPath(config, httpConfig, sampler);
         // 请求体处理
@@ -246,7 +248,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsHTTPSamplerProxy proxy = null;
-            if (StringUtils.equals(this.getRefType(), "CASE")) {
+            if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseWithBLOBs bloBs = CommonBeanFactory.getBean(ApiTestCaseService.class).get(this.getId());
                 if (bloBs != null) {
                     this.setProjectId(bloBs.getProjectId());
@@ -258,7 +260,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                     ElementUtil.mergeHashTree(this, proxy.getHashTree());
                 } else {
                     this.setHashTree(proxy.getHashTree());
@@ -285,12 +287,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             CommonConfig commonConfig = config.getConfig().get(this.getProjectId()).getCommonConfig();
             if (commonConfig != null) {
-                if (this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(), "60000")) {
+                if (this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(), DEF_TIME_OUT)) {
                     if (commonConfig.getRequestTimeout() != 0) {
                         this.setConnectTimeout(String.valueOf(commonConfig.getRequestTimeout()));
                     }
                 }
-                if (this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(), "60000")) {
+                if (this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(), DEF_TIME_OUT)) {
                     if (commonConfig.getResponseTimeout() != 0) {
                         this.setResponseTimeout(String.valueOf(commonConfig.getResponseTimeout()));
                     }

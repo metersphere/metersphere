@@ -93,6 +93,15 @@ public class JmeterRunRequestDTO {
     public JmeterRunRequestDTO() {
     }
 
+    public JmeterRunRequestDTO(String testId, String reportId, String runMode) {
+        this.testId = testId;
+        this.reportId = reportId;
+        this.runMode = runMode;
+        this.reportType = RunModeConstants.INDEPENDENCE.name();
+        this.pool = new BooleanPool();
+        this.extendedParameters = new LinkedHashMap<>();
+    }
+
     public JmeterRunRequestDTO(String testId, String reportId, String runMode, HashTree hashTree) {
         this.testId = testId;
         this.reportId = reportId;

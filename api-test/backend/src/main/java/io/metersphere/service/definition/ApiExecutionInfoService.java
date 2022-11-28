@@ -4,7 +4,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiCaseExecutionInfoMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiExecutionInfoMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -36,8 +35,6 @@ public class ApiExecutionInfoService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
-    @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
 
     @Lazy
     public void insertExecutionInfo(ApiDefinitionExecResult result) {
