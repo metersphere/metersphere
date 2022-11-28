@@ -981,4 +981,8 @@ public class ElementUtil {
         }
         return assertions;
     }
+
+    public static String getDataSourceName(String name) {
+        return StringUtils.join(name, "-", UUID.randomUUID().toString());
+    }
 }
