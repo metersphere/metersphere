@@ -101,7 +101,7 @@ instance.interceptors.response.use(response => {
   return response;
 }, error => {
   let msg;
-  if (error.response) {
+  if (error.response && error.response.headers) {
     // 判断错误标记
     if (error.response.status === 402) {
       if (error.response.headers['redirect']) {
