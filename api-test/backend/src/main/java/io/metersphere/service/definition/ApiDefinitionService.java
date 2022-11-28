@@ -68,7 +68,6 @@ import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -142,8 +141,6 @@ public class ApiDefinitionService {
     private EsbApiParamsMapper esbApiParamsMapper;
     @Resource
     private ApiExecutionInfoService apiExecutionInfoService;
-    @Resource
-    private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Lazy
     @Resource
     private ApiModuleService apiModuleService;
@@ -1608,11 +1605,6 @@ public class ApiDefinitionService {
         return buildAPIReportResult(result);
     }
 
-    public ApiReportResult getByResultId(String reportId) {
-        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
-        return buildAPIReportResult(result);
-    }
-
     public ApiReportResult getReportById(String testId) {
         ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
@@ -1626,12 +1618,14 @@ public class ApiDefinitionService {
         reportResult.setStatus(result.getStatus());
         String contentStr = result.getContent();
         try {
-            JSONObject content = JSONUtil.parseObject(result.getContent());
-            if (StringUtils.isNotEmpty(result.getEnvConfig())) {
-                content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+            if (StringUtils.isNotBlank(contentStr)) {
+                JSONObject content = JSONUtil.parseObject(contentStr);
+                if (StringUtils.isNotEmpty(result.getEnvConfig())) {
+                    content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+                }
+                contentStr = content.toString();
+                reportResult.setContent(contentStr);
             }
-            contentStr = content.toString();
-            reportResult.setContent(contentStr);
         } catch (Exception e) {
             LogUtil.error("解析content失败!", e);
         }
@@ -2495,7 +2489,7 @@ public class ApiDefinitionService {
                     });
                 } else if (StringUtils.isNotEmpty(request.getUserId())) {
                     definitions.forEach(item -> {
-                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get(CommonConstants.USER_ID), CommonConstants.USER_ID, item.getUserId(), null);
                         columns.add(column);
                     });
                 }
@@ -2521,24 +2515,9 @@ public class ApiDefinitionService {
         return null;
     }
 
-    public ApiDefinition selectUrlAndMethodById(String id) {
-        return extApiDefinitionMapper.selectUrlAndMethodById(id);
-    }
-
-    public void removeToGcByExample(ApiDefinitionExampleWithOperation apiDefinitionExample) {
-        List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        List<String> apiIdList = new ArrayList<>();
-        apiList.forEach(item -> apiIdList.add(item.getId()));
-        this.removeToGc(apiIdList);
-    }
-
     public ApiReportResult getTestPlanApiCaseReport(String testId, String type) {
         ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
         return buildAPIReportResult(result);
-    }
-
-    public void initOrderField() {
-        ServiceUtils.initOrderField(ApiDefinitionWithBLOBs.class, ApiDefinitionMapper.class, extApiDefinitionMapper::selectProjectIds, extApiDefinitionMapper::getIdsOrderByUpdateTime);
     }
 
     /**

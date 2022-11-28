@@ -18,6 +18,7 @@ import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
@@ -32,7 +33,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -53,7 +53,6 @@ public class ApiScenarioEnvService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
-    @Lazy
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
@@ -99,7 +98,7 @@ public class ApiScenarioEnvService {
             if (StringUtils.equals(testElement.getType(), ElementConstants.HTTP_SAMPLER)) {
                 MsHTTPSamplerProxy http = (MsHTTPSamplerProxy) testElement;
                 // 引用用例URL清空
-                http.setUrl(StringUtils.equals(testElement.getRefType(), "CASE") ? null : http.getUrl());
+                http.setUrl(StringUtils.equals(testElement.getRefType(), CommonConstants.CASE) ? null : http.getUrl());
 
                 // 非全路径校验
                 if (!StringUtils.equalsIgnoreCase(http.getReferenced(), "Created") || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
@@ -108,7 +107,7 @@ public class ApiScenarioEnvService {
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER) || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
                 if (StringUtils.isEmpty(testElement.getProjectId())) {
-                    if (StringUtils.equals(testElement.getRefType(), "CASE")) {
+                    if (StringUtils.equals(testElement.getRefType(), CommonConstants.CASE)) {
                         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(testElement.getId());
                         if (testCase != null) {
                             env.getProjectIds().add(testCase.getProjectId());

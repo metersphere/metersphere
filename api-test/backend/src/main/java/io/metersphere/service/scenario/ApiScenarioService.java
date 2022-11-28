@@ -1345,7 +1345,7 @@ public class ApiScenarioService {
         String context = SessionUtils.getUserId().concat(Translator.get("update_scenario")).concat(":").concat(apiScenario.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiScenario.getProjectId(), SessionUtils.getUserId(), apiScenario.getId(), apiScenario.getName(), apiScenario.getCreateUser());
-        paramMap.put("userId", apiScenario.getUserId());
+        paramMap.put(CommonConstants.USER_ID, apiScenario.getUserId());
         NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(apiScenario.getId()).subject(Translator.get("scenario_update_notice")).paramMap(paramMap).excludeSelf(true).event(NoticeConstants.Event.UPDATE).build();
         noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
     }
@@ -1354,7 +1354,7 @@ public class ApiScenarioService {
         String context = SessionUtils.getUserId().concat(Translator.get("create_scenario")).concat(":").concat(apiScenario.getName());
         Map<String, Object> paramMap = new HashMap<>();
         getParamMap(paramMap, apiScenario.getProjectId(), SessionUtils.getUserId(), apiScenario.getId(), apiScenario.getName(), apiScenario.getCreateUser());
-        paramMap.put("userId", apiScenario.getUserId());
+        paramMap.put(CommonConstants.USER_ID, apiScenario.getUserId());
         NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(apiScenario.getId()).subject(Translator.get("scenario_create_notice")).paramMap(paramMap).excludeSelf(true).event(NoticeConstants.Event.CREATE).build();
         noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
     }
@@ -1563,7 +1563,7 @@ public class ApiScenarioService {
                         // 检测引用对象是否存在，若果不存在则改成复制对象
                         String refType = object.optString("refType");
                         if (StringUtils.isNotEmpty(refType)) {
-                            if (refType.equals("CASE")) {
+                            if (refType.equals(CommonConstants.CASE)) {
                                 if (object.optJSONArray(ElementConstants.HASH_TREE) == null || object.optJSONArray(ElementConstants.HASH_TREE).length() == 0) {
                                     ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(object.optString("id"));
                                     if (model != null) {
@@ -2127,7 +2127,7 @@ public class ApiScenarioService {
                 // 检测引用对象是否存在，若果不存在则改成复制对象
                 String refType = object.optString("refType");
                 if (StringUtils.isNotEmpty(refType)) {
-                    if (refType.equals("CASE")) {
+                    if (refType.equals(CommonConstants.CASE)) {
                         ApiScenarioImportUtil.checkCase(object, versionId, projectId, apiScenarioParamDto);
                     } else {
                         checkAutomation(object);

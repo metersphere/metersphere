@@ -16,6 +16,7 @@ import io.metersphere.api.parse.api.JMeterScriptUtil;
 import io.metersphere.api.parse.scenario.TcpTreeTableDataParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -183,7 +184,7 @@ public class MsTCPSampler extends MsTestElement {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsTCPSampler proxy = null;
-            if (StringUtils.equals(this.getRefType(), "CASE")) {
+            if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
@@ -204,7 +205,7 @@ public class MsTCPSampler extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                     ElementUtil.mergeHashTree(this, proxy.getHashTree());
                 } else {
                     this.setHashTree(proxy.getHashTree());

@@ -17,17 +17,18 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.GlobalScriptFilterRequest;
 import io.metersphere.api.parse.api.JMeterScriptUtil;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.ApiTestCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,41 +44,23 @@ import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-
 public class MsDubboSampler extends MsTestElement {
     private String clazzName = MsDubboSampler.class.getCanonicalName();
-
     /**
      * type 必须放最前面，以便能够转换正确的类
      */
     private String type = ElementConstants.DUBBO_SAMPLER;
-
-
     private final String protocol = "dubbo://";
     @JsonProperty(value = "interface")
-
     private String _interface;
-
     private String method;
-
-
     private MsConfigCenter configCenter;
-
     private MsRegistryCenter registryCenter;
-
     private MsConsumerAndService consumerAndService;
-
-
     private List<KeyValue> args;
-
     private List<KeyValue> attachmentArgs;
-
-
     private String useEnvironment;
-
-
     private boolean customizeReq;
-
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -134,7 +117,7 @@ public class MsDubboSampler extends MsTestElement {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsDubboSampler proxy = null;
-            if (StringUtils.equals(this.getRefType(), "CASE")) {
+            if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
@@ -155,7 +138,7 @@ public class MsDubboSampler extends MsTestElement {
                 }
             }
             if (proxy != null) {
-                if (StringUtils.equals(this.getRefType(), "CASE")) {
+                if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                     ElementUtil.mergeHashTree(this, proxy.getHashTree());
                 } else {
                     this.setHashTree(proxy.getHashTree());
