@@ -148,14 +148,14 @@ export function getRelateIssues(page) {
 
 export function syncAllIssues(param) {
   // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
-  let url = 'xpack/issue/sync' + "?stamp=" + getUUID();
-  return post(url, param);
+  return post(BASE_URL + 'sync/all?stamp=' + getUUID(), param);
 }
 
 export function syncIssues() {
   // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
-  let url = 'issues/sync/' + getCurrentProjectID() + "?stamp=" + getUUID();
-  return get(url);
+  let projectId = getCurrentProjectID();
+  let uuid = getUUID();
+  return get(BASE_URL + `sync/${projectId}?stamp=${uuid}`);
 }
 
 // 轮询同步状态

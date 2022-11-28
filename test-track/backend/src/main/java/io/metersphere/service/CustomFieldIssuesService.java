@@ -6,6 +6,7 @@ import io.metersphere.base.domain.CustomFieldIssues;
 import io.metersphere.base.domain.CustomFieldIssuesExample;
 import io.metersphere.base.mapper.CustomFieldIssuesMapper;
 import io.metersphere.base.mapper.ext.BaseCustomFieldResourceMapper;
+import io.metersphere.commons.utils.SubListUtil;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldResourceDTO;
@@ -102,9 +103,19 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
                 }
             }
         }
-        addList.forEach(l -> batchMapper.insert(TABLE_NAME, l));
-        updateList.forEach(l -> batchMapper.updateByPrimaryKeySelective(TABLE_NAME, l));
-        sqlSession.flushStatements();
+
+        int batchSize = 500;
+
+        SubListUtil.dealForSubList(addList, batchSize, (subList) -> {
+            subList.forEach(l -> batchMapper.insert(TABLE_NAME, (CustomFieldResourceDTO) l));
+            sqlSession.commit();
+        });
+
+        SubListUtil.dealForSubList(updateList, batchSize, (subList) -> {
+            subList.forEach(l -> batchMapper.updateByPrimaryKeySelective(TABLE_NAME, (CustomFieldResourceDTO) l));
+            sqlSession.commit();
+        });
+
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
