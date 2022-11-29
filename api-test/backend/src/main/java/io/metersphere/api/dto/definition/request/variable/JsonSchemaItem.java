@@ -28,6 +28,8 @@ public class JsonSchemaItem {
     private BigDecimal minimum;
     private BigDecimal maximum;
     private String schema;
+    protected Object defaultValue;
+
 
     public JsonSchemaItem() {
         this.mock = new LinkedHashMap<>();
