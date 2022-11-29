@@ -558,6 +558,7 @@ export default {
       this.result = {loading: false};
     },
     buildDemandCascaderOptions(data, options, pathArray) {
+      this.demandValue = [];
       data.forEach(item => {
         let option = {
           label: item.platform + ': ' + item.name,
