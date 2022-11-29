@@ -126,6 +126,10 @@ export default {
       this.scenario.root = this.node.parent.parent ? false : true;
       this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
     }
+    if (this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.isCopy && !this.scenario.disabled) {
+      this.scenario.isCopy = true;
+      this.recursiveCopy(this.scenario.hashTree);
+    }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
@@ -239,6 +243,14 @@ export default {
       this.$nextTick(() => {
         this.loading = false
       })
+    },
+    recursiveCopy(arr) {
+      for (let i in arr) {
+        arr[i].isCopy = true;
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.recursiveCopy(arr[i].hashTree);
+        }
+      }
     },
     recursive(arr, id, disabled) {
       for (let i in arr) {
