@@ -1,11 +1,17 @@
+import parser from "cron-parser";
+
 /**
  * Validates a cron expression.
  *
  * @param cronExpression The expression to validate
  * @return True is expression is valid
  */
-export function cronValidate(cronExpression ){
-
+export function cronValidate(cronExpression) {
+  try {
+    parser.parseExpression(cronExpression);
+  } catch (e) {
+    return false;
+  }
   if (!cronExpression) {
     return false;
   }
@@ -19,7 +25,7 @@ export function cronValidate(cronExpression ){
   //CronTrigger cronTrigger = new CronTrigger();
   //cronTrigger.setCronExpression( cronExpression );
 
-  if (cronParams[3] == "?" || cronParams[5]=="?") {
+  if (cronParams[3] == "?" || cronParams[5] == "?") {
     //Check seconds param
     if (!checkSecondsField(cronParams[0])) {
       return false;
@@ -73,9 +79,9 @@ function checkSecondsField(secondsField) {
 
 
 function checkField(secondsField, minimal, maximal) {
-  if (secondsField.indexOf("-") > -1 ) {
-    var startValue = secondsField.substring(0, secondsField.indexOf( "-" ));
-    var endValue = secondsField.substring(secondsField.indexOf( "-" ) + 1);
+  if (secondsField.indexOf("-") > -1) {
+    var startValue = secondsField.substring(0, secondsField.indexOf("-"));
+    var endValue = secondsField.substring(secondsField.indexOf("-") + 1);
 
     if (!(checkIntValue(startValue, minimal, maximal, true) && checkIntValue(endValue, minimal, maximal, true))) {
       return false;
@@ -90,9 +96,9 @@ function checkField(secondsField, minimal, maximal) {
     }
   } else if (secondsField.indexOf(",") > -1) {
     return checkListField(secondsField, minimal, maximal);
-  } else if (secondsField.indexOf( "/" ) > -1) {
-    return checkIncrementField( secondsField, minimal, maximal );
-  } else if (secondsField.indexOf( "*" ) != -1) {
+  } else if (secondsField.indexOf("/") > -1) {
+    return checkIncrementField(secondsField, minimal, maximal);
+  } else if (secondsField.indexOf("*") != -1) {
     return true;
   } else {
     return checkIntValue(secondsField, minimal, maximal);
@@ -134,12 +140,12 @@ function checkDayOfMonthField(dayOfMonthField) {
 
   if (dayOfMonthField.indexOf("L") >= 0) {
     return checkFieldWithLetter(dayOfMonthField, "L", 1, 7, -1, -1);
-  } else if ( dayOfMonthField.indexOf("W") >= 0) {
+  } else if (dayOfMonthField.indexOf("W") >= 0) {
     return checkFieldWithLetter(dayOfMonthField, "W", 1, 31, -1, -1);
   } else if (dayOfMonthField.indexOf("C") >= 0) {
     return checkFieldWithLetter(dayOfMonthField, "C", 1, 31, -1, -1);
   } else {
-    return checkField( dayOfMonthField, 1, 31 );
+    return checkField(dayOfMonthField, 1, 31);
   }
 }
 
@@ -183,13 +189,13 @@ function checkDayOfWeekField(dayOfWeekField) {
           dayOfWeekField = StringUtils.replace( dayOfWeekField, "FRI", "6" );
           dayOfWeekField = StringUtils.replace( dayOfWeekField, "SAT", "7" );*/
 
-  dayOfWeekField.replace("SUN", "1" );
-  dayOfWeekField.replace("MON", "2" );
-  dayOfWeekField.replace("TUE", "3" );
-  dayOfWeekField.replace("WED", "4" );
-  dayOfWeekField.replace("THU", "5" );
-  dayOfWeekField.replace("FRI", "6" );
-  dayOfWeekField.replace("SAT", "7" );
+  dayOfWeekField.replace("SUN", "1");
+  dayOfWeekField.replace("MON", "2");
+  dayOfWeekField.replace("TUE", "3");
+  dayOfWeekField.replace("WED", "4");
+  dayOfWeekField.replace("THU", "5");
+  dayOfWeekField.replace("FRI", "6");
+  dayOfWeekField.replace("SAT", "7");
 
   if (dayOfWeekField == "?") {
     return true;
@@ -244,12 +250,12 @@ function checkFieldWithLetter(value, letter, minimalBefore, maximalBefore,
   var beforeLetter = "";
   var afterLetter = "";
 
-  if (value.indexOf(letter) >= 0 ) {
-    beforeLetter = value.substring( 0, value.indexOf(letter));
+  if (value.indexOf(letter) >= 0) {
+    beforeLetter = value.substring(0, value.indexOf(letter));
   }
 
   if (!value.endsWith(letter)) {
-    afterLetter = value.substring( value.indexOf( letter ) + 1 );
+    afterLetter = value.substring(value.indexOf(letter) + 1);
   }
 
   if (value.indexOf(letter) >= 0) {
@@ -262,17 +268,17 @@ function checkFieldWithLetter(value, letter, minimalBefore, maximalBefore,
         return false;
       }
 
-      if (!checkIntValue(beforeLetter, minimalBefore, maximalBefore, true)){
+      if (!checkIntValue(beforeLetter, minimalBefore, maximalBefore, true)) {
         return false;
       }
     } else {
-      if (beforeLetter.length > 0 ) {
+      if (beforeLetter.length > 0) {
         return false;
       }
     }
 
     if (canHaveIntAfter) {
-      if ( mustHaveIntAfter && afterLetter.length == 0 ) {
+      if (mustHaveIntAfter && afterLetter.length == 0) {
         return false;
       }
 
@@ -306,17 +312,16 @@ function checkIncrementField(value, minimal, maximal) {
 }
 
 
-
-function checkListField(value, minimal, maximal ) {
+function checkListField(value, minimal, maximal) {
   var st = value.split(",");
 
   var values = new Array(st.length);
 
-  for(var j = 0; j < st.length; j++) {
+  for (var j = 0; j < st.length; j++) {
     values[j] = st[j];
   }
 
-  for (var i= 0; i < values.length; i++) {
+  for (var i = 0; i < values.length; i++) {
     var currentValue = values[i];
 
     if (!checkIntValue(currentValue, minimal, maximal, true)) {
