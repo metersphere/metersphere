@@ -15,7 +15,7 @@
             <ms-table-column
                 :width="80"
                 :label="$t('commons.id')"
-                prop="customNum">
+                prop="num">
             </ms-table-column>
             <ms-table-column
                 :label="$t('commons.name')"
