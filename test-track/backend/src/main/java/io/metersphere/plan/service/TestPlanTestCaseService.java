@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ProjectApplicationType;
 
 import io.metersphere.commons.exception.MSException;
@@ -36,6 +37,7 @@ import io.metersphere.service.*;
 import io.metersphere.dto.*;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.request.testreview.SaveCommentRequest;
+import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
@@ -299,9 +301,7 @@ public class TestPlanTestCaseService {
         TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(id);
         ServiceUtils.buildCustomNumInfo(testPlanCaseDTO);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
-        testCaseTestDTOS.forEach(dto -> {
-            setTestName(dto);
-        });
+        testCaseTestDTOS.forEach(this::setTestName);
         testPlanCaseDTO.setList(testCaseTestDTOS);
         return testPlanCaseDTO;
     }
@@ -309,23 +309,30 @@ public class TestPlanTestCaseService {
     private void setTestName(TestCaseTestDTO dto) {
         String type = dto.getTestType();
         String id = dto.getTestId();
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         switch (type) {
             case "performance":
-                LoadTest loadTest = planPerformanceTestService.get(id);
-                if (loadTest != null) {
-                    dto.setTestName(loadTest.getName());
+                if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+                    LoadTest loadTest = planPerformanceTestService.get(id);
+                    if (loadTest != null) {
+                        dto.setTestName(loadTest.getName());
+                    }
                 }
                 break;
             case "testcase":
-                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = planApiTestCaseService.get(id);
-                if (apiTestCaseWithBLOBs != null) {
-                    dto.setTestName(apiTestCaseWithBLOBs.getName());
+                if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = planApiTestCaseService.get(id);
+                    if (apiTestCaseWithBLOBs != null) {
+                        dto.setTestName(apiTestCaseWithBLOBs.getName());
+                    }
                 }
                 break;
             case "automation":
-                ApiScenarioWithBLOBs apiScenarioWithBLOBs = panApiAutomationService.get(id);
-                if (apiScenarioWithBLOBs != null) {
-                    dto.setTestName(apiScenarioWithBLOBs.getName());
+                if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+                    ApiScenarioWithBLOBs apiScenarioWithBLOBs = panApiAutomationService.get(id);
+                    if (apiScenarioWithBLOBs != null) {
+                        dto.setTestName(apiScenarioWithBLOBs.getName());
+                    }
                 }
                 break;
             default:
