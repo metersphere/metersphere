@@ -41,6 +41,14 @@ public class KeyValue {
         this.enable = enable;
     }
 
+    public KeyValue(String name, String value, String description, boolean required, Integer min, Integer max) {
+        this.name = name;
+        this.value = value;
+        this.description = description;
+        this.required = required;
+        this.min = min;
+        this.max = max;
+    }
     public KeyValue(String name, String value, String description, String contentType) {
         this(name, value, description, contentType, true);
     }
