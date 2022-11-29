@@ -307,50 +307,64 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                         if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_MEMBER.getValue(),
                                 CustomFieldType.MULTIPLE_SELECT.getValue(), CustomFieldType.CHECKBOX.getValue(),
                                 CustomFieldType.CASCADING_SELECT.getValue())) {
-                            customFieldResourceDTO.setValue("[]");
                             customFieldItemDTO.setValue("[]");
-                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
                             customFieldResourceDTO.setValue("[]");
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
                             customFieldItemDTO.setValue(Collections.emptyList());
+                            customFieldResourceDTO.setValue("[]");
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.RADIO.getValue(),
                                 CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.SELECT.getValue(),
                                 CustomFieldType.FLOAT.getValue(), CustomFieldType.DATE.getValue(),
                                 CustomFieldType.DATETIME.getValue(), CustomFieldType.INPUT.getValue())) {
-                            customFieldResourceDTO.setValue(StringUtils.EMPTY);
                             customFieldItemDTO.setValue(StringUtils.EMPTY);
+                            customFieldResourceDTO.setValue(StringUtils.EMPTY);
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.TEXTAREA.getValue())) {
                             customFieldItemDTO.setValue(StringUtils.EMPTY);
                         }
                     } else {
                         if (StringUtils.equalsAnyIgnoreCase(type,
                                 CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+                            customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setTextValue(v.toString());
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
+                            customFieldItemDTO.setValue(Float.parseFloat(v.toString()));
                             customFieldResourceDTO.setValue(v.toString());
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_SELECT.getValue(),
                                 CustomFieldType.CHECKBOX.getValue())) {
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
                             }
+                            customFieldItemDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
                             customFieldResourceDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue(),
                                 CustomFieldType.RADIO.getValue())) {
+                            customFieldItemDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
                             customFieldResourceDTO.setValue("\"" + parseOptionText(customFieldDao.getOptions(), v.toString()) + "\"");
-                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue(),
-                                CustomFieldType.MULTIPLE_MEMBER.getValue(), CustomFieldType.CASCADING_SELECT.getValue())) {
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
                             }
+                            customFieldItemDTO.setValue(v);
+                            customFieldResourceDTO.setValue(v.toString());
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_MEMBER.getValue(),
+                                CustomFieldType.CASCADING_SELECT.getValue())) {
+                            if (!v.toString().contains("[")) {
+                                v = List.of("\"" + v + "\"");
+                            }
+                            customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue(v.toString());
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATE.getValue())) {
                             Date vdate = DateUtils.parseDate(v.toString(), "yyyy/MM/dd");
                             v = DateUtils.format(vdate, "yyyy-MM-dd");
+                            customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue("\"" + v + "\"");
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATETIME.getValue())) {
                             Date vdate = DateUtils.parseDate(v.toString());
                             v =  DateUtils.format(vdate, "yyyy-MM-dd'T'HH:mm");
+                            customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue("\"" + v + "\"");
                         } else {
+                            customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue("\"" + v + "\"");
                         }
                     }
@@ -358,13 +372,6 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                         addFields.add(customFieldResourceDTO);
                     } else {
                         editFields.add(customFieldResourceDTO);
-                    }
-                    if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
-                        customFieldItemDTO.setValue(v);
-                    } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
-                        customFieldItemDTO.setValue(StringUtils.isNotEmpty(v.toString()) ? Float.parseFloat(v.toString()) : StringUtils.EMPTY);
-                    } else {
-                        customFieldItemDTO.setValue(v.toString());
                     }
                     requestFields.add(customFieldItemDTO);
                 }
