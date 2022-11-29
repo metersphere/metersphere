@@ -14,7 +14,7 @@
         </div>
         <div v-show="!loadError">
           <div class="main-info">
-            <count-chart :chart-data="relevanceData.chartData" :main-title="chartMainTitle"
+            <count-chart :chart-data="relevanceData.chartData" :main-title="chartMainTitle" :color-constant="RELEVANCE_CASE_DASHBOARD_CHART_COLOR"
                          :week-count="relevanceData.thisWeekAddedCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
           </div>
           <div class="addition-info">
@@ -69,6 +69,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackRelevanceCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
 import {getUUID} from "metersphere-frontend/src/utils";
+import {RELEVANCE_CASE_DASHBOARD_CHART_COLOR} from "@/business/constants/table-constants";
 
 export default {
   name: "RelevanceCaseCard",
@@ -80,6 +81,7 @@ export default {
       coverRangeToolTip: this.$t('api_test.home_page.formula.testplan_coverage'),
       chartMainTitle: this.$t("home.relevance_dashboard.relevance_case_count"),
       chartRedirectLink: "/#/track/case/all/" + getUUID() + "/case/thisWeekRelevanceCount",
+      RELEVANCE_CASE_DASHBOARD_CHART_COLOR: RELEVANCE_CASE_DASHBOARD_CHART_COLOR,
       relevanceData: {
         allCaseCountNumber: 0,
         allRelevanceCaseCount: 0,

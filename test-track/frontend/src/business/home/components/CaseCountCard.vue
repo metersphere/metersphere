@@ -14,7 +14,7 @@
         </div>
         <div v-show="!loadError">
           <div class="main-info">
-            <count-chart :chart-data="trackData.chartData" :main-title="chartMainTitle"
+            <count-chart :chart-data="trackData.chartData" :main-title="chartMainTitle" :color-constant="CASE_DASHBOARD_CHART_COLOR"
                          :week-count="trackData.thisWeekAddedCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
           </div>
           <div class="addition-info">
@@ -105,6 +105,7 @@ import {getUUID} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
+import {CASE_DASHBOARD_CHART_COLOR} from "@/business/constants/table-constants";
 
 export default {
   name: "CaseCountCard",
@@ -117,6 +118,7 @@ export default {
       caseFinishedReviewPassRageToolTip: this.$t('home.dashboard.case_finished_review_pass_tip'),
       chartMainTitle: this.$t("home.case_review_dashboard.case_count"),
       chartRedirectLink: "/#/track/case/all/" + getUUID() + "/case/thisWeekCount",
+      CASE_DASHBOARD_CHART_COLOR: CASE_DASHBOARD_CHART_COLOR,
       trackData: {
         allCaseCountNumber: 0,
         allRelevanceCaseCount: 0,

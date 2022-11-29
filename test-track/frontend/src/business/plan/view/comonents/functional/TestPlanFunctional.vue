@@ -116,6 +116,9 @@ export default {
     this.clearSelectNode();
     this.initData();
     this.openTestCaseEdit(this.$route.path);
+    if (this.condition.name) {
+      this.condition.name = undefined;
+    }
   },
   watch: {
     '$route'(to, from) {
