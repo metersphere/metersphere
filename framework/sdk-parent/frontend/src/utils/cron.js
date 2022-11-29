@@ -1,3 +1,5 @@
+import parser from "cron-parser";
+
 /**
  * Validates a cron expression.
  *
@@ -5,6 +7,11 @@
  * @return True is expression is valid
  */
 export function cronValidate(cronExpression ){
+  try {
+    parser.parseExpression(cronExpression);
+  } catch (e) {
+    return false;
+  }
 
   if (!cronExpression) {
     return false;
