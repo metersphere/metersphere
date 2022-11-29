@@ -29,5 +29,5 @@ public class IssueSyncRequest {
 
     private String defaultCustomFields;
 
-    private Map<String, List<io.metersphere.xpack.track.dto.PlatformAttachment>> attachmentMap = new HashMap<>();
+    private Map<String, List<PlatformAttachment>> attachmentMap = new HashMap<>();
 }
