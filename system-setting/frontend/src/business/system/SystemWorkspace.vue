@@ -49,7 +49,7 @@
                width="30%" @close="close" v-loading="workspaceAddLoading">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off" class="form-input"/>
+          <el-input v-model="form.name" autocomplete="off" class="form-input" show-word-limit maxlength="100"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description" class="form-input"></el-input>
@@ -245,14 +245,7 @@ export default {
       form: {},
       rules: {
         name: [
-          {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
-          {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'},
-          {
-            required: true,
-            pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
-            message: this.$t('workspace.special_characters_are_not_supported'),
-            trigger: 'blur'
-          }
+          {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'}
         ],
         description: [
           {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}

@@ -218,6 +218,10 @@ public class WorkspaceService {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
 
+        if (workspace.getName().length() > 100) {
+            MSException.throwException(Translator.get("workspace_name_exceeds_length_limit"));
+        }
+
         WorkspaceExample example = new WorkspaceExample();
         WorkspaceExample.Criteria criteria = example.createCriteria();
         criteria.andNameEqualTo(workspace.getName());
