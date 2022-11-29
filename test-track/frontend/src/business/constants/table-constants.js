@@ -6,7 +6,17 @@ export const TEST_CASE_STATUS_MAP = {
   'Trash': i18n.t('test_track.plan.plan_status_trash')
 }
 
-export const DASHBOARD_CHART_COLOR = [
+export const CASE_DASHBOARD_CHART_COLOR = [
+  '#F76964', '#FFD131', '#AA4FBF', '#10CECE',
+  '#4E83FD', '#935AF6', '#50CEFB', '#FFA53D',
+  '#62D256'
+];
+
+export const RELEVANCE_CASE_DASHBOARD_CHART_COLOR = [
+  '#AA4FBF', '#FFD131', '#14E1C6'
+];
+
+export const DEFAULT_DASHBOARD_CHART_COLOR = [
   '#AA4FBF', '#FFD131', '#10CECE', '#4E83FD',
   '#935AF6', '#50CEFB', '#FFA53D', '#62D256',
   ];
