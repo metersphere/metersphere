@@ -18,6 +18,7 @@ import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.utils.DiscoveryUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -129,6 +130,9 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     }
 
     public List<TestPlanUiScenarioDTO> buildResponse(List<TestPlanUiScenarioDTO> uiCases) {
+        if (CollectionUtils.isEmpty(uiCases)) {
+            return null;
+        }
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", uiCases, TestPlanUiScenarioDTO.class);
     }
 
