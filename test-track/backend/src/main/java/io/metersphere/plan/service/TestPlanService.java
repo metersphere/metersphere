@@ -1375,38 +1375,31 @@ public class TestPlanService {
 
     public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
-        runReportWithExceptionHandle(report, r -> planTestPlanApiCaseService.buildResponse(r.getApiAllCases()),
-                (r, res) -> r.setApiAllCases((List<TestPlanFailureApiDTO>) res));
-        runReportWithExceptionHandle(report, r -> planTestPlanApiCaseService.buildResponse(r.getApiFailureCases()),
-                (r, res) -> r.setApiFailureCases((List<TestPlanFailureApiDTO>) res));
 
-        runReportWithExceptionHandle(report, r -> planTestPlanScenarioCaseService.buildResponse(r.getScenarioAllCases()),
-                (r, res) -> r.setScenarioAllCases((List<TestPlanFailureScenarioDTO>) res));
-        runReportWithExceptionHandle(report, r -> planTestPlanScenarioCaseService.buildResponse(r.getScenarioFailureCases()),
-                (r, res) -> r.setScenarioFailureCases((List<TestPlanFailureScenarioDTO>) res));
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            report.setApiAllCases(planTestPlanApiCaseService.buildResponse(report.getApiAllCases()));
+            report.setApiFailureCases(planTestPlanApiCaseService.buildResponse(report.getApiFailureCases()));
+            report.setScenarioAllCases(planTestPlanScenarioCaseService.buildResponse(report.getScenarioAllCases()));
+            report.setScenarioFailureCases(planTestPlanScenarioCaseService.buildResponse(report.getScenarioFailureCases()));
+        }
 
-        runReportWithExceptionHandle(report, r -> planTestPlanUiScenarioCaseService.buildResponse(r.getUiAllCases()),
-                (r, res) -> r.setUiAllCases((List<TestPlanUiScenarioDTO>) res));
-        runReportWithExceptionHandle(report, r -> planTestPlanUiScenarioCaseService.buildResponse(r.getUiFailureCases()),
-                (r, res) -> r.setUiFailureCases((List<TestPlanUiScenarioDTO>) res));
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            report.setUiAllCases(planTestPlanUiScenarioCaseService.buildResponse(report.getUiAllCases()));
+            report.setUiFailureCases(planTestPlanUiScenarioCaseService.buildResponse(report.getUiFailureCases()));
+        }
 
-        runReportWithExceptionHandle(report, r -> planTestPlanLoadCaseService.buildResponse(r.getLoadAllCases()),
-                (r, res) -> r.setLoadAllCases((List<TestPlanLoadCaseDTO>) res));
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            report.setLoadAllCases(planTestPlanLoadCaseService.buildResponse(report.getLoadAllCases()));
+        }
+
         report.setLang(lang);
         render(report, response);
-    }
-
-    public void runReportWithExceptionHandle(TestPlanSimpleReportDTO report, Function<TestPlanSimpleReportDTO, Object> getCaseFunc,
-                                             BiConsumer<TestPlanSimpleReportDTO, Object> setReportCaseFunc) {
-        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
-            setReportCaseFunc.accept(report, getCaseFunc.apply(report));
-        }
     }
 
     public Boolean checkReportConfig(Map config, String key) {
         return ServiceUtils.checkConfigEnable(config, key);
     }
-
 
     public void render(TestPlanSimpleReportDTO report, HttpServletResponse response) throws UnsupportedEncodingException {
         response.reset();

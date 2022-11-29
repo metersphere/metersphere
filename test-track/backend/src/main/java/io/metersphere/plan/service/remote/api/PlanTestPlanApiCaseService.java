@@ -147,6 +147,9 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
     }
 
     public List<TestPlanFailureApiDTO> buildResponse(List<TestPlanFailureApiDTO> apiAllCases) {
+        if (CollectionUtils.isEmpty(apiAllCases)) {
+            return null;
+        }
         return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", apiAllCases, TestPlanFailureApiDTO.class);
     }
 
