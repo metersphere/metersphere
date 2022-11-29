@@ -14,7 +14,7 @@
         </div>
         <div v-show="!loadError">
           <div class="main-info">
-            <count-chart :chart-data="bugData.chartData" :main-title="chartMainTitle"
+            <count-chart :chart-data="bugData.chartData" :main-title="chartMainTitle" :color-constant="DEFAULT_DASHBOARD_CHART_COLOR"
                          :week-count="bugData.thisWeekCount" :chart-sub-link="chartRedirectLink" ref="countChart" @redirectPage="redirectPage"/>
           </div>
           <div class="addition-info">
@@ -69,6 +69,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTrackBugCount} from "@/api/track";
 import {formatNumber} from "@/api/track"
 import {getUUID} from "metersphere-frontend/src/utils";
+import {DEFAULT_DASHBOARD_CHART_COLOR} from "@/business/constants/table-constants";
 
 export default {
   name: "BugCountCard",
@@ -81,6 +82,7 @@ export default {
       unClosedBugCaseRangeToolTip: this.$t('home.bug_dashboard.un_closed_bug_case_range_tips'),
       chartMainTitle: this.$t("home.bug_dashboard.un_closed_bug_count"),
       chartRedirectLink: "/#/track/issue/" + getUUID() + "/" + getCurrentProjectID() + "/thisWeekUnClosedIssue",
+      DEFAULT_DASHBOARD_CHART_COLOR: DEFAULT_DASHBOARD_CHART_COLOR,
       bugData: {
         bugCaseRage:" 0%",
         bugTotalCount: 0,
