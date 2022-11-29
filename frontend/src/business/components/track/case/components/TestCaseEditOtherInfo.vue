@@ -340,36 +340,35 @@ export default {
       }
     },
     getDemandOptions() {
-      if (this.demandOptions.length === 0) {
-        this.result = {loading: true};
-        this.$get("/issues/demand/list/" + this.projectId).then(response => {
-          this.demandOptions = [];
-          if (response.data.data && response.data.data.length > 0) {
-            this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
-          }
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
-        }).catch(() => {
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
+      this.result = {loading: true};
+      this.$get("/issues/demand/list/" + this.projectId).then(response => {
+        this.demandOptions = [];
+        if (response.data.data && response.data.data.length > 0) {
+          this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
+        }
+        this.demandOptions.unshift({
+          value: 'other',
+          label: 'Other: ' + this.$t('test_track.case.other'),
+          platform: 'Other'
         });
-      }
+        if (this.form.demandId === 'other') {
+          this.demandValue = ['other'];
+        }
+        this.result = {loading: false};
+      }).catch(() => {
+        this.demandOptions.unshift({
+          value: 'other',
+          label: 'Other: ' + this.$t('test_track.case.other'),
+          platform: 'Other'
+        });
+        if (this.form.demandId === 'other') {
+          this.demandValue = ['other'];
+        }
+        this.result = {loading: false};
+      });
     },
     buildDemandCascaderOptions(data, options, pathArray) {
+      this.demandValue = [];
       data.forEach(item => {
         let option = {
           label: item.platform + ': ' + item.name,
