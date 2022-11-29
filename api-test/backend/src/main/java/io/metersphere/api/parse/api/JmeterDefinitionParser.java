@@ -7,12 +7,7 @@ import io.github.ningyu.jmeter.plugin.util.Constants;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionDuration;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionJSR223;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionJsonPath;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionXPath2;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
+import io.metersphere.api.dto.definition.request.assertions.*;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.extract.MsExtractJSONPath;
 import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
@@ -43,22 +38,13 @@ import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
-import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.assertions.DurationAssertion;
-import org.apache.jmeter.assertions.JSONPathAssertion;
-import org.apache.jmeter.assertions.JSR223Assertion;
-import org.apache.jmeter.assertions.ResponseAssertion;
-import org.apache.jmeter.assertions.XPath2Assertion;
+import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
@@ -82,18 +68,14 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitionImport> {
     private final Map<Integer, List<Object>> headerMap = new HashMap<>();
     private ImportPoolsDTO dataPools;
     private final String ENV_NAME = "导入数据环境";
+    private static final String P0 = "P0";
 
 
     private String planName = PropertyConstant.DEFAULT;
@@ -128,20 +110,22 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             for (MsTestElement element : results) {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
-                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
-                    BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
-                    apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
-                    apiTestCase.setCaseStatus(ApiTestDataStatus.PREPARE.getValue());
-                    apiTestCase.setPriority("P0");
-                    definitionCases.add(apiTestCase);
-
                     if (element.getHashTree() != null) {
                         element.getHashTree().clear();
                     }
+
+                    element.setEnable(true);
                     apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
                     HttpResponse defaultHttpResponse = getDefaultHttpResponse();
                     apiDefinitionWithBLOBs.setResponse(JSON.toJSONString(defaultHttpResponse));
                     definitions.add(apiDefinitionWithBLOBs);
+
+                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+                    BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
+                    apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
+                    apiTestCase.setCaseStatus(ApiTestDataStatus.PREPARE.getValue());
+                    apiTestCase.setPriority(P0);
+                    definitionCases.add(apiTestCase);
                 }
             }
             apiImport.setData(definitions);
