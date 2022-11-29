@@ -216,6 +216,7 @@ export default {
 
 .v-note-wrapper {
   display: block !important;
+  position: static !important;
 }
 
 /deep/ .dropdown-item.dropdown-images {
