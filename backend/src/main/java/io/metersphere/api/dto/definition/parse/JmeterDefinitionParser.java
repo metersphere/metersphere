@@ -104,18 +104,19 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             for (MsTestElement element : results) {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
+                    if (element.getHashTree() != null) {
+                        element.getHashTree().clear();
+                    }
+                    element.setEnable(true);
+                    apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
+                    definitions.add(apiDefinitionWithBLOBs);
+
                     ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                     BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
                     apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
                     apiTestCase.setStatus("Prepare");
                     apiTestCase.setPriority("P0");
                     definitionCases.add(apiTestCase);
-
-                    if (element.getHashTree() != null) {
-                        element.getHashTree().clear();
-                    }
-                    apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
-                    definitions.add(apiDefinitionWithBLOBs);
                 }
             }
             apiImport.setData(definitions);

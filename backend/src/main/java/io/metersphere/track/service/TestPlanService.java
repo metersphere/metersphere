@@ -2280,7 +2280,6 @@ public class TestPlanService {
             RunModeConfigDTO runModeConfigDTO = JSON.parseObject(testPlan.getRunModeConfig(), RunModeConfigDTO.class);
             runModeConfigDTO = ObjectUtils.isEmpty(runModeConfigDTO) ? new RunModeConfigDTO() : runModeConfigDTO;
             jMeterService.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
-            testPlan.setRunModeConfig(JSON.toJSONString(runModeConfigDTO));
 
             String planReportId = UUID.randomUUID().toString();
             //创建测试报告
