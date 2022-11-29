@@ -1820,6 +1820,16 @@ public class TestPlanService {
         }
     }
 
+    public boolean checkAllReportFinished(TestPlanSimpleReportDTO testPlanSimpleReportDTO) {
+        if(CollectionUtils.isNotEmpty(testPlanSimpleReportDTO.getScenarioAllCases())){
+            for (TestPlanFailureScenarioDTO dto: testPlanSimpleReportDTO.getScenarioAllCases()) {
+                if(StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),"Waiting","Running")){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     public TestPlanSimpleReportDTO buildPlanReport(String planId, boolean saveResponse) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
 
