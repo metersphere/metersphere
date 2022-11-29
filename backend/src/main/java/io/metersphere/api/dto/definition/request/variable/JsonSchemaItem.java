@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +27,9 @@ public class JsonSchemaItem {
     private String pattern;
     private Integer maxLength;
     private Integer minLength;
+    private BigDecimal minimum;
+    private BigDecimal maximum;
+    protected Object defaultValue;
 
 
     @JSONField(name = "$schema")

@@ -329,12 +329,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
-        Schema schema = mediaType.getSchema();
-        if (StringUtils.isBlank(schema.get$ref()) && StringUtils.isNotBlank(schema.getType()) && StringUtils.equals(schema.getType(),"string")) {
-            ObjectSchema objectSchema = new ObjectSchema();
-            objectSchema.setExample(schema.getExample());
-            schema = objectSchema;
-        }
+        Schema schema = getSchema(mediaType.getSchema());
         Object bodyData = null;
         if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
@@ -536,7 +531,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         item.setPattern(schema.getPattern());
         item.setMaxLength(schema.getMaxLength());
         item.setMinLength(schema.getMinLength());
-
+        Object aDefault = schema.getDefault();
+        item.setDefaultValue(aDefault);
+        item.setMaximum(schema.getMaximum());
+        item.setMinimum(schema.getMinimum());
         return item;
     }
 
@@ -574,7 +572,46 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), String.valueOf(queryParameter.getExample()), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired()));
+        Schema schema = getSchema(parameter.getSchema());
+        Set<String> refSet = new HashSet<>();
+        JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
+        arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter, jsonSchemaItem), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired(), getMin(jsonSchemaItem), getMax(jsonSchemaItem)));
+    }
+
+    private Schema getSchema(Schema schema) {
+        if (StringUtils.isBlank(schema.get$ref()) && StringUtils.equalsIgnoreCase(schema.getType(),"string")) {
+            ObjectSchema objectSchema = new ObjectSchema();
+            objectSchema.setExample(schema.getExample());
+            schema = objectSchema;
+        }
+        return schema;
+    }
+
+    private Integer getMax(JsonSchemaItem jsonSchemaItem) {
+        if (jsonSchemaItem != null && jsonSchemaItem.getMaxLength() != null) {
+            return jsonSchemaItem.getMaxLength();
+        } else {
+            return null;
+        }
+    }
+
+    private Integer getMin(JsonSchemaItem jsonSchemaItem) {
+        if (jsonSchemaItem != null && jsonSchemaItem.getMinLength() != null) {
+            return jsonSchemaItem.getMinLength();
+        } else {
+            return null;
+        }
+    }
+
+    private String getDefaultValue(QueryParameter queryParameter, JsonSchemaItem jsonSchemaItem) {
+        if (queryParameter.getExample() != null) {
+            return String.valueOf(queryParameter.getExample());
+        } else {
+            if (jsonSchemaItem != null && jsonSchemaItem.getDefaultValue() != null) {
+                return String.valueOf(jsonSchemaItem.getDefaultValue());
+            }
+            return null;
+        }
     }
 
     /*    导出的 swagger json描述文件样例
