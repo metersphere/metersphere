@@ -158,6 +158,10 @@ export default {
       this.scenario.disabled = true;
       this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
     }
+    if (this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.isCopy && !this.scenario.disabled) {
+      this.scenario.isCopy = true;
+      this.recursiveCopy(this.scenario.hashTree);
+    }
   },
   components: {
     ApiBaseComponent,
@@ -283,6 +287,7 @@ export default {
     recursive(arr, id, disabled) {
       for (let i in arr) {
         arr[i].disabled = disabled;
+        arr[i].isCopy = false;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
         // 处理子请求环境
         let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
@@ -295,6 +300,14 @@ export default {
         }
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
           this.recursive(arr[i].hashTree, arr[i].projectId, disabled);
+        }
+      }
+    },
+    recursiveCopy(arr) {
+      for (let i in arr) {
+        arr[i].isCopy = true;
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.recursiveCopy(arr[i].hashTree);
         }
       }
     },
