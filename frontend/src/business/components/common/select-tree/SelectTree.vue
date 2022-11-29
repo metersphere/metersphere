@@ -491,7 +491,7 @@ export default {
   z-index: 111;
 }
 
-/deep/ .el-tree-node__children {
+.common-tree /deep/.el-tree-node__children {
   overflow: inherit;
 }
 
