@@ -91,7 +91,7 @@
           circle
           @click="copyRow"
           style="padding: 5px"
-          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted" />
+          :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted" />
 
         <el-button
           v-show="isSingleButton"
@@ -101,7 +101,7 @@
           style="padding: 5px"
           circle
           @click="remove"
-          :disabled="(data.disabled && !data.root) || !showVersion || isDeleted" />
+          :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted" />
 
         <step-extend-btns
           style="display: contents"
@@ -267,14 +267,14 @@ export default {
         return (
           !this.innerStep ||
           (this.showBtn &&
-            (!this.data.disabled || this.data.root) &&
+            (!this.data.disabled || this.data.root || this.data.isCopy) &&
             this.showVersion &&
             this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1)
         );
       }
       return (
         this.showBtn &&
-        (!this.data.disabled || this.data.root || this.isDeleted) &&
+        (!this.data.disabled || this.data.root || this.isDeleted || this.data.isCopy) &&
         this.showVersion &&
         this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1
       );
