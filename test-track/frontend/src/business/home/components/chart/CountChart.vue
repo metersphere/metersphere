@@ -14,7 +14,6 @@
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 import {formatNumber} from "@/api/track";
-import {DASHBOARD_CHART_COLOR} from "@/business/constants/table-constants";
 
 export default {
   name: "CountChart",
@@ -25,6 +24,7 @@ export default {
     totalTime: Number,
     mainTitle: String,
     chartSubLink: String,
+    colorConstant: Array,
     isExport: {
       type: Boolean,
       default: false,
@@ -97,7 +97,7 @@ export default {
           colorArr.push("#DEE0E3");
         }
       } else {
-        colorArr = DASHBOARD_CHART_COLOR.slice(0, size);
+        colorArr = this.colorConstant.slice(0, size);
       }
       return colorArr;
     }
