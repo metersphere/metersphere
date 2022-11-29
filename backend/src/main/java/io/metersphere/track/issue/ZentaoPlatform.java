@@ -36,6 +36,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -533,10 +535,15 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 }
             } else {
                 name = name.replaceAll("&amp;", "&");
-                path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
+                try {
+                    URI uri = new URI(zentaoClient.getBaseUrl());
+                    path = uri.getScheme() + "://" + uri.getHost() + path.replaceAll("&amp;", "&");
+                } catch (URISyntaxException e) {
+                    path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
+                    LogUtil.error(e);
+                }
             }
-            // 专业版格式有差异，解析完会出现两个 /pro，去掉一个
-            path.replace("/pro/pro", "/pro");
+
             path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
