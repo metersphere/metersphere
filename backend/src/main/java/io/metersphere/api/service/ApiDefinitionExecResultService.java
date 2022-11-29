@@ -127,6 +127,8 @@ public class ApiDefinitionExecResultService {
                             User user = null;
                             if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user") && dto.getExtendedParameters().get("user") instanceof User) {
                                 user = (User) dto.getExtendedParameters().get("user");
+                            } else if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
+                                result.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
                             }
                             // 发送通知
                             result.setResourceId(dto.getTestId());
