@@ -1,8 +1,6 @@
 package io.metersphere.api.exec.api;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
@@ -57,8 +55,6 @@ public class ApiCaseSerialService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
-    @Resource
-    private ObjectMapper mapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
@@ -194,14 +190,10 @@ public class ApiCaseSerialService {
             JSONObject element = JSONUtil.parseObject(api);
             LinkedList<MsTestElement> list = new LinkedList<>();
             if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
-                LinkedList<MsTestElement> elements = mapper.readValue(element.optString(ElementConstants.HASH_TREE),
-                        new TypeReference<LinkedList<MsTestElement>>() {
-                        });
-                list.addAll(elements);
+                list.addAll(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
             }
             if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.HTTP_SAMPLER)) {
-                MsHTTPSamplerProxy httpSamplerProxy = mapper.readValue(element.toString(), new TypeReference<MsHTTPSamplerProxy>() {
-                });
+                MsHTTPSamplerProxy httpSamplerProxy = JSONUtil.parseObject(element.toString(), MsHTTPSamplerProxy.class);
                 httpSamplerProxy.setHashTree(list);
                 httpSamplerProxy.setName(planId);
                 if (StringUtils.isNotEmpty(envId)) {

@@ -1,10 +1,6 @@
 package io.metersphere.commons.utils;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
@@ -52,21 +48,15 @@ public class GenerateHashTreeUtil {
     }
 
     public static void parse(String scenarioDefinition, MsScenario scenario) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSONUtil.parseObject(scenarioDefinition);
             ElementUtil.dataFormatting(element);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                LinkedList<MsTestElement> elements = mapper.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
-                });
-                scenario.setHashTree(elements);
+                scenario.setHashTree(JSONUtil.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString()));
             }
             if (element != null && StringUtils.isNotEmpty(element.optString("variables"))) {
-                LinkedList<ScenarioVariable> variables = mapper.readValue(element.optString("variables"), new TypeReference<LinkedList<ScenarioVariable>>() {
-                });
-                scenario.setVariables(variables);
+                scenario.setVariables(JSONUtil.parseArray(element.optString("variables"), ScenarioVariable.class));
             }
         } catch (Exception e) {
             LogUtil.error(e);
@@ -74,17 +64,10 @@ public class GenerateHashTreeUtil {
     }
 
     public static LinkedList<MsTestElement> getScenarioHashTree(String definition) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         JSONObject element = JSONUtil.parseObject(definition);
-        try {
-            if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                ElementUtil.dataFormatting(element);
-                return objectMapper.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString(), new TypeReference<LinkedList<MsTestElement>>() {
-                });
-            }
-        } catch (JsonProcessingException e) {
-            LogUtil.error(e.getMessage(), e);
+        if (element != null && element.has(ElementConstants.HASH_TREE)) {
+            ElementUtil.dataFormatting(element);
+            return JSONUtil.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString());
         }
         return new LinkedList<>();
     }
