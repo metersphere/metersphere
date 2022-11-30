@@ -96,25 +96,6 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.batchSave(dtos);
     }
 
-
-    public ApiScenarioReport testEnded(ResultDTO dto) {
-        if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            // 更新控制台信息
-            apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole(), false);
-        }
-        // 优化当前执行携带结果作为状态判断依据
-        ApiScenarioReport scenarioReport;
-        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-            scenarioReport = updatePlanCase(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            scenarioReport = updateSchedulePlanCase(dto);
-        } else {
-            scenarioReport = updateScenario(dto);
-        }
-        // 串行队列
-        return scenarioReport;
-    }
-
     public ApiScenarioReportResult get(String reportId, boolean selectReportContent) {
         ApiScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         if (reportResult != null) {
@@ -453,34 +434,6 @@ public class ApiScenarioReportService {
         FixedCapacityUtil.remove(reportId);
     }
 
-    public ApiScenarioReport updateScenario(ResultDTO dto) {
-        // 更新报告状态
-        ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
-        // 更新场景状态
-        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
-        if (scenario == null) {
-            scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
-        }
-        if (scenario != null) {
-            scenario.setLastResult(resultVO.getStatus());
-            scenario.setPassRate(resultVO.computerPassRate());
-            scenario.setReportId(dto.getReportId());
-            int executeTimes = 0;
-            if (scenario.getExecuteTimes() != null) {
-                executeTimes = scenario.getExecuteTimes().intValue();
-            }
-            scenario.setExecuteTimes(executeTimes + 1);
-            apiScenarioMapper.updateByPrimaryKey(scenario);
-        }
-
-        // 发送通知
-        if (scenario != null && report != null) {
-            sendNotice(scenario, report);
-        }
-        return report;
-    }
-
     public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
         String environment = "未配置";
         String environmentType = apiScenario.getEnvironmentType();
@@ -508,7 +461,7 @@ public class ApiScenarioReportService {
         return environment;
     }
 
-    private void sendNotice(ApiScenarioWithBLOBs scenario, ApiScenarioReport result) {
+    public void sendNotice(ApiScenarioWithBLOBs scenario, ApiScenarioReport result) {
 
         BeanMap beanMap = new BeanMap(scenario);
 
