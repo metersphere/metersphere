@@ -73,7 +73,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -841,7 +840,9 @@ public class TestPlanService {
         if (planReportId == null) {
             planReportId = UUID.randomUUID().toString();
         }
-        this.verifyPool(projectId, runModeConfig);
+        if (haveExecCase(testPlanId, true)) {
+            this.verifyPool(projectId, runModeConfig);
+        }
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanId, userId, triggerMode, runModeConfig);
         //定时任务执行重新设置实际开始时间
@@ -1800,8 +1801,9 @@ public class TestPlanService {
             //创建测试报告
             RunModeConfigDTO runModeConfigDTO = JSON.parseObject(testPlan.getRunModeConfig(), RunModeConfigDTO.class);
             runModeConfigDTO = ObjectUtils.isEmpty(runModeConfigDTO) ? new RunModeConfigDTO() : runModeConfigDTO;
-            this.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
-
+            if (haveExecCase(testPlan.getId(), true)) {
+                this.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
+            }
             this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode(), runModeConfigDTO);
             //测试计划准备执行，取消测试计划的实际结束时间
             extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());
