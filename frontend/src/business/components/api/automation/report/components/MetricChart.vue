@@ -65,6 +65,7 @@
       <div class="split"></div>
       <!-- 场景统计 -->
       <div style="width: 50%">
+        <el-row type="flex" justify="center" align="middle">
         <el-row type="flex" justify="center" align="middle" v-if="report.reportType !== 'API_INTEGRATED'">
           <div class="metric-box">
             <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0 }}</div>
@@ -91,6 +92,7 @@
             <div class="value">{{ content.scenarioUnExecute ? content.scenarioUnExecute : 0 }}</div>
             <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
           </div>
+        </el-row>
         </el-row>
         <el-divider v-if="report.reportType !== 'API_INTEGRATED'"/>
         <el-row type="flex" justify="center" align="middle">
