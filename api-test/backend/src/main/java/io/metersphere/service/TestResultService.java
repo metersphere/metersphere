@@ -2,10 +2,9 @@ package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
+import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PropertyConstant;
@@ -14,12 +13,14 @@ import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
+import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioExecutionInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
@@ -28,13 +29,11 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class TestResultService {
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
@@ -45,8 +44,6 @@ public class TestResultService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
-    @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
     @Resource
     private RedisTemplateService redisTemplateService;
@@ -55,7 +52,7 @@ public class TestResultService {
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
     @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
+    private ApiTestCaseService apiTestCaseService;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -142,6 +139,48 @@ public class TestResultService {
         }
     }
 
+    private ApiScenarioReport editReport(ResultDTO dto) {
+        // 更新报告状态
+        ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
+        ApiScenarioReport report = apiScenarioReportService.editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
+        // 更新场景状态
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
+        if (scenario == null) {
+            scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+        }
+        if (scenario != null) {
+            scenario.setLastResult(resultVO.getStatus());
+            scenario.setPassRate(resultVO.computerPassRate());
+            scenario.setReportId(dto.getReportId());
+            int executeTimes = 0;
+            if (scenario.getExecuteTimes() != null) {
+                executeTimes = scenario.getExecuteTimes().intValue();
+            }
+            scenario.setExecuteTimes(executeTimes + 1);
+            apiScenarioMapper.updateByPrimaryKey(scenario);
+        }
+
+        // 发送通知
+        if (scenario != null && report != null) {
+            apiScenarioReportService.sendNotice(scenario, report);
+        }
+        return report;
+    }
+
+    public ApiScenarioReport edit(ResultDTO dto) {
+        if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+            // 更新控制台信息
+            apiScenarioReportStructureService.update(dto.getReportId(), dto.getConsole(), false);
+        }
+        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+            return apiScenarioReportService.updatePlanCase(dto);
+        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            return apiScenarioReportService.updateSchedulePlanCase(dto);
+        } else {
+            return this.editReport(dto);
+        }
+    }
+
     public void testEnded(ResultDTO dto) {
         // 删除串行资源锁
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
@@ -152,7 +191,7 @@ public class TestResultService {
             dto.setRequestResults(new LinkedList<>());
         }
         if (scenarioRunModes.contains(dto.getRunMode())) {
-            ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
+            ApiScenarioReport scenarioReport = edit(dto);
             if (scenarioReport != null) {
                 String environment = StringUtils.EMPTY;
                 //执行人
@@ -198,13 +237,13 @@ public class TestResultService {
 
             ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
             example.createCriteria().andIdEqualTo(dto.getReportId()).andStatusEqualTo(ApiReportStatus.RUNNING.name());
-            apiDefinitionExecResultMapper.updateByExampleSelective(record, example);
+            apiDefinitionExecResultService.updateByExampleSelective(record, example);
 
             if (StringUtils.isNotEmpty(dto.getTestId())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                 apiTestCase.setLastResultId(dto.getReportId());
                 apiTestCase.setId(dto.getTestId());
-                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                apiTestCaseService.updateByPrimaryKeySelective(apiTestCase);
             }
 
         }

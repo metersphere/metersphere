@@ -473,4 +473,8 @@ public class ApiDefinitionExecResultService {
             }
         }
     }
+
+    public void updateByExampleSelective(ApiDefinitionExecResultWithBLOBs resultWithBLOBs, ApiDefinitionExecResultExample resultExample) {
+        apiDefinitionExecResultMapper.updateByExampleSelective(resultWithBLOBs, resultExample);
+    }
 }
