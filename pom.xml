@@ -22,7 +22,7 @@
         <java.version>11</java.version>
         <spring-cloud.version>2021.0.5</spring-cloud.version>
         <spring-security.version>5.7.5</spring-security.version>
-        <dubbo.version>2.7.15</dubbo.version>
+        <dubbo.version>2.7.17</dubbo.version>
         <platform-plugin-sdk.version>1.0.0</platform-plugin-sdk.version>
         <flyway.version>7.15.0</flyway.version>
         <shiro.version>1.10.0</shiro.version>
@@ -67,12 +67,11 @@
         <oracle-database.version>19.7.0.0</oracle-database.version>
         <zookeeper.version>3.4.14</zookeeper.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <jmeter-plugins-dubbo>2.7.16</jmeter-plugins-dubbo>
+        <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
         <hessian-lite.version>3.2.12</hessian-lite.version>
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <org-json.version>20171018</org-json.version>
-        <jmeter-plugins-dubbo.version>2.7.16</jmeter-plugins-dubbo.version>
         <nacos.version>1.4.4</nacos.version>
         <minio.version>8.4.5</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
