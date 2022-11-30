@@ -26,8 +26,12 @@
       </el-radio>
     </el-radio-group>
     <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-      <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-        <el-link class="ms-el-link" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
+      <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'" class="ms-el-link">
+        <el-link style="margin-right: 5px" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
+        <api-params-config
+          v-if="apiParamsConfigFields"
+          @refresh="refreshApiParamsField"
+          :api-params-config-fields="apiParamsConfigFields" />
       </el-row>
       <ms-api-variable
         :with-more-setting="true"
@@ -38,6 +42,7 @@
         :scenario-definition="scenarioDefinition"
         :id="id"
         @editScenarioAdvance="editScenarioAdvance"
+        v-if="reloadedApiVariable"
         type="body" />
     </div>
     <div v-if="body.type == 'JSON'">
@@ -89,6 +94,8 @@ import MsApiBinaryVariable from './ApiBinaryVariable';
 import MsApiFromUrlVariable from './ApiFromUrlVariable';
 import BatchAddParameter from '../basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
+import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_field';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 export default {
   name: 'MsApiBody',
@@ -101,6 +108,7 @@ export default {
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
     BatchAddParameter,
+    ApiParamsConfig,
   },
   props: {
     body: {
@@ -131,6 +139,8 @@ export default {
   },
   data() {
     return {
+      reloadedApiVariable: true,
+      apiParamsConfigFields: getApiParamsConfigFields(this),
       type: BODY_TYPE,
       modes: ['text', 'json', 'xml', 'html'],
       jsonSchema: 'JSON',
@@ -146,6 +156,13 @@ export default {
     },
   },
   methods: {
+    refreshApiParamsField() {
+      this.reloadedApiVariable = false;
+      this.$nextTick(() => {
+        this.reloadedApiVariable = true;
+      });
+    },
+
     isObj(x) {
       let type = typeof x;
       return x !== null && (type === 'object' || type === 'function');

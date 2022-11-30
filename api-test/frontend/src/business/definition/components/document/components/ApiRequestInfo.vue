@@ -2,54 +2,44 @@
   <div>
     <el-row class="apiInfoRow">
       <div>
-        <el-table
-          border
-          v-if="formParamTypes.includes(apiInfo.requestBodyParamType)"
-          :show-header="true"
-          row-key="id"
-          :row-class-name="getRowClassName"
-          :data="tableData"
-          :class="getTableClass()"
-          ref="expandTable">
-          <el-table-column
-            prop="name"
-            :label="$t('api_definition.document.name')"
-            min-width="120px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="contentType"
-            :label="$t('api_definition.document.type')"
-            min-width="120px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="description"
-            :label="$t('api_definition.document.desc')"
-            min-width="280px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="required"
-            :label="$t('api_definition.document.is_required')"
-            :formatter="formatBoolean"
-            min-width="80px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="value"
-            :label="$t('api_definition.document.default_value')"
-            min-width="120px"
-            show-overflow-tooltip />
-          <el-table-column type="expand" :label="getCollapseOption()" width="80px">
-            <template slot="header">
-              <el-button type="text" size="mini" @click="expandAllRows">
-                <span :id="tableExpandButtonId">
-                  {{ expandTitle }}
-                </span>
-              </el-button>
-            </template>
-            <template v-slot:default="scope">
-              <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
-            </template>
-          </el-table-column>
-        </el-table>
+        <div v-if="formParamTypes.includes(apiInfo.requestBodyParamType)">
+          <el-row>
+            <div style="float: right">
+              <api-params-config
+                v-if="apiParamsConfigFields"
+                @refresh="refreshApiParamsField"
+                :api-params-config-fields="apiParamsConfigFields" />
+            </div>
+          </el-row>
+          <el-table
+            border
+            :show-header="true"
+            row-key="id"
+            :row-class-name="getRowClassName"
+            :data="tableData"
+            :class="getTableClass()"
+            ref="expandTable">
+            <el-table-column
+              v-for="item in tableColumnArr"
+              :key="item.id"
+              :prop="item.prop"
+              :label="item.label"
+              show-overflow-tooltip />
+            <el-table-column type="expand" :label="getCollapseOption()" width="80px">
+              <template slot="header">
+                <el-button type="text" size="mini" @click="expandAllRows">
+                  <span :id="tableExpandButtonId">
+                    {{ expandTitle }}
+                  </span>
+                </el-button>
+              </template>
+              <template v-slot:default="scope">
+                <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
         <div
           v-else-if="apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON'"
           style="margin-left: 10px">
@@ -87,10 +77,12 @@ import JsonSchemaShow from '@/business/definition/components/document/components
 import tableAdvancedSetting from '@/business/definition/components/document/components/plugin/TableAdvancedSetting';
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
+import { getApiParamsConfigFields, getShowFields } from 'metersphere-frontend/src/utils/custom_field';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 export default {
   name: 'ApiRequestInfo',
-  components: { JsonSchemaShow, tableAdvancedSetting },
+  components: { JsonSchemaShow, tableAdvancedSetting, ApiParamsConfig },
   data() {
     return {
       tableData: [],
@@ -98,8 +90,11 @@ export default {
       tableExpandButtonId: 'docTableExpandBtn' + getUUID(),
       active: true,
       expandAllRow: false,
+      apiParamStorageKey: 'API_PARAMS_SHOW_FIELD',
       expandTitle: this.$t('commons.expand_all'),
+      apiParamsConfigFields: getApiParamsConfigFields(this),
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
+      tableColumnArr: [],
     };
   },
   props: {
@@ -108,38 +103,45 @@ export default {
   activated() {
     if (this.apiInfo && this.apiInfo.requestBodyFormData) {
       this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+      this.formatTableData();
     }
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
     let user = getCurrentUser();
     if (user) {
       this.language = user.language;
     }
+    this.initTableColumn();
   },
   created: function () {
     if (this.apiInfo && this.apiInfo.requestBodyFormData) {
       this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+      this.formatTableData();
     }
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
     let user = getCurrentUser();
     if (user) {
       this.language = user.language;
     }
+    this.initTableColumn();
   },
   mounted() {
     if (this.apiInfo && this.apiInfo.requestBodyFormData) {
       this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+      this.formatTableData();
     }
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
     let user = getCurrentUser();
     if (user) {
       this.language = user.language;
     }
+    this.initTableColumn();
   },
   computed: {},
   watch: {
     'apiInfo.requestBodyFormData': {
       handler(v) {
         this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+        this.formatTableData();
       },
       deep: true,
     },
@@ -163,6 +165,79 @@ export default {
     },
   },
   methods: {
+    formatTableData() {
+      if (this.tableData) {
+        this.tableData.forEach((item) => {
+          if (item.urlEncode !== null && item.urlEncode !== undefined) {
+            if (item.urlEncode === true) {
+              item.urlEncode = this.$t('commons.yes');
+            } else {
+              item.urlEncode = this.$t('commons.no');
+            }
+          }
+          if (item.enable !== null && item.enable !== undefined) {
+            if (item.enable === true) {
+              item.enable = this.$t('commons.yes');
+            } else {
+              item.enable = this.$t('commons.no');
+            }
+          }
+        });
+      }
+    },
+    refreshApiParamsField() {
+      this.initTableColumn();
+      this.reloadedApiVariable = false;
+      this.$nextTick(() => {
+        this.reloadedApiVariable = true;
+      });
+    },
+    initTableColumn() {
+      this.tableColumnArr = [
+        { id: 1, prop: 'name', label: this.$t('api_definition.document.name') },
+        { id: 2, prop: 'contentType', label: this.$t('api_definition.document.type') },
+        {
+          id: 3,
+          prop: 'enable',
+          label: this.$t('api_definition.document.is_required'),
+        },
+        {
+          id: 4,
+          prop: 'value',
+          label: this.$t('api_definition.document.value'),
+        },
+      ];
+      if (this.formParamTypes.includes(this.apiInfo.requestBodyParamType)) {
+        let apiParamConfigArr = getShowFields(this.apiParamStorageKey);
+        if (apiParamConfigArr) {
+          apiParamConfigArr.forEach((item) => {
+            let tableColumn = {};
+            if (item === 'MIX_LENGTH') {
+              tableColumn.id = 5;
+              tableColumn.prop = 'min';
+              tableColumn.label = this.$t('schema.minLength');
+            } else if (item === 'MAX_LENGTH') {
+              tableColumn.id = 6;
+              tableColumn.prop = 'max';
+              tableColumn.label = this.$t('schema.maxLength');
+            } else if (item === 'ENCODE') {
+              tableColumn.id = 7;
+              tableColumn.prop = 'urlEncode';
+              tableColumn.label = this.$t('commons.encode');
+            } else if (item === 'DESCRIPTION') {
+              tableColumn.id = 8;
+              tableColumn.prop = 'description';
+              tableColumn.label = this.$t('commons.description');
+            } else {
+              tableColumn = null;
+            }
+            if (tableColumn) {
+              this.tableColumnArr.push(tableColumn);
+            }
+          });
+        }
+      }
+    },
     getRowClassName({ row, rowIndex }) {
       let classname = 'autofix-table-row ';
       // 通过判断给不需要展开行功能的数据设置样式，通过样式去隐藏展开行图标
