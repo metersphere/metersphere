@@ -546,33 +546,35 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String result = "";
 
         if (StringUtils.isNotEmpty(path)) {
-            if (path.startsWith("{") && path.endsWith("}")) {
-                String srcContent = path.substring(1, path.length() - 1);
-                if (StringUtils.isEmpty(name)) {
-                    name = srcContent;
-                }
+            if (!path.startsWith("http")) {
+                if (path.startsWith("{") && path.endsWith("}")) {
+                    String srcContent = path.substring(1, path.length() - 1);
+                    if (StringUtils.isEmpty(name)) {
+                        name = srcContent;
+                    }
 
-                if (Arrays.stream(imgArray).anyMatch(imgType -> StringUtils.equals(imgType, srcContent.substring(srcContent.indexOf('.') + 1)))) {
-                    if (zentaoClient instanceof ZentaoGetClient) {
-                        path = zentaoClient.getBaseUrl() + "/index.php?m=file&f=read&fileID=" + srcContent;
+                    if (Arrays.stream(imgArray).anyMatch(imgType -> StringUtils.equals(imgType, srcContent.substring(srcContent.indexOf('.') + 1)))) {
+                        if (zentaoClient instanceof ZentaoGetClient) {
+                            path = zentaoClient.getBaseUrl() + "/index.php?m=file&f=read&fileID=" + srcContent;
+                        } else {
+                            // 禅道开源版
+                            path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                        }
                     } else {
-                        // 禅道开源版
-                        path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                        return result;
                     }
                 } else {
-                    return result;
+                    name = name.replaceAll("&amp;", "&");
+                    try {
+                        URI uri = new URI(zentaoClient.getBaseUrl());
+                        path = uri.getScheme() + "://" + uri.getHost() + path.replaceAll("&amp;", "&");
+                    } catch (URISyntaxException e) {
+                        path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
+                        LogUtil.error(e);
+                    }
                 }
-            } else {
-                name = name.replaceAll("&amp;", "&");
-                try {
-                    URI uri = new URI(zentaoClient.getBaseUrl());
-                    path = uri.getScheme() + "://" + uri.getHost() + path.replaceAll("&amp;", "&");
-                } catch (URISyntaxException e) {
-                    path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
-                    LogUtil.error(e);
-                }
+                path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
             }
-            path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
         }
