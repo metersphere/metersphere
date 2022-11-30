@@ -1289,4 +1289,7 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.selectApiCaseBasicInfoById(id);
     }
 
+    public void updateByPrimaryKeySelective(ApiTestCaseWithBLOBs apiTestCase) {
+        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+    }
 }
