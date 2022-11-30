@@ -21,7 +21,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
@@ -40,7 +39,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,29 +85,10 @@ public class MsJDBCSampler extends MsTestElement {
             this.setProjectId(config.getProjectId());
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId()));
         }
-        // 数据兼容处理
-        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
-            // 1.8 之后 当前正常数据
-        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
-            // 1.8 前后 混合数据
-            this.setProjectId(getParentProjectId());
-        } else {
-            // 1.8 之前 数据
-            if (config.getConfig() != null) {
-                if (config.getConfig().containsKey(RunModeConstants.HIS_PRO_ID.toString())) {
-                    this.setProjectId(RunModeConstants.HIS_PRO_ID.toString());
-                } else {
-                    // 测试计划执行
-                    Iterator<String> it = config.getConfig().keySet().iterator();
-                    if (it.hasNext()) {
-                        this.setProjectId(it.next());
-                    }
-                }
-            }
-        }
+
         EnvironmentConfig envConfig = null;
         // 自定义请求非引用环境取自身环境
-        if (StringUtils.equalsIgnoreCase(this.getReferenced(), "Created") && (isRefEnvironment == null || !isRefEnvironment)) {
+        if (StringUtils.equalsIgnoreCase(this.getReferenced(), ElementConstants.STEP_CREATED) && (isRefEnvironment == null || !isRefEnvironment)) {
             this.dataSource = null;
             envConfig = this.initDataSource();
         } else {

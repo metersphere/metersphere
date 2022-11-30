@@ -101,11 +101,13 @@ public class ApiScenarioEnvService {
                 http.setUrl(StringUtils.equals(testElement.getRefType(), CommonConstants.CASE) ? null : http.getUrl());
 
                 // 非全路径校验
-                if (!StringUtils.equalsIgnoreCase(http.getReferenced(), "Created") || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
+                if (!StringUtils.equalsIgnoreCase(http.getReferenced(), ElementConstants.STEP_CREATED)
+                        || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
                     env.getProjectIds().add(http.getProjectId());
                     env.setFullUrl(false);
                 }
-            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER) || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
+            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)
+                    || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
                 if (StringUtils.isEmpty(testElement.getProjectId())) {
                     if (StringUtils.equals(testElement.getRefType(), CommonConstants.CASE)) {
                         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(testElement.getId());
@@ -141,17 +143,19 @@ public class ApiScenarioEnvService {
                 if (httpSamplerProxy.isCustomizeReq()) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
                     env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : !httpSamplerProxy.getIsRefEnvironment());
-                } else if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
+                } else if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), ElementConstants.STEP_CREATED) || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
                     env.setFullUrl(false);
                 }
 
-            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER) || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
+            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)
+                    || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
                 env.getProjectIds().add(testElement.getProjectId());
                 env.setFullUrl(false);
             }
         }
-        if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO) && !((MsScenario) testElement).isEnvironmentEnable()) {
+        if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO)
+                && !((MsScenario) testElement).isEnvironmentEnable()) {
             env.getProjectIds().add(testElement.getProjectId());
         }
     }

@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.controller.MsCriticalSectionController;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
@@ -188,8 +185,6 @@ public class MsScenario extends MsTestElement {
     private boolean setRefScenario(List<MsTestElement> hashTree) {
         try {
             ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                 JSONObject elementOrg = JSONUtil.parseObject(scenario.getScenarioDefinition());
@@ -198,21 +193,14 @@ public class MsScenario extends MsTestElement {
                 ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
                 this.setName(scenario.getName());
                 this.setProjectId(scenario.getProjectId());
-                LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.optString(ElementConstants.HASH_TREE), new TypeReference<LinkedList<MsTestElement>>() {
-                });
+                LinkedList<MsTestElement> sourceHashTree = JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE));
                 // 场景变量
                 if (StringUtils.isNotEmpty(element.optString("variables")) && (this.variableEnable == null || this.variableEnable)) {
-                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.optString("variables"),
-                            new TypeReference<LinkedList<ScenarioVariable>>() {
-                            });
-                    this.setVariables(variables);
+                    this.setVariables(JSONUtil.parseArray(element.optString("variables"), ScenarioVariable.class));
                 }
                 // 场景请求头
                 if (StringUtils.isNotEmpty(element.optString("headers")) && (this.variableEnable == null || this.variableEnable)) {
-                    LinkedList<KeyValue> headers = mapper.readValue(element.optString("headers"),
-                            new TypeReference<LinkedList<KeyValue>>() {
-                            });
-                    this.setHeaders(headers);
+                    this.setHeaders(JSONUtil.parseArray(element.optString("headers"), KeyValue.class));
                 }
                 this.setHashTree(sourceHashTree);
                 hashTree.clear();

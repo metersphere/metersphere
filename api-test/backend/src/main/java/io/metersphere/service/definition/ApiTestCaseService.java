@@ -1,7 +1,5 @@
 package io.metersphere.service.definition;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
@@ -93,8 +91,6 @@ public class ApiTestCaseService {
     private BaseProjectVersionMapper baseProjectVersionMapper;
     @Resource
     private TcpApiParamService tcpApiParamService;
-    @Resource
-    private ObjectMapper mapper;
     @Resource
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
@@ -760,23 +756,16 @@ public class ApiTestCaseService {
                 JSONObject element = JSONUtil.parseObject(apiTestCase.getRequest());
                 ElementUtil.dataFormatting(element);
                 MsHTTPSamplerProxy req = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
-                try {
-                    if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
-                        LinkedList<MsTestElement> elements = mapper.readValue(element.optString(ElementConstants.HASH_TREE), new TypeReference<LinkedList<MsTestElement>>() {
-                        });
-                        req.setHashTree(elements);
-                    }
-                    if (StringUtils.isNotEmpty(method)) {
-                        req.setMethod(method);
-                    }
-                    if (StringUtils.isNotEmpty(path)) {
-                        req.setPath(path);
-                    }
-                } catch (Exception e) {
-                    LogUtil.error(e);
+                if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
+                    req.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
                 }
-                String requestStr = JSON.toJSONString(req);
-                apiTestCase.setRequest(requestStr);
+                if (StringUtils.isNotBlank(method)) {
+                    req.setMethod(method);
+                }
+                if (StringUtils.isNotBlank(path)) {
+                    req.setPath(path);
+                }
+                apiTestCase.setRequest(JSON.toJSONString(req));
                 // sync case
                 ApiCaseBatchSyncService apiCaseBatchSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
                 if (apiCaseBatchSyncService != null) {
