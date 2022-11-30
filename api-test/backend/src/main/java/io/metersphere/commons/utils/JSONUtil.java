@@ -2,16 +2,20 @@ package io.metersphere.commons.utils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -26,6 +30,7 @@ import java.util.*;
 
 public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final TypeFactory typeFactory = objectMapper.getTypeFactory();
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -39,6 +44,15 @@ public class JSONUtil {
     public static <T> T parseObject(String content, Class<T> valueType) {
         try {
             return objectMapper.readValue(content, valueType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> List<T> parseArray(String content, Class<T> valueType) {
+        CollectionType javaType = typeFactory.constructCollectionType(LinkedList.class, valueType);
+        try {
+            return objectMapper.readValue(content, javaType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -233,6 +247,15 @@ public class JSONUtil {
             return gson.toJson(JsonParser.parseString(content).getAsJsonObject());
         } catch (Exception e) {
             return content;
+        }
+    }
+
+    public static LinkedList<MsTestElement> readValue(String content) {
+        try {
+            return objectMapper.readValue(content, new TypeReference<LinkedList<MsTestElement>>() {
+            });
+        } catch (Exception e) {
+            return new LinkedList<>();
         }
     }
 
