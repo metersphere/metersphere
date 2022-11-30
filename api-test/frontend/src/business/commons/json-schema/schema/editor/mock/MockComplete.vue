@@ -3,6 +3,7 @@
     <el-autocomplete
       size="small"
       class="input-with-autocomplete"
+      style="width: 100%"
       v-model="mock.mock"
       :fetch-suggestions="funcSearch"
       :disabled="disabled"
