@@ -1,107 +1,175 @@
 <template>
   <div style="margin-bottom: 20px">
-    <span class="kv-description" v-if="description">
-      {{ description }}
-    </span>
-    <el-row>
-      <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1" />
-    </el-row>
-    <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
-      <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-        <el-col class="kv-checkbox" v-if="isShowEnable">
-          <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly" />
-        </el-col>
-        <span style="margin-left: 10px" v-else></span>
-        <i class="el-icon-top" style="cursor: pointer" @click="moveTop(index)" />
-        <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(index)" />
-
-        <el-col class="item">
-          <el-input
-            v-if="!suggestions"
-            :disabled="isReadOnly"
-            v-model="item.name"
-            size="small"
-            maxlength="200"
-            @change="change"
-            :placeholder="keyText"
-            show-word-limit>
-            <template v-slot:prepend>
-              <el-select
-                v-if="type === 'body'"
-                :disabled="isReadOnly"
-                class="kv-type"
-                v-model="item.type"
-                @change="typeChange(item)">
-                <el-option value="text" />
-                <el-option value="file" />
-                <el-option value="json" />
-              </el-select>
-            </template>
-          </el-input>
-
-          <el-autocomplete
-            :disabled="isReadOnly"
-            v-if="suggestions"
-            v-model="item.name"
-            size="small"
-            :fetch-suggestions="querySearch"
-            @change="change"
-            :placeholder="keyText"
-            show-word-limit />
-        </el-col>
-
-        <el-col class="item kv-select">
-          <el-select v-model="item.required" size="small">
-            <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
-          </el-select>
-        </el-col>
-
-        <el-col class="item" v-if="isActive && item.type !== 'file'">
-          <el-autocomplete
-            :disabled="isReadOnly"
-            size="small"
-            class="input-with-autocomplete"
-            v-model="item.value"
-            :fetch-suggestions="funcSearch"
-            :placeholder="valueText"
-            value-key="name"
-            highlight-first-item
-            @select="change">
-            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
-          </el-autocomplete>
-        </el-col>
-
-        <el-col v-if="isActive && item.type === 'file'" class="item">
-          <ms-api-body-file-upload :parameter="item" :id="id" :is-read-only="isReadOnly" />
-        </el-col>
-
-        <el-col v-if="type === 'body'" class="item kv-select">
-          <el-input
-            :disabled="isReadOnly"
-            v-model="item.contentType"
-            size="small"
-            @change="change"
-            :placeholder="$t('api_test.request.content_type')"
-            show-word-limit>
-          </el-input>
-        </el-col>
-
-        <el-col v-if="withMoreSetting" class="item kv-setting">
-          <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">
-            <i class="el-icon-setting" @click="openApiVariableSetting(item)" />
-          </el-tooltip>
-        </el-col>
-
-        <el-col class="item kv-delete">
-          <el-button
-            size="mini"
-            class="el-icon-delete-solid"
-            circle
-            @click="remove(index)"
-            :disabled="isDisable(index) || isReadOnly" />
-        </el-col>
+    <div style="overflow: auto; width: 100%">
+      <span class="kv-description" v-if="description">
+        {{ description }}
+      </span>
+      <el-row>
+        <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1" />
       </el-row>
+
+      <!--      数据-->
+      <div class="item kv-row" v-for="(item, index) in parameters" :key="index" style="width: 99%">
+        <el-row type="flex" :gutter="20" justify="space-between" align="middle">
+          <el-col class="kv-checkbox" v-if="isShowEnable">
+            <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly" />
+          </el-col>
+          <span style="margin-left: 10px" v-else></span>
+          <i class="el-icon-top" style="cursor: pointer" @click="moveTop(index)" />
+          <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(index)" />
+
+          <el-col class="item" style="min-width: 200px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ keyText }}</span>
+            </el-row>
+            <el-input
+              v-if="!suggestions"
+              :disabled="isReadOnly"
+              v-model="item.name"
+              size="small"
+              maxlength="200"
+              @change="change"
+              :placeholder="keyText"
+              show-word-limit>
+              <template v-slot:prepend>
+                <el-select
+                  v-if="type === 'body'"
+                  :disabled="isReadOnly"
+                  class="kv-type"
+                  v-model="item.type"
+                  @change="typeChange(item)">
+                  <el-option value="text" />
+                  <el-option value="file" />
+                  <el-option value="json" />
+                </el-select>
+              </template>
+            </el-input>
+
+            <el-autocomplete
+              :disabled="isReadOnly"
+              v-if="suggestions"
+              v-model="item.name"
+              size="small"
+              :fetch-suggestions="querySearch"
+              @change="change"
+              :placeholder="keyText"
+              show-word-limit />
+          </el-col>
+
+          <el-col class="item kv-select" style="width: 130px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0">
+                {{ $t('api_test.definition.document.table_coloum.is_required') }}</span
+              >
+            </el-row>
+            <el-select v-model="item.required" size="small" style="width: 120px">
+              <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
+            </el-select>
+          </el-col>
+
+          <el-col class="item" v-if="isActive && item.type !== 'file'" style="min-width: 200px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ valueText }}</span>
+            </el-row>
+            <el-autocomplete
+              :disabled="isReadOnly"
+              size="small"
+              class="input-with-autocomplete"
+              v-model="item.value"
+              :fetch-suggestions="funcSearch"
+              :placeholder="valueText"
+              value-key="name"
+              highlight-first-item
+              @select="change">
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+            </el-autocomplete>
+          </el-col>
+
+          <el-col v-if="isActive && item.type === 'file'" class="item" style="min-width: 200px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ valueText }}</span>
+            </el-row>
+            <ms-api-body-file-upload :parameter="item" :id="id" :is-read-only="isReadOnly" />
+          </el-col>
+
+          <el-col v-if="type === 'body'" class="item kv-select" style="min-width: 160px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ $t('api_test.request.content_type') }}</span>
+            </el-row>
+            <el-input
+              :disabled="isReadOnly"
+              v-model="item.contentType"
+              size="small"
+              @change="change"
+              :placeholder="$t('api_test.request.content_type')"
+              show-word-limit>
+            </el-input>
+          </el-col>
+
+          <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ $t('schema.minLength') }}</span>
+            </el-row>
+            <el-input-number
+              :min="0"
+              v-model="item.min"
+              :placeholder="$t('schema.minLength')"
+              size="small"
+              style="width: 140px" />
+          </el-col>
+
+          <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ $t('schema.maxLength') }}</span>
+            </el-row>
+            <el-input-number
+              :min="0"
+              v-model="item.max"
+              :placeholder="$t('schema.maxLength')"
+              size="small"
+              style="width: 140px" />
+          </el-col>
+
+          <el-col v-if="showColumns('ENCODE')" class="item kv-select" style="width: 130px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ $t('commons.encode') }}</span>
+            </el-row>
+            <el-select v-model="item.urlEncode" size="small" clearable style="width: 100px">
+              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+          </el-col>
+
+          <el-col class="item" v-if="showColumns('DESCRIPTION')" style="min-width: 300px; padding: 0 5px">
+            <el-row>
+              <span class="param-header-span" v-if="index === 0"> {{ $t('commons.description') }}</span>
+            </el-row>
+            <el-input
+              v-model="item.description"
+              size="small"
+              maxlength="200"
+              :placeholder="$t('commons.description')"
+              show-word-limit>
+            </el-input>
+          </el-col>
+
+          <el-col v-if="withMoreSetting" class="item kv-setting">
+            <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">
+              <i class="el-icon-setting" @click="openApiVariableSetting(item)" />
+            </el-tooltip>
+          </el-col>
+
+          <el-col class="item kv-delete">
+            <el-button
+              size="mini"
+              class="el-icon-delete-solid"
+              circle
+              @click="remove(index)"
+              :disabled="isDisable(index) || isReadOnly" />
+          </el-col>
+        </el-row>
+      </div>
     </div>
+
     <ms-api-variable-advance
       ref="variableAdvance"
       :environment="environment"
@@ -126,6 +194,7 @@ import MsApiVariableJson from './ApiVariableJson';
 import MsApiBodyFileUpload from './body/ApiBodyFileUpload';
 import Vue from 'vue';
 import ApiVariableSetting from '@/business/definition/components/ApiVariableSetting';
+import { getShowFields } from 'metersphere-frontend/src/utils/custom_field';
 
 export default {
   name: 'MsApiVariable',
@@ -184,6 +253,17 @@ export default {
       ],
       isSelectAll: true,
       isActive: true,
+      paramColumns: [],
+      options: [
+        {
+          value: true,
+          label: this.$t('commons.yes'),
+        },
+        {
+          value: false,
+          label: this.$t('commons.no'),
+        },
+      ],
     };
   },
   watch: {
@@ -193,6 +273,13 @@ export default {
       } else if (from == true && to == false) {
         this.invertSelect();
       }
+    },
+
+    paramColumns: {
+      handler(val) {
+        this.reload();
+      },
+      deep: true,
     },
   },
   computed: {
@@ -204,6 +291,9 @@ export default {
     },
   },
   methods: {
+    showColumns(columns) {
+      return this.paramColumns.indexOf(columns) >= 0;
+    },
     moveBottom(index) {
       if (this.parameters.length < 2 || index === this.parameters.length - 2) {
         return;
@@ -365,6 +455,10 @@ export default {
         })
       );
     }
+    let savedApiParamsShowFields = getShowFields('API_PARAMS_SHOW_FIELD');
+    if (savedApiParamsShowFields) {
+      this.paramColumns = savedApiParamsShowFields;
+    }
   },
 };
 </script>
@@ -415,5 +509,10 @@ export default {
 .kv-setting {
   width: 40px;
   padding: 0px !important;
+}
+
+.param-header-span {
+  margin-bottom: 5px;
+  font-weight: 600;
 }
 </style>

@@ -50,12 +50,14 @@
     <api-info-collapse
       v-if="isArrayHasData(apiInfo.urlParams)"
       table-column-type="simple"
+      table-type="query"
       :title="'QUERY' + $t('api_test.definition.document.request_param')"
       :string-data="apiInfo.urlParams" />
     <!--REST参数-->
     <api-info-collapse
       v-if="isArrayHasData(apiInfo.restParams)"
       table-column-type="simple"
+      table-type="rest"
       :title="'REST' + $t('api_test.definition.document.request_param')"
       :string-data="apiInfo.restParams" />
     <!--api请求体 以及表格-->
