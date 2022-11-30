@@ -2,25 +2,38 @@
   <div id="app" v-loading="loading">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane :label="$t('organization.message.template')" name="apiTemplate">
-        <el-button
-          v-show="!jsonSchemaDisable"
-          type="primary"
-          size="mini"
-          style="margin: 10px 10px 0px"
-          @click="openOneClickOperation">
-          {{ this.$t('commons.import') }}
-        </el-button>
+        <div>
+          <el-button
+            v-show="!jsonSchemaDisable"
+            type="primary"
+            size="mini"
+            style="margin: 10px 10px 0px"
+            @click="openOneClickOperation">
+            {{ this.$t('commons.import') }}
+          </el-button>
+          <div style="float: right">
+            <api-params-config
+              v-if="apiJsonSchemaConfigFields"
+              :storage-key="storageKey"
+              @refresh="refreshApiParamsField"
+              :api-params-config-fields="apiJsonSchemaConfigFields" />
+          </div>
+        </div>
         <div :style="jsonSchemaDisable ? '' : 'min-height: 200px'">
-          <json-schema-editor
-            class="schema"
-            :disabled="jsonSchemaDisable"
-            :value="schema"
-            :show-mock-vars="showMockVars"
-            :scenario-definition="scenarioDefinition"
-            @editScenarioAdvance="editScenarioAdvance"
-            :need-mock="needMock"
-            lang="zh_CN"
-            custom />
+          <div style="overflow: auto">
+            <json-schema-editor
+              v-if="reloadedApiVariable"
+              class="schema"
+              :disabled="jsonSchemaDisable"
+              :value="schema"
+              :show-mock-vars="showMockVars"
+              :scenario-definition="scenarioDefinition"
+              @editScenarioAdvance="editScenarioAdvance"
+              :param-columns="apiJsonSchemaShowColumns"
+              :need-mock="needMock"
+              lang="zh_CN"
+              custom />
+          </div>
         </div>
       </el-tab-pane>
       <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
@@ -37,13 +50,15 @@
 <script>
 import MsImportJson from './import/ImportJson';
 import JsonSchemaEditor from '@/business/commons/json-schema/schema/editor/index';
+import { getApiJsonSchemaConfigFields, getShowFields } from 'metersphere-frontend/src/utils/custom_field';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 const Convert = require('./convert/convert.js');
 const MsConvert = new Convert();
 
 export default {
   name: 'App',
-  components: { MsImportJson, JsonSchemaEditor },
+  components: { MsImportJson, JsonSchemaEditor, ApiParamsConfig },
   props: {
     body: {},
     showPreview: {
@@ -76,6 +91,7 @@ export default {
       this.schema = { root: this.body.jsonSchema };
     }
     this.body.jsonSchema = this.schema.root;
+    this.apiJsonSchemaShowColumns = getShowFields(this.storageKey);
   },
   watch: {
     schema: {
@@ -106,11 +122,18 @@ export default {
         },
       },
       loading: false,
+      reloadedApiVariable: true,
       preview: null,
       activeName: 'apiTemplate',
+      storageKey: 'API_JSON_SCHEMA_SHOW_FIELD',
+      apiJsonSchemaConfigFields: getApiJsonSchemaConfigFields(this),
+      apiJsonSchemaShowColumns: [],
     };
   },
   methods: {
+    refreshApiParamsField() {
+      this.apiJsonSchemaShowColumns = getShowFields(this.storageKey);
+    },
     handleClick() {
       if (this.activeName === 'preview') {
         this.loading = true;

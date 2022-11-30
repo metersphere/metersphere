@@ -36,8 +36,17 @@
                 </div>
               </div>
               <div v-else>
+                <el-row v-if="tableType === 'rest' || tableType === 'query'">
+                  <div style="float: right">
+                    <api-params-config
+                      v-if="apiParamsConfigFields"
+                      @refresh="refreshApiParamsField"
+                      :api-params-config-fields="apiParamsConfigFields" />
+                  </div>
+                </el-row>
                 <el-table
                   border
+                  v-if="reloadedApiVariable"
                   :show-header="true"
                   row-key="id"
                   :row-class-name="getRowClassName"
@@ -78,37 +87,25 @@
 <script>
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { getUUID } from 'metersphere-frontend/src/utils';
-import tableAdvancedSetting from '@/business/definition/components/document/components/plugin/TableAdvancedSetting';
+import TableAdvancedSetting from '@/business/definition/components/document/components/plugin/TableAdvancedSetting';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
+import { getApiParamsConfigFields, getShowFields } from 'metersphere-frontend/src/utils/custom_field';
 
 export default {
   name: 'ApiInfoCollapse',
-  components: { tableAdvancedSetting },
+  components: { TableAdvancedSetting, ApiParamsConfig },
   data() {
     return {
       active: true,
       expandAllRow: false,
       language: 'zh_CN',
+      reloadedApiVariable: true,
       tableData: [],
+      storageKey: 'API_PARAMS_SHOW_FIELD',
+      apiParamsConfigFields: getApiParamsConfigFields(this),
       tableExpandButtonId: 'docTableExpandBtn' + getUUID(),
       expandTitle: this.$t('commons.expand_all'),
-      tableColumnArr: [
-        { id: 1, prop: 'name', label: this.$t('api_definition.document.name') },
-        {
-          id: 2,
-          prop: 'isRequired',
-          label: this.$t('api_definition.document.is_required'),
-        },
-        {
-          id: 3,
-          prop: 'value',
-          label: this.$t('api_definition.document.value'),
-        },
-        {
-          id: 4,
-          prop: 'description',
-          label: this.$t('api_definition.document.desc'),
-        },
-      ],
+      tableColumnArr: [],
     };
   },
   props: {
@@ -116,6 +113,7 @@ export default {
     tableColumnType: String,
     remarks: String,
     isRequest: Boolean,
+    tableType: String,
     isResponse: Boolean,
     tableCanExpand: {
       type: Boolean,
@@ -138,6 +136,7 @@ export default {
       this.language = user.language;
     }
     this.tableData = this.getJsonArr(this.stringData);
+    this.formatTableData();
   },
   created: function () {
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
@@ -145,7 +144,9 @@ export default {
     if (user) {
       this.language = user.language;
     }
+    this.initTableColumnArr();
     this.tableData = this.getJsonArr(this.stringData);
+    this.formatTableData();
   },
   mounted() {
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
@@ -154,6 +155,7 @@ export default {
       this.language = user.language;
     }
     this.tableData = this.getJsonArr(this.stringData);
+    this.formatTableData();
   },
   computed: {
     showSlotComponent() {
@@ -163,6 +165,7 @@ export default {
   watch: {
     stringData() {
       this.tableData = this.getJsonArr(this.stringData);
+      this.formatTableData();
     },
     expandAllRow() {
       if (this.$refs.expandTable) {
@@ -184,6 +187,71 @@ export default {
     },
   },
   methods: {
+    formatTableData() {
+      if (this.tableData) {
+        this.tableData.forEach((item) => {
+          if (item.urlEncode !== null && item.urlEncode !== undefined) {
+            if (item.urlEncode === true) {
+              item.urlEncode = this.$t('commons.yes');
+            } else {
+              item.urlEncode = this.$t('commons.no');
+            }
+          }
+        });
+      }
+    },
+    refreshApiParamsField() {
+      this.initTableColumnArr();
+      this.reloadedApiVariable = false;
+      this.$nextTick(() => {
+        this.reloadedApiVariable = true;
+      });
+    },
+    initTableColumnArr() {
+      this.tableColumnArr = [
+        { id: 1, prop: 'name', label: this.$t('api_definition.document.name') },
+        {
+          id: 2,
+          prop: 'isRequired',
+          label: this.$t('api_definition.document.is_required'),
+        },
+        {
+          id: 3,
+          prop: 'value',
+          label: this.$t('api_definition.document.value'),
+        },
+      ];
+      if (this.tableType === 'rest' || this.tableType === 'query') {
+        let apiParamConfigArr = getShowFields(this.storageKey);
+        if (apiParamConfigArr) {
+          apiParamConfigArr.forEach((item) => {
+            let tableColumn = {};
+            if (item === 'MIX_LENGTH') {
+              tableColumn.id = 5;
+              tableColumn.prop = 'min';
+              tableColumn.label = this.$t('schema.minLength');
+            } else if (item === 'MAX_LENGTH') {
+              tableColumn.id = 6;
+              tableColumn.prop = 'max';
+              tableColumn.label = this.$t('schema.maxLength');
+            } else if (item === 'ENCODE') {
+              tableColumn.id = 7;
+              tableColumn.prop = 'urlEncode';
+              tableColumn.label = this.$t('commons.encode');
+            } else if (item === 'DESCRIPTION') {
+              tableColumn.id = 8;
+              tableColumn.prop = 'description';
+              tableColumn.label = this.$t('commons.description');
+            } else {
+              tableColumn = null;
+            }
+            if (tableColumn) {
+              this.tableColumnArr.push(tableColumn);
+            }
+          });
+        }
+      }
+    },
     getRowClassName({ row, rowIndex }) {
       let classname = 'autofix-table-row ';
       // 通过判断给不需要展开行功能的数据设置样式，通过样式去隐藏展开行图标

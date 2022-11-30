@@ -1,7 +1,7 @@
 <template>
-  <div class="json-schema-editor">
-    <el-row class="row" :gutter="20">
-      <el-col :span="8" class="ms-col-name">
+  <div class="json-schema-editor" style="padding: 0 10px">
+    <el-row class="row" :gutter="10">
+      <el-col :style="{ minWidth: `${200 - 10 * deep}px` }" class="ms-col-name">
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
           v-if="pickValue.type === 'object' || pickValue.type === 'array'"
@@ -16,17 +16,18 @@
           @blur="onInputName"
           size="small" />
       </el-col>
-      <el-col :span="4">
+      <el-col style="width: 120px; padding: 0 5px">
         <el-select
           v-model="pickValue.type"
           :disabled="disabled || disabledType"
           class="ms-col-type"
           @change="onChangeType"
+          style="width: 110px"
           size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
-      <el-col :span="5">
+      <el-col style="min-width: 200px; padding: 0 5px">
         <ms-mock
           :disabled="
             disabled ||
@@ -38,9 +39,74 @@
           :schema="pickValue"
           :scenario-definition="scenarioDefinition"
           :show-mock-vars="showMockVars"
+          style="width: 100%"
           @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
-      <el-col :span="5">
+      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+        <el-input-number
+          :min="0"
+          v-model="pickValue.minLength"
+          :placeholder="$t('schema.minLength')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
+      </el-col>
+
+      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+        <el-input-number
+          :min="0"
+          v-model="pickValue.maxLength"
+          :placeholder="$t('schema.maxLength')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
+      </el-col>
+
+      <el-col v-if="showColumns('DEFAULT')" class="item kv-select" style="min-width: 200px; padding: 0 5px">
+        <el-input
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          v-model="pickValue.default"
+          class="ms-col-title"
+          :placeholder="$t('schema.default')"
+          style="width: 100%"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('PATTERN')" style="min-width: 200px; padding: 0 5px">
+        <el-input
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          v-model="pickValue.pattern"
+          class="ms-col-title"
+          :placeholder="$t('schema.pattern')"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
+        <el-input :disabled="true" size="small" :placeholder="$t('schema.format')"></el-input>
+      </el-col>
+      <el-col v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
         <el-input
           :disabled="disabled"
           v-model="pickValue.description"
@@ -48,19 +114,7 @@
           :placeholder="$t('schema.description')"
           size="small" />
       </el-col>
-      <el-col :span="2">
-        <div v-if="hasAdvancedSetting">
-          <el-link @click="changeCollapseStatus">{{ getCollapseOption() }}</el-link>
-        </div>
-      </el-col>
     </el-row>
-    <div>
-      <el-collapse-transition>
-        <div v-show="collapseStatus && hasAdvancedSetting" :style="{ marginLeft: `${10 * deep + 10}px` }">
-          <json-advanced-setting :json-data="pickValue" />
-        </div>
-      </el-collapse-transition>
-    </div>
 
     <template v-if="!hidden && pickValue.properties && !isArray && reloadItemOver">
       <json-schema-panel
@@ -71,6 +125,7 @@
         :deep="deep + 1"
         :root="false"
         class="children"
+        :param-columns="paramColumns"
         :scenario-definition="scenarioDefinition"
         :show-mock-vars="showMockVars"
         :disabled="disabled"
@@ -89,6 +144,7 @@
         :deep="deep + 1"
         :root="false"
         class="children"
+        :param-columns="paramColumns"
         :scenario-definition="scenarioDefinition"
         :show-mock-vars="showMockVars"
         :expand-all-params="expandAllParams"
@@ -124,6 +180,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    paramColumns: Array,
     disabledType: {
       //禁用类型选择
       type: Boolean,
@@ -150,12 +207,10 @@ export default {
       default: null,
     },
     custom: {
-      //enable custom properties
       type: Boolean,
       default: false,
     },
     lang: {
-      // i18n language
       type: String,
       default: 'zh_CN',
     },
@@ -248,6 +303,12 @@ export default {
     },
   },
   methods: {
+    showColumns(columns) {
+      if (!this.paramColumns) {
+        return false;
+      }
+      return this.paramColumns.indexOf(columns) >= 0;
+    },
     isNotEmptyValue(value) {
       return value && value !== '';
     },

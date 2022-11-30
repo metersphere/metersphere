@@ -1,7 +1,7 @@
 <template>
-  <div class="json-schema-editor">
-    <el-row class="row" :gutter="20">
-      <el-col :span="8" class="ms-col-name">
+  <div class="json-schema-editor" style="padding: 0 10px">
+    <el-row class="row" :gutter="10">
+      <el-col :style="{ minWidth: `${200 - 10 * deep}px` }" class="ms-col-name">
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
           v-if="pickValue.type === 'object' || pickValue.type === 'array'"
@@ -32,17 +32,19 @@
             @change="onCheck" />
         </el-tooltip>
       </el-col>
-      <el-col :span="4">
+
+      <el-col style="width: 120px; padding: 0 5px">
         <el-select
           v-model="pickValue.type"
           :disabled="disabled || disabledType"
           class="ms-col-type"
           @change="onChangeType"
+          style="width: 110px"
           size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
-      <el-col :span="4">
+      <el-col style="min-width: 200px; padding: 0 5px">
         <ms-mock
           :disabled="
             disabled ||
@@ -55,9 +57,103 @@
           :scenario-definition="scenarioDefinition"
           :show-mock-vars="showMockVars"
           :need-mock="needMock"
+          style="width: 100%"
           @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
-      <el-col :span="4">
+
+      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+        <el-input-number
+          :min="0"
+          v-model="pickValue.minLength"
+          :placeholder="$t('schema.minLength')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
+      </el-col>
+
+      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+        <el-input-number
+          :min="0"
+          v-model="pickValue.maxLength"
+          :placeholder="$t('schema.maxLength')"
+          size="small"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          style="width: 140px" />
+      </el-col>
+
+      <el-col v-if="showColumns('DEFAULT')" class="item kv-select" style="min-width: 200px; padding: 0 5px">
+        <el-input
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          v-model="pickValue.default"
+          class="ms-col-title"
+          :placeholder="$t('schema.default')"
+          style="width: 100%"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('PATTERN')" style="min-width: 200px; padding: 0 5px">
+        <el-input
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
+          v-model="pickValue.pattern"
+          class="ms-col-title"
+          :placeholder="$t('schema.pattern')"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
+        <div v-if="advancedAttr.format">
+          <el-select
+            :disabled="
+              disabled ||
+              pickValue.type === 'object' ||
+              pickKey === 'root' ||
+              pickValue.type === 'array' ||
+              pickValue.type === 'null'
+            "
+            v-model="pickValue.format"
+            style="width: 100%"
+            size="small">
+            <el-option value="" :label="$t('schema.nothing')"></el-option>
+            <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr.format.enums" />
+          </el-select>
+        </div>
+        <div v-else>
+          <el-input :disabled="true" size="small" :placeholder="$t('schema.format')"></el-input>
+        </div>
+      </el-col>
+      <el-col v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
+        <el-input
+          type="textarea"
+          autosize
+          :disabled="disabled"
+          v-model="pickValue.enum"
+          class="ms-col-title"
+          :placeholder="$t('schema.enum')"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('DESCRIPTION')" style="min-width: 300px; padding: 0 5px">
         <el-input
           :disabled="disabled"
           v-model="pickValue.description"
@@ -65,16 +161,19 @@
           :placeholder="$t('schema.description')"
           size="small" />
       </el-col>
-      <el-col :span="4" class="col-item-setting" v-if="!disabled">
-        <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
-          <i class="el-icon-setting" @click="onSetting" />
-        </el-tooltip>
-        <el-tooltip v-if="isObject || isArray(pickValue)" :content="$t('schema.add_child_node')" placement="top">
-          <i class="el-icon-plus" @click="addChild" style="margin-left: 10px" />
-        </el-tooltip>
-        <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
-          <i class="el-icon-close" @click="removeNode" style="margin-left: 10px" />
-        </el-tooltip>
+      <!--其余操作-->
+      <el-col style="width: 220px" class="col-item-setting" v-if="!disabled">
+        <div style="width: 80px">
+          <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
+            <i class="el-icon-setting" @click="onSetting" />
+          </el-tooltip>
+          <el-tooltip v-if="isObject || isArray(pickValue)" :content="$t('schema.add_child_node')" placement="top">
+            <i class="el-icon-plus" @click="addChild" style="margin-left: 10px" />
+          </el-tooltip>
+          <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
+            <i class="el-icon-close" @click="removeNode" style="margin-left: 10px" />
+          </el-tooltip>
+        </div>
       </el-col>
     </el-row>
 
@@ -87,6 +186,7 @@
         :deep="deep + 1"
         :root="false"
         class="children"
+        :param-columns="paramColumns"
         :scenario-definition="scenarioDefinition"
         :show-mock-vars="showMockVars"
         :disabled="disabled"
@@ -106,6 +206,7 @@
         :deep="deep + 1"
         :root="false"
         class="children"
+        :param-columns="paramColumns"
         :scenario-definition="scenarioDefinition"
         :show-mock-vars="showMockVars"
         :disabled="disabled"
@@ -188,6 +289,7 @@ export default {
       type: Object,
       required: true,
     },
+    paramColumns: Array,
     showMockVars: {
       type: Boolean,
       default() {
@@ -302,6 +404,12 @@ export default {
     }
   },
   methods: {
+    showColumns(columns) {
+      if (!this.paramColumns) {
+        return false;
+      }
+      return this.paramColumns.indexOf(columns) >= 0;
+    },
     isArray(data) {
       let isDataArray = data.type === 'array';
       if (isDataArray) {
