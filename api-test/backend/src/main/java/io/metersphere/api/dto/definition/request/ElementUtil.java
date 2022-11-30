@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
@@ -21,7 +18,6 @@ import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
-import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.item.EnvAssertions;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -48,7 +44,6 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
-import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
@@ -73,20 +68,6 @@ public class ElementUtil {
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
-    public static Arguments addArguments(ParameterConfig config, String projectId, String name) {
-        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
-            Arguments arguments = new Arguments();
-            arguments.setEnabled(true);
-            arguments.setName(StringUtils.isNoneBlank(name) ? name : "Arguments");
-            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isConstantValid).filter(ScenarioVariable::isEnable).forEach(keyValue -> arguments.addArgument(keyValue.getName(), keyValue.getValue(), "="));
-            if (arguments.getArguments().size() > 0) {
-                return arguments;
-            }
-        }
-        return null;
-    }
 
     public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
         BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
@@ -178,7 +159,7 @@ public class ElementUtil {
                         BodyFile file = item.getFiles().get(0);
                         String fileId = item.getId();
                         boolean isRef = false;
-                        String path = null;
+                        String path;
                         if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
                             isRef = true;
                             fileId = file.getFileId();
@@ -253,36 +234,6 @@ public class ElementUtil {
                 });
             }
         }
-    }
-
-    public static String getFullPath(MsTestElement element, String path) {
-        if (element.getParent() == null) {
-            return path;
-        }
-        if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
-            MsLoopController loopController = (MsLoopController) element;
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
-                path = "While 循环" + DelimiterConstants.STEP_DELIMITER.toString() + "While 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
-                path = "ForEach 循环" + DelimiterConstants.STEP_DELIMITER.toString() + " ForEach 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
-                path = "次数循环" + DelimiterConstants.STEP_DELIMITER.toString() + "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-        } else {
-            path = StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName() + DelimiterConstants.STEP_DELIMITER.toString() + path;
-        }
-        return getFullPath(element.getParent(), path);
-    }
-
-    public static String getParentName(MsTestElement parent) {
-        if (parent != null) {
-            // 获取全路径以备后面使用
-            String fullPath = getFullPath(parent, new String());
-            return fullPath + DelimiterConstants.SEPARATOR.toString() + parent.getName();
-        }
-        return "";
     }
 
     public static String getFullIndexPath(MsTestElement element, String path) {
@@ -379,28 +330,6 @@ public class ElementUtil {
         }
     }
 
-    /**
-     * 只找出场景直接依赖
-     *
-     * @param hashTree
-     * @param referenceRelationships
-     */
-    public static void relationships(JSONArray hashTree, List<String> referenceRelationships) {
-        for (int i = 0; i < hashTree.length(); i++) {
-            JSONObject element = hashTree.optJSONObject(i);
-            if (element != null && StringUtils.equals(element.get(PropertyConstant.TYPE).toString(), ElementConstants.SCENARIO) && StringUtils.equals(element.get("referenced").toString(), "REF")) {
-                if (!referenceRelationships.contains(element.get("id").toString())) {
-                    referenceRelationships.add(element.get("id").toString());
-                }
-            } else {
-                if (element.has(ElementConstants.HASH_TREE)) {
-                    JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
-                    relationships(elementJSONArray, referenceRelationships);
-                }
-            }
-        }
-    }
-
     public static void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.length(); i++) {
             JSONObject element = hashTree.optJSONObject(i);
@@ -431,8 +360,10 @@ public class ElementUtil {
 
     public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
+            BaseEnvGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(BaseEnvGroupProjectService.class);
+            BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
+
             for (int i = 0; i < hashTree.length(); i++) {
                 JSONObject element = hashTree.optJSONObject(i);
                 boolean isScenarioEnv = false;
@@ -442,40 +373,33 @@ public class ElementUtil {
                     if (scenario.isEnvironmentEnable()) {
                         isScenarioEnv = true;
                         Map<String, String> environmentMap = new HashMap<>();
-                        ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
-                        BaseEnvGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(BaseEnvGroupProjectService.class);
                         ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenario.getId());
-                        String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
-                        String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
-                        String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
-                        if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-                            environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-                        } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                            environmentMap = JSON.parseObject(environmentJson, Map.class);
+                        if (apiScenarioWithBLOBs == null) {
+                            continue;
                         }
-                        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
+                        if (StringUtils.equals(apiScenarioWithBLOBs.getEnvironmentType(), EnvironmentType.GROUP.name())) {
+                            environmentMap = environmentGroupProjectService.getEnvMap(apiScenarioWithBLOBs.getEnvironmentGroupId());
+                        } else if (StringUtils.equals(apiScenarioWithBLOBs.getEnvironmentType(), EnvironmentType.JSON.name())) {
+                            environmentMap = JSON.parseObject(apiScenarioWithBLOBs.getEnvironmentJson(), Map.class);
+                        }
+                        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
                         if (environmentMap != null && !environmentMap.isEmpty()) {
-                            Map<String, String> finalEnvironmentMap = environmentMap;
-                            environmentMap.keySet().forEach(projectId -> {
-                                BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
-                                ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(finalEnvironmentMap.get(projectId));
+                            for (String projectId : environmentMap.keySet()) {
+                                ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentMap.get(projectId));
                                 if (environment != null && environment.getConfig() != null) {
                                     EnvironmentConfig env = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
                                     env.setEnvironmentId(environment.getId());
                                     envConfig.put(projectId, env);
                                 }
-                            });
+                            }
                             config.setConfig(envConfig);
                         }
                     }
                 } else if (element != null && element.get(PropertyConstant.TYPE).toString().equals(ElementConstants.HTTP_SAMPLER)) {
                     MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
                     if (httpSamplerProxy != null && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment())))) {
-                        // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                         if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                            LinkedList<MsTestElement> elements = mapper.readValue(element.optString(ElementConstants.HASH_TREE), new TypeReference<LinkedList<MsTestElement>>() {
-                            });
-                            httpSamplerProxy.setHashTree(elements);
+                            httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
                         }
                         HashTree tmpHashTree = new HashTree();
                         httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
@@ -645,23 +569,6 @@ public class ElementUtil {
         return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
     }
 
-    public static JSR223PreProcessor argumentsToProcessor(Arguments arguments) {
-        JSR223PreProcessor processor = new JSR223PreProcessor();
-        processor.setEnabled(true);
-        processor.setName("User Defined Variables");
-        processor.setProperty("scriptLanguage", "beanshell");
-        processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
-        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        StringBuffer script = new StringBuffer();
-        if (arguments != null) {
-            for (int i = 0; i < arguments.getArguments().size(); ++i) {
-                String argValue = arguments.getArgument(i).getValue();
-                script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append(StringUtils.LF);
-            }
-            processor.setProperty("script", script.toString());
-        }
-        return processor;
-    }
 
     public static UserParameters argumentsToUserParameters(Arguments arguments) {
         UserParameters processor = new UserParameters();
@@ -944,28 +851,6 @@ public class ElementUtil {
             LogUtil.error(e);
         }
         return null;
-    }
-
-    public static void replaceFileMetadataId(MsTestElement testElement, String newFileMetadataId, String oldFileMetadataId) {
-        if (testElement != null && testElement instanceof MsHTTPSamplerProxy) {
-            if (((MsHTTPSamplerProxy) testElement).getBody() != null && CollectionUtils.isNotEmpty(((MsHTTPSamplerProxy) testElement).getBody().getKvs())) {
-                for (KeyValue keyValue : ((MsHTTPSamplerProxy) testElement).getBody().getKvs()) {
-                    if (CollectionUtils.isNotEmpty(keyValue.getFiles())) {
-                        for (BodyFile bodyFile : keyValue.getFiles()) {
-                            if (StringUtils.equals(bodyFile.getFileId(), oldFileMetadataId)) {
-                                bodyFile.setFileId(newFileMetadataId);
-                            }
-                        }
-                    }
-                }
-            }
-            if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
-                for (MsTestElement childElement : testElement.getHashTree()) {
-                    replaceFileMetadataId(childElement, newFileMetadataId, oldFileMetadataId);
-
-                }
-            }
-        }
     }
 
     public static List<MsAssertions> copyAssertion(List<EnvAssertions> envAssertions) {

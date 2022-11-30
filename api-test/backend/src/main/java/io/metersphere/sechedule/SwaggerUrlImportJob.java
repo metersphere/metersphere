@@ -3,6 +3,7 @@ package io.metersphere.sechedule;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.base.domain.SwaggerUrlProject;
 import io.metersphere.commons.constants.ScheduleGroup;
@@ -59,15 +60,15 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         // 获取鉴权设置
         if (StringUtils.isNotBlank(config)) {
             JSONObject configObj = JSON.parseObject(config, JSONObject.class);
-            List<KeyValue> headers = JSON.parseArray(configObj.optString("headers"), KeyValue.class);
+            List<KeyValue> headers = JSONUtil.parseArray(configObj.optString("headers"), KeyValue.class);
             if (CollectionUtils.isNotEmpty(headers)) {
                 request.setHeaders(headers);
             }
-            List<KeyValue> arguments = JSON.parseArray(configObj.optString("arguments"), KeyValue.class);
+            List<KeyValue> arguments = JSONUtil.parseArray(configObj.optString("arguments"), KeyValue.class);
             if (CollectionUtils.isNotEmpty(arguments)) {
                 request.setArguments(arguments);
             }
-            MsAuthManager msAuthManager = JSON.parseObject(configObj.optString("authManager"), MsAuthManager.class);
+            MsAuthManager msAuthManager = JSONUtil.parseObject(configObj.optString("authManager"), MsAuthManager.class);
             if (msAuthManager != null) {
                 request.setAuthManager(msAuthManager);
             }
