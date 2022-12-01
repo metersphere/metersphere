@@ -16,34 +16,13 @@
     </el-form-item>
 
     <el-form-item :label="$t('variables.start')" prop="startNumber">
-      <el-input-number
-        :disabled="disabled"
-        size="small"
-        v-model="editData.startNumber"
-        placeholder="0"
-        style="width: 100%"
-        :max="1000 * 10000000"
-        :min="0" />
+      <el-input :disabled="disabled" size="small" v-model="editData.startNumber" placeholder="0" style="width: 100%" />
     </el-form-item>
     <el-form-item :label="$t('variables.end')" prop="endNumber">
-      <el-input-number
-        :disabled="disabled"
-        size="small"
-        v-model="editData.endNumber"
-        placeholder="10"
-        style="width: 100%"
-        :max="1000 * 10000000"
-        :min="0" />
+      <el-input :disabled="disabled" size="small" v-model="editData.endNumber" placeholder="10" style="width: 100%" />
     </el-form-item>
     <el-form-item :label="$t('variables.increment')" prop="increment">
-      <el-input-number
-        :disabled="disabled"
-        size="small"
-        v-model="editData.increment"
-        placeholder="1"
-        style="width: 100%"
-        :max="1000 * 10000000"
-        :min="0" />
+      <el-input :disabled="disabled" size="small" v-model="editData.increment" placeholder="1" style="width: 100%" />
     </el-form-item>
     <el-form-item :label="$t('variables.format')" prop="value">
       <el-input :disabled="disabled" v-model="editData.value" :placeholder="$t('variables.counter_info')"></el-input>

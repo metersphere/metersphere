@@ -125,7 +125,7 @@ public class MsScenario extends MsTestElement {
         }
         if (this.variableEnable == null || this.variableEnable) {
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
-            ElementUtil.addCounter(scenarioTree, variables, false);
+            ElementUtil.addCounter(scenarioTree, variables);
             ElementUtil.addRandom(scenarioTree, variables);
             if (CollectionUtils.isNotEmpty(this.headers)) {
                 if (this.isEnvironmentEnable()) {
