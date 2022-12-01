@@ -720,6 +720,10 @@ export default {
           }
         }
 
+        if (tg.strategy === "specify") {
+          this.specifyNodeChange(tg);
+        }
+
         if (!tg.threadNumber || !tg.duration
           || !tg.rampUpTime || !tg.step || !tg.iterateNum) {
           this.$warning(this.$t('load_test.pressure_config_params_is_empty'));
