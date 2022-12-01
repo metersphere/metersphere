@@ -76,6 +76,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private List<KeyValue> rest;
     private String url;
     private boolean followRedirects;
+    private boolean autoRedirects;
     private boolean doMultipartPost;
     private String useEnvironment;
     private List<KeyValue> arguments;
@@ -123,6 +124,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
         sampler.setFollowRedirects(this.isFollowRedirects());
+        sampler.setAutoRedirects(this.isAutoRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
         if (config.getConfig() == null) {

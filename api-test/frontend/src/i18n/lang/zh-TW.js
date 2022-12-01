@@ -28,6 +28,9 @@ const message = {
     plan_count: '{0}個[测试計劃]',
     case_is_referenced: '有{0}個用例存在引用關係',
     scenario_is_referenced: '有{0}個場景存在引用關係',
+    request: {
+      auto_redirects: '自動重定向',
+    },
   },
   home: {
     dashboard: {
