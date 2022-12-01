@@ -19,6 +19,9 @@
             <el-input v-model="formInline.seleniumDockerUrl" :placeholder="$t('system_config.selenium_docker.url_tip')"/>
             <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
           </el-form-item>
+          <el-form-item :label="$t('commons.help_documentation')" prop="docUrl">
+            <el-input v-model="formInline.docUrl" placeholder="https://metersphere.io/docs/index.html"/>
+          </el-form-item>
           <el-form-item :label="$t('system.api_default_run')" prop="runMode" v-if="hasLicense()">
             <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
           </el-form-item>
@@ -44,7 +47,7 @@ export default {
   name: "BaseSetting",
   data() {
     return {
-      formInline: {runMode: true},
+      formInline: {runMode: true, docUrl: 'https://metersphere.io/docs/index.html'},
       input: '',
       visible: true,
       showEdit: true,
@@ -82,6 +85,9 @@ export default {
       this.loading = getSystemBaseSetting().then(res => {
         if(!res.data.runMode) {
           res.data.runMode = 'LOCAL'
+        }
+        if(!res.data.docUrl) {
+          res.data.docUrl = 'https://metersphere.io/docs/index.html'
         }
         this.formInline = res.data;
         this.$nextTick(() => {
@@ -125,6 +131,7 @@ export default {
           {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
           {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
           {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
+          {paramKey: "base.doc.url", paramValue: this.formInline.docUrl, type: "text", sort: 1},
           {paramKey: "base.run.mode", paramValue: this.formInline.runMode, type: "text", sort: 5}
         ];
         this.loading = saveSystemBaseSetting(param).then(res => {
