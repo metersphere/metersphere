@@ -11,4 +11,5 @@ public class BaseSystemConfigDTO {
     private String prometheusHost;
     private String seleniumDockerUrl;
     private String runMode;
+    private String docUrl;
 }
