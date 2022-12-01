@@ -8,6 +8,7 @@ const message = {
       test_duration: '{0}時{1}分{2}秒',
       test_duration_tips: '執行時長：{0}時{1}分{2}秒',
     },
+    max_current_threads_tips: '超出此節點{0}最大並發數',
     sync_scenario_no_permission_tips: '沒有创建接口的權限無法執行同步',
   }
 }

@@ -206,7 +206,8 @@
                 <div v-if="threadGroup.strategy === 'auto'"></div>
                 <div v-else-if="threadGroup.strategy === 'specify'">
                   <el-form-item :label="$t('load_test.specify_resource')">
-                    <el-select v-model="threadGroup.resourceNodeIndex" size="mini">
+                    <el-select v-model="threadGroup.resourceNodeIndex" @change="specifyNodeChange(threadGroup)"
+                               size="mini">
                       <el-option
                         v-for="(node, index) in resourceNodes"
                         :key="node.ip"
@@ -224,7 +225,8 @@
                     <el-table-column prop="ratio" :label="$t('test_track.home.percentage')">
                       <template v-slot:default="{row}">
                         <el-input-number size="mini" v-model="row.ratio"
-
+                                         v-if="rampUpTimeVisible"
+                                         @change="customNodeChange(threadGroup)"
                                          :min="0" :step=".1" controls-position="right"
                                          :max="1"></el-input-number>
                       </template>
@@ -706,6 +708,8 @@ export default {
         }
 
         if (tg.strategy === "custom") {
+          this.customNodeChange(tg);
+
           let sum = tg.resourceNodes.map(n => n.ratio).reduce((total, curr) => {
             total += curr;
             return total;
@@ -746,8 +750,25 @@ export default {
         return [];
       }
     },
+    specifyNodeChange(threadGroup) {
+      this.$set(this, 'maxThreadNumbers', threadGroup.resourceNodes[threadGroup.resourceNodeIndex].maxConcurrency);
+      if (threadGroup.threadNumber > this.maxThreadNumbers) {
+        threadGroup.threadNumber = this.maxThreadNumbers;
+      }
+      this.calculateTotalChart();
+    },
+    customNodeChange(threadGroup) {
+      threadGroup.resourceNodes.forEach(node => {
+        if (node.ratio * threadGroup.threadNumber > node.maxConcurrency) {
+          setTimeout(() => {
+            this.$warning(this.$t('performance_test.max_current_threads_tips', [node.ip]));
+          });
+          node.ratio = (node.maxConcurrency / threadGroup.threadNumber).toFixed(2);
+        }
+      });
+      this.calculateTotalChart();
+    },
     convertProperty() {
-      /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
       let result = [];
 
       // 再组织数据
