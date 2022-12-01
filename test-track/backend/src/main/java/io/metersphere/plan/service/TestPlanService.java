@@ -861,18 +861,18 @@ public class TestPlanService {
         Map<String, String> scenarioReportMap = null;
         Map<String, String> loadCaseReportMap = null;
         Map<String, String> uiScenarioReportMap = null;
-        if (reportInfoDTO.getApiTestCaseDataMap() != null) {
+        if (MapUtils.isNotEmpty(reportInfoDTO.getApiTestCaseDataMap())) {
             //执行接口案例任务
             LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
             apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
         }
-        if (reportInfoDTO.getPlanScenarioIdMap() != null) {
+        if (MapUtils.isNotEmpty(reportInfoDTO.getPlanScenarioIdMap())) {
             //执行场景执行任务
             LoggerUtil.info("开始执行测试计划场景用例 " + planReportId);
             scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
         }
 
-        if (reportInfoDTO.getPerformanceIdMap() != null) {
+        if (MapUtils.isNotEmpty(reportInfoDTO.getPerformanceIdMap())) {
             //执行性能测试任务
             LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
             loadCaseReportMap = perfExecService.executeLoadCase(planReportId, runModeConfig, transformationPerfTriggerMode(triggerMode), reportInfoDTO.getPerformanceIdMap());
