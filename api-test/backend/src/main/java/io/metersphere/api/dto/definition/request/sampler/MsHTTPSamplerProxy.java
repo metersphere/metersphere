@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -247,8 +244,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private boolean setRefElement() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsHTTPSamplerProxy proxy = null;
             if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseWithBLOBs bloBs = CommonBeanFactory.getBean(ApiTestCaseService.class).get(this.getId());
@@ -256,8 +251,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSONUtil.parseObject(bloBs.getRequest());
                     ElementUtil.dataFormatting(element);
-                    proxy = mapper.readValue(element.toString(), new TypeReference<MsHTTPSamplerProxy>() {
-                    });
+                    proxy = JSONUtil.parseObject(element.toString(), MsHTTPSamplerProxy.class);
                     this.setName(bloBs.getName());
                 }
             }

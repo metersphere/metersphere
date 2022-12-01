@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
@@ -17,10 +14,8 @@ import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
+import io.metersphere.commons.vo.JDBCProcessorVO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
@@ -32,10 +27,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
-import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 
@@ -123,11 +115,9 @@ public class MsJDBCSampler extends MsTestElement {
         }
         JDBCSampler jdbcSampler = jdbcSampler(config);
         final HashTree samplerHashTree = tree.add(jdbcSampler);
-        tree.add(jdbcDataSource(jdbcSampler.getDataSource()));
-        Arguments arguments = arguments(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments", this.getVariables());
-        if (arguments != null) {
-            tree.add(arguments);
-        }
+        tree.add(ElementUtil.jdbcDataSource(jdbcSampler.getDataSource(), this.dataSource));
+        ElementUtil.jdbcArguments(this.getName(), this.getVariables(), tree);
+
         // 环境通用请求头
         Arguments envArguments = ElementUtil.getConfigArguments(config, this.getName(), this.getProjectId(), null);
         if (envArguments != null) {
@@ -162,22 +152,8 @@ public class MsJDBCSampler extends MsTestElement {
         return false;
     }
 
-    private String getParentProjectId() {
-        MsTestElement parent = this.getParent();
-        while (parent != null) {
-            if (StringUtils.isNotBlank(parent.getProjectId())) {
-                return parent.getProjectId();
-            }
-            parent = parent.getParent();
-        }
-        return "";
-    }
-
     private boolean setRefElement() {
         try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsJDBCSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
@@ -187,15 +163,14 @@ public class MsJDBCSampler extends MsTestElement {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSONUtil.parseObject(bloBs.getRequest());
                     ElementUtil.dataFormatting(element);
-                    proxy = mapper.readValue(element.toString(), new TypeReference<MsJDBCSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(element.toString(), MsJDBCSampler.class);
                 }
             } else {
+                ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
                     this.setProjectId(apiDefinition.getProjectId());
-                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsJDBCSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(apiDefinition.getRequest(), MsJDBCSampler.class);
                     this.setName(apiDefinition.getName());
                 }
             }
@@ -230,7 +205,6 @@ public class MsJDBCSampler extends MsTestElement {
                 envConfig.getDatabaseConfigs().forEach(item -> {
                     if (item.getId().equals(this.dataSourceId)) {
                         this.dataSource = item;
-                        return;
                     }
                 });
             }
@@ -238,23 +212,12 @@ public class MsJDBCSampler extends MsTestElement {
         return envConfig;
     }
 
-    private Arguments arguments(String name, List<KeyValue> variables) {
-        if (CollectionUtils.isNotEmpty(variables)) {
-            Arguments arguments = new Arguments();
-            arguments.setEnabled(true);
-            arguments.setName(name + "JDBC_Argument");
-            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-            return arguments;
-        }
-        return null;
-    }
 
     private JDBCSampler jdbcSampler(ParameterConfig config) {
         JDBCSampler sampler = new JDBCSampler();
+        JDBCProcessorVO vo = new JDBCProcessorVO();
+        BeanUtils.copyBean(vo, this);
+        ElementUtil.jdbcProcessor(sampler, config, vo);
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         if (config.isOperating()) {
@@ -264,39 +227,6 @@ public class MsJDBCSampler extends MsTestElement {
                 sampler.setName(testName);
             }
         }
-        sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
-        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
-        sampler.setDataSource(ElementUtil.getDataSourceName(this.dataSource.getName()));
-        sampler.setProperty("dataSource", sampler.getDataSource());
-        sampler.setProperty("query", this.getQuery());
-        sampler.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));
-        sampler.setProperty("resultVariable", this.getResultVariable());
-        sampler.setProperty("variableNames", this.getVariableNames());
-        sampler.setProperty("resultSetHandler", "Store as String");
-        sampler.setProperty("queryType", "Callable Statement");
         return sampler;
-    }
-
-    private DataSourceElement jdbcDataSource(String dataSourceName) {
-        DataSourceElement dataSourceElement = new DataSourceElement();
-        dataSourceElement.setEnabled(true);
-        dataSourceElement.setName(this.getName() + " JDBCDataSource");
-        dataSourceElement.setProperty(TestElement.TEST_CLASS, DataSourceElement.class.getName());
-        dataSourceElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        dataSourceElement.setProperty("autocommit", true);
-        dataSourceElement.setProperty("keepAlive", true);
-        dataSourceElement.setProperty("preinit", false);
-        dataSourceElement.setProperty("dataSource", dataSourceName);
-        dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
-        dataSourceElement.setProperty("driver", dataSource.getDriver());
-        dataSourceElement.setProperty("username", dataSource.getUsername());
-        dataSourceElement.setProperty("password", dataSource.getPassword());
-        dataSourceElement.setProperty("poolMax", dataSource.getPoolMax());
-        dataSourceElement.setProperty("timeout", String.valueOf(dataSource.getTimeout()));
-        dataSourceElement.setProperty("connectionAge", 5000);
-        dataSourceElement.setProperty("trimInterval", 6000);
-        dataSourceElement.setProperty("transactionIsolation", "DEFAULT");
-        return dataSourceElement;
     }
 }

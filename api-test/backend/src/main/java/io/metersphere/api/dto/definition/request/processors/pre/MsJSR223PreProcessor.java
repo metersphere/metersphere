@@ -1,23 +1,24 @@
 package io.metersphere.api.dto.definition.request.processors.pre;
 
-import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.vo.ScriptProcessorVO;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.JMeterVars;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -27,6 +28,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
     private String clazzName = MsJSR223PreProcessor.class.getCanonicalName();
     private String script;
     private String scriptLanguage;
+    private Boolean jsrEnable;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -35,34 +37,15 @@ public class MsJSR223PreProcessor extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
-        if (StringUtils.isEmpty(this.getEnvironmentId())) {
-            if (config.getConfig() != null) {
-                if (config.getProjectId() != null) {
-                    String evnId = config.getConfig().get(config.getProjectId()).getEnvironmentId();
-                    this.setEnvironmentId(evnId);
-                } else {
-                    Collection<EnvironmentConfig> evnConfigList = config.getConfig().values();
-                    if (evnConfigList != null && !evnConfigList.isEmpty()) {
-                        for (EnvironmentConfig configItem : evnConfigList) {
-                            String evnId = configItem.getEnvironmentId();
-                            this.setEnvironmentId(evnId);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        //替换环境变量
-        if (StringUtils.isNotEmpty(script)) {
-            script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
-        }
         if (config.isOperating()) {
             if (StringUtils.isNotEmpty(script) && script.startsWith(JMeterVars.class.getCanonicalName())) {
                 return;
             }
         }
-        final HashTree jsr223PreTree = tree.add(getJSR223PreProcessor());
+        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
+        this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config));
+
+        final HashTree jsr223PreTree = tree.add(getShellProcessor());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(jsr223PreTree, el.getHashTree(), config);
@@ -70,28 +53,15 @@ public class MsJSR223PreProcessor extends MsTestElement {
         }
     }
 
-    public JSR223PreProcessor getJSR223PreProcessor() {
-        JSR223PreProcessor processor = new JSR223PreProcessor();
-        processor.setEnabled(this.isEnable());
-        if (StringUtils.isNotEmpty(this.getName())) {
-            processor.setName(this.getName());
-        } else {
-            processor.setName(ElementConstants.JSR223_PRE);
+    public TestElement getShellProcessor() {
+        TestElement processor = new BeanShellPreProcessor();
+        if (jsrEnable == null || BooleanUtils.isTrue(jsrEnable)) {
+            processor = new JSR223PreProcessor();
         }
-        processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
-        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        /*processor.setProperty("cacheKey", "true");*/
-        processor.setProperty("scriptLanguage", this.getScriptLanguage());
-        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
-            processor.setProperty("scriptLanguage", "nashorn");
-        }
-        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("rhinoScript")) {
-            processor.setProperty("scriptLanguage", "rhino");
-        }
-        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("javascript")) {
-            processor.setProperty("scriptLanguage", "rhino");
-        }
-        processor.setProperty("script", this.getScript());
+        ScriptProcessorVO vo = new ScriptProcessorVO();
+        BeanUtils.copyBean(vo, this);
+        vo.setEnabled(this.isEnable());
+        ElementUtil.initScript(processor, vo);
         return processor;
     }
 }

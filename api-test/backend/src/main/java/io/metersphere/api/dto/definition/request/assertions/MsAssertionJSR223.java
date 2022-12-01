@@ -14,6 +14,7 @@ public class MsAssertionJSR223 extends MsAssertionType {
     private String name;
     private String script;
     private String scriptLanguage;
+    private Boolean jsrEnable;
 
     public MsAssertionJSR223() {
         setType(MsAssertionType.JSR223);

@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request;
 
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
@@ -18,16 +19,21 @@ import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.item.EnvAssertions;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.commons.vo.JDBCProcessorVO;
+import io.metersphere.commons.vo.ScriptProcessorVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
@@ -46,8 +52,10 @@ import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;
+import org.apache.jmeter.protocol.jdbc.AbstractJDBCTestElement;
+import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.threads.ThreadGroup;
@@ -67,6 +75,7 @@ public class ElementUtil {
     private static final String POST = "POST";
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
+    private static final String TEST_BEAN_GUI = "TestBeanGUI";
 
 
     public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
@@ -101,7 +110,7 @@ public class ElementUtil {
                     CSVDataSet csvDataSet = new CSVDataSet();
                     csvDataSet.setEnabled(true);
                     csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
-                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
                     csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
                     if (CollectionUtils.isEmpty(item.getFiles())) {
@@ -150,7 +159,7 @@ public class ElementUtil {
                     CSVDataSet csvDataSet = new CSVDataSet();
                     csvDataSet.setEnabled(true);
                     csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
-                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
                     csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
                     if (CollectionUtils.isEmpty(item.getFiles())) {
@@ -219,7 +228,7 @@ public class ElementUtil {
                     RandomVariableConfig randomVariableConfig = new RandomVariableConfig();
                     randomVariableConfig.setEnabled(true);
                     randomVariableConfig.setProperty(TestElement.TEST_CLASS, RandomVariableConfig.class.getName());
-                    randomVariableConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    randomVariableConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
                     randomVariableConfig.setName(item.getName());
                     randomVariableConfig.setProperty("variableName", item.getName());
                     randomVariableConfig.setProperty("outputFormat", item.getValue());
@@ -590,7 +599,7 @@ public class ElementUtil {
         return processor;
     }
 
-    public static void setBaseParams(AbstractTestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
+    public static void setBaseParams(TestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
         sampler.setProperty("MS-ID", id);
         sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
     }
@@ -865,5 +874,128 @@ public class ElementUtil {
 
     public static String getDataSourceName(String name) {
         return StringUtils.join(name, "-", UUID.randomUUID().toString());
+    }
+
+
+    public static void initScript(TestElement testElement, ScriptProcessorVO vo) {
+        testElement.setEnabled(vo.isEnabled());
+        if (StringUtils.isNotEmpty(vo.getName())) {
+            testElement.setName(vo.getName());
+        } else {
+            testElement.setName(testElement.getClass().getSimpleName());
+        }
+        //替换环境变量
+        if (StringUtils.isNotEmpty(vo.getScript())) {
+            vo.setScript(StringUtils.replace(vo.getScript(), RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + vo.getEnvironmentId() + ".\""));
+        }
+        testElement.setProperty(TestElement.TEST_CLASS, testElement.getClass().getSimpleName());
+        testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
+        String scriptLanguage = vo.getScriptLanguage();
+        if (StringUtils.equals(scriptLanguage, "nashornScript")) {
+            scriptLanguage = "nashorn";
+        }
+        if (StringUtils.equalsAny(scriptLanguage, "rhinoScript", "javascript")) {
+            scriptLanguage = "rhino";
+        }
+        testElement.setProperty("scriptLanguage", scriptLanguage);
+
+        if (testElement instanceof BeanShellSampler) {
+            testElement.setProperty("BeanShellSampler.query", vo.getScript());
+            testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("BeanShellSamplerGui"));
+        } else {
+            testElement.setProperty("scriptLanguage", vo.getScriptLanguage());
+            testElement.setProperty("script", vo.getScript());
+        }
+    }
+
+    public static String getScriptEnv(String environmentId, ParameterConfig config) {
+        if (StringUtils.isEmpty(environmentId)) {
+            if (config.getConfig() != null) {
+                if (config.getProjectId() != null && config.getConfig().containsKey(config.getProjectId())) {
+                    return config.getConfig().get(config.getProjectId()).getEnvironmentId();
+                } else {
+                    if (CollectionUtils.isNotEmpty(config.getConfig().values())) {
+                        Optional<EnvironmentConfig> values = config.getConfig().entrySet().stream().findFirst().map(Map.Entry::getValue);
+                        return values.get().getEnvironmentId();
+                    }
+                }
+            }
+        }
+        return environmentId;
+    }
+
+    public static void jdbcArguments(String name, List<KeyValue> variables, HashTree tree) {
+        if (CollectionUtils.isNotEmpty(variables)) {
+            Arguments arguments = new Arguments();
+            arguments.setEnabled(true);
+            name = StringUtils.isNotEmpty(name) ? name : "Arguments";
+            arguments.setName(name + "JDBC_Argument");
+            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+            variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), ElementUtil.getEvlValue(keyValue.getValue()), "=")
+            );
+            if (!arguments.getArguments().isEmpty()) {
+                tree.add(arguments);
+            }
+        }
+    }
+
+    public static void jdbcProcessor(AbstractJDBCTestElement jdbcProcessor, ParameterConfig config, JDBCProcessorVO vo) {
+        jdbcProcessor.setEnabled(vo.isEnable());
+        jdbcProcessor.setName(vo.getName() == null ? jdbcProcessor.getClass().getSimpleName() : vo.getName());
+        jdbcProcessor.setProperty(TestElement.TEST_CLASS, jdbcProcessor.getClass().getSimpleName());
+        jdbcProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
+
+        ElementUtil.setBaseParams(jdbcProcessor, vo.getParent(), config, vo.getId(), vo.getIndex());
+        jdbcProcessor.setDataSource(ElementUtil.getDataSourceName(vo.getDataSource().getName()));
+        jdbcProcessor.setProperty("dataSource", jdbcProcessor.getDataSource());
+        jdbcProcessor.setProperty("query", vo.getQuery());
+        jdbcProcessor.setProperty("queryTimeout", String.valueOf(vo.getQueryTimeout()));
+        jdbcProcessor.setProperty("resultVariable", vo.getResultVariable());
+        jdbcProcessor.setProperty("variableNames", vo.getVariableNames());
+        jdbcProcessor.setProperty("resultSetHandler", "Store as String");
+        jdbcProcessor.setProperty("queryType", "Callable Statement");
+    }
+
+    public static DataSourceElement jdbcDataSource(String sourceName, DatabaseConfig dataSource) {
+        DataSourceElement dataSourceElement = new DataSourceElement();
+        dataSourceElement.setEnabled(true);
+        dataSourceElement.setName(sourceName + " JDBCDataSource");
+        dataSourceElement.setProperty(TestElement.TEST_CLASS, DataSourceElement.class.getName());
+        dataSourceElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
+        dataSourceElement.setProperty("autocommit", true);
+        dataSourceElement.setProperty("keepAlive", true);
+        dataSourceElement.setProperty("preinit", false);
+        dataSourceElement.setProperty("dataSource", sourceName);
+        dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
+        dataSourceElement.setProperty("driver", dataSource.getDriver());
+        dataSourceElement.setProperty("username", dataSource.getUsername());
+        dataSourceElement.setProperty("password", dataSource.getPassword());
+        dataSourceElement.setProperty("poolMax", dataSource.getPoolMax());
+        dataSourceElement.setProperty("timeout", String.valueOf(dataSource.getTimeout()));
+        dataSourceElement.setProperty("connectionAge", 5000);
+        dataSourceElement.setProperty("trimInterval", 6000);
+        dataSourceElement.setProperty("transactionIsolation", "DEFAULT");
+        return dataSourceElement;
+    }
+
+
+    public static DatabaseConfig initDataSource(String environmentId, String dataSourceId) {
+        if (StringUtils.isNotBlank(environmentId) && StringUtils.isNotBlank(dataSourceId)) {
+            BaseEnvironmentService service = CommonBeanFactory.getBean(BaseEnvironmentService.class);
+            ApiTestEnvironmentWithBLOBs environment = service.get(environmentId);
+            if (environment != null && environment.getConfig() != null) {
+                EnvironmentConfig envConfig = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                    List<DatabaseConfig> configs = envConfig.getDatabaseConfigs().stream().filter(item ->
+                            StringUtils.equals(item.getId(), dataSourceId)).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(configs)) {
+                        return configs.get(0);
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

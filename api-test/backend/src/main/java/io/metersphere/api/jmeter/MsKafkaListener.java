@@ -1,6 +1,5 @@
 package io.metersphere.api.jmeter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.JSONUtil;
@@ -30,8 +29,6 @@ public class MsKafkaListener {
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
     private TestResultService testResultService;
-    @Resource
-    private ObjectMapper mapper;
     // 线程池维护线程的最少数量
     private final static int CORE_POOL_SIZE = 20;
     // 线程池维护线程的最大数量
@@ -57,7 +54,6 @@ public class MsKafkaListener {
                 KafkaListenerTask task = new KafkaListenerTask();
                 task.setApiExecutionQueueService(apiExecutionQueueService);
                 task.setTestResultService(testResultService);
-                task.setMapper(mapper);
                 task.setRecord(item);
                 threadPool.execute(task);
                 this.outKafkaPoolLogger();
