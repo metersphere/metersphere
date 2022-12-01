@@ -58,6 +58,7 @@ public class DefinitionReference {
         httpColumns.put("responseTimeout", "响应超时");
         httpColumns.put("alias", "证书别名");
         httpColumns.put("followRedirects", "跟随重定向");
+        httpColumns.put("autoRedirects", "自动重定向");
         // http auth
         authColumns.put("verification", "认证方式");
         authColumns.put("username", "用户名");

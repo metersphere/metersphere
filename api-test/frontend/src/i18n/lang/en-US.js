@@ -28,6 +28,9 @@ const message = {
     plan_count: '{0} [test plan]',
     case_is_referenced: '{0} cases have reference relationships',
     scenario_is_referenced: '{0} scenarios have reference relationships',
+    request: {
+      auto_redirects: 'Auto redirects',
+    },
   },
   home: {
     dashboard: {
