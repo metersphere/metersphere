@@ -2,7 +2,6 @@ package io.metersphere.api.exec.api;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.RunCaseRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -67,8 +66,6 @@ public class ApiExecuteService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
-    @Resource
-    private ObjectMapper mapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -276,8 +273,7 @@ public class ApiExecuteService {
         JSONObject elementObj = JSONUtil.parseObject(testCaseWithBLOBs.getRequest());
         ElementUtil.dataFormatting(elementObj);
 
-        MsTestElement element = mapper.readValue(elementObj.toString(), new TypeReference<MsTestElement>() {
-        });
+        MsTestElement element = JSON.parseObject(elementObj.toString(), new TypeReference<MsTestElement>() {});
         element.setProjectId(testCaseWithBLOBs.getProjectId());
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();

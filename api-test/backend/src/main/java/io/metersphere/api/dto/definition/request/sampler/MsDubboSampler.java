@@ -2,9 +2,6 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.MethodArgument;
 import io.github.ningyu.jmeter.plugin.util.Constants;
@@ -113,9 +110,6 @@ public class MsDubboSampler extends MsTestElement {
 
     private boolean setRefElement() {
         try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsDubboSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
@@ -124,16 +118,15 @@ public class MsDubboSampler extends MsTestElement {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSONUtil.parseObject(bloBs.getRequest());
                     ElementUtil.dataFormatting(element);
-                    proxy = mapper.readValue(element.toString(), new TypeReference<MsDubboSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(element.toString(), MsDubboSampler.class);
                     this.setName(bloBs.getName());
                 }
             } else {
+                ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
                     this.setProjectId(apiDefinition.getProjectId());
-                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsDubboSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(apiDefinition.getRequest(), MsDubboSampler.class);
                     this.setName(apiDefinition.getName());
                 }
             }
