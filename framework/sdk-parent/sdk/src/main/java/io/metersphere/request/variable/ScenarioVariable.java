@@ -32,9 +32,9 @@ public class ScenarioVariable {
     /**
      * counter
      */
-    private int startNumber;
-    private int endNumber;
-    private int increment;
+    private String startNumber;
+    private String endNumber;
+    private String increment;
     /**
      * random
      */

@@ -189,7 +189,7 @@ public class ElementUtil {
         }
     }
 
-    public static void addCounter(HashTree tree, List<ScenarioVariable> variables, boolean isInternal) {
+    public static void addCounter(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -199,11 +199,7 @@ public class ElementUtil {
                     counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
                     counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
                     counterConfig.setName(item.getName());
-                    if (isInternal) {
-                        counterConfig.setStart((item.getStartNumber() + 1));
-                    } else {
-                        counterConfig.setStart(item.getStartNumber());
-                    }
+                    counterConfig.setStart(item.getStartNumber());
                     counterConfig.setEnd(item.getEndNumber());
                     counterConfig.setVarName(item.getName());
                     counterConfig.setIncrement(item.getIncrement());
@@ -814,7 +810,7 @@ public class ElementUtil {
                     config.getConfig().get(projectId).getCommonConfig().getVariables(),
                     config, "shareMode.group");
             ElementUtil.addCounter(httpSamplerTree,
-                    config.getConfig().get(projectId).getCommonConfig().getVariables(), false);
+                    config.getConfig().get(projectId).getCommonConfig().getVariables());
             ElementUtil.addRandom(httpSamplerTree,
                     config.getConfig().get(projectId).getCommonConfig().getVariables());
         }
