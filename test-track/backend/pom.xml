@@ -26,6 +26,12 @@
             <artifactId>metersphere-platform-plugin-sdk</artifactId>
             <groupId>io.metersphere</groupId>
             <version>${platform-plugin-sdk.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.metersphere</groupId>
+                    <artifactId>domain</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
