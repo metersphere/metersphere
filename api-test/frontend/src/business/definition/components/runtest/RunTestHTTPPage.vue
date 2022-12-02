@@ -31,7 +31,6 @@
           <el-dropdown
             split-button
             type="primary"
-            class="ms-api-buttion"
             @click="handleCommand('add')"
             @command="handleCommand"
             size="small"

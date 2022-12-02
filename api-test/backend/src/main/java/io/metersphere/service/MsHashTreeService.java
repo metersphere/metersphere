@@ -80,6 +80,7 @@ public class MsHashTreeService {
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
     public static final String CUSTOM_NUM = "customNum";
     public static final String SHOW_CUSTOM_NUM = "showCustomNum";
+    public static final String VERSION_ID = "versionId";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -181,6 +182,7 @@ public class MsHashTreeService {
             if (definition != null) {
                 Project project = projectMapper.selectByPrimaryKey(definition.getProjectId());
                 element.put(ID, definition.getId());
+                element.put(VERSION_ID, definition.getVersionId());
                 this.setElement(element, definition.getNum(), enable, definition.getVersionName(), project.getVersionEnable());
                 isExist = true;
             }
