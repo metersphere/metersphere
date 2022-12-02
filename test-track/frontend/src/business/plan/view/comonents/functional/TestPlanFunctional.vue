@@ -125,6 +125,9 @@ export default {
       this.openTestCaseEdit(to.path);
     },
     planId() {
+      if (this.condition.name) {
+        this.condition.name = undefined;
+      }
       this.clearSelectNode();
       this.initData();
     }
