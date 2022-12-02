@@ -239,6 +239,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.RUN_MODE.getValue())) {
                     baseSystemConfigDTO.setRunMode(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.DOC_URL.getValue())) {
+                    baseSystemConfigDTO.setDocUrl(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;

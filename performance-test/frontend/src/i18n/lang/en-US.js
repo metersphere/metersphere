@@ -8,6 +8,7 @@ const message = {
       test_duration: '{0} hours {1} minutes {2} seconds',
       test_duration_tips: 'Execution Time：{0} hours {1} minutes {2} seconds',
     },
+    max_current_threads_tips: 'Exceeded the maximum concurrent number of this node {0}',
     sync_scenario_no_permission_tips: 'No permission to create the scenario cannot perform synchronization',
   }
 }

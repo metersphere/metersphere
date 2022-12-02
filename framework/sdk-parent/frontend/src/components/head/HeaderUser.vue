@@ -30,6 +30,7 @@ import {hasPermissions} from "../../utils/permission";
 import AboutUs from "./AboutUs";
 import {useUserStore} from "@/store";
 import MsPersonRouter from "../personal/PersonRouter";
+import {getSystemBaseSetting} from "../../api/system";
 
 const userStore = useUserStore();
 
@@ -67,7 +68,18 @@ export default {
           this.$refs.aboutUs.open();
           break;
         case "help":
-          window.open('https://metersphere.io/docs/index.html', "_blank");
+          getSystemBaseSetting()
+            .then(res => {
+              if (res.data.docUrl) {
+                let docUrl = res.data.docUrl;
+                window.open(docUrl, "_blank");
+              } else {
+                window.open('https://metersphere.io/docs/index.html', "_blank");
+              }
+            })
+            .catch(() =>{
+              window.open('https://metersphere.io/docs/index.html', "_blank");
+            })
           break;
         case "ApiHelp":
           window.open('/swagger-ui.html', "_blank");

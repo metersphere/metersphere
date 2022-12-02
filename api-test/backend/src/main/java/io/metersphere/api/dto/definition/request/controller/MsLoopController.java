@@ -53,7 +53,7 @@ public class MsLoopController extends MsTestElement {
         // 自身场景
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
             ElementUtil.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
-            ElementUtil.addCounter(groupTree, config.getVariables(), true);
+            ElementUtil.addCounter(groupTree, config.getVariables());
             ElementUtil.addRandom(groupTree, config.getVariables());
         }
         // 当前引用场景
@@ -73,7 +73,7 @@ public class MsLoopController extends MsTestElement {
 
             if (CollectionUtils.isNotEmpty(variables)) {
                 ElementUtil.addCsvDataSet(groupTree, variables, config, "shareMode.thread");
-                ElementUtil.addCounter(groupTree, variables, true);
+                ElementUtil.addCounter(groupTree, variables);
                 ElementUtil.addRandom(groupTree, variables);
             }
         }
