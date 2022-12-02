@@ -89,6 +89,8 @@ export default {
             if (res && res.code === 'ECONNABORTED') {
               return;
             }
+            // 后台直接删除redis中的token，前端也需要删除
+            clearSessionStorage()
             reject(res)
           })
       });
