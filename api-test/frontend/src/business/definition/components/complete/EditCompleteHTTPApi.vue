@@ -3,7 +3,7 @@
     <el-card class="card-content" v-loading="httpForm.loading">
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
-        <div style="float: right; margin-right: 20px" class="ms-opt-btn">
+        <div class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i
               class="el-icon-star-off"
@@ -1075,9 +1075,9 @@ export default {
 
 .ms-opt-btn {
   position: fixed;
-  right: 50px;
+  right: 10px !important;
   z-index: 1;
-  top: 128px;
+  top: 85px;
 }
 
 /*.base-info .el-form-item :deep(.el-form-item__content) {*/
