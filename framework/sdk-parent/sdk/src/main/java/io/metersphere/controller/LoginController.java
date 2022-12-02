@@ -95,10 +95,9 @@ public class LoginController {
 
     @GetMapping(value = "/signout")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
-    public ResultHolder logout(@RequestParam(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId, HttpServletResponse response) throws Exception {
-        ssoLogoutService.logout(sessionId, response);
+    public void logout(HttpServletResponse response) throws Exception {
+        ssoLogoutService.logout(SessionUtils.getSessionId(), response);
         SecurityUtils.getSubject().logout();
-        return ResultHolder.success(StringUtils.EMPTY);
     }
 
     /*Get default language*/
