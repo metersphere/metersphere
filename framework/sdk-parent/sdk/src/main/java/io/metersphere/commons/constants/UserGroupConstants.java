@@ -4,6 +4,7 @@ package io.metersphere.commons.constants;
  * 系统内置用户组常量
  */
 public class UserGroupConstants {
+    public static final String SUPER_GROUP = "super_group";
     public static final String ADMIN = "admin";
     public static final String ORG_ADMIN = "org_admin";
     public static final String ORG_MEMBER = "org_member";

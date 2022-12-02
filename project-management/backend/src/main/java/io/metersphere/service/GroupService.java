@@ -67,6 +67,8 @@ public class GroupService {
     private UserMapper userMapper;
     @Resource
     private MicroService microService;
+    @Resource
+    private BaseUserService baseUserService;
     private static final String GLOBAL = "global";
 
     // 服务权限拼装顺序
@@ -86,22 +88,27 @@ public class GroupService {
         put(UserGroupType.PROJECT, "项目");
     }};
 
-    public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
+    public Pager<List<GroupDTO>> getProjectGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
         List<UserGroupDTO> userGroup = baseUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId(), request.getProjectId());
         List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).distinct().collect(Collectors.toList());
+        if (groupTypeList.isEmpty()) {
+            if (baseUserService.isSuperUser(user.getId())) {
+                groupTypeList.add(UserGroupType.PROJECT);
+            }
+        }
         return getGroups(groupTypeList, request);
     }
 
-    public void buildUserInfo(List<GroupDTO> testCases) {
-        if (CollectionUtils.isEmpty(testCases)) {
+    public void buildUserInfo(List<GroupDTO> groups) {
+        if (CollectionUtils.isEmpty(groups)) {
             return;
         }
-        List<String> userIds = testCases.stream().map(GroupDTO::getCreator).collect(Collectors.toList());
+        List<String> userIds = groups.stream().map(GroupDTO::getCreator).collect(Collectors.toList());
         if (!userIds.isEmpty()) {
             Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
-            testCases.forEach(caseResult -> {
-                caseResult.setCreator(userMap.get(caseResult.getCreator()));
+            groups.forEach(caseResult -> {
+                caseResult.setCreator(userMap.getOrDefault(caseResult.getCreator(), caseResult.getCreator()));
             });
         }
     }
@@ -142,6 +149,9 @@ public class GroupService {
     }
 
     public void editGroup(EditGroupRequest request) {
+        if (StringUtils.equals(request.getId(), UserGroupConstants.SUPER_GROUP)) {
+            MSException.throwException("超级管理员无法编辑！");
+        }
         if (StringUtils.equals(request.getId(), UserGroupConstants.ADMIN)) {
             MSException.throwException("系统管理员无法编辑！");
         }

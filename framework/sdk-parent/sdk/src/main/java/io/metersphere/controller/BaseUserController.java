@@ -105,4 +105,9 @@ public class BaseUserController {
     public void updateCurrentUserByResourceId(@PathVariable String resourceId) {
         baseUserService.updateCurrentUserByResourceId(resourceId);
     }
+
+    @GetMapping("/is/super/{userid}")
+    public boolean isSuperUser(@PathVariable String userid) {
+        return baseUserService.isSuperUser(userid);
+    }
 }

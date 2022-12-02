@@ -85,6 +85,8 @@ public class UserService {
     private BaseProjectMapper baseProjectMapper;
     @Resource
     private BaseWorkspaceMapper baseWorkspaceMapper;
+    @Resource
+    private BaseUserService baseUserService;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return baseUserMapper.queryTypeByIds(userIds);
@@ -412,30 +414,53 @@ public class UserService {
 
 
     public void addMember(AddMemberRequest request) {
-        if (!CollectionUtils.isEmpty(request.getUserIds())) {
+        if (CollectionUtils.isEmpty(request.getUserIds())
+                || CollectionUtils.isEmpty(request.getGroupIds())) {
+            LogUtil.warn("user ids or group ids is empty.");
+            return;
+        }
 
-            if (CollectionUtils.isNotEmpty(request.getUserIds())) {
-                QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-                checkQuota(quotaService, "WORKSPACE", Collections.singletonList(request.getWorkspaceId()), request.getUserIds());
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        checkQuota(quotaService, "WORKSPACE", Collections.singletonList(request.getWorkspaceId()), request.getUserIds());
+
+        List<String> allUserIds = baseUserService.getAllUserIds();
+
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.WORKSPACE);
+        List<Group> wsGroups = groupMapper.selectByExample(groupExample);
+        List<String> wsGroupIds = wsGroups
+                .stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
+
+        for (String userId : request.getUserIds()) {
+            if (!allUserIds.contains(userId)) {
+                LogUtil.warn("user id {} is not exist!", userId);
+                continue;
             }
-            for (String userId : request.getUserIds()) {
-                UserGroupExample userGroupExample = new UserGroupExample();
-                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
-                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-                if (userGroups.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists"));
-                } else {
-                    for (String groupId : request.getGroupIds()) {
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.setGroupId(groupId);
-                        userGroup.setSourceId(request.getWorkspaceId());
-                        userGroup.setUserId(userId);
-                        userGroup.setId(UUID.randomUUID().toString());
-                        userGroup.setUpdateTime(System.currentTimeMillis());
-                        userGroup.setCreateTime(System.currentTimeMillis());
-                        userGroupMapper.insertSelective(userGroup);
-                    }
+
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+
+            if (userGroups.size() > 0) {
+                MSException.throwException(Translator.get("user_already_exists"));
+            }
+
+            for (String groupId : request.getGroupIds()) {
+                if (!wsGroupIds.contains(groupId)) {
+                    LogUtil.warn("group id {} is not exist or not belong to workspace level.", groupId);
+                    continue;
                 }
+
+                UserGroup userGroup = new UserGroup();
+                userGroup.setGroupId(groupId);
+                userGroup.setSourceId(request.getWorkspaceId());
+                userGroup.setUserId(userId);
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
             }
         }
     }
@@ -1240,7 +1265,7 @@ public class UserService {
     private void addGroupMember(String type, String sourceId, List<String> userIds, List<String> groupIds) {
         if (!StringUtils.equalsAny(type, "PROJECT", "WORKSPACE") || StringUtils.isBlank(sourceId)
                 || CollectionUtils.isEmpty(userIds) || CollectionUtils.isEmpty(groupIds)) {
-            LogUtil.info("add member warning, please check param!");
+            LogUtil.warn("add member warning, please check param!");
             return;
         }
         this.checkQuotaOfMemberSize(type, sourceId, userIds);
@@ -1248,7 +1273,7 @@ public class UserService {
         for (String userId : userIds) {
             User user = userMapper.selectByPrimaryKey(userId);
             if (user == null) {
-                LogUtil.info("add member warning, invalid user id: " + userId);
+                LogUtil.warn("add member warning, invalid user id: " + userId);
                 continue;
             }
             List<String> toAddGroupIds = new ArrayList<>(groupIds);
@@ -1260,8 +1285,13 @@ public class UserService {
                 continue;
             }
             for (String groupId : toAddGroupIds) {
-                UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, groupId,
-                        sourceId, System.currentTimeMillis(), System.currentTimeMillis());
+                UserGroup userGroup = new UserGroup(
+                        UUID.randomUUID().toString(),
+                        userId,
+                        groupId,
+                        sourceId,
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis());
                 userGroupMapper.insertSelective(userGroup);
             }
         }

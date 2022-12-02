@@ -138,7 +138,7 @@
         FROM project
         WHERE workspace_id = #{workspaceId}
     </select>
-    <select id="getUserProject" resultType="io.metersphere.dto.ProjectDTO">
+    <select id="getUserProject" resultType="io.metersphere.base.domain.Project">
         SELECT DISTINCT p.*
         FROM `group` g
                      JOIN user_group ug ON g.id = ug.group_id
@@ -434,5 +434,8 @@
                  open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </select>
+    <select id="selectOne" resultType="io.metersphere.base.domain.Project">
+        SELECT * FROM project LIMIT 1
     </select>
 </mapper>

@@ -34,4 +34,6 @@ public interface BaseUserMapper {
     void updateLastProjectIdIfNull(@Param("projectId") String projectId, @Param("userId") String userId);
 
     void updateLastWorkspaceIdIfNull(@Param("workspaceId") String workspaceId, @Param("userId") String userId);
+
+    boolean isSuperUser(String userId);
 }

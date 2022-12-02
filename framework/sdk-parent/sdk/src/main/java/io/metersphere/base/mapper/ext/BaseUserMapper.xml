@@ -112,7 +112,9 @@
         FROM user
         <include refid="queryWhereCondition"/>
     </select>
-
+    <select id="isSuperUser" resultType="java.lang.Boolean">
+        select count(*) from user_group where user_id = #{userId} and group_id = 'super_group'
+    </select>
     <update id="updateLastProjectIdIfNull">
         UPDATE user SET last_project_id = #{projectId} WHERE id = #{userId}
         AND (last_project_id IS NULL OR last_project_id = '')
