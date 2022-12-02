@@ -4,7 +4,7 @@
     <el-row>
       <el-col>
         <!--操作按钮-->
-        <div style="float: right; margin-right: 20px; margin-top: 20px" class="ms-opt-btn">
+        <div class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i
               class="el-icon-star-off"
@@ -545,8 +545,8 @@ export default {
 
 .ms-opt-btn {
   position: fixed;
-  right: 50px;
+  right: 10px !important;
   z-index: 120;
-  top: 107px;
+  top: 85px;
 }
 </style>
