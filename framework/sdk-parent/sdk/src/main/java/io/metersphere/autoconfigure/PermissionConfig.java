@@ -20,6 +20,7 @@ public class PermissionConfig implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        LogUtil.info("load permission form {} service permission.json file", service);
         try (InputStream inputStream = PermissionConfig.class.getResourceAsStream("/permission.json")){
             String permission = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
             stringRedisTemplate.opsForHash().put(RedisKey.MS_PERMISSION_KEY, service, permission);

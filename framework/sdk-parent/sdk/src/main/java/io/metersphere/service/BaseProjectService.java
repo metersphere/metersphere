@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
 import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
+import io.metersphere.base.mapper.ext.BaseUserMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
@@ -54,6 +55,8 @@ public class BaseProjectService {
     private BaseProjectVersionMapper baseProjectVersionMapper;
     @Resource
     private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private BaseUserMapper baseUserMapper;
 
 
     private String genSystemId() {
@@ -90,7 +93,19 @@ public class BaseProjectService {
         return baseProjectMapper.getProjectWithWorkspace(request);
     }
 
-    public List<ProjectDTO> getUserProject(ProjectRequest request) {
+    public List<Project> getUserProject(ProjectRequest request) {
+        boolean isSuper = baseUserMapper.isSuperUser(SessionUtils.getUserId());
+        if (isSuper) {
+            ProjectExample example = new ProjectExample();
+            ProjectExample.Criteria criteria = example.createCriteria();
+            if (StringUtils.isNotBlank(request.getName())) {
+                criteria.andNameLike(request.getName());
+            }
+            if (StringUtils.isNotBlank(request.getWorkspaceId())) {
+                criteria.andWorkspaceIdEqualTo(request.getWorkspaceId());
+            }
+            return projectMapper.selectByExample(example);
+        }
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
@@ -358,5 +373,9 @@ public class BaseProjectService {
 
     public void deleteFile(String fileId) {
         fileMetadataService.deleteFile(fileId);
+    }
+
+    public Project selectOne() {
+        return baseProjectMapper.selectOne();
     }
 }

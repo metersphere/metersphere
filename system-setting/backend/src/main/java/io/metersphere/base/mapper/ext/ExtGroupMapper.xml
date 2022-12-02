@@ -5,14 +5,8 @@
 
     <select id="getGroupList" resultType="io.metersphere.dto.GroupDTO">
         SELECT *,
-        <if test="request.onlyQueryCurrentProject == true">
-            (SELECT COUNT(DISTINCT ug.user_id) FROM user_group ug JOIN user ON ug.user_id = user.id WHERE ug.group_id =
-            temp.id AND ug.source_id = #{request.projectId}) AS memberSize
-        </if>
-        <if test="request.onlyQueryCurrentProject == false">
-            (SELECT COUNT(DISTINCT ug.user_id) FROM user_group ug JOIN user ON ug.user_id = user.id WHERE ug.group_id =
-            temp.id) AS memberSize
-        </if>
+        (SELECT COUNT(DISTINCT ug.user_id) FROM user_group ug JOIN user ON ug.user_id = user.id WHERE ug.group_id =
+        temp.id) AS memberSize
         FROM (
         SELECT g.*, w.name AS scopeName FROM `group` g, workspace w
         <where>
@@ -34,6 +28,17 @@
         SELECT g.*, 'global' AS scopeName FROM `group` g
         <where>
             g.scope_id = 'global'
+            <if test="request.types != null and request.types.size() > 0">
+                AND g.type IN
+                <foreach collection="request.types" item="type" separator="," open="(" close=")">
+                    #{type}
+                </foreach>
+            </if>
+        </where>
+        UNION DISTINCT
+        SELECT g.*, 'system' AS scopeName FROM `group` g
+        <where>
+            g.scope_id = 'system'
             <if test="request.types != null and request.types.size() > 0">
                 AND g.type IN
                 <foreach collection="request.types" item="type" separator="," open="(" close=")">
@@ -63,7 +68,9 @@
             WHERE temp.name LIKE CONCAT('%', #{request.name},'%')
         </if>
         <if test="request.orders == null or request.orders.size() == 0">
-            ORDER BY field(temp.type, 'SYSTEM', 'ORGANIZATION', 'WORKSPACE', 'PROJECT'), temp.update_time, temp.name
+            ORDER BY field(temp.type, 'SYSTEM', 'WORKSPACE', 'PROJECT'),
+                     field(temp.scope_id, 'system') desc,
+                     temp.update_time, temp.name
         </if>
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY

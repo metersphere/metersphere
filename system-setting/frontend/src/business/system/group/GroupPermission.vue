@@ -47,7 +47,7 @@ export default {
       return function (permission) {
         // 禁止取消系统管理员用户组的读取和设置权限
         const isSystemGroupPermission = permission.id === 'SYSTEM_GROUP:READ' || permission.id === 'SYSTEM_GROUP:READ+SETTING_PERMISSION';
-        const isDefaultSystemGroup = this.group.id === 'admin' && isSystemGroupPermission;
+        const isDefaultSystemGroup = (this.group.id === 'admin' || this.group.id === 'super_group') && isSystemGroupPermission;
         return this.readOnly || isDefaultSystemGroup;
       }
     }

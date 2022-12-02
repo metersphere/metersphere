@@ -18,7 +18,7 @@ public interface BaseProjectMapper {
 
     int removeIssuePlatform(@Param("platform") String platform, @Param("workspaceId") String workspaceId);
 
-    List<ProjectDTO> getUserProject(@Param("proRequest") ProjectRequest request);
+    List<Project> getUserProject(@Param("proRequest") ProjectRequest request);
 
     String getSystemIdByProjectId(String projectId);
 
@@ -49,4 +49,6 @@ public interface BaseProjectMapper {
     void updateUseDefaultCaseTemplateProject(@Param("originId") String originId,@Param("templateId") String templateId,@Param("projectId") String projectId);
 
     List<String> getThirdPartProjectIds();
+
+    Project selectOne();
 }

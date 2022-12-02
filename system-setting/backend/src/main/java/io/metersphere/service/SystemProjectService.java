@@ -195,14 +195,6 @@ public class SystemProjectService {
         return baseProjectMapper.getProjectWithWorkspace(request);
     }
 
-    public List<ProjectDTO> getUserProject(ProjectRequest request) {
-        if (StringUtils.isNotBlank(request.getName())) {
-            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
-        }
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return baseProjectMapper.getUserProject(request);
-    }
-
     public List<Project> getProjectByIds(List<String> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
             ProjectExample example = new ProjectExample();

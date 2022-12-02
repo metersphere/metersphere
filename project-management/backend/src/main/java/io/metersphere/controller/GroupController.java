@@ -36,21 +36,12 @@ public class GroupController {
     @Resource
     private GroupService groupService;
 
-    @PostMapping("/get/{goPage}/{pageSize}")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
-    public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
-        request.setGoPage(goPage);
-        request.setPageSize(pageSize);
-        return groupService.getGroupList(request);
-    }
-
     @PostMapping("/get/current/project/{goPage}/{pageSize}")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ}, logical = Logical.OR)
     public Pager<List<GroupDTO>> getCurrentProjectGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
-        request.setOnlyQueryCurrentProject(true);
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
-        return groupService.getGroupList(request);
+        return groupService.getProjectGroupList(request);
     }
 
     @GetMapping("/get/all")
@@ -125,13 +116,6 @@ public class GroupController {
     @GetMapping("/{type}/{id}")
     public List<?> getResource(@PathVariable String type, @PathVariable String id) {
         return groupService.getResource(type, id);
-    }
-
-    @PostMapping("/user/{goPage}/{pageSize}")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
-    public Pager<List<User>> getGroupUser(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest editGroupRequest) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, groupService.getGroupUser(editGroupRequest));
     }
 
     @PostMapping("/current/project/user/{goPage}/{pageSize}")

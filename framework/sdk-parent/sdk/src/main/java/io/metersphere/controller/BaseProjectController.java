@@ -29,7 +29,7 @@ public class BaseProjectController {
      * @return List<ProjectDTO>
      */
     @PostMapping("/list/related")
-    public List<ProjectDTO> getUserProject(@RequestBody ProjectRequest request) {
+    public List<Project> getUserProject(@RequestBody ProjectRequest request) {
         return baseProjectService.getUserProject(request);
     }
 

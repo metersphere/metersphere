@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Workspace;
 import io.metersphere.base.domain.WorkspaceExample;
 import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
+import io.metersphere.base.mapper.ext.BaseUserMapper;
 import io.metersphere.dto.RelatedSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,8 +20,14 @@ public class BaseWorkspaceService {
     private BaseUserGroupMapper baseUserGroupMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private BaseUserMapper baseUserMapper;
 
     public List<Workspace> getWorkspaceListByUserId(String userId) {
+        boolean isSuper = baseUserMapper.isSuperUser(userId);
+        if (isSuper) {
+            return workspaceMapper.selectByExample(new WorkspaceExample());
+        }
         List<RelatedSource> relatedSource = baseUserGroupMapper.getRelatedSource(userId);
         List<String> wsIds = relatedSource
                 .stream()
