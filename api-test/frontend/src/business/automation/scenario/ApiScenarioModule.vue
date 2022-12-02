@@ -395,8 +395,4 @@ export default {
 :deep(.el-tree-node__content) {
   height: 33px;
 }
-
-.ms-api-buttion {
-  width: 30px;
-}
 </style>
