@@ -996,6 +996,14 @@ export default {
         }
       });
     },
+    resetResourceId(hashTree) {
+      hashTree.forEach((item) => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.resetResourceId(item.hashTree);
+        }
+      });
+    },
     getCaseAndOpen(id, apiName, apiId) {
       getCaseById(id).then((response) => {
         let data = response.data;
@@ -1006,6 +1014,9 @@ export default {
           apiCaseRequest.method = 'TCP';
         } else if (apiCaseRequest.type === 'JDBCSampler') {
           apiCaseRequest.method = 'SQL';
+        }
+        if (apiCaseRequest.hashTree && apiCaseRequest.hashTree.length > 0) {
+          this.resetResourceId(apiCaseRequest.hashTree);
         }
         apiCaseRequest.name = apiName;
         let obj = {
