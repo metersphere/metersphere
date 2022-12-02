@@ -350,10 +350,7 @@ export default {
     this.editParam();
   },
   methods: {
-    generateColumnKey(field){
-      let columnKey = generateColumnKey(field);
-      return "custom_" + columnKey.substr(columnKey.indexOf("-") + 1);
-    },
+    generateColumnKey,
     hasPermission,
     tableDoLayout() {
       if (this.$refs.table) this.$refs.table.doLayout();
