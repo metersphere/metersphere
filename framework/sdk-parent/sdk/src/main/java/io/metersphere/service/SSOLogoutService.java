@@ -33,6 +33,9 @@ public class SSOLogoutService {
      */
     public void logout(String sessionId, HttpServletResponse response) throws Exception {
         Object obj = redisIndexedSessionRepository.findById(sessionId);
+        if (obj == null) {
+            return;
+        }
         String authId = (String) MethodUtils.invokeMethod(obj, "getAttribute", "authId");
         AuthSource authSource = authSourceMapper.selectByPrimaryKey(authId);
         if (authSource != null) {
