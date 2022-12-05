@@ -246,9 +246,9 @@ import {
   getTestCaseStep,
   getTestCaseVersions, testCaseBatchCopy,
   testCaseBatchDelete,
-  testCaseBatchDeleteToGc, testCaseBatchEdit,
+  testCaseBatchDeleteToGc, testCaseBatchEdit, testCaseBatchRelateDemand,
   testCaseDelete,
-  testCaseDeleteToGc, testCaseList, testCasePublicBatchDeleteToGc,
+  testCaseDeleteToGc, testCaseList,
   testCaseReduction
 } from "@/api/testCase";
 import {getGraphByCondition} from "@/api/graph";
@@ -993,7 +993,7 @@ export default {
       param.condition = this.condition;
       param.demandId = form.demandId;
       param.demandName = form.demandName;
-      testCasePublicBatchDeleteToGc(param)
+      testCaseBatchRelateDemand(param)
         .then(() => {
           this.$success(this.$t('commons.save_success'));
           this.refresh();
