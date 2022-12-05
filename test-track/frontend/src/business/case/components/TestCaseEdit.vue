@@ -46,6 +46,8 @@
                                     :is-read="currentTestCaseInfo.trashEnable || readOnly"
                                     @confirmOtherInfo="confirmOtherInfo"
                                     :current-project-id="currentProjectId"
+                                    :has-latest="hasLatest"
+                                    @setLatest="setLatest"
                                     @compare="compare" @checkout="checkout" @create="create" @del="del"/>
                 <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                              @command="handleCommand" size="small" style="float: right;margin-right: 20px"
@@ -192,6 +194,7 @@ import {
 
 import {getProjectListAll, getProjectMemberOption} from "@/business/utils/sdk-utils";
 import {testCaseCommentList} from "@/api/test-case-comment";
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
 export default {
   name: "TestCaseEdit",
@@ -306,7 +309,9 @@ export default {
       selectedOtherInfo: null,
       currentProjectId: "",
       casePublic: false,
-      isClickAttachmentTab: false
+      isClickAttachmentTab: false,
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   props: {
@@ -800,7 +805,7 @@ export default {
 
             //更新版本
             if (hasLicense()) {
-              this.getVersionHistory();
+              this.getDefaultVersion();
             }
           }).catch(() => {
             this.loading = false;
@@ -990,6 +995,13 @@ export default {
           });
       }
     },
+    getDefaultVersion() {
+      getDefaultVersion(this.projectId)
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
     getVersionHistory() {
       getTestCaseVersions(this.currentTestCaseInfo.id)
         .then(response => {
@@ -1001,6 +1013,14 @@ export default {
             this.currentProjectId = getCurrentProjectID();
           }
           this.versionData = response.data;
+          let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+          if (latestVersionData.length > 0) {
+            this.hasLatest = false
+          } else {
+            this.hasLatest = true;
+          }
+          console.log("has");
+          console.log(this.hasLatest)
           if (this.$refs.versionHistory) {
             this.$refs.versionHistory.loading = false;
           }
@@ -1122,16 +1142,28 @@ export default {
         }
       });
     },
+    setLatest(row) {
+      let param = {
+        projectId: getCurrentProjectID(),
+        type: 'TEST_CASE',
+        versionId: row.id,
+        resourceId: this.currentTestCaseInfo.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
+      });
+    },
     hasOtherInfo() {
       return new Promise((resolve) => {
-          if (this.form.id) {
-            hasTestCaseOtherInfo(this.form.id)
-              .then((res) => {
-                resolve(res.data);
-              });
-          } else {
-            resolve();
-          }
+        if (this.form.id) {
+          hasTestCaseOtherInfo(this.form.id)
+            .then((res) => {
+              resolve(res.data);
+            });
+        } else {
+          resolve();
+        }
         }
       );
     },
