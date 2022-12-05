@@ -3,7 +3,8 @@
     <ms-main-container>
       <el-card class="table-card">
         <template v-slot:header>
-          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="search" @create="handleCreate"
+          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition"
+                           @search="search" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
@@ -22,14 +23,16 @@
               </span>
 
 
-              <ms-table-button icon="el-icon-upload2" :content="$t('commons.import')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="handleImport"/>
-              <ms-table-button icon="el-icon-download" :content="$t('commons.export')" v-if="hasPermission('PROJECT_TRACK_ISSUE:READ')" @click="handleExport"/>
+              <ms-table-button icon="el-icon-upload2" :content="$t('commons.import')"
+                               v-if="hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')" @click="handleImport"/>
+              <ms-table-button icon="el-icon-download" :content="$t('commons.export')"
+                               v-if="hasPermission('PROJECT_TRACK_ISSUE:READ')" @click="handleExport"/>
             </template>
           </ms-table-header>
         </template>
 
         <ms-table
-          v-loading="page.result.loading || loading"
+          v-loading="loading"
           row-key="id"
           :data="page.data"
           :condition="page.condition"
@@ -42,142 +45,95 @@
           :fields.sync="fields"
           :field-key="tableHeaderKey"
           :custom-fields="issueTemplate.customFields"
+          @headChange="handleHeadChange"
           @filter="search"
           @order="getIssues"
           @handlePageChange="getIssues"
           ref="table">
 
-          <span v-for="(item) in fields" :key="item.key">
-            <ms-table-column width="1">
-            </ms-table-column>
-            <ms-table-column
-              :label="$t('test_track.issue.id')"
-              prop="num"
-              :field="item"
-              sortable
-              min-width="100"
-              :fields-width="fieldsWidth">
-            </ms-table-column>
+          <ms-table-column
+            v-for="(item) in fields" :key="item.key"
+            :label="item.label"
+            :prop="item.id"
+            :field="item"
+            :sortable="item.sortable"
+            :min-width="item.minWidth"
+            :column-key="item.columnKey"
+            :fields-width="fieldsWidth"
+            :filters="item.filters"
+          >
+            <template v-slot="scope">
 
-            <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('test_track.issue.title')"
-              sortable
-              min-width="110"
-              prop="title">
-            </ms-table-column>
+              <span v-if="item.id === 'platformStatus'">
+                <span v-if="scope.row.platform ==='Zentao'">
+                  {{
+                    scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'
+                  }}
+                </span>
+                <span
+                  v-else-if="scope.row.platform ==='Tapd'">{{
+                    scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'
+                  }}
+                </span>
+                <span v-else>
+                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+                </span>
+              </span>
 
-            <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              :filters="platformFilters"
-              :label="$t('test_track.issue.platform')"
-              min-width="80"
-              prop="platform">
-            </ms-table-column>
-
-            <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              sortable
-              min-width="110"
-              :label="$t('test_track.issue.platform_status') "
-              prop="platformStatus">
-              <template v-slot="scope">
-                <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
-                <span v-else-if="scope.row.platform ==='Tapd'">{{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'}}</span>
-                <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
-              </template>
-            </ms-table-column>
-
-            <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              column-key="creator"
-              :filters="creatorFilters"
-              sortable
-              min-width="100px"
-              :label="$t('custom_field.issue_creator')"
-              prop="creatorName">
-            </ms-table-column>
-
-            <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('test_track.issue.issue_resource')"
-              prop="resourceName">
-              <template v-slot="scope">
-                <el-link v-if="scope.row.resourceName" @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
+              <span v-else-if="item.id === 'resourceName'">
+                 <el-link v-if="scope.row.resourceName"
+                          @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
                   {{ scope.row.resourceName }}
                 </el-link>
                 <span v-else>
-                --
+                  --
+                 </span>
               </span>
-              </template>
-            </ms-table-column>
 
-            <ms-table-column prop="createTime"
-                           :field="item"
-                           :fields-width="fieldsWidth"
-                           :label="$t('commons.create_time')"
-                           sortable
-                           min-width="180px">
-              <template v-slot:default="scope">
-                <span>{{ scope.row.createTime | datetimeFormat }}</span>
-              </template>
-            </ms-table-column >
+              <span v-else-if="item.id === 'createTime'">
+                 {{ scope.row.createTime | datetimeFormat }}
+              </span>
 
-            <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
-
-            <ms-table-column
-             :field="item"
-             :fields-width="fieldsWidth"
-             :label="item.label"
-             prop="caseCount">
-              <template v-slot="scope">
-                 <router-link :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
-                   {{scope.row.caseCount}}
+              <span v-else-if="item.id === 'caseCount'">
+                 <router-link
+                   :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
+                   {{ scope.row.caseCount }}
                  </router-link>
-              </template>
-            </ms-table-column>
+              </span>
 
-            <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                             :filters="field.name === '状态'? i18nCustomStatus(getCustomFieldFilter(field)) : getCustomFieldFilter(field)"
-                             sortable="custom"
-                             :field="item"
-                             :fields-width="fieldsWidth"
-                             min-width="200"
-                             :label="field.system ? $t(systemNameMap[field.name]) :field.name"
-                             :column-key="generateColumnKey(field)"
-                             :prop="field.name">
-                <template v-slot="scope">
-                  <span v-if="field.name === '状态'">
-                    {{getCustomFieldValue(scope.row, field, issueStatusMap[scope.row.status])}}
-                  </span>
-                  <span v-else-if="field.type === 'richText'">
-                     <el-popover
-                       placement="right"
-                       width="500"
-                       trigger="hover"
-                       popper-class="issues-popover">
-                       <ms-mark-down-text prop="value" :data="{value: getCustomFieldValue(scope.row, field)}" :disabled="true"/>
-                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                    </el-popover>
-                  </span>
-                  <span v-else>
-                    {{getCustomFieldValue(scope.row, field)}}
-                  </span>
-                </template>
-            </ms-table-column>
+              <!-- 自定义字段 -->
+              <span v-else-if="item.isCustom">
+                <span v-if="item.type === 'richText' && scope.row.displayValueMap.get(item.id)">
+                   <el-popover
+                     placement="right"
+                     width="500"
+                     trigger="hover"
+                     popper-class="issues-popover">
+                     <ms-mark-down-text
+                       prop="value"
+                       :disabled="true"
+                       :data="{value: scope.row.displayValueMap.get(item.id)}"/>
+                    <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                  </el-popover>
+                </span>
+                <span v-else>
+                  {{ scope.row.displayValueMap.get(item.id) }}
+                </span>
+              </span>
 
-          </span>
+              <span v-else>
+                {{ scope.row[item.id] }}
+              </span>
+
+            </template>
+          </ms-table-column>
+
         </ms-table>
 
         <ms-table-pagination :change="getIssues" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                              :total="page.total"/>
         <issue-edit @refresh="getIssues" ref="issueEdit"/>
-        <issue-sync-select @syncConfirm="syncConfirm" ref="issueSyncSelect" />
+        <issue-sync-select @syncConfirm="syncConfirm" ref="issueSyncSelect"/>
         <issue-import @refresh="getIssues" ref="issueImport"/>
         <issue-export @export="exportIssue" ref="issueExport"/>
       </el-card>
@@ -251,7 +207,8 @@ export default {
         custom: false,
       }),
       fields: [],
-      tableHeaderKey:"ISSUE_LIST",
+      customFields: [], // 通过表头过滤后的自定义字段列表
+      tableHeaderKey: "ISSUE_LIST",
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
       screenHeight: 'calc(100vh - 160px)',
       operators: [
@@ -285,19 +242,47 @@ export default {
       loading: false,
       dataSelectRange: "",
       platformOptions: [],
-      hasLicense: false
+      hasLicense: false,
+      columns: {
+        num: {
+          sortable: true,
+          minWidth: 100
+        },
+        title: {
+          sortable: true,
+          minWidth: 120,
+        },
+        platform: {
+          minWidth: 80,
+          filters: this.platformFilters
+        },
+        platformStatus: {
+          minWidth: 110,
+        },
+        creatorName: {
+          columnKey: 'creator',
+          minWidth: 100,
+          filters: this.creatorFilters
+        },
+        resourceName: {},
+        createTime: {
+          sortable: true,
+          minWidth: 180
+        },
+        caseCount: {}
+      }
     };
   },
   watch: {
     '$route'(to, from) {
       window.removeEventListener("resize", this.tableDoLayout);
-    },
+    }
   },
   activated() {
     if (this.$route.params.dataSelectRange) {
       this.dataSelectRange = this.$route.params.dataSelectRange;
     }
-    this.page.result.loading = true;
+    this.loading = true;
     this.$nextTick(() => {
       // 解决错位问题
       window.addEventListener('resize', this.tableDoLayout);
@@ -309,7 +294,6 @@ export default {
           });
           getIssuePartTemplateWithProject((template) => {
             this.initFields(template);
-            this.page.result.loading = false;
           });
         });
       this.getIssues();
@@ -340,7 +324,7 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    workspaceId(){
+    workspaceId() {
       return getCurrentWorkspaceId();
     }
   },
@@ -362,39 +346,43 @@ export default {
     getCustomFieldFilter(field) {
       return getCustomFieldFilter(field, this.userFilter);
     },
-    i18nCustomStatus(options) {
-      let i18ns = [];
-      if (options) {
-        options.forEach(option => {
-          option.text = this.$t(option.text);
-          i18ns.push(option);
-        });
-      }
-      return i18ns;
-    },
     initFields(template) {
-      this.issueTemplate = template;
-      if (this.issueTemplate.platform === LOCAL) {
+      if (template.platform === LOCAL) {
         this.isThirdPart = false;
       } else {
         this.isThirdPart = true;
       }
-      this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields, this.members);
+      let fields = getTableHeaderWithCustomFields('ISSUE_LIST', template.customFields, this.members);
       if (!this.isThirdPart) {
-        for (let i = 0; i < this.fields.length; i++) {
-          if (this.fields[i].id === 'platformStatus') {
-            this.fields.splice(i, 1);
+        for (let i = 0; i < fields.length; i++) {
+          if (fields[i].id === 'platformStatus') {
+            fields.splice(i, 1);
             break;
           }
         }
         // 如果不是三方平台则移除备选字段中的平台状态
         let removeField = {id: 'platformStatus', name: 'platformStatus', remove: true};
-        this.issueTemplate.customFields.push(removeField);
+        template.customFields.push(removeField);
       }
+      this.issueTemplate = template;
+      fields.forEach(item => {
+        if (this.columns[item.id]) {
+          Object.assign(item, this.columns[item.id]);
+          if (this.columns[item.id].filters) {
+            item.filters = this.columns[item.id].filters;
+          }
+        }
+      });
+
+      this.fields = fields;
+
       // 过滤自定义字段
       this.page.condition.components = this.page.condition.components.filter(item => item.custom !== true);
-      let comp = getAdvSearchCustomField(this.page.condition, this.issueTemplate.customFields);
+      let comp = getAdvSearchCustomField(this.page.condition, template.customFields);
       this.page.condition.components.push(...comp);
+
+      this.initCustomFieldValue();
+
       if (this.$refs.table) this.$refs.table.reloadTable();
     },
     search() {
@@ -402,7 +390,11 @@ export default {
       this.page.currentPage = 1;
       this.getIssues();
     },
+    handleHeadChange() {
+      this.initFields(this.issueTemplate);
+    },
     getIssues() {
+      this.loading = true;
       if (this.dataSelectRange === 'thisWeekUnClosedIssue') {
         this.page.condition.thisWeekUnClosedTestPlanIssue = true;
       } else if (this.dataSelectRange === 'unClosedRelatedTestPlan') {
@@ -411,13 +403,38 @@ export default {
         this.page.condition.allTestPlanIssue = true;
       }
       this.page.condition.projectId = this.projectId;
-      this.page.condition.workspaceId= this.workspaceId;
+      this.page.condition.workspaceId = this.workspaceId;
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
-      this.page.result = getIssues(this.page.currentPage, this.page.pageSize, this.page.condition).then((response) => {
-        this.page.total = response.data.itemCount;
-        this.page.data = response.data.listObject;
-        parseCustomFilesForList(this.page.data);
+      getIssues(this.page.currentPage, this.page.pageSize, this.page.condition)
+        .then((response) => {
+          this.page.total = response.data.itemCount;
+          this.page.data = response.data.listObject;
+          parseCustomFilesForList(this.page.data);
+          this.initCustomFieldValue();
+        });
+    },
+    initCustomFieldValue() {
+      if (this.fields.length <= 0) {
+        return;
+      }
+      this.page.data.forEach(item => {
+        let displayValueMap = new Map();
+        let fieldIdSet = new Set(this.fields.map(i => i.id));
+        this.issueTemplate.customFields.forEach(field => {
+          let displayValue;
+          if (!fieldIdSet.has(field.name)) {
+            return;
+          }
+          if (field.name === '状态') {
+            displayValue = this.getCustomFieldValue(item, field, this.issueStatusMap[item.status]);
+          } else {
+            displayValue = this.getCustomFieldValue(item, field);
+          }
+          displayValueMap.set(field.name, displayValue);
+        });
+        item.displayValueMap = displayValueMap;
       });
+      this.loading = false;
     },
     getMaintainerOptions() {
       getProjectMemberUserFilter((data) => {
@@ -470,7 +487,7 @@ export default {
         this.$warning(this.$t("test_track.issue.check_select"));
         return;
       }
-      batchDeleteIssue({"batchDeleteIds" : selectIds, "batchDeleteAll" : this.page.condition.selectAll})
+      batchDeleteIssue({"batchDeleteIds": selectIds, "batchDeleteAll": this.page.condition.selectAll})
         .then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.getIssues();
@@ -539,7 +556,7 @@ export default {
           }
         });
     },
-    editParam(){
+    editParam() {
       let id = this.$route.query.id;
       if (id) {
         getIssuesById(id).then((response) => {
