@@ -13,6 +13,9 @@
             {{ this.$t('commons.import') }}
           </el-button>
           <div style="float: right">
+            <el-button style="margin-right: 5px" type="text" size="mini" @click="expandAll">
+              {{ expandTitle }}
+            </el-button>
             <api-params-config
               v-if="apiJsonSchemaConfigFields"
               :storage-key="storageKey"
@@ -28,6 +31,7 @@
               :disabled="jsonSchemaDisable || isReadOnly"
               :value="schema"
               :show-mock-vars="showMockVars"
+              :expand-all-params="expandAllParams"
               :scenario-definition="scenarioDefinition"
               @editScenarioAdvance="editScenarioAdvance"
               :param-columns="apiJsonSchemaShowColumns"
@@ -128,6 +132,7 @@ export default {
       },
       loading: false,
       reloadedApiVariable: true,
+      expandAllParams: false,
       preview: null,
       activeName: 'apiTemplate',
       storageKey: 'API_JSON_SCHEMA_SHOW_FIELD',
@@ -169,6 +174,14 @@ export default {
     },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
+    },
+    expandAll() {
+      this.expandAllParams = !this.expandAllParams;
+    },
+  },
+  computed: {
+    expandTitle() {
+      return this.expandAllParams ? this.$t('commons.close_all') : this.$t('commons.expand_all');
     },
   },
 };
