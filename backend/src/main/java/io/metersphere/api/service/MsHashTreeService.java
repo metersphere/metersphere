@@ -51,6 +51,7 @@ public class MsHashTreeService {
     public static final String NUM = "num";
     public static final String ENV_ENABLE = "environmentEnable";
     public static final String VARIABLE_ENABLE = "variableEnable";
+    public static final String MIX_ENABLE = "mixEnable";
     public static final String DISABLED = "disabled";
     public static final String VERSION_NAME = "versionName";
     public static final String VERSION_ENABLE = "versionEnable";
@@ -245,8 +246,8 @@ public class MsHashTreeService {
 
     private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.containsKey(ENABLE) ? element.getBoolean(ENABLE) : true;
-        if (!element.containsKey(VARIABLE_ENABLE)) {
-            element.put(VARIABLE_ENABLE, true);
+        if (!element.containsKey(MIX_ENABLE)) {
+            element.put(MIX_ENABLE, true);
         }
 
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString(ID));
@@ -254,7 +255,9 @@ public class MsHashTreeService {
             boolean environmentEnable = element.containsKey(ENV_ENABLE)
                     ? element.getBoolean(ENV_ENABLE) : false;
             boolean variableEnable = element.containsKey(VARIABLE_ENABLE)
-                    ? element.getBoolean(VARIABLE_ENABLE) : true;
+                    ? element.getBoolean(VARIABLE_ENABLE) : false;
+            boolean mixEnable = element.containsKey(MIX_ENABLE)
+                    ? element.getBoolean(MIX_ENABLE) : true;
 
             if (environmentEnable && StringUtils.isNotEmpty(scenarioWithBLOBs.getEnvironmentJson())) {
                 element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
@@ -268,6 +271,9 @@ public class MsHashTreeService {
             element.put(ENV_ENABLE, environmentEnable);
             if (!element.containsKey(VARIABLE_ENABLE)) {
                 element.put(VARIABLE_ENABLE, variableEnable);
+            }
+            if (!element.containsKey(MIX_ENABLE) && !variableEnable) {
+                element.put(MIX_ENABLE, mixEnable);
             }
             this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
         } else {

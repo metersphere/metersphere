@@ -241,6 +241,7 @@ export default {
     testing: "Testing",
     enable_scene: "Original scene environment",
     variable_scene: "Original scene variable",
+    mix_enable: "The current scene variable is used first, and the original scene variable is used if there is no",
     reference_settings: "Reference settings",
     enable_scene_info: "Enable scene environment: the current step uses the original environment configuration of the scene to run",
     edit_info: "Edit details",
