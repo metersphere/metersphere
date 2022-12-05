@@ -216,7 +216,7 @@ public class MockApiUtils {
                                             } else {
                                                 try {
                                                     values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
-                                                } catch (Exception e) {
+                                                } catch (Exception ignored) {
                                                 }
                                             }
                                             paramMap.put(kv.getString("name"), values);
@@ -238,8 +238,7 @@ public class MockApiUtils {
                                     try {
                                         code = Integer.parseInt(object.getString("name"));
                                         break;
-                                    } catch (Exception e) {
-                                        LogUtil.error(e);
+                                    } catch (Exception ignored) {
                                     }
                                 }
                             }
@@ -414,8 +413,7 @@ public class MockApiUtils {
                         returnJson = JSONObject.parseObject(param);
                     }
                 }
-            } catch (Exception e) {
-                LogUtil.error(e);
+            } catch (Exception ignored) {
             }
             return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
