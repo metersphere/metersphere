@@ -81,6 +81,7 @@ public class MsHashTreeService {
     public static final String CUSTOM_NUM = "customNum";
     public static final String SHOW_CUSTOM_NUM = "showCustomNum";
     public static final String VERSION_ID = "versionId";
+    public static final String RESOURCE_ID = "resourceId";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -255,7 +256,7 @@ public class MsHashTreeService {
                         JSONObject orgJsonObject = (JSONObject) obj;
                         targetJSONArray.forEach(targetObj -> {
                             JSONObject targetJsonObject = (JSONObject) targetObj;
-                            if (StringUtils.equals(orgJsonObject.optString(ID), targetJsonObject.optString(ID))) {
+                            if (StringUtils.equals(orgJsonObject.optString(RESOURCE_ID), targetJsonObject.optString(RESOURCE_ID))) {
                                 setRefEnable(targetJsonObject, orgJsonObject);
                             }
                         });
