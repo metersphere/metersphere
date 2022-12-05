@@ -52,10 +52,14 @@
               </div>
             </span>
           </el-tooltip>
-          <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
+          <el-row class="ms-el-link">
+            <el-link @click="batchAdd" style="margin-right: 5px; color: var(--primary_color)">
               {{ $t('commons.batch_add') }}
             </el-link>
+            <api-params-config
+              v-if="apiParamsConfigFields"
+              @refresh="refreshApiParamsField"
+              :api-params-config-fields="apiParamsConfigFields" />
           </el-row>
           <ms-api-variable
             @editScenarioAdvance="editScenarioAdvance"
@@ -84,10 +88,14 @@
               </div>
             </span>
           </el-tooltip>
-          <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
+          <el-row class="ms-el-link">
+            <el-link @click="batchAdd" style="margin-right: 5px; color: var(--primary_color)">
               {{ $t('commons.batch_add') }}
             </el-link>
+            <api-params-config
+              v-if="apiParamsConfigFields"
+              @refresh="refreshApiParamsField"
+              :api-params-config-fields="apiParamsConfigFields" />
           </el-row>
           <ms-api-variable
             @editScenarioAdvance="editScenarioAdvance"
@@ -197,6 +205,7 @@ import MsApiBody from '../../body/ApiBody';
 import MsApiAuthConfig from '../../auth/ApiAuthConfig';
 import ApiRequestMethodSelect from '../../collapse/ApiRequestMethodSelect';
 import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
+import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_field';
 import MsApiVariable from '../../ApiVariable';
 import MsApiAssertions from '../../assertion/ApiAssertions';
 import MsApiExtract from '../../extract/ApiExtract';
@@ -208,6 +217,7 @@ import MsApiAdvancedConfig from './ApiAdvancedConfig';
 import MsJsr233Processor from '@/business/automation/scenario/component/Jsr233Processor';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import { hisDataProcessing, stepCompute } from '@/business/definition/api-definition';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 export default {
   name: 'MsApiHttpRequestForm',
@@ -222,6 +232,7 @@ export default {
     MsApiBody,
     MsApiKeyValue,
     MsApiAssertions,
+    ApiParamsConfig,
     MsJmxStep: () => import('@/business/definition/components/step/JmxStep'),
   },
   props: {
@@ -273,6 +284,8 @@ export default {
     };
     return {
       activeName: this.request.method === 'POST' ? 'body' : 'parameters',
+      queryColumnConfig: false,
+      apiParamsConfigFields: getApiParamsConfigFields(this),
       rules: {
         name: [
           {
@@ -334,6 +347,13 @@ export default {
         setTimeout(() => {
           this.filter(this.activeName);
         });
+      });
+    },
+    refreshApiParamsField() {
+      let oldActiveName = this.activeName;
+      this.activeName = 'refreshing';
+      this.$nextTick(() => {
+        this.activeName = oldActiveName;
       });
     },
     changeActiveName() {

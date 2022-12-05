@@ -1,36 +1,49 @@
 <template>
   <div id="app" v-loading="loading">
     <el-row>
-      <el-col>
-        <el-button style="float: right" type="text" size="mini" @click="expandAll">
+      <el-col></el-col>
+      <div style="float: right">
+        <el-button style="margin-right: 5px" type="text" size="mini" @click="expandAll">
           {{ expandTitle }}
         </el-button>
-      </el-col>
+
+        <api-params-config
+          v-if="apiJsonSchemaConfigFields"
+          :storage-key="storageKey"
+          @refresh="refreshApiParamsField"
+          :api-params-config-fields="apiJsonSchemaConfigFields" />
+      </div>
     </el-row>
     <div :style="jsonSchemaDisable ? '' : 'min-height: 200px'">
-      <json-schema-panel
-        class="schema"
-        :disabled="jsonSchemaDisable"
-        :value="schema"
-        :show-mock-vars="showMockVars"
-        :scenario-definition="scenarioDefinition"
-        :expand-all-params="expandAllParams"
-        @editScenarioAdvance="editScenarioAdvance"
-        lang="zh_CN"
-        custom />
+      <div style="overflow: auto">
+        <json-schema-panel
+          class="schema"
+          v-if="reloadedApiVariable"
+          :disabled="jsonSchemaDisable"
+          :value="schema"
+          :show-mock-vars="showMockVars"
+          :scenario-definition="scenarioDefinition"
+          :param-columns="apiJsonSchemaShowColumns"
+          :expand-all-params="expandAllParams"
+          @editScenarioAdvance="editScenarioAdvance"
+          lang="zh_CN"
+          custom />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import JsonSchemaPanel from '@/business/definition/components/document/components/JsonSchema/JsonSchemaPanel';
+import { getApiJsonSchemaConfigFields, getShowFields } from 'metersphere-frontend/src/utils/custom_field';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 const Convert = require('@/business/commons/json-schema/convert/convert.js');
 const MsConvert = new Convert();
 
 export default {
   name: 'JsonSchemaShow',
-  components: { JsonSchemaPanel },
+  components: { JsonSchemaPanel, ApiParamsConfig },
   props: {
     body: {},
     showPreview: {
@@ -57,6 +70,7 @@ export default {
       this.schema = { root: this.body.jsonSchema };
     }
     this.body.jsonSchema = this.schema.root;
+    this.apiJsonSchemaShowColumns = getShowFields(this.storageKey);
   },
   watch: {
     schema: {
@@ -86,6 +100,10 @@ export default {
           properties: {},
         },
       },
+      reloadedApiVariable: true,
+      storageKey: 'API_JSON_SCHEMA_SHOW_FIELD',
+      apiJsonSchemaConfigFields: getApiJsonSchemaConfigFields(this),
+      apiJsonSchemaShowColumns: [],
       loading: false,
       expandAllParams: false,
     };
@@ -96,6 +114,9 @@ export default {
     },
   },
   methods: {
+    refreshApiParamsField() {
+      this.apiJsonSchemaShowColumns = getShowFields(this.storageKey);
+    },
     expandAll() {
       this.expandAllParams = !this.expandAllParams;
     },
