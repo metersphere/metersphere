@@ -62,6 +62,7 @@ public class ApiDefinitionController {
     @Resource
     private ApiExecuteService apiExecuteService;
 
+
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {

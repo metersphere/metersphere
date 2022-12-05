@@ -40,9 +40,11 @@
             ref="versionHistory"
             :version-data="versionData"
             :current-id="basisData.id"
+            :has-latest="hasLatest"
             @compare="compare"
             @checkout="checkout"
             @create="create"
+            @setLatest="setLatest"
             @del="del" />
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
         </div>
@@ -101,14 +103,15 @@ import MsBasisApi from './BasisApi';
 import MsBasisParameters from '../request/database/BasisParameters';
 import MsChangeHistory from '@/business/history/ApiHistory';
 import ApiOtherInfo from '@/business/definition/components/complete/ApiOtherInfo';
-import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import {getCurrentProjectID, getCurrentUser} from 'metersphere-frontend/src/utils/token';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 import SQLApiVersionDiff from './version/SQLApiVersionDiff';
 import { createComponent } from '.././jmeter/components';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { useApiStore } from '@/store';
-import { apiTestCaseCount } from '@/api/api-test-case';
+import {apiTestCaseCount} from '@/api/api-test-case';
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
 const store = useApiStore();
 const { Body } = require('@/business/definition/model/ApiTestModel');
@@ -164,6 +167,8 @@ export default {
       newRequest: {},
       newResponse: {},
       createNewVersionVisible: false,
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   created() {
@@ -178,7 +183,7 @@ export default {
     });
 
     if (hasLicense()) {
-      this.getVersionHistory();
+      this.getDefaultVersion();
     }
 
     if (!this.request.environmentId) {
@@ -244,12 +249,25 @@ export default {
         }
       }
     },
+    getDefaultVersion() {
+      getDefaultVersion(getCurrentProjectID())
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
     getVersionHistory() {
       getDefinitionVersions(this.basisData.id).then((response) => {
         if (this.basisData.isCopy) {
           this.versionData = response.data.filter((v) => v.versionId === this.basisData.versionId);
         } else {
           this.versionData = response.data;
+        }
+        let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false
+        } else {
+          this.hasLatest = true;
         }
       });
     },
@@ -421,6 +439,19 @@ export default {
         },
       });
     },
+    setLatest(row) {
+      let param = {
+        projectId: getCurrentProjectID(),
+        type: 'API',
+        versionId: row.id,
+        resourceId: this.basisData.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
+      });
+    },
+
   },
 };
 </script>

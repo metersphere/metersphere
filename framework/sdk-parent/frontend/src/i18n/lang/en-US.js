@@ -888,6 +888,7 @@ const message = {
       delete_tip: 'This version has associated system resources, this operation will delete the associated resources',
       checkout: 'Checkout',
       compare: 'Compare',
+      set_new: 'SetNew',
       change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
     },
     project_file: {
@@ -1913,8 +1914,8 @@ const message = {
       no_cover_tip_scenario_1: "1. The same Scenario that already exists in the system will not be changed",
       no_cover_tip_scenario_2: "2. Add Scenario that do not exist in the system",
       import_version: 'Import version',
-      data_update_version: 'Api update version',
-      data_new_version: 'Api creation version',
+      data_update_version: 'New API created to',
+      data_new_version: 'The same API is updated to',
       latest_version: 'Latest version',
     },
     home_page: {

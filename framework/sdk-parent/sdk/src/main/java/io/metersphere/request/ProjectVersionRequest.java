@@ -16,4 +16,8 @@ public class ProjectVersionRequest {
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;
+    private String type;
+    private String versionId;
+    private String resourceId;
+
 }
