@@ -898,6 +898,7 @@ const message = {
       delete_tip: '此版本已經關聯繫統資源，此操作會將所關聯的資源一併刪除',
       checkout: '切換',
       compare: '對比',
+      set_new: '置新',
       change_latest_tip: '此操作會修改接口，場景，測試用例等列表頁面的默認展示，可能會消耗一些時間。請耐心等待！ '
     },
     project_file: {
@@ -1924,8 +1925,8 @@ const message = {
       no_cover_tip_1: "1. 系統已存在的同一介面，則不做變更",
       no_cover_tip_2: "2. 系統不存在的介面則新增",
       import_version: '導入版本',
-      data_update_version: '數據更新版本',
-      data_new_version: '數據創建版本',
+      data_update_version: '同一API更新到',
+      data_new_version: '新增API創建到',
       latest_version: '默認最新版本',
     },
     home_page: {

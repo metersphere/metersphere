@@ -34,6 +34,8 @@
                                 :version-data="versionData"
                                 :current-id="testId"
                                 :is-read="isReadOnly"
+                                :has-latest="hasLatest"
+                                @setLatest="setLatest"
                                 @compare="compare" @checkout="checkout" @create="create" @del="del"/>
             <el-button :disabled="isReadOnly" type="primary" size="small" plain @click="save"
                        v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
@@ -123,6 +125,7 @@ import {
   saveTest,
   syncScenario
 } from "@/api/performance";
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
 export default {
   name: "EditPerformanceTest",
@@ -173,6 +176,8 @@ export default {
       maintainerOptions: [],
       versionData: [],
       projectEnvMap: {},
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   watch: {
@@ -199,7 +204,7 @@ export default {
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
     this.getTest(this.$route.params.testId);
     if (hasLicense()) {
-      this.getVersionHistory();
+      this.getDefaultVersion();
     }
     this.$EventBus.$on('projectChange', this.handleProjectChange);
   },
@@ -592,6 +597,13 @@ export default {
         }
       }
     },
+    getDefaultVersion() {
+      getDefaultVersion(getCurrentProjectID())
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
     getVersionHistory() {
       let testId = undefined;
       if (this.testId) {
@@ -600,6 +612,12 @@ export default {
       getTestVersionHistory(testId)
         .then(response => {
           this.versionData = response.data;
+          let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+          if (latestVersionData.length > 0) {
+            this.hasLatest = false
+          } else {
+            this.hasLatest = true;
+          }
         });
     },
     compare(row) {
@@ -659,6 +677,18 @@ export default {
               });
           }
         }
+      });
+    },
+    setLatest(row) {
+      let param = {
+        projectId: getCurrentProjectID(),
+        type: 'PERFORMANCE',
+        versionId: row.id,
+        resourceId: this.test.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
       });
     },
     handleProjectChange() {

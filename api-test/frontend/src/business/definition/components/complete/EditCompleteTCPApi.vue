@@ -40,9 +40,11 @@
             ref="versionHistory"
             :version-data="versionData"
             :current-id="basisData.id"
+            :has-latest="hasLatest"
             @compare="compare"
             @checkout="checkout"
             @create="create"
+            @setLatest="setLatest"
             @del="del" />
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
         </div>
@@ -110,7 +112,7 @@ import {
   delDefinitionByRefId,
   getDefinitionById,
   getDefinitionByIdAndRefId,
-  getDefinitionVersions,
+  getDefinitionVersions, updateDefinitionFollows,
 } from '@/api/definition';
 import MsTcpBasicApi from './TCPBasicApi';
 import MsTcpFormatParameters from '../request/tcp/TcpFormatParameters';
@@ -123,7 +125,8 @@ import { createComponent } from '.././jmeter/components';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { useApiStore } from '@/store';
-import { apiTestCaseCount } from '@/api/api-test-case';
+import {apiTestCaseCount} from '@/api/api-test-case';
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
 const store = useApiStore();
 const { Body } = require('@/business/definition/model/ApiTestModel');
@@ -171,6 +174,8 @@ export default {
       newResponse: {},
       newApiProtocol: 'TCP',
       createNewVersionVisible: false,
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   created: function () {
@@ -200,7 +205,7 @@ export default {
     });
     this.getMockInfo();
     if (hasLicense()) {
-      this.getVersionHistory();
+      this.getDefaultVersion();
     }
   },
   watch: {
@@ -340,12 +345,26 @@ export default {
         }
       }
     },
+    getDefaultVersion() {
+      getDefaultVersion(getCurrentProjectID())
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
+
     getVersionHistory() {
       getDefinitionVersions(this.basisData.id).then((response) => {
         if (this.basisData.isCopy) {
           this.versionData = response.data.filter((v) => v.versionId === this.basisData.versionId);
         } else {
           this.versionData = response.data;
+        }
+        let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false
+        } else {
+          this.hasLatest = true;
         }
       });
     },
@@ -500,7 +519,7 @@ export default {
         this.$set(this.basisData, 'newVersionCase', this.basisData.caseTotal > 0);
 
         createMockConfig({
-          projectId: this.projectId,
+          projectId: getCurrentProjectID(),
           apiId: this.basisData.id,
         }).then((response) => {
           this.$set(this.basisData, 'newVersionMock', response.data.mockExpectConfigList.length > 0);
@@ -532,6 +551,18 @@ export default {
             });
           }
         },
+      });
+    },
+    setLatest(row) {
+      let param = {
+        projectId: getCurrentProjectID(),
+        type: 'API',
+        versionId: row.id,
+        resourceId: this.basisData.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
       });
     },
   },

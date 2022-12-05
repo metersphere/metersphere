@@ -43,26 +43,26 @@ export default{
       this.result = getMyCreatedCaseGroupContMap(isWeek).then(response => {
         let tableData = response.data
         const testCaseCount = {
-          value:tableData.testCaseCount===0?'':tableData.testCaseCount,
-          name:this.$t('workstation.table_name.track_case'),
+          value: tableData.testCaseCount === 0 ? '-' : tableData.testCaseCount,
+          name: this.$t('workstation.table_name.track_case'),
         }
         this.loadCharData.push(testCaseCount)
 
         const apiTestCaseCount = {
-          value:tableData.apiTestCaseCount===0?'':tableData.apiTestCaseCount,
-          name:this.$t('workstation.table_name.api_case'),
+          value: tableData.apiTestCaseCount === 0 ? '-' : tableData.apiTestCaseCount,
+          name: this.$t('workstation.table_name.api_case'),
         }
         this.loadCharData.push(apiTestCaseCount)
 
         const apiScenarioCaseCount = {
-          value:tableData.apiScenarioCaseCount===0?'':tableData.apiScenarioCaseCount,
-          name:this.$t('workstation.table_name.scenario_case'),
+          value: tableData.apiScenarioCaseCount === 0 ? '-' : tableData.apiScenarioCaseCount,
+          name: this.$t('workstation.table_name.scenario_case'),
         }
         this.loadCharData.push(apiScenarioCaseCount)
 
         const loadTestCount = {
-          value:tableData.loadTestCount===0?'':tableData.loadTestCount,
-          name:this.$t('test_track.plan.load_case.case'),
+          value: tableData.loadTestCount === 0 ? '-' : tableData.loadTestCount,
+          name: this.$t('test_track.plan.load_case.case'),
         }
         this.loadCharData.push(loadTestCount)
 

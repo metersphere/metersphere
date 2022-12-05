@@ -1,8 +1,12 @@
-import {get} from "../plugins/request"
+import {get, post} from "../plugins/request"
 import {hasLicense} from "../utils/permission";
 
 export function getProjectVersions(projectId) {
   return get(`/project/version/get-project-versions/${projectId}`);
+}
+
+export function getDefaultVersion(projectId) {
+  return get(`/project/version/get-default-version/${projectId}`);
 }
 
 export function getProjectMembers() {
@@ -11,6 +15,10 @@ export function getProjectMembers() {
 
 export function isProjectVersionEnable(projectId) {
   return get(`/project/version/enable/${projectId}`)
+}
+
+export function setLatestVersionById(data) {
+  return post('/project/version/set/latest/version', data)
 }
 
 export function getVersionFilters(projectId) {
