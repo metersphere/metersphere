@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -85,6 +82,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String alias;
     private boolean customizeReq;
     private final static String DEF_TIME_OUT = "60000";
+    //客户端实现
+    private String implementation;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -125,6 +124,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setAutoRedirects(this.isAutoRedirects());
+        sampler.setImplementation(this.getImplementation());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
         if (config.getConfig() == null) {
@@ -247,8 +247,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private boolean setRefElement() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsHTTPSamplerProxy proxy = null;
             if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseWithBLOBs bloBs = CommonBeanFactory.getBean(ApiTestCaseService.class).get(this.getId());
@@ -256,8 +254,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSONUtil.parseObject(bloBs.getRequest());
                     ElementUtil.dataFormatting(element);
-                    proxy = mapper.readValue(element.toString(), new TypeReference<MsHTTPSamplerProxy>() {
-                    });
+                    proxy = JSONUtil.parseObject(element.toString(), MsHTTPSamplerProxy.class);
                     this.setName(bloBs.getName());
                 }
             }

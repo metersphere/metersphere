@@ -55,4 +55,6 @@ public class BaseEnvElement {
 
     // 步骤别名
     private String stepName;
+
+    private Boolean jsrEnable;
 }

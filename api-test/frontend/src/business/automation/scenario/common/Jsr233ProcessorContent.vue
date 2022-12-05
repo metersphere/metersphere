@@ -25,6 +25,12 @@
           :commands="languages"
           style="margin-bottom: 5px; margin-left: 15px"
           @command="languageChange" />
+        <el-checkbox
+          v-model="jsr223ProcessorData.jsrEnable"
+          style="padding-left: 10px"
+          :disabled="jsr223ProcessorData.scriptLanguage !== 'beanshell'">
+          JSR223
+        </el-checkbox>
         <script-nav-menu
           ref="scriptNavMenu"
           :language="jsr223ProcessorData.scriptLanguage"
@@ -164,6 +170,9 @@ export default {
     };
   },
   created() {
+    if (this.jsr223Processor.jsrEnable === null || this.jsr223Processor.jsrEnable === undefined) {
+      this.$set(this.jsr223Processor, 'jsrEnable', true);
+    }
     this.jsr223ProcessorData = this.jsr223Processor;
   },
   props: {
@@ -206,6 +215,9 @@ export default {
     },
     languageChange(language) {
       this.jsr223ProcessorData.scriptLanguage = language;
+      if (language !== 'beanshell') {
+        this.jsr223ProcessorData.jsrEnable = true;
+      }
       this.$emit('languageChange');
     },
     addCustomFuncScript(script) {

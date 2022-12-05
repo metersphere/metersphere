@@ -31,7 +31,6 @@ import io.metersphere.api.parse.scenario.TcpTreeTableDataParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.*;
 import io.metersphere.commons.exception.MSException;
@@ -157,8 +156,6 @@ public class ApiDefinitionService {
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
-    @Resource
-    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ApiCustomFieldService customFieldApiService;
     @Resource
@@ -298,51 +295,6 @@ public class ApiDefinitionService {
         }
     }
 
-    public void initDefaultModuleId() {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andModuleIdIsNull();
-        List<ApiDefinition> updateApiList = apiDefinitionMapper.selectByExample(example);
-        Map<String, Map<String, List<ApiDefinition>>> projectIdMap = new HashMap<>();
-        for (ApiDefinition api : updateApiList) {
-            String projectId = api.getProjectId();
-            String protocol = api.getProtocol();
-            if (projectIdMap.containsKey(projectId)) {
-                if (projectIdMap.get(projectId).containsKey(protocol)) {
-                    projectIdMap.get(projectId).get(protocol).add(api);
-                } else {
-                    List<ApiDefinition> list = new ArrayList<>();
-                    list.add(api);
-                    projectIdMap.get(projectId).put(protocol, list);
-                }
-            } else {
-                List<ApiDefinition> list = new ArrayList<>();
-                list.add(api);
-                Map<String, List<ApiDefinition>> map = new HashMap<>();
-                map.put(protocol, list);
-                projectIdMap.put(projectId, map);
-            }
-        }
-        for (Map.Entry<String, Map<String, List<ApiDefinition>>> entry : projectIdMap.entrySet()) {
-            String projectId = entry.getKey();
-            Map<String, List<ApiDefinition>> map = entry.getValue();
-
-            for (Map.Entry<String, List<ApiDefinition>> itemEntry : map.entrySet()) {
-                String protocol = itemEntry.getKey();
-                ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocol);
-                if (node != null) {
-                    List<ApiDefinition> testCaseList = itemEntry.getValue();
-                    for (ApiDefinition apiDefinition : testCaseList) {
-                        ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
-                        updateCase.setId(apiDefinition.getId());
-                        updateCase.setModuleId(node.getId());
-                        updateCase.setModulePath("/" + node.getName());
-
-                        apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
-                    }
-                }
-            }
-        }
-    }
 
     public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
@@ -2926,27 +2878,6 @@ public class ApiDefinitionService {
         return envIdList;
     }
 
-    public Map<String, List<String>> getProjectEnvNameByEnvConfig(String projectId, String envConfig) {
-        Map<String, List<String>> returnMap = new HashMap<>();
-        RunModeConfigDTO runModeConfigDTO = null;
-        try {
-            runModeConfigDTO = JSON.parseObject(envConfig, RunModeConfigDTO.class);
-        } catch (Exception e) {
-            LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
-        }
-        if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
-            String envId = runModeConfigDTO.getEnvMap().get(projectId);
-            String envName = apiTestEnvironmentService.selectNameById(envId);
-            Project project = baseProjectService.getProjectById(projectId);
-            String projectName = project == null ? null : project.getName();
-            if (StringUtils.isNoneEmpty(envName, projectName)) {
-                returnMap.put(projectName, new ArrayList<>() {{
-                    this.add(envName);
-                }});
-            }
-        }
-        return returnMap;
-    }
 
     public Map<String, List<String>> getProjectEnvNameByEnvConfig(Map<String, List<String>> projectEnvConfigMap) {
         Map<String, List<String>> returnMap = new HashMap<>();

@@ -82,6 +82,10 @@ export function testCasePublicBatchDeleteToGc(param) {
   return post(BASE_URL + 'batch/movePublic/deleteToGc', param);
 }
 
+export function testCaseBatchRelateDemand(param) {
+  return post(BASE_URL + 'batch/relate/demand', param);
+}
+
 export function getTestCaseFollow(id) {
   return get(BASE_URL + `follow/${id}`);
 }

@@ -1,8 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -151,7 +148,7 @@ public class MsTCPSampler extends MsTestElement {
         tree.set(tcpSampler(config), samplerHashTree);
         setUserParameters(samplerHashTree);
         if (tcpPreProcessor != null && StringUtils.isNotBlank(tcpPreProcessor.getScript())) {
-            samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
+            samplerHashTree.add(tcpPreProcessor.getShellProcessor());
         }
         //增加误报、全局断言
         HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
@@ -180,9 +177,6 @@ public class MsTCPSampler extends MsTestElement {
 
     private boolean setRefElement() {
         try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsTCPSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), CommonConstants.CASE)) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
@@ -192,16 +186,15 @@ public class MsTCPSampler extends MsTestElement {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSONUtil.parseObject(bloBs.getRequest());
                     ElementUtil.dataFormatting(element);
-                    proxy = mapper.readValue(element.toString(), new TypeReference<MsTCPSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(element.toString(), MsTCPSampler.class);
                 }
             } else {
+                ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
                     this.setName(apiDefinition.getName());
                     this.setProjectId(apiDefinition.getProjectId());
-                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTCPSampler>() {
-                    });
+                    proxy = JSONUtil.parseObject(apiDefinition.getRequest(), MsTCPSampler.class);
                 }
             }
             if (proxy != null) {
