@@ -695,11 +695,44 @@ export default {
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
       let name = this.report.name;
+      name = this.encodeSearchKey(name);
       this.$nextTick(() => {
         setTimeout(() => {
           downloadPDF(document.getElementById('apiTestReport'), name || 'scenario-report');
           reset();
         }, 5000);
+      });
+    },
+    // 对报告名称中的特殊字符进行编码
+    encodeSearchKey(key) {
+      const encodeArr = [
+        {
+          code: '%',
+          encode: '%25',
+        },
+        {
+          code: '?',
+          encode: '%3F',
+        },
+        {
+          code: '#',
+          encode: '%23',
+        },
+        {
+          code: '&',
+          encode: '%26',
+        },
+        {
+          code: '=',
+          encode: '%3D',
+        },
+      ];
+      return key.replace(/[%?#&=]/g, ($, index, str) => {
+        for (const k of encodeArr) {
+          if (k.code === $) {
+            return k.encode;
+          }
+        }
       });
     },
     handleSave() {
