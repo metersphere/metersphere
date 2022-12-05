@@ -6,17 +6,27 @@
       </el-link>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="copy" v-if="data.command">{{ this.$t('commons.copy') }}</el-dropdown-item>
-        <el-dropdown-item command="enable" v-if="data.command && data.enable">{{ this.$t('ui.disable') }}</el-dropdown-item>
-        <el-dropdown-item command="enable" v-if="data.command && !data.enable">{{ this.$t('ui.enable') }}</el-dropdown-item>
+        <el-dropdown-item command="enable" v-if="data.command && data.enable">{{
+            this.$t('ui.disable')
+          }}
+        </el-dropdown-item>
+        <el-dropdown-item command="enable" v-if="data.command && !data.enable">{{
+            this.$t('ui.enable')
+          }}
+        </el-dropdown-item>
         <el-dropdown-item command="remove">{{ this.$t('api_test.automation.delete_step') }}</el-dropdown-item>
-        <el-dropdown-item command="rename" v-if="!isScenario">{{ this.$t('test_track.module.rename') }}</el-dropdown-item>
+        <el-dropdown-item command="rename" v-if="!isScenario">{{
+            this.$t('test_track.module.rename')
+          }}
+        </el-dropdown-item>
         <el-dropdown-item command="scenarioVar" v-if="data.type==='scenario'">
           {{ this.$t("api_test.automation.view_scene_variables") }}
         </el-dropdown-item>
         <el-dropdown-item command="openScenario" v-if="data.type==='scenario' && data.referenced==='REF'">
           {{ this.$t("api_test.automation.open_scene") }}
         </el-dropdown-item>
-        <el-dropdown-item command="saveAs" v-if="allSamplers.indexOf(data.type)!=-1 && (data.referenced===undefined || data.referenced ==='Created' )">
+        <el-dropdown-item command="saveAs"
+                          v-if="allSamplers.indexOf(data.type)!=-1 && (data.referenced===undefined || data.referenced ==='Created' )">
           {{ this.$t("api_test.automation.save_as_api") }}
         </el-dropdown-item>
         <el-dropdown-item command="setScenario" v-if="data.type==='scenario'">
@@ -30,15 +40,20 @@
 
     <el-dialog
       :title="$t('commons.reference_settings')"
-      :visible.sync="dialogVisible" width="400px">
+      :visible.sync="dialogVisible" width="700px">
       <ul>
-        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if = 'showEnableScence'>
+        <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if='showEnableScence'>
           <el-checkbox v-model="data.environmentEnable" @change="checkEnv" :disabled="data.disabled">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
         </el-tooltip>
-        <el-checkbox v-model="data.variableEnable" :disabled="data.disabled">
+        <br/>
+        <el-checkbox v-model="data.variableEnable" :disabled="data.disabled" @change="variableChange">
           {{ $t('commons.variable_scene') }}
+        </el-checkbox>
+        <br/>
+        <el-checkbox v-model="data.mixEnable" :disabled="data.disabled" @change="mixChange">
+          {{ $t('commons.mix_enable') }}
         </el-checkbox>
       </ul>
     </el-dialog>
@@ -85,6 +100,16 @@ export default {
     this.allSamplers = this.filter.get('DEFINITION');
   },
   methods: {
+    variableChange() {
+      if (this.data.variableEnable) {
+        this.data.mixEnable = false;
+      }
+    },
+    mixChange() {
+      if (this.data.mixEnable) {
+        this.data.variableEnable = false;
+      }
+    },
     handleCommand(cmd) {
       switch (cmd) {
         case  "copy":

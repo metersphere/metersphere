@@ -244,6 +244,7 @@ export default {
     edit_info: "编辑详情",
     enable_scene: "原场景环境",
     variable_scene: "原场景变量",
+    mix_enable: "优先使用当前场景变量，没有则使用原场景变量",
     reference_settings: "场景设置",
     enable_scene_info: "启用场景环境：当前步骤使用场景原始环境配置运行",
     environment: "运行环境",

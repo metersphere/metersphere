@@ -29,6 +29,7 @@ import io.metersphere.service.EnvironmentGroupProjectService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.Header;
@@ -77,6 +78,9 @@ public class MsScenario extends MsTestElement {
 
     @JSONField(ordinal = 30)
     private Boolean variableEnable;
+
+    @JSONField(ordinal = 31)
+    private Boolean mixEnable;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -127,7 +131,8 @@ public class MsScenario extends MsTestElement {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(this.getVariables()) &&  (this.variableEnable == null || this.variableEnable)) {
+
+        if (CollectionUtils.isNotEmpty(this.getVariables()) && (this.variableEnable == null || this.variableEnable)) {
             config.setVariables(this.variables);
         }
         HashTree scenarioTree = tree;
@@ -144,12 +149,19 @@ public class MsScenario extends MsTestElement {
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
+        // 启用当前场景变量优先选择
+        if ((mixEnable == null || BooleanUtils.isTrue(mixEnable))
+                && (this.variableEnable == null || BooleanUtils.isFalse(this.variableEnable))) {
+            config.margeVariables(this.variables, config.getTransferVariables());
+        }
+
         // 环境变量
         Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
-        if (arguments != null && (this.variableEnable == null || this.variableEnable)) {
+        if (arguments != null && ((this.variableEnable == null || this.variableEnable)
+                || (this.mixEnable == null || this.mixEnable))) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
-            if (this.variableEnable != null && this.variableEnable) {
+            if ((this.variableEnable == null || this.variableEnable) || (this.mixEnable == null || this.mixEnable)) {
                 scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
             } else {
                 scenarioTree.add(valueSupposeMock);
@@ -167,6 +179,7 @@ public class MsScenario extends MsTestElement {
                 }
             }
         }
+
         // 添加全局前置
         this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, true);
 
