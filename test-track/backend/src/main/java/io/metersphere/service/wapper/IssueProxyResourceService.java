@@ -29,7 +29,7 @@ public class IssueProxyResourceService {
      * @param platform
      * @return
      */
-    public ResponseEntity<byte[]> getMdImageByUrl(String url, String platform, String projectId, String workspaceId) {
+    public ResponseEntity<byte[]> getMdImageByUrl(String url, String platform, String workspaceId) {
         if (url.contains("md/get/url")) {
             MSException.throwException(Translator.get("invalid_parameter"));
         }

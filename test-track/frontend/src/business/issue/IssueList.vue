@@ -80,6 +80,11 @@
                 </span>
               </span>
 
+              <ms-review-table-item
+                v-else-if="item.id === 'description'"
+                :data="scope.row"
+                prop="description"/>
+
               <span v-else-if="item.id === 'resourceName'">
                  <el-link v-if="scope.row.resourceName"
                           @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
@@ -103,21 +108,12 @@
 
               <!-- 自定义字段 -->
               <span v-else-if="item.isCustom">
-                <span v-if="item.type === 'richText' && scope.row.displayValueMap.get(item.id)">
-                   <el-popover
-                     placement="right"
-                     width="500"
-                     trigger="hover"
-                     popper-class="issues-popover">
-                     <ms-mark-down-text
-                       prop="value"
-                       :disabled="true"
-                       :data="{value: scope.row.displayValueMap.get(item.id)}"/>
-                    <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                  </el-popover>
+                <span v-if="item.type === 'richText' && scope.row.displayValueMap[item.id]">
+                     <ms-review-table-item
+                       :data="scope.row.displayValueMap" :prop="item.id"/>
                 </span>
                 <span v-else>
-                  {{ scope.row.displayValueMap.get(item.id) }}
+                  {{ scope.row.displayValueMap[item.id] }}
                 </span>
               </span>
 
@@ -185,10 +181,12 @@ import {
 } from "metersphere-frontend/src/components/search/custom-component";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import MsReviewTableItem from "@/business/issue/MsReviewTableItem";
 
 export default {
   name: "IssueList",
   components: {
+    MsReviewTableItem,
     MsMarkDownText,
     MsMainContainer,
     MsContainer,
@@ -418,7 +416,7 @@ export default {
         return;
       }
       this.page.data.forEach(item => {
-        let displayValueMap = new Map();
+        let displayValueMap = {};
         let fieldIdSet = new Set(this.fields.map(i => i.id));
         this.issueTemplate.customFields.forEach(field => {
           let displayValue;
@@ -430,7 +428,7 @@ export default {
           } else {
             displayValue = this.getCustomFieldValue(item, field);
           }
-          displayValueMap.set(field.name, displayValue);
+          displayValueMap[field.name] = displayValue;
         });
         item.displayValueMap = displayValueMap;
       });
