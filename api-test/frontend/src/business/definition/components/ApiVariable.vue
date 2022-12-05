@@ -4,170 +4,157 @@
       <span class="kv-description" v-if="description">
         {{ description }}
       </span>
-      <el-row>
-        <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1" />
-      </el-row>
-
-      <!--      数据-->
-      <div class="item kv-row" v-for="(item, index) in parameters" :key="index" style="width: 99%">
-        <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-          <el-col class="kv-checkbox" v-if="isShowEnable">
-            <el-checkbox v-if="!isDisable(index)" v-model="item.enable" :disabled="isReadOnly" />
-          </el-col>
-          <span style="margin-left: 10px" v-else></span>
-          <i class="el-icon-top" style="cursor: pointer" @click="moveTop(index)" />
-          <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(index)" />
-
-          <el-col class="item" style="min-width: 200px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ keyText }}</span>
-            </el-row>
-            <el-input
-              v-if="!suggestions"
-              :disabled="isReadOnly"
-              v-model="item.name"
-              size="small"
-              maxlength="200"
-              @change="change"
-              :placeholder="keyText"
-              show-word-limit>
-              <template v-slot:prepend>
+      <el-table @cell-dblclick="clickRow" border :show-header="true" row-key="id" :data="parameters" ref="expandTable">
+        <el-table-column
+          v-for="item in tableColumnArr"
+          :key="item.id"
+          :prop="item.prop"
+          :label="item.label"
+          :min-width="getTableMinWidth(item.prop)"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <div v-show="!scope.row.isEdit">
+              <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
+                <span class="param-span" v-if="scope.row[item.prop]">{{ $t('commons.yes') }}</span>
+                <span class="param-span" v-else>{{ $t('commons.no') }}</span>
+              </div>
+              <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
+                <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
+              </div>
+              <span v-else>
+                {{ scope.row[item.prop] }}
+              </span>
+            </div>
+            <div v-show="scope.row.isEdit">
+              <div v-if="item.prop === 'type'">
                 <el-select
                   v-if="type === 'body'"
                   :disabled="isReadOnly"
-                  class="kv-type"
-                  v-model="item.type"
+                  v-model="scope.row.type"
                   @change="typeChange(item)">
                   <el-option value="text" />
                   <el-option value="file" />
                   <el-option value="json" />
                 </el-select>
-              </template>
-            </el-input>
+              </div>
+              <div v-else-if="item.prop === 'name'">
+                <el-input
+                  v-if="!suggestions"
+                  :disabled="isReadOnly"
+                  v-model="scope.row.name"
+                  size="small"
+                  maxlength="200"
+                  @change="change"
+                  :placeholder="keyText">
+                </el-input>
+                <el-autocomplete
+                  :disabled="isReadOnly"
+                  v-if="suggestions"
+                  v-model="scope.row.name"
+                  size="small"
+                  :fetch-suggestions="querySearch"
+                  @change="change"
+                  :placeholder="keyText"
+                  show-word-limit />
+              </div>
+              <div v-else-if="item.prop === 'required'">
+                <el-select v-model="scope.row.required" size="small" style="width: 99%">
+                  <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
+                </el-select>
+              </div>
+              <div v-else-if="item.prop === 'value'">
+                <div v-if="isActive && scope.row.type !== 'file'">
+                  <el-autocomplete
+                    :disabled="isReadOnly"
+                    size="small"
+                    class="input-with-autocomplete"
+                    v-model="scope.row.value"
+                    :fetch-suggestions="funcSearch"
+                    :placeholder="valueText"
+                    value-key="name"
+                    highlight-first-item
+                    @select="change">
+                    <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+                  </el-autocomplete>
+                </div>
+                <div v-else-if="isActive && scope.row.type === 'file'">
+                  <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="isReadOnly" />
+                </div>
+                <div v-else class="param-div-show">
+                  <span class="param-span">{{ item.value }}</span>
+                </div>
+              </div>
+              <div v-else-if="item.prop === 'contentType'">
+                <el-input
+                  :disabled="isReadOnly"
+                  v-model="scope.row.contentType"
+                  size="small"
+                  @change="change"
+                  :placeholder="$t('api_test.request.content_type')"
+                  show-word-limit />
+              </div>
+              <div v-else-if="item.prop === 'min'">
+                <el-input-number
+                  :min="0"
+                  v-model="scope.row.min"
+                  :controls="false"
+                  :placeholder="$t('schema.minLength')"
+                  size="small"
+                  style="width: 99%" />
+              </div>
+              <div v-else-if="item.prop === 'max'">
+                <el-input-number
+                  :min="0"
+                  v-model="scope.row.max"
+                  :controls="false"
+                  :placeholder="$t('schema.maxLength')"
+                  size="small"
+                  style="width: 99%" />
+              </div>
+              <div v-else-if="item.prop === 'description'">
+                <el-input
+                  v-model="scope.row.description"
+                  size="small"
+                  maxlength="200"
+                  :placeholder="$t('commons.description')"
+                  show-word-limit>
+                </el-input>
+              </div>
+              <div v-else-if="item.prop === 'urlEncode'">
+                <el-select v-model="scope.row.urlEncode" size="small" clearable style="width: 100px">
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"></el-option>
+                </el-select>
+              </div>
+              <div v-else>
+                {{ item.prop }}
+              </div>
+            </div>
+          </template>
+        </el-table-column>
 
-            <el-autocomplete
-              :disabled="isReadOnly"
-              v-if="suggestions"
-              v-model="item.name"
-              size="small"
-              :fetch-suggestions="querySearch"
-              @change="change"
-              :placeholder="keyText"
-              show-word-limit />
-          </el-col>
-
-          <el-col class="item kv-select" style="width: 130px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0">
-                {{ $t('api_test.definition.document.table_coloum.is_required') }}</span
-              >
-            </el-row>
-            <el-select v-model="item.required" size="small" style="width: 120px">
-              <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id" />
-            </el-select>
-          </el-col>
-
-          <el-col class="item" v-if="isActive && item.type !== 'file'" style="min-width: 200px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ valueText }}</span>
-            </el-row>
-            <el-autocomplete
-              :disabled="isReadOnly"
-              size="small"
-              class="input-with-autocomplete"
-              v-model="item.value"
-              :fetch-suggestions="funcSearch"
-              :placeholder="valueText"
-              value-key="name"
-              highlight-first-item
-              @select="change">
-              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
-            </el-autocomplete>
-          </el-col>
-
-          <el-col v-if="isActive && item.type === 'file'" class="item" style="min-width: 200px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ valueText }}</span>
-            </el-row>
-            <ms-api-body-file-upload :parameter="item" :id="id" :is-read-only="isReadOnly" />
-          </el-col>
-
-          <el-col v-if="type === 'body'" class="item kv-select" style="min-width: 160px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ $t('api_test.request.content_type') }}</span>
-            </el-row>
-            <el-input
-              :disabled="isReadOnly"
-              v-model="item.contentType"
-              size="small"
-              @change="change"
-              :placeholder="$t('api_test.request.content_type')"
-              show-word-limit>
-            </el-input>
-          </el-col>
-
-          <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ $t('schema.minLength') }}</span>
-            </el-row>
-            <el-input-number
-              :min="0"
-              v-model="item.min"
-              :placeholder="$t('schema.minLength')"
-              size="small"
-              style="width: 140px" />
-          </el-col>
-
-          <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ $t('schema.maxLength') }}</span>
-            </el-row>
-            <el-input-number
-              :min="0"
-              v-model="item.max"
-              :placeholder="$t('schema.maxLength')"
-              size="small"
-              style="width: 140px" />
-          </el-col>
-
-          <el-col v-if="showColumns('ENCODE')" class="item kv-select" style="width: 130px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ $t('commons.encode') }}</span>
-            </el-row>
-            <el-select v-model="item.urlEncode" size="small" clearable style="width: 100px">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
-          </el-col>
-
-          <el-col class="item" v-if="showColumns('DESCRIPTION')" style="min-width: 300px; padding: 0 5px">
-            <el-row>
-              <span class="param-header-span" v-if="index === 0"> {{ $t('commons.description') }}</span>
-            </el-row>
-            <el-input
-              v-model="item.description"
-              size="small"
-              maxlength="200"
-              :placeholder="$t('commons.description')"
-              show-word-limit>
-            </el-input>
-          </el-col>
-
-          <el-col v-if="withMoreSetting" class="item kv-setting">
-            <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">
-              <i class="el-icon-setting" @click="openApiVariableSetting(item)" />
-            </el-tooltip>
-          </el-col>
-
-          <el-col class="item kv-delete">
+        <el-table-column prop="uuid" :label="$t('commons.operating')" width="140px" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-switch
+              size="mini"
+              style="margin-right: 5px"
+              :disabled="!(isShowEnable && !isDisable(scope.$index)) || isReadOnly"
+              v-model="scope.row.enable" />
             <el-button
               size="mini"
               class="el-icon-delete-solid"
+              style="margin-right: 5px"
               circle
-              @click="remove(index)"
-              :disabled="isDisable(index) || isReadOnly" />
-          </el-col>
-        </el-row>
-      </div>
+              @click="remove(scope.$index)"
+              :disabled="isDisable(scope.$index) || isReadOnly" />
+            <i class="el-icon-top" style="cursor: pointer" @click="moveTop(scope.$index)" />
+            <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(scope.$index)" />
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
 
     <ms-api-variable-advance
@@ -226,6 +213,10 @@ export default {
       type: String,
       default: '',
     },
+    paramType: {
+      type: String,
+      default: 'request',
+    },
     appendDialogToBody: {
       type: Boolean,
       default() {
@@ -254,6 +245,9 @@ export default {
       isSelectAll: true,
       isActive: true,
       paramColumns: [],
+      storageKey: 'API_PARAMS_SHOW_FIELD',
+      editRowIndex: -1,
+      tableColumnArr: [],
       options: [
         {
           value: true,
@@ -291,6 +285,73 @@ export default {
     },
   },
   methods: {
+    closeAllTableDataEdit() {
+      this.parameters.forEach((item) => {
+        item.isEdit = false;
+      });
+    },
+    getTableMinWidth(col) {
+      if (col === 'name') {
+        return '200px';
+      } else if (col === 'value') {
+        return '300px';
+      } else if (col === 'description') {
+        return '200px';
+      } else {
+        return '120px';
+      }
+    },
+    clickRow(row, column, event) {
+      this.closeAllTableDataEdit();
+      if (!this.isReadOnly) {
+        this.$nextTick(() => {
+          this.$set(row, 'isEdit', true);
+        });
+      }
+    },
+    initTableColumn() {
+      this.tableColumnArr = [];
+      if (this.type === 'body') {
+        this.tableColumnArr.push({
+          id: 0,
+          prop: 'type',
+          label: this.$t('api_test.definition.document.request_param') + this.$t('commons.type'),
+        });
+      }
+      this.tableColumnArr.push({ id: 1, prop: 'name', label: this.$t('api_definition.document.name') });
+      this.tableColumnArr.push({ id: 3, prop: 'required', label: this.$t('api_definition.document.is_required') });
+      this.tableColumnArr.push({ id: 4, prop: 'value', label: this.$t('api_definition.document.value') });
+      if (this.type === 'body') {
+        this.tableColumnArr.push({ id: 2, prop: 'contentType', label: this.$t('api_definition.document.type') });
+      }
+      if (this.paramColumns) {
+        this.paramColumns.forEach((item) => {
+          let tableColumn = {};
+          if (item === 'MIX_LENGTH') {
+            tableColumn.id = 5;
+            tableColumn.prop = 'min';
+            tableColumn.label = this.$t('schema.minLength');
+          } else if (item === 'MAX_LENGTH') {
+            tableColumn.id = 6;
+            tableColumn.prop = 'max';
+            tableColumn.label = this.$t('schema.maxLength');
+          } else if (item === 'ENCODE') {
+            tableColumn.id = 7;
+            tableColumn.prop = 'urlEncode';
+            tableColumn.label = this.$t('commons.encode');
+          } else if (item === 'DESCRIPTION') {
+            tableColumn.id = 8;
+            tableColumn.prop = 'description';
+            tableColumn.label = this.$t('commons.description');
+          } else {
+            tableColumn = null;
+          }
+          if (tableColumn) {
+            this.tableColumnArr.push(tableColumn);
+          }
+        });
+      }
+    },
     showColumns(columns) {
       return this.paramColumns.indexOf(columns) >= 0;
     },
@@ -359,6 +420,7 @@ export default {
             urlEncode: this.urlEncode,
             uuid: this.uuid(),
             required: false,
+            isEdit: false,
             contentType: 'text/plain',
           })
         );
@@ -443,6 +505,9 @@ export default {
     },
   },
   created() {
+    if (this.paramType === 'response') {
+      this.storageKey = 'API_RESPONSE_PARAMS_SHOW_FIELD';
+    }
     if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
       this.parameters.push(
         new KeyValue({
@@ -451,14 +516,25 @@ export default {
           required: false,
           urlEncode: this.urlEncode,
           uuid: this.uuid(),
+          isEdit: false,
           contentType: 'text/plain',
         })
       );
     }
-    let savedApiParamsShowFields = getShowFields('API_PARAMS_SHOW_FIELD');
+    let savedApiParamsShowFields = getShowFields(this.storageKey);
     if (savedApiParamsShowFields) {
       this.paramColumns = savedApiParamsShowFields;
     }
+    this.parameters.forEach((item) => {
+      this.$set(item, 'isEdit', false);
+    });
+    this.initTableColumn();
+  },
+  activated() {
+    this.initTableColumn();
+  },
+  mounted() {
+    this.initTableColumn();
   },
 };
 </script>
@@ -514,5 +590,9 @@ export default {
 .param-header-span {
   margin-bottom: 5px;
   font-weight: 600;
+}
+
+.param-div-show {
+  min-height: 16px;
 }
 </style>

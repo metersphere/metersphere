@@ -33,7 +33,7 @@
         </el-tooltip>
       </el-col>
 
-      <el-col style="width: 120px; padding: 0 5px">
+      <el-col style="width: 120px; padding: 0 5px" class="ms-col-name">
         <el-select
           v-model="pickValue.type"
           :disabled="disabled || disabledType"
@@ -44,7 +44,7 @@
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
-      <el-col style="min-width: 200px; padding: 0 5px">
+      <el-col class="ms-col-name" style="min-width: 200px; padding: 0 5px">
         <ms-mock
           :disabled="
             disabled ||
@@ -60,10 +60,10 @@
           style="width: 100%"
           @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
-
-      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
           :min="0"
+          :controls="false"
           v-model="pickValue.minLength"
           :placeholder="$t('schema.minLength')"
           size="small"
@@ -77,9 +77,10 @@
           style="width: 140px" />
       </el-col>
 
-      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
           :min="0"
+          :controls="false"
           v-model="pickValue.maxLength"
           :placeholder="$t('schema.maxLength')"
           size="small"
@@ -93,7 +94,7 @@
           style="width: 140px" />
       </el-col>
 
-      <el-col v-if="showColumns('DEFAULT')" class="item kv-select" style="min-width: 200px; padding: 0 5px">
+      <el-col v-if="showColumns('DEFAULT')" class="item kv-select ms-col-name" style="min-width: 200px; padding: 0 5px">
         <el-input
           :disabled="
             disabled ||
@@ -108,7 +109,7 @@
           style="width: 100%"
           size="small" />
       </el-col>
-      <el-col v-if="showColumns('PATTERN')" style="min-width: 200px; padding: 0 5px">
+      <el-col v-if="showColumns('PATTERN')" class="ms-col-name" style="min-width: 200px; padding: 0 5px">
         <el-input
           :disabled="
             disabled ||
@@ -122,7 +123,7 @@
           :placeholder="$t('schema.pattern')"
           size="small" />
       </el-col>
-      <el-col v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
+      <el-col v-if="showColumns('FORMAT')" class="ms-col-name" style="min-width: 120px; padding: 0 5px">
         <div v-if="advancedAttr.format">
           <el-select
             :disabled="
@@ -143,17 +144,23 @@
           <el-input :disabled="true" size="small" :placeholder="$t('schema.format')"></el-input>
         </div>
       </el-col>
-      <el-col v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
+      <el-col v-if="showColumns('ENUM')" class="ms-col-name" style="min-width: 300px; padding: 0 5px">
         <el-input
           type="textarea"
-          autosize
-          :disabled="disabled"
+          :autosize="{ minRows: 1, maxRows: 2 }"
+          :disabled="
+            disabled ||
+            pickValue.type === 'object' ||
+            pickKey === 'root' ||
+            pickValue.type === 'array' ||
+            pickValue.type === 'null'
+          "
           v-model="pickValue.enum"
           class="ms-col-title"
           :placeholder="$t('schema.enum')"
           size="small" />
       </el-col>
-      <el-col v-if="showColumns('DESCRIPTION')" style="min-width: 300px; padding: 0 5px">
+      <el-col v-if="showColumns('DESCRIPTION')" class="ms-col-name" style="min-width: 300px; padding: 0 5px">
         <el-input
           :disabled="disabled"
           v-model="pickValue.description"
@@ -162,7 +169,7 @@
           size="small" />
       </el-col>
       <!--其余操作-->
-      <el-col style="width: 220px" class="col-item-setting" v-if="!disabled">
+      <el-col style="width: 220px" class="col-item-setting ms-col-name" v-if="!disabled">
         <div style="width: 80px">
           <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
             <i class="el-icon-setting" @click="onSetting" />
@@ -182,6 +189,7 @@
         v-for="(item, key, index) in pickValue.properties"
         :value="{ [key]: item }"
         :parent="pickValue"
+        :expand-all-params="expandAllParams"
         :key="index"
         :deep="deep + 1"
         :root="false"
@@ -202,6 +210,7 @@
         v-for="(item, key, index) in pickValue.items"
         :value="{ [key]: item }"
         :parent="pickValue"
+        :expand-all-params="expandAllParams"
         :key="index"
         :deep="deep + 1"
         :root="false"
@@ -288,6 +297,12 @@ export default {
     value: {
       type: Object,
       required: true,
+    },
+    expandAllParams: {
+      type: Boolean,
+      default() {
+        return false;
+      },
     },
     paramColumns: Array,
     showMockVars: {
@@ -393,15 +408,30 @@ export default {
     };
   },
   created() {
-    if (this.pickValue) {
-      if (this.pickValue.hidden === undefined) {
-        this.hidden = this.root ? false : true;
-      } else {
-        this.hidden = this.root ? false : this.pickValue.hidden;
-      }
+    if (this.expandAllParams) {
+      this.hidden = false;
     } else {
-      this.hidden = true;
+      if (this.pickValue) {
+        if (this.pickValue.hidden === undefined) {
+          this.hidden = this.root ? false : true;
+        } else {
+          this.hidden = this.root ? false : this.pickValue.hidden;
+        }
+      } else {
+        this.hidden = true;
+      }
     }
+  },
+  watch: {
+    expandAllParams() {
+      if (this.expandAllParams) {
+        this.hidden = false;
+      } else {
+        if (!this.root) {
+          this.hidden = true;
+        }
+      }
+    },
   },
   methods: {
     showColumns(columns) {
