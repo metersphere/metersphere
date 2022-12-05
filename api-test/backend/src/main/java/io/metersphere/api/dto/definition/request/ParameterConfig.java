@@ -22,10 +22,12 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 public class ParameterConfig extends MsParameter {
@@ -221,5 +223,46 @@ public class ParameterConfig extends MsParameter {
                 }
             }
         }
+    }
+
+    public void margeVariables(List<ScenarioVariable> variables, List<ScenarioVariable> transferVariables) {
+        if (CollectionUtils.isNotEmpty(transferVariables)) {
+            List<ScenarioVariable> constants = variables.stream().filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
+            Map<String, List<ScenarioVariable>> transferVariableGroup =
+                    transferVariables.stream().collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
+            Map<String, List<ScenarioVariable>> constantsGroup =
+                    constants.stream().collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
+            // 更新相同名称的值
+            for (ScenarioVariable constant : constants) {
+                if (transferVariableGroup.containsKey(constant.getName())
+                        && CollectionUtils.isNotEmpty(transferVariableGroup.get(constant.getName()))) {
+                    constant.setValue(transferVariableGroup.get(constant.getName()).get(0).getValue());
+                }
+            }
+            // 添加当前没有的值
+            transferVariables.forEach(item -> {
+                if (!constantsGroup.containsKey(item.getName())) {
+                    variables.add(item);
+                }
+            });
+        }
+    }
+
+    public void margeParentVariables(List<ScenarioVariable> variables, MsTestElement parent) {
+        // 取出父级场景且父场景不是顶级场景
+        MsScenario scenario = getScenario(parent);
+        if (scenario == null || BooleanUtils.isFalse(scenario.getMixEnable()) || CollectionUtils.isEmpty(scenario.getVariables())) {
+            return;
+        }
+        this.margeVariables(variables, scenario.getVariables());
+    }
+
+    private MsScenario getScenario(MsTestElement parent) {
+        if (parent != null && parent instanceof MsScenario) {
+            return parent.getParent() != null ? (MsScenario) parent : null;
+        } else if (parent != null && parent.getParent() != null) {
+            getScenario(parent.getParent());
+        }
+        return null;
     }
 }

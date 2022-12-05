@@ -42,15 +42,21 @@
 
     <ms-add-api-case :currentProtocol="currentProtocol" ref="apiCase" />
 
-    <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="400px">
+    <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="700px">
       <ul>
         <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if="showEnableScenario">
           <el-checkbox v-model="data.environmentEnable" @change="checkEnv">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
         </el-tooltip>
-        <el-checkbox v-model="data.variableEnable">
+        <br />
+
+        <el-checkbox v-model="data.variableEnable" @change="variableChange">
           {{ $t('commons.variable_scene') }}
+        </el-checkbox>
+        <br />
+        <el-checkbox v-model="data.mixEnable" @change="mixChange">
+          {{ $t('api_case.mix_enable') }}
         </el-checkbox>
       </ul>
     </el-dialog>
@@ -100,6 +106,16 @@ export default {
     this.allSamplers = this.filter.get('DEFINITION');
   },
   methods: {
+    variableChange() {
+      if (this.data.variableEnable) {
+        this.data.mixEnable = false;
+      }
+    },
+    mixChange() {
+      if (this.data.mixEnable) {
+        this.data.variableEnable = false;
+      }
+    },
     handleCommand(cmd) {
       switch (cmd) {
         case 'copy':

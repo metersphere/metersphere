@@ -5,6 +5,7 @@ import mf from 'metersphere-frontend/src/i18n/lang/en-US';
 const message = {
   api_case: {
     please_add_api_case: 'Please add api case',
+    mix_enable: 'The current scene variable is used first, and the original scene variable is used if there is no',
   },
   api_definition: {
     debug_pool_warning:

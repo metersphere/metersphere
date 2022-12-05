@@ -60,7 +60,7 @@ export default {
       return this.height ? (this.height + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 50px)')
     },
     containerCalHeight() {
-      return this.height ? (this.height - 30 + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 60px)')
+      return this.height ? (this.height - 30 + 'px') : (this.enableAutoHeight ? null : 'calc(100vh - 62px)')
     },
   },
   created() {
