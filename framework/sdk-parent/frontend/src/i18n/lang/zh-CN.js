@@ -895,6 +895,7 @@ const message = {
       delete_tip: '此版本已经关联系统资源，此操作会将所关联的资源一并删除',
       checkout: '切换',
       compare: '对比',
+      set_new: '置新',
       change_latest_tip: '此操作会修改接口，场景，测试用例等列表页面的默认展示，可能会消耗一些时间。请耐心等待！'
     },
     project_file: {
@@ -1920,8 +1921,8 @@ const message = {
       no_cover_tip_scenario_1: "1. 系统已存在的同一场景，则不做变更",
       no_cover_tip_scenario_2: "2. 系统不存在的场景则新增",
       import_version: '导入版本',
-      data_update_version: '数据更新版本',
-      data_new_version: '数据创建版本',
+      data_update_version: '同一API更新到',
+      data_new_version: '新增API创建到',
       latest_version: '最新版本',
     },
     home_page: {
