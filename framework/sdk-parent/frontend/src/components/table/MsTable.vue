@@ -546,6 +546,7 @@ export default {
         this.tableActive = true;
       });
       this.listenRowDrop();
+      this.$emit('headChange');
     },
     toggleRowSelection() {
       this.$refs.table.toggleRowSelection();

@@ -6,7 +6,8 @@ import Sortable from 'sortablejs'
 import {datetimeFormat} from "fit2cloud-ui/src/filters/time";
 import {hasLicense} from "../utils/permission";
 import {getUUID, humpToLine} from "./index";
-import {CUSTOM_FIELD_TYPE_OPTION} from "./table-constants";
+import {CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_MAP} from "./table-constants";
+import {generateColumnKey} from "../components/search/custom-component";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -307,8 +308,22 @@ export function getTableHeaderWithCustomFields(key, customFields, projectMembers
     let field = {
       id: item.name,
       key: item.key,
-      label: item.name,
-      isCustom: true
+      label: item.system ? i18n.t(SYSTEM_FIELD_NAME_MAP[item.name]) : item.name,
+      type: item.type,
+      isCustom: true,
+      sortable: ['richText', 'textarea'].indexOf(item.type) > -1 ? false : true,
+      columnKey: generateColumnKey(item),
+      filters: getCustomFieldFilter(item)
+    }
+    // 设置宽度
+    if (!field.minWidth) {
+      field.minWidth = 25 + field.label.length * 16;
+      if (field.sortable) {
+        field.minWidth += 20;
+      }
+      if (field.filters && field.filters.length > 0) {
+        field.minWidth += 20;
+      }
     }
     fieldSetting.push(field);
     if ((item.type === 'member' || item.type === 'multipleMember') && projectMembers && projectMembers.length > 0) {
@@ -684,7 +699,14 @@ export function getCustomFieldFilter(field, userFilter) {
     .filter(x => x.hasOption)
     .map(x => x.value);
 
-  return optionTypes.indexOf(field.type) > -1 && Array.isArray(field.options) ?
-    (field.options.length > 0 ? field.options : null) : null;
+  if (optionTypes.indexOf(field.type) > -1 && Array.isArray(field.options) && field.options.length > 0) {
+    field.options.forEach(item => {
+      if (item.system && i18n.t(item.text)) {
+        item.text = i18n.t(item.text);
+      }
+    });
+    return field.options;
+  }
+  return null;
 }
 
