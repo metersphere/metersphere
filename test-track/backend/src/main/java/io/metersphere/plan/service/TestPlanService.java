@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.constants.DataStatus;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
@@ -420,7 +421,7 @@ public class TestPlanService {
         try {
             List<String> execResults = getResultFunc.apply(planId);
             execResults.forEach(item -> {
-                if (StringUtils.isNotBlank(item) && !StringUtils.equalsIgnoreCase("UnExecute", item)) {
+                if (StringUtils.isNotBlank(item) && !StringUtils.equalsIgnoreCase(DataStatus.UNEXECUTE.getValue(), item) && !StringUtils.equalsIgnoreCase(DataStatus.PREPARE.getValue(), item)) {
                     testPlan.setTested(testPlan.getTested() + 1);
                     if (StringUtils.equalsIgnoreCase(item, APITestStatus.Success.name())) {
                         testPlan.setPassed(testPlan.getPassed() + 1);
