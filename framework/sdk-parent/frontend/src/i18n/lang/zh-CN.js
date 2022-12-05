@@ -1086,7 +1086,8 @@ const message = {
     avg_response_time: '平均响应时间',
     tps: '每秒传输的事物处理个数',
     plan_share_url: '链接跳转是否登陆',
-    rename_report: '重命名报告'
+    rename_report: '重命名报告',
+    run_model: '运行模式'
   },
   load_test: {
     exist_related_file: '已存在的关联文件',

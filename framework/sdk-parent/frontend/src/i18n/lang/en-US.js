@@ -1078,7 +1078,8 @@ const message = {
     avg_response_time: 'Average Response Time',
     tps: 'Transactions Per Second',
     plan_share_url: 'Whether the link jump is logged in',
-    rename_report: 'Rename report'
+    rename_report: 'Rename report',
+    run_model: 'Run model'
   },
   load_test: {
     exist_related_file: 'Existed Relate Files',
