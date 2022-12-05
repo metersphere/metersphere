@@ -35,6 +35,7 @@ const TRACK_HEADER = {
     {id: 'testPlanTestCaseCount', key: 'g', label: 'test_track.plan.test_plan_test_case_count'},
     {id: 'testPlanApiCaseCount', key: 'h', label: 'test_track.plan.test_plan_api_case_count'},
     {id: 'testPlanApiScenarioCount', key: 'i', label: 'test_track.plan.test_plan_api_scenario_count'},
+    {id: 'testPlanUiScenarioCount', key: 'l', label: 'test_track.plan.test_plan_ui_scenario_count', xpack: true},
     {id: 'testPlanLoadCaseCount', key: 'j', label: 'test_track.plan.test_plan_load_case_count'},
     {id: 'principalName', key: 'k', label: 'test_track.plan.plan_principal'},
   ],

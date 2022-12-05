@@ -165,7 +165,8 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <micro-app :to="`/ui/report/view/${reportId}?showCancelButton=false`" service="ui"/>
+          <micro-app :to="`/ui/report/view/${reportId}`" route-name="ApiReportView"
+                     :route-params="{showCancelButton: false, reportId}" service="ui"/>
         </el-drawer>
       </div>
     </el-card>
