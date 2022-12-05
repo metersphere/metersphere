@@ -1,5 +1,5 @@
 export default {
-  sync_add_api_load: '同步添加关联的接口和性能测试',
+  sync_add_api_load: '同步添加关联测试的用例',
   next: '下一条',
   total_size: '共 {0} 条',
   related_requirements: '关联需求',

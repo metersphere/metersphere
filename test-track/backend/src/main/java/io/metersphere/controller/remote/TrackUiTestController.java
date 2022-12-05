@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServletRequest;
         "/test/plan/uiScenario/case",
         "/ui/scenario/module",
         "/share/test/plan/uiScenario/case",
-        "/ui/automation"
+        "/ui/automation",
+        "/test/case/relevance/uiScenario"
 })
 public class TrackUiTestController {
     @Resource

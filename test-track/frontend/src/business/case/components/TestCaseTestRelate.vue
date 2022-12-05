@@ -8,6 +8,7 @@
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="api">{{ $t('api_test.home_page.failed_case_list.table_value.case_type.api') }}</el-dropdown-item>
         <el-dropdown-item command="scenario">{{ $t('api_test.home_page.failed_case_list.table_value.case_type.scene') }}</el-dropdown-item>
+        <el-dropdown-item command="ui" v-xpack>{{ $t('api_test.home_page.failed_case_list.table_value.case_type.ui') }}</el-dropdown-item>
         <el-dropdown-item command="performance">{{$t('api_test.home_page.failed_case_list.table_value.case_type.load')}}</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -61,6 +62,13 @@
       @refresh="initTable"
       ref="apiScenarioRelevance"/>
 
+    <test-case-ui-scenario-relate
+      :case-id="caseId"
+      :versionEnable="versionEnable"
+      :not-in-ids="notInIds"
+      @refresh="initTable"
+      ref="uiScenarioRelevance"/>
+
     <test-case-load-relate
       :case-id="caseId"
       :not-in-ids="notInIds"
@@ -77,11 +85,15 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import TestCaseApiRelate from "@/business/case/components/TestCaseApiRelate";
 import {deleteRelateTest, getRelateTest} from "@/api/testCase";
 import TestCaseScenarioRelate from "@/business/case/components/TestCaseScenarioRelate";
+import TestCaseUiScenarioRelate from "@/business/case/components/TestCaseUiScenarioRelate";
 import TestCaseLoadRelate from "@/business/case/components/TestCaseLoadRelate";
-import i18n from "@/i18n";
+import TestCaseUiScenarioRelevance from "@/business/plan/view/comonents/ui/TestCaseUiScenarioRelevance";
+
 export default {
   name: "TestCaseTestRelate",
-  components: {TestCaseLoadRelate, TestCaseScenarioRelate, TestCaseApiRelate, MsTableColumn, MsTable},
+  components: {
+    TestCaseUiScenarioRelevance,
+    TestCaseLoadRelate, TestCaseScenarioRelate, TestCaseApiRelate, MsTableColumn, MsTable, TestCaseUiScenarioRelate},
   data() {
     return {
       data: [],
@@ -89,7 +101,8 @@ export default {
       typeMap: {
         testcase: this.$t('api_test.home_page.failed_case_list.table_value.case_type.api'),
         automation: this.$t('api_test.home_page.failed_case_list.table_value.case_type.scene'),
-        performance: this.$t('api_test.home_page.failed_case_list.table_value.case_type.load')
+        performance: this.$t('api_test.home_page.failed_case_list.table_value.case_type.load'),
+        uiAutomation: this.$t('api_test.home_page.failed_case_list.table_value.case_type.ui')
       },
       operators: [
         {
@@ -122,6 +135,8 @@ export default {
         this.$refs.apiScenarioRelevance.open();
       } else if (key === 'performance') {
         this.$refs.loadRelevance.open();
+      } else if (key === 'ui') {
+        this.$refs.uiScenarioRelevance.open();
       }
     },
     remove(row) {

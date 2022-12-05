@@ -35,6 +35,7 @@ import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.remote.ui.RelevanceUiCaseService;
 import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testcase.*;
@@ -145,6 +146,8 @@ public class TestCaseService {
     private RelevanceApiCaseService relevanceApiCaseService;
     @Resource
     private RelevanceLoadCaseService relevanceLoadCaseService;
+    @Resource
+    private RelevanceUiCaseService relevanceUiCaseService;
     //    @Resource
     //    @Lazy
     //    private ApiTestCaseService apiTestCaseService;
@@ -2593,6 +2596,7 @@ public class TestCaseService {
         List<ApiTestCase> apiCases = new ArrayList<>();
         List<ApiScenario> apiScenarios = new ArrayList<>();
         List<LoadTest> apiLoadTests = new ArrayList<>();
+        List<UiScenario> uiScenarios = new ArrayList<>();
 
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             apiCases = relevanceApiCaseService.getApiCaseByIds(
@@ -2610,6 +2614,13 @@ public class TestCaseService {
                     getTestIds(testCaseTests, TestCaseTestType.performance.name()));
             projectIds.addAll(apiLoadTests.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
             versionIds.addAll(apiLoadTests.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
+        }
+
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            uiScenarios = relevanceUiCaseService.getUiCaseByIds(
+                    getTestIds(testCaseTests, TestCaseTestType.uiAutomation.name()));
+            projectIds.addAll(uiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+            versionIds.addAll(uiScenarios.stream().map(l -> l.getVersionId()).collect(Collectors.toList()));
         }
 
 
@@ -2645,6 +2656,10 @@ public class TestCaseService {
         });
         apiLoadTests.forEach(item -> {
             getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        uiScenarios.forEach(item -> {
+            getTestCaseTestDaoList(TestCaseTestType.uiAutomation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         return testCaseTestList;

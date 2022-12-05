@@ -1,5 +1,5 @@
 export default {
-  sync_add_api_load: 'Synchronously add associated api and load tests',
+  sync_add_api_load: 'Synchronously add associated test case',
   next: 'Next',
   total_size: 'Total {0}',
   related_requirements: 'Related requirements',

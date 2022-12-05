@@ -836,7 +836,14 @@
         FROM test_case_test
         WHERE test_type = 'automation'
           and test_id IN (select id FROM api_scenario WHERE `STATUS` != 'Trash')
-            )
+        <if test="queryUI">
+        UNION
+        SELECT test_case_id, test_id, test_type
+        FROM test_case_test
+        WHERE test_type = 'uiAutomation'
+          and test_id IN (select id FROM ui_scenario WHERE `STATUS` != 'Trash')
+        </if>
+        )
             test_case_test
         ON test_case.id = test_case_test.test_case_id
         WHERE
@@ -869,6 +876,11 @@
                 UNION
                 SELECT test_case_id FROM test_case_test WHERE test_type = 'automation' and test_id IN (select id FROM
                 api_scenario WHERE `STATUS` != 'Trash')
+                <if test="queryUi">
+                    UNION
+                    SELECT test_case_id FROM test_case_test WHERE test_type = 'uiAutomation' and test_id IN (select id FROM
+                    ui_scenario WHERE `STATUS` != 'Trash')
+                </if>
         )
     </select>
     <select id="countFuncMaintainer" resultType="io.metersphere.dto.TrackCountResult">
