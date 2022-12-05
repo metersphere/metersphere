@@ -12,7 +12,6 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.WebSocketUtil;
@@ -186,7 +185,6 @@ public class ApiScenarioController {
 
     @PostMapping("/scenario-env")
     public ScenarioEnv getScenarioDefinition(@RequestBody ApiScenarioEnvRequest request) {
-        LogUtil.info("获取前台传输    " + System.currentTimeMillis());
         return apiAutomationService.getApiScenarioEnv(request.getDefinition());
     }
 
