@@ -85,6 +85,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String alias;
     private boolean customizeReq;
     private final static String DEF_TIME_OUT = "60000";
+    //客户端实现
+    private String implementation;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -125,6 +127,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setAutoRedirects(this.isAutoRedirects());
+        sampler.setImplementation(this.getImplementation());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
         if (config.getConfig() == null) {
