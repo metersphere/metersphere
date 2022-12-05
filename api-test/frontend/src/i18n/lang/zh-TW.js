@@ -5,6 +5,7 @@ import mf from 'metersphere-frontend/src/i18n/lang/zh-TW';
 const message = {
   api_case: {
     please_add_api_case: '请先添加接口用例',
+    mix_enable: '優先使用當前場景變量，沒有則使用原場景變量',
   },
   api_definition: {
     debug_pool_warning: '調用資源池執行失敗，請檢查資源池是否配置正常',

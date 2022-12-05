@@ -1524,7 +1524,7 @@ export default {
           }
           this.resetResourceId(item.hashTree, item.referenced);
           item.enable === undefined ? (item.enable = true) : item.enable;
-          item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
+          item.mixEnable = item.mixEnable === undefined && !item.variableEnable ? true : item.mixEnable;
           if (this.selectedTreeNode) {
             if (this.stepFilter.get('SpecialSteps').indexOf(this.selectedTreeNode.type) !== -1) {
               this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, item);
