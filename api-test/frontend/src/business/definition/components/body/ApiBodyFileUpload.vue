@@ -1,8 +1,15 @@
 <template>
   <span v-if="showHide">
-    <el-upload action="#" class="ms-upload-header" list-type="picture-card" :file-list="parameter.files" ref="upload">
+    <el-upload
+      action="#"
+      class="ms-upload-header"
+      list-type="picture-card"
+      :disabled="disabled"
+      :file-list="parameter.files"
+      ref="upload">
       <div class="upload-default" @click.stop>
-        <el-popover placement="right" trigger="hover">
+        <i class="el-icon-plus" v-show="disabled" slot="reference" />
+        <el-popover placement="right" v-show="!disabled" trigger="hover">
           <div>
             <el-upload
               action="#"
@@ -64,7 +71,6 @@ export default {
   },
   data() {
     return {
-      disabled: false,
       file: {},
       showHide: true,
     };
@@ -76,6 +82,10 @@ export default {
       return {};
     },
     isReadOnly: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },
