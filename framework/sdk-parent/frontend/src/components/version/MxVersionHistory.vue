@@ -51,6 +51,11 @@
           <el-link @click="del(scope.row)" v-if="scope.row.isCheckout" :disabled="scope.row.isCurrent || isRead">
             {{ $t('commons.delete') }}&nbsp;
           </el-link>
+
+          <el-link @click="setLatest(scope.row)" v-if="hasLatest && !scope.row.isCurrent && scope.row.isCheckout"
+                   :disabled="scope.row.isCurrent || isRead">
+            {{ $t('project.version.set_new') }}&nbsp;
+          </el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -66,7 +71,7 @@
 
 import {getCurrentProjectID} from "../../utils/token";
 import {hasLicense} from "../../utils/permission";
-import {getProjectMembers, getProjectVersions, isProjectVersionEnable} from "../../api/version";
+import {getDefaultVersion, getProjectMembers, getProjectVersions, isProjectVersionEnable} from "../../api/version";
 
 export default {
   name: "MxVersionHistory",
@@ -88,7 +93,11 @@ export default {
       default() {
         return getCurrentProjectID();
       }
-    }
+    },
+    hasLatest: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -143,6 +152,10 @@ export default {
     del(row) {
       this.loading = true;
       this.$emit('del', row);
+    },
+    setLatest(row) {
+      this.loading = true;
+      this.$emit('setLatest', row);
     },
     handleVersionOptions() {
       let versionData = this.versionData;

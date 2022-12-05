@@ -18,6 +18,13 @@ public class ApiDefinitionImportParamDTO {
     private List<ApiDefinitionWithBLOBs> updateList;
     private List<ApiTestCaseWithBLOBs> caseList;
 
+    private List<ApiDefinitionWithBLOBs> repeatList;
+
+
+
+
+
+
     public ApiDefinitionImportParamDTO() {
     }
 
@@ -28,4 +35,6 @@ public class ApiDefinitionImportParamDTO {
         this.updateList = updateList;
         this.caseList = caseList;
     }
+
+
 }

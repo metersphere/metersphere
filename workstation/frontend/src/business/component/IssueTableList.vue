@@ -157,7 +157,7 @@ import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import {ISSUE_PLATFORM_OPTION, ISSUE_STATUS_MAP, SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
-import {getDashboardIssues, getIssuePartTemplateWithProject, getIssues} from "@/api/issue";
+import {getDashboardIssues, getIssuePartTemplateWithProject, getIssues, getPlatformOption} from "@/api/issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
@@ -192,10 +192,14 @@ export default {
       issueTemplate: {},
       members: [],
       isThirdPart: false,
+      platformOptions: [],
     };
   },
   activated() {
-
+    getPlatformOption()
+      .then((r) => {
+        this.platformOptions = r.data;
+      });
   },
   props: {
     isFocus: {
@@ -227,7 +231,9 @@ export default {
   },
   computed: {
     platformFilters() {
-      return ISSUE_PLATFORM_OPTION;
+      let options = [...ISSUE_PLATFORM_OPTION];
+      options.push(...this.platformOptions);
+      return options;
     },
     issueStatusMap() {
       return ISSUE_STATUS_MAP;

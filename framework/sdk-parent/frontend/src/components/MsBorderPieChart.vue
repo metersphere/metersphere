@@ -70,6 +70,7 @@ export default {
           {
             type: 'pie',
             radius: this.radius,
+            minAngle: 3,
             itemStyle: {
               borderRadius: 0,
               borderColor: '#fff',
@@ -77,7 +78,7 @@ export default {
             },
             label: {
               show: false,
-              position:'outside',
+              position: 'outside',
               formatter: '{c}, {d}%',
             },
             center: ['126', '128'],
@@ -270,15 +271,16 @@ export default {
           }
         },
         data:this.pieData,
-        formatter:function(name){
+        formatter:function(name) {
           //通过name获取到数组对象中的单个对象
-          let singleData = self.pieData.filter(function(item){
-            return item.name === name
-          })
-          if (!singleData[0].value) {
-            singleData[0].value = 0;
+          let singleData = self.pieData.filter(function (item) {
+            return item.name === name;
+          });
+          let showValue = singleData[0].value;
+          if (showValue === '-') {
+            showValue = 0;
           }
-          return [`{name|${name}}`, `{num|${singleData[0].value}}`].join("");
+          return [`{name|${name}}`, `{num|${showValue}}`].join('');
         }
       };
     })
