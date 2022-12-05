@@ -1,5 +1,5 @@
 <template>
-  <mavon-editor :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpenValue"
+  <mavon-editor v-loading="loading" :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpenValue"
                 :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px', 'min-width': '100px'}"
                 @change="change" :image-click="imageClick"
                 :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="!disabled"
@@ -80,7 +80,7 @@ export default {
   },
   data() {
     return {
-      result: {loading: false},
+      loading: false,
       id: getUUID(),
       xssOptions: {
         whiteList: {
@@ -183,13 +183,13 @@ export default {
   },
   methods: {
     imgAdd(pos, file) {
-      this.result.loading = true;
+      this.loading = true;
       uploadMarkDownImg(file)
         .then((r) => {
           this.$success(this.$t('commons.save_success'));
           let url = '/resource/md/get?fileName=' + r.data;
           this.$refs.md.$img2Url(pos, url);
-          this.result.loading = false;
+          this.loading = false;
         });
       this.$emit('imgAdd', file);
     },
