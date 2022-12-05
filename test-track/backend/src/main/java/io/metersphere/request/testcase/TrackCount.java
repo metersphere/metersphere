@@ -9,4 +9,5 @@ public class TrackCount {
     public static final String TESTCASE = "testcase";
     public static final String PERFORMANCE = "performance";
     public static final String AUTOMATION = "automation";
+    public static final String UI_AUTOMATION = "uiAutomation";
 }

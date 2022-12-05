@@ -28,5 +28,8 @@ public class PlanCaseRelevanceRequest {
      */
     private List<String> testCaseIds = new ArrayList<>();
 
+    /**
+     * 是否同步关联功能用例下关联的接口场景性能ui用例
+     */
     private Boolean checked;
 }

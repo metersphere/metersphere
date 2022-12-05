@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="dashboard-card">
     <el-card shadow="never" class="box-card" style="height: 100%">
       <div slot="header" class="clearfix">

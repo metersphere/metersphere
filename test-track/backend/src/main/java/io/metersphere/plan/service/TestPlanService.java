@@ -628,22 +628,30 @@ public class TestPlanService {
         List<String> apiCaseIds = new ArrayList<>();
         List<String> scenarioIds = new ArrayList<>();
         List<String> performanceIds = new ArrayList<>();
-        buildCaseIdList(list, apiCaseIds, scenarioIds, performanceIds);
-        startRelevance(request, apiCaseIds, scenarioIds, performanceIds);
+        List<String> uiScenarioIds = new ArrayList<>();
+        buildCaseIdList(list, apiCaseIds, scenarioIds, performanceIds, uiScenarioIds);
+        startRelevance(request, apiCaseIds, scenarioIds, performanceIds, uiScenarioIds);
     }
 
-    private void startRelevance(PlanCaseRelevanceRequest request, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+    private void startRelevance(PlanCaseRelevanceRequest request, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds, List<String> uiScenarioIds) {
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
-            planTestPlanApiCaseService.relevanceByTestIds(apiCaseIds, request.getPlanId());
-            planTestPlanScenarioCaseService.relevanceByTestIds(scenarioIds, request.getPlanId());
+            if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+                planTestPlanApiCaseService.relevanceByTestIds(apiCaseIds, request.getPlanId());
+            }
+            if (CollectionUtils.isNotEmpty(scenarioIds)) {
+                planTestPlanScenarioCaseService.relevanceByTestIds(scenarioIds, request.getPlanId());
+            }
         }
-        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST) && CollectionUtils.isNotEmpty(performanceIds)) {
             planTestPlanLoadCaseService.relevanceByTestIds(performanceIds, request.getPlanId());
+        }
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST) && CollectionUtils.isNotEmpty(uiScenarioIds)) {
+            planTestPlanUiScenarioCaseService.relevanceByTestIds(uiScenarioIds, request.getPlanId());
         }
     }
 
-    private static void buildCaseIdList(List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds) {
+    private static void buildCaseIdList(List<TestCaseTest> list, List<String> apiCaseIds, List<String> scenarioIds, List<String> performanceIds, List<String> uiScenarioIds) {
         for (TestCaseTest l : list) {
             if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
                 performanceIds.add(l.getTestId());
@@ -653,6 +661,9 @@ public class TestPlanService {
             }
             if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
                 scenarioIds.add(l.getTestId());
+            }
+            if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.uiAutomation.name())) {
+                uiScenarioIds.add(l.getTestId());
             }
         }
     }
