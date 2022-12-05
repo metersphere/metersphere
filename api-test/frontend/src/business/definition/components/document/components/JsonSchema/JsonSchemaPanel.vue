@@ -16,7 +16,7 @@
           @blur="onInputName"
           size="small" />
       </el-col>
-      <el-col style="width: 120px; padding: 0 5px">
+      <el-col class="ms-col-name" style="width: 120px; padding: 0 5px">
         <el-select
           v-model="pickValue.type"
           :disabled="disabled || disabledType"
@@ -27,7 +27,7 @@
           <el-option :key="t" :value="t" :label="t" v-for="t in types" />
         </el-select>
       </el-col>
-      <el-col style="min-width: 200px; padding: 0 5px">
+      <el-col class="ms-col-name" style="min-width: 200px; padding: 0 5px">
         <ms-mock
           :disabled="
             disabled ||
@@ -42,12 +42,13 @@
           style="width: 100%"
           @editScenarioAdvance="editScenarioAdvance" />
       </el-col>
-      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+      <el-col v-if="showColumns('MIX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
           :min="0"
           v-model="pickValue.minLength"
           :placeholder="$t('schema.minLength')"
           size="small"
+          :controls="false"
           :disabled="
             disabled ||
             pickValue.type === 'object' ||
@@ -58,12 +59,13 @@
           style="width: 140px" />
       </el-col>
 
-      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select" style="width: 150px; padding: 0 5px">
+      <el-col v-if="showColumns('MAX_LENGTH')" class="item kv-select ms-col-name" style="width: 150px; padding: 0 5px">
         <el-input-number
           :min="0"
           v-model="pickValue.maxLength"
           :placeholder="$t('schema.maxLength')"
           size="small"
+          :controls="false"
           :disabled="
             disabled ||
             pickValue.type === 'object' ||
@@ -74,7 +76,7 @@
           style="width: 140px" />
       </el-col>
 
-      <el-col v-if="showColumns('DEFAULT')" class="item kv-select" style="min-width: 200px; padding: 0 5px">
+      <el-col v-if="showColumns('DEFAULT')" class="item kv-select ms-col-name" style="min-width: 200px; padding: 0 5px">
         <el-input
           :disabled="
             disabled ||
@@ -89,7 +91,7 @@
           style="width: 100%"
           size="small" />
       </el-col>
-      <el-col v-if="showColumns('PATTERN')" style="min-width: 200px; padding: 0 5px">
+      <el-col class="ms-col-name" v-if="showColumns('PATTERN')" style="min-width: 200px; padding: 0 5px">
         <el-input
           :disabled="
             disabled ||
@@ -103,10 +105,19 @@
           :placeholder="$t('schema.pattern')"
           size="small" />
       </el-col>
-      <el-col v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
+      <el-col class="ms-col-name" v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
         <el-input :disabled="true" size="small" :placeholder="$t('schema.format')"></el-input>
       </el-col>
-      <el-col v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
+      <el-col class="ms-col-name" v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
+        <el-input
+          :disabled="disabled"
+          type="textarea"
+          v-model="pickValue.enum"
+          class="ms-col-title"
+          :placeholder="$t('schema.enum')"
+          size="small" />
+      </el-col>
+      <el-col v-if="showColumns('DESCRIPTION')" class="ms-col-name" style="min-width: 300px; padding: 0 5px">
         <el-input
           :disabled="disabled"
           v-model="pickValue.description"
@@ -142,6 +153,7 @@
         :parent="pickValue"
         :key="index"
         :deep="deep + 1"
+        :disabled="disabled"
         :root="false"
         class="children"
         :param-columns="paramColumns"

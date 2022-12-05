@@ -76,7 +76,7 @@
             <div
               style="
                 width: 100%;
-                height: 144px;
+                height: 238px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;

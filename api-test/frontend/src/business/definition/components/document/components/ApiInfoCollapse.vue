@@ -60,18 +60,6 @@
                     :label="item.label"
                     show-overflow-tooltip>
                   </el-table-column>
-                  <el-table-column type="expand" v-if="tableCanExpand" :label="getCollapseOption()" width="80px">
-                    <template slot="header">
-                      <el-button type="text" size="mini" @click="expandAllRows">
-                        <span :id="tableExpandButtonId">
-                          {{ expandTitle }}
-                        </span>
-                      </el-button>
-                    </template>
-                    <template v-slot:default="scope">
-                      <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
-                    </template>
-                  </el-table-column>
                 </el-table>
               </div>
             </div>
