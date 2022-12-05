@@ -19,6 +19,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.service.definition.ApiDefinitionImportUtilService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
@@ -231,6 +232,7 @@ public class ApiScenarioImportUtil {
         } else {
             test.setPath(object.optString("path"));
         }
+        ApiDefinitionImportUtilService apiDefinitionImportUtilService = CommonBeanFactory.getBean(ApiDefinitionImportUtilService.class);
         test.setCreateUser(SessionUtils.getUserId());
         test.setProjectId(projectId);
         test.setCreateTime(System.currentTimeMillis());
@@ -259,7 +261,7 @@ public class ApiScenarioImportUtil {
         test.setResponse(httpResponse.toString());
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
-        test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
+        test.setOrder(apiDefinitionImportUtilService.getImportNextOrder(projectId));
         if (test.getName().length() > 255) {
             test.setName(test.getName().substring(0, 255));
         }
@@ -294,6 +296,7 @@ public class ApiScenarioImportUtil {
         } else {
             apiTestCase.setNum(apiDefinition.getNum() * 1000 + caseNameSet.size() + 1);
         }
+        ApiDefinitionImportUtilService apiDefinitionImportUtilService = CommonBeanFactory.getBean(ApiDefinitionImportUtilService.class);
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
@@ -303,7 +306,7 @@ public class ApiScenarioImportUtil {
         objectNew.remove("refType");
         objectNew.remove("referenced");
         apiTestCase.setRequest(objectNew.toString());
-        apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
+        apiTestCase.setOrder(apiDefinitionImportUtilService.getImportNextCaseOrder(projectId));
         if (apiTestCase.getName().length() > 255) {
             apiTestCase.setName(apiTestCase.getName().substring(0, 255));
         }
@@ -331,5 +334,4 @@ public class ApiScenarioImportUtil {
             }
         }
     }
-
 }

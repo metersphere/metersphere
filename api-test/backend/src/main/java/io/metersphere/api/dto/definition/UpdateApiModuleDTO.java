@@ -7,12 +7,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 public class UpdateApiModuleDTO {
-    private List<ApiModule> moduleList;
-    private List<ApiDefinitionWithBLOBs> needUpdateList;
+    private Boolean fullCoverage;
+    private ApiModuleDTO chooseModule;
+    private Map<String, String> idPathMap;
+    private Map<String, ApiModule> moduleMap;
     private List<ApiDefinitionWithBLOBs> definitionWithBLOBs;
     private List<ApiTestCaseWithBLOBs> caseWithBLOBs;
 
