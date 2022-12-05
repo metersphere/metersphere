@@ -59,6 +59,7 @@ public class ApiScenarioEnvService {
     private BaseEnvironmentService apiTestEnvironmentService;
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
+        LogUtil.info("开始数据转换   " + System.currentTimeMillis());
         ScenarioEnv env = new ScenarioEnv();
         if (StringUtils.isEmpty(definition)) {
             return env;
@@ -74,6 +75,7 @@ public class ApiScenarioEnvService {
                 getHashTree(testElement.getHashTree(), env);
             }
         }
+        LogUtil.info("数据转换结束   " + System.currentTimeMillis());
         return env;
     }
 
@@ -110,12 +112,14 @@ public class ApiScenarioEnvService {
                     || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
                 if (StringUtils.isEmpty(testElement.getProjectId())) {
                     if (StringUtils.equals(testElement.getRefType(), CommonConstants.CASE)) {
+                        LogUtil.info("引用用例查询数据库：");
                         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(testElement.getId());
                         if (testCase != null) {
                             env.getProjectIds().add(testCase.getProjectId());
                             env.setFullUrl(false);
                         }
                     } else {
+                        LogUtil.info("接口查询数据库");
                         ApiDefinition apiDefinition = apiDefinitionService.get(testElement.getId());
                         if (apiDefinition != null) {
                             env.getProjectIds().add(apiDefinition.getProjectId());
@@ -127,6 +131,7 @@ public class ApiScenarioEnvService {
                     env.setFullUrl(false);
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO) && StringUtils.isEmpty(testElement.getProjectId())) {
+                LogUtil.info("场景查询数据库");
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testElement.getId());
                 if (apiScenario != null) {
                     env.getProjectIds().add(apiScenario.getProjectId());
