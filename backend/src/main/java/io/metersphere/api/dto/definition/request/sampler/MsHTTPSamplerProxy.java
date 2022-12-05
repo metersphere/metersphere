@@ -126,6 +126,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 39)
     private boolean customizeReq;
 
+    //客户端实现
+    private String implementation;
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
@@ -166,6 +169,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
+        sampler.setImplementation(this.getImplementation());
         if (config.getConfig() == null) {
             // 单独接口执行
             if (StringUtils.isNotEmpty(config.getProjectId())) {
