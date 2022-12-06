@@ -4,21 +4,20 @@ import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
-import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.base.mapper.ext.BaseTaskMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.base.mapper.ext.BaseTaskMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
-import io.metersphere.jmeter.LocalRunner;
+import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.dto.TaskRequestDTO;
@@ -213,7 +212,6 @@ public class ExtApiTaskService extends TaskService {
                 }});
             }
         } else {
-            new LocalRunner().stop(reportId);
             JMeterThreadUtils.stop(reportId);
         }
     }
