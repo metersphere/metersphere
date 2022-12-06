@@ -8,6 +8,7 @@
             type="primary"
             size="mini"
             style="margin: 10px 10px 0px"
+            :disabled="isReadOnly"
             @click="openOneClickOperation">
             {{ this.$t('commons.import') }}
           </el-button>
@@ -24,7 +25,7 @@
             <json-schema-editor
               v-if="reloadedApiVariable"
               class="schema"
-              :disabled="jsonSchemaDisable"
+              :disabled="jsonSchemaDisable || isReadOnly"
               :value="schema"
               :show-mock-vars="showMockVars"
               :scenario-definition="scenarioDefinition"
@@ -81,6 +82,10 @@ export default {
       default() {
         return true;
       },
+    },
+    isReadOnly: {
+      type: Boolean,
+      default: false,
     },
   },
   created() {
