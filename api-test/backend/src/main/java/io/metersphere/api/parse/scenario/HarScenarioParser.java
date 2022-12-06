@@ -27,8 +27,7 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
     public ScenarioImport parse(InputStream source, ApiTestImportRequest request) {
         Har har = null;
         try {
-            String sourceStr = getApiTestStr(source);
-            har = HarUtils.read(sourceStr);
+            har = HarUtils.read(source);
         } catch (Exception e) {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
