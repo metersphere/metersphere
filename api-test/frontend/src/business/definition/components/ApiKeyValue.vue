@@ -81,6 +81,7 @@
             size="small"
             maxlength="200"
             :placeholder="$t('commons.description')"
+            :disabled="isReadOnly"
             show-word-limit>
           </el-input>
         </el-col>
