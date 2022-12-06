@@ -233,7 +233,7 @@
           </el-row>
           <el-row>
             <el-col>
-              <el-form-item label="Scope" :rules="requiredRules" prop="configuration.scope">
+              <el-form-item label="Scope" prop="configuration.scope">
                 <el-input v-model="form.configuration.scope"/>
               </el-form-item>
             </el-col>
