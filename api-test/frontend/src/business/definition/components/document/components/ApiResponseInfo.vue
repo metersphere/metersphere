@@ -2,7 +2,7 @@
   <div>
     <el-row class="apiInfoRow">
       <div>
-        <el-row>
+        <el-row v-if="formParamTypes.includes(apiInfo.responseBodyParamType)">
           <div style="float: right">
             <api-params-config
               v-if="apiParamsConfigFields"
