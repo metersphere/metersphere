@@ -133,9 +133,9 @@ export default {
     getCode() {
       if (this.node && this.node.data.code && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'ERROR') {
-          return 'error';
+          return 'Error';
         } else {
-          return 'success';
+          return 'Success';
         }
       }
       return '';
