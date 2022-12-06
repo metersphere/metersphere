@@ -11,6 +11,15 @@
           <custom-filed-component :form="form"
                                   :data="item"
                                   prop="defaultValue"/>
+          <ms-instructions-icon v-if="item.instructionsIcon || item.instructionsTip" effect="light">
+            <template>
+              <img v-if="item.instructionsIcon"
+                   :src="getPlatformImageUrl(config, item)"/>
+              <span v-if="item.instructionsTip">
+              {{ item.instructionsTip }}
+            </span>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
       </el-form>
     </div>
@@ -65,7 +74,7 @@ import {
   getServiceIntegration,
   saveServiceIntegration
 } from "../../../api/workspace";
-import {validateServiceIntegration} from "@/api/platform-plugin";
+import {generatePlatformResourceUrl, validateServiceIntegration} from "@/api/platform-plugin";
 import {getPlatformFormRules} from "metersphere-frontend/src/utils/platform";
 
 export default {
@@ -181,6 +190,9 @@ export default {
     },
     closeDialog() {
       this.resVisible = false;
+    },
+    getPlatformImageUrl(config, item) {
+      return generatePlatformResourceUrl(config.id, item.instructionsIcon);
     }
   }
 };
