@@ -106,7 +106,11 @@
           size="small" />
       </el-col>
       <el-col class="ms-col-name" v-if="showColumns('FORMAT')" style="min-width: 120px; padding: 0 5px">
-        <el-input :disabled="true" size="small" :placeholder="$t('schema.format')"></el-input>
+        <el-input
+          :disabled="true"
+          v-model="pickValue.format"
+          size="small"
+          :placeholder="$t('schema.format')"></el-input>
       </el-col>
       <el-col class="ms-col-name" v-if="showColumns('ENUM')" style="min-width: 300px; padding: 0 5px">
         <el-input
