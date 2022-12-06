@@ -21,6 +21,7 @@ public class SessionFilter implements WebFilter {
     private static final String[] TO_SUB_SERVICE = new String[]{"/license", "/system", "/resource", "/sso/callback/logout", "/sso/callback/cas/logout"};
     private static final String PERFORMANCE_DOWNLOAD_PREFIX = "/jmeter/";
     private static final String API_DOWNLOAD_PREFIX = "/api/jmeter/";
+    private static final String TRACK_IMAGE_PREFIX = "/resource/md/get/url";
 
     @Resource
     private DiscoveryClient discoveryClient;
@@ -36,13 +37,13 @@ public class SessionFilter implements WebFilter {
         if (path.startsWith("/css") || path.startsWith("/js")) {
             for (String prefix : PREFIX) {
                 if (path.contains(prefix)) {
-                    ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
-                    String newPath = prefix + path;
-                    ServerHttpRequest request = req.mutate().path(newPath).build();
-                    exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
-                    return chain.filter(exchange.mutate().request(request).build());
+                    return addPrefix(prefix, exchange, chain);
                 }
             }
+        }
+
+        if (path.startsWith(TRACK_IMAGE_PREFIX)) {
+            return addPrefix("/track", exchange, chain);
         }
 
         // 有些url直接转到 sub-service
@@ -53,31 +54,29 @@ public class SessionFilter implements WebFilter {
                     break;
                 }
                 String service = svc.get();
-                ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
-                String newPath = "/" + service + "/" + path;
-                ServerHttpRequest request = req.mutate().path(newPath).build();
-                exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
-                return chain.filter(exchange.mutate().request(request).build());
+                return addPrefix("/" + service + "/", exchange, chain);
             }
         }
 
         // 从当前站点下载资源
         if (path.startsWith(PERFORMANCE_DOWNLOAD_PREFIX)) {
-            ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
-            String newPath = "/performance" + path;
-            ServerHttpRequest request = req.mutate().path(newPath).build();
-            exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
-            return chain.filter(exchange.mutate().request(request).build());
+            return addPrefix("/performance", exchange, chain);
         }
 
         if (path.startsWith(API_DOWNLOAD_PREFIX)) {
-            ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
-            String newPath = "/api" + path;
-            ServerHttpRequest request = req.mutate().path(newPath).build();
-            exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
-            return chain.filter(exchange.mutate().request(request).build());
+            return addPrefix("/api", exchange, chain);
         }
 
         return chain.filter(exchange);
+    }
+
+    private Mono<Void> addPrefix(String prefix, final ServerWebExchange exchange, final WebFilterChain chain) {
+        ServerHttpRequest req = exchange.getRequest();
+        String path = req.getURI().getRawPath();
+        ServerWebExchangeUtils.addOriginalRequestUrl(exchange, req.getURI());
+        String newPath = prefix + path;
+        ServerHttpRequest request = req.mutate().path(newPath).build();
+        exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, request.getURI());
+        return chain.filter(exchange.mutate().request(request).build());
     }
 }
