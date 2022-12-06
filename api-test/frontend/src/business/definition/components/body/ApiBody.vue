@@ -31,9 +31,11 @@
         <api-params-config
           v-if="apiParamsConfigFields"
           @refresh="refreshApiParamsField"
+          :storage-key="storageKey"
           :api-params-config-fields="apiParamsConfigFields" />
       </el-row>
       <ms-api-variable
+        :param-type="bodyType"
         :with-more-setting="true"
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
@@ -131,6 +133,10 @@ export default {
         };
       },
     },
+    bodyType: {
+      type: String,
+      default: 'request',
+    },
     headers: Array,
     isReadOnly: {
       type: Boolean,
@@ -153,9 +159,9 @@ export default {
       codeEditActive: true,
       hasOwnProperty: Object.prototype.hasOwnProperty,
       propIsEnumerable: Object.prototype.propertyIsEnumerable,
+      storageKey: 'API_PARAMS_SHOW_FIELD',
     };
   },
-
   watch: {
     'body.typeChange'() {
       this.reloadCodeEdit();
@@ -246,6 +252,9 @@ export default {
               this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
             } else {
               let data = MsConvert.format(JSON.parse(this.body.raw));
+              if (!this.body.jsonSchema.type) {
+                this.body.jsonSchema.type = data.type;
+              }
               this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
             }
           } catch (e) {
@@ -367,6 +376,9 @@ export default {
     },
   },
   created() {
+    if (this.bodyType === 'response') {
+      this.storageKey = 'API_RESPONSE_PARAMS_SHOW_FIELD';
+    }
     if (!this.body.type) {
       this.body.type = BODY_TYPE.FORM_DATA;
     }

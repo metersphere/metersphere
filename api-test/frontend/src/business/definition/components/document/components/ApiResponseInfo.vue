@@ -2,36 +2,24 @@
   <div>
     <el-row class="apiInfoRow">
       <div>
+        <el-row>
+          <div style="float: right">
+            <api-params-config
+              v-if="apiParamsConfigFields"
+              @refresh="refreshApiParamsField"
+              :api-params-config-fields="apiParamsConfigFields" />
+          </div>
+        </el-row>
         <el-table
           border
           v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
           :data="getJsonArr(apiInfo.responseBodyFormData)"
           class="test-content document-table">
           <el-table-column
-            prop="name"
-            :label="$t('api_definition.document.name')"
-            min-width="120px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="contentType"
-            :label="$t('api_definition.document.type')"
-            min-width="120px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="description"
-            :label="$t('api_definition.document.desc')"
-            min-width="280px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="required"
-            :label="$t('api_definition.document.is_required')"
-            :formatter="formatBoolean"
-            min-width="80px"
-            show-overflow-tooltip />
-          <el-table-column
-            prop="value"
-            :label="$t('api_definition.document.default_value')"
-            min-width="120px"
+            v-for="item in tableColumnArr"
+            :key="item.id"
+            :prop="item.prop"
+            :label="item.label"
             show-overflow-tooltip />
         </el-table>
         <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
@@ -62,25 +50,111 @@
 
 <script>
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
+import { getApiParamsConfigFields, getShowFields } from 'metersphere-frontend/src/utils/custom_field';
+import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
 
 export default {
   name: 'ApiResponseInfo',
-  components: { MsJsonCodeEdit },
+  components: { MsJsonCodeEdit, ApiParamsConfig },
   data() {
     return {
       active: true,
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
+      apiParamsConfigFields: getApiParamsConfigFields(this),
+      apiParamStorageKey: 'API_RESPONSE_PARAMS_SHOW_FIELD',
+      tableColumnArr: [],
     };
   },
   props: {
     apiInfo: Object,
   },
-  activated() {},
-  created: function () {},
-  mounted() {},
+  activated() {
+    this.formatTableData();
+    this.initTableColumn();
+  },
+  created: function () {
+    this.formatTableData();
+    this.initTableColumn();
+  },
+  mounted() {
+    this.formatTableData();
+    this.initTableColumn();
+  },
   computed: {},
   watch: {},
   methods: {
+    formatTableData() {
+      if (this.tableData) {
+        this.tableData.forEach((item) => {
+          if (item.urlEncode !== null && item.urlEncode !== undefined) {
+            if (item.urlEncode === true) {
+              item.urlEncode = this.$t('commons.yes');
+            } else {
+              item.urlEncode = this.$t('commons.no');
+            }
+          }
+          if (item.enable !== null && item.enable !== undefined) {
+            if (item.enable === true) {
+              item.enable = this.$t('commons.yes');
+            } else {
+              item.enable = this.$t('commons.no');
+            }
+          }
+        });
+      }
+    },
+    refreshApiParamsField() {
+      this.initTableColumn();
+      this.reloadedApiVariable = false;
+      this.$nextTick(() => {
+        this.reloadedApiVariable = true;
+      });
+    },
+    initTableColumn() {
+      this.tableColumnArr = [
+        { id: 1, prop: 'name', label: this.$t('api_definition.document.name') },
+        { id: 2, prop: 'contentType', label: this.$t('api_definition.document.type') },
+        {
+          id: 3,
+          prop: 'enable',
+          label: this.$t('api_definition.document.is_required'),
+        },
+        {
+          id: 4,
+          prop: 'value',
+          label: this.$t('api_definition.document.value'),
+        },
+      ];
+
+      let apiParamConfigArr = getShowFields(this.apiParamStorageKey);
+      if (apiParamConfigArr) {
+        apiParamConfigArr.forEach((item) => {
+          let tableColumn = {};
+          if (item === 'MIX_LENGTH') {
+            tableColumn.id = 5;
+            tableColumn.prop = 'min';
+            tableColumn.label = this.$t('schema.minLength');
+          } else if (item === 'MAX_LENGTH') {
+            tableColumn.id = 6;
+            tableColumn.prop = 'max';
+            tableColumn.label = this.$t('schema.maxLength');
+          } else if (item === 'ENCODE') {
+            tableColumn.id = 7;
+            tableColumn.prop = 'urlEncode';
+            tableColumn.label = this.$t('commons.encode');
+          } else if (item === 'DESCRIPTION') {
+            tableColumn.id = 8;
+            tableColumn.prop = 'description';
+            tableColumn.label = this.$t('commons.description');
+          } else {
+            tableColumn = null;
+          }
+          if (tableColumn) {
+            this.tableColumnArr.push(tableColumn);
+          }
+        });
+      }
+    },
     formatRowData(dataType, data) {
       var returnData = data;
       if (data) {
@@ -122,10 +196,10 @@ export default {
         } catch (e) {
           return false;
         }
-      } else if (jsonType === 'response' && api.requestBodyStructureData) {
+      } else if (jsonType === 'response' && api.responseBodyStructureData) {
         try {
-          JSON.parse(api.requestBodyStructureData);
-          api.responseJsonSchema = { raw: api.requestBodyStructureData };
+          JSON.parse(api.responseBodyStructureData);
+          api.responseJsonSchema = { raw: api.responseBodyStructureData };
           return true;
         } catch (e) {
           return false;
