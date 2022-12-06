@@ -43,8 +43,7 @@ public class HarParser extends HarAbstractParser {
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Har har = null;
         try {
-            String sourceStr = getApiTestStr(source);
-            har = HarUtils.read(sourceStr);
+            har = HarUtils.read(source);
         } catch (Exception e) {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
