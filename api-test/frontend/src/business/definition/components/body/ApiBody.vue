@@ -47,13 +47,19 @@
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA" />
+        <el-switch
+          active-text="JSON-SCHEMA"
+          v-model="body.format"
+          @change="formatChange"
+          active-value="JSON-SCHEMA"
+          :disabled="isReadOnly" />
       </div>
       <ms-json-code-edit
         v-if="body.format === 'JSON-SCHEMA'"
         :body="body"
         :scenario-definition="scenarioDefinition"
         @editScenarioAdvance="editScenarioAdvance"
+        :is-read-only="isReadOnly"
         ref="jsonCodeEdit" />
       <ms-code-edit
         v-else-if="codeEditActive"
