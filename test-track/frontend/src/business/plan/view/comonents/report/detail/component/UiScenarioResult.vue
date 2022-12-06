@@ -59,7 +59,9 @@
                     shareId,
                     isPlanReport: true,
                     isTemplate,
-                    response
+                    response,
+                    showCancelButton: false,
+                    showReportNameButton: false
                  }"/>
         <UiShareReportDetail
           v-else

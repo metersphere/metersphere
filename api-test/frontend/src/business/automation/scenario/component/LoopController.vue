@@ -328,7 +328,7 @@ export default {
     debugCode(data) {
       if (data && this.node && this.node.data) {
         if (data.error > 0) {
-          this.node.data.code = 'error';
+          this.node.data.code = 'Error';
         } else {
           this.node.data.code = this.node.data.code !== 'ERROR' ? 'Success' : 'Error';
         }

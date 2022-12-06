@@ -29,7 +29,7 @@ import java.util.*;
 @Service
 public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
-    private static final String BASE_UEL = "/test/plan/uiScenario/case";
+    private static final String BASE_URL = "/test/plan/uiScenario/case";
 
     @Resource
     private PlanTestPlanScenarioCaseService planTestPlanScenarioCaseService;
@@ -41,11 +41,11 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     TestPlanService testPlanService;
 
     public List<String> getExecResultByPlanId(String planId) {
-        return (List<String>) microService.getForData(serviceName, BASE_UEL + "/plan/exec/result/" + planId);
+        return (List<String>) microService.getForData(serviceName, BASE_URL + "/plan/exec/result/" + planId);
     }
 
     public UiPlanReportDTO getUiReport(ApiPlanReportRequest request) {
-        return microService.postForData(serviceName, BASE_UEL + "/plan/report", request, UiPlanReportDTO.class);
+        return microService.postForData(serviceName, BASE_URL + "/plan/report", request, UiPlanReportDTO.class);
     }
 
     public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
@@ -93,20 +93,20 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
 
     private TestPlanScenarioStepCountSimpleDTO getStepCount(List<PlanReportCaseDTO> planReportCaseDTOS) {
-        return microService.postForData(serviceName, BASE_UEL + "/step/count", planReportCaseDTOS, TestPlanScenarioStepCountSimpleDTO.class);
+        return microService.postForData(serviceName, BASE_URL + "/step/count", planReportCaseDTOS, TestPlanScenarioStepCountSimpleDTO.class);
     }
 
     public List<PlanReportCaseDTO> selectStatusForPlanReport(String planId) {
-        return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
+        return microService.getForDataArray(serviceName, BASE_URL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }
 
     public void copyPlan(String sourcePlanId, String targetPlanId) {
-        microService.getForData(serviceName, BASE_UEL + "/plan/copy/" + sourcePlanId + "/" + targetPlanId);
+        microService.getForData(serviceName, BASE_URL + "/plan/copy/" + sourcePlanId + "/" + targetPlanId);
     }
 
     public boolean haveUiCase(String planId) {
         try {
-            return (boolean) microService.getForData(serviceName, BASE_UEL + "/have/ui/case/" + planId);
+            return (boolean) microService.getForData(serviceName, BASE_URL + "/have/ui/case/" + planId);
         } catch (MSException e) {
             LogUtil.error(e);
             return false;
@@ -114,34 +114,38 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     }
 
     public List<TestPlanUiScenario> list(String planId) {
-        return microService.getForDataArray(serviceName, BASE_UEL + "/list/" + planId, TestPlanUiScenario.class);
+        return microService.getForDataArray(serviceName, BASE_URL + "/list/" + planId, TestPlanUiScenario.class);
     }
 
     public Boolean isCaseExecuting(String planId) {
-        return (Boolean) microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId);
+        return (Boolean) microService.getForData(serviceName, BASE_URL + "/is/executing/" + planId);
     }
 
     public List<TestPlanUiScenarioDTO> getFailureListByIds(Set<String> ids) {
-        return microService.postForDataArray(serviceName, BASE_UEL + "/failure/list", ids, TestPlanUiScenarioDTO.class);
+        return microService.postForDataArray(serviceName, BASE_URL + "/failure/list", ids, TestPlanUiScenarioDTO.class);
     }
 
     public List<ModuleNodeDTO> getNodeByPlanId(List<String> projectIds, String planId) {
-        return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId, projectIds, ModuleNodeDTO.class);
+        return microService.postForDataArray(serviceName, BASE_URL + "/list/module/" + planId, projectIds, ModuleNodeDTO.class);
     }
 
     public List<TestPlanUiScenarioDTO> buildResponse(List<TestPlanUiScenarioDTO> uiCases) {
         if (CollectionUtils.isEmpty(uiCases)) {
             return null;
         }
-        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", uiCases, TestPlanUiScenarioDTO.class);
+        return microService.postForDataArray(serviceName, BASE_URL + "/build/response", uiCases, TestPlanUiScenarioDTO.class);
     }
 
     public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
         request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
-        return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
+        return microService.postForData(serviceName, BASE_URL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
 
     public void orderCase(ResetOrderRequest request) {
-        microService.postForData(serviceName, BASE_UEL + "/edit/order", request);
+        microService.postForData(serviceName, BASE_URL + "/edit/order", request);
+    }
+
+    public void relevanceByTestIds(List<String> uiScenarioIds, String planId) {
+        microService.postForData(serviceName, BASE_URL + "/relevance/" + planId, uiScenarioIds);
     }
 }

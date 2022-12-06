@@ -2027,7 +2027,8 @@ const message = {
             api: "接口用例",
             scene: "场景用例",
             load: "性能用例",
-            functional: "功能用例"
+            functional: "功能用例",
+            ui: "UI用例",
           }
         }
       },

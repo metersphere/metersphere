@@ -1064,21 +1064,24 @@ public class ApiTestCaseService {
         }
         try {
             List<String> envIds = environments.stream().filter(t -> StringUtils.isNotBlank(t.getValue()) && !StringUtils.equalsIgnoreCase(t.getValue(), "null")).map(ParamsDTO::getValue).collect(Collectors.toList());
-            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
-            example.createCriteria().andIdIn(envIds);
-            List<ApiTestEnvironment> environmentList = apiTestEnvironmentMapper.selectByExample(example);
-            if (CollectionUtils.isEmpty(environmentList)) {
-                return null;
-            }
-            Map<String, String> envMap = environmentList.stream().collect(Collectors.toMap(ApiTestEnvironment::getId, ApiTestEnvironment::getName));
+            if (CollectionUtils.isNotEmpty(envIds)) {
+                ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+                example.createCriteria().andIdIn(envIds);
+                List<ApiTestEnvironment> environmentList = apiTestEnvironmentMapper.selectByExample(example);
 
-            Map<String, String> caseEnvMap = environments.stream().filter(t -> StringUtils.isNotBlank(t.getValue()) && !StringUtils.equalsIgnoreCase(t.getValue(), "null")).collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getValue()), HashMap::putAll);
-            caseEnvMap.forEach((k, v) -> {
-                if (envMap.containsKey(v)) {
-                    caseEnvMap.put(k, envMap.get(v));
+                if (CollectionUtils.isEmpty(environmentList)) {
+                    return null;
                 }
-            });
-            return caseEnvMap;
+                Map<String, String> envMap = environmentList.stream().collect(Collectors.toMap(ApiTestEnvironment::getId, ApiTestEnvironment::getName));
+
+                Map<String, String> caseEnvMap = environments.stream().filter(t -> StringUtils.isNotBlank(t.getValue()) && !StringUtils.equalsIgnoreCase(t.getValue(), "null")).collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getValue()), HashMap::putAll);
+                caseEnvMap.forEach((k, v) -> {
+                    if (envMap.containsKey(v)) {
+                        caseEnvMap.put(k, envMap.get(v));
+                    }
+                });
+                return caseEnvMap;
+            }
         } catch (Exception e) {
             LogUtil.error("api case environmentId incorrect parsing", e);
         }

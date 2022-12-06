@@ -281,6 +281,8 @@ export default {
 .ms-right-fixed {
   flex: 0;
   margin-left: 0px;
+  height: calc(100vh);
+  background-color: #F5F6F7;
 }
 
 .ms-header-w {

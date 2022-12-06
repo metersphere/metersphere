@@ -43,7 +43,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
@@ -243,6 +246,8 @@ public class SSOService {
             RestTemplate restTemplate = getRestTemplateIgnoreSSL();
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+            String credentials = EncryptUtils.base64Encoding(config.get("clientId") + ":" + config.get("secret"));
+            headers.add(HttpHeaders.AUTHORIZATION, "Basic " + credentials);
             HttpEntity<String> param = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.postForEntity(url, param, String.class);
             String content = response.getBody();
@@ -263,7 +268,7 @@ public class SSOService {
 
     private Optional<SessionUser> doOauth2Login(AuthSource authSource, String accessToken, WebSession session, Locale locale) throws Exception {
         Map<String, String> oauth2Config = null;
-        Map<String, String> resultObj = null;
+        Map<String, Object> resultObj = null;
         try {
             oauth2Config = JSON.parseObject(authSource.getConfiguration(), new TypeReference<HashMap<String, String>>() {});
             String userInfoUrl = oauth2Config.get("userInfoUrl");
@@ -272,7 +277,7 @@ public class SSOService {
             RestTemplate restTemplate = getRestTemplateIgnoreSSL();
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, httpEntity, String.class);
-            resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, String>>() {});
+            resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, Object>>() {});
         } catch (Exception e) {
             LogUtil.error("fail to get user info", e);
             MSException.throwException("fail to get user info!");
@@ -281,9 +286,9 @@ public class SSOService {
         String attrMapping = oauth2Config.get("mapping");
         Map<String, String> mapping = this.getOauth2AttrMapping(attrMapping);
 
-        String userid = resultObj.get(mapping.get("userid"));
-        String username = resultObj.get(mapping.get("username"));
-        String email = resultObj.get(mapping.get("email"));
+        String userid = (String) resultObj.get(mapping.get("userid"));
+        String username = (String) resultObj.get(mapping.get("username"));
+        String email = (String) resultObj.get(mapping.get("email"));
 
         if (StringUtils.isBlank(userid)) {
             MSException.throwException("userid is empty!");

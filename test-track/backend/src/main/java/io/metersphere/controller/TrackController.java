@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 
 import io.metersphere.base.domain.TestCase;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.dto.BugStatistics;
 import io.metersphere.dto.TrackCountResult;
 import io.metersphere.dto.TrackStatisticsDTO;
@@ -9,6 +10,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.TrackService;
+import io.metersphere.utils.DiscoveryUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +23,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/track")
 public class TrackController {
-
     @Resource
     private TrackService trackService;
     @Resource
@@ -61,7 +62,8 @@ public class TrackController {
     public TrackStatisticsDTO getRelevanceCount(@PathVariable String projectId) {
         TrackStatisticsDTO statistics = new TrackStatisticsDTO();
 
-        List<TrackCountResult> relevanceResults = trackService.countRelevance(projectId);
+        boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
+        List<TrackCountResult> relevanceResults = trackService.countRelevance(projectId, queryUi);
         statistics.countRelevance(relevanceResults);
 
         long size = trackService.countRelevanceCreatedThisWeek(projectId);
@@ -69,7 +71,7 @@ public class TrackController {
 
         List<TestCase> list = testCaseService.getTestCaseByProjectId(projectId);
         long total = list.size();
-        int coverage = trackService.countCoverage(projectId);
+        int coverage = trackService.countCoverage(projectId, queryUi);
         statistics.setCoverageCount(coverage);
         statistics.setUncoverageCount(total - coverage);
 
@@ -82,6 +84,9 @@ public class TrackController {
         statistics.setApiCaseCountStr(Translator.get("api_case") + "<br/><br/>" + statistics.getApiCaseCount());
         statistics.setPerformanceCaseCountStr(Translator.get("performance_case") + "<br/><br/>" + statistics.getPerformanceCaseCount());
         statistics.setScenarioCaseStr(Translator.get("scenario_case") + "<br/><br/>" + statistics.getScenarioCaseCount());
+        if (queryUi) {
+            statistics.setUiScenarioCaseStr(Translator.get("ui_scenario_case") + "<br/><br/>" + statistics.getUiScenarioCaseCount());
+        }
 
         return statistics;
     }

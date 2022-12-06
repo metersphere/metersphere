@@ -69,10 +69,16 @@ public class TrackStatisticsDTO {
      */
     private long performanceCaseCount = 0;
 
+    /**
+     * UI场景用例数量统计
+     */
+    private long uiScenarioCaseCount = 0;
+
 
     private String apiCaseCountStr = StringUtils.EMPTY;
     private String scenarioCaseStr = StringUtils.EMPTY;
     private String performanceCaseCountStr = StringUtils.EMPTY;
+    private String uiScenarioCaseStr = StringUtils.EMPTY;
 
     /**
      * 本周新增数量
@@ -185,6 +191,15 @@ public class TrackStatisticsDTO {
                 } else {
                     count += (int) countResult.getCountNumber();
                     chartData.put(Translator.get("scenario_case"), count);
+                }
+            }
+            if (StringUtils.equalsIgnoreCase(TrackCount.UI_AUTOMATION, countResult.getGroupField())) {
+                Integer count = chartData.get(Translator.get("ui_scenario_case"));
+                if (count == null) {
+                    chartData.put(Translator.get("ui_scenario_case"), (int) countResult.getCountNumber());
+                } else {
+                    count += (int) countResult.getCountNumber();
+                    chartData.put(Translator.get("ui_scenario_case"), count);
                 }
             }
             this.allRelevanceCaseCount += countResult.getCountNumber();

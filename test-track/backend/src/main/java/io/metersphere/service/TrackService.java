@@ -94,8 +94,8 @@ public class TrackService {
         return extTestCaseMapper.countStatus(projectId);
     }
 
-    public List<TrackCountResult> countRelevance(String projectId) {
-        return extTestCaseMapper.countRelevance(projectId);
+    public List<TrackCountResult> countRelevance(String projectId, boolean queryUI) {
+        return extTestCaseMapper.countRelevance(projectId, queryUI);
     }
 
     public long countRelevanceCreatedThisWeek(String projectId) {
@@ -111,8 +111,8 @@ public class TrackService {
         }
     }
 
-    public int countCoverage(String projectId) {
-        return extTestCaseMapper.countCoverage(projectId);
+    public int countCoverage(String projectId, boolean queryUi) {
+        return extTestCaseMapper.countCoverage(projectId, queryUi);
     }
 
     public List<ChartsData> getCaseMaintenanceBar(String projectId) {
