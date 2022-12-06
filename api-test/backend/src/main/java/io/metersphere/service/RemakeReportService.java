@@ -16,7 +16,6 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
-import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
@@ -153,9 +152,6 @@ public class RemakeReportService {
             dto.setQueueId(request.getQueueId());
             dto.setTestId(request.getTestId());
 
-            if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
-                JMeterEngineCache.runningEngine.remove(dto.getReportId());
-            }
             LoggerUtil.info("进入异常结果处理：" + dto.getRunMode() + " 整体处理完成", dto.getReportId());
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
