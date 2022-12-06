@@ -246,6 +246,9 @@ export default {
               this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
             } else {
               let data = MsConvert.format(JSON.parse(this.body.raw));
+              if (!this.body.jsonSchema.type) {
+                this.body.jsonSchema.type = data.type;
+              }
               this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
             }
           } catch (e) {

@@ -122,10 +122,10 @@ export default {
         } catch (e) {
           return false;
         }
-      } else if (jsonType === 'response' && api.requestBodyStructureData) {
+      } else if (jsonType === 'response' && api.responseBodyStructureData) {
         try {
-          JSON.parse(api.requestBodyStructureData);
-          api.responseJsonSchema = { raw: api.requestBodyStructureData };
+          JSON.parse(api.responseBodyStructureData);
+          api.responseJsonSchema = { raw: api.responseBodyStructureData };
           return true;
         } catch (e) {
           return false;
