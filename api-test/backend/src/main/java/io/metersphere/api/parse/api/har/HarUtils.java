@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Utility class for working with HAR files.
@@ -42,11 +43,11 @@ public class HarUtils {
     }
 
 
-    public static Har read(String harJson) throws JsonSyntaxException, IOException {
-        if (StringUtils.isEmpty(harJson)) {
+    public static Har read(InputStream source) throws JsonSyntaxException, IOException {
+        if (source == null) {
             throw new IllegalArgumentException("HAR Json cannot be null/empty");
         }
-        Har har = JSON.parseObject(harJson, Har.class);
+        Har har = JSON.parseObject(source, Har.class);
         return har;
     }
 }
