@@ -329,10 +329,12 @@ export default {
           if (source.type === 'OAuth2') {
             url = config.authUrl
               + "?client_id=" + config.clientId
-              + "&scope=" + config.scope
               + "&response_type=code"
               + "&redirect_uri=" + redirectUrl
               + "&state=" + authId;
+            if (config.scope) {
+              url += "&scope=" + config.scope;
+            }
           }
           if (url) {
             window.location.href = url;
