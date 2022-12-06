@@ -52,9 +52,15 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
+
+      <div v-for="config in platformAccountConfigs" :key="config.key">
+        <platform-account-config
+          :config="config"
+          :account-config="currentPlatformInfo"
+          v-if="showPlatformConfig(config.key)"
+        />
+      </div>
       <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
-      <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
       <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -94,19 +100,20 @@ import {listenGoBack, removeGoBackListener} from "../../utils";
 import {getCurrentUser, getCurrentWorkspaceId} from "../../utils/token";
 import MsTableOperatorButton from "../MsTableOperatorButton";
 import {EMAIL_REGEX, PHONE_REGEX} from "../../utils/regex";
-import JiraUserInfo from "./JiraUserInfo";
 import TapdUserInfo from "./TapdUserInfo";
 import {getIntegrationService} from "../../api/workspace";
-import ZentaoUserInfo from "./ZentaoUserInfo";
 import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {useUserStore} from "@/store";
 import {handleAuth as _handleAuth, updateInfo, updatePassword} from "../../api/user";
+import {getPlatformAccountInfo} from "../../api/platform-plugin";
+import {ISSUE_PLATFORM_OPTION} from "../../utils/table-constants";
+import PlatformAccountConfig from "./PlatformAccountConfig";
 
 const userStore = useUserStore();
 
 export default {
   name: "MsPersonSetting",
-  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo, AzureDevopsUserInfo, MsDialogFooter, MsTableOperatorButton},
+  components: {TapdUserInfo, AzureDevopsUserInfo, MsDialogFooter, MsTableOperatorButton, PlatformAccountConfig},
   inject: [
     'reload'
   ],
@@ -128,10 +135,9 @@ export default {
         zentaoPassword: '',
         azureDevopsPat: ''
       },
+      platformAccountConfigs: [],
       ruleForm: {},
-      hasJira: false,
       hasTapd: false,
-      hasZentao: false,
       hasAzure: false,
       rule: {
         name: [
@@ -188,6 +194,10 @@ export default {
   },
 
   activated() {
+    getPlatformAccountInfo()
+      .then((r) => {
+        this.platformAccountConfigs = r.data;
+      });
     this.initTableData();
     // remove router query _token _csrf
     if (this.$route.query && Object.keys(this.$route.query).length > 0) {
@@ -197,6 +207,9 @@ export default {
   methods: {
     currentUser: () => {
       return getCurrentUser();
+    },
+    showPlatformConfig(platform) {
+      return ISSUE_PLATFORM_OPTION.map(item => item.value).indexOf(platform) < 0;
     },
     edit: function (row) {
       this.updateVisible = true;
@@ -220,12 +233,6 @@ export default {
           let platforms = data.map(d => d.platform);
           if (platforms.indexOf("Tapd") !== -1) {
             this.hasTapd = true;
-          }
-          if (platforms.indexOf("Jira") !== -1) {
-            this.hasJira = true;
-          }
-          if (platforms.indexOf("Zentao") !== -1) {
-            this.hasZentao = true;
           }
           if (platforms.indexOf("AzureDevops") !== -1) {
             this.hasAzure = true;

@@ -12,7 +12,7 @@
                    class="setting-item"></el-tab-pane>
       <el-tab-pane
         v-if="hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')
-        &&(platformAccountConfigs.length > 0 || hasTapd || hasZentao || hasAzure) && hasPermission('WORKSPACE_SERVICE:READ')"
+        &&(platformAccountConfigs.length > 0 || hasTapd || hasAzure) && hasPermission('WORKSPACE_SERVICE:READ')"
         name="third_account" :label="$t('commons.third_account')" class="setting-item"></el-tab-pane>
       <el-tab-pane v-if="hasPermission('PERSONAL_INFORMATION:READ+UI_SETTING') && isXpack" name="commons.ui_setting"
                    :label="$t('commons.ui_setting')"
@@ -33,7 +33,6 @@
           />
         </div>
         <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
-        <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
         <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
         <el-form-item class="el-form-item-class">
           <el-button size="small" @click="cancel">{{ $t('commons.cancel') }}</el-button>
@@ -56,7 +55,6 @@ import PasswordInfo from "./PasswordInfo";
 import UiSetting from "./UiSetting";
 import {getCurrentUser, getCurrentWorkspaceId} from "../../utils/token";
 import {hasLicense, hasPermission} from "../../utils/permission";
-import ZentaoUserInfo from "./ZentaoUserInfo";
 import TapdUserInfo from "./TapdUserInfo";
 import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {getIntegrationService} from "../../api/workspace";
@@ -77,7 +75,6 @@ export default {
     MsPersonFromSetting,
     MsApiKeys,
     PasswordInfo,
-    ZentaoUserInfo,
     TapdUserInfo,
     AzureDevopsUserInfo,
     UiSetting
@@ -90,7 +87,6 @@ export default {
       activeIndex: '',
       ruleForm: {},
       hasTapd: false,
-      hasZentao: false,
       hasAzure: false,
       isXpack: false,
       updatePath: '/user/update/current',
@@ -131,15 +127,7 @@ export default {
     },
     handleAuth(type) {
       let param = {...this.currentPlatformInfo};
-      if (type === 'Zentao') {
-        if (!param.zentaoUserName) {
-          this.$error(this.$t('organization.integration.input_api_account'));
-          return
-        } else if (!param.zentaoPassword) {
-          this.$error(this.$t('organization.integration.input_api_password'));
-          return
-        }
-      } else if (type === 'AzureDevops') {
+      if (type === 'AzureDevops') {
         if (!param.azureDevopsPat) {
           this.$error(this.$t('organization.integration.input_azure_pat'));
           return
@@ -170,9 +158,6 @@ export default {
           let platforms = data.map(d => d.platform);
           if (platforms.indexOf("Tapd") !== -1) {
             this.hasTapd = true;
-          }
-          if (platforms.indexOf("Zentao") !== -1) {
-            this.hasZentao = true;
           }
           if (platforms.indexOf("AzureDevops") !== -1) {
             this.hasAzure = true;

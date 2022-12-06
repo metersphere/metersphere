@@ -19,10 +19,13 @@
                    class="checkButton">
           {{ $t('test_track.issue.check_id_exist') }}
         </el-button>
-        <ms-instructions-icon v-if="item.instructionsIcon" effect="light">
+        <ms-instructions-icon v-if="item.instructionsIcon || item.instructionsTip" effect="light">
           <template>
-            <img class="jira-image"
+            <img v-if="item.instructionsIcon"
                  :src="getPlatformImageUrl(config, item)"/>
+            <span v-if="item.instructionsTip">
+              {{ item.instructionsTip }}
+            </span>
           </template>
         </ms-instructions-icon>
       </el-form-item>

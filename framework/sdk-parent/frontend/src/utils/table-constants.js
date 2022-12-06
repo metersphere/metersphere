@@ -68,7 +68,6 @@ export function CASE_TYPE_OPTION(){
 export const ISSUE_PLATFORM_OPTION = [
   {value: LOCAL, text: 'Local'},
   {value: TAPD, text: 'Tapd'},
-  {value: ZEN_TAO, text: 'Zentao'},
   {value: AZURE_DEVOPS, text: 'Azure Devops'},
 ];
 
