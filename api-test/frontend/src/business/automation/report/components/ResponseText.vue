@@ -40,7 +40,7 @@
             <pre>{{ request.headers }}</pre>
           </div>
           <div class="ms-div" v-if="request.url && request.url !== ''">
-            Cookies :
+            Cookie :
             <pre>{{ request.cookies }}</pre>
           </div>
           <div class="ms-div">

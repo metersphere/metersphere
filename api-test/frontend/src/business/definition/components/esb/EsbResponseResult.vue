@@ -214,7 +214,7 @@ export default {
           ':\n' +
           this.response.headers +
           '\n' +
-          'Cookies :\n' +
+          'Cookie :' +
           this.response.cookies +
           '\n' +
           'Body:' +
