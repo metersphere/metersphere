@@ -7,6 +7,7 @@ const message = {
     please_add_api_case: '请先添加接口用例',
   },
   api_definition: {
+    debug_pool_warning: '调用资源池执行失败，请检查资源池是否配置正常',
     document: {
       name: '名称',
       value: '值',

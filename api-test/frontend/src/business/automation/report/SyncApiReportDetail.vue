@@ -503,6 +503,14 @@ export default {
         this.runningEvaluation(e.data);
         this.sort(this.fullTreeNodes);
       }
+      if (e && e.data === 'DEBUG_ERROR') {
+        this.$error(this.$t('api_definition.debug_pool_warning'));
+        this.messageWebSocket.close();
+        this.cleanHeartBeat();
+        this.$EventBus.$emit('hide', this.scenarioId);
+        this.$emit('refresh', this.debugResult);
+      }
+
       if (e.data && e.data.indexOf('MS_TEST_END') !== -1) {
         this.getReport();
         this.messageWebSocket.close();
