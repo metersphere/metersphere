@@ -166,7 +166,7 @@ export default {
         }
 
         if (this.response.cookies) {
-          this.reqMessages += 'Cookies :\n' + this.response.cookies + '\n';
+          this.reqMessages += 'Cookie :' + this.response.cookies + '\n';
         }
         this.reqMessages += 'Body:' + '\n' + this.response.body;
       }
