@@ -94,6 +94,7 @@
         <module>report-stat</module>
         <module>system-setting</module>
         <module>test-track</module>
+        <module>workstation</module>
     </modules>
 
     <dependencies>

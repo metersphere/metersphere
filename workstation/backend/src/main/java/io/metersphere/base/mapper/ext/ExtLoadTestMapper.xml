@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtLoadTestMapper">
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                LIKE CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                NOT LIKE CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                NOT IN
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                BETWEEN #{${object}.value[0]} AND #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            AND load_test.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test='${condition}.id != null'>
+            and load_test.num
+            <include refid="condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and load_test.id in (
+            select test_id from load_test_follow where follow_id
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.updateTime != null">
+            AND load_test.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            AND project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            AND load_test.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            AND load_test.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            AND load_test.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="countCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            AND load_test.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and load_test.id in (
+            select test_id from load_test_follow where follow_id
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.updateTime != null">
+            AND load_test.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            AND load_test.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            AND load_test.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            AND load_test.create_user
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="moduleCount" resultType="java.lang.Integer">
+        select count(load_test.id) from load_test
+        left join project on load_test.project_id = project.id
+        <where>
+            <if test="request.combine != null">
+                <include refid="countCombine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+        </where>
+    </select>
+    <select id="getCountFollow" resultType="java.lang.Integer">
+        select count(*) from load_test lt where
+        lt.id in (select lf.test_id from load_test_follow  lf where  lf.follow_id = #{userId,jdbcType=VARCHAR})
+        and
+        lt.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and (lt.status is null or lt.status != 'Trash');
+    </select>
+    <select id="getCountUpcoming" resultType="java.lang.Integer">
+        select count(*) from load_test lt where
+        lt.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and lt.status = 'error'
+        and lt.user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and load_test.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='method'">
+                            and load_test.method in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_id'">
+                            and load_test.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_name'">
+                            and load_test.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='case_status'">
+                            and load_test.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and load_test.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (load_test.name like CONCAT('%', #{request.name},'%')
+                or load_test.num like CONCAT('%', #{request.name},'%')
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (load_test.status is null or load_test.status != #{request.notEqStatus})
+            </if>
+
+            <if test="request.id != null">
+                AND load_test.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND load_test.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND load_test.create_time >= #{request.createTime}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and load_test.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                AND load_test.project_id = #{request.projectId}
+            </if>
+            <include refid="filter"/>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="load_test"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+
+</mapper>

@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiDefinitionMapper">
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiDefinition">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
+        <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
+        <result column="module_path" jdbcType="VARCHAR" property="modulePath"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="protocol" jdbcType="VARCHAR" property="protocol"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="method" jdbcType="VARCHAR" property="method"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+        <result column="request" jdbcType="LONGVARCHAR" property="request"/>
+        <result column="response" jdbcType="LONGVARCHAR" property="response"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+        id
+        , project_id, name,module_id,module_path,protocol ,path,method ,description, status, user_id, create_time, update_time
+    </sql>
+    <sql id="Blob_Column_List">
+        request
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and api_definition.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test='${condition}.id != null'>
+            and api_definition.num
+            <include refid="condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and api_definition.id in (
+            select definition_id from api_definition_follow where follow_id
+            <include refid="condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.updateTime != null">
+            and api_definition.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and api_definition.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and api_definition.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.isReference != null">
+            and api_definition.id
+            <if test='${condition}.isReference.value == "true"'>
+                in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+            <if test='${condition}.isReference.value == "false"'>
+                not in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+        </if>
+        <if test="${condition}.creator != null">
+            and api_definition.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.path != null">
+            and api_definition.path
+            <include refid="condition">
+                <property name="object" value="${condition}.path"/>
+            </include>
+        </if>
+        <if test="${condition}.method != null">
+            and api_definition.method
+            <include refid="condition">
+                <property name="object" value="${condition}.method"/>
+            </include>
+        </if>
+
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (api_definition.tags is null or api_definition.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and api_definition.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+        <if test="${condition}.module != null">
+            and api_definition.module_path
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.module"/>
+            </include>
+        </if>
+        <if test="${condition}.moduleIds != null">
+            and api_definition.module_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.moduleIds"/>
+            </include>
+        </if>
+        <if test="${condition}.caseCount != null">
+            and api_definition.case_total
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.caseCount"/>
+            </include>
+        </if>
+
+    </sql>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and api_definition.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='method'">
+                            and api_definition.method in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_id'">
+                            and api_definition.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_name'">
+                            and api_definition.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='case_status'">
+                            and api_definition.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and api_definition.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (api_definition.name like CONCAT('%', #{request.name},'%')
+                or api_definition.tags like CONCAT('%', #{request.name},'%')
+                or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.path like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_definition.status is null or api_definition.status != #{request.notEqStatus})
+            </if>
+
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_definition.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND api_definition.create_time >= #{request.createTime}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.toBeUpdated != null and request.toBeUpdated==true">
+                AND api_definition.to_be_updated = #{request.toBeUpdated}
+            </if>
+            <if test="request.toBeUpdated != null and request.toBeUpdated==true and request.toBeUpdateTime != null">
+                AND api_definition.to_be_update_time >= #{request.toBeUpdateTime}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and api_definition.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <choose>
+                <when test="request.moduleIds != null and request.moduleIds.size() > 0">
+                    AND api_definition.module_id in
+                    <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    AND api_definition.project_id = #{request.projectId}
+                </when>
+            </choose>
+            <include refid="filter"/>
+
+            <if test="request.apiCoverage == 'unCovered'">
+                and
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
+                != 'Trash')
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and
+                    api_definition.id not in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <if test="request.apiCoverage == 'coverage' ">
+                and
+                (
+                api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
+                'Trash')
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    or
+                    api_definition.id in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+                )
+            </if>
+            <if test="request.apiCaseCoverage == 'unCovered' ">
+                and api_definition.id not in
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
+            </if>
+            <if test="request.apiCaseCoverage == 'coverage' ">
+                and api_definition.id in
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
+            </if>
+            <if test="request.scenarioCoverage == 'unCovered' ">
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id not in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <if test="request.scenarioCoverage == 'coverage' ">
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="api_definition"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="queryWhereConditionWidthProject">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (api_definition.name like CONCAT('%', #{request.name},'%')
+                or api_definition.tags like CONCAT('%', #{request.name},'%')
+                or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.path like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (api_definition.status is null or api_definition.status != #{request.notEqStatus})
+            </if>
+
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_definition.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND api_definition.create_time >= #{request.createTime}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and api_definition.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <choose>
+                <when test="request.moduleIds != null and request.moduleIds.size() > 0">
+                    AND api_definition.module_id in
+                    <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    AND api_definition.project_id = #{request.projectId}
+                </when>
+                <when test="request.workspaceId != null">
+                    AND project.workspace_id = #{request.workspaceId}
+                </when>
+            </choose>
+            <include refid="filter"/>
+            <if test="request.apiCoverage == 'unCovered' ">
+                and
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
+                != 'Trash')
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and
+                    api_definition.id not in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <if test="request.apiCoverage == 'coverage' ">
+                and
+                (
+                api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
+                'Trash')
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    or
+                    api_definition.id in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+                )
+            </if>
+            <if test="request.apiCaseCoverage == 'unCovered' ">
+                and api_definition.id not in
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
+            </if>
+            <if test="request.apiCaseCoverage == 'coverage' ">
+                and api_definition.id in
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
+            </if>
+            <if test="request.scenarioCoverage == 'unCovered' ">
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id not in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <if test="request.scenarioCoverage == 'coverage' ">
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id in
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+
+                </if>
+            </if>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="api_definition"/>
+            </include>
+        </where>
+    </sql>
+
+
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id) from api_definition
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and api_definition.status != 'Trash';
+    </select>
+
+
+    <select id="getCountFollow" resultType="java.lang.Integer">
+        select count(*) from api_definition ad where
+        ad.id in (select af.definition_id from api_definition_follow  af where  af.follow_id = #{userId,jdbcType=VARCHAR})
+        and
+        ad.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and (ad.status is null or ad.status != 'Trash')
+    </select>
+
+    <select id="getCountUpcoming" resultType="java.lang.Integer">
+        select count(*) from api_definition ad where
+        ad.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and ad.status in ('Prepare', 'Underway')
+        and ad.user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+
+    <sql id="Same_Where_Clause">
+        <where>
+            <if test="blobs">
+                <trim prefix="(" prefixOverrides="and" suffix=")">
+                    <foreach collection="blobs" item="blob" separator="or">
+                        <trim prefix="(" prefixOverrides="and" suffix=")">
+                            <if test="blob.method">
+                                and api_definition.method = #{blob.method}
+                            </if>
+                            <if test="blob.path">
+                                and api_definition.path = #{blob.path}
+                            </if>
+                        </trim>
+                    </foreach>
+                </trim>
+            </if>
+        </where>
+    </sql>
+
+</mapper>
