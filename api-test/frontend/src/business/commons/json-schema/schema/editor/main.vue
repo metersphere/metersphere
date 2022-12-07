@@ -475,6 +475,10 @@ export default {
         if (this.isArray(this.pickValue)) {
           this.$set(this.pickValue, 'items', [{ type: 'string', mock: { mock: '' } }]);
         }
+        if (this.pickValue.type === 'null') {
+          this.$set(this.pickValue, 'mock', { mock: '' });
+          this.reloadItems();
+        }
       }
     },
     changeAllItemsType(changeType) {
