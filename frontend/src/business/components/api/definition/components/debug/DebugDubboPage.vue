@@ -28,7 +28,7 @@
                                 ref="debugResult"/>
       </div>
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
+      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"
               ref="runTest"/>
     </el-card>
     <div v-if="scenario">
@@ -153,10 +153,13 @@ export default {
       this.reportId = getUUID().substring(0, 8);
     },
     runRefresh(data) {
-      this.responseData = data;
+      this.responseData = data || {type: 'JDBC', responseResult: {}, subRequestResults: []};
       this.loading = false;
       this.isStop = false;
       this.$refs.debugResult.reload();
+    },
+    errorRefresh() {
+      this.runRefresh();
     },
     saveAsApi() {
       let obj = {request: this.request};

@@ -51,7 +51,7 @@
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult"/>
         <!-- 执行组件 -->
-        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
+        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"
                 ref="runTest"/>
       </div>
     </el-card>
@@ -204,12 +204,15 @@ export default {
       this.$emit('refreshModule');
     },
     runRefresh(data) {
-      this.responseData = data;
+      this.responseData = data || {type: 'JDBC', responseResult: {}, subRequestResults: []};
       this.loading = false;
       this.isStop = false;
       if (this.$refs.debugResult) {
         this.$refs.debugResult.reload();
       }
+    },
+    errorRefresh() {
+      this.runRefresh();
     },
     saveAsApi() {
       this.$refs['debugForm'].validate((valid) => {
