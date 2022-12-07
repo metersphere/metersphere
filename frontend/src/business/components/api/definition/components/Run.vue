@@ -63,7 +63,11 @@ export default {
       if (e && e.data === "CONN_SUCCEEDED") {
         this.run();
       }
-
+      if(e && e.data === 'DEBUG_ERROR'){
+        this.$error(this.$t('api_test.automation.debug_pool_warning'));
+        this.websocket.close();
+        this.$emit('errorRefresh', "");
+      }
       if (e.data && e.data.startsWith("result_")) {
         try {
           let data = e.data.substring(7);

@@ -1455,6 +1455,7 @@ export default {
       generate_report: "生成報告",
       rerun: "失敗重跑",
       rerun_warning: "連接異常，請檢查環境配置",
+      debug_pool_warning: "執行異常，請檢查資源池",
       csv_warning: "請添加 csv 文件",
       variable_warning: "變量名不能為空"
     },

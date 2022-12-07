@@ -1450,6 +1450,7 @@ export default {
       generate_report: "Generate report",
       rerun: "fail and rerun",
       rerun_warning: "The connection is abnormal, please check the environment configuration",
+      debug_pool_warning: "Execution exception, please check the resource pool",
       csv_warning: "Please add csv file",
       variable_warning: "Variable name cannot be empty"
     },
