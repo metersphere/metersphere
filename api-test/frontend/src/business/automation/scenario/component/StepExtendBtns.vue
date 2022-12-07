@@ -41,15 +41,14 @@
     <ms-add-basis-api :currentProtocol="currentProtocol" ref="api" />
 
     <ms-add-api-case :currentProtocol="currentProtocol" ref="apiCase" />
-
     <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="400px">
       <ul>
         <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if="showEnableScenario">
-          <el-checkbox v-model="data.environmentEnable" @change="checkEnv" :disabled="data.disabled">
+          <el-checkbox v-model="data.environmentEnable" @change="checkEnv">
             {{ $t('commons.enable_scene') }}
           </el-checkbox>
         </el-tooltip>
-        <el-checkbox v-model="data.variableEnable" :disabled="data.disabled">
+        <el-checkbox v-model="data.variableEnable">
           {{ $t('commons.variable_scene') }}
         </el-checkbox>
       </ul>
