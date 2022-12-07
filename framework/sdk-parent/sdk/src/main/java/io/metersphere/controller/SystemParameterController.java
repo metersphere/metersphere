@@ -54,7 +54,7 @@ public class SystemParameterController {
 
     @GetMapping("timeout")
     public long getTimeout() {
-        return env.getProperty("session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
+        return env.getProperty("spring.session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
     }
 
     @GetMapping("/mail/info")
