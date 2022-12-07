@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtIssuesMapper">
+
+    <select id="getCountFollow" resultType="java.lang.Integer">
+        select count(*) from issues ss where
+        ss.id in (select sf.issue_id from issue_follow  sf where  sf.follow_id = #{userId,jdbcType=VARCHAR})
+        and
+        ss.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and (ss.status is null or ss.status != 'Trash');
+    </select>
+    <select id="getCountUpcoming" resultType="java.lang.Integer">
+        select count(*) from issues ss where
+        ss.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and ss.status = 'new'
+        and ss.creator = #{userId,jdbcType=VARCHAR}
+    </select>
+    <select id="getCountCreat" resultType="java.lang.Integer">
+        select count(*) from issues ss where
+        ss.project_id  in
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        and ss.create_time >= #{createTime}
+        and ss.creator = #{userId,jdbcType=VARCHAR}
+    </select>
+
+    <sql id="Issue_List_Column">
+        issues.id, issues.platform_id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
+        ifnull(issues.description, '') as description, issues.status, issues.platform, issues.custom_fields, issues.reporter,
+        issues.creator,issues.resource_id,issues.platform_status,
+        issues.lastmodify
+    </sql>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (
+                      issues.title LIKE CONCAT('%', #{request.name}, '%')
+                      or issues.num LIKE CONCAT('%', #{request.name}, '%')
+                    )
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null and request.projectId != ''">
+                and issues.project_id = #{request.projectId}
+            </if>
+
+            <if test="request.resourceId != null and request.resourceId != ''">
+                and issues.resource_id = #{request.resourceId}
+            </if>
+
+            <if test="request.caseResourceId != null and request.caseResourceId != ''">
+                <if test="request.refType == 'FUNCTIONAL'">
+                    and (test_case_issues.resource_id = #{request.caseResourceId} or test_case_issues.ref_id = #{request.caseResourceId})
+                </if>
+                <if test="request.refType == 'PLAN_FUNCTIONAL'">
+                    and test_case_issues.resource_id = #{request.caseResourceId} and test_case_issues.ref_type
+                    ='PLAN_FUNCTIONAL'
+                </if>
+            </if>
+
+            <if test="request.platform != null and request.platform != ''">
+                and issues.platform = #{request.platform}
+            </if>
+            <if test="request.id != null and request.id != ''">
+                and issues.id = #{request.id}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and issues.id not in
+                <foreach collection="request.notInIds" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
+            <if test="!request.selectAll and request.exportIds != null and request.exportIds.size > 0">
+                and issues.id in
+                <foreach collection="request.exportIds" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and issues.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'platform'">
+                                AND issues.platform IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'creator'">
+                                AND issues.creator IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key.startsWith('custom_single')">
+                                and issues.id in (
+                                select resource_id from custom_field_issues
+                                where concat('custom_single-',field_id) = #{key}
+                                and trim(both '"' from value) in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                                )
+                            </when>
+                            <when test="key.startsWith('custom_multiple')">
+                                and issues.id in (
+                                select resource_id from custom_field_issues
+                                where concat('custom_multiple-',field_id) = #{key}
+                                and
+                                <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                    JSON_CONTAINS(value, #{value})
+                                </foreach>
+                                )
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            and (issues.platform_status != 'delete' or issues.platform_status is NULL)
+        </where>
+    </sql>
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and issues.title
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and issues.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.platform != null">
+            and issues.platform
+            <include refid="condition">
+                <property name="object" value="${condition}.platform"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and issues.id in (
+            select issue_id from issue_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.createTime != null">
+            and issues.create_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                and issues.id in (
+                    select resource_id from custom_field_issues where field_id = #{custom.id}
+                    <choose>
+                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                            and ${custom.value}
+                        </when>
+                        <when test="custom.type == 'date' or custom.type == 'datetime'">
+                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <when test="custom.type == 'richText' or custom.type == 'textarea'">
+                            and text_value
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            and trim(both '"' from value)
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </otherwise>
+                    </choose>
+                )
+            </foreach>
+        </if>
+    </sql>
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+</mapper>
