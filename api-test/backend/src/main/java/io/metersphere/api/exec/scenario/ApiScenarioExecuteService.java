@@ -385,6 +385,7 @@ public class ApiScenarioExecuteService {
                 configDTO.setEnvMap(request.getEnvironmentMap());
                 request.setConfig(configDTO);
             }
+            request.getConfig().setEnvMap(request.getEnvironmentMap());
             // 生成调试结果
             ApiScenarioReportResult report = apiScenarioReportService.initDebugResult(request);
             ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());

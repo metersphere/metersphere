@@ -1,6 +1,13 @@
 <template>
   <div class="report-export">
-    <ms-report-title :title="title" :type="type" :report="report" :project-env-map="projectEnvMap"/>
+    <ms-report-title
+      :title="title"
+      :type="type"
+      :report="report"
+      :project-env-map="projectEnvMap"
+      :mode="mode"
+      :pool-name="poolName"
+    />
     <slot></slot>
   </div>
 </template>
@@ -10,13 +17,19 @@ import MsReportTitle from "./MsReportTitle";
 
 export default {
   name: "MsReportExportTemplate",
-  components: {MsReportTitle},
-  props: {title: String, type: String, report: Object, projectEnvMap: {}},
-}
+  components: { MsReportTitle },
+  props: {
+    title: String,
+    type: String,
+    report: Object,
+    projectEnvMap: {},
+    mode: String,
+    poolName: String,
+  },
+};
 </script>
 
 <style scoped>
-
 .report-export {
   padding: 30px;
 }
