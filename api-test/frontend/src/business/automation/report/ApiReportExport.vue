@@ -3,6 +3,8 @@
     :title="title"
     :report="report"
     :project-env-map="projectEnvMap"
+    :pool-name="poolName"
+    :mode="mode"
     :type="$t('report.api_test_report')">
     <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime" :report="report" />
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
@@ -95,6 +97,8 @@ export default {
     totalTime: Number,
     projectEnvMap: {},
     title: String,
+    poolName: String,
+    mode: String,
   },
   data() {
     return {};

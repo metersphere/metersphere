@@ -162,6 +162,8 @@ public class ApiDefinitionService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private BaseTestResourcePoolService baseTestResourcePoolService;
 
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1573,7 +1575,11 @@ public class ApiDefinitionService {
             if (StringUtils.isNotBlank(contentStr)) {
                 JSONObject content = JSONUtil.parseObject(contentStr);
                 if (StringUtils.isNotEmpty(result.getEnvConfig())) {
-                    content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+                    ApiReportEnvConfigUtil envNameByEnvConfig = this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                    if (envNameByEnvConfig != null) {
+                        content.put("envName", envNameByEnvConfig.getEnvName());
+                        content.put("poolName", envNameByEnvConfig.getResourcePoolName());
+                    }
                 }
                 contentStr = content.toString();
                 reportResult.setContent(contentStr);
@@ -1584,9 +1590,8 @@ public class ApiDefinitionService {
         return reportResult;
     }
 
-
-    public String getEnvNameByEnvConfig(String projectId, String envConfig) {
-        String envName = null;
+    public ApiReportEnvConfigUtil getEnvNameByEnvConfig(String projectId, String envConfig) {
+        ApiReportEnvConfigUtil apiReportEnvConfig = new ApiReportEnvConfigUtil();
         RunModeConfigDTO runModeConfigDTO = null;
         try {
             runModeConfigDTO = JSON.parseObject(envConfig, RunModeConfigDTO.class);
@@ -1595,9 +1600,17 @@ public class ApiDefinitionService {
         }
         if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
             String envId = runModeConfigDTO.getEnvMap().get(projectId);
-            envName = apiTestEnvironmentService.selectNameById(envId);
+            apiReportEnvConfig.setEnvName(apiTestEnvironmentService.selectNameById(envId));
         }
-        return envName;
+        if (runModeConfigDTO != null && StringUtils.isNotBlank(runModeConfigDTO.getResourcePoolId())) {
+            TestResourcePool resourcePool = baseTestResourcePoolService.getResourcePool(runModeConfigDTO.getResourcePoolId());
+            if (resourcePool != null) {
+                apiReportEnvConfig.setResourcePoolName(resourcePool.getName());
+            }
+        } else {
+            apiReportEnvConfig.setResourcePoolName("LOCAL");
+        }
+        return apiReportEnvConfig;
     }
 
     public ApiReportResult getDbResult(String testId, String type) {
@@ -2785,8 +2798,10 @@ public class ApiDefinitionService {
                 runModeConfigDTO.setEnvMap(new HashMap<>() {{
                     this.put(request.getProjectId(), request.getEnvironmentId());
                 }});
+                runModeConfigDTO.setResourcePoolId(request.getConfig().getResourcePoolId());
                 result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
             }
+            result.setActuator(request.getConfig().getResourcePoolId());
             apiDefinitionExecResultMapper.insert(result);
         }
         if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {

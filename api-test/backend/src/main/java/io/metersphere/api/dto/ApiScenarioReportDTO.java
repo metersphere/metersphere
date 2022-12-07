@@ -41,4 +41,7 @@ public class ApiScenarioReportDTO {
     //<项目名称，<环境名称>>
     private LinkedHashMap<String, List<String>> projectEnvMap;
 
+    private String mode;
+    private String poolName;
+
 }

@@ -129,6 +129,7 @@ public class ApiScenarioReportService {
             reportResult.setTestId(reportId);
             ApiScenarioReportDTO dto = apiScenarioReportStructureService.apiIntegratedReport(reportId);
             apiScenarioReportStructureService.initProjectEnvironmentByEnvConfig(dto, result.getEnvConfig());
+            apiScenarioReportStructureService.getEnvConfig(dto, result.getEnvConfig());
             reportResult.setContent(JSON.toJSONString(dto));
             return reportResult;
         }
