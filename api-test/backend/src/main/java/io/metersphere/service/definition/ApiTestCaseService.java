@@ -2,25 +2,74 @@ package io.metersphere.service.definition;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.ApiCaseEditRequest;
+import io.metersphere.api.dto.ApiCaseRelevanceRequest;
+import io.metersphere.api.dto.ApiCountChartResult;
+import io.metersphere.api.dto.ApiCountRequest;
+import io.metersphere.api.dto.DeleteCheckResult;
+import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiTestBatchRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseInfo;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.*;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioReferenceId;
+import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
+import io.metersphere.base.domain.ApiTestCase;
+import io.metersphere.base.domain.ApiTestCaseExample;
+import io.metersphere.base.domain.ApiTestCaseFollow;
+import io.metersphere.base.domain.ApiTestCaseFollowExample;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironment;
+import io.metersphere.base.domain.ApiTestEnvironmentExample;
+import io.metersphere.base.domain.ProjectApplication;
+import io.metersphere.base.domain.ProjectApplicationExample;
+import io.metersphere.base.domain.ProjectVersion;
+import io.metersphere.base.domain.User;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
+import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
+import io.metersphere.base.mapper.ApiTestCaseFollowMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.ProjectApplicationMapper;
+import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
+import io.metersphere.commons.constants.CommonConstants;
+import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.enums.FileAssociationTypeEnums;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.DataFormattingUtil;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ParamsDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -55,7 +104,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.metersphere.commons.utils.ShareUtil.getTimeMills;
@@ -333,10 +391,14 @@ public class ApiTestCaseService {
         apiCaseExecutionInfoService.deleteByApiCaseId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
-        deleteBodyFiles(testId);
         // 删除附件关系
         extFileAssociationService.deleteByResourceId(testId);
         deleteFollows(testId);
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testId);
+        if (apiTestCase != null) {
+            String filePath = StringUtils.join(BODY_FILE_DIR, File.separator, apiTestCase.getId());
+            FileUtil.deleteContents(new File(filePath));
+        }
     }
 
     private void deleteFollows(String testId) {
@@ -359,14 +421,6 @@ public class ApiTestCaseService {
             for (ApiTestCase testCase : testCases) {
                 this.delete(testCase.getId());
             }
-        }
-    }
-
-    public void deleteBodyFiles(String testId) {
-        File file = new File(BODY_FILE_DIR + "/" + testId);
-        FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
         }
     }
 
