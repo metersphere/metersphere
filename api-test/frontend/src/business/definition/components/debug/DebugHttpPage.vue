@@ -74,6 +74,7 @@
           :isStop="isStop"
           :run-data="runData"
           @runRefresh="runRefresh"
+          @errorRefresh="errorRefresh"
           ref="runTest" />
       </div>
     </el-card>
@@ -240,12 +241,15 @@ export default {
       this.$emit('refreshModule');
     },
     runRefresh(data) {
-      this.responseData = data;
+      this.responseData = data || { type: 'HTTP', responseResult: {}, subRequestResults: [] };
       this.loading = false;
       this.isStop = false;
       if (this.$refs.debugResult) {
         this.$refs.debugResult.reload();
       }
+    },
+    errorRefresh() {
+      this.runRefresh();
     },
     saveAsApi() {
       this.$refs['debugForm'].validate((valid) => {

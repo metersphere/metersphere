@@ -2,12 +2,14 @@ package io.metersphere.api.exec.engine;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.resourcepool.engine.provider.ClientCredential;
@@ -21,6 +23,7 @@ import java.util.Set;
 
 public class KubernetesTestEngine extends AbstractEngine {
     private JmeterRunRequestDTO runRequest;
+    private final String DEBUG_ERROR = "DEBUG_ERROR";
 
     // 初始化API调用
     public KubernetesTestEngine(JmeterRunRequestDTO runRequest) {
@@ -77,6 +80,14 @@ public class KubernetesTestEngine extends AbstractEngine {
             command.append(StringUtils.SPACE).append("http://127.0.0.1:8082/jmeter/").append(path);
             KubernetesApiExec.newExecWatch(client, clientCredential.getNamespace(), pod.getMetadata().getName(), command.toString());
         } catch (Exception e) {
+            MsgDTO dto = new MsgDTO();
+            dto.setExecEnd(false);
+            dto.setContent(DEBUG_ERROR);
+            dto.setReportId("send." + runRequest.getReportId());
+            dto.setToReport(runRequest.getReportId());
+            LoggerUtil.debug("send. " + runRequest.getReportId());
+            WebSocketUtil.sendMessageSingle(dto);
+            WebSocketUtil.onClose(runRequest.getReportId());
             LoggerUtil.error("当前报告：【" + runRequest.getReportId() + "】资源：【" + runRequest.getTestId() + "】CURL失败：", e);
             MSException.throwException(e);
         }
