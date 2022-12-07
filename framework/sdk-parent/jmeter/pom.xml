@@ -168,6 +168,17 @@
             <groupId>io.metersphere</groupId>
             <artifactId>jmeter-plugins-dubbo</artifactId>
             <version>${jmeter-plugins-dubbo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>avro</artifactId>
+                    <groupId>org.apache.avro</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>avro</artifactId>
+            <groupId>org.apache.avro</groupId>
+            <version>${avro.version}</version>
         </dependency>
 
         <dependency>
@@ -180,7 +191,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-jsr223</artifactId>
-            <version>${groovy.version}</version>
+            <version>${codehaus-groovy.version}</version>
         </dependency>
 
         <!-- 添加jmeter包支持导入的jmx能正常执行 -->
@@ -255,6 +266,12 @@
             <groupId>com.aliyun</groupId>
             <artifactId>alibaba-dingtalk-service-sdk</artifactId>
             <version>${dingtalk-sdk.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -272,13 +289,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>${java.version}</release>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
 </project>
