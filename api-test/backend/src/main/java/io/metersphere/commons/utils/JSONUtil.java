@@ -243,7 +243,7 @@ public class JSONUtil {
 
     public static String parser(String content) {
         try {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
             return gson.toJson(JsonParser.parseString(content).getAsJsonObject());
         } catch (Exception e) {
             return content;

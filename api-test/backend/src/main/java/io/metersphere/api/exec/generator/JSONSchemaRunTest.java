@@ -240,7 +240,7 @@ public class JSONSchemaRunTest {
             concept.put(propertyName, obj);
             analyzeObject(object, obj, map);
         } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
-            concept.put(propertyName, StringUtils.EMPTY);
+            concept.put(propertyName, JSONObject.NULL);
         }
     }
 

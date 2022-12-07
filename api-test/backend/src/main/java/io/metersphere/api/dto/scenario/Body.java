@@ -4,9 +4,9 @@ import io.metersphere.api.exec.generator.JSONSchemaRunTest;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.request.BodyFile;
-import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
@@ -38,6 +39,7 @@ public class Body {
     public final static String BINARY = "BINARY";
     public final static String JSON_STR = "JSON";
     public final static String XML = "XML";
+    public final static String JSON_SCHEMA = "JSON-SCHEMA";
 
     public boolean isValid() {
         if (this.isKV()) {
@@ -82,7 +84,7 @@ public class Body {
         } else {
             if (StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema() != null) {
                 parseJonBodyMock();
-                KeyValue keyValue = new KeyValue(StringUtils.EMPTY, "JSON-SCHEMA", this.getRaw(), true, true);
+                KeyValue keyValue = new KeyValue(StringUtils.EMPTY, JSON_SCHEMA, this.getRaw(), true, true);
                 sampler.setPostBodyRaw(true);
                 keyValue.setEnable(true);
                 keyValue.setUrlEncode(false);
@@ -93,18 +95,18 @@ public class Body {
     }
 
     private void parseJonBodyMock() {
-        if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
+        if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
             if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
-                    && "JSON-SCHEMA".equals(this.format)) {
+                    && JSON_SCHEMA.equals(this.format)) {
                 this.raw = StringEscapeUtils.unescapeJava(JSONSchemaRunTest.getJson(JSON.toJSONString(this.getJsonSchema())));
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        JSONObject jsonObject = JSONUtil.parseObject(this.getRaw());
+                        Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
                         if (!this.getRaw().contains("$ref")) {
-                            jsonMockParse(jsonObject);
+                            jsonMockParse(map);
                         }
-                        this.raw = JSONUtil.parser(jsonObject.toString());
+                        this.raw = JSONUtil.parser(map.toString());
                     }
                 } catch (Exception e) {
                     LoggerUtil.error("json mock value is abnormal", e);
@@ -113,16 +115,16 @@ public class Body {
         }
     }
 
-    private void jsonMockParse(JSONObject jsonObject) {
-        for (String key : jsonObject.keySet()) {
-            Object value = jsonObject.get(key);
+    private void jsonMockParse(Map map) {
+        for (Object key : map.keySet()) {
+            Object value = map.get(key);
             if (value instanceof JSONObject) {
-                jsonMockParse((JSONObject) value);
+                jsonMockParse((Map) value);
             } else if (value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
                     value = ScriptEngineUtils.buildFunctionCallString((String) value);
                 }
-                jsonObject.put(key, value);
+                map.put(key, value);
             }
         }
     }
