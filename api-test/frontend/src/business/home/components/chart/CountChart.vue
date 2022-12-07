@@ -109,6 +109,7 @@ export default {
         legend: {
           orient: 'vertical',
           icon: 'rect',
+          inactiveBorderWidth: 0.1,
           selectedMode: dataIsNotEmpty,
           itemGap: 16,
           left: '50%',

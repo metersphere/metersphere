@@ -7,6 +7,7 @@
             <api-params-config
               v-if="apiParamsConfigFields"
               @refresh="refreshApiParamsField"
+              :storage-key="apiParamStorageKey"
               :api-params-config-fields="apiParamsConfigFields" />
           </div>
         </el-row>
@@ -69,40 +70,17 @@ export default {
     apiInfo: Object,
   },
   activated() {
-    this.formatTableData();
     this.initTableColumn();
   },
   created: function () {
-    this.formatTableData();
     this.initTableColumn();
   },
   mounted() {
-    this.formatTableData();
     this.initTableColumn();
   },
   computed: {},
   watch: {},
   methods: {
-    formatTableData() {
-      if (this.tableData) {
-        this.tableData.forEach((item) => {
-          if (item.urlEncode !== null && item.urlEncode !== undefined) {
-            if (item.urlEncode === true) {
-              item.urlEncode = this.$t('commons.yes');
-            } else {
-              item.urlEncode = this.$t('commons.no');
-            }
-          }
-          if (item.enable !== null && item.enable !== undefined) {
-            if (item.enable === true) {
-              item.enable = this.$t('commons.yes');
-            } else {
-              item.enable = this.$t('commons.no');
-            }
-          }
-        });
-      }
-    },
     refreshApiParamsField() {
       this.initTableColumn();
       this.reloadedApiVariable = false;
@@ -176,6 +154,24 @@ export default {
           returnJsonArr.push(item);
         }
       }
+
+      returnJsonArr.forEach((item) => {
+        if (item.urlEncode !== null && item.urlEncode !== undefined) {
+          if (item.urlEncode === true) {
+            item.urlEncode = this.$t('commons.yes');
+          } else {
+            item.urlEncode = this.$t('commons.no');
+          }
+        }
+        if (item.enable !== null && item.enable !== undefined) {
+          if (item.enable === true) {
+            item.enable = this.$t('commons.yes');
+          } else {
+            item.enable = this.$t('commons.no');
+          }
+        }
+      });
+
       return returnJsonArr;
     },
     formatBoolean(row, column, cellValue) {
