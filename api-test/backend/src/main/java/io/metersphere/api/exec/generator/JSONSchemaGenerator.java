@@ -241,7 +241,7 @@ public class JSONSchemaGenerator {
                 concept.put(propertyName, obj);
                 analyzeObject(object, obj);
             } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
-                concept.put(propertyName, StringUtils.EMPTY);
+                concept.put(propertyName, JSONObject.NULL);
             }
         }
     }
