@@ -9,7 +9,7 @@ import router from "./router"
 import {createPinia, PiniaVuePlugin} from 'pinia'
 import PersistedState from 'pinia-plugin-persistedstate'
 import icons from "metersphere-frontend/src/icons"
-import svg from "./components/svg";
+import svg from "metersphere-frontend/src/components/svg";
 import plugins from "metersphere-frontend/src/plugins";
 import directives from "metersphere-frontend/src/directive";
 import filters from "metersphere-frontend/src/filters";
