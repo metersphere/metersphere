@@ -56,6 +56,7 @@
         :isStop="isStop"
         :run-data="runData"
         @runRefresh="runRefresh"
+        @errorRefresh="errorRefresh"
         ref="runTest" />
     </el-card>
     <div v-if="scenario">
@@ -193,12 +194,15 @@ export default {
       this.reportId = getUUID().substring(0, 8);
     },
     runRefresh(data) {
-      this.responseData = data;
+      this.responseData = data || { type: 'TCP', responseResult: {}, subRequestResults: [] };
       this.loading = false;
       this.isStop = false;
       if (this.$refs.debugResult) {
         this.$refs.debugResult.reload();
       }
+    },
+    errorRefresh() {
+      this.runRefresh();
     },
     saveAsApi() {
       let obj = { request: this.request };

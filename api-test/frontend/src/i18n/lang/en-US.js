@@ -7,6 +7,8 @@ const message = {
     please_add_api_case: 'Please add api case',
   },
   api_definition: {
+    debug_pool_warning:
+      'Failed to call the resource pool, please check whether the configuration of the resource pool is normal',
     document: {
       name: 'name',
       value: 'value',
