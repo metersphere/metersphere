@@ -492,7 +492,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         while (matcher.find()) {
             // get file name
             String originSubUrl = matcher.group(1);
-            if (originSubUrl.contains("/url?url=")) {
+            if (originSubUrl.contains("/url?url=") || originSubUrl.contains("/path?")) {
                 String path = URLDecoder.decode(originSubUrl, StandardCharsets.UTF_8);
                 String fileName;
                 if (path.indexOf("fileID") > 0) {
@@ -565,15 +565,17 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                     }
                 } else {
                     name = name.replaceAll("&amp;", "&");
-                    try {
-                        URI uri = new URI(zentaoClient.getBaseUrl());
-                        path = uri.getScheme() + "://" + uri.getHost() + path.replaceAll("&amp;", "&");
-                    } catch (URISyntaxException e) {
-                        path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
-                        LogUtil.error(e);
+                    path = path.replaceAll("&amp;", "&");
+                }
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String item : path.split("&")) {
+                    // 去掉多余的参数
+                    if (!StringUtils.containsAny(item, "platform", "workspaceId")) {
+                        stringBuilder.append(item);
+                        stringBuilder.append("&");
                     }
                 }
-                path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
+                path = getProxyPath(stringBuilder.toString());
             }
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
@@ -681,5 +683,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             platformStatusDTOS.add(platformStatusDTO);
         }
         return platformStatusDTOS;
+    }
+
+    @Override
+    public ResponseEntity proxyForGet(String path, Class responseEntityClazz) {
+        return zentaoClient.proxyForGet(path, responseEntityClazz);
     }
 }
