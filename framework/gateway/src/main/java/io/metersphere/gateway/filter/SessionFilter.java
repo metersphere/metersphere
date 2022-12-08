@@ -21,7 +21,7 @@ public class SessionFilter implements WebFilter {
     private static final String[] TO_SUB_SERVICE = new String[]{"/license", "/system", "/resource", "/sso/callback/logout", "/sso/callback/cas/logout"};
     private static final String PERFORMANCE_DOWNLOAD_PREFIX = "/jmeter/";
     private static final String API_DOWNLOAD_PREFIX = "/api/jmeter/";
-    private static final String TRACK_IMAGE_PREFIX = "/resource/md/get/url";
+    private static final String TRACK_IMAGE_PREFIX = "/resource/md/get/path";
 
     @Resource
     private DiscoveryClient discoveryClient;
