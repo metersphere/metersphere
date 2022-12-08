@@ -453,13 +453,24 @@ export default {
       this.runLoading = false;
       this.checkVersionEnable();
     },
+    margeFiles(targetFiles, sourceFiles) {
+      targetFiles.forEach((target) => {
+        sourceFiles.forEach((source) => {
+          if (target.uuid === source.uuid) {
+            source.file = target.file;
+          }
+        });
+      });
+    },
     initLocalFile() {
       if (this.apiData.request && this.apiData.request.body) {
         if (this.apiData.request.body.binary && this.apiData.request.body.binary.length > 0) {
           this.apiData.request.body.binary.forEach((item) => {
             this.api.request.body.binary.forEach((api) => {
               if (item.uuid && api.uuid && item.uuid === api.uuid) {
-                api = item;
+                api.files = item.files;
+              } else if (item.files && api.files) {
+                this.margeFiles(item.files, api.files);
               }
             });
           });
@@ -469,6 +480,8 @@ export default {
             this.api.request.body.kvs.forEach((api) => {
               if (item.uuid && api.uuid && item.uuid === api.uuid && item.files && api.files) {
                 api.files = item.files;
+              } else if (item.files && api.files) {
+                this.margeFiles(item.files, api.files);
               }
             });
           });
@@ -476,6 +489,7 @@ export default {
       }
     },
   },
+
   created() {
     this.init();
   },
