@@ -59,7 +59,6 @@ import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
-import jodd.util.CollectionUtil;
 import io.metersphere.xpack.track.service.XpackIssueService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -697,8 +696,6 @@ public class IssuesService {
             item.setCaseCount(caseIdSet.size());
         });
         buildCustomField(issues);
-        //处理MD图片链接内容
-        handleJiraIssueMdUrl(request.getWorkspaceId(), request.getProjectId(), issues);
         return issues;
     }
 
@@ -787,35 +784,6 @@ public class IssuesService {
             MSException.throwException(e.getMessage());
         }
 
-    }
-
-    private void handleJiraIssueMdUrl(String workPlaceId, String projectId, List<IssuesDao> issues) {
-        issues.forEach(issue -> {
-            if (StringUtils.isNotEmpty(issue.getDescription()) && issue.getDescription().contains("platform=Jira&")) {
-                issue.setDescription(replaceJiraMdUrlParam(issue.getDescription(), workPlaceId, projectId));
-            }
-            if (StringUtils.isNotEmpty(issue.getCustomFields()) && issue.getCustomFields().contains("platform=Jira&")) {
-                issue.setCustomFields(replaceJiraMdUrlParam(issue.getCustomFields(), workPlaceId, projectId));
-            }
-            if (CollectionUtils.isNotEmpty(issue.getFields())) {
-                issue.getFields().forEach(field -> {
-                    if (StringUtils.isNotEmpty(field.getTextValue()) && field.getTextValue().contains("platform=Jira&")) {
-                        field.setTextValue(replaceJiraMdUrlParam(field.getTextValue(), workPlaceId, projectId));
-                    }
-                    if (StringUtils.isNotEmpty(field.getValue()) && field.getValue().contains("platform=Jira&")) {
-                        field.setValue(replaceJiraMdUrlParam(field.getValue(), workPlaceId, projectId));
-                    }
-                });
-            }
-        });
-    }
-
-    private String replaceJiraMdUrlParam(String url, String workspaceId, String projectId) {
-        if (url.contains("&workspace_id=")) {
-            return url;
-        }
-        return url.replaceAll("platform=Jira&",
-                "platform=Jira&workspace_id=" + workspaceId + "&");
     }
 
     private Map<String, List<IssueCommentDTO>> getCommentMap(List<IssuesDao> issues) {
