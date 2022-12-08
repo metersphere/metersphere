@@ -31,6 +31,7 @@
                   v-if="type === 'body'"
                   :disabled="isReadOnly"
                   v-model="scope.row.type"
+                  size="mini"
                   @change="typeChange(item)">
                   <el-option value="text" />
                   <el-option value="file" />
@@ -150,8 +151,16 @@
               circle
               @click="remove(scope.$index)"
               :disabled="isDisable(scope.$index) || isReadOnly" />
-            <i class="el-icon-top" style="cursor: pointer" @click="moveTop(scope.$index)" />
-            <i class="el-icon-bottom" style="cursor: pointer" @click="moveBottom(scope.$index)" />
+            <i
+              class="el-icon-top"
+              v-show="!(isDisable(scope.$index) || isReadOnly)"
+              style="cursor: pointer"
+              @click="moveTop(scope.$index)" />
+            <i
+              class="el-icon-bottom"
+              v-show="!(isDisable(scope.$index) || isReadOnly)"
+              style="cursor: pointer"
+              @click="moveBottom(scope.$index)" />
           </template>
         </el-table-column>
       </el-table>
