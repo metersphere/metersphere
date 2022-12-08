@@ -3484,6 +3484,9 @@ export default {
     store_xpath_count: "匹配 xpath 的元素数量(storeXpathCount)",
     store_window_handle: "窗口 Handle(storeWindowHandle)",
     store_title: "网页标题(storeTitle)",
+    smart_variable_enable: "优先使用当前场景变量，没有则使用原场景变量",
+    use_origin_variable_scene: "使用原场景变量",
+    use_origin_env_run: "使用原场景环境执行"
   },
   system: {
     test_resource_pool: {

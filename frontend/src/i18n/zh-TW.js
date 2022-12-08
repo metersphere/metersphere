@@ -3480,6 +3480,9 @@ export default {
     store_xpath_count: "匹配 xpath 的元素數量(storeXpathCount)",
     store_window_handle: "窗口 Handle(storeWindowHandle)",
     store_title: "網頁標題(storeTitle)",
+    smart_variable_enable: "優先使用當前場景變量，沒有則使用原場景變量",
+    use_origin_variable_scene: "使用原場景變量",
+    use_origin_env_run: "使用原場景環境執行"
   },
   system: {
     test_resource_pool: {

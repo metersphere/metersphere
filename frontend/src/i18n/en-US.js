@@ -3477,6 +3477,9 @@ export default {
     store_xpath_count: "Number of elements matching xpath (storeXpathCount)",
     store_wigndow_handle: "Window Handle(storeWindowHandle)",
     store_title: "Web page title (storeTitle)",
+    smart_variable_enable: "Use the current scene variables first",
+    use_origin_variable_scene: "Use original scene variables",
+    use_origin_env_run: "Use original scene environment to execute"
   },
   system: {
     test_resource_pool: {
