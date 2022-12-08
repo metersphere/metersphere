@@ -1357,7 +1357,7 @@ const message = {
         case: "用例",
         responsible: "责任人",
         title: "创建接口",
-        path_info: "请输入接口的URL，如/api/demo/#{id}，其中id为路径参数",
+        path_info: "请输入接口的URL，如/api/demo/${id}，其中id为路径参数",
         path_all_info: "请输入完整测试地址",
         fast_debug: "快捷调试",
         close_all_label: "关闭所有标签",
