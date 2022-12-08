@@ -15,9 +15,10 @@ public class IssueProxyResourceController {
     @Resource
     IssueProxyResourceService issueProxyResourceService;
 
-    @GetMapping(value = "/md/get/url")
-    public ResponseEntity<byte[]> getFileByUrl(@RequestParam ("url") String url, @RequestParam (value = "platform", required = false) String platform,
-                                               @RequestParam (value = "workspace_id", required = false) String workspaceId) {
-        return issueProxyResourceService.getMdImageByUrl(url, platform, workspaceId);
+    @GetMapping(value = "/md/get/path")
+    public ResponseEntity<byte[]> getFileByPath(@RequestParam ("path") String path,
+                                                @RequestParam (value = "platform") String platform,
+                                                @RequestParam (value = "workspaceId") String workspaceId) {
+        return issueProxyResourceService.getMdImageByPath(path, platform, workspaceId);
     }
 }
