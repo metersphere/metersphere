@@ -95,10 +95,10 @@ export default {
         borderWidth = 3;
         dataIsNotEmpty = true;
         protocolData = [
-          { value: this.apiData.httpCount, name: 'HTTP' },
-          { value: this.apiData.rpcCount, name: 'RPC' },
-          { value: this.apiData.tcpCount, name: 'TCP' },
-          { value: this.apiData.sqlCount, name: 'SQL' },
+          { value: this.apiData.httpCount > 0 ? this.apiData.httpCount : '-', name: 'HTTP' },
+          { value: this.apiData.rpcCount > 0 ? this.apiData.rpcCount : '-', name: 'RPC' },
+          { value: this.apiData.tcpCount > 0 ? this.apiData.tcpCount : '-', name: 'TCP' },
+          { value: this.apiData.sqlCount > 0 ? this.apiData.sqlCount : '-', name: 'SQL' },
         ];
       }
       let optionData = {
@@ -142,12 +142,14 @@ export default {
           },
           data: protocolData,
           formatter: function (name) {
-            //通过name获取到数组对象中的单个对象
             let singleData = protocolData.filter(function (item) {
               return item.name === name;
             });
-            let value = singleData[0].value;
-            return [`{protocol|${name}}`, `{num|${value}}`].join('');
+            let showValue = singleData[0].value;
+            if (showValue === '-') {
+              showValue = 0;
+            }
+            return [`{protocol|${name}}`, `{num|${showValue}}`].join('');
           },
         },
         title: {
