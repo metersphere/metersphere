@@ -1248,7 +1248,7 @@ export default {
         case: "Case",
         responsible: "Executor",
         title: "Create api",
-        path_info: "Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
+        path_info: "Please enter the URL of the interface, such as /api/demo/${id}, where id is the path parameter",
         path_all_info: "Please enter the complete test address",
         fast_debug: "Fast debug",
         close_all_label: "close all label",
