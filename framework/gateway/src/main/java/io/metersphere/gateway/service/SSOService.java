@@ -48,6 +48,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -293,6 +295,12 @@ public class SSOService {
         if (StringUtils.isBlank(userid)) {
             MSException.throwException("userid is empty!");
         }
+        Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher m = p.matcher(userid);
+        if (m.find()) {
+            MSException.throwException("userid cannot contain Chinese characters!");
+        }
+
         if (StringUtils.isBlank(username)) {
             username = userid;
         }
