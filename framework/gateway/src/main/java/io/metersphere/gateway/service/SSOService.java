@@ -278,6 +278,7 @@ public class SSOService {
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, httpEntity, String.class);
             resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, Object>>() {});
+            LogUtil.info("user info: " + response.getBody());
         } catch (Exception e) {
             LogUtil.error("fail to get user info", e);
             MSException.throwException("fail to get user info!");
