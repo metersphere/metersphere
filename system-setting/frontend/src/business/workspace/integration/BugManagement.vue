@@ -31,15 +31,14 @@
 
 <script>
 import TapdSetting from '@/business/workspace/integration/TapdSetting';
-import JiraSetting from '@/business/workspace/integration/JiraSetting';
 import AzuredevopsSetting from '@/business/workspace/integration/AzureDevopsSetting';
-import {AZURE_DEVOPS, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
+import {AZURE_DEVOPS, TAPD} from "metersphere-frontend/src/utils/constants";
 import PlatformConfig from "@/business/workspace/integration/PlatformConfig";
 import {generatePlatformResourceUrl, getIntegrationInfo} from "@/api/platform-plugin";
 
 export default {
   name: "BugManagement",
-  components: {PlatformConfig, TapdSetting, JiraSetting, AzuredevopsSetting},
+  components: {PlatformConfig, TapdSetting, AzuredevopsSetting},
   data() {
     return {
       loading: false,

@@ -171,7 +171,6 @@ import StatusTableItem from "@/business/common/tableItems/planview/StatusTableIt
 import {testPlanTestCaseEdit, testPlanTestCaseGet} from "@/api/remote/plan/test-plan-test-case";
 import {testPlanEditStatus} from "@/api/remote/plan/test-plan";
 import {getTestTemplate} from "@/api/custom-field-template";
-import {getCurrentProjectID} from "@/business/utils/sdk-utils";
 import {checkProjectPermission} from "@/api/testCase";
 
 export default {
@@ -204,12 +203,6 @@ export default {
       test: {},
       activeTab: 'detail',
       users: [],
-      Builds: [],
-      zentaoBuilds: [],
-      zentaoUsers: [],
-      zentaoAssigned: "",
-      hasTapdId: false,
-      hasZentaoId: false,
       tableData: [],
       comments: [],
       testCaseTemplate: {},
@@ -445,8 +438,6 @@ export default {
         });
       this.showDialog = true;
       this.activeTab = 'detail';
-      this.hasTapdId = false;
-      this.hasZentaoId = false;
       this.originalStatus = testCase.status;
       this.setTitleWith();
 

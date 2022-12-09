@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.platform.domain.PlatformRequest;
 import io.metersphere.platform.domain.SelectOption;
+
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
@@ -122,8 +123,7 @@ public class PlatformPluginService {
 
     public static boolean isPluginPlatform(String platform) {
         if (StringUtils.equalsAnyIgnoreCase(platform,
-                IssuesManagePlatform.Tapd.name(), IssuesManagePlatform.AzureDevops.name(),
-                IssuesManagePlatform.Zentao.name(), IssuesManagePlatform.Local.name())) {
+                IssuesManagePlatform.Tapd.name(), IssuesManagePlatform.AzureDevops.name(), IssuesManagePlatform.Local.name())) {
             return false;
         }
         return true;
