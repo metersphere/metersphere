@@ -20,6 +20,9 @@ public class PluginManagerUtil {
      * @param inputStream
      */
     public static void loadPlugin(String id, PluginManager pluginManager, InputStream inputStream) {
+        if (inputStream == null) {
+            return;
+        }
         if (pluginManager == null) {
             pluginManager = new PluginManager();
         }

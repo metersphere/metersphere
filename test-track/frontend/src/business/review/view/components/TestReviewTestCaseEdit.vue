@@ -206,8 +206,6 @@ export default {
       api: {},
       apiCase: {},
       testCaseTemplate: {},
-      hasTapdId: false,
-      hasZentaoId: false,
       formLabelWidth: '100px',
       isCustomFiledActive: false,
       oldReviewStatus: '',
@@ -408,8 +406,6 @@ export default {
       // 一开始加载时候需要保存用例评审旧的状态
       this.oldReviewStatus = testCase.reviewStatus;
       this.activeTab = 'detail';
-      this.hasTapdId = false;
-      this.hasZentaoId = false;
       listenGoBack(this.handleClose);
       let initFuc = this.getTestCase;
       this.setTitleWith();

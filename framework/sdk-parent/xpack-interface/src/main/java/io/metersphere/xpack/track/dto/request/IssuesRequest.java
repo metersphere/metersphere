@@ -21,14 +21,6 @@ public class IssuesRequest extends BaseQueryRequest {
      * 如果是 PLAN_FUNCTIONAL 则只查询该测试计划用例所关联的缺陷
      */
     private String refType;
-    /**
-     * zentao bug 处理人
-     */
-    private String zentaoUser;
-    /**
-     * zentao bug 影响版本
-     */
-    private List<String> zentaoBuilds;
 
     /**
      * issues id

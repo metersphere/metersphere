@@ -16,8 +16,6 @@ public class IssueFactory {
     public static IssuesPlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
         if (StringUtils.equals(IssuesManagePlatform.Tapd.toString(), platform)) {
             return new TapdPlatform(addIssueRequest);
-        } else if (StringUtils.equals(IssuesManagePlatform.Zentao.toString(), platform)) {
-            return new ZentaoPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.AzureDevops.toString(), platform)) {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {

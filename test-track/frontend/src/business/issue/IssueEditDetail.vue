@@ -76,26 +76,6 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_build')"
-                          prop="zentaoBuilds">
-              <el-select v-model="form.zentaoBuilds" multiple filterable
-                         :placeholder="$t('test_track.issue.zentao_bug_build')">
-                <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
-                           :value="build.id"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_assigned')"
-                          prop="zentaoAssigned">
-              <el-select v-model="form.zentaoAssigned" filterable
-                         :placeholder="$t('test_track.issue.please_choose_current_owner')">
-                <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
-                           :value="userInfo.user"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
         </el-row>
 
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
@@ -220,14 +200,12 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
   getIssuePartTemplateWithProject,
-  getPlatformTransitions,
+  getPlatformStatus,
   getIssuesById,
   saveOrUpdateIssue,
   saveFollow,
   getFollow,
   getComments,
-  getZentaoBuilds,
-  getZentaoUser,
   getTapdUser
 } from "@/api/issue";
 import {
@@ -293,16 +271,11 @@ export default {
         creator: null,
         remark: null,
         tapdUsers: [],
-        zentaoBuilds: [],
-        zentaoAssigned: '',
         platformStatus: null,
         copyIssueId: ''
       },
       tapdUsers: [],
-      zentaoUsers: [],
-      Builds: [],
       hasTapdId: false,
-      hasZentaoId: false,
       platformTransitions: null,
       currentProject: null,
       toolbars: {
@@ -392,8 +365,6 @@ export default {
         creator: null,
         remark: null,
         tapdUsers: [],
-        zentaoBuilds: [],
-        zentaoAssigned: '',
         platformStatus: null
       };
       this.customFieldForm = null;
@@ -438,11 +409,6 @@ export default {
             }
           }
         });
-        getIssuesById(data.id).then(response => {
-          this.form.tapdUsers = response.data.tapdUsers;
-          this.form.zentaoBuilds = response.data.zentaoBuilds;
-          this.form.zentaoAssigned = response.data.zentaoAssigned;
-        });
       } else {
         this.issueId = null;
         this.form.follows = [];
@@ -467,7 +433,7 @@ export default {
           projectId: getCurrentProjectID(),
           workspaceId: getCurrentWorkspaceId()
         }
-        getPlatformTransitions(data).then(response => {
+        getPlatformStatus(data).then(response => {
           if (response.data.length > 0) {
             this.platformTransitions = response.data;
           }
@@ -478,19 +444,7 @@ export default {
         projectId: this.projectId,
         workspaceId: getCurrentWorkspaceId()
       }
-      if (platform === 'Zentao') {
-        this.hasZentaoId = true;
-        getZentaoBuilds(data)
-          .then((response) => {
-            if (response.data) {
-              this.Builds = response.data;
-            }
-            getZentaoUser(data)
-              .then((response) => {
-                this.zentaoUsers = response.data;
-              })
-          })
-      } else if (platform === 'Tapd') {
+      if (platform === 'Tapd') {
         this.hasTapdId = true;
         getTapdUser(data)
           .then((response) => {

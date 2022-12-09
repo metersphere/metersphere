@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.vo.FileRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,17 @@ public class BasePluginService {
         return pluginMapper.selectByExampleWithBLOBs(example);
     }
 
+    public PluginWithBLOBs get(String pluginId) {
+        return pluginMapper.selectByPrimaryKey(pluginId);
+    }
+
+    public PluginWithBLOBs getByScripId(String scripId) {
+        PluginExample example = new PluginExample();
+        example.createCriteria().andScriptIdEqualTo(scripId);
+        List<PluginWithBLOBs> plugins = pluginMapper.selectByExampleWithBLOBs(example);
+        return CollectionUtils.isEmpty(plugins) ? null : plugins.get(0);
+    }
+
     public InputStream getPluginResource(String pluginId, String resourceName) {
         FileRequest request = new FileRequest();
         request.setProjectId(DIR_PATH + "/" + pluginId);
@@ -38,6 +50,9 @@ public class BasePluginService {
 
     public InputStream getPluginJar(String pluginId) {
         PluginWithBLOBs plugin = pluginMapper.selectByPrimaryKey(pluginId);
+        if (plugin == null) {
+            return null;
+        }
         return getPluginResource(pluginId, plugin.getSourceName());
     }
 }
