@@ -8,7 +8,7 @@
            background-color="rgba(0,0,0,0)"
            @select="handleSelect"
            router>
-    <el-menu-item index="/workstation" v-xpack v-if="check('workstation')">
+    <el-menu-item index="/workstation" v-if="check('workstation')">
       <div>
         <svg-icon iconClass="workstation" class-name="ms-menu-img"/>
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.my_workstation') }}</span>

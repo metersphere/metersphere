@@ -22,37 +22,38 @@
               :disable-header-config="true"
               @selectCountChange="selectCountChange">
 
-      <el-table-column v-if="!customNum" prop="num" label="ID" sortable="custom"
+      <ms-table-column v-if="!customNum" prop="num" label="ID" sortable="custom"
                        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column v-if="customNum" prop="customNum" label="ID" sortable="custom"
+      </ms-table-column>
+      <ms-table-column v-if="customNum" prop="customNum" label="ID" sortable="custom"
                        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable="custom" min-width="120px"
+      </ms-table-column>
+
+      <ms-table-column :fields-width="fieldsWidth" prop="name" :label="$t('api_test.automation.scenario_name')" sortable="custom" min-width="120px"
                        show-overflow-tooltip/>
 
-      <el-table-column prop="level" :label="$t('api_test.automation.case_level')" sortable="custom" min-width="120px"
+      <ms-table-column prop="level" :label="$t('api_test.automation.case_level')" sortable="custom" min-width="120px"
                        show-overflow-tooltip>
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.level" ref="level"/>
         </template>
 
-      </el-table-column>
-      <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="100">
+      </ms-table-column>
+      <ms-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="100">
         <template v-slot:default="scope">
           <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName"
                   style="margin-left: 0px; margin-right: 2px"/>
         </template>
-      </el-table-column>
-      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip sortable="custom"
+      </ms-table-column>
+      <ms-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip sortable="custom"
                        min-width="100px"/>
-      <el-table-column prop="updateTime" :label="$t('commons.update_time')" width="180" sortable="custom">
+      <ms-table-column prop="updateTime" :label="$t('commons.update_time')" width="180" sortable="custom">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
-      </el-table-column>
-      <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom"
+      </ms-table-column>
+      <ms-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
+      <ms-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom"
                        min-width="120px">
         <template v-slot:default="{row}">
           <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success' || row.lastResult === 'SUCCESS'">
@@ -71,8 +72,8 @@
             {{ $t('Pending') }}
           </el-link>
         </template>
-      </el-table-column>
-      <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
+      </ms-table-column>
+      <ms-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                        show-overflow-tooltip/>
     </ms-table>
     <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -94,6 +95,10 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import {getOwnerProjects, getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {testPlanUiScenarioRelevanceList} from "@/api/remote/ui/test-plan-ui-scenario-case";
+import {
+  getCustomTableWidth
+} from "metersphere-frontend/src/utils/tableUtils";
+import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 
 export default {
   name: "RelevanceUiScenarioList",
@@ -106,6 +111,7 @@ export default {
     MsTableHeader,
     MsTag,
     MsTableAdvSearchBar,
+    MsTableColumn,
   },
   props: {
     referenced: {
@@ -140,6 +146,7 @@ export default {
       environmentType: ENV_TYPE.JSON,
       envGroupId: "",
       versionFilters: [],
+      fieldsWidth: getCustomTableWidth('TEST_PLAN_UI_SCENARIO_CASE'),
     };
   },
   computed: {

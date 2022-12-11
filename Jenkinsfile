@@ -97,7 +97,7 @@ pipeline {
 
                         LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
 
-                        libraries=('api-test' 'performance-test' 'project-management' 'system-setting' 'test-track' 'report-stat')
+                        libraries=('api-test' 'performance-test' 'project-management' 'system-setting' 'test-track' 'report-stat' 'workstation')
                         for library in "${libraries[@]}";
                         do
                             mkdir -p $library/backend/target/dependency && (cd $library/backend/target/dependency; jar -xf ../*.jar; cp $LOCAL_REPOSITORY/io/metersphere/metersphere-xpack/${REVISION}/metersphere-xpack-${REVISION}.jar ./BOOT-INF/lib/)
@@ -119,7 +119,7 @@ pipeline {
                         try {
                             sh '''#!/bin/bash -xe
                             cd ${WORKSPACE}
-                            libraries=('framework/eureka' 'framework/gateway' 'api-test' 'performance-test' 'project-management' 'report-stat' 'system-setting' 'test-track')
+                            libraries=('framework/eureka' 'framework/gateway' 'api-test' 'performance-test' 'project-management' 'report-stat' 'system-setting' 'test-track' 'workstation')
                             for library in "${libraries[@]}";
                             do
                                 IMAGE_NAME=${library#*/}

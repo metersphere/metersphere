@@ -99,7 +99,7 @@ export default {
     },
     isReadOnly() {
       return function (data) {
-        const isDefaultSystemGroup = this.group.id === 'admin' && data.resource.id === 'SYSTEM_GROUP';
+        const isDefaultSystemGroup = (this.group.id === 'admin' || this.group.id === 'super_group') && data.resource.id === 'SYSTEM_GROUP';
         return this.readOnly || isDefaultSystemGroup;
       }
     }
@@ -143,8 +143,13 @@ export default {
     },
     _getUniteMenu() {
       let menu = ['TRACK', 'API', 'UI', 'PERFORMANCE', 'REPORT'];
+      // 是否是第一个无子分类的项目类型模块 如：PROJECT_USER
+      let isFirstProjectType = false;
       for (let i = 0; i < this.tableData.length; i++) {
         if (i === 0) {
+          if (this.tableData[i].type === GROUP_TYPE.PROJECT) {
+            isFirstProjectType = true;
+          }
           this.spanArr.push(1);
           this.pos = 0
         } else {
@@ -153,8 +158,13 @@ export default {
           if (this.tableData[i].type !== GROUP_TYPE.PROJECT) {
             sign = this.tableData[i].type === this.tableData[i - 1].type;
           } else {
-            sign = !menu.includes(this.tableData[i].resource.id.split('_')[1]) ?
-              true : this.tableData[i].resource.id.split('_')[1] === this.tableData[i - 1].resource.id.split('_')[1]
+            let hasSubModule = menu.includes(this.tableData[i].resource.id.split('_')[1]);
+            if (hasSubModule) {
+              sign = this.tableData[i].resource.id.split('_')[1] === this.tableData[i - 1].resource.id.split('_')[1];
+            } else {
+              sign = isFirstProjectType;
+              isFirstProjectType = true;
+            }
           }
           if (sign) {
             this.spanArr[this.pos] += 1;

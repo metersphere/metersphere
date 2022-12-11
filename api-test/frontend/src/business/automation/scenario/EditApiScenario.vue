@@ -1233,6 +1233,11 @@ export default {
       if (e && e.data === 'CONN_SUCCEEDED') {
         this.run();
       }
+      if (e && e.data === 'DEBUG_ERROR') {
+        this.$error(this.$t('api_definition.debug_pool_warning'));
+        this.messageWebSocket.close();
+        this.errorRefresh();
+      }
       if (e.data && e.data.startsWith('result_')) {
         let data = JSON.parse(e.data.substring(7));
         this.reqTotal += 1;

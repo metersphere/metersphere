@@ -360,6 +360,9 @@ export default {
         let data = res.data;
         if (data) {
           this._setResource(data, index, type);
+          if (id === 'super_group') {
+            return;
+          }
           if (isHaveWorkspace === false) {
             this.addWorkspaceGroup(id, index);
           }

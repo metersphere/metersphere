@@ -56,14 +56,6 @@ export function getIssues(currentPage, pageSize, param) {
   return post(BASE_URL + "list/" + currentPage + '/' + pageSize, param);
 }
 
-export function getZentaoBuilds(param) {
-  return post(BASE_URL + "zentao/builds", param);
-}
-
-export function getZentaoUser(param) {
-  return post(BASE_URL + "zentao/user", param);
-}
-
 export function getTapdUser(param) {
   return post(BASE_URL + "tapd/user", param);
 }
@@ -184,16 +176,22 @@ export function deleteIssueRelate(param) {
   return post('/issues/delete/relate', param);
 }
 
+function parseOptions(customFields) {
+  if (customFields) {
+    customFields.forEach(item => {
+      if (item.options) {
+        item.options = JSON.parse(item.options);
+      }
+    });
+  }
+}
+
 export function getIssueThirdPartTemplate() {
   return get('/issues/thirdpart/template/' + getCurrentProjectID())
     .then((response) => {
       let template = response.data;
       if (template.customFields) {
-        template.customFields.forEach(item => {
-          if (item.options) {
-            item.options = JSON.parse(item.options);
-          }
-        });
+        parseOptions(template.customFields);
       }
       return template
     });
@@ -210,8 +208,8 @@ export function getJiraIssueType(param) {
   return post('/issues/jira/issuetype', param);
 }
 
-export function getPlatformTransitions(param) {
-  return post('/issues/platform/transitions', param);
+export function getPlatformStatus(param) {
+  return post('/issues/platform/status', param);
 }
 
 export function enableThirdPartTemplate(projectId) {
@@ -229,6 +227,10 @@ export function buildIssues(page) {
   }
 }
 
+export function getPluginCustomFields(projectId) {
+  return get(BASE_URL + `plugin/custom/fields/${projectId}`);
+}
+
 export function getIssuePartTemplateWithProject(callback) {
   getCurrentProject().then((response) => {
     let currentProject = response.data;
@@ -241,8 +243,13 @@ export function getIssuePartTemplateWithProject(callback) {
                 callback(template, currentProject);
             });
         } else {
-          getIssueTemplate()
-            .then((template) => {
+          Promise.all([getPluginCustomFields(currentProject.id), getIssueTemplate()])
+            .then(data => {
+              let pluginFields = data[0].data;
+              parseOptions(pluginFields);
+
+              let template = data[1];
+              template.customFields.push(...pluginFields);
               if (callback)
                 callback(template, currentProject);
             });

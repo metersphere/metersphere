@@ -19,8 +19,6 @@ public class IssuesDao extends IssuesWithBLOBs {
     private List<String> caseIds;
     private String caseId;
     private List<String> tapdUsers;
-    private List<String>zentaoBuilds;
-    private String zentaoAssigned;
     private String refType;
     private String refId;
     private List<CustomFieldDao> fields;

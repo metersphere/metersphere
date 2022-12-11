@@ -3,7 +3,6 @@
     <slot name="version"></slot>
     <ms-search :condition.sync="condition" :base-search-tip="$t('commons.search_by_id_name_tag')" @search="search">
     </ms-search>
-
     <ms-table
       :data="tableData"
       :screen-height="isRelate ? 'calc(100vh - 400px)' : screenHeight"

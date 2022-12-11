@@ -348,6 +348,10 @@
       "name": "permission.system_operation_log.name"
     },
     {
+      "id": "SYSTEM_PLUGIN",
+      "name": "permission.system_plugin.name"
+    },
+    {
       "id": "WORKSPACE_USER",
       "name": "permission.workspace_user.name"
     },
@@ -373,12 +377,9 @@
       "name": "permission.workspace_operation_log.name"
     },
     {
-      "id": "SYSTEM_PLUGIN",
-      "name": "permission.system_plugin.name"
-    },
-    {
       "id": "PERSONAL_INFORMATION",
-      "name": "permission.personal_information.name"
+      "name": "permission.personal_information.name",
+      "global": true
     }
   ]
 }

@@ -27,10 +27,6 @@ import MsDialogFooter from "../MsDialogFooter";
 import {removeGoBackListener} from "../../utils";
 import MsTableOperatorButton from "../MsTableOperatorButton";
 import {EMAIL_REGEX, PHONE_REGEX} from "../../utils/regex";
-import JiraUserInfo from "./JiraUserInfo";
-import TapdUserInfo from "./TapdUserInfo";
-import ZentaoUserInfo from "./ZentaoUserInfo";
-import AzureDevopsUserInfo from "./AzureDevopsUserInfo";
 import {useUserStore} from "@/store";
 import {updateInfo} from "../../api/user";
 
@@ -38,7 +34,7 @@ const userStore = useUserStore();
 
 export default {
   name: "MsPersonFromSetting",
-  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo, AzureDevopsUserInfo, MsDialogFooter, MsTableOperatorButton},
+  components: {MsDialogFooter, MsTableOperatorButton},
   inject: [
     'reload',
     'reloadTopMenus'

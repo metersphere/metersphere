@@ -242,17 +242,39 @@ public class BaseUserService {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-
+        boolean isSuper = baseUserMapper.isSuperUser(sessionUser.getId());
         if (StringUtils.equals("workspace", sign)) {
             user.setLastWorkspaceId(sourceId);
             sessionUser.setLastWorkspaceId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
-            if (projects.size() > 0) {
+            if (CollectionUtils.isNotEmpty(projects)) {
                 user.setLastProjectId(projects.get(0).getId());
             } else {
-                user.setLastProjectId(StringUtils.EMPTY);
+                if (isSuper) {
+                    ProjectExample example = new ProjectExample();
+                    example.createCriteria().andWorkspaceIdEqualTo(sourceId);
+                    List<Project> allWsProject = projectMapper.selectByExample(example);
+                    if (CollectionUtils.isNotEmpty(allWsProject)) {
+                        user.setLastProjectId(allWsProject.get(0).getId());
+                    }
+                } else {
+                    user.setLastProjectId(StringUtils.EMPTY);
+                }
             }
         }
+        BeanUtils.copyProperties(user, newUser);
+        // 切换工作空间或组织之后更新 session 里的 user
+        SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
+        userMapper.updateByPrimaryKeySelective(newUser);
+    }
+
+    private void switchSuperUserResource(String projectId, String workspaceId, UserDTO sessionUser) {
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+        User newUser = new User();
+        user.setLastWorkspaceId(workspaceId);
+        sessionUser.setLastWorkspaceId(workspaceId);
+        user.setLastProjectId(projectId);
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
         SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
@@ -418,10 +440,22 @@ public class BaseUserService {
                 String wsId = workspaces.get(0).getSourceId();
                 switchUserResource("workspace", wsId, user);
             } else {
-                // 用户登录之后没有项目和工作空间的权限就把值清空
-                user.setLastWorkspaceId(StringUtils.EMPTY);
-                user.setLastProjectId(StringUtils.EMPTY);
-                updateUser(user);
+                List<String> superGroupIds = user.getGroups()
+                        .stream()
+                        .map(Group::getId)
+                        .filter(id -> StringUtils.equals(id, UserGroupConstants.SUPER_GROUP))
+                        .collect(Collectors.toList());
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(superGroupIds)) {
+                    Project p = baseProjectMapper.selectOne();
+                    if (p != null) {
+                        switchSuperUserResource(p.getId(), p.getWorkspaceId(), user);
+                    }
+                } else {
+                    // 用户登录之后没有项目和工作空间的权限就把值清空
+                    user.setLastWorkspaceId(StringUtils.EMPTY);
+                    user.setLastProjectId(StringUtils.EMPTY);
+                    updateUser(user);
+                }
             }
         } else {
             UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
@@ -450,6 +484,8 @@ public class BaseUserService {
                 user.setLastWorkspaceId(project.getWorkspaceId());
                 updateUser(user);
                 return true;
+            } else {
+                return baseUserMapper.isSuperUser(user.getId());
             }
         }
         return false;
@@ -496,6 +532,8 @@ public class BaseUserService {
                 user.setLastWorkspaceId(wsId);
                 updateUser(user);
                 return true;
+            } else {
+                return baseUserMapper.isSuperUser(user.getId());
             }
         }
         return false;
@@ -738,5 +776,17 @@ public class BaseUserService {
         user.setLastProjectId(project.getId());
         user.setLastWorkspaceId(project.getWorkspaceId());
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public boolean isSuperUser(String userid) {
+        if (StringUtils.isBlank(userid)) {
+            MSException.throwException("userid is blank.");
+        }
+        return baseUserMapper.isSuperUser(userid);
+    }
+
+    public List<String> getAllUserIds() {
+        List<User> users = userMapper.selectByExample(new UserExample());
+        return users.stream().map(User::getId).collect(Collectors.toList());
     }
 }

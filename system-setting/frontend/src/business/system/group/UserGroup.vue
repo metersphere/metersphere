@@ -28,6 +28,7 @@
         <el-table-column prop="scopeName" :label="$t('group.scope')">
           <template v-slot="scope">
             <span v-if="scope.row.scopeId ==='global'">{{ $t('group.global') }}</span>
+            <span v-else-if="scope.row.scopeId ==='system'">{{ $t('group.system') }}</span>
             <span v-else>{{ scope.row.scopeName }}</span>
           </template>
         </el-table-column>
@@ -42,10 +43,22 @@
           </template>
         </el-table-column>
         <el-table-column prop="creator" :label="$t('group.operator')"/>
-        <el-table-column prop="description" :label="$t('group.description')"/>
+        <el-table-column prop="description" :label="$t('group.description')" show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" min-width="120">
-          <template v-slot:default="scope">
-            <div>
+          <template v-slot="scope">
+            <div v-if="scope.row.id === 'super_group'">
+              <ms-table-operator
+                :is-show="true"
+                @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+                <template v-slot:middle>
+                  <ms-table-operator-button
+                    v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION']"
+                    :tip="$t('group.set_permission')" icon="el-icon-s-tools"
+                    @exec="setPermission(scope.row)"/>
+                </template>
+              </ms-table-operator>
+            </div>
+            <div v-else>
               <ms-table-operator
                 :edit-permission="['SYSTEM_GROUP:READ+EDIT']"
                 :delete-permission="['SYSTEM_GROUP:READ+DELETE']"

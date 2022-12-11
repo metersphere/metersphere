@@ -46,7 +46,6 @@ import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
-import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.service.issue.platform.*;
 import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackIssueTemplateService;
@@ -59,7 +58,6 @@ import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
-import jodd.util.CollectionUtil;
 import io.metersphere.xpack.track.service.XpackIssueService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -142,6 +140,8 @@ public class IssuesService {
     private PlatformPluginService platformPluginService;
     @Resource
     private UserService userService;
+    @Resource
+    private BasePluginService basePluginService;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -482,10 +482,6 @@ public class IssuesService {
             List<String> tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
             issuesWithBLOBs.setTapdUsers(tapdUsers);
         }
-        if (StringUtils.equals(issuesWithBLOBs.getPlatform(), IssuesManagePlatform.Zentao.name())) {
-            ZentaoPlatform zentaoPlatform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issuesRequest);
-            zentaoPlatform.getZentaoAssignedAndBuilds(issuesWithBLOBs);
-        }
         buildCustomField(issuesWithBLOBs);
         return issuesWithBLOBs;
     }
@@ -650,18 +646,6 @@ public class IssuesService {
         }
     }
 
-    public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
-        try {
-            ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
-            return platform.getBuilds();
-        } catch (Exception e) {
-            LogUtil.error("get zentao builds fail.");
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("zentao_get_project_builds_fail"));
-        }
-        return null;
-    }
-
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         request.getOrders().forEach(order -> {
@@ -697,8 +681,6 @@ public class IssuesService {
             item.setCaseCount(caseIdSet.size());
         });
         buildCustomField(issues);
-        //处理MD图片链接内容
-        handleJiraIssueMdUrl(request.getWorkspaceId(), request.getProjectId(), issues);
         return issues;
     }
 
@@ -787,35 +769,6 @@ public class IssuesService {
             MSException.throwException(e.getMessage());
         }
 
-    }
-
-    private void handleJiraIssueMdUrl(String workPlaceId, String projectId, List<IssuesDao> issues) {
-        issues.forEach(issue -> {
-            if (StringUtils.isNotEmpty(issue.getDescription()) && issue.getDescription().contains("platform=Jira&")) {
-                issue.setDescription(replaceJiraMdUrlParam(issue.getDescription(), workPlaceId, projectId));
-            }
-            if (StringUtils.isNotEmpty(issue.getCustomFields()) && issue.getCustomFields().contains("platform=Jira&")) {
-                issue.setCustomFields(replaceJiraMdUrlParam(issue.getCustomFields(), workPlaceId, projectId));
-            }
-            if (CollectionUtils.isNotEmpty(issue.getFields())) {
-                issue.getFields().forEach(field -> {
-                    if (StringUtils.isNotEmpty(field.getTextValue()) && field.getTextValue().contains("platform=Jira&")) {
-                        field.setTextValue(replaceJiraMdUrlParam(field.getTextValue(), workPlaceId, projectId));
-                    }
-                    if (StringUtils.isNotEmpty(field.getValue()) && field.getValue().contains("platform=Jira&")) {
-                        field.setValue(replaceJiraMdUrlParam(field.getValue(), workPlaceId, projectId));
-                    }
-                });
-            }
-        });
-    }
-
-    private String replaceJiraMdUrlParam(String url, String workspaceId, String projectId) {
-        if (url.contains("&workspace_id=")) {
-            return url;
-        }
-        return url.replaceAll("platform=Jira&",
-                "platform=Jira&workspace_id=" + workspaceId + "&");
     }
 
     private Map<String, List<IssueCommentDTO>> getCommentMap(List<IssuesDao> issues) {
@@ -1180,6 +1133,8 @@ public class IssuesService {
     public String getDefaultCustomFields(String projectId) {
         IssueTemplateDao template = trackIssueTemplateService.getTemplate(projectId);
         List<CustomFieldDao> customFields = trackCustomFieldTemplateService.getCustomFieldByTemplateId(template.getId());
+        List<CustomFieldDao> pluginCustomFields = getPluginCustomFields(projectId);
+        customFields.addAll(pluginCustomFields);
         return getCustomFieldsValuesString(customFields);
     }
 
@@ -1402,6 +1357,47 @@ public class IssuesService {
         return issueTemplateDao;
     }
 
+    public List<CustomFieldDao> getPluginCustomFields(String projectId) {
+        List<CustomFieldDao> fields = new ArrayList<>();
+        if (StringUtils.isNotBlank(projectId)) {
+            Project project = baseProjectService.getProjectById(projectId);
+            PluginWithBLOBs plugin = basePluginService.getByScripId(project.getPlatform());
+            if (plugin == null) {
+                return fields;
+            }
+            Map metaData = JSON.parseMap(plugin.getFormScript());
+            Object issueConfig = metaData.get("issueConfig");
+            List<ThirdPartIssueField> thirdPartIssueFields = null;
+            if (issueConfig != null) {
+                String formItems = JSON.toJSONString(((Map) issueConfig).get("formItems"));
+                thirdPartIssueFields = JSON.parseArray(formItems, ThirdPartIssueField.class);
+            }
+            if (CollectionUtils.isEmpty(thirdPartIssueFields)) {
+                return fields;
+            }
+
+            char filedKey = 'A';
+            for (ThirdPartIssueField item : thirdPartIssueFields) {
+                CustomFieldDao customField = new CustomFieldDao();
+                BeanUtils.copyBean(customField, item);
+                customField.setKey(String.valueOf(filedKey++));
+                customField.setId(item.getName());
+                customField.setCustomData(item.getName());
+                customField.setName(item.getLabel());
+                if (StringUtils.isNotBlank(item.getOptionMethod())) {
+                    Platform platform = platformPluginService.getPlatform(project.getPlatform());
+                    GetOptionRequest request = new GetOptionRequest();
+                    request.setOptionMethod(item.getOptionMethod());
+                    request.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
+                    customField.setOptions(JSON.toJSONString(platform.getFormOptions(request)));
+                }
+
+                fields.add(customField);
+            }
+        }
+        return fields;
+    }
+
     public IssuesRequest getDefaultIssueRequest(String projectId, String workspaceId) {
         IssuesRequest issuesRequest = new IssuesRequest();
         issuesRequest.setProjectId(projectId);
@@ -1475,9 +1471,6 @@ public class IssuesService {
         if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Tapd.name())) {
             TapdPlatform tapd = new TapdPlatform(issuesRequest);
             this.doCheckThirdProjectExist(tapd, project.getTapdId());
-        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Zentao.name())) {
-            ZentaoPlatform zentao = new ZentaoPlatform(issuesRequest);
-            this.doCheckThirdProjectExist(zentao, project.getZentaoId());
         }
     }
 

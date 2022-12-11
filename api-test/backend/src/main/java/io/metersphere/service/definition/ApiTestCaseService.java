@@ -333,10 +333,14 @@ public class ApiTestCaseService {
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
-        deleteBodyFiles(testId);
         // 删除附件关系
         extFileAssociationService.deleteByResourceId(testId);
         deleteFollows(testId);
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testId);
+        if (apiTestCase != null) {
+            String filePath = StringUtils.join(BODY_FILE_DIR, File.separator, apiTestCase.getId());
+            FileUtil.deleteContents(new File(filePath));
+        }
     }
 
     private void deleteFollows(String testId) {
@@ -359,14 +363,6 @@ public class ApiTestCaseService {
             for (ApiTestCase testCase : testCases) {
                 this.delete(testCase.getId());
             }
-        }
-    }
-
-    public void deleteBodyFiles(String testId) {
-        File file = new File(BODY_FILE_DIR + "/" + testId);
-        FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
         }
     }
 

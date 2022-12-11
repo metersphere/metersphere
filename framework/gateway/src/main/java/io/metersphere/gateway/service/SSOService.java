@@ -48,6 +48,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -278,6 +280,7 @@ public class SSOService {
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, httpEntity, String.class);
             resultObj = JSON.parseObject(response.getBody(), new TypeReference<HashMap<String, Object>>() {});
+            LogUtil.info("user info: " + response.getBody());
         } catch (Exception e) {
             LogUtil.error("fail to get user info", e);
             MSException.throwException("fail to get user info!");
@@ -293,6 +296,12 @@ public class SSOService {
         if (StringUtils.isBlank(userid)) {
             MSException.throwException("userid is empty!");
         }
+        Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher m = p.matcher(userid);
+        if (m.find()) {
+            MSException.throwException("userid cannot contain Chinese characters!");
+        }
+
         if (StringUtils.isBlank(username)) {
             username = userid;
         }

@@ -250,6 +250,7 @@ export default {
         itemStyle: {
           borderWidth: 0.1
         },
+        inactiveBorderWidth:0.1,
         textStyle: {
           rich: {
             name: {

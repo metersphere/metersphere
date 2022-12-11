@@ -11,4 +11,10 @@ public class GroupResource implements Serializable {
     private String id;
     private String name;
     private Boolean license = false;
+
+    /**
+     * 系统设置、工作空间、项目类型 公用的权限模块
+     * e.g. 个人信息
+     */
+    private boolean global = false;
 }

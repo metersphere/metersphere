@@ -11,9 +11,6 @@
         <el-radio label="Tapd">
           <img class="platform" src="/assets/tapd.png" alt="Tapd"/>
         </el-radio>
-        <el-radio label="Zentao">
-          <img class="zentao_platform" src="/assets/zentao.jpg" alt="Zentao"/>
-        </el-radio>
         <el-radio label="AzureDevops" v-xpack>
           <img class="platform" src="/assets/AzureDevops.png" alt="AzureDevops"/>
         </el-radio>
@@ -21,7 +18,6 @@
     </div>
 
     <tapd-setting v-if="tapdEnable" ref="tapdSetting"/>
-    <zentao-setting v-if="zentaoEnable" ref="zentaoSetting"/>
     <azuredevops-setting v-if="azuredevopsEnable" ref="azureDevopsSetting"/>
 
     <div v-for="config in platformConfigs" :key="config.key">
@@ -35,16 +31,14 @@
 
 <script>
 import TapdSetting from '@/business/workspace/integration/TapdSetting';
-import JiraSetting from '@/business/workspace/integration/JiraSetting';
-import ZentaoSetting from '@/business/workspace/integration/ZentaoSetting';
 import AzuredevopsSetting from '@/business/workspace/integration/AzureDevopsSetting';
-import {AZURE_DEVOPS, TAPD, ZEN_TAO} from "metersphere-frontend/src/utils/constants";
+import {AZURE_DEVOPS, TAPD} from "metersphere-frontend/src/utils/constants";
 import PlatformConfig from "@/business/workspace/integration/PlatformConfig";
 import {generatePlatformResourceUrl, getIntegrationInfo} from "@/api/platform-plugin";
 
 export default {
   name: "BugManagement",
-  components: {PlatformConfig, TapdSetting, JiraSetting, ZentaoSetting, AzuredevopsSetting},
+  components: {PlatformConfig, TapdSetting, AzuredevopsSetting},
   data() {
     return {
       loading: false,
@@ -66,9 +60,6 @@ export default {
     tapdEnable() {
       return this.platform === TAPD;
     },
-    zentaoEnable() {
-      return this.platform === ZEN_TAO;
-    },
     azuredevopsEnable() {
       return this.platform === AZURE_DEVOPS;
     }
@@ -88,11 +79,6 @@ export default {
 
 .platform {
   height: 80px;
-  vertical-align: middle
-}
-
-.zentao_platform {
-  height: 100px;
   vertical-align: middle
 }
 </style>

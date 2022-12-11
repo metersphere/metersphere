@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssuesStatusCountDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -24,7 +25,6 @@ import io.metersphere.request.testcase.IssuesCountRequest;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.PlatformPluginService;
-import io.metersphere.service.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
@@ -150,16 +150,6 @@ public class IssuesController {
         return issuesService.getTapdProjectUsers(request);
     }
 
-    @PostMapping("/zentao/user")
-    public List<PlatformUser> getZentaoUsers(@RequestBody IssuesRequest request) {
-        return issuesService.getZentaoUsers(request);
-    }
-
-    @PostMapping("/zentao/builds")
-    public List<ZentaoBuild> getZentaoBuilds(@RequestBody IssuesRequest request) {
-        return issuesService.getZentaoBuilds(request);
-    }
-
     @GetMapping("/sync/{projectId}")
     public boolean syncThirdPartyIssues(@PathVariable String projectId) {
         return issuesService.syncThirdPartyIssues(projectId);
@@ -198,6 +188,11 @@ public class IssuesController {
     @GetMapping("/thirdpart/template/{projectId}")
     public IssueTemplateDao getThirdPartTemplate(@PathVariable String projectId) {
         return issuesService.getThirdPartTemplate(projectId);
+    }
+
+    @GetMapping("/plugin/custom/fields/{projectId}")
+    public List<CustomFieldDao> getPluginCustomFields(@PathVariable String projectId) {
+        return issuesService.getPluginCustomFields(projectId);
     }
 
     @GetMapping("/demand/list/{projectId}")

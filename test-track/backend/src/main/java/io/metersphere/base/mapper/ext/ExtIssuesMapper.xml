@@ -152,7 +152,7 @@
                    when 'textarea' then cfi.text_value
                    else cfi.value end as value
         from custom_field_issues cfi
-        join custom_field cf on cf.id = cfi.field_id
+        left join custom_field cf on cf.id = cfi.field_id
         where cfi.resource_id = #{issueId}
     </select>
     <select id="getPlatformIssueByIds" resultType="io.metersphere.xpack.track.dto.IssuesDao">
