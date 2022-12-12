@@ -66,6 +66,7 @@ const message = {
     current_project: '当前项目',
     not_exist: "不存在",
     name: '名称',
+    template_name: '模板名称',
     description: '描述',
     annotation: '注释',
     clear: '清空',
