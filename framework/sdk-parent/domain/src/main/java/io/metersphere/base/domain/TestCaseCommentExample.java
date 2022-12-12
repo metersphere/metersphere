@@ -573,6 +573,76 @@ public class TestCaseCommentExample {
             addCriterion("`type` not between", value1, value2, "type");
             return (Criteria) this;
         }
+
+        public Criteria andBelongIdIsNull() {
+            addCriterion("belong_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdIsNotNull() {
+            addCriterion("belong_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdEqualTo(String value) {
+            addCriterion("belong_id =", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdNotEqualTo(String value) {
+            addCriterion("belong_id <>", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdGreaterThan(String value) {
+            addCriterion("belong_id >", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdGreaterThanOrEqualTo(String value) {
+            addCriterion("belong_id >=", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdLessThan(String value) {
+            addCriterion("belong_id <", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdLessThanOrEqualTo(String value) {
+            addCriterion("belong_id <=", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdLike(String value) {
+            addCriterion("belong_id like", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdNotLike(String value) {
+            addCriterion("belong_id not like", value, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdIn(List<String> values) {
+            addCriterion("belong_id in", values, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdNotIn(List<String> values) {
+            addCriterion("belong_id not in", values, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdBetween(String value1, String value2) {
+            addCriterion("belong_id between", value1, value2, "belongId");
+            return (Criteria) this;
+        }
+
+        public Criteria andBelongIdNotBetween(String value1, String value2) {
+            addCriterion("belong_id not between", value1, value2, "belongId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

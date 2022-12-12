@@ -4,27 +4,47 @@
                 local-suffix="test_case"
                 default-label="未规划用例"
                 @nodeSelectEvent="publicNodeChange"
+                @filter="filter"
                 :tree-nodes="trashTreeNodes"
-                ref="trashNodeTree"/>
+                ref="trashNodeTree">
+    <template v-slot:header>
+      <ms-search-bar
+        :show-operator="showOperator"
+        :condition="condition"/>
+    </template>
+  </ms-node-tree>
 </template>
 
 <script>
-import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
+import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar";
+import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import {getTestCaseTrashNodes} from "@/api/testCase";
 
 export default {
   name: "TestCaseTrashNodeTree",
-  components: {MsNodeTree},
+  components: {MsNodeTree, MsSearchBar},
   props: {
-    caseCondition: Object
+    caseCondition: Object,
+    showOperator: Boolean,
   },
   data() {
     return {
       trashTreeNodes: [],
-      loading: false
+      loading: false,
+      condition: {
+        filterText: ""
+      }
     }
   },
+  watch: {
+    'condition.filterText'() {
+      this.filter();
+    },
+  },
   methods: {
+    filter() {
+      this.$refs.trashNodeTree.filter(this.condition.filterText);
+    },
     publicNodeChange(node, nodeIds, pNodes) {
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
       this.nohupReloadTree(node.data.id);

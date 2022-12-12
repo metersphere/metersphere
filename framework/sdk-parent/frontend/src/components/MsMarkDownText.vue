@@ -1,9 +1,21 @@
 <template>
-  <mavon-editor v-loading="loading" :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpenValue"
-                :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px', 'min-width': '100px'}"
-                @change="change" :image-click="imageClick"
-                :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="!disabled"
-                @imgDel="imgDel" v-model="data[prop]" ref="md"/>
+  <mavon-editor v-loading="loading"
+                v-model="data[prop]"
+                :id="id"
+                :editable="!disabled"
+                :default-open="defaultOpenValue"
+                :xss-options="xssOptions"
+                :style="{'min-height': customMinHeight + 'px', 'min-width': '100px'}"
+                :image-click="imageClick"
+                :subfield="false"
+                :toolbars="toolbars"
+                :language="language"
+                :toolbarsFlag="!disabled"
+                :placeholder="placeholder"
+                @imgDel="imgDel"
+                @change="change"
+                @imgAdd="imgAdd"
+                ref="md"/>
 </template>
 
 <script>
@@ -17,6 +29,7 @@ export default {
   components: {},
   props: {
     data: Object,
+    placeholder: String,
     prop: String,
     disabled: Boolean,
     defaultOpen: {

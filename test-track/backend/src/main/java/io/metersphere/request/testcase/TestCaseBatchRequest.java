@@ -20,6 +20,11 @@ public class TestCaseBatchRequest extends TestCaseWithBLOBs {
     private List<String> tagList;
     private boolean appendTag = false;
 
+    /**
+     * exportAll: 导出全部或者批量导出(v2.6)
+     */
+    private Boolean exportAll = false;
+
     @Getter
     @Setter
     public static class CustomFiledRequest {

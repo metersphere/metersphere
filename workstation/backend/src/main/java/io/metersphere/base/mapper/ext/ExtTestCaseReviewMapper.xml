@@ -75,7 +75,7 @@
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.reviewerId != null">
-                and test_case_review.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{request.reviewerId})
+                and test_case_review.id in (select test_case_review_test_case_users.review_id from test_case_review_test_case_users where test_case_review_test_case_users.user_id = #{request.reviewerId})
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -126,7 +126,7 @@
             #{projectId}
         </foreach>
         and tr.status in ('Prepare','Underway')
-        and tr.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{userId,jdbcType=VARCHAR})
+        and tr.id in (select test_case_review_test_case_users.review_id from test_case_review_test_case_users where test_case_review_test_case_users.user_id = #{userId,jdbcType=VARCHAR})
     </select>
 
 </mapper>

@@ -383,6 +383,7 @@ public class TestCaseService {
     public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
+        TestCaseWithBLOBs originCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
 
         try {
             // 同步缺陷与需求的关联关系
@@ -416,7 +417,28 @@ public class TestCaseService {
         testCase.setLatest(null);
 
         testCaseMapper.updateByPrimaryKeySelective(testCase);
-        return testCaseMapper.selectByPrimaryKey(testCase.getId());
+
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCase.getId());
+
+        reReviewTestReviewTestCase(originCase, testCaseWithBLOBs);
+
+        return testCaseWithBLOBs;
+    }
+
+    /**
+     * 如果启用重新提审，并且前置条件或步骤发生变化，则触发重新提审
+     */
+    private void reReviewTestReviewTestCase(TestCaseWithBLOBs originCase, TestCaseWithBLOBs testCase) {
+        ProjectConfig config = baseProjectApplicationService.getProjectConfig(testCase.getProjectId());
+        Boolean reReview = config.getReReview();
+        if (BooleanUtils.isTrue(reReview) && originCase != null) {
+            if (!StringUtils.equals(originCase.getPrerequisite(), testCase.getPrerequisite())   // 前置条件添加发生变化
+            || !StringUtils.equals(originCase.getSteps(), testCase.getSteps())                  // 步骤发生变化
+            || !StringUtils.equals(originCase.getStepDescription(), testCase.getStepDescription())
+            || !StringUtils.equals(originCase.getExpectedResult(), testCase.getExpectedResult())) {
+                testReviewTestCaseService.reReviewByCaseId(testCase.getId());
+            }
+        }
     }
 
     /**
@@ -1514,6 +1536,10 @@ public class TestCaseService {
     public void testCaseXmindExport(HttpServletResponse response, TestCaseBatchRequest request) {
         try {
             request.getCondition().setStatusIsNot("Trash");
+            if (request.getExportAll()) {
+                // 导出所有用例, 勾选ID清空
+                request.setIds(null);
+            }
             List<TestCaseDTO> testCaseDTOList = this.findByBatchRequest(request);
 
             TestCaseXmindData rootXmindData = this.generateTestCaseXmind(testCaseDTOList);

@@ -1,9 +1,8 @@
 <template>
-
   <div>
 
     <el-dialog :close-on-click-modal="false"
-               :title="operationType === 'edit' ? $t('test_track.review.edit_review') : $t('test_track.review.create_review')"
+               :title="isEdit ? $t('test_track.review.edit_review') : $t('test_track.review.create_review')"
                :visible.sync="dialogFormVisible"
                @close="close"
                v-loading="result.loading"
@@ -44,6 +43,9 @@
                   :value="item.id">
                 </el-option>
               </el-select>
+              <div v-if="isEdit" class="item-tip">
+                {{ $t('review.update_review_reviewer_tip') }}
+              </div>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -56,6 +58,27 @@
           </el-col>
         </el-row>
 
+        <el-row type="flex" justify="left" style="margin-top: 10px;">
+          <el-col :span="19">
+            <el-form-item :label="$t('review.review_pass_rule')" :label-width="formLabelWidth" prop="reviewPassRule">
+              <el-select v-model="form.reviewPassRule" default-first-option>
+                <el-option
+                  v-for="item in [
+                          {text: 'review.review_pass_rule_single', value: 'SINGLE'},
+                          {text: 'review.review_pass_rule_all', value: 'ALL'}
+                        ]"
+                  :key="item.value"
+                  :label="$t(item.text)"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+              <ms-instructions-icon :content="$t('review.review_rule_tip')" effect="light"/>
+              <div v-if="isEdit" class="item-tip">
+                {{ $t('review.update_review_rule_tip') }}
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
         <el-row type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="23">
@@ -69,7 +92,7 @@
           </el-col>
         </el-row>
 
-        <el-row v-if="operationType === 'edit'" type="flex" justify="left" style="margin-top: 10px;">
+        <el-row v-if="isEdit" type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="19">
             <el-form-item :label="$t('test_track.review.review_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
@@ -93,9 +116,7 @@
         </div>
       </template>
     </el-dialog>
-
   </div>
-
 
 </template>
 
@@ -108,10 +129,11 @@ import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
 import i18n from "@/i18n";
 import {getMaintainer} from "@/api/project";
 import {saveOrUpdateTestCaseReview} from "@/api/test-review";
+import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {MsInputTag, TestPlanStatusButton},
+  components: {MsInputTag, TestPlanStatusButton, MsInstructionsIcon},
   data() {
     return {
       isStepTableAlive: true,
@@ -125,6 +147,7 @@ export default {
         description: '',
         endTime: '',
         followIds: [],
+        reviewPassRule: 'SINGLE'
       },
       dbProjectIds: [],
       rules: {
@@ -135,9 +158,10 @@ export default {
         userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
-        endTime: [{required: true, message: this.$t('commons.please_select_a_deadline'), trigger: 'blur'}]
+        endTime: [{required: true, message: this.$t('commons.please_select_a_deadline'), trigger: 'blur'}],
+        reviewPassRule: [{required: true, message: this.$t('commons.input_review_name'), trigger: 'blur'}]
       },
-      formLabelWidth: "100px",
+      formLabelWidth: "110px",
       operationType: '',
       reviewerOptions: [],
     };
@@ -145,6 +169,9 @@ export default {
   computed: {
     projectId() {
       return getCurrentProjectID();
+    },
+    isEdit() {
+      return this.operationType === 'edit';
     }
   },
   methods: {
@@ -286,6 +313,9 @@ export default {
 </script>
 
 <style scoped>
-
+.item-tip {
+  font-size: 10px;
+  color: #909399;
+}
 </style>
 

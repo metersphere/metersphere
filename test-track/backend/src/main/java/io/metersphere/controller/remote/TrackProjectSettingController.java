@@ -1,5 +1,6 @@
 package io.metersphere.controller.remote;
 
+import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.remote.project.TrackProjectSettingService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,8 @@ public class TrackProjectSettingController {
 
     @Resource
     TrackProjectSettingService trackProjectSettingService;
+    @Resource
+    BaseProjectService baseProjectService;
 
     @PostMapping("/**")
     public Object list(HttpServletRequest request, @RequestBody Object param) {

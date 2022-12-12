@@ -38,6 +38,11 @@ public class TestCaseCommentController {
         return testCaseCommentService.getCaseComments(caseId, type);
     }
 
+    @GetMapping("/list/{caseId}/{type}/{belongId}")
+    public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId, @PathVariable String type, @PathVariable String belongId) {
+        return testCaseCommentService.getCaseComments(caseId, type, belongId);
+    }
+
     @GetMapping("/list/{caseId}")
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId) {
         return testCaseCommentService.getCaseComments(caseId, null);

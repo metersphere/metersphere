@@ -4,6 +4,12 @@ import test_track from "./track/en-US";
 
 const message = {
   commons: {
+    pre_page: 'Pre page',
+    next_page: 'Next page',
+    table_select_row_count: 'Selected {0} Record',
+    header_custom_select_tips: 'Please customize table header by select field',
+    advance_search_total_suffix: 'results',
+    advance_search_clear: 'Reset condition',
     project_permission: 'Please add the project permission first',
     no_permission: 'No permission yet',
     failure_continues: "Failure continues",
@@ -130,7 +136,7 @@ const message = {
     system_setting: 'Settings',
     api: 'API',
     encode: 'Encode',
-    view: 'view',
+    view: 'View',
     follow_api: 'Follow API definition',
     response_time_delay: 'Response delay time',
     my_workstation: 'Workstation',
@@ -140,6 +146,7 @@ const message = {
     view_settings: 'View Settings',
     functional: 'Functional test',
     input_content: 'Please enter content',
+    input_un_pass_reason: 'Please enter un pass content',
     create: 'Create',
     edit: 'Edit',
     copy: 'Copy',
@@ -330,6 +337,7 @@ const message = {
     },
     adv_search: {
       title: 'Advanced Search',
+      new_title: 'Search',
       combine: 'Combined query',
       test: "Test",
       project: "Project",
@@ -369,6 +377,8 @@ const message = {
       select_module: "Select module",
       default_module: "Default module",
     },
+    reviewer: 'Reviewer',
+    append_reviewer: 'Append Reviewer',
     report_statistics: {
       reserved: "Reserved",
       menu: {
@@ -885,6 +895,8 @@ const message = {
       edit_version: 'Edit version',
       version_closed: 'Closed',
       version_open: 'Open',
+      re_review: 'ReReview',
+      re_review_info: 'Use case under review changes, use case state automatically switches to reReview ',
       publish_time: 'Publish time',
       start_time: 'Start time',
       end_time: 'End time',
@@ -1284,6 +1296,8 @@ const message = {
     batch_menus: {
       select_all_data: "Select all datas({0})",
       select_show_data: "Select show datas({0})",
+      select_current_page: "Select Current",
+      select_all_page: "Select All"
     },
     mock: {
       create_error: "Api info is not saved",
@@ -1924,9 +1938,9 @@ const message = {
       no_cover_tip_scenario_1: "1. The same Scenario that already exists in the system will not be changed",
       no_cover_tip_scenario_2: "2. Add Scenario that do not exist in the system",
       import_version: 'Import version',
-      data_update_version: 'The same API is updated to',
-      data_new_version: 'New API created to',
-      latest_version: 'Latest version',
+      data_update_version: 'Api update version',
+      data_new_version: 'Api creation version',
+      latest_version: 'Default to latest version'
     },
     scenario_import: {
       data_update_version: 'The same Scenario is updated to',
