@@ -37,6 +37,7 @@ const message = {
   home: {
     dashboard: {
       public: {
+        default_version: '默認最新版本',
         no_data: '暫無數據',
         load_error: '加載失敗',
         this_week: '本週',

@@ -1,14 +1,14 @@
 package io.metersphere.service.scenario;
 
-import io.metersphere.service.MsHashTreeService;
 import io.metersphere.base.domain.ApiScenarioReferenceId;
 import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReferenceIdMapper;
 import io.metersphere.commons.constants.ElementConstants;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.MsHashTreeService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -208,7 +208,7 @@ public class ApiScenarioReferenceIdService {
         }
     }
 
-    public List<ApiScenarioReferenceId> selectUrlByProjectId(String projectId) {
-        return extApiScenarioReferenceIdMapper.selectUrlByProjectId(projectId);
+    public List<ApiScenarioReferenceId> selectUrlByProjectId(String projectId, String versionId) {
+        return extApiScenarioReferenceIdMapper.selectUrlByProjectId(projectId, versionId);
     }
 }

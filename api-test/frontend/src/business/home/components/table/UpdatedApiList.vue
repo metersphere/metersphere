@@ -142,11 +142,9 @@ export default {
       currentPage: 1,
       pageSize: 5,
       total: 0,
+      versionId: '',
       status: API_STATUS,
     };
-  },
-  activated() {
-    this.search();
   },
   methods: {
     clickRow(row, column, event) {
@@ -157,12 +155,13 @@ export default {
         this.redirectPage('api', 'api', 'edit:' + row.id);
       }
     },
-    search() {
+    search(versionId) {
+      this.versionId = versionId;
       let projectId = getCurrentProjectID();
       this.loading = true;
       this.loadError = false;
 
-      this.result = definitionWeekList(projectId, this.currentPage, this.pageSize)
+      this.result = definitionWeekList(projectId, versionId, this.currentPage, this.pageSize)
         .then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

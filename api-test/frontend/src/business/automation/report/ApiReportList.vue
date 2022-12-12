@@ -325,11 +325,14 @@ export default {
       let selectDataRange = 'all';
       let selectDataType = 'all';
       let routeParamObj = this.$route.params;
+      let redirectVersionId = this.$route.params.versionId;
+      if (redirectVersionId !== 'default') {
+        this.condition.versionId = redirectVersionId;
+      }
       if (routeParamObj) {
         selectDataRange = routeParamObj.dataSelectRange;
         selectDataType = routeParamObj.dataType;
       }
-
       if (
         (this.activeDom === 'left' && selectDataType === 'scenario') ||
         (this.activeDom === 'right' && selectDataType === 'apiCase')

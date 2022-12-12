@@ -72,6 +72,7 @@ public class ApiExecutionInfoService {
         info.setTriggerMode(triggerMode);
         info.setProjectId(projectId);
         info.setExecuteType(executeType);
+        info.setVersion(versionId);
         apiCaseExecutionInfoMapper.insert(info);
     }
 

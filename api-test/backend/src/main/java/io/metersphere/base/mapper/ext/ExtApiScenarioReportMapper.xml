@@ -188,7 +188,9 @@
             <if test="request.projectId != null">
                 AND s_r.project_id = #{request.projectId}
             </if>
-
+            <if test="request.versionId != null">
+                AND s_r.version_id = #{request.versionId}
+            </if>
             <if test="request.isUi">
                 AND s_r.report_type like 'UI%'
             </if>

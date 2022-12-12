@@ -61,8 +61,8 @@ export function apiListBatch(params) {
   return post('/api/definition/list/batch', params);
 }
 
-export function definitionWeekList(projectId, page, pageSize) {
-  return post('/api/definition/list/week/' + projectId + '/' + page + '/' + pageSize);
+export function definitionWeekList(projectId, versionId, page, pageSize) {
+  return post('/api/definition/list/week/' + projectId + '/' + versionId + '/' + page + '/' + pageSize);
 }
 
 export function getRelevanceDefinitionPage(page, pageSize, params) {

@@ -38,11 +38,11 @@ public interface ExtApiScenarioMapper {
 
     int reduction(@Param("ids") List<String> ids);
 
-    long countByProjectID(String projectId);
+    long countByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    long countByProjectIDAndCreatInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countByProjectIDAndCreatInThisWeek(@Param("projectId") String projectId, @Param("versionId") String versionId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
-    List<ApiDataCountResult> countRunResultByProjectID(String projectId);
+    List<ApiDataCountResult> countRunResultByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<String> selectIdsNotExistsInPlan(String projectId, String planId);
 
