@@ -7,4 +7,22 @@
                  join test_case tc on tcrtc.case_id = tc.id
         where tcrtc.review_id = #{reviewId}
     </select>
+    <select id="getCaseStatusByReviewIds" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
+        select tcrtc.id, tcrtc.status, tcrtc.review_id
+        from test_case_review_test_case tcrtc
+        where tcrtc.is_del = 0 and tcrtc.review_id in
+        <foreach collection="reviewIds" item="reviewId" separator="," open="(" close=")">
+            #{reviewId}
+        </foreach>
+    </select>
+    <select id="selectForRuleChange" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
+        select id, case_id, status, review_id
+        from test_case_review_test_case
+        where review_id = #{reviewId} and (status = 'Pass' or status = 'UnPass' or status = 'Underway');
+    </select>
+    <select id="selectForReReview" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
+        select id, case_id, status, review_id
+        from test_case_review_test_case
+        where case_id = #{caseId} and (status = 'Pass' or status = 'UnPass');
+    </select>
 </mapper>

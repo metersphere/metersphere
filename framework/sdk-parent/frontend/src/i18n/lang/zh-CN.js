@@ -4,6 +4,12 @@ import test_track from "./track/zh-CN";
 
 const message = {
   commons: {
+    pre_page: '上一页',
+    next_page: '下一页',
+    table_select_row_count: '已选择 {0} 条',
+    header_custom_select_tips: '请选择列表中要展示的信息',
+    advance_search_total_suffix: '个结果',
+    advance_search_clear: '清空条件',
     project_permission: '请先添加该项目权限',
     no_permission: '暂无权限',
     failure_continues: "失败继续",
@@ -141,6 +147,7 @@ const message = {
     my_workstation: '工作台',
     ui_test: 'UI测试',
     input_content: '请输入内容',
+    input_un_pass_reason: '请输入不通过原因',
     create: '新建',
     edit: '编辑',
     copy: '复制',
@@ -152,7 +159,7 @@ const message = {
     not_filled: '未填写',
     please_select: '请选择',
     search_by_name: '根据名称搜索',
-    search_by_name_or_id: '根据 ID/名称 搜索',
+    search_by_name_or_id: '通过ID或名称搜索',
     search_by_id_name_tag_path: '根据 ID/名称/标签/路径 搜索',
     search_by_id_name_tag: '根据 ID/名称/标签 搜索',
     personal_information: '个人信息',
@@ -331,6 +338,7 @@ const message = {
     },
     adv_search: {
       title: '高级搜索',
+      new_title: '筛选',
       combine: '组合查询',
       test: "所属测试",
       project: "所属项目",
@@ -370,6 +378,8 @@ const message = {
       select_module: "选择模块",
       default_module: "默认模块",
     },
+    reviewer: '评审人',
+    append_reviewer: '追加评审人',
     report_statistics: {
       reserved: "预留模块敬请期待",
       menu: {
@@ -598,7 +608,7 @@ const message = {
     system_field: '系统字段',
     scene: '使用场景',
     attribute_type: '属性类型',
-    field_name: '字段名',
+    field_name: '字段名称',
     field: '字段',
     field_remark: '字段备注',
     field_type: '字段类型',
@@ -881,6 +891,8 @@ const message = {
     log_desc: '项目全部操作过程',
     code_segment_desc: '自定义代码片段',
     test_case_custom_id: '测试用例自定义ID',
+    re_review: '重新提审',
+    re_review_info: '评审中的用例发生变更，用例状态自动切换为重新提审',
     test_case_custom_id_info: '用例ID默认为系统自增ID',
     scenario_custom_id: '场景自定义ID',
     scenario_custom_id_info: '场景用例ID默认为系统自增ID',
@@ -1292,6 +1304,8 @@ const message = {
     batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
       select_show_data: "选择可见数据(共{0}条)",
+      select_current_page: "全选当页",
+      select_all_page: "全选所有页"
     },
     mock: {
       create_error: "接口信息未保存",
@@ -1932,7 +1946,7 @@ const message = {
       import_version: '导入版本',
       data_update_version: '同一API更新到',
       data_new_version: '新增API创建到',
-      latest_version: '最新版本',
+      latest_version: '默认最新版本',
     },
     scenario_import: {
       data_update_version: '同一场景更新到',
@@ -2401,7 +2415,7 @@ const message = {
   table: {
     header_display_field: '表头显示字段',
     fields_to_be_selected: '待选字段',
-    selected_fields: '已选字段'
+    selected_fields: '已选字段',
   },
   run_mode: {
     title: "模式",

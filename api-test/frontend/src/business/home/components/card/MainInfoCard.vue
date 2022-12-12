@@ -27,7 +27,7 @@
                   v-permission-disable="linkPermission"
                   @click="redirect('createdInWeek')">
                   +{{ formatAmount(countData.createdInWeek) }}
-                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
+                  <img class="main-info-card-right" src="/assets/module/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
             </el-col>
@@ -39,7 +39,7 @@
                   v-permission-disable="linkPermission"
                   @click="redirect('fakeError')">
                   {{ formatAmount(countData.fakeErrorCount) }}
-                  <img class="main-info-card-right" src="/assets/figma/icon_right_outlined.svg" alt="" />
+                  <img class="main-info-card-right" src="/assets/module/figma/icon_right_outlined.svg" alt="" />
                 </el-button>
               </div>
             </el-col>

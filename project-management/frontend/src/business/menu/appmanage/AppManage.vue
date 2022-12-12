@@ -52,6 +52,16 @@
                              :unit-options="applyUnitOptions"
                              @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime, config.shareReport)"
                              :title="$t('report.report_sharing_link')"/>
+
+                <app-manage-item :title="$t('project.re_review')"
+                                 :prepend-span="18"
+                                 :description="$t('project.re_review_info')">
+                  <template #append>
+                    <el-switch v-model="config.reReview"
+                               @change="switchChange('RE_REVIEW', $event)"></el-switch>
+                  </template>
+                </app-manage-item>
+
               </el-row>
             </el-tab-pane>
 
@@ -394,6 +404,7 @@ export default {
         openUpdateRuleTime: "",
         triggerUpdate: "",
         openUpdateRule: false,
+        reReview: false,
       },
       showRuleSetting: false,
       showSyncTimeSetting: true,

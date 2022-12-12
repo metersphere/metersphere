@@ -1,9 +1,11 @@
 <template>
-  <div @click="exe" class="recycle" :class="{'is-active': condition.publicEnable}" v-if="this.isXpack">
-    <el-row>
-      <el-col :span="20"><i class="el-icon-reading"> {{ $t('project.case_public') }}</i></el-col>
-      <el-col :span="4"><span style="color: var(--primary_color);">{{ publicTotal }}</span></el-col>
-    </el-row>
+  <div class="recycle" v-if="this.isXpack" @click="exe">
+    <div style="padding: 9px 13px 9px 13px;" class="to-public">
+      <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 4px;left: 1px;margin-right: 9px;"/>
+      <span style="margin-right: 12px;">{{ $t('project.case_public') }}</span>
+      <span style="color: #8F959E">{{ '(' + publicTotal + ')' }}</span>
+      <svg-icon icon-class="icon_arrow-right_outlined_1" style="float: right;position: relative;top: 5px;width: 1.3em;height: 1.3em;"/>
+    </div>
   </div>
 </template>
 
@@ -43,11 +45,11 @@ export default {
 <style scoped>
 
 .recycle {
-  padding-left: 25px;
-  margin-top: 15px;
+  padding: 14px 0px 14px 13px px;
   height: 26px;
   line-height: 26px;
-  margin-bottom: -10px;
+  height: 52px;
+  border-bottom: 1px solid rgba(31, 35, 41, 0.15);
 }
 
 .recycle:hover {
@@ -55,8 +57,25 @@ export default {
   cursor: pointer;
 }
 
-.is-active {
-  background-color: #f3f6f9;
+.recycle span {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  align-items: center;
+  color: #1F2329;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
 }
 
+.to-public {
+  width: auto;
+  border-radius: 4px;
+}
+
+.to-public:hover {
+  background: rgba(31, 35, 41, 0.1);
+}
 </style>

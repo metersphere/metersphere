@@ -7,7 +7,7 @@
       <div v-show="loadError"
            style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
         <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load_error.svg"/>
+             src="/assets/module/figma/icon_load_error.svg"/>
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
       <div v-show="!loadError">
@@ -64,7 +64,7 @@
             <div
               style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
               <img style="height: 100px;width: 100px;margin-bottom: 8px"
-                   src="/assets/figma/icon_none.svg"/>
+                   src="/assets/module/figma/icon_none.svg"/>
               <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
             </div>
           </template>

@@ -1,10 +1,429 @@
 <template>
-  <el-card :bodyStyle="{padding:'0px'}">
-    <div class="card-content">
-      <div class="ms-main-div" @click="showAll">
-        <ms-container v-loading="loading" style="overflow: auto">
-          <ms-aside-container :height="pageHeight">
-            <test-case-base-info
+  <div class="case-edit-wrap">
+    <el-card :bodyStyle="{ padding: '0px' }" v-if="false">
+      <div class="card-content">
+        <div class="ms-main-div" @click="showAll">
+          <ms-container v-loading="loading" style="overflow: auto">
+            <ms-aside-container :height="pageHeight">
+              <test-case-base-info
+                :form="form"
+                :is-form-alive="isFormAlive"
+                :isloading="loading"
+                :read-only="readOnly"
+                :public-enable="publicEnable"
+                :show-input-tag="showInputTag"
+                :tree-nodes="treeNodes"
+                :project-list="projectList"
+                :custom-field-form="customFieldForm"
+                :custom-field-rules="customFieldRules"
+                :test-case-template="testCaseTemplate"
+                :default-open="richTextDefaultOpen"
+                ref="testCaseBaseInfo"
+              />
+            </ms-aside-container>
+            <ms-main-container :style="{ height: pageHeight + 'px' }">
+              <el-form
+                :model="form"
+                :rules="rules"
+                ref="caseFrom"
+                class="case-form"
+              >
+                <!--操作按钮-->
+                <div class="ms-opt-btn">
+                  <el-tooltip
+                    :content="$t('commons.follow')"
+                    placement="bottom"
+                    effect="dark"
+                    v-if="!showFollow"
+                  >
+                    <i
+                      class="el-icon-star-off"
+                      style="
+                        color: var(--primary_color);
+                        font-size: 25px;
+                        margin-right: 15px;
+                        cursor: pointer;
+                        position: relative;
+                        top: 5px;
+                      "
+                      @click="saveFollow"
+                    />
+                  </el-tooltip>
+                  <el-tooltip
+                    :content="$t('commons.cancel')"
+                    placement="bottom"
+                    effect="dark"
+                    v-if="showFollow"
+                  >
+                    <i
+                      class="el-icon-star-on"
+                      style="
+                        color: var(--primary_color);
+                        font-size: 28px;
+                        margin-right: 15px;
+                        cursor: pointer;
+                        position: relative;
+                        top: 5px;
+                      "
+                      @click="saveFollow"
+                    />
+                  </el-tooltip>
+                  <el-link
+                    type="primary"
+                    style="margin-right: 20px"
+                    @click="openHis"
+                    v-if="form.id"
+                  >
+                    {{ $t("operating_log.change_history") }}
+                  </el-link>
+                  <!--  版本历史 -->
+                  <mx-version-history
+                    v-show="isXpack"
+                    ref="versionHistory"
+                    :version-data="versionData"
+                    :current-id="currentTestCaseInfo.id"
+                    :is-read="readOnly"
+                    @confirmOtherInfo="confirmOtherInfo"
+                    :current-project-id="currentProjectId"
+                    :has-latest="hasLatest"
+                    @setLatest="setLatest"
+                    @compare="compare"
+                    @checkout="checkout"
+                    @create="create"
+                    @del="del"
+                  />
+                  <el-dropdown
+                    split-button
+                    type="primary"
+                    class="ms-api-buttion"
+                    @click="handleCommand"
+                    @command="handleCommand"
+                    size="small"
+                    style="float: right; margin-right: 20px"
+                    v-if="isAdd || showPublic"
+                    :disabled="readOnly"
+                  >
+                    {{ $t("commons.save") }}
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item
+                        command="ADD_AND_CREATE"
+                        v-if="isAdd"
+                      >{{ $t("test_track.case.save_create_continue") }}
+                      </el-dropdown-item>
+                      <el-dropdown-item
+                        command="ADD_AND_PUBLIC"
+                        v-if="showPublic"
+                      >{{ $t("test_track.case.save_add_public") }}
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <el-button
+                    v-else
+                    type="primary"
+                    class="ms-api-buttion"
+                    @click="handleCommand"
+                    :disabled="readOnly"
+                    @command="handleCommand"
+                    size="small"
+                    style="float: right; margin-right: 20px"
+                  >
+                    {{ $t("commons.save") }}
+                  </el-button>
+                </div>
+                <ms-form-divider :title="$t('test_track.case.step_info')" />
+
+                <form-rich-text-item
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.prerequisite')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                  prop="prerequisite"
+                />
+
+                <step-change-item :label-width="formLabelWidth" :form="form" />
+                <form-rich-text-item
+                  v-if="form.stepModel === 'TEXT'"
+                  prop="stepDescription"
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.step_desc')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                />
+
+                <form-rich-text-item
+                  v-if="form.stepModel === 'TEXT'"
+                  prop="expectedResult"
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.expected_results')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                />
+
+                <test-case-step-item
+                  v-if="form.stepModel === 'STEP' || !form.stepModel"
+                  :label-width="formLabelWidth"
+                  :form="form"
+                  :read-only="readOnly"
+                />
+
+                <ms-form-divider :title="$t('test_track.case.other_info')" />
+
+                <test-case-edit-other-info
+                  :read-only="readOnly"
+                  :project-id="projectId"
+                  :form="form"
+                  :is-copy="currentTestCaseInfo.isCopy"
+                  :copy-case-id="caseId"
+                  :label-width="formLabelWidth"
+                  :case-id="form.id"
+                  :type="type"
+                  :comments.sync="comments"
+                  @openComment="openComment"
+                  :is-click-attachment-tab.sync="isClickAttachmentTab"
+                  :version-enable="versionEnable"
+                  :default-open="richTextDefaultOpen"
+                  ref="otherInfo"
+                />
+                <test-case-comment
+                  :case-id="form.id"
+                  @getComments="getComments"
+                  ref="testCaseComment"
+                />
+              </el-form>
+            </ms-main-container>
+          </ms-container>
+        </div>
+        <ms-change-history ref="changeHistory" />
+        <el-dialog
+          :fullscreen="true"
+          :visible.sync="dialogVisible"
+          :destroy-on-close="true"
+          width="100%"
+        >
+          <test-case-version-diff
+            v-if="dialogVisible"
+            :old-data="oldData"
+            :new-data="newData"
+            :tree-nodes="treeNodes"
+          ></test-case-version-diff>
+        </el-dialog>
+
+        <version-create-other-info-select
+          @confirmOtherInfo="confirmOtherInfo"
+          ref="selectPropDialog"
+        ></version-create-other-info-select>
+      </div>
+    </el-card>
+
+    <!-- since v2.6 -->
+    <div class="case-edit-box">
+      <!-- 创建 or 编辑用例 -->
+      <div class="edit-header-container">
+        <div class="header-content-row">
+          <div class="back" @click="back" v-if="!isPublicShow">
+            <img src="/assets/module/figma/icon_arrow-left_outlined.svg" alt="" />
+          </div>
+          <div
+            @click.stop="openNewTab"
+            :class="editable ? 'case-name' : ['case-name-hover', 'case-name']"
+          >
+            {{ !editable ? form.name : $t('test_track.case.create_case') }}
+          </div>
+          <div class="case-edit" v-if="!editable">
+            <div class="case-level" v-if="!isPublicShow">
+              <priority-table-item :value="form.priority" />
+            </div>
+            <div>
+              <!--  版本历史 v-xpack -->
+              <mx-version-history
+                ref="versionHistory"
+                :version-data="versionData"
+                :current-id="currentTestCaseInfo.id"
+                :is-read="readOnly"
+                @confirmOtherInfo="confirmOtherInfo"
+                :current-project-id="currentProjectId"
+                :has-latest="hasLatest"
+                @setLatest="setLatest"
+                @compare="compare"
+                @compareBranch="compareBranch"
+                @checkout="checkout"
+                @create="create"
+                @del="del"
+              >
+                <div class="version-box case-version" slot="versionLabel">
+                  <div class="version-icon">
+                    <img
+                      src="/assets/module/figma/icon_moments-categories_outlined.svg"
+                      alt=""
+                    />
+                  </div>
+                  <div class="version-title">{{ currentVersionName }}</div>
+                  <div class="version-suffix">{{ $t("commons.version") }}</div>
+                </div>
+              </mx-version-history>
+            </div>
+          </div>
+        </div>
+        <div class="header-opt-row" v-if="!editable">
+          <div
+            class="previous-public-row head-opt"
+            :class="{'disable-row': isFirstPublic}"
+            v-if="isPublicShow"
+            @click="showPreviousPublicCase"
+          >
+            <div class="icon-row">
+              <span class="el-icon-arrow-left"></span>
+            </div>
+            <div class="label-row">{{ $t("case.previous_public_case") }}</div>
+          </div>
+          <div
+            class="next-public-row head-opt"
+            :class="{'disable-row': isLastPublic}"
+            v-if="isPublicShow"
+            @click="showNextPublicCase"
+          >
+            <div class="label-row">{{ $t("case.next_public_case") }}</div>
+            <div class="icon-row">
+              <span class="el-icon-arrow-right"></span>
+            </div>
+          </div>
+          <div v-if="isPublicShow">
+            <span class="separator-row">|</span>
+          </div>
+          <div
+            class="follow-row head-opt"
+            v-if="!showFollow"
+            @click="saveFollow"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_collection_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("case.follow") }}</div>
+          </div>
+          <div
+            class="follow-row head-opt"
+            v-if="showFollow"
+            @click="saveFollow"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_collect_filled.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("case.followed") }}</div>
+          </div>
+          <div
+            class="add-public-row head-opt"
+            v-if="!isPublicShow && !casePublic"
+            @click="addPublic"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_add-folder_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("case.add_to_public_case") }}</div>
+          </div>
+          <div
+            class="add-public-row head-opt"
+            v-if="!isPublicShow && casePublic"
+            @click="removePublic"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_yes_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("case.added_to_public_case") }}</div>
+          </div>
+          <div class="more-row head-opt" v-if="!isPublicShow">
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_more_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">
+              <el-popover
+                placement="bottom-start"
+                trigger="hover"
+                popper-class="case-step-item-popover"
+                :visible-arrow="false"
+              >
+                <div class="opt-row">
+                  <div class="copy-row sub-opt-row" @click="copyRow">
+                    <div class="icon">
+                      <i class="el-icon-copy-document"></i>
+                    </div>
+                    <div class="title">{{ $t("commons.copy") }}</div>
+                  </div>
+                  <div class="split"></div>
+                  <div class="delete-row sub-opt-row" @click="deleteRow">
+                    <div class="icon">
+                      <i class="el-icon-delete"></i>
+                    </div>
+                    <div class="title">{{ $t("commons.delete") }}</div>
+                  </div>
+                </div>
+                <div slot="reference">{{ $t("case.more") }}</div>
+              </el-popover>
+            </div>
+          </div>
+          <div
+            class="edit-public-row head-opt"
+            v-if="isPublicShow"
+            @click="editPublicCase"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("commons.edit") }}</div>
+          </div>
+          <div
+            class="copy-public-row head-opt"
+            v-if="isPublicShow"
+            @click="copyPublicCase"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_copy_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("commons.copy") }}</div>
+          </div>
+          <div v-if="isPublicShow">
+            <span class="separator-row">|</span>
+          </div>
+          <div
+            class="close-row head-opt"
+            v-if="isPublicShow"
+            @click="closePublicCase"
+          >
+            <span class="el-icon-close"></span>
+          </div>
+        </div>
+      </div>
+      <!-- 正文 -->
+      <div class="edit-content-container" :class="{'editable-edit-content-container' : editable}">
+        <case-edit-info-component
+          :editable="editable"
+          :richTextDefaultOpen="richTextDefaultOpen"
+          :formLabelWidth="formLabelWidth"
+          :read-only="readOnly"
+          :project-id="projectId"
+          :form="form"
+          :is-copy="isCopy"
+          :copy-case-id="caseId"
+          :label-width="formLabelWidth"
+          :case-id="caseId"
+          :type="type"
+          :comments.sync="comments"
+          @openComment="openComment"
+          @getComments="getComments"
+          :version-enable="versionEnable"
+          :default-open="richTextDefaultOpen"
+          ref="otherInfo"
+        >
+        </case-edit-info-component>
+        <!-- 基础信息 -->
+        <div class="content-base-info-wrap" :class="{'editable-content-base-info-wrap' : editable}">
+          <el-scrollbar>
+            <case-base-info
+              :editable="editable"
+              :case-id="form.id"
+              :project-id="projectId"
               :form="form"
               :is-form-alive="isFormAlive"
               :isloading="loading"
@@ -17,140 +436,84 @@
               :custom-field-rules="customFieldRules"
               :test-case-template="testCaseTemplate"
               :default-open="richTextDefaultOpen"
+              :version-enable="versionEnable"
               ref="testCaseBaseInfo"
-            />
-          </ms-aside-container>
-          <ms-main-container :style="{height: pageHeight + 'px'}">
-            <el-form :model="form" :rules="rules" ref="caseFrom" class="case-form">
-
-              <!--操作按钮-->
-              <div class="ms-opt-btn">
-                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-                  <i class="el-icon-star-off"
-                     style="color: var(--primary_color); font-size: 25px;  margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-                     @click="saveFollow"/>
-                </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-                  <i class="el-icon-star-on"
-                     style="color: var(--primary_color); font-size: 28px; margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-                     @click="saveFollow"/>
-                </el-tooltip>
-                <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
-                  {{ $t('operating_log.change_history') }}
-                </el-link>
-                <!--  版本历史 -->
-                <mx-version-history v-xpack
-                                    ref="versionHistory"
-                                    :version-data="versionData"
-                                    :current-id="currentTestCaseInfo.id"
-                                    :is-read="currentTestCaseInfo.trashEnable || readOnly"
-                                    @confirmOtherInfo="confirmOtherInfo"
-                                    :current-project-id="currentProjectId"
-                                    :has-latest="hasLatest"
-                                    @setLatest="setLatest"
-                                    @compare="compare" @checkout="checkout" @create="create" @del="del"/>
-                <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                             @command="handleCommand" size="small" style="float: right;margin-right: 20px"
-                             v-if="(this.path ==='/test/case/add') || (this.isPublic && this.isXpack)"
-                             :disabled="readOnly">
-                  {{ $t('commons.save') }}
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
-                        $t('test_track.case.save_create_continue')
-                      }}
-                    </el-dropdown-item>
-                    <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.isPublic && this.isXpack">{{
-                        $t('test_track.case.save_add_public')
-                      }}
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-                <el-button v-else type="primary" class="ms-api-buttion" @click="handleCommand"
-                           :disabled="readOnly"
-                           @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-                  {{ $t('commons.save') }}
-                </el-button>
-              </div>
-              <ms-form-divider :title="$t('test_track.case.step_info')"/>
-
-              <form-rich-text-item :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.prerequisite')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"
-                                   prop="prerequisite"/>
-
-              <step-change-item :label-width="formLabelWidth" :form="form"/>
-              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
-                                   prop="stepDescription"
-                                   :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.step_desc')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"/>
-
-              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
-                                   prop="expectedResult"
-                                   :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.expected_results')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"/>
-
-              <test-case-step-item v-if="form.stepModel === 'STEP' || !form.stepModel"
-                                   :label-width="formLabelWidth"
-                                   :form="form"
-                                   :read-only="readOnly"/>
-
-              <ms-form-divider :title="$t('test_track.case.other_info')"/>
-
-              <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                         :is-copy="currentTestCaseInfo.isCopy"
-                                         :copy-case-id="copyCaseId"
-                                         :label-width="formLabelWidth" :case-id="form.id"
-                                         :type="type" :comments.sync="comments"
-                                         @openComment="openComment"
-                                         :is-click-attachment-tab.sync="isClickAttachmentTab"
-                                         :version-enable="versionEnable"
-                                         :default-open="richTextDefaultOpen"
-                                         ref="otherInfo"/>
-              <test-case-comment :case-id="form.id"
-                                 @getComments="getComments" ref="testCaseComment"/>
-            </el-form>
-          </ms-main-container>
-        </ms-container>
+            ></case-base-info>
+          </el-scrollbar>
+        </div>
       </div>
-      <ms-change-history ref="changeHistory"/>
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        width="100%"
-      >
-        <test-case-version-diff v-if="dialogVisible" :old-data="oldData" :new-data="newData"
-                                :tree-nodes="treeNodes"></test-case-version-diff>
-
-      </el-dialog>
-
-      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo"
-                                        ref="selectPropDialog"></version-create-other-info-select>
+      <!-- 底部操作按钮 -->
+      <div class="edit-footer-container" v-if="editable">
+        <template>
+          <!-- 保存 -->
+          <div
+            class="save-btn-row"
+            v-if="showAddBtn">
+            <el-button size="small" @click="handleCommand" :disabled="readOnly">
+              {{ $t("commons.save") }}
+            </el-button>
+          </div>
+          <!-- 保存并添加到公共用例库 -->
+          <div
+            class="save-add-pub-row"
+            v-if="showPublic"
+            @click="handleCommand('ADD_AND_PUBLIC')">
+            <el-button size="small" :disabled="readOnly">
+              {{ $t("test_track.case.save_add_public") }}
+            </el-button>
+          </div>
+          <!-- 保存并新建 -->
+          <div class="save-create-row">
+            <el-button
+              size="small"
+              @click="handleCommand('ADD_AND_CREATE')"
+              v-if="showAddBtn"
+              :disabled="readOnly">
+              {{ $t("test_track.case.save_create_continue") }}
+            </el-button>
+          </div>
+        </template>
+      </div>
     </div>
-  </el-card>
+    <el-dialog
+    :fullscreen="true"
+    :visible.sync="dialogVisible"
+    :destroy-on-close="true"
+    width="100%"
+  >
+    <test-case-version-diff
+      v-if="dialogVisible"
+      :old-data="oldData"
+      :new-data="newData"
+      :tree-nodes="treeNodes"
+    ></test-case-version-diff>
+  </el-dialog>
+    <version-create-other-info-select
+      @confirmOtherInfo="confirmOtherInfo"
+      ref="selectPropDialog"/>
 
-
+    <!--  删除接口提示  -->
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
+  </div>
 </template>
 
 <script>
-import {TokenKey} from 'metersphere-frontend/src/utils/constants';
-import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import { TokenKey } from "metersphere-frontend/src/utils/constants";
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import {
+  getCurrentProjectID,
+  getCurrentUser, setCurrentProjectID,
+} from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
 import {
   getUUID,
   getNodePath,
   listenGoBack,
   removeGoBackListener,
-  handleCtrlSEvent
+  handleCtrlSEvent,
 } from "metersphere-frontend/src/utils";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import CaseComment from "@/business/case/components/CaseComment";
@@ -165,15 +528,15 @@ import CustomFiledComponent from "metersphere-frontend/src/components/template/C
 import {
   buildCustomFields,
   buildTestCaseOldFields,
-  parseCustomField
+  parseCustomField,
 } from "metersphere-frontend/src/utils/custom_field";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
-import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
+import FormRichTextItem from "@/business/case/components/richtext/FormRichTextItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
-import {getTestTemplate} from "@/api/custom-field-template";
+import { getTestTemplate } from "@/api/custom-field-template";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import TestCaseVersionDiff from "@/business/case/version/TestCaseVersionDiff";
 import VersionCreateOtherInfoSelect from "@/business/case/components/VersionCreateOtherInfoSelect";
@@ -181,24 +544,47 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {useStore} from "@/store";
-import {getProjectApplicationConfig} from "@/api/project-application";
+import { useStore } from "@/store";
+import { getProjectApplicationConfig } from "@/api/project-application";
 import {
   deleteTestCaseVersion,
   getTestCase,
   getTestCaseFollow,
-  getTestCaseVersions, hasTestCaseOtherInfo,
+  getTestCaseVersions,
+  hasTestCaseOtherInfo,
   testCaseEditFollows,
-  testCaseGetByVersionId
+  testCaseGetByVersionId,
+  testCaseDeleteToGc, getTestCaseNodesByCaseFilter,
 } from "@/api/testCase";
 
-import {getProjectListAll, getProjectMemberOption} from "@/business/utils/sdk-utils";
-import {testCaseCommentList} from "@/api/test-case-comment";
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+import {
+  getProjectListAll,
+  getProjectMemberOption,
+} from "@/business/utils/sdk-utils";
+import { testCaseCommentList } from "@/api/test-case-comment";
+import {
+  getDefaultVersion,
+  setLatestVersionById,
+} from "metersphere-frontend/src/api/version";
+import CaseEditInfoComponent from "./case/CaseEditInfoComponent";
+import CaseBaseInfo from "./case/CaseBaseInfo";
+import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
+import MxVersionHistory from "./common/CaseVersionHistory"
+import {
+  getProjectVersions,
+} from "metersphere-frontend/src/api/version";
+import {buildTree} from "metersphere-frontend/src/model/NodeTree";
+import {versionEnableByProjectId} from "@/api/project";
+import {openCaseEdit} from "@/business/case/test-case";
+import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
+
 
 export default {
   name: "TestCaseEdit",
   components: {
+    PriorityTableItem,
+    CaseEditInfoComponent,
+    CaseBaseInfo,
     CustomFiledFormItem,
     StepChangeItem,
     TestCaseStepItem,
@@ -209,7 +595,12 @@ export default {
     MsTableButton,
     MsSelectTree,
     ReviewCommentItem,
-    TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
+    TestCaseComment,
+    MsPreviousNextButton,
+    MsInputTag,
+    CaseComment,
+    MsDialogFooter,
+    TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
     TestCaseVersionDiff,
@@ -218,15 +609,16 @@ export default {
     MsContainer,
     MsAsideContainer,
     MsMainContainer,
-    MxVersionHistory: () => import("metersphere-frontend/src/components/version/MxVersionHistory")
+    MxVersionHistory,
+    ListItemDeleteConfirm
   },
   data() {
     return {
-      path: "/test/case/add",
+      // origin
       isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
-      pageHeight: document.documentElement.clientHeight - 150 + '',
+      pageHeight: document.documentElement.clientHeight - 150 + "",
       projectList: [],
       comments: [],
       loading: false,
@@ -236,70 +628,112 @@ export default {
       currentValidateName: "",
       type: "",
       form: {
-        name: '',
-        module: 'default-module',
-        nodePath: '/未规划用例',
+        name: "",
+        module: "default-module",
+        nodePath: "/未规划用例",
         maintainer: getCurrentUser().id,
-        priority: 'P0',
-        type: '',
-        method: '',
-        prerequisite: '',
-        testId: '',
-        steps: [{
-          num: 1,
-          desc: '',
-          result: ''
-        }],
-        stepDesc: '',
-        stepResult: '',
+        priority: "P0",
+        type: "",
+        method: "",
+        prerequisite: "",
+        testId: "",
+        steps: [
+          {
+            num: 1,
+            desc: "",
+            result: "",
+          },
+        ],
+        stepDesc: "",
+        stepResult: "",
         selected: [],
-        remark: '',
+        remark: "",
         tags: [],
-        demandId: '',
-        demandName: '',
-        status: 'Prepare',
-        reviewStatus: 'Prepare',
-        stepDescription: '',
-        expectedResult: '',
-        stepModel: 'STEP',
-        customNum: '',
-        followPeople: '',
+        demandId: "",
+        demandName: "",
+        status: "Prepare",
+        reviewStatus: "Prepare",
+        stepDescription: "",
+        expectedResult: "",
+        stepModel: "STEP",
+        customNum: "",
+        followPeople: "",
       },
       maintainerOptions: [],
-      workspaceId: '',
+      workspaceId: "",
       rules: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t("test_track.case.input_name"),
+            trigger: "blur",
+          },
+          {
+            max: 255,
+            message: this.$t("test_track.length_less_than") + "255",
+            trigger: "blur",
+          },
         ],
-        module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        module: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_module"),
+            trigger: "change",
+          },
+        ],
         customNum: [
-          {required: true, message: "ID必填", trigger: 'blur'},
-          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          { required: true, message: "ID必填", trigger: "blur" },
+          {
+            max: 50,
+            message: this.$t("test_track.length_less_than") + "50",
+            trigger: "blur",
+          },
         ],
-        demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
-        maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
-        method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
+        demandName: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_demand_name"),
+            trigger: "change",
+          },
+        ],
+        maintainer: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_maintainer"),
+            trigger: "change",
+          },
+        ],
+        priority: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_priority"),
+            trigger: "change",
+          },
+        ],
+        method: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_method"),
+            trigger: "change",
+          },
+        ],
       },
       customFieldRules: {},
       customFieldForm: null,
       formLabelWidth: "100px",
-      operationType: '',
       isCreateContinue: false,
       isStepTableAlive: true,
       isFormAlive: true,
       methodOptions: [
-        {value: 'auto', label: this.$t('test_track.case.auto')},
-        {value: 'manual', label: this.$t('test_track.case.manual')}
+        { value: "auto", label: this.$t("test_track.case.auto") },
+        { value: "manual", label: this.$t("test_track.case.manual") },
       ],
       testCase: {},
-      copyCaseId: "",
       showInputTag: true,
       tableType: "",
       moduleObj: {
-        id: 'id',
-        label: 'name',
+        id: "id",
+        label: "name",
       },
       tabId: getUUID(),
       versionData: [],
@@ -310,31 +744,32 @@ export default {
       currentProjectId: "",
       casePublic: false,
       isClickAttachmentTab: false,
-      latestVersionId: '',
-      hasLatest: false
+      latestVersionId: "",
+      hasLatest: false,
+      treeNodes: [],
+      currentTestCaseInfo: {},
+      versionOptions: [],
+      currentVersionName: "",
+      versionEnable: false
     };
   },
   props: {
-    treeNodes: {
-      type: Array
-    },
-    currentTestCaseInfo: {},
-    selectNode: {
-      type: Object
-    },
-    selectCondition: {
-      type: Object
-    },
-    caseType: String,
-    publicEnable: {
+    isPublicShow: {
       type: Boolean,
-      default: false,
+      default: false
     },
-    activeName: String,
-    versionEnable: Boolean,
+    isFirstPublic: {
+      type: Boolean,
+      default: false
+    },
+    isLastPublic: {
+      type: Boolean,
+      default: false
+    },
+    publicCaseId: String
   },
   computed: {
-    projectIds() {
+    projectId() {
       return getCurrentProjectID();
     },
     moduleOptions() {
@@ -344,18 +779,50 @@ export default {
       return useStore().currentProjectIsCustomNum;
     },
     richTextDefaultOpen() {
-      return this.type === 'edit' ? 'preview' : 'edit';
+      return this.type === "edit" ? "preview" : "edit";
     },
     readOnly() {
-      const {rowClickHasPermission} = this.currentTestCaseInfo;
+      if (this.isPublicShow) {
+        return true;
+      }
+      const { rowClickHasPermission } = this.currentTestCaseInfo;
       if (rowClickHasPermission !== undefined) {
         return !rowClickHasPermission;
       }
-      return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
-        !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+      return (
+        !hasPermission("PROJECT_TRACK_CASE:READ+CREATE") &&
+        !hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
+      );
+    },
+    caseId() {
+      return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
+    },
+    editType() {
+      return this.$route.query.type;
+    },
+    isAdd() {
+      return !this.caseId || this.isCopy;
+    },
+    editable() {
+      return this.isAdd;
+    },
+    isCopy() {
+      return this.editType == 'copy';
+    },
+    publicEnable() {
+      return this.editType == 'public';
+    },
+    showPublic() {
+      return this.isPublic && this.isXpack;
+    },
+    showAddBtn() {
+      return this.isAdd || this.showPublic;
     }
   },
   watch: {
+    isAdd() {
+      this.type = this.isAdd ? 'add' : 'edit';
+    },
     form: {
       handler(val) {
         if (val && useStore().testCaseMap && this.form.id) {
@@ -363,8 +830,11 @@ export default {
           change = change + 1;
           useStore().testCaseMap.set(this.form.id, change);
         }
+        if(val.versionId && !this.currentVersionName){
+          this.fetchVersionName();
+        }
       },
-      deep: true
+      deep: true,
     },
     customFieldForm: {
       handler(val) {
@@ -374,74 +844,76 @@ export default {
           useStore().testCaseMap.set(this.form.id, change);
         }
       },
-      deep: true
+      deep: true,
+    },
+    caseId: {
+      handler(val) {
+        this.loadTestCase();
+      },
+      immediate: true
     }
   },
   beforeDestroy() {
     this.removeListener();
+    this.$EventBus.$off(
+      "handleSaveCaseWithEvent",
+      this.handleSaveCaseWithEvent
+    );
   },
   mounted() {
     this.getSelectOptions();
-    if (this.type === 'edit' || this.type === 'copy') {
-      this.open(this.currentTestCaseInfo);
-    }
+
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
-      document.querySelectorAll('.el-cascader-node__label').forEach(el => {
+      document.querySelectorAll(".el-cascader-node__label").forEach((el) => {
         el.onclick = function () {
           if (this.previousElementSibling) this.previousElementSibling.click();
         };
       });
     }, 1000);
-    if (this.selectNode && this.selectNode.data && !this.form.id) {
-      this.form.module = this.selectNode.data.id;
-      this.form.nodePath = this.selectNode.data.path;
-    }
-    if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
-      this.form.module = this.treeNodes[0].id;
-      this.form.nodePath = this.treeNodes[0].path;
-    }
+
     if (!(useStore().testCaseMap instanceof Map)) {
       useStore().testCaseMap = new Map();
     }
     if (this.form.id) {
       useStore().testCaseMap.set(this.form.id, 0);
     }
-
   },
-  created() {
-    this.type = this.caseType;
-    if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
-      getProjectListAll()
-        .then((response) => {
-          this.projectList = response.data;  //获取当前工作空间所拥有的项目,
-        });
-    }
-    this.projectId = this.projectIds;
-    let initAddFuc = this.initAddFuc;
-    this.loading = true;
-    getTestTemplate()
-      .then((template) => {
+  activated() {
+    this.loadTestCase();
+  },
+  created(){
+    this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
+  },
+  methods: {
+    loadTestCase() {
+      let initFuc = this.initEdit;
+      this.loading = true;
+      getTestTemplate().then((template) => {
         this.testCaseTemplate = template;
         useStore().testCaseTemplate = this.testCaseTemplate;
-        initAddFuc();
+        initFuc();
       });
-    if (this.selectNode && this.selectNode.data && !this.form.id) {
-      this.form.module = this.selectNode.data.id;
-      this.form.nodePath = this.selectNode.data.path;
-    } else {
-      this.form.module = this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
-    }
-    if (this.type === 'edit' || this.type === 'copy') {
-      this.form.module = this.currentTestCaseInfo.nodeId;
-      this.form.nodePath = this.currentTestCaseInfo.nodePath;
-    }
-    if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
-      this.form.module = this.treeNodes[0].id;
-      this.form.nodePath = this.treeNodes[0].path;
-    }
-    getTestCaseFollow(this.currentTestCaseInfo.id)
-      .then(response => {
+
+      this.addListener(); //  添加 ctrl s 监听
+      if (!this.projectList || this.projectList.length === 0) {
+        //没有项目数据的话请求项目数据
+        getProjectListAll().then((response) => {
+          this.projectList = response.data; //获取当前工作空间所拥有的项目,
+        });
+      }
+
+      getTestCaseNodesByCaseFilter(this.projectId, {})
+        .then(r => {
+          this.treeNodes = r.data;
+          this.treeNodes.forEach(node => {
+            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+            buildTree(node, {path: ''});
+            this.setNodeModule();
+          });
+        });
+
+      getTestCaseFollow(this.caseId).then((response) => {
         this.form.follows = response.data;
         for (let i = 0; i < response.data.length; i++) {
           if (response.data[i] === this.currentUser().id) {
@@ -450,76 +922,92 @@ export default {
           }
         }
       });
-    getProjectApplicationConfig('CASE_PUBLIC')
-      .then(res => {
+      getProjectApplicationConfig("CASE_PUBLIC").then((res) => {
         let data = res.data;
-        if (data && data.typeValue === 'true') {
+        if (data && data.typeValue === "true") {
           this.isPublic = true;
         } else {
           this.isPublic = false;
         }
       });
-    if (hasLicense()) {
-      this.isXpack = true;
-    } else {
-      this.isXpack = false;
-    }
-    if (hasLicense()) {
-      this.getDefaultVersion();
-    }
+      if (hasLicense()) {
+        this.isXpack = true;
+      } else {
+        this.isXpack = false;
+      }
+      if (hasLicense()) {
+        this.getDefaultVersion();
+      }
 
-    //浏览器拉伸时窗口编辑窗口自适应
-    this.$nextTick(() => {
-      // 解决错位问题
-      window.addEventListener('resize', this.resizeContainer);
-    });
-  },
-  methods: {
+      //浏览器拉伸时窗口编辑窗口自适应
+      this.$nextTick(() => {
+        // 解决错位问题
+        window.addEventListener("resize", this.resizeContainer);
+      });
+
+      this.checkVersionEnable();
+    },
+    editPublicCase() {
+      openCaseEdit(this.caseId, "", this)
+    },
+    copyPublicCase() {
+      openCaseEdit(this.caseId, "copy", this)
+    },
+    closePublicCase() {
+      this.$emit("close");
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        versionEnableByProjectId(this.projectId)
+          .then(response => {
+            this.versionEnable = response.data;
+          });
+      }
+    },
+    back() {
+      this.$router.push('/track/case/all');
+    },
+    openNewTab() {
+      if (this.editable || !this.form.id || this.isPublicShow) {
+        return;
+      }
+      let TestCaseData = this.$router.resolve({
+        path: "/track/case/edit/" + this.form.id
+      });
+      window.open(TestCaseData.href, "_blank");
+    },
+    handleSaveCaseWithEvent(formData) {
+      this.saveCase();
+    },
     alert: alert,
     currentUser: () => {
       return getCurrentUser();
     },
     resizeContainer() {
-      this.pageHeight = document.documentElement.clientHeight - 150 + '';
+      this.pageHeight = document.documentElement.clientHeight - 150 + "";
     },
     openHis() {
-      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);
+      this.$refs.changeHistory.open(this.form.id, [
+        "测试用例",
+        "測試用例",
+        "Test case",
+        "TRACK_TEST_CASE",
+      ]);
     },
-    setModule(id, data) {
-      this.form.module = id;
-      this.form.nodePath = data.path;
-    },
-    initAddFuc() {
-      // this.loadOptions();
-      this.addListener(); //  添加 ctrl s 监听
-      if (this.selectNode && this.selectNode.data && !this.form.id) {
-        this.form.module = this.selectNode.data.id;
-        this.form.nodePath = this.selectNode.data.path;
-      } else {
-        this.form.module = this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
-      }
-      if (this.type === 'edit' || this.type === 'copy') {
+    setNodeModule() {
+      if (this.caseId) {
         this.form.module = this.currentTestCaseInfo.nodeId;
         this.form.nodePath = this.currentTestCaseInfo.nodePath;
       }
-      if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
+      if ((!this.form.module ||
+          this.form.module === "default-module" ||
+          this.form.module === "root")
+        && this.treeNodes.length > 0) {
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
-      }
-      if (this.type === 'add') {
-        //设置自定义熟悉默认值
-        this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
-        this.form.name = this.testCaseTemplate.caseName;
-        this.form.stepDescription = this.testCaseTemplate.stepDescription;
-        this.form.expectedResult = this.testCaseTemplate.expectedResult;
-        this.form.prerequisite = this.testCaseTemplate.prerequisite;
-        this.form.stepModel = this.testCaseTemplate.stepModel;
-        if (this.testCaseTemplate.steps) {
-          this.form.steps = JSON.parse(this.testCaseTemplate.steps);
-        }
-      }
-      if (this.type === 'add' || this.type === 'copy') {
-        this.loading = false;
       }
     },
     setDefaultValue() {
@@ -539,20 +1027,26 @@ export default {
         useStore().testCaseMap.set(this.form.id, 0);
       }
     },
+    addPublic() {
+      this.casePublic = true;
+      this.saveCase();
+    },
+    removePublic() {
+      this.casePublic = false;
+      this.saveCase();
+    },
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
-        this.$refs['caseFrom'].validate((valid) => {
-          if (!valid) {
-            this.saveCase();
-          } else {
-            this.saveCase(function (t) {
-              let tab = {};
-              tab.name = 'add';
-              t.$emit('addTab', tab);
-            });
-          }
-        })
-      } else if (e === 'ADD_AND_PUBLIC') {
+        if (!this.validateForm()) {
+          this.saveCase();
+        } else {
+          this.saveCase(function (t) {
+            let tab = {};
+            tab.name = "add";
+            t.$emit("addTab", tab);
+          });
+        }
+      } else if (e === "ADD_AND_PUBLIC") {
         this.casePublic = true;
         this.saveCase();
       } else {
@@ -560,21 +1054,17 @@ export default {
       }
     },
     openComment() {
-      this.$refs.testCaseComment.open()
+      this.$refs.testCaseComment.open();
     },
-    getComments(testCase) {
-      let id = '';
-      if (testCase) {
-        id = testCase.id;
-      } else {
-        id = this.form.id;
+    getComments() {
+      if (!this.caseId) {
+        return;
       }
       this.loading = true;
-      testCaseCommentList(id)
-        .then(res => {
-          this.loading = false;
-          this.comments = res.data;
-        });
+      testCaseCommentList(this.caseId).then((res) => {
+        this.loading = false;
+        this.comments = res.data;
+      });
     },
     showAll() {
       if (!this.customizeVisible) {
@@ -595,122 +1085,106 @@ export default {
       this.isFormAlive = false;
       this.$nextTick(() => (this.isFormAlive = true));
     },
-    open(testCase) {
-      /*
-             this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
-      */
-      this.projectId = this.projectIds;
-      let initFuc = this.initEdit;
-      this.loading = true;
-      getTestTemplate()
-        .then(template => {
-          this.testCaseTemplate = template;
-          useStore().testCaseTemplate = this.testCaseTemplate;
-          initFuc(testCase);
-        });
-    },
     initEdit(testCase, callback) {
+
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', this.close);
+        window.addEventListener("popstate", this.close);
       }
       this.resetForm();
       listenGoBack(this.close);
-      this.operationType = 'add';
-      if (testCase) {
-        //修改
+
+      if (this.caseId) {
         this.operationType = 'edit';
-        this.copyCaseId = '';
-        //复制
-        if (this.type === 'copy') {
-          this.showInputTag = false;
+        if (this.isCopy) {
           this.operationType = 'add';
-          this.copyCaseId = testCase.copyId;
-          this.setFormData(testCase);
-          this.testCaseTemplate.customFields.forEach(item => {
-            item.isEdit = false;
-          });
-          this.setTestCaseExtInfo(testCase);
-          this.getSelectOptions();
-          this.reload();
-          this.$nextTick(() => {
-            this.showInputTag = true;
-          });
-          this.form.id = null;
-          this.loading = false;
         } else {
-          this.getTestCase(testCase.id);
+          this.getComments();
         }
+        this.getTestCase();
       } else {
+        this.operationType = 'add';
+
         // add
-        if (this.selectNode.data) {
-          this.form.module = this.selectNode.data.id;
-        } else {
-          if (this.moduleOptions.length > 0) {
-            this.form.module = this.moduleOptions[0].id;
-          }
+        if (this.moduleOptions.length > 0) {
+          this.form.module = this.moduleOptions[0].id;
         }
         let user = JSON.parse(localStorage.getItem(TokenKey));
-        this.copyCaseId = '';
-        this.form.priority = 'P3';
-        this.form.type = 'functional';
-        this.form.method = 'manual';
+        this.form.priority = "P3";
+        this.form.type = "functional";
+        this.form.method = "manual";
         this.form.maintainer = user.id;
         this.form.tags = [];
         this.getSelectOptions();
-        this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
+        this.customFieldForm = parseCustomField(
+          this.form,
+          this.testCaseTemplate,
+          this.customFieldRules
+        );
         this.reload();
         this.loading = false;
       }
       if (callback) {
         callback();
       }
-      if (this.type !== 'copy') {
-        this.getComments(this.currentTestCaseInfo);
-      }
     },
-    getTestCase(id) {
-      this.showInputTag = false;
-      if (!id) {
-        id = this.currentTestCaseInfo.id;
+    getTestCase() {
+      if (!this.caseId) {
+        return;
       }
+      this.showInputTag = false;
       this.loading = true;
-      getTestCase(id)
-        .then(response => {
-          this.loading = false;
-          if (response.data) {
-            this.path = "/test/case/edit";
-            if (this.currentTestCaseInfo.isCopy) {
-              this.path = "/test/case/add";
-            }
-          } else {
-            this.path = "/test/case/add";
-          }
-          let testCase = response.data;
-          this.setFormData(testCase);
-          this.setTestCaseExtInfo(testCase);
-          this.getSelectOptions();
-          this.reload();
-          this.$nextTick(() => {
-            this.showInputTag = true;
+      getTestCase(this.caseId).then((response) => {
+        let testCase = response.data;
+        this.operationType = "edit";
+
+        if (this.isCopy) {
+          this.operationType = "add";
+          testCase.name = 'copy_' + testCase.name;
+          //复制的时候只复制当前版本
+          testCase.id = getUUID();
+          testCase.refId = null;
+          testCase.versionId = null;
+
+          this.testCaseTemplate.customFields.forEach((item) => {
+            item.isEdit = false;
           });
+          this.form.id = null;
+        } else {
+          // 如果不是当前项目，先切项目
+          if (this.projectId !== testCase.projectId) {
+            setCurrentProjectID(testCase.projectId);
+            location.reload();
+          }
+        }
+        this.currentTestCaseInfo = testCase;
+        this.setFormData(testCase);
+        this.setTestCaseExtInfo(testCase);
+        this.getSelectOptions();
+        this.reload();
+        this.$nextTick(() => {
+          this.showInputTag = true;
         });
+        this.loading = false;
+      });
     },
     async setFormData(testCase) {
       try {
         testCase.selected = JSON.parse(testCase.testId);
       } catch (error) {
-        testCase.selected = testCase.testId
+        testCase.selected = testCase.testId;
       }
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
       if (!tmp.steps || tmp.steps.length < 1) {
-        tmp.steps = [{
-          num: 1,
-          desc: '',
-          result: ''
-        }];
+        tmp.steps = [
+          {
+            num: 1,
+            desc: "",
+            result: "",
+          },
+        ];
       }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
@@ -720,27 +1194,32 @@ export default {
       this.casePublic = tmp.casePublic;
       this.form.module = testCase.nodeId;
       //设置自定义熟悉默认值
-      this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, testCase ? buildTestCaseOldFields(this.form) : null);
+      this.customFieldForm = parseCustomField(
+        this.form,
+        this.testCaseTemplate,
+        this.customFieldRules,
+        testCase ? buildTestCaseOldFields(this.form) : null
+      );
       this.setDefaultValue();
       this.resetSystemField();
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
     },
     resetSystemField() {
-      if (this.operationType === 'add') {
+      if (this.operationType === "add") {
         return;
       }
       // 用例等级等字段以表中对应字段为准，后端复杂操作直接改表中对应字段即可
       this.from;
-      this.customFieldForm['用例等级'] = this.form.priority;
-      this.customFieldForm['责任人'] = this.form.maintainer;
-      this.customFieldForm['用例状态'] = this.form.status;
-      this.testCaseTemplate.customFields.forEach(field => {
-        if (field.name === '用例等级') {
+      this.customFieldForm["用例等级"] = this.form.priority;
+      this.customFieldForm["责任人"] = this.form.maintainer;
+      this.customFieldForm["用例状态"] = this.form.status;
+      this.testCaseTemplate.customFields.forEach((field) => {
+        if (field.name === "用例等级") {
           field.defaultValue = this.form.priority;
-        } else if (field.name === '责任人') {
+        } else if (field.name === "责任人") {
           field.defaultValue = this.form.maintainer;
-        } else if (field.name === '用例状态') {
+        } else if (field.name === "用例状态") {
           field.defaultValue = this.form.status;
         }
       });
@@ -761,8 +1240,12 @@ export default {
       if (this.validateForm()) {
         this._saveCase(callback);
       } else {
-        this.$refs.versionHistory.loading = false;
-        this.$refs.selectPropDialog.close();
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
+        if (this.$refs.selectPropDialog) {
+          this.$refs.selectPropDialog.close();
+        }
       }
     },
     _saveCase(callback) {
@@ -775,12 +1258,13 @@ export default {
             response = response.data;
             // 保存用例后刷新附件
             this.currentTestCaseInfo.isCopy = false;
-            this.$refs.otherInfo.getFileMetaData(response.data.id);
+            if (this.$refs.otherInfo) {
+              this.$refs.otherInfo.getFileMetaData(response.data.id);
+            }
             this.loading = false;
-            this.$success(this.$t('commons.save_success'));
-            this.path = "/test/case/edit";
-            this.operationType = "edit"
-            this.$emit("refreshTestCase",);
+            this.$success(this.$t("commons.save_success"), false);
+            this.operationType = "edit";
+            this.$emit("refreshTestCase");
             useStore().testCaseMap.set(this.form.id, 0);
             this.$emit("refresh", response.data);
             if (this.form.id) {
@@ -788,7 +1272,6 @@ export default {
             } else {
               param.id = response.data.id;
               this.$emit("caseCreate", param);
-              this.type = 'edit';
               this.close();
             }
             this.form.id = response.data.id;
@@ -807,7 +1290,10 @@ export default {
             if (hasLicense()) {
               this.getDefaultVersion();
             }
-          }).catch(() => {
+
+            this.$router.push({path: "/track/case/edit/" + this.form.id})
+          })
+          .catch(() => {
             this.loading = false;
           });
       }
@@ -817,9 +1303,8 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
-      param.copyCaseId = this.copyCaseId
+      param.copyCaseId = this.caseId;
       if (!this.publicEnable) {
-        param.nodePath = getNodePath(this.form.module, this.moduleOptions);
         if (this.projectId) {
           param.projectId = this.projectId;
         }
@@ -839,90 +1324,107 @@ export default {
       }
       param.tags = this.form.tags;
       param.casePublic = this.casePublic;
-      param.type = 'functional';
+      param.type = "functional";
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
       //配置多版本复制的时候是否要连带复制其他信息
       if (this.selectedOtherInfo) {
         param.otherInfoConfig = this.selectedOtherInfo;
       }
-      if (this.$refs.otherInfo.relateFiles.length > 0) {
-        param.relateFileMetaIds = this.$refs.otherInfo.relateFiles;
-      }
-      if (this.$refs.otherInfo.unRelateFiles.length > 0) {
-        param.unRelateFileMetaIds = this.$refs.otherInfo.unRelateFiles;
+      if (this.$refs.otherInfo) {
+        if (this.$refs.otherInfo.getRelateFiles() && this.$refs.otherInfo.getRelateFiles().length > 0) {
+          param.relateFileMetaIds = this.$refs.otherInfo.getRelateFiles();
+        }
+        if (this.$refs.otherInfo.getUnRelateFiles() && this.$refs.otherInfo.getUnRelateFiles().length > 0) {
+          param.unRelateFileMetaIds = this.$refs.otherInfo.getUnRelateFiles();
+        }
       }
       return param;
     },
     parseOldFields(param) {
       let customFields = this.testCaseTemplate.customFields;
-      customFields.forEach(item => {
-        if (item.name === '用例等级') {
+      customFields.forEach((item) => {
+        if (item.name === "用例等级") {
           param.priority = item.defaultValue;
+          this.form.priority = item.defaultValue;
         }
-        if (item.name === '责任人') {
+        if (item.name === "责任人") {
           param.maintainer = item.defaultValue;
+          this.form.maintainer = item.defaultValue;
         }
-        if (item.name === '用例状态') {
+        if (item.name === "用例状态") {
           param.status = item.defaultValue;
+          this.form.status = item.defaultValue;
         }
       });
     },
     getOption(param) {
       let formData = new FormData();
       let requestJson = JSON.stringify(param, function (key, value) {
-        return key === "file" ? undefined : value
+        return key === "file" ? undefined : value;
       });
-
-      if (this.$refs.otherInfo.uploadFiles.length > 0) {
-        this.$refs.otherInfo.uploadFiles.forEach(f => {
+      if (this.$refs.otherInfo.getUploadFiles() && this.$refs.otherInfo.getUploadFiles().length > 0) {
+        this.$refs.otherInfo.getUploadFiles().forEach((f) => {
           formData.append("file", f);
         });
       }
-      formData.append('request', new Blob([requestJson], {
-        type: "application/json"
-      }));
+      formData.append(
+        "request",
+        new Blob([requestJson], {
+          type: "application/json",
+        })
+      );
+      let path = '/test/case/edit';
+      if (this.isAdd || this.isCopy) {
+        path = '/test/case/add';
+      }
       return {
-        method: 'POST',
-        url: this.path,
+        method: "POST",
+        url: path,
         data: formData,
         headers: {
-          'Content-Type': undefined
-        }
+          "Content-Type": undefined,
+        },
       };
     },
     validate(param) {
       for (let i = 0; i < param.steps.length; i++) {
-        if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
-          (param.steps[i].result && param.steps[i].result.length > 300)) {
-          this.$warning(this.$t('test_track.case.step_desc') + ","
-            + this.$t('test_track.case.expected_results') + this.$t('test_track.length_less_than') + '300');
+        if (
+          (param.steps[i].desc && param.steps[i].desc.length > 300) ||
+          (param.steps[i].result && param.steps[i].result.length > 300)
+        ) {
+          this.$warning(
+            this.$t("test_track.case.step_desc") +
+              "," +
+              this.$t("test_track.case.expected_results") +
+              this.$t("test_track.length_less_than") +
+              "300"
+          );
           return false;
         }
       }
-      if (param.name === '') {
-        this.$warning(this.$t('test_track.case.input_name'));
+      if (param.name === "") {
+        this.$warning(this.$t("test_track.case.input_name"));
         return false;
       }
       return true;
     },
     typeChange() {
-      this.form.testId = '';
+      this.form.testId = "";
     },
     getMaintainerOptions() {
-      getProjectMemberOption()
-        .then(response => {
-          this.maintainerOptions = response.data;
-        });
+      getProjectMemberOption().then((response) => {
+        this.maintainerOptions = response.data;
+      });
     },
     getSelectOptions() {
       this.getMaintainerOptions();
     },
     resetForm() {
       //防止点击修改后，点击新建触发校验
-      if (this.$refs['caseFrom']) {
-        this.$refs['caseFrom'].validate(() => {
-          this.$refs['caseFrom'].resetFields();
+      if (this.$refs["caseFrom"]) {
+        this.$refs["caseFrom"].validate(() => {
+          this.$refs["caseFrom"].resetFields();
           this._resetForm();
           return true;
         });
@@ -931,22 +1433,24 @@ export default {
       }
     },
     _resetForm() {
-      this.form.name = '';
-      this.form.module = '';
-      this.form.type = '';
-      this.form.method = '';
-      this.form.maintainer = '';
-      this.form.priority = '';
-      this.form.prerequisite = '';
-      this.form.remark = '';
-      this.form.testId = '';
-      this.form.testName = '';
-      this.form.steps = [{
-        num: 1,
-        desc: '',
-        result: ''
-      }];
-      this.form.customNum = '';
+      this.form.name = "";
+      this.form.module = "";
+      this.form.type = "";
+      this.form.method = "";
+      this.form.maintainer = "";
+      this.form.priority = "";
+      this.form.prerequisite = "";
+      this.form.remark = "";
+      this.form.testId = "";
+      this.form.testName = "";
+      this.form.steps = [
+        {
+          num: 1,
+          desc: "",
+          result: "",
+        },
+      ];
+      this.form.customNum = "";
       this.form.tags = [];
     },
     addListener() {
@@ -965,64 +1469,68 @@ export default {
         handleCtrlSEvent(event, this.saveCase);
       }
     },
+    showPreviousPublicCase() {
+      this.$emit("previousCase", this.caseId)
+    },
+    showNextPublicCase() {
+      this.$emit("nextCase", this.caseId)
+    },
     saveFollow() {
       if (this.showFollow) {
         this.showFollow = false;
         for (let i = 0; i < this.form.follows.length; i++) {
           if (this.form.follows[i] === this.currentUser().id) {
-            this.form.follows.splice(i, 1)
+            this.form.follows.splice(i, 1);
             break;
           }
         }
         this.loading = true;
-        testCaseEditFollows(this.form.id, this.form.follows)
-          .then(() => {
-            this.loading = false
-            this.$success(this.$t('commons.cancel_follow_success'));
-          });
+        testCaseEditFollows(this.form.id, this.form.follows).then(() => {
+          this.loading = false;
+          this.$success(this.$t("commons.cancel_follow_success"), false);
+        });
       } else {
         this.showFollow = true;
         if (!this.form.follows) {
           this.form.follows = [];
         }
-        this.form.follows.push(this.currentUser().id)
+        this.form.follows.push(this.currentUser().id);
 
         this.loading = true;
-        testCaseEditFollows(this.form.id, this.form.follows)
-          .then(() => {
-            this.loading = false
-            this.$success(this.$t('commons.follow_success'));
-          });
+        testCaseEditFollows(this.form.id, this.form.follows).then(() => {
+          this.loading = false;
+          this.$success(this.$t("commons.follow_success"), false);
+        });
       }
     },
     getDefaultVersion() {
-      getDefaultVersion(this.projectId)
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(this.projectId).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
     getVersionHistory() {
-      getTestCaseVersions(this.currentTestCaseInfo.id)
-        .then(response => {
-          if (response.data.length > 0) {
-            for (let i = 0; i < response.data.length; i++) {
-              this.currentProjectId = response.data[i].projectId;
-            }
-          } else {
-            this.currentProjectId = getCurrentProjectID();
+      getTestCaseVersions(this.caseId).then((response) => {
+        if (response.data.length > 0) {
+          for (let i = 0; i < response.data.length; i++) {
+            this.currentProjectId = response.data[i].projectId;
           }
-          this.versionData = response.data;
-          let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
-          if (latestVersionData.length > 0) {
-            this.hasLatest = false
-          } else {
-            this.hasLatest = true;
-          }
-          if (this.$refs.versionHistory) {
-            this.$refs.versionHistory.loading = false;
-          }
-        });
+        } else {
+          this.currentProjectId = getCurrentProjectID();
+        }
+        this.versionData = response.data;
+        let latestVersionData = response.data.filter(
+          (v) => v.versionId === this.latestVersionId
+        );
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false;
+        } else {
+          this.hasLatest = true;
+        }
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
+      });
     },
     setSpecialPropForCompare: function (that) {
       that.newData.tags = JSON.parse(that.newData.tags || "{}");
@@ -1032,70 +1540,133 @@ export default {
       that.newData.readOnly = true;
       that.oldData.readOnly = true;
     },
+    async fetchVersionName(){
+      if(this.form.versionName){
+        this.currentVersionName = this.form.versionName;
+        return;
+      }
+      if(this.currentVersionName){
+        return;
+      }
+      //查询版本名称
+      await this.getVersionOptionList();
+      this.currentVersionName = this.findVersionNameByID(this.form.versionId)
+    },
+    async getVersionOptionList() {
+      let res = await getProjectVersions(getCurrentProjectID());
+      this.versionOptions = res.data ?? [];
+    },
+    findVersionNameByID(versionId){
+      let versionName = "";
+      let version = this.versionOptions.filter(v => v.id === versionId);
+      if(Array.isArray(version) && version.length > 0){
+        return version[0].name;
+      }
+      return versionName;
+    },
+    async compareBranch(t1, t2) {
+      let t1Case = await testCaseGetByVersionId(t1.id, this.currentTestCaseInfo.id);
+      let t2Case = await testCaseGetByVersionId(t2.id, this.currentTestCaseInfo.id);
+
+      let p1 = getTestCase(t1Case.data.id);
+      let p2 = getTestCase(t2Case.data.id);
+      let that = this;
+      Promise.all([p1, p2]).then((r) => {
+        if (r[0] && r[1]) {
+          that.newData = r[0].data;
+          that.oldData = r[1].data;
+          that.newData.createTime = t1.createTime;
+          that.oldData.createTime = t2.createTime;
+          that.newData.versionName = t1.name;
+          that.oldData.versionName = t2.name;
+          that.newData.userName = t1Case.data.createName;
+          that.oldData.userName = t2Case.data.createName;
+          this.setSpecialPropForCompare(that);
+          that.dialogVisible = true;
+        }
+      });
+    },
     compare(row) {
-      testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId)
-        .then(response => {
+      testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId).then(
+        (response) => {
           let p1 = getTestCase(response.data.id);
-          let p2 = getTestCase(this.currentTestCaseInfo.id);
+          let p2 = getTestCase(this.caseId);
           let that = this;
-          Promise.all([p1, p2]).then(r => {
+          Promise.all([p1, p2]).then((r) => {
             if (r[0] && r[1]) {
               that.newData = r[0].data;
               that.oldData = r[1].data;
               that.newData.createTime = row.createTime;
-              that.oldData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === that.oldData.versionId)[0].createTime;
-              that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
-              that.oldData.versionName = that.versionData.filter(v => v.id === that.oldData.id)[0].versionName;
+              that.oldData.createTime =
+                this.$refs.versionHistory.versionOptions.filter(
+                  (v) => v.id === that.oldData.versionId
+                )[0].createTime;
+              that.newData.versionName = that.versionData.filter(
+                (v) => v.id === that.newData.id
+              )[0].versionName;
+              that.oldData.versionName = that.versionData.filter(
+                (v) => v.id === that.oldData.id
+              )[0].versionName;
               that.newData.userName = response.data.createName;
-              that.oldData.userName = that.versionData.filter(v => v.id === that.oldData.id)[0].createName;
+              that.oldData.userName = that.versionData.filter(
+                (v) => v.id === that.oldData.id
+              )[0].createName;
               this.setSpecialPropForCompare(that);
               that.dialogVisible = true;
             }
           });
-        });
+        }
+      );
     },
     checkout(row) {
       this.getVersionHistory();
       this.$refs.versionHistory.loading = true;
-      let testCase = this.versionData.filter(v => v.versionId === row.id)[0];
+      let testCase = this.versionData.filter((v) => v.versionId === row.id)[0];
 
       if (testCase) {
-        getTestCase(testCase.id)
-          .then(response => {
-            let testCase = response.data;
-            this.$emit("checkout", testCase);
-            this.$refs.versionHistory.loading = false;
-          });
+        getTestCase(testCase.id).then((response) => {
+          let testCase = response.data;
+          this.$emit("checkout", testCase);
+          this.$refs.versionHistory.loading = false;
+        });
       }
     },
     validateForm() {
       let isValidate = true;
-      this.$refs['caseFrom'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          return false;
-        }
-      });
+      if (this.$refs["caseFrom"]) {
+        this.$refs["caseFrom"].validate((valid) => {
+          if (!valid) {
+            isValidate = false;
+            return false;
+          }
+        });
+      }
+      let detailForm = this.$refs.otherInfo.validateForm();
       let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm();
-      if (!baseInfoValidate) {
+      let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
+      if (!detailForm || !baseInfoValidate) {
         return false;
       }
-      let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
       if (!customValidate) {
-        let customFieldFormFields = this.$refs.testCaseBaseInfo.getCustomFields();
+        let customFieldFormFields =
+          this.$refs.testCaseBaseInfo.getCustomFields();
         for (let i = 0; i < customFieldFormFields.length; i++) {
           let customField = customFieldFormFields[i];
-          if (customField.validateState === 'error') {
+          if (customField.validateState === "error") {
             if (this.currentValidateName) {
-              this.currentValidateName = this.currentValidateName + "," + customField.label
+              this.currentValidateName =
+                this.currentValidateName + "," + customField.label;
             } else {
-              this.currentValidateName = customField.label
+              this.currentValidateName =
+                customField.label || customField.labelFor;
             }
           }
         }
         this.isValidate = true;
-        this.$warning(this.currentValidateName + this.$t('commons.cannot_be_null'));
-        this.currentValidateName = '';
+        this.$warning(
+          this.currentValidateName + this.$t("commons.cannot_be_null")
+        );
+        this.currentValidateName = "";
         return false;
       }
       return isValidate;
@@ -1124,63 +1695,108 @@ export default {
     },
     del(row) {
       let that = this;
-      this.$alert(this.$t('test_track.case.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            deleteTestCaseVersion(row.id, this.form.refId)
-              .then(() => {
-                this.$success(this.$t('commons.delete_success'));
+      this.$confirm(
+        this.$t("test_track.case.delete_confirm") + " " + row.name + " ？",
+        "",
+        {
+          confirmButtonText: this.$t("commons.confirm"),
+          customClass: "custom-confirm-delete",
+          callback: (action) => {
+            if (action === "confirm") {
+              deleteTestCaseVersion(row.id, this.form.refId).then(() => {
+                this.$success(this.$t("commons.delete_success"));
                 this.getVersionHistory();
                 this.$emit("refresh");
               });
-          } else {
-            that.$refs.versionHistory.loading = false;
-          }
+            } else {
+              that.$refs.versionHistory.loading = false;
+            }
+          },
         }
-      });
+      );
     },
     setLatest(row) {
       let param = {
         projectId: getCurrentProjectID(),
-        type: 'TEST_CASE',
+        type: "TEST_CASE",
         versionId: row.id,
-        resourceId: this.currentTestCaseInfo.id
-      }
+        resourceId: this.caseId,
+      };
       setLatestVersionById(param).then(() => {
-        this.$success(this.$t('commons.modify_success'));
+        this.$success(this.$t("commons.modify_success"));
         this.checkout(row);
       });
     },
     hasOtherInfo() {
       return new Promise((resolve) => {
         if (this.form.id) {
-          hasTestCaseOtherInfo(this.form.id)
-            .then((res) => {
-              resolve(res.data);
-            });
+          hasTestCaseOtherInfo(this.form.id).then((res) => {
+            resolve(res.data);
+          });
         } else {
           resolve();
         }
-        }
-      );
+      });
     },
     confirmOtherInfo(selectedOtherInfo) {
       this.selectedOtherInfo = selectedOtherInfo;
       this.saveCase();
     },
-  }
-}
+    copyRow() {
+      openCaseEdit(this.testCase.id, "copy", this);
+    },
+    deleteRow() {
+      getTestCaseVersions(this.testCase.id)
+        .then(response => {
+          if (hasLicense() && this.versionEnable && response.data.length > 1) {
+            // 删除提供列表删除和全部版本删除
+            this.$refs.apiDeleteConfirm.open(this.testCase, this.$t('test_track.case.delete_confirm'));
+          } else {
+            let title = this.$t('test_track.case.case_delete_confirm') + ": " + this.testCase.name + "?";
+            this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+                cancelButtonText: this.$t("commons.cancel"),
+                confirmButtonText: this.$t("commons.delete"),
+                customClass: 'custom-confirm-delete',
+                callback: action => {
+                  if (action === "confirm") {
+                    this._handleDeleteVersion(this.testCase, false);
+                  }
+                }
+              }
+            );
+          }
+        })
+    },
+    _handleDeleteVersion(testCase, deleteCurrentVersion) {
+      // 删除指定版本
+      if (deleteCurrentVersion) {
+        deleteTestCaseVersion(testCase.versionId, testCase.refId)
+          .then(() => {
+            this.$success(this.$t('commons.delete_success'), false);
+            this.$refs.apiDeleteConfirm.close();
+            this.$emit("refreshAll");
+          });
+      } else {
+        // 删除全部版本
+        this._handleDeleteToGc(testCase);
+        this.$refs.apiDeleteConfirm.close();
+      }
+    },
+    _handleDeleteToGc(testCase) {
+      let testCaseId = testCase.id;
+      testCaseDeleteToGc(testCaseId)
+        .then(() => {
+          this.$success(this.$t('commons.delete_success'), false);
+          this.$router.push('/track/case/all');
+        });
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .el-switch {
   margin-bottom: 10px;
-}
-
-.case-name {
-  width: 194px;
 }
 
 .container {
@@ -1240,5 +1856,461 @@ export default {
 .other-info-tabs {
   padding-left: 60px;
   margin-left: 40px;
+}
+
+.editable-edit-content-container {
+  height: calc(100vh - 190px) !important;
+}
+
+.editable-content-base-info-wrap {
+  height: calc(100vh - 190px) !important;
+}
+
+.el-scrollbar {
+  height: 100%;
+}
+</style>
+
+<style scoped lang="scss">
+@import "@/business/style/index.scss";
+
+.case-edit-wrap {
+  padding: 12px 24px 0px;
+  box-sizing: border-box;
+
+  :deep(.el-form-item__content) {
+    line-height: px2rem(32);
+  }
+  .case-edit-box {
+    /* margin-left: px2rem(34); */
+    background-color: #fff;
+    .edit-header-container {
+      height: 56px;
+      width: 100%;
+      border-bottom: 1px solid rgba(31, 35, 41, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .header-content-row {
+        display: flex;
+        align-items: center;
+        .back {
+          margin-left: px2rem(24);
+          width: px2rem(20);
+          height: px2rem(20);
+          cursor: pointer;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .case-name {
+          height: px2rem(24);
+          font-size: 16px;
+          font-family: "PingFang SC";
+          font-style: normal;
+          font-weight: 500;
+          line-height: px2rem(24);
+          color: #1f2329;
+          margin-left: px2rem(8);
+          margin-right: px2rem(8);
+          cursor: pointer;
+        }
+        .case-name-hover:hover {
+          cursor: pointer;
+          background: rgba(31, 35, 41, 0.1);
+          border-radius: 4px;
+        }
+
+        .case-edit {
+          display: flex;
+          align-items: center;
+          .case-level {
+          }
+
+          .case-version:hover {
+            cursor: pointer;
+            background: rgba(31, 35, 41, 0.1);
+            border-radius: 4px;
+          }
+          .case-version {
+            display: flex;
+            color: #646a73;
+            align-items: center;
+            margin-left: px2rem(8);
+
+            .version-icon {
+              width: 14.17px;
+              height: 12.6px;
+              margin-right: px2rem(4.95);
+
+              img {
+                width: 100%;
+                height: 100%;
+              }
+            }
+
+            .version-title {
+              height: px2rem(22);
+              line-height: px2rem(22);
+            }
+            .version-suffix {
+              height: px2rem(22);
+              line-height: px2rem(22);
+              margin-left: px2rem(5);
+            }
+          }
+        }
+      }
+      .separator-row {
+        margin-right: px2rem(20);
+        position: relative;
+        bottom: px2rem(1);
+        color: #BBBFC4;
+      }
+      .el-icon-close:before {
+        font-size: 20px;
+      }
+      .el-icon-arrow-left:before {
+        font-size: 16px;
+        float: left;
+      }
+      .el-icon-arrow-right:before {
+        font-size: 16px;
+        float: right;
+      }
+      .header-opt-row {
+        display: flex;
+        align-items: center;
+        // 公共处理
+        .head-opt:hover {
+          background: rgba(31, 35, 41, 0.1);
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .head-opt {
+          display: flex;
+          align-items: center;
+          .icon-row {
+            width: 14px;
+            height: 14px;
+            margin-right: px2rem(5);
+            img {
+              width: 100%;
+              height: 100%;
+            }
+          }
+
+          .label-row {
+            height: px2rem(22);
+            font-family: "PingFang SC";
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: px2rem(22);
+            text-align: center;
+            color: #1f2329;
+          }
+        }
+
+        .disable-row{
+          color: #BBBFC4;
+        }
+
+        .disable-row .label-row {
+          color: #BBBFC4!important;
+        }
+
+        .previous-public-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(20.67);
+        }
+
+        .next-public-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(20.67);
+        }
+
+        .follow-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(20.67);
+        }
+
+        .edit-public-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(20.67);
+        }
+
+        .copy-public-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(20.67);
+        }
+
+        .add-public-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(22.33);
+        }
+
+        .more-row.head-opt {
+          .icon-row {
+            img {
+            }
+          }
+
+          .label-row {
+          }
+          margin-right: px2rem(24);
+        }
+      }
+    }
+
+    .edit-content-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      background-color: #fff;
+      .required-item:after {
+        content: "*";
+        color: #f54a45;
+        margin-left: px2rem(4);
+        width: px2rem(8);
+        height: 22px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+      }
+      .content-body-wrap {
+        .case-title-wrap {
+          display: flex;
+          margin-top: px2rem(24);
+          margin-bottom: px2rem(8);
+          .title-wrap {
+            height: 22px;
+            font-family: "PingFang SC";
+            font-style: normal;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 22px;
+            color: #1f2329;
+          }
+        }
+        :deep(.el-tabs__nav-scroll) {
+          padding-left: 6px;
+          height: 45px;
+        }
+        :deep(.el-tabs__nav) {
+          height: 45px;
+          line-height: 45px;
+        }
+        :deep(.el-tabs__item) {
+          padding: 0 14px !important;
+        }
+        //公共样式
+        .content-wrap {
+          :deep(.v-note-op) {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #bbbfc4;
+          }
+          :deep(.v-note-wrapper) {
+            box-sizing: border-box;
+            border: 1px solid #bbbfc4 !important;
+            border-radius: 4px;
+            box-shadow: none !important;
+          }
+          :deep(.v-note-show) {
+            min-height: 65px;
+          }
+          :deep(.v-left-item) {
+            flex: none !important;
+          }
+        }
+
+        .case-name-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            .opt-row {
+              width: 100%;
+              height: 32px;
+            }
+          }
+        }
+        .pre-condition-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 100px;
+            .opt-row {
+              :deep(.el-form-item) {
+                margin: 0;
+              }
+              width: 100%;
+            }
+          }
+        }
+        .remark-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 100px;
+            .opt-row {
+              width: 100%;
+              :deep(.el-form-item) {
+                margin: 0;
+              }
+            }
+          }
+        }
+        .attachment-row {
+          .attachment-name.case-title-wrap {
+            .name.title-wrap {
+            }
+          }
+
+          .content-wrap {
+            .opt-btn {
+            }
+
+            .opt-tip {
+              font-family: "PingFang SC";
+              font-style: normal;
+              font-weight: 400;
+              font-size: 14px;
+              line-height: 22px;
+              /* identical to box height, or 157% */
+
+              color: #8f959e;
+            }
+          }
+        }
+      }
+
+      .content-base-info-wrap {
+        width: px2rem(304);
+        height: calc(100vh - 240px + 130px);
+        border-left: 1px solid rgba(31, 35, 41, 0.15);
+        .case-wrap {
+          margin-left: px2rem(24);
+          margin-top: px2rem(24);
+        }
+        .case-title-wrap {
+          display: flex;
+          .title-wrap {
+            font-weight: 500;
+            height: 22px;
+            font-size: 14px;
+            line-height: 22px;
+            color: #1f2329;
+          }
+          margin-bottom: px2rem(8);
+        }
+        .side-content {
+          width: px2rem(256);
+          height: 32px;
+          :deep(.el-select) {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    .edit-footer-container {
+      display: flex;
+      width: 100%;
+      height: 80px;
+      background: #ffffff;
+      box-shadow: 0px -1px 4px rgba(31, 35, 41, 0.1);
+      align-items: center;
+      font-family: "PingFang SC";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 22px;
+      text-align: center;
+      // 底部按钮激活样式
+      .opt-active-primary {
+        background: #783887;
+        color: #ffffff;
+      }
+      .opt-disable-primary {
+        background: #bbbfc4;
+        color: #ffffff;
+      }
+      .opt-active {
+        background: #ffffff;
+        color: #1f2329;
+      }
+      .opt-disable {
+        background: #ffffff;
+        color: #bbbfc4;
+      }
+
+      .save-btn-row {
+        margin-left: px2rem(24);
+        el-button {
+        }
+      }
+
+      .save-add-pub-row {
+        margin-left: px2rem(12);
+        el-button {
+        }
+      }
+
+      .save-create-row {
+        margin-left: px2rem(12);
+        el-button {
+        }
+      }
+    }
+  }
+}
+</style>
+<style>
+.attachment-popover {
+  padding: 0 !important;
+  height: 80px;
+  min-width: 120px !important;
 }
 </style>

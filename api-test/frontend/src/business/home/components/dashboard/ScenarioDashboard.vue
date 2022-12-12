@@ -15,7 +15,7 @@
             justify-content: center;
             align-items: center;
           ">
-          <img style="height: 100px; width: 100px" src="/assets/figma/icon_load_error.svg" />
+          <img style="height: 100px; width: 100px" src="/assets/module/figma/icon_load_error.svg" />
           <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
         <div v-show="!loadError">

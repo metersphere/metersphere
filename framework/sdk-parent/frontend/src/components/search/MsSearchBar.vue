@@ -1,5 +1,5 @@
 <template>
-  <el-input class="ms-search-bar" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
+  <el-input class="ms-search-bar" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" prefix-icon="el-icon-search" size="small" clearable>
     <template v-if="showOperator && commands" v-slot:append>
       <el-dropdown>
         <el-button type="primary">

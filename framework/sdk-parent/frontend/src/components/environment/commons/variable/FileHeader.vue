@@ -9,7 +9,7 @@
       <span class="operate-button">
         <slot name="button"></slot>
       </span>
-      <span>
+      <span class="input-row">
         <el-row justify="space-between" v-if="showThumbnail">
           <el-col :span="16">
             <ms-table-search-bar :condition.sync="condition" @change="search"/>

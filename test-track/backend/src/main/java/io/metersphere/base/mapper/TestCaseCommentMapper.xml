@@ -9,6 +9,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="belong_id" jdbcType="VARCHAR" property="belongId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseComment">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -72,7 +73,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, author, create_time, update_time, `status`, `type`
+    id, case_id, author, create_time, update_time, `status`, `type`, belong_id
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -128,10 +129,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseComment">
     insert into test_case_comment (id, case_id, author,
       create_time, update_time, `status`,
-      `type`, description)
+      `type`, belong_id, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR},
-      #{type,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+      #{type,jdbcType=VARCHAR}, #{belongId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseComment">
     insert into test_case_comment
@@ -156,6 +159,9 @@
       </if>
       <if test="type != null">
         `type`,
+      </if>
+      <if test="belongId != null">
+        belong_id,
       </if>
       <if test="description != null">
         description,
@@ -182,6 +188,9 @@
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="belongId != null">
+        #{belongId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -218,6 +227,9 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.belongId != null">
+        belong_id = #{record.belongId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -235,6 +247,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `status` = #{record.status,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
+      belong_id = #{record.belongId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -248,7 +261,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `status` = #{record.status,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR}
+      `type` = #{record.type,jdbcType=VARCHAR},
+      belong_id = #{record.belongId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -274,6 +288,9 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
+      <if test="belongId != null">
+        belong_id = #{belongId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -288,6 +305,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       `status` = #{status,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
+      belong_id = #{belongId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -298,7 +316,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       `status` = #{status,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR}
+      `type` = #{type,jdbcType=VARCHAR},
+      belong_id = #{belongId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

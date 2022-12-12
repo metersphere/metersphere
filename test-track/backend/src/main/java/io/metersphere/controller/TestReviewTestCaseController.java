@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.TestCaseComment;
 import io.metersphere.base.domain.TestCaseReviewTestCase;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -56,6 +57,13 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
+    @PostMapping("/batch/edit/reviewer")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
+    public void editTestCaseReviewerBatch(@RequestBody TestReviewCaseBatchRequest request) {
+        testReviewTestCaseService.editTestCaseBatchReviewer(request);
+    }
+
     @PostMapping("/minder/edit/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#testCases)", msClass = TestReviewTestCaseService.class)
@@ -77,13 +85,18 @@ public class TestReviewTestCaseController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
-    public void editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
-        testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
+    public String editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
+        return testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 
     @GetMapping("/get/{reviewId}")
     public TestReviewCaseDTO get(@PathVariable String reviewId) {
         return testReviewTestCaseService.get(reviewId);
+    }
+
+    @GetMapping("/reviewer/status/{id}")
+    public List<TestCaseComment> getReviewerStatusComment(@PathVariable String id) {
+        return testReviewTestCaseService.getReviewerStatusComment(id);
     }
 
     @PostMapping("/edit/order")

@@ -7,6 +7,7 @@
         select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.tags,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
+        test_case_review.review_pass_rule,
         test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
 
         from test_case_review
@@ -94,7 +95,7 @@
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.reviewerId != null">
-                and test_case_review.id in (select test_case_review_users.review_id from test_case_review_users where test_case_review_users.user_id = #{request.reviewerId})
+                and test_case_review.id in (select test_case_review_test_case_users.review_id from test_case_review_test_case_users where test_case_review_test_case_users.user_id = #{request.reviewerId})
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -147,11 +148,11 @@
     <select id="listRelate" resultType="io.metersphere.dto.TestReviewDTOWithMetric">
         select distinct test_case_review.*, project.name as projectName from test_case_review
         inner join project on project.id = test_case_review.project_id
-        inner join test_case_review_users on test_case_review_users.review_id = test_case_review.id
+        inner join test_case_review_test_case_users on test_case_review_test_case_users.review_id = test_case_review.id
         <where>
             project.workspace_id = #{request.workspaceId}
             <if test="request.reviewerId != null">
-                and test_case_review_users.user_id = #{request.reviewerId}
+                and test_case_review_test_case_users.user_id = #{request.reviewerId}
             </if>
             <if test="request.projectId != null">
                 and test_case_review.project_id = #{request.projectId}

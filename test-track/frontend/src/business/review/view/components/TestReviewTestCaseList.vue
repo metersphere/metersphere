@@ -96,6 +96,7 @@
           prop="maintainerName"
           :field="item"
           :fields-width="fieldsWidth"
+          :filters="userFilter"
           :label="$t('custom_field.case_maintainer')"
           min-width="120px"/>
 
@@ -117,6 +118,7 @@
           prop="reviewerName"
           :field="item"
           :fields-width="fieldsWidth"
+          :filters="userFilter"
           :label="$t('test_track.review.reviewer')"
           min-width="120px"/>
 
@@ -185,7 +187,7 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
 import {
   _handleSelectAll, buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField, getSelectDataCounts,
-  getTableHeaderWithCustomFields, initCondition, toggleAllSelection} from "metersphere-frontend/src/utils/tableUtils";
+  getTableHeaderWithCustomFields, initCondition, toggleAllSelection, getCustomFieldBatchEditOption} from "metersphere-frontend/src/utils/tableUtils";
 import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom";
 import {Test_Case_Review_Case_List} from "@/business/model/JsonData";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -198,13 +200,14 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
 import {getProjectConfig} from "@/api/project";
 import {
-  batchDeleteTestReviewCase,
+  batchDeleteTestReviewCase, batchEditTestReviewCaseReviewer,
   batchEditTestReviewCaseStatus,
   deleteTestReviewCase, getTesReviewById
 } from "@/api/test-review";
 import {useStore} from "@/store";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
-import {getProjectApplicationConfig} from "@/api/project-application";
+import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
+import {TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -228,17 +231,23 @@ export default {
       screenHeight: 'calc(100vh - 240px)',
       tableLabel: [],
       result: {},
-      condition: {},
+      condition: {
+        components: TEST_REVIEW_CASE
+      },
       tableData: [],
       nextPageData: null,
       prePageData: null,
       currentPage: 1,
       pageSize: 10,
+      userFilter: [],
       total: 0,
       pageCount: 0,
       enableOrderDrag: true,
       selectRows: new Set(),
       testReview: {},
+      members: [],
+      memberMap: new Map(),
+      testCaseTemplate: {},
       isReadOnly: false,
       isTestManagerOrTestUser: false,
       selectDataCounts: 0,
@@ -284,11 +293,11 @@ export default {
         }
       ],
       typeArr: [
-        {id: 'status', name: this.$t('test_track.review_view.execute_result')},
+        {id: 'reviewStatus', name: this.$t('test_track.review_view.execute_result')},
       ],
       valueArr: {
-        status: [
-          {name: this.$t('test_track.review.prepare'), id: 'Prepare'},
+        reviewStatus: [
+          {name: this.$t('test_track.review.again'), id: 'Again'},
           {name: this.$t('test_track.review.pass'), id: 'Pass'},
           {name: this.$t('test_track.review.un_pass'), id: 'UnPass'},
         ]
@@ -342,6 +351,10 @@ export default {
   created() {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     this.pageCount = Math.ceil(this.total / this.pageSize);
+    getProjectMemberUserFilter((data) => {
+      this.userFilter = data;
+    });
+    this.getTemplateField();
   },
   mounted() {
     this.$emit('setCondition', this.condition);
@@ -353,6 +366,16 @@ export default {
     this.getCustomNum();
   },
   methods: {
+    getTemplateField() {
+      getProjectMember()
+        .then((response) => {
+          this.typeArr.push({
+            id: "reviewers",
+            name: this.$t('commons.reviewer')
+          });
+          this.valueArr.reviewers = response.data;
+        });
+    },
     nextPage() {
       this.currentPage++;
       this.initTableData(() => {
@@ -512,17 +535,34 @@ export default {
     batchEdit(form) {
       let reviewId = this.reviewId;
       let param = buildBatchParam(this, this.$refs.table.selectIds);
+      if (form.type === 'reviewStatus') {
+        param.status = form.value;
+      }
       param.ids = Array.from(this.$refs.table.selectRows).map(row => row.caseId);
       param[form.type] = form.value;
       param.reviewId = reviewId;
-      batchEditTestReviewCaseStatus(param)
-        .then(() => {
-          this.tableClear();
-          this.status = '';
-          this.$post('/test/case/review/edit/status/' + reviewId);
-          this.$success(this.$t('commons.save_success'));
-          this.$emit('refresh');
-        })
+      param.description = form.description;
+      if (form.type === 'reviewers') {
+        param.reviewer = form.value;
+        param.appendTag = form.appendTag;
+        batchEditTestReviewCaseReviewer(param)
+          .then(() => {
+            this.tableClear();
+            this.status = '';
+            this.$post('/test/case/review/edit/status/' + reviewId);
+            this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
+          })
+      } else {
+        batchEditTestReviewCaseStatus(param)
+          .then(() => {
+            this.tableClear();
+            this.status = '';
+            this.$post('/test/case/review/edit/status/' + reviewId);
+            this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
+          });
+      }
     },
     openTestReport() {
       this.$refs.testReportTemplateList.open(this.reviewId);

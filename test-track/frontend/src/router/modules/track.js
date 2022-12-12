@@ -14,7 +14,7 @@ export default {
     {
       path: 'case/create',
       name: 'testCaseCreate',
-      component: () => import('@/business/case/TestCase'),
+      component: () => import('@/business/case/components/TestCaseEdit'),
     },
     {
       path: 'case/:projectId',
@@ -29,7 +29,7 @@ export default {
     {
       path: 'case/edit/:caseId',
       name: 'testCaseEdit',
-      component: () => import('@/business/case/TestCase'),
+      component: () => import('@/business/case/components/TestCaseEdit'),
     },
     {
       path: 'testPlan/reportList',
@@ -56,11 +56,6 @@ export default {
       name: "planViewEdit",
       component: () => import('@/business/plan/view/TestPlanView')
     },
-    // {
-    //   path: "project/:type",
-    //   name: "trackProject",
-    //   component: MsProject
-    // },
     {
       path: "review/:type",
       name: "testCaseReview",

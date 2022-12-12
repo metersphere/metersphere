@@ -101,16 +101,16 @@ const TRACK_HEADER = {
   //测试用例
   TRACK_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
-    {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'name', key: '2', label: 'test_track.case.name'},
     {id: 'reviewStatus', key: '3', label: 'test_track.case.status'},
     {id: 'tags', key: '4', label: 'commons.tag'},
-    {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
     {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
     {id: 'lastExecuteResult', key: '0', label: 'test_track.plan_view.execute_result'},
+    {id: 'versionId', key: 'a', label: 'project.version.name', xpack: true},
   ],
   // 公共用例库
   TRACK_PUBLIC_TEST_CASE: [
@@ -148,6 +148,9 @@ const TRACK_HEADER = {
     {id: 'createTime', key: '6', label: 'commons.create_time'},
     {id: 'endTime', key: '7', label: 'test_track.review.end_time'},
     {id: 'tags', key: '8', label: 'commons.tag'},
+    // {id: 'testRate', key: '9', label: 'review.review_rate'},
+    {id: 'caseCount', key: 'a', label: 'api_test.definition.api_case_number'},
+    {id: 'passRate', key: 'b', label: 'commons.pass_rate'},
   ],
   //用例评审-功能用例
   TEST_CASE_REVIEW_FUNCTION_TEST_CASE: [

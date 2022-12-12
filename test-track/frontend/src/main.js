@@ -25,6 +25,13 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 
 Vue.config.productionTip = false
 
+function calcFontSize(){
+  const w = document.body.clientWidth
+  document.documentElement.style.fontSize = 16 * (w / 1440) + 'px' 
+}
+calcFontSize()
+window.addEventListener('resize',calcFontSize)
+
 const pinia = createPinia()
 pinia.use(PersistedState)//开启缓存，存储在localstorage
 
@@ -49,7 +56,7 @@ Vue.use(VueClipboard);
 Vue.use(CKEditor);
 
 let instance = null;
-
+Vue.prototype._i18n = i18n;
 function render(props = {}) {
   const {container, eventBus = new Vue()} = props;
   // 添加全局事件总线
