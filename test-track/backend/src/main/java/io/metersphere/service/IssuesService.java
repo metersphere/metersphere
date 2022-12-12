@@ -37,21 +37,23 @@ import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.platform.api.Platform;
-import io.metersphere.platform.domain.*;
 import io.metersphere.platform.domain.PlatformAttachment;
+import io.metersphere.platform.domain.*;
 import io.metersphere.request.IntegrationRequest;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.request.issues.IssueExportRequest;
 import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
-import io.metersphere.service.issue.platform.*;
+import io.metersphere.service.issue.platform.AbstractIssuePlatform;
+import io.metersphere.service.issue.platform.IssueFactory;
+import io.metersphere.service.issue.platform.TapdPlatform;
 import io.metersphere.service.remote.project.TrackCustomFieldTemplateService;
 import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -924,10 +926,7 @@ public class IssuesService {
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
 
             try {
-                if (!trackProjectService.isThirdPartTemplate(project)) {
-                    String defaultCustomFields = getDefaultCustomFields(projectId);
-                    issuesRequest.setDefaultCustomFields(defaultCustomFields);
-                }
+                issuesRequest.setDefaultCustomFields(getDefaultCustomField(project));
                 if (PlatformPluginService.isPluginPlatform(project.getPlatform())) {
                     // 分批处理
                     SubListUtil.dealForSubList(issues, 500, (subIssue) ->
@@ -943,6 +942,13 @@ public class IssuesService {
             }
         }
         return true;
+    }
+
+    private String getDefaultCustomField(Project project) {
+        if (!trackProjectService.isThirdPartTemplate(project)) {
+            return getDefaultCustomFields(project.getId());
+        }
+        return null;
     }
 
     public void syncPluginThirdPartyIssues(List<IssuesDao> issues, Project project, String defaultCustomFields) {
@@ -983,7 +989,7 @@ public class IssuesService {
 
             try {
                 // 同步附件
-                syncPluginIssueAttachment(platform, syncIssuesResult, batchAttachmentModuleRelationMapper);
+                syncPluginIssueAttachment(platform, syncIssuesResult.getAttachmentMap(), batchAttachmentModuleRelationMapper);
             } catch (Exception e) {
                 LogUtil.error(e);
             }
@@ -999,14 +1005,32 @@ public class IssuesService {
 
             sqlSession.commit();
         } catch (Exception e) {
-            sqlSession.close();
             MSException.throwException(e);
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
-    private void syncPluginIssueAttachment(Platform platform, SyncIssuesResult syncIssuesResult,
+    /**
+     * xpack 反射调用，勿删
+     */
+    public void syncPluginIssueAttachment(Project project, Map<String, List<PlatformAttachment>> attachmentMap) {
+        SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        try {
+            AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+            Platform platform = platformPluginService.getPlatform(project.getPlatform(), project.getWorkspaceId());
+            syncPluginIssueAttachment(platform, attachmentMap, batchAttachmentModuleRelationMapper);
+            sqlSession.commit();
+        } catch (Exception e) {
+            LogUtil.error(e);
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void syncPluginIssueAttachment(Platform platform, Map<String, List<PlatformAttachment>> attachmentMap,
                                            AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
-        Map<String, List<PlatformAttachment>> attachmentMap = syncIssuesResult.getAttachmentMap();
         if (MapUtils.isNotEmpty(attachmentMap)) {
             for (String issueId : attachmentMap.keySet()) {
                 // 查询我们平台的附件
@@ -1024,7 +1048,6 @@ public class IssuesService {
                         jiraAttachmentSet.add(fileName);
                         saveAttachmentModuleRelation(platform, issueId, fileName, fileKey, batchAttachmentModuleRelationMapper);
                     }
-
                 }
 
                 // 删除Jira中不存在的附件
@@ -1845,5 +1868,18 @@ public class IssuesService {
             }
         }
         return true;
+    }
+
+    /**
+     * xpack 中反射调用，勿删
+     */
+    public void execSyncAll(Project project, IssueSyncRequest issueSyncRequest) {
+        Platform platform = platformPluginService.getPlatform(project.getPlatform(), project.getWorkspaceId());
+        SyncAllIssuesRequest syncAllIssuesRequest = new SyncAllIssuesRequest();
+        BeanUtils.copyBean(syncAllIssuesRequest, issueSyncRequest);
+        syncAllIssuesRequest.setDefaultCustomFields(getDefaultCustomField(project));
+        syncAllIssuesRequest.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
+        syncAllIssuesRequest.setHandleSyncFunc(issueSyncRequest.getHandleSyncFunc());
+        platform.syncAllIssues(syncAllIssuesRequest);
     }
 }
