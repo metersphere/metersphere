@@ -77,7 +77,8 @@
             INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
             WHERE (
             (apiCase.`status` IS NULL OR apiCase.`status` != 'Trash')
-            AND apiCase.project_id = #{projectId})) testCase
+            AND apiCase.project_id = #{projectId}
+            )) testCase
             INNER JOIN (SELECT executionInfo.source_id AS sourceId,
             COUNT(executionInfo.id) AS dataCountNumber
             FROM api_case_execution_info executionInfo
@@ -85,6 +86,9 @@
             ON executionInfo.source_id = testPlanCase.id
             WHERE executionInfo.`result` = 'ERROR'
             AND executionInfo.create_time > #{startTimestamp}
+            <if test="versionId != null">
+                AND executionInfo.version = #{versionId}
+            </if>
             GROUP BY source_id) caseErrorCountData
             ON caseErrorCountData.sourceId = testCase.testPlanCaseID
             UNION
@@ -110,6 +114,9 @@
             AND scene.`status` != 'Trash'
             AND ( executionInfo.result = 'ERROR' )
             AND executionInfo.create_time >= #{startTimestamp}
+            <if test="versionId != null">
+                AND executionInfo.version = #{versionId}
+            </if>
             GROUP BY
             scene.id,apiScene.testPlanId
             <if test="selectFunctionCase == true">

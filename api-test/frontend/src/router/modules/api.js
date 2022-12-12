@@ -22,7 +22,7 @@ export default {
       component: () => import('@/business/automation/report/ApiReportView'),
     },
     {
-      path: 'automation/report/:redirectID?/:dataType?/:dataSelectRange',
+      path: 'automation/:versionId?/report/:redirectID?/:dataType?/:dataSelectRange',
       name: 'ApiReportListWithQuery',
       component: () => import('@/business/automation/report/ApiReportList'),
     },
@@ -37,12 +37,12 @@ export default {
       component: () => import('@/business/definition/ApiDefinition'),
     },
     {
-      path: 'definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?/:workspaceId?',
+      path: 'definition/:versionId?/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?/:workspaceId?',
       name: 'ApiDefinitionWithQuery',
       component: () => import('@/business/definition/ApiDefinition'),
     },
     {
-      path: 'automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?',
+      path: 'automation/:versionId?/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?',
       name: 'ApiAutomationWithQuery',
       component: () => import('@/business/automation/ApiAutomation'),
     },

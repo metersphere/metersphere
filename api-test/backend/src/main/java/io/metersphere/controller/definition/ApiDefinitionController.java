@@ -72,10 +72,13 @@ public class ApiDefinitionController {
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
 
-    @PostMapping("/list/week/{projectId}/{goPage}/{pageSize}")
-    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable int goPage, @PathVariable int pageSize) {
+    @PostMapping("/list/week/{projectId}/{versionId}/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable String versionId, @PathVariable int goPage, @PathVariable int pageSize) {
+        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
+            versionId = null;
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(projectId));
+        return PageUtils.setPageInfo(page, apiDefinitionService.weekList(projectId, versionId));
     }
 
     @PostMapping("/list/relevance/{goPage}/{pageSize}")

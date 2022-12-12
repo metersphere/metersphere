@@ -210,11 +210,11 @@ export default {
     this.search();
   },
   methods: {
-    search() {
+    search(versionId) {
       this.loading = true;
       this.loadError = false;
       let selectProjectId = getCurrentProjectID();
-      apiCaseCountByProjectId(selectProjectId)
+      apiCaseCountByProjectId(selectProjectId, versionId)
         .then((response) => {
           this.loading = false;
           this.loadError = false;

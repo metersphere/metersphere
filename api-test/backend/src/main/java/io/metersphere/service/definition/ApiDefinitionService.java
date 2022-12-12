@@ -267,7 +267,7 @@ public class ApiDefinitionService {
         });
     }
 
-    public List<ApiDefinitionResult> weekList(String projectId) {
+    public List<ApiDefinitionResult> weekList(String projectId, String versionId) {
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
         //将日期转化为 00:00:00 的时间戳
@@ -284,6 +284,9 @@ public class ApiDefinitionService {
             request.setProjectId(projectId);
             request = this.initRequest(request, true, true);
             request.setNotEqStatus(ApiTestDataStatus.TRASH.getValue());
+            if (StringUtils.isNotBlank(versionId)) {
+                request.setVersionId(versionId);
+            }
             List<ApiDefinitionResult> resList = extApiDefinitionMapper.weekList(request, startTime.getTime());
             calculateResult(resList, request.getProjectId());
             calculateRelationScenario(resList);
@@ -342,16 +345,17 @@ public class ApiDefinitionService {
     public void checkFilterHasCoverage(ApiDefinitionRequest request) {
         if (StringUtils.isNotEmpty(request.getProjectId())) {
             List<ApiDefinition> definitionList = null;
+            String versionId = StringUtils.isEmpty(request.getVersionId()) ? null : request.getVersionId();
             if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算没有用例接口的覆盖数量
-                definitionList = this.selectEffectiveIdByProjectIdAndHaveNotCase(request.getProjectId());
+                definitionList = this.selectEffectiveIdByProjectIdAndHaveNotCase(request.getProjectId(), versionId);
             } else if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), ApiHomeFilterEnum.NOT_COVERED, ApiHomeFilterEnum.COVERED)) {
                 //计算全部用例
-                definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
+                definitionList = this.selectEffectiveIdByProjectId(request.getProjectId(), versionId);
             }
             if (CollectionUtils.isNotEmpty(definitionList)) {
                 //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
-                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
+                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), versionId);
                 List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
                 if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                     request.setCoverageIds(apiIdInScenario);
@@ -1174,8 +1178,8 @@ public class ApiDefinitionService {
      * @param projectId 项目ID
      * @return List
      */
-    public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return extApiDefinitionMapper.countProtocolByProjectID(projectId);
+    public List<ApiDataCountResult> countProtocolByProjectID(String projectId, String versionId) {
+        return extApiDefinitionMapper.countProtocolByProjectID(projectId, versionId);
     }
 
     /**
@@ -1184,7 +1188,7 @@ public class ApiDefinitionService {
      * @param projectId
      * @return
      */
-    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+    public long countByProjectIDAndCreateInThisWeek(String projectId, String versionId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -1193,16 +1197,16 @@ public class ApiDefinitionService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, versionId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public List<ApiDataCountResult> countStateByProjectID(String projectId) {
-        return extApiDefinitionMapper.countStateByProjectID(projectId);
+    public List<ApiDataCountResult> countStateByProjectID(String projectId, String versionId) {
+        return extApiDefinitionMapper.countStateByProjectID(projectId, versionId);
     }
 
-    public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId) {
-        return extApiDefinitionMapper.countApiCoverageByProjectID(projectId);
+    public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId, String versionId) {
+        return extApiDefinitionMapper.countApiCoverageByProjectID(projectId, versionId);
     }
 
     public void deleteByParams(ApiBatchRequest request) {
@@ -1464,12 +1468,12 @@ public class ApiDefinitionService {
         }
     }
 
-    public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
-        return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
+    public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId, String versionId) {
+        return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId, versionId);
     }
 
-    public List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId) {
-        return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
+    public List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId, String versionId) {
+        return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId, versionId);
     }
 
     public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix, String mockApiResourceId) {
@@ -1675,18 +1679,22 @@ public class ApiDefinitionService {
     }
 
 
-    public long countEffectiveByProjectId(String projectId) {
+    public long countEffectiveByProjectId(String projectId, String versionId) {
         if (StringUtils.isEmpty(projectId)) {
             return 0;
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
+            ApiDefinitionExample.Criteria criteria = example.createCriteria();
+            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
+            if (StringUtils.isNotBlank(versionId)) {
+                criteria.andVersionIdEqualTo(versionId);
+            }
             return apiDefinitionMapper.countByExample(example);
         }
     }
 
-    public long countApiByProjectIdAndHasCase(String projectId) {
-        return extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId);
+    public long countApiByProjectIdAndHasCase(String projectId, String versionId) {
+        return extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId, versionId);
     }
 
     public int getRelationshipCount(String id) {

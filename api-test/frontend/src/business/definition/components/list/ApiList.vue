@@ -1060,6 +1060,10 @@ export default {
     getSelectDataRange() {
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
+      let redirectVersionId = this.$route.params.versionId;
+      if (redirectVersionId !== 'default') {
+        this.condition.versionId = redirectVersionId;
+      }
       this.selectDataRange = dataType === 'api' ? dataRange : 'all';
       if (
         this.selectDataRange &&

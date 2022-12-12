@@ -38,6 +38,7 @@ const message = {
   home: {
     dashboard: {
       public: {
+        default_version: 'Default version data',
         no_data: 'No data',
         load_error: 'Load error',
         this_week: 'Week',
