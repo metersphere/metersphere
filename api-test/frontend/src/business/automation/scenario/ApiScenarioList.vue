@@ -1,5 +1,5 @@
 <template>
-  <div class="scenario-div" v-loading="result">
+  <el-card class="scenario-div" v-loading="result">
     <slot name="version"></slot>
     <ms-search :condition.sync="condition" :base-search-tip="$t('commons.search_by_id_name_tag')" @search="search">
     </ms-search>
@@ -369,7 +369,7 @@
       ref="apiDeleteConfirm" />
     <!--  引用场景弹窗  -->
     <ms-show-reference ref="viewRef" @showCaseRef="showScenarioRef" @openScenario="openScenario" />
-  </div>
+  </el-card>
 </template>
 
 <script>
@@ -522,7 +522,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO', undefined),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 180px)', //屏幕高度,
+      screenHeight: 'calc(100vh - 200px)', //屏幕高度,
       condition: {
         components: this.trashEnable ? API_SCENARIO_CONFIGS_TRASH : API_SCENARIO_CONFIGS,
       },
