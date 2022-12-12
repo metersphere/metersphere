@@ -65,15 +65,14 @@
             <template v-slot="scope">
 
               <span v-if="item.id === 'platformStatus'">
-                <span v-if="scope.row.platform ==='Zentao'">
-                  {{
-                    scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'
-                  }}
+                <span v-if="scope.row.platform === 'Tapd'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
                 </span>
-                <span
-                  v-else-if="scope.row.platform ==='Tapd'">{{
-                    scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'
-                  }}
+                <span v-else-if="scope.row.platform ==='Local'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+                <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                  {{ platformStatusMap.get(scope.row.platformStatus) }}
                 </span>
                 <span v-else>
                   {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
@@ -161,7 +160,7 @@ import {
   getIssues,
   syncIssues,
   deleteIssue,
-  getIssuesById, batchDeleteIssue, getPlatformOption, syncAllIssues
+  getIssuesById, batchDeleteIssue, getPlatformOption, syncAllIssues, getPlatformStatus
 } from "@/api/issue";
 import {
   getCustomFieldValue,
@@ -240,6 +239,8 @@ export default {
       loading: false,
       dataSelectRange: "",
       platformOptions: [],
+      platformStatus: [],
+      platformStatusMap: new Map(),
       hasLicense: false,
       columns: {
         num: {
@@ -303,6 +304,17 @@ export default {
       });
 
     this.hasLicense = hasLicense();
+
+    getPlatformStatus( {
+      projectId: getCurrentProjectID(),
+      workspaceId: getCurrentWorkspaceId()
+    }).then((r) => {
+        this.platformStatus = r.data;
+        this.platformStatusMap = new Map();
+        this.platformStatus.forEach(item => {
+          this.platformStatusMap.set(item.value, item.label);
+        });
+      });
   },
   computed: {
     platformFilters() {

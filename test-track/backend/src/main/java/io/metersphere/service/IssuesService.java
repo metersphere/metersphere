@@ -1449,16 +1449,45 @@ public class IssuesService {
         return extIssuesMapper.getIssues(request);
     }
 
+    public List<PlatformStatusDTO> getPlatformStatus(PlatformIssueTypeRequest request) {
+        List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
+        Project project = baseProjectService.getProjectById(request.getProjectId());
+        String projectConfig = PlatformPluginService.getCompatibleProjectConfig(project);
+        String platform = project.getPlatform();
+        if (PlatformPluginService.isPluginPlatform(platform)) {
+            return platformPluginService.getPlatform(platform)
+                    .getStatusList(projectConfig)
+                    .stream().map(item -> {
+                        // 全部插件化后简化
+                        PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
+                        platformStatusDTO.setLabel(item.getLabel());
+                        platformStatusDTO.setValue(item.getValue());
+                        return platformStatusDTO;
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            List<String> platforms = getPlatforms(project);
+            if (CollectionUtils.isEmpty(platforms)) {
+                return platformStatusDTOS;
+            }
+
+            IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
+            return IssueFactory.createPlatform(platform, issuesRequest).getTransitions(request.getPlatformKey());
+        }
+    }
+
     public List<PlatformStatusDTO> getPlatformTransitions(PlatformIssueTypeRequest request) {
         List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
 
         if (!StringUtils.isBlank(request.getPlatformKey())) {
             Project project = baseProjectService.getProjectById(request.getProjectId());
+            String projectConfig = PlatformPluginService.getCompatibleProjectConfig(project);
             String platform = project.getPlatform();
             if (PlatformPluginService.isPluginPlatform(platform)) {
                 return platformPluginService.getPlatform(platform)
-                        .getStatusList(request.getPlatformKey())
+                        .getTransitions(projectConfig, request.getPlatformKey())
                         .stream().map(item -> {
+                            // 全部插件化后简化
                             PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
                             platformStatusDTO.setLabel(item.getLabel());
                             platformStatusDTO.setValue(item.getValue());
