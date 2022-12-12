@@ -81,120 +81,121 @@
 
     <!-- 右侧部分 -->
     <ms-main-container style="overflow: hidden" class="ms-scenario-main-container">
-      <!-- header 调试部分 -->
-      <div class="ms-debug-div" @click="showAll" ref="debugHeader">
-        <el-row style="margin: 5px">
-          <el-col :span="1" class="ms-col-one ms-font" v-show="scenarioDefinition.length > 1">
-            <el-tooltip
-              :content="$t('test_track.case.batch_operate')"
-              placement="top"
-              effect="light"
-              v-show="!isBatchProcess">
-              <font-awesome-icon
-                class="ms-batch-btn"
-                :icon="['fa', 'bars']"
-                v-prevent-re-click
-                @click="batchProcessing" />
-            </el-tooltip>
-            <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
-            <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
-              <font-awesome-icon
-                class="ms-batch-btn"
-                :icon="['fa', 'times']"
-                v-prevent-re-click
-                @click="cancelBatchProcessing" />
-            </el-tooltip>
-          </el-col>
-          <el-col :span="2" class="ms-col-one ms-font">
-            {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
-          </el-col>
-          <el-col :span="2" class="ms-col-one ms-font">
-            <el-link class="head" @click="showScenarioParameters"
+      <el-card>
+        <!-- header 调试部分 -->
+        <div class="ms-debug-div" @click="showAll" ref="debugHeader">
+          <el-row style="margin: 5px">
+            <el-col :span="1" class="ms-col-one ms-font" v-show="scenarioDefinition.length > 1">
+              <el-tooltip
+                :content="$t('test_track.case.batch_operate')"
+                placement="top"
+                effect="light"
+                v-show="!isBatchProcess">
+                <font-awesome-icon
+                  class="ms-batch-btn"
+                  :icon="['fa', 'bars']"
+                  v-prevent-re-click
+                  @click="batchProcessing" />
+              </el-tooltip>
+              <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
+              <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
+                <font-awesome-icon
+                  class="ms-batch-btn"
+                  :icon="['fa', 'times']"
+                  v-prevent-re-click
+                  @click="cancelBatchProcessing" />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="2" class="ms-col-one ms-font">
+              {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
+            </el-col>
+            <el-col :span="2" class="ms-col-one ms-font">
+              <el-link class="head" @click="showScenarioParameters"
               >{{ $t('api_test.automation.scenario_total') }}
-            </el-link>
-            ：{{ getVariableSize() }}
-          </el-col>
-          <el-col :span="2" class="ms-col-one ms-font">
-            <el-checkbox v-model="enableCookieShare">
-              <span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span>
-            </el-checkbox>
-          </el-col>
-          <el-col :span="3" class="ms-col-one ms-font">
-            <el-checkbox v-model="onSampleError">
-              <span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span>
-            </el-checkbox>
-          </el-col>
+              </el-link>
+              ：{{ getVariableSize() }}
+            </el-col>
+            <el-col :span="2" class="ms-col-one ms-font">
+              <el-checkbox v-model="enableCookieShare">
+                <span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span>
+              </el-checkbox>
+            </el-col>
+            <el-col :span="3" class="ms-col-one ms-font">
+              <el-checkbox v-model="onSampleError">
+                <span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span>
+              </el-checkbox>
+            </el-col>
 
-          <el-col :span="13">
-            <env-popover
-              :disabled="scenarioDefinition.length < 1"
-              :env-map="projectEnvMap"
-              :project-ids="projectIds"
-              :result="envResult"
-              :environment-type.sync="environmentType"
-              :isReadOnly="scenarioDefinition.length < 1"
-              :group-id="envGroupId"
-              :project-list="projectList"
-              :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-              @setProjectEnvMap="setProjectEnvMap"
-              @setEnvGroup="setEnvGroup"
-              @showPopover="showPopover"
-              :has-option-group="true"
-              ref="envPopover"
-              class="ms-message-right" />
-            <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
-              <el-dropdown
-                split-button
-                type="primary"
-                @click="runDebug"
-                class="ms-message-right"
-                size="mini"
-                @command="handleCommand"
-                v-permission="[
+            <el-col :span="13">
+              <env-popover
+                :disabled="scenarioDefinition.length < 1"
+                :env-map="projectEnvMap"
+                :project-ids="projectIds"
+                :result="envResult"
+                :environment-type.sync="environmentType"
+                :isReadOnly="scenarioDefinition.length < 1"
+                :group-id="envGroupId"
+                :project-list="projectList"
+                :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                @setProjectEnvMap="setProjectEnvMap"
+                @setEnvGroup="setEnvGroup"
+                @showPopover="showPopover"
+                :has-option-group="true"
+                ref="envPopover"
+                class="ms-message-right" />
+              <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
+                <el-dropdown
+                  split-button
+                  type="primary"
+                  @click="runDebug"
+                  class="ms-message-right"
+                  size="mini"
+                  @command="handleCommand"
+                  v-permission="[
                   'PROJECT_API_SCENARIO:READ+EDIT',
                   'PROJECT_API_SCENARIO:READ+CREATE',
                   'PROJECT_API_SCENARIO:READ+COPY',
                 ]">
-                {{ $t('api_test.request.debug') }}
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </el-tooltip>
-            <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+                  {{ $t('api_test.request.debug') }}
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </el-tooltip>
+              <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
 
-            <el-button
-              id="inputDelay"
-              type="primary"
-              size="mini"
-              v-prevent-re-click
-              @click="editScenario"
-              title="ctrl + s"
-              v-permission="[
+              <el-button
+                id="inputDelay"
+                type="primary"
+                size="mini"
+                v-prevent-re-click
+                @click="editScenario"
+                title="ctrl + s"
+                v-permission="[
                 'PROJECT_API_SCENARIO:READ+EDIT',
                 'PROJECT_API_SCENARIO:READ+CREATE',
                 'PROJECT_API_SCENARIO:READ+COPY',
               ]">
-              {{ $t('commons.save') }}
-            </el-button>
+                {{ $t('commons.save') }}
+              </el-button>
 
-            <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
-              <el-button
-                :disabled="scenarioDefinition.length < 1"
-                size="mini"
-                icon="el-icon-refresh"
-                v-prevent-re-click
-                @click="refreshApiScenario"></el-button>
-            </el-tooltip>
-            <!--操作按钮-->
-            <el-link type="primary" @click.stop @click="showHistory" style="margin: 0px 5px">
-              {{ $t('commons.debug_history') }}
-            </el-link>
+              <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
+                <el-button
+                  :disabled="scenarioDefinition.length < 1"
+                  size="mini"
+                  icon="el-icon-refresh"
+                  v-prevent-re-click
+                  @click="refreshApiScenario"></el-button>
+              </el-tooltip>
+              <!--操作按钮-->
+              <el-link type="primary" @click.stop @click="showHistory" style="margin: 0px 5px">
+                {{ $t('commons.debug_history') }}
+              </el-link>
 
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
-              <i
-                class="el-icon-star-off"
-                style="
+              <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
+                <i
+                  class="el-icon-star-off"
+                  style="
                   color: var(--primary_color);
                   font-size: 22px;
                   margin-right: 5px;
@@ -202,12 +203,12 @@
                   position: relative;
                   top: 3px;
                 "
-                @click="saveFollow" />
-            </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
-              <i
-                class="el-icon-star-on"
-                style="
+                  @click="saveFollow" />
+              </el-tooltip>
+              <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
+                <i
+                  class="el-icon-star-on"
+                  style="
                   color: var(--primary_color);
                   font-size: 22px;
                   margin-right: 5px;
@@ -215,81 +216,81 @@
                   position: relative;
                   top: 3px;
                 "
-                @click="saveFollow" />
-            </el-tooltip>
-            <el-link
-              type="primary"
-              style="margin-right: 5px"
-              @click="openHis"
-              v-show="path === '/api/automation/update'"
+                  @click="saveFollow" />
+              </el-tooltip>
+              <el-link
+                type="primary"
+                style="margin-right: 5px"
+                @click="openHis"
+                v-show="path === '/api/automation/update'"
               >{{ $t('operating_log.change_history') }}
-            </el-link>
-            <!--  版本历史 -->
-            <mx-version-history
-              v-xpack
-              ref="versionHistory"
-              :version-data="versionData"
-              :current-id="currentScenario.id"
-              @compare="compare"
-              @checkout="checkout"
-              @create="create"
-              @del="del" />
-          </el-col>
-          <el-tooltip
-            effect="dark"
-            :content="$t('commons.full_screen_editing')"
-            placement="top-start"
-            style="margin-top: 6px">
-            <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen" />
-          </el-tooltip>
-        </el-row>
-      </div>
+              </el-link>
+              <!--  版本历史 -->
+              <mx-version-history
+                v-xpack
+                ref="versionHistory"
+                :version-data="versionData"
+                :current-id="currentScenario.id"
+                @compare="compare"
+                @checkout="checkout"
+                @create="create"
+                @del="del" />
+            </el-col>
+            <el-tooltip
+              effect="dark"
+              :content="$t('commons.full_screen_editing')"
+              placement="top-start"
+              style="margin-top: 6px">
+              <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen" />
+            </el-tooltip>
+          </el-row>
+        </div>
 
-      <div class="card-content">
-        <!-- 场景步骤-->
-        <div v-loading="loading">
-          <el-row>
-            <el-col :span="21">
-              <div class="ms-debug-result" v-show="debug">
-                <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
-                <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
-                <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
-                <span class="ms-message-right">
+        <div class="card-content">
+          <!-- 场景步骤-->
+          <div v-loading="loading">
+            <el-row>
+              <el-col :span="21">
+                <div class="ms-debug-result" v-show="debug">
+                  <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
+                  <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
+                  <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
+                  <span class="ms-message-right">
                   {{ $t('api_test.automation.request_error') }}
                   {{ reqError }}</span
-                >
-              </div>
-            </el-col>
-            <el-col></el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="21">
-              <!-- 场景步骤内容 -->
-              <div ref="stepInfo">
-                <el-tree
-                  node-key="resourceId"
-                  :props="props"
-                  :data="scenarioDefinition"
-                  class="ms-tree"
-                  :expand-on-click-node="false"
-                  :allow-drop="allowDrop"
-                  :allow-drag="allowDrag"
-                  :empty-text="$t('api_test.scenario.step_info')"
-                  highlight-current
-                  :show-checkbox="isBatchProcess"
-                  @check-change="chooseHeadsUp"
-                  @node-drag-end="nodeDragEnd"
-                  @node-click="nodeClick"
-                  draggable
-                  ref="stepTree"
-                  :key="reloadTree">
-                  <el-row
-                    class="custom-tree-node"
-                    :gutter="10"
-                    type="flex"
-                    align="middle"
-                    slot-scope="{ node, data }"
-                    style="width: 100%">
+                  >
+                </div>
+              </el-col>
+              <el-col></el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="21">
+                <!-- 场景步骤内容 -->
+                <div ref="stepInfo">
+                  <el-tree
+                    node-key="resourceId"
+                    :props="props"
+                    :data="scenarioDefinition"
+                    class="ms-tree"
+                    :expand-on-click-node="false"
+                    :allow-drop="allowDrop"
+                    :allow-drag="allowDrag"
+                    :empty-text="$t('api_test.scenario.step_info')"
+                    highlight-current
+                    :show-checkbox="isBatchProcess"
+                    @check-change="chooseHeadsUp"
+                    @node-drag-end="nodeDragEnd"
+                    @node-click="nodeClick"
+                    draggable
+                    ref="stepTree"
+                    :key="reloadTree">
+                    <el-row
+                      class="custom-tree-node"
+                      :gutter="10"
+                      type="flex"
+                      align="middle"
+                      slot-scope="{ node, data }"
+                      style="width: 100%">
                     <span
                       class="custom-tree-node-col"
                       style="padding-left: 0px; padding-right: 0px"
@@ -303,11 +304,11 @@
                         class="el-icon-remove-outline custom-node_e"
                         @click="openOrClose(node, data)" />
                     </span>
-                    <!-- 批量操作 -->
-                    <span
-                      :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
-                      style="padding-left: 0px; padding-right: 0px"
-                      v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
+                      <!-- 批量操作 -->
+                      <span
+                        :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
+                        style="padding-left: 0px; padding-right: 0px"
+                        v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
                       <show-more-btn
                         :is-show="node.checked"
                         :buttons="batchOperators"
@@ -315,7 +316,7 @@
                         v-show="data.checkBox"
                         style="margin-right: 10px" />
                     </span>
-                    <span style="width: calc(100% - 40px)">
+                      <span style="width: calc(100% - 40px)">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -349,194 +350,195 @@
                         {{ hideNode(node) }}
                       </div>
                     </span>
-                  </el-row>
-                </el-tree>
-              </div>
-            </el-col>
-            <!-- 按钮列表 -->
-            <el-col :span="3">
-              <div
-                @click="fabClick"
-                v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
-                <vue-fab
-                  id="fab"
-                  mainBtnColor="#783887"
-                  size="small"
-                  :global-options="globalOptions"
-                  :click-auto-close="false"
-                  v-outside-click="outsideClick"
-                  ref="refFab">
-                  <fab-item
-                    v-for="(item, index) in buttonData"
-                    :key="index"
-                    :idx="getIdx(index)"
-                    :title="item.title"
-                    :title-bg-color="item.titleBgColor"
-                    :title-color="item.titleColor"
-                    :color="item.titleColor"
-                    :icon="item.icon"
-                    @clickItem="item.click" />
-                </vue-fab>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
+                    </el-row>
+                  </el-tree>
+                </div>
+              </el-col>
+              <!-- 按钮列表 -->
+              <el-col :span="3">
+                <div
+                  @click="fabClick"
+                  v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
+                  <vue-fab
+                    id="fab"
+                    mainBtnColor="#783887"
+                    size="small"
+                    :global-options="globalOptions"
+                    :click-auto-close="false"
+                    v-outside-click="outsideClick"
+                    ref="refFab">
+                    <fab-item
+                      v-for="(item, index) in buttonData"
+                      :key="index"
+                      :idx="getIdx(index)"
+                      :title="item.title"
+                      :title-bg-color="item.titleBgColor"
+                      :title-color="item.titleColor"
+                      :color="item.titleColor"
+                      :icon="item.icon"
+                      @clickItem="item.click" />
+                  </vue-fab>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
 
-        <!--参数设置-->
-        <ms-api-variable-advance
-          ref="scenarioVariableAdvance"
-          :append-to-body="true"
-          :current-item="currentItem"
-          :variables="currentScenario.variables"
-          :scenario-definition="scenarioDefinition" />
+          <!--参数设置-->
+          <ms-api-variable-advance
+            ref="scenarioVariableAdvance"
+            :append-to-body="true"
+            :current-item="currentItem"
+            :variables="currentScenario.variables"
+            :scenario-definition="scenarioDefinition" />
 
-        <!--接口列表-->
-        <scenario-api-relevance
-          @save="pushApiOrCase"
-          @close="setHideBtn"
-          ref="scenarioApiRelevance"
-          :is-across-space="true"
-          v-if="type !== 'detail'" />
+          <!--接口列表-->
+          <scenario-api-relevance
+            @save="pushApiOrCase"
+            @close="setHideBtn"
+            ref="scenarioApiRelevance"
+            :is-across-space="true"
+            v-if="type !== 'detail'" />
 
-        <!--自定义接口-->
-        <el-drawer
-          v-if="type !== 'detail'"
-          :visible.sync="customizeVisible"
-          :destroy-on-close="true"
-          direction="ltr"
-          :withHeader="false"
-          :title="$t('api_test.automation.customize_req')"
-          style="overflow: auto"
-          :modal="false"
-          size="90%">
-          <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
-        </el-drawer>
-        <!--场景导入 -->
-        <scenario-relevance
-          v-if="type !== 'detail'"
-          @save="addScenario"
-          @close="setHideBtn"
-          :is-across-space="true"
-          ref="scenarioRelevance" />
+          <!--自定义接口-->
+          <el-drawer
+            v-if="type !== 'detail'"
+            :visible.sync="customizeVisible"
+            :destroy-on-close="true"
+            direction="ltr"
+            :withHeader="false"
+            :title="$t('api_test.automation.customize_req')"
+            style="overflow: auto"
+            :modal="false"
+            size="90%">
+            <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
+          </el-drawer>
+          <!--场景导入 -->
+          <scenario-relevance
+            v-if="type !== 'detail'"
+            @save="addScenario"
+            @close="setHideBtn"
+            :is-across-space="true"
+            ref="scenarioRelevance" />
 
-        <!-- 环境 -->
-        <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
+          <!-- 环境 -->
+          <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
 
-        <!--执行组件-->
-        <ms-run
-          :debug="true"
-          v-if="type !== 'detail'"
-          :environment="projectEnvMap"
-          :reportId="reportId"
-          :saved="saved"
-          :run-data="debugData"
-          :environment-type="environmentType"
-          :environment-group-id="envGroupId"
-          :executeType="executeType"
-          @runRefresh="runRefresh"
-          @errorRefresh="errorRefresh"
-          ref="runTest" />
-        <!-- 调试结果 -->
-        <el-drawer
-          v-if="type !== 'detail'"
-          :visible.sync="debugVisible"
-          :destroy-on-close="true"
-          direction="ltr"
-          :withHeader="true"
-          :modal="false"
-          size="80%">
-          <ms-api-report-detail
-            :scenario="currentScenario"
-            :report-id="reportId"
+          <!--执行组件-->
+          <ms-run
             :debug="true"
-            :currentProjectId="projectId"
-            @refresh="detailRefresh" />
-        </el-drawer>
+            v-if="type !== 'detail'"
+            :environment="projectEnvMap"
+            :reportId="reportId"
+            :saved="saved"
+            :run-data="debugData"
+            :environment-type="environmentType"
+            :environment-group-id="envGroupId"
+            :executeType="executeType"
+            @runRefresh="runRefresh"
+            @errorRefresh="errorRefresh"
+            ref="runTest" />
+          <!-- 调试结果 -->
+          <el-drawer
+            v-if="type !== 'detail'"
+            :visible.sync="debugVisible"
+            :destroy-on-close="true"
+            direction="ltr"
+            :withHeader="true"
+            :modal="false"
+            size="80%">
+            <ms-api-report-detail
+              :scenario="currentScenario"
+              :report-id="reportId"
+              :debug="true"
+              :currentProjectId="projectId"
+              @refresh="detailRefresh" />
+          </el-drawer>
 
-        <!--场景公共参数-->
-        <ms-variable-list
-          v-if="type !== 'detail'"
-          @setVariables="setVariables"
-          ref="scenarioParameters"
-          class="ms-sc-variable-header" />
-        <!--外部导入-->
-        <api-import v-if="type !== 'detail'" ref="apiImport" :saved="false" @refresh="apiImport" />
+          <!--场景公共参数-->
+          <ms-variable-list
+            v-if="type !== 'detail'"
+            @setVariables="setVariables"
+            ref="scenarioParameters"
+            class="ms-sc-variable-header" />
+          <!--外部导入-->
+          <api-import v-if="type !== 'detail'" ref="apiImport" :saved="false" @refresh="apiImport" />
 
-        <!--步骤最大化-->
-        <ms-drawer
-          :visible="drawer"
-          :size="100"
-          @close="close"
-          direction="default"
-          :show-full-screen="false"
-          :is-show-close="false"
-          style="overflow: hidden"
-          v-if="drawer">
-          <maximize-scenario
-            :scenario-definition="scenarioDefinition"
-            :projectIds.sync="projectIds"
-            :projectList="projectList"
-            :envMap="projectEnvMap"
-            :moduleOptions="moduleOptions"
-            :req-error="reqError"
-            :req-success="reqSuccess"
-            :req-total="reqTotal"
-            :req-total-time="reqTotalTime"
-            :currentScenario="currentScenario"
-            :type="type"
-            :debug="debugLoading"
-            :reloadDebug="reloadDebug"
-            :stepReEnable="stepEnable"
-            :message="message"
-            :enable-cookie="enableCookieShare"
-            :on-sample-error="onSampleError"
-            @setEnvType="setEnvType"
-            @envGroupId="setEnvGroup"
-            @closePage="close"
-            @unFullScreen="unFullScreen"
-            @showAllBtn="showAllBtn"
-            @runDebug="runDebug"
-            @handleCommand="handleCommand"
-            @setProjectEnvMap="setProjectEnvMap"
-            @showScenarioParameters="showScenarioParameters"
-            @setCookieShare="setCookieShare"
-            @setSampleError="setSampleError"
-            @stop="stop"
-            @sort="sort"
-            @openScenario="openScenario"
-            @runScenario="runDebug"
-            @stopScenario="stop"
-            @editScenarioAdvance="editScenarioAdvance"
-            ref="maximizeScenario" />
-        </ms-drawer>
-        <ms-change-history ref="changeHistory" />
-        <el-backtop target=".card-content" :visibility-height="100" :right="20"></el-backtop>
-      </div>
-      <ms-task-center ref="taskCenter" :show-menu="false" />
+          <!--步骤最大化-->
+          <ms-drawer
+            :visible="drawer"
+            :size="100"
+            @close="close"
+            direction="default"
+            :show-full-screen="false"
+            :is-show-close="false"
+            style="overflow: hidden"
+            v-if="drawer">
+            <maximize-scenario
+              :scenario-definition="scenarioDefinition"
+              :projectIds.sync="projectIds"
+              :projectList="projectList"
+              :envMap="projectEnvMap"
+              :moduleOptions="moduleOptions"
+              :req-error="reqError"
+              :req-success="reqSuccess"
+              :req-total="reqTotal"
+              :req-total-time="reqTotalTime"
+              :currentScenario="currentScenario"
+              :type="type"
+              :debug="debugLoading"
+              :reloadDebug="reloadDebug"
+              :stepReEnable="stepEnable"
+              :message="message"
+              :enable-cookie="enableCookieShare"
+              :on-sample-error="onSampleError"
+              @setEnvType="setEnvType"
+              @envGroupId="setEnvGroup"
+              @closePage="close"
+              @unFullScreen="unFullScreen"
+              @showAllBtn="showAllBtn"
+              @runDebug="runDebug"
+              @handleCommand="handleCommand"
+              @setProjectEnvMap="setProjectEnvMap"
+              @showScenarioParameters="showScenarioParameters"
+              @setCookieShare="setCookieShare"
+              @setSampleError="setSampleError"
+              @stop="stop"
+              @sort="sort"
+              @openScenario="openScenario"
+              @runScenario="runDebug"
+              @stopScenario="stop"
+              @editScenarioAdvance="editScenarioAdvance"
+              ref="maximizeScenario" />
+          </ms-drawer>
+          <ms-change-history ref="changeHistory" />
+          <el-backtop target=".card-content" :visibility-height="100" :right="20"></el-backtop>
+        </div>
+        <ms-task-center ref="taskCenter" :show-menu="false" />
 
-      <!--版本对比-->
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        @close="closeDiff"
-        width="100%">
-        <scenario-diff
-          v-if="dialogVisible"
-          :custom-num="customNum"
-          :currentScenarioId="currentScenario.id"
-          :dffScenarioId="dffScenarioId"
-          :scenarioRefId="scenarioRefId"
-          :module-options="moduleOptions"
-          :project-env-map="projectEnvMap"
-          :old-enable-cookie-share="enableCookieShare"
-          :old-on-sample-error="onSampleError"
-          :project-list="projectList"
-          :new-create-time="newCreateTime"
-          :old-create-time="oldCreateTime"
-          :old-user-name="oldUserName"
-          :type="type" />
-      </el-dialog>
+        <!--版本对比-->
+        <el-dialog
+          :fullscreen="true"
+          :visible.sync="dialogVisible"
+          :destroy-on-close="true"
+          @close="closeDiff"
+          width="100%">
+          <scenario-diff
+            v-if="dialogVisible"
+            :custom-num="customNum"
+            :currentScenarioId="currentScenario.id"
+            :dffScenarioId="dffScenarioId"
+            :scenarioRefId="scenarioRefId"
+            :module-options="moduleOptions"
+            :project-env-map="projectEnvMap"
+            :old-enable-cookie-share="enableCookieShare"
+            :old-on-sample-error="onSampleError"
+            :project-list="projectList"
+            :new-create-time="newCreateTime"
+            :old-create-time="oldCreateTime"
+            :old-user-name="oldUserName"
+            :type="type" />
+        </el-dialog>
+      </el-card>
     </ms-main-container>
   </ms-container>
 </template>
@@ -2544,7 +2546,7 @@ export default {
 
 <style scoped>
 .card-content {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 170px);
   overflow-y: auto;
 }
 
@@ -2569,7 +2571,7 @@ export default {
 }
 
 #fab {
-  right: 60px;
+  right: 70px;
   bottom: 120px;
   z-index: 5;
 }
