@@ -21,7 +21,22 @@
                                       :field-key="tableHeaderKey" @reload="reloadTable" />
     </div>
 
-    <ms-table
+    <div class="case-main-layout-right" style="float: right; display: inline-block">
+      <!-- 简单搜索框 -->
+      <ms-new-ui-search :condition.sync="condition" @search="search" style="float: left" />
+
+      <!-- 版本切换组件 -->
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
+
+      <!-- 高级搜索框  -->
+      <ms-new-ui-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
+
+      <!-- 表头自定义显示Popover  -->
+      <ms-table-header-custom-popover :fields.sync="fields" :custom-fields="testCaseTemplate.customFields"
+                                      :field-key="tableHeaderKey" @reload="reloadTable" />
+    </div>
+
+    <ms-new-ui-table
       v-loading="loading"
       operator-width="170px"
       row-key="id"
@@ -199,7 +214,10 @@
 
       </span>
 
-    </ms-table>
+    </ms-new-ui-table>
+
+    <home-pagination v-if="page.data.length > 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 16px"/>
 
     <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts"/>
 
