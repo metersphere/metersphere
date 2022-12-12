@@ -200,13 +200,11 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
   getIssuePartTemplateWithProject,
-  getPlatformStatus,
-  getIssuesById,
   saveOrUpdateIssue,
   saveFollow,
   getFollow,
   getComments,
-  getTapdUser
+  getTapdUser, getPlatformTransitions
 } from "@/api/issue";
 import {
   uploadIssueAttachment,
@@ -433,7 +431,7 @@ export default {
           projectId: getCurrentProjectID(),
           workspaceId: getCurrentWorkspaceId()
         }
-        getPlatformStatus(data).then(response => {
+        getPlatformTransitions(data).then(response => {
           if (response.data.length > 0) {
             this.platformTransitions = response.data;
           }
