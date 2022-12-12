@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author songcc
@@ -30,4 +31,6 @@ public class IssueSyncRequest {
     private String defaultCustomFields;
 
     private Map<String, List<PlatformAttachment>> attachmentMap = new HashMap<>();
+
+    private Consumer<Map> handleSyncFunc;
 }
