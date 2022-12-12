@@ -1,12 +1,27 @@
 <template>
 
-  <span>
-    <ms-search
-      :condition.sync="condition"
-      @search="search">
-    </ms-search>
+  <div class="case-main-layout">
 
-    <ms-table
+    <div class="case-main-layout-left" style="float: left; display: inline-block">
+      <ms-table-count-bar :count-content="$t('table.all_case_content') + '(' + page.total + ')'"></ms-table-count-bar>
+    </div>
+
+    <div class="case-main-layout-right" style="float: right; display: inline-block">
+      <!-- 简单搜索框 -->
+      <ms-new-ui-search :condition.sync="condition" @search="search" style="float: left" />
+
+      <!-- 版本切换组件 -->
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
+
+      <!-- 高级搜索框  -->
+      <ms-new-ui-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
+
+      <!-- 表头自定义显示Popover  -->
+      <ms-table-header-custom-popover :fields.sync="fields" :custom-fields="testCaseTemplate.customFields"
+                                      :field-key="tableHeaderKey" @reload="reloadTable" />
+    </div>
+
+    <ms-new-ui-table
       v-loading="loading"
       operator-width="170px"
       row-key="id"
@@ -22,6 +37,7 @@
       :row-order-group-id="projectId"
       :row-order-func="editTestCaseOrder"
       :fields.sync="fields"
+      :disable-header-config="true"
       :field-key="tableHeaderKey"
       :custom-fields="testCaseTemplate.customFields"
       @handlePageChange="initTableData"
@@ -60,9 +76,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <el-tooltip :content="$t('commons.edit')">
-              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
+            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
           </template>
         </ms-table-column>
 
@@ -75,9 +89,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <el-tooltip :content="$t('commons.edit')">
-              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
-            </el-tooltip>
+            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
           </template>
         </ms-table-column>
 
@@ -110,11 +122,13 @@
         </ms-table-column>
 
         <test-case-review-status-table-item
+          :min-width="130"
           :field="item"
           :fields-width="fieldsWidth"/>
 
         <test-plan-case-status-table-item
           prop="lastExecuteResult"
+          :min-width="130"
           :field="item"
           :fields-width="fieldsWidth"/>
 
@@ -173,7 +187,7 @@
                   :value="getCustomFieldValue(scope.row, field, scope.row.priority)"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
-                {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
+              <case-status-table-item :value="getCustomFieldValue(scope.row, field, scope.row.status)"></case-status-table-item>
             </span>
             <span v-else>
               {{ getCustomFieldValue(scope.row, field) }}
@@ -183,10 +197,14 @@
 
       </span>
 
-    </ms-table>
+    </ms-new-ui-table>
 
-    <ms-table-pagination :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
-                         :total="page.total"/>
+    <home-pagination v-if="page.data.length > 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 16px"/>
+
+
+<!--    <ms-table-pagination :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"-->
+<!--                         :total="page.total" style="margin-top: 16px"/>-->
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -201,21 +219,26 @@
 
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
-  </span>
+  </div>
 
 </template>
 
 <script>
-
+import MsNewUiTableAdvSearch from "metersphere-frontend/src/components/MsNewUiTableAdvSearch";
+import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
+import MsTableHeaderCustomPopover from 'metersphere-frontend/src/components/MsTableHeaderCustomPopover'
+import CaseStatusTableItem from "@/business/common/tableItems/planview/CaseStatusTableItem";
+import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
+import ReviewStatus from "@/business/case/components/ReviewStatus";
 import TestCaseImport from './import/TestCaseImport';
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
+import HomePagination from '@/business/home/components/pagination/HomePagination';
+import MsTableCountBar from 'metersphere-frontend/src/components/table/MsTableCountBar';
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
 import {OPERATORS, TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import BatchEdit from "./BatchEdit";
 import {TEST_CASE_LIST} from "metersphere-frontend/src/utils/constants";
-import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
-import ReviewStatus from "@/business/case/components/ReviewStatus";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {
   buildBatchParam,
@@ -234,7 +257,7 @@ import {getUUID, operationConfirm, parseTag} from "metersphere-frontend/src/util
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
 import {getTestTemplate} from "@/api/custom-field-template";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
-import MsTable from "metersphere-frontend/src/components/table/MsTable";
+import MsNewUiTable from "metersphere-frontend/src/components/table/MsNewUiTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import BatchMove from "@/business/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
@@ -254,7 +277,7 @@ import {
 import {getGraphByCondition} from "@/api/graph";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer";
-import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
+import MsNewUiSearch from "metersphere-frontend/src/components/search/MsNewUiSearch";
 import {mapState} from "pinia";
 import {useStore} from "@/store"
 import {getProject} from "@/api/project";
@@ -281,25 +304,32 @@ export default {
     TestCaseReviewStatusTableItem,
     MsCreateTimeColumn,
     MsUpdateTimeColumn,
-    MsSearch,
+    MsNewUiSearch,
     ListItemDeleteConfirm,
     TestCasePreview,
     BatchMove,
     MsTableColumn,
-    MsTable,
+    MsNewUiTable,
     PlanStatusTableItem,
     TypeTableItem,
     PriorityTableItem,
     TestCaseImport,
     MsTablePagination,
+    HomePagination,
     BatchEdit,
-    StatusTableItem,
-    ReviewStatus,
     MsTag,
-    RelationshipGraphDrawer
+    RelationshipGraphDrawer,
+    MsTableCountBar,
+    ReviewStatus,
+    StatusTableItem,
+    CaseStatusTableItem,
+    MsTableHeaderCustomPopover,
+    'VersionSelect': MxVersionSelect,
+    MsNewUiTableAdvSearch
   },
   data() {
     return {
+      currentVersion: null,
       addPublic: false,
       projectName: "",
       type: TEST_CASE_LIST,
@@ -369,17 +399,20 @@ export default {
       operators: [],
       simpleOperators: [
         {
-          tip: this.$t('commons.edit'), icon: "el-icon-edit",
+          tip: this.$t('commons.edit'),
+          isTextButton: true,
           exec: this.handleEdit,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         },
         {
-          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+          tip: this.$t('commons.copy'),
+          isTextButton: true,
           exec: this.handleCopy,
           permissions: ['PROJECT_TRACK_CASE:READ+COPY']
         },
         {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+          tip: this.$t('commons.delete'),
+          isTextButton: true,
           exec: this.handleDeleteToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
         }
@@ -408,7 +441,8 @@ export default {
       memberMap: new Map(),
       rowCase: {},
       rowCaseResult: {loading: false},
-      userFilter: []
+      userFilter: [],
+      advanceSearchShow: false
     };
   },
   props: {
@@ -419,7 +453,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    currentVersion: String,
     versionEnable: {
       type: Boolean,
       default: false
@@ -732,6 +765,15 @@ export default {
       this.page.currentPage = 1;
       this.initTableData();
       this.$emit('search');
+    },
+    changeVersion(currentVersion) {
+      this.currentVersion = currentVersion || null;
+    },
+    toggleAdvanceSearch() {
+      this.$refs.advanceSearch.toggle();
+    },
+    reloadTable() {
+      this.$refs.table.resetHeader();
     },
     testCaseCreate() {
       this.$emit('testCaseEdit');
@@ -1074,5 +1116,41 @@ export default {
 
 :deep(.el-table) {
   overflow: auto;
+  position: relative;
+  top: 16px;
+}
+
+span.version-select {
+  margin-left: 12px!important;
+}
+
+:deep(span.version-select input.el-input__inner) {
+  position: relative;
+  top: -1px;
+  width: 140px!important;
+}
+
+:deep(button.el-button.el-button--default.el-button--mini) {
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #BBBFC4;
+  border-radius: 4px;
+  flex: none;
+  order: 5;
+  align-self: center;
+  flex-grow: 0;
+  margin-left: 12px;
+}
+
+:deep(button.el-button.el-button--default.el-button--mini:hover) {
+  color: #783887;
+  border: 1px solid #783887;
+}
+
+:deep(button.el-button.el-button--default.el-button--mini:focus) {
+  color: #783887;
+  border: 1px solid #783887;
 }
 </style>

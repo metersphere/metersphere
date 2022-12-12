@@ -4,6 +4,9 @@ import test_track from "./track/en-US";
 
 const message = {
   commons: {
+    header_custom_select_tips: 'Please customize table header by select field',
+    advance_search_total_suffix: 'results',
+    advance_search_clear: 'Reset condition',
     project_permission: 'Please add the project permission first',
     no_permission: 'No permission yet',
     failure_continues: "Failure continues",
@@ -329,6 +332,7 @@ const message = {
     },
     adv_search: {
       title: 'Advanced Search',
+      new_title: 'Search',
       combine: 'Combined query',
       test: "Test",
       project: "Project",
@@ -1914,7 +1918,7 @@ const message = {
       import_version: 'Import version',
       data_update_version: 'Api update version',
       data_new_version: 'Api creation version',
-      latest_version: 'Latest version',
+      latest_version: 'Default to latest version',
     },
     home_page: {
       unit_of_measurement: "",

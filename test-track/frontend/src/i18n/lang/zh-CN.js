@@ -63,6 +63,9 @@ const message = {
   },
   plan: {
     batch_delete_tip: "批量删除测试计划，是否继续?",
+  },
+  table: {
+    all_case_content: "全部用例"
   }
 }
 

@@ -15,6 +15,12 @@
       </div>
     </el-button>
   </el-tooltip>
+  <el-button @click="exec" v-else-if="isTextButton"
+             @keydown.enter.native.prevent
+             type="text" class="text-btn"
+             :disabled="isReadOnly"
+             size="mini"> {{ tip }}
+  </el-button>
   <ms-tip-button v-else
                  :disabled="disabled || isReadOnly"
                  @click="exec"
@@ -37,6 +43,10 @@ export default {
     }
   },
   props: {
+    isTextButton: {
+      type: Boolean,
+      default: false,
+    },
     isDivButton: {
       type: Boolean,
       default: false,
@@ -73,5 +83,20 @@ export default {
 </script>
 
 <style scoped>
-
+.text-btn {
+  width: 28px;
+  height: 22px;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  color: #783887;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  padding: 0;
+  margin: 0 16px 0 0;
+}
 </style>

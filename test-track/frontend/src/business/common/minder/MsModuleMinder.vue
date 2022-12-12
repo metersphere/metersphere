@@ -312,6 +312,7 @@ export default {
 
 .minder {
   position: relative;
+  top: 35px
 }
 
 .fulls-screen-btn {
@@ -341,5 +342,9 @@ export default {
 
 :deep(*[disabled]) {
   opacity: 0.7 !important;
+}
+
+:deep(.minder-container.km-editor.km-view.focus) {
+    min-height: 531px;
 }
 </style>

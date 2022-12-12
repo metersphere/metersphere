@@ -4,6 +4,9 @@ import test_track from "./track/zh-TW";
 
 const message = {
   commons: {
+    header_custom_select_tips: '請選擇列表中要展示的信息',
+    advance_search_total_suffix: '個結果',
+    advance_search_clear: '清空條件',
     project_permission: '請先添加該項目權限',
     no_permission: '暫無權限',
     failure_continues: "失敗繼續",
@@ -330,6 +333,7 @@ const message = {
     },
     adv_search: {
       title: '高級搜索',
+      new_title: '篩選',
       combine: '組合查詢',
       test: "所屬測試",
       project: "所屬項目",
@@ -1919,7 +1923,7 @@ const message = {
       import_version: '導入版本',
       data_update_version: '數據更新版本',
       data_new_version: '數據創建版本',
-      latest_version: '最新版本',
+      latest_version: '默認最新版本',
     },
     home_page: {
       unit_of_measurement: "個",
@@ -2383,7 +2387,7 @@ const message = {
   table: {
     header_display_field: '表頭顯示字段',
     fields_to_be_selected: '待選字段',
-    selected_fields: '已選字段'
+    selected_fields: '已選字段',
   },
   run_mode: {
     title: "模式",

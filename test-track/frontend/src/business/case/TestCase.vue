@@ -39,155 +39,150 @@
     </ms-aside-container>
 
     <ms-main-container>
-      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
-        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')" :closable="true">
-          <ms-tab-button
-            :isShowChangeButton="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeTrashVersion" margin-left="-10"/>
-            </template>
-            <test-case-list
-              :checkRedirectID="checkRedirectID"
-              :isRedirectEdit="isRedirectEdit"
-              :tree-nodes="treeNodes"
-              :trash-enable="true"
-              :current-version="currentTrashVersion"
-              :version-enable="versionEnable"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @refresh="refreshTrashNode"
-              @refreshAll="refreshAll"
-              @setCondition="setTrashCondition"
-              @search="refreshTreeByCaseFilter"
-              ref="testCaseTrashList">
-            </test-case-list>
-          </ms-tab-button>
-        </el-tab-pane>
-        <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
-          <div style="height: 6px;"></div>
-          <public-test-case-list
-            :tree-nodes="treeNodes"
-            :version-enable="versionEnable"
-            @refreshTable="refresh"
-            @testCaseEdit="editTestCase"
-            @testCaseEditShow="editTestCaseShow"
-            @testCaseCopy="copyTestCase"
-            @refresh="refresh"
-            @refreshAll="refreshAll"
-            @refreshPublic="refreshPublic"
-            @setCondition="setPublicCondition"
-            @search="refreshTreeByCaseFilter"
-            ref="testCasePublicList">
-          </public-test-case-list>
-        </el-tab-pane>
-        <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
-          <ms-tab-button
-            :active-dom="activeDom"
-            @update:activeDom="updateActiveDom"
-            :left-tip="$t('test_track.case.list')"
-            :left-content="$t('test_track.case.list')"
-            :right-tip="$t('test_track.case.minder')"
-            :right-content="$t('test_track.case.minder')"
-            :middle-button-enable="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-            </template>
-            <test-case-list
-              v-if="activeDom === 'left'"
-              :checkRedirectID="checkRedirectID"
-              :isRedirectEdit="isRedirectEdit"
-              :tree-nodes="treeNodes"
-              :trash-enable="false"
-              :public-enable="false"
-              :current-version="currentVersion"
-              :version-enable="versionEnable"
-              @closeExport="closeExport"
-              @refreshTable="refresh"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @getTrashList="getTrashList"
-              @getPublicList="getPublicList"
-              @refresh="refresh"
-              @refreshAll="refreshAll"
-              @setCondition="setCondition"
-              @decrease="decrease"
-              @search="refreshTreeByCaseFilter"
-              ref="testCaseList">
-            </test-case-list>
-            <test-case-minder
-              :current-version="currentVersion"
-              :tree-nodes="treeNodes"
-              :project-id="projectId"
-              :condition="condition"
-              :active-name="activeName"
-              v-if="activeDom === 'right'"
-              @refresh="minderSaveRefresh"
-              ref="minder"/>
-          </ms-tab-button>
-        </el-tab-pane>
-        <el-tab-pane
-          :key="item.name"
-          v-for="(item) in tabs"
-          :label="item.label"
-          :name="item.name"
-          closable>
-          <div class="ms-api-scenario-div" v-if="!item.isPublic">
-            <test-case-edit
-              :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
-              @refresh="refreshAll"
-              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
-              @caseCreate="handleCaseCreateOrEdit($event,'add')"
-              @checkout="checkout($event, item)"
-              :is-public="item.isPublic"
-              :read-only="testCaseReadOnly"
-              :tree-nodes="treeNodes"
-              :select-node="selectNode"
-              :select-condition="item.isPublic ? publicCondition : condition"
-              :public-enable="item.isPublic"
-              :case-type="type"
-              @addTab="addTab"
-              ref="testCaseEdit">
-            </test-case-edit>
-          </div>
-          <div class="ms-api-scenario-div" v-if="item.isPublic">
-            <test-case-edit-show
-              :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
-              @refresh="refreshAll"
-              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
-              @caseCreate="handleCaseCreateOrEdit($event,'add')"
-              :read-only="testCaseReadOnly"
-              @checkout="checkoutPublic($event, item)"
-              :tree-nodes="treeNodes"
-              :select-node="selectNode"
-              :select-condition="condition"
-              :type="type"
-              :public-enable="currentActiveName === 'default' ? false : true"
-              @addTab="addTabShow"
-              ref="testCaseEditShow">
-            </test-case-edit-show>
-          </div>
-          <template v-slot:version>
-            <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
-          <template v-slot:label>
-            <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-                  {{ $t('test_track.case.create') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-tab-pane>
+      <ms-tab-button-new-ui
+        :active-dom="activeDom"
+        @update:activeDom="updateActiveDom"
+        :left-tip="$t('test_track.case.list')"
+        :left-icon-class="'icon_view-list_outlined'"
+        :right-tip="$t('test_track.case.minder')"
+        :right-icon-class="'icon_mindnote_outlined'"
+        :middle-button-enable="false">
+        <test-case-list
+          v-if="activeDom === 'left'"
+          :checkRedirectID="checkRedirectID"
+          :isRedirectEdit="isRedirectEdit"
+          :tree-nodes="treeNodes"
+          :trash-enable="false"
+          :public-enable="false"
+          :current-version="currentVersion"
+          :version-enable="versionEnable"
+          @closeExport="closeExport"
+          @refreshTable="refresh"
+          @testCaseEdit="editTestCase"
+          @testCaseCopy="copyTestCase"
+          @getTrashList="getTrashList"
+          @getPublicList="getPublicList"
+          @refresh="refresh"
+          @refreshAll="refreshAll"
+          @setCondition="setCondition"
+          @decrease="decrease"
+          @search="refreshTreeByCaseFilter"
+          ref="testCaseList">
+        </test-case-list>
+        <test-case-minder
+          :current-version="currentVersion"
+          :tree-nodes="treeNodes"
+          :project-id="projectId"
+          :condition="condition"
+          :active-name="activeName"
+          v-if="activeDom === 'right'"
+          @refresh="minderSaveRefresh"
+          ref="minder"/>
+      </ms-tab-button-new-ui>
+<!--      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">-->
+<!--        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')" :closable="true">-->
+<!--          <ms-tab-button-->
+<!--            :isShowChangeButton="false">-->
+<!--            <template v-slot:version>-->
+<!--              <version-select v-xpack :project-id="projectId" @changeVersion="changeTrashVersion" margin-left="-10"/>-->
+<!--            </template>-->
+<!--            <test-case-list-->
+<!--              :checkRedirectID="checkRedirectID"-->
+<!--              :isRedirectEdit="isRedirectEdit"-->
+<!--              :tree-nodes="treeNodes"-->
+<!--              :trash-enable="true"-->
+<!--              :current-version="currentTrashVersion"-->
+<!--              :version-enable="versionEnable"-->
+<!--              @testCaseEdit="editTestCase"-->
+<!--              @testCaseCopy="copyTestCase"-->
+<!--              @refresh="refreshTrashNode"-->
+<!--              @refreshAll="refreshAll"-->
+<!--              @setCondition="setTrashCondition"-->
+<!--              @search="refreshTreeByCaseFilter"-->
+<!--              ref="testCaseTrashList">-->
+<!--            </test-case-list>-->
+<!--          </ms-tab-button>-->
+<!--        </el-tab-pane>-->
+<!--        <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">-->
+<!--          <div style="height: 6px;"></div>-->
+<!--          <public-test-case-list-->
+<!--            :tree-nodes="treeNodes"-->
+<!--            :version-enable="versionEnable"-->
+<!--            @refreshTable="refresh"-->
+<!--            @testCaseEdit="editTestCase"-->
+<!--            @testCaseEditShow="editTestCaseShow"-->
+<!--            @testCaseCopy="copyTestCase"-->
+<!--            @refresh="refresh"-->
+<!--            @refreshAll="refreshAll"-->
+<!--            @refreshPublic="refreshPublic"-->
+<!--            @setCondition="setPublicCondition"-->
+<!--            @search="refreshTreeByCaseFilter"-->
+<!--            ref="testCasePublicList">-->
+<!--          </public-test-case-list>-->
+<!--        </el-tab-pane>-->
+<!--        <el-tab-pane-->
+<!--          :key="item.name"-->
+<!--          v-for="(item) in tabs"-->
+<!--          :label="item.label"-->
+<!--          :name="item.name"-->
+<!--          closable>-->
+<!--          <div class="ms-api-scenario-div" v-if="!item.isPublic">-->
+<!--            <test-case-edit-->
+<!--              :currentTestCaseInfo="item.testCaseInfo"-->
+<!--              :version-enable="versionEnable"-->
+<!--              @refresh="refreshAll"-->
+<!--              @caseEdit="handleCaseCreateOrEdit($event,'edit')"-->
+<!--              @caseCreate="handleCaseCreateOrEdit($event,'add')"-->
+<!--              @checkout="checkout($event, item)"-->
+<!--              :is-public="item.isPublic"-->
+<!--              :read-only="testCaseReadOnly"-->
+<!--              :tree-nodes="treeNodes"-->
+<!--              :select-node="selectNode"-->
+<!--              :select-condition="item.isPublic ? publicCondition : condition"-->
+<!--              :public-enable="item.isPublic"-->
+<!--              :case-type="type"-->
+<!--              @addTab="addTab"-->
+<!--              ref="testCaseEdit">-->
+<!--            </test-case-edit>-->
+<!--          </div>-->
+<!--          <div class="ms-api-scenario-div" v-if="item.isPublic">-->
+<!--            <test-case-edit-show-->
+<!--              :currentTestCaseInfo="item.testCaseInfo"-->
+<!--              :version-enable="versionEnable"-->
+<!--              @refresh="refreshAll"-->
+<!--              @caseEdit="handleCaseCreateOrEdit($event,'edit')"-->
+<!--              @caseCreate="handleCaseCreateOrEdit($event,'add')"-->
+<!--              :read-only="testCaseReadOnly"-->
+<!--              @checkout="checkoutPublic($event, item)"-->
+<!--              :tree-nodes="treeNodes"-->
+<!--              :select-node="selectNode"-->
+<!--              :select-condition="condition"-->
+<!--              :type="type"-->
+<!--              :public-enable="currentActiveName === 'default' ? false : true"-->
+<!--              @addTab="addTabShow"-->
+<!--              ref="testCaseEditShow">-->
+<!--            </test-case-edit-show>-->
+<!--          </div>-->
+<!--          <template v-slot:version>-->
+<!--            <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>-->
+<!--          </template>-->
+<!--        </el-tab-pane>-->
+<!--        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">-->
+<!--          <template v-slot:label>-->
+<!--            <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">-->
+<!--              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>-->
+<!--              <el-dropdown-menu slot="dropdown">-->
+<!--                <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">-->
+<!--                  {{ $t('test_track.case.create') }}-->
+<!--                </el-dropdown-item>-->
+<!--                <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}-->
+<!--                </el-dropdown-item>-->
+<!--              </el-dropdown-menu>-->
+<!--            </el-dropdown>-->
+<!--          </template>-->
+<!--        </el-tab-pane>-->
 
-      </el-tabs>
+<!--      </el-tabs>-->
 
       <is-change-confirm
         @confirm="changeConfirm"
@@ -210,7 +205,7 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/s
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getUUID} from "metersphere-frontend/src/utils";
 import TestCaseNodeTree from "../module/TestCaseNodeTree";
-import MsTabButton from "metersphere-frontend/src/components/MsTabButton";
+import MsTabButtonNewUi from "metersphere-frontend/src/components/MsTabButtonNewUi";
 import TestCaseMinder from "../common/minder/TestCaseMinder";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import {openMinderConfirm} from "../common/minder/minderUtils";
@@ -235,7 +230,7 @@ export default {
     TestCasePublicNodeTree,
     IsChangeConfirm,
     TestCaseMinder,
-    MsTabButton,
+    MsTabButtonNewUi,
     TestCaseNodeTree,
     MsMainContainer,
     MsAsideContainer, MsContainer, TestCaseList, TestCaseEdit, SelectMenu, TestCaseEditShow,
@@ -844,6 +839,9 @@ export default {
 </script>
 
 <style scoped>
+:deep(.el-card__body) {
+  padding: 24px;
+}
 
 .el-main {
   padding: 5px 10px;
@@ -865,4 +863,7 @@ export default {
   padding-left: 10px;
 }
 
+.svg:hover {
+  -webkit-filter: drop-shadow(0px 0px 0px #783887);
+}
 </style>

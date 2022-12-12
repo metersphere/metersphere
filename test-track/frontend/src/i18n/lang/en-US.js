@@ -63,6 +63,9 @@ const message = {
   },
   plan: {
     batch_delete_tip: "Do you want to continue deleting the test plan?",
+  },
+  table: {
+    all_case_content: "All case"
   }
 }
 export default {

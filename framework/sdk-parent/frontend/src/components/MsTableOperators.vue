@@ -4,7 +4,8 @@
                               v-permission="btn.permissions"
                               :disabled="isDisable(btn)"
                               :class="btn.class"
-                              :tip="btn.tip" :icon="btn.icon" :type="btn.type" :isDivButton="btn.isDivButton"
+                              :tip="btn.tip" :icon="btn.icon" :type="btn.type"
+                              :isDivButton="btn.isDivButton" :is-text-button="btn.isTextButton"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
   </span>
 </template>
