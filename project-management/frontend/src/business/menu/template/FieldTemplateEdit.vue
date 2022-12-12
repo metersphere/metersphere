@@ -18,7 +18,7 @@
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
 
           <el-form :model="form" :rules="rules" label-position="right" label-width="80px" size="small" ref="form">
-            <el-form-item :label="$t('commons.name')" prop="name" :label-width="labelWidth">
+            <el-form-item :label="$t('commons.template_name')" prop="name" :label-width="labelWidth">
               <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
 
