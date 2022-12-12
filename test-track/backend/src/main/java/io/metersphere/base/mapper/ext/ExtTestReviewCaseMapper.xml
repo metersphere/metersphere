@@ -45,6 +45,29 @@
         </choose>
     </sql>
 
+    <sql id="conditionReviewer">
+        <choose>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
             and test_case.name
@@ -86,6 +109,31 @@
             and test_case.maintainer
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.reviewer != null">
+            <choose>
+                <when test='${condition}.reviewer.operator == "not in"'>
+                    AND NOT EXISTS
+                </when>
+                <otherwise>
+                    AND EXISTS
+                </otherwise>
+            </choose>
+            (SELECT *
+            FROM test_case_review_test_case_users test_case_review_test_case_users
+            WHERE test_case_review_test_case_users.case_id = test_case_review_test_case.case_id
+            and test_case_review_test_case_users.review_id = test_case_review_test_case.review_id
+            and test_case_review_test_case_users.user_id
+            <include refid="conditionReviewer">
+                <property name="object" value="${condition}.reviewer"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.maintainer != null">
+            and test_case.maintainer
+            <include refid="condition">
+                <property name="object" value="${condition}.maintainer"/>
             </include>
         </if>
     </sql>
@@ -195,6 +243,23 @@
                         </when>
                         <when test="key=='version_id'">
                             and test_case.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='reviewer_name'">
+                            AND EXISTS(SELECT *
+                            FROM test_case_review_test_case_users test_case_review_test_case_users
+                            WHERE test_case_review_test_case_users.case_id = test_case_review_test_case.case_id
+                            and test_case_review_test_case_users.review_id = test_case_review_test_case.review_id
+                            and test_case_review_test_case_users.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                            )
+                        </when>
+                        <when test="key=='maintainer_name'">
+                            and test_case.maintainer in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>

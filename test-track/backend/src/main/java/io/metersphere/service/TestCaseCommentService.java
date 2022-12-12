@@ -13,6 +13,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.TestCaseCommentType;
+import io.metersphere.constants.TestCaseReviewCommentStatus;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -33,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -67,17 +69,38 @@ public class TestCaseCommentService {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReviewWithMaintainer(#request)", targetClass = TestCaseReviewService.class,
             event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
-    public void saveComment(TestCaseReviewTestCaseEditRequest request) {
+    public void saveReviewComment(TestCaseReviewTestCaseEditRequest request) {
         SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
         saveCommentRequest.setCaseId(request.getCaseId());
         saveCommentRequest.setDescription(request.getComment());
         saveCommentRequest.setStatus(request.getStatus());
         saveCommentRequest.setType(TestCaseCommentType.REVIEW.name());
+        saveCommentRequest.setBelongId(request.getReviewId());
         saveComment(saveCommentRequest);
     }
 
+    public void saveReviewCommentWithoutNotification(TestCaseReviewTestCaseEditRequest request) {
+        // 不走String代理，不会发送通知
+        saveReviewComment(request);
+    }
+
     public List<TestCaseCommentDTO> getCaseComments(String caseId, String type) {
-        return extTestCaseCommentMapper.getCaseComments(caseId, type);
+        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, null));
+    }
+
+    /**
+     * 过滤仅作为状态标记的评论
+     * @param comments
+     * @return
+     */
+    public List<TestCaseCommentDTO> filterMarkComments(List<TestCaseCommentDTO> comments) {
+        return comments.stream().filter(item -> !StringUtils.equalsAny(item.getStatus(),
+                TestCaseReviewCommentStatus.StatusChange.name(), TestCaseReviewCommentStatus.RuleChange.name()))
+                .collect(Collectors.toList());
+    }
+
+    public List<TestCaseCommentDTO> getCaseComments(String caseId, String type, String belongId) {
+        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, belongId));
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {

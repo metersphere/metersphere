@@ -1,216 +1,223 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
+    <!-- operate-button  -->
+    <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode && !editable" style="margin-bottom: 16px">
+      <el-button size="small" icon="el-icon-plus" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" class="iconBtn" type="primary">
+        {{$t('test_track.case.create_case')}}
+      </el-button>
+      <el-dropdown @command="handleImportCommand" placement="bottom-start" style="margin-left: 12px">
+        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']" class="btn-dropdown">
+          {{$t('commons.import')}}
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="excel">
+            <span class="export-model">{{$t('test_track.case.import.import_by_excel')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips1')}}</span>
+          </el-dropdown-item>
+          <el-dropdown-item style="margin-top: 10px" command="xmind">
+            <span class="export-model">{{$t('test_track.case.import.import_by_xmind')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown @command="handleExportCommand" placement="bottom-start" style="margin-left: 12px" class="btn-dropdown">
+        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+EXPORT']">
+          {{$t('commons.export')}}
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="excel">
+            <span class="export-model">{{$t('test_track.case.export.export_to_excel')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips')}}</span>
+          </el-dropdown-item>
+          <el-dropdown-item style="margin-top: 10px" command="xmind">
+            <span class="export-model">{{$t('test_track.case.export.export_to_xmind')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
 
-    <ms-aside-container v-show="isAsideHidden">
-      <test-case-node-tree
-        :type="'edit'"
-        :total='total'
-        :show-operator="true"
-        :public-total="publicTotal"
-        :case-condition="condition"
-        @handleExportCheck="handleExportCheck"
-        @refreshTable="refresh"
-        @setTreeNodes="setTreeNodes"
-        @exportTestCase="exportTestCase"
-        @saveAsEdit="editTestCase"
-        @refreshAll="refreshAll"
-        @enableTrash="enableTrash"
-        @enablePublic="enablePublic"
-        @toPublic="toPublic"
-        @importRefresh="importRefresh"
-        @importChangeConfirm="importChangeConfirm"
-        @createCase="handleCaseSimpleCreate($event, 'add')"
-        ref="nodeTree"
-      />
-    </ms-aside-container>
+    <!-- public, trash back header  -->
+    <div v-if="showPublicNode || showTrashNode" class="back-layout">
+      <i class="el-icon-back" style="float: left;position: relative;top: 15px;left: 21px;" @click="activeName = 'default'"/>
+      <span class="back-content">{{showPublicNode? $t('project.case_public') : $t('commons.trash')}}</span>
+    </div>
 
-    <ms-aside-container v-if="showPublicNode">
-      <test-case-public-node-tree
-        :case-condition="publicCondition"
-        @nodeSelectEvent="publicNodeChange"
-        ref="publicNodeTree"/>
-    </ms-aside-container>
+    <div style="display: flex; height: calc(100vh - 130px)" v-if="!editable" class = "test-case-aside-layout">
+      <!-- case-aside-container  -->
+      <ms-aside-container v-show="isAsideHidden" :min-width="'0'" :enable-aside-hidden.sync="enableAsideHidden">
+        <test-case-node-tree
+          :type="'edit'"
+          :total='total'
+          :show-operator="false"
+          :public-total="publicTotal"
+          :case-condition="condition"
+          @handleExportCheck="handleExportCheck"
+          @refreshTable="refresh"
+          @setTreeNodes="setTreeNodes"
+          @exportTestCase="exportTestCase"
+          @refreshAll="refreshAll"
+          @enableTrash="enableTrash"
+          @enablePublic="enablePublic"
+          @toPublic="toPublic"
+          @importRefresh="importRefresh"
+          @importChangeConfirm="importChangeConfirm"
+          @createCase="handleCaseSimpleCreate($event, 'add')"
+          ref="nodeTree"/>
+      </ms-aside-container>
 
-    <ms-aside-container v-if="showTrashNode">
-      <test-case-trash-node-tree
-        :case-condition="trashCondition"
-        @nodeSelectEvent="trashNodeChange"
-        ref="trashNodeTree"/>
-    </ms-aside-container>
+      <!-- public-case-aside-container  -->
+      <ms-aside-container v-if="showPublicNode">
+        <test-case-public-node-tree
+          :show-operator="false"
+          :case-condition="publicCondition"
+          @nodeSelectEvent="publicNodeChange"
+          ref="publicNodeTree"/>
+      </ms-aside-container>
 
-    <ms-main-container>
-      <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
-        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')" :closable="true">
-          <ms-tab-button
-            :isShowChangeButton="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeTrashVersion" margin-left="-10"/>
-            </template>
-            <test-case-list
-              :checkRedirectID="checkRedirectID"
-              :isRedirectEdit="isRedirectEdit"
-              :tree-nodes="treeNodes"
-              :trash-enable="true"
-              :current-version="currentTrashVersion"
-              :version-enable="versionEnable"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @refresh="refreshTrashNode"
-              @refreshAll="refreshAll"
-              @setCondition="setTrashCondition"
-              @search="refreshTreeByCaseFilter"
-              ref="testCaseTrashList">
-            </test-case-list>
-          </ms-tab-button>
-        </el-tab-pane>
-        <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
-          <div style="height: 6px;"></div>
+      <!-- trash-case-aside-container  -->
+      <ms-aside-container v-if="showTrashNode">
+        <test-case-trash-node-tree
+          :show-operator="false"
+          :case-condition="trashCondition"
+          @nodeSelectEvent="trashNodeChange"
+          ref="trashNodeTree"/>
+      </ms-aside-container>
+
+      <!-- case-main-container  -->
+      <ms-main-container v-if="!showPublicNode && !showTrashNode">
+        <ms-tab-button
+          :active-dom="activeDom"
+          @update:activeDom="updateActiveDom"
+          :left-tip="$t('test_track.case.list')"
+          :left-icon-class="'icon_view-list_outlined'"
+          :left-icon-active-class="'icon_view-list_outlined_active'"
+          :right-tip="$t('test_track.case.minder')"
+          :right-icon-class="'icon_mindnote_outlined'"
+          :right-icon-active-class="'icon_mindnote_outlined_active'"
+          :middle-button-enable="false">
+          <test-case-list
+            v-if="activeDom === 'left'"
+            :isRedirectEdit="isRedirectEdit"
+            :tree-nodes="treeNodes"
+            :trash-enable="false"
+            :public-enable="false"
+            :current-version="currentVersion"
+            :version-enable.sync="versionEnable"
+            @closeExport="closeExport"
+            @refreshTable="refresh"
+            @getTrashList="getTrashList"
+            @getPublicList="getPublicList"
+            @refresh="refresh"
+            @refreshAll="refreshAll"
+            @setCondition="setCondition"
+            @decrease="decrease"
+            @search="refreshTreeByCaseFilter"
+            @openExcelExport="openExportDialog"
+            ref="testCaseList">
+          </test-case-list>
+          <test-case-minder
+            :current-version="currentVersion"
+            :tree-nodes="treeNodes"
+            :project-id="projectId"
+            :condition="condition"
+            :active-name="activeName"
+            v-if="activeDom === 'right'"
+            @refresh="minderSaveRefresh"
+            @toggleMinderFullScreen="toggleMinderFullScreen"
+            ref="minder"/>
+        </ms-tab-button>
+
+        <is-change-confirm
+          @confirm="changeConfirm"
+          ref="isChangeConfirm"/>
+      </ms-main-container>
+
+      <!-- public-main-container  -->
+      <ms-main-container v-if="showPublicNode">
+        <el-card class="card-content">
           <public-test-case-list
             :tree-nodes="treeNodes"
             :version-enable="versionEnable"
             @refreshTable="refresh"
-            @testCaseEdit="editTestCase"
-            @testCaseEditShow="editTestCaseShow"
             @testCaseCopy="copyTestCase"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
             @setCondition="setPublicCondition"
             @search="refreshTreeByCaseFilter"
-            ref="testCasePublicList">
-          </public-test-case-list>
-        </el-tab-pane>
-        <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
-          <ms-tab-button
-            :active-dom="activeDom"
-            @update:activeDom="updateActiveDom"
-            :left-tip="$t('test_track.case.list')"
-            :left-content="$t('test_track.case.list')"
-            :right-tip="$t('test_track.case.minder')"
-            :right-content="$t('test_track.case.minder')"
-            :middle-button-enable="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-            </template>
-            <test-case-list
-              v-if="activeDom === 'left'"
-              :checkRedirectID="checkRedirectID"
-              :isRedirectEdit="isRedirectEdit"
-              :tree-nodes="treeNodes"
-              :trash-enable="false"
-              :public-enable="false"
-              :current-version="currentVersion"
-              :version-enable="versionEnable"
-              @closeExport="closeExport"
-              @refreshTable="refresh"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @getTrashList="getTrashList"
-              @getPublicList="getPublicList"
-              @refresh="refresh"
-              @refreshAll="refreshAll"
-              @setCondition="setCondition"
-              @decrease="decrease"
-              @search="refreshTreeByCaseFilter"
-              ref="testCaseList">
-            </test-case-list>
-            <test-case-minder
-              :current-version="currentVersion"
-              :tree-nodes="treeNodes"
-              :project-id="projectId"
-              :condition="condition"
-              :active-name="activeName"
-              v-if="activeDom === 'right'"
-              @refresh="minderSaveRefresh"
-              ref="minder"/>
-          </ms-tab-button>
-        </el-tab-pane>
-        <el-tab-pane
-          :key="item.name"
-          v-for="(item) in tabs"
-          :label="item.label"
-          :name="item.name"
-          closable>
-          <div class="ms-api-scenario-div" v-if="!item.isPublic">
-            <test-case-edit
-              :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
-              @refresh="refreshAll"
-              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
-              @caseCreate="handleCaseCreateOrEdit($event,'add')"
-              @checkout="checkout($event, item)"
-              :is-public="item.isPublic"
-              :read-only="testCaseReadOnly"
-              :tree-nodes="treeNodes"
-              :select-node="selectNode"
-              :select-condition="item.isPublic ? publicCondition : condition"
-              :public-enable="item.isPublic"
-              :case-type="type"
-              @addTab="addTab"
-              ref="testCaseEdit">
-            </test-case-edit>
-          </div>
-          <div class="ms-api-scenario-div" v-if="item.isPublic">
-            <test-case-edit-show
-              :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
-              @refresh="refreshAll"
-              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
-              @caseCreate="handleCaseCreateOrEdit($event,'add')"
-              :read-only="testCaseReadOnly"
-              @checkout="checkoutPublic($event, item)"
-              :tree-nodes="treeNodes"
-              :select-node="selectNode"
-              :select-condition="condition"
-              :type="type"
-              :public-enable="currentActiveName === 'default' ? false : true"
-              @addTab="addTabShow"
-              ref="testCaseEditShow">
-            </test-case-edit-show>
-          </div>
-          <template v-slot:version>
-            <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
-          <template v-slot:label>
-            <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-                  {{ $t('test_track.case.create') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-tab-pane>
+            ref="testCasePublicList"/>
+        </el-card>
+      </ms-main-container>
 
-      </el-tabs>
+      <!-- trash-main-container  -->
+      <ms-main-container v-if="showTrashNode">
+        <el-card class="card-content">
+          <test-case-list
+            :isRedirectEdit="isRedirectEdit"
+            :tree-nodes="treeNodes"
+            :trash-enable="true"
+            :current-version="currentTrashVersion"
+            :version-enable="versionEnable"
+            @testCaseCopy="copyTestCase"
+            @refresh="refreshTrashNode"
+            @refreshAll="refreshAll"
+            @setCondition="setTrashCondition"
+            @search="refreshTreeByCaseFilter"
+            ref="testCaseTrashList">
+          </test-case-list>
+        </el-card>
+      </ms-main-container>
+    </div>
+    <!-- since v2.6 创建用例流程变更 -->
+    <ms-container v-if="editable" class = "edit-layout">
+      <div v-for="item in tabs" :key="item.name">
+        <test-case-edit
+          :currentTestCaseInfo="item.testCaseInfo"
+          :version-enable="versionEnable"
+          @refresh="refreshAll"
+          @caseEdit="handleCaseCreateOrEdit($event, 'edit')"
+          @caseCreate="handleCaseCreateOrEdit($event, 'add')"
+          @checkout="checkout($event, item)"
+          :is-public="item.isPublic"
+          :read-only="testCaseReadOnly"
+          :tree-nodes="treeNodes"
+          :select-node="selectNode"
+          :select-condition="item.isPublic ? publicCondition : condition"
+          :public-enable="item.isPublic"
+          :case-type="type"
+          @addTab="addTab"
+          @closeTab="closeTab"
+          :editable="item.edit"
+          ref="testCaseEdit"
+        >
+        </test-case-edit>
+      </div>
+    </ms-container>
 
-      <is-change-confirm
-        @confirm="changeConfirm"
-        ref="isChangeConfirm"/>
-    </ms-main-container>
-
+    <!--  dialog  -->
+    <!-- export case -->
+    <test-case-export-to-excel @exportTestCase="exportTestCase" ref="exportExcel" class="export-case-layout"/>
+    <!-- import case -->
+    <test-case-common-import-new ref="caseImport" @refreshAll="refreshAll"/>
   </ms-container>
-
 </template>
 
 <script>
-
-import TestCaseEdit from './components/TestCaseEdit';
+import TestCaseExportToExcel from "@/business/case/components/export/TestCaseExportToExcel";
+import TestCaseCommonImportNew from "@/business/case/components/import/TestCaseCommonImportNew";
+import TestCaseEdit from "./components/TestCaseEdit";
 import TestCaseList from "./components/TestCaseList";
 import SelectMenu from "../common/SelectMenu";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
-import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
-import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
+import MsContainer from "metersphere-frontend/src/components/new-ui/MsContainer";
+import MsAsideContainer from "metersphere-frontend/src/components/new-ui/MsAsideContainer";
+import MsMainContainer from "metersphere-frontend/src/components/new-ui/MsMainContainer";
+import MsMainButtonGroup from "metersphere-frontend/src/components/new-ui/MsMainButtonGroup";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getUUID} from "metersphere-frontend/src/utils";
-import TestCaseNodeTree from "../module/TestCaseNodeTree";
-import MsTabButton from "metersphere-frontend/src/components/MsTabButton";
+import TestCaseNodeTree from "@/business/module/TestCaseNodeTree";
+import MsTabButton from "metersphere-frontend/src/components/new-ui/MsTabButton";
 import TestCaseMinder from "../common/minder/TestCaseMinder";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import {openMinderConfirm} from "../common/minder/minderUtils";
@@ -225,21 +232,15 @@ import {versionEnableByProjectId} from "@/api/project";
 import TestCasePublicNodeTree from "@/business/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/module/TestCaseTrashNodeTree";
 import PublicTestCaseList from "@/business/case/components/public/PublicTestCaseList";
+import {openCaseEdit} from "@/business/case/test-case";
 
 const store = useStore();
 export default {
   name: "TestCase",
   components: {
-    PublicTestCaseList,
-    TestCaseTrashNodeTree,
-    TestCasePublicNodeTree,
-    IsChangeConfirm,
-    TestCaseMinder,
-    MsTabButton,
-    TestCaseNodeTree,
-    MsMainContainer,
-    MsAsideContainer, MsContainer, TestCaseList, TestCaseEdit, SelectMenu, TestCaseEditShow,
-    'VersionSelect': MxVersionSelect,
+    PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
+    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, TestCaseEdit, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
+    MsMainButtonGroup, TestCaseExportToExcel, TestCaseCommonImportNew
   },
   comments: {},
   data() {
@@ -270,7 +271,8 @@ export default {
       versionEnable: false,
       isAsideHidden: true,
       ignoreTreeNodes: false,
-      hasRefreshDefault: true
+      hasRefreshDefault: true,
+      enableAsideHidden: false
     };
   },
   created() {
@@ -284,7 +286,6 @@ export default {
   },
   mounted() {
     this.getProject();
-    this.init(this.$route);
     this.checkVersionEnable();
   },
   beforeRouteLeave(to, from, next) {
@@ -296,16 +297,6 @@ export default {
     }
   },
   watch: {
-    redirectID() {
-      this.renderComponent = false;
-      this.$nextTick(() => {
-        // 在 DOM 中添加 my-component 组件
-        this.renderComponent = true;
-      });
-    },
-    '$route'(to) {
-      this.init(to);
-    },
     activeName(newVal, oldVal) {
       this.isAsideHidden = this.activeName === 'default';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
@@ -356,11 +347,6 @@ export default {
     }
   },
   computed: {
-    checkRedirectID: function () {
-      let redirectIDParam = this.$route.params.redirectID;
-      this.changeRedirectParam(redirectIDParam);
-      return redirectIDParam;
-    },
     isRedirectEdit: function () {
       return this.$route.params.dataSelectRange;
     },
@@ -381,22 +367,79 @@ export default {
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
-    }
+    },
+    editable() {
+      return this.tabs.length > 0;
+    },
   },
   methods: {
     hasPermission,
+    handleCreateCase(){
+      let TestCaseData = this.$router.resolve({path: "/track/case/create",});
+      window.open(TestCaseData.href, "_blank");
+    },
+    closeTab(){
+      this.handleTabClose();
+    },
     handleCommand(e) {
       switch (e) {
         case "ADD":
           this.addTab({name: 'add'});
           break;
-        case "CLOSE_ALL":
-          this.handleTabClose();
+      }
+    },
+    addTab(tab) {
+      this.showPublic = false
+      if (tab.name === 'edit' || tab.name === 'show') {
+        let label = this.$t('test_track.case.create');
+        let name = getUUID().substring(0, 8);
+        if (this.activeName === 'public') {
+          this.currentActiveName = 'public'
+        } else {
+          this.currentActiveName = 'default'
+        }
+        this.activeName = name;
+        label = tab.testCaseInfo.name;
+        this.tabs = [];
+        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo, isPublic: tab.isPublic});
+      }
+
+      if (tab.name === 'public') {
+        this.publicEnable = false;
+        this.$nextTick(() => {
+          this.publicEnable = true;
+        })
+      } else if (tab.name === 'trash') {
+        this.trashEnable = false;
+        this.$nextTick(() => {
+          this.trashEnable = true;
+        })
+      }
+
+      this.setCurTabId(tab, 'testCaseEdit');
+    },
+    handleImportCommand(e) {
+      switch (e) {
+        case "excel":
+          this.$refs.caseImport.open("excel");
           break;
-        default:
-          this.addTab({name: 'add'});
+        case "xmind":
+          this.$refs.caseImport.open("xmind");
           break;
       }
+    },
+    handleExportCommand(e) {
+      switch (e) {
+        case "excel":
+          this.openExportDialog(0, true)
+          break;
+        case "xmind":
+          this.exportTestCase(e, {exportAll: true})
+          break;
+      }
+    },
+    openExportDialog(size, isExportAll) {
+      this.$refs.exportExcel.open(size, isExportAll);
     },
     getTrashList() {
       testCaseNodeTrashCount(this.projectId)
@@ -459,57 +502,12 @@ export default {
         this.$EventBus.$emit('changeWs', temWorkspaceId);
       }
     },
-    changeRedirectParam(redirectIDParam) {
-      this.redirectID = redirectIDParam;
-      if (redirectIDParam != null) {
-        if (this.redirectFlag === "none") {
-          this.activeName = "default";
-          this.redirectFlag = "redirected";
-        }
-      } else {
-        this.redirectFlag = "none";
-      }
-    },
-    addTab(tab) {
+    validateProjectId() {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
-        return;
+        return false;
       }
-      this.showPublic = false
-      if (tab.name === 'add') {
-        let label = this.$t('test_track.case.create');
-        let name = getUUID().substring(0, 8);
-        this.activeName = name;
-        this.currentActiveName = 'default'
-        this.type = 'add';
-        this.tabs.push({label: label, name: name, testCaseInfo: {testCaseModuleId: "", id: getUUID()}});
-      }
-      if (tab.name === 'edit' || tab.name === 'show') {
-        let label = this.$t('test_track.case.create');
-        let name = getUUID().substring(0, 8);
-        if (this.activeName === 'public') {
-          this.currentActiveName = 'public'
-        } else {
-          this.currentActiveName = 'default'
-        }
-        this.activeName = name;
-        label = tab.testCaseInfo.name;
-        this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo, isPublic: tab.isPublic});
-      }
-
-      if (tab.name === 'public') {
-        this.publicEnable = false;
-        this.$nextTick(() => {
-          this.publicEnable = true;
-        })
-      } else if (tab.name === 'trash') {
-        this.trashEnable = false;
-        this.$nextTick(() => {
-          this.trashEnable = true;
-        })
-      }
-
-      this.setCurTabId(tab, 'testCaseEdit');
+      return true;
     },
     addTabShow(tab) {
       if (!this.projectId) {
@@ -523,7 +521,7 @@ export default {
         this.activeName = name;
         this.currentActiveName = 'public'
         label = tab.testCaseInfo.name;
-        this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
+        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }
       this.setCurTabId(this, tab, 'testCaseEditShow');
     },
@@ -610,34 +608,13 @@ export default {
     },
     exportTestCase(type, param) {
       if (this.activeDom !== 'left') {
-        this.$warning(this.$t('test_track.case.export.export_tip'));
+        this.$warning(this.$t('test_track.case.export.xmind_export_tip'), false);
         return;
       }
       this.$refs.testCaseList.exportTestCase(type, param);
     },
     closeExport() {
       this.$refs.nodeTree.closeExport();
-    },
-    init(route) {
-      let path = route.path;
-      if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
-        this.testCaseReadOnly = false;
-        let caseId = this.$route.query.caseId;
-        if (!this.projectId) {
-          this.$warning(this.$t('commons.check_project_tip'));
-          return;
-        }
-        if (caseId) {
-          getTestCase(caseId)
-            .then(response => {
-              let testCase = response.data;
-              this.editTestCase(testCase);
-            });
-        } else {
-          this.addTab({name: 'add'});
-        }
-        this.$router.push('/track/case/all');
-      }
     },
     publicNodeChange(node, nodeIds, pNodes) {
       if (this.$refs.testCasePublicList) {
@@ -654,21 +631,6 @@ export default {
     },
     decrease(id) {
       this.$refs.nodeTree.decrease(id);
-    },
-    editTestCase(testCase, isPublic) {
-      const index = this.tabs.find(p => p.testCaseInfo && p.testCaseInfo.id === testCase.id);
-      if (!index) {
-        this.type = "edit";
-        this.testCaseReadOnly = false;
-        let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
-        this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
-        this.addTab({name: isPublic ? 'show' : 'edit', testCaseInfo: testCase, isPublic});
-      } else {
-        this.activeName = index.name;
-      }
-    },
-    editTestCaseShow(testCase) {
-      this.editTestCase(testCase, true);
     },
     handleCaseCreateOrEdit(data, type) {
       if (this.$refs.minder) {
@@ -689,12 +651,6 @@ export default {
       if (this.$refs.minder) {
         this.$refs.minder.refresh();
       }
-    },
-    copyTestCase(testCase) {
-      this.type = "copy";
-      this.testCaseReadOnly = false;
-      testCase.isCopy = true;
-      this.addTab({name: 'edit', testCaseInfo: testCase});
     },
     refresh(data) {
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
@@ -731,7 +687,9 @@ export default {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
-      this.$refs.nodeTree.list();
+      if(this.$refs.nodeTree){
+        this.$refs.nodeTree.list();
+      }
       this.setTable(data);
     },
     importRefresh() {
@@ -747,6 +705,9 @@ export default {
         this.$refs.testCaseList.initTableData();
       }
       this.$refs.nodeTree.list();
+    },
+    toggleMinderFullScreen(isFullScreen) {
+      this.enableAsideHidden = isFullScreen;
     },
     refreshPublic() {
       if (this.$refs.testCasePublicList) {
@@ -844,6 +805,9 @@ export default {
 </script>
 
 <style scoped>
+:deep(.el-card__body) {
+  padding: 24px;
+}
 
 .el-main {
   padding: 5px 10px;
@@ -865,4 +829,126 @@ export default {
   padding-left: 10px;
 }
 
+.svg:hover {
+  -webkit-filter: drop-shadow(0px 0px 0px #783887);
+}
+
+.iconBtn {
+  width: 98px;
+}
+
+:deep(.iconBtn i){
+  position: relative;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+}
+
+:deep(.iconBtn span) {
+  position: relative;
+  left: -7px;
+}
+
+.export-model {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.export-tips {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  display: block;
+  align-items: center;
+  color: #8F959E;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+/* 创建用例按钮样式 */
+.el-button--small {
+    height: 32px;
+    border-radius: 4px;
+}
+
+.back-layout {
+  height: 48px;
+  background-color: #FFFFFF;;
+  border-bottom: 1px solid rgba(31, 35, 41, 0.15);
+  border-radius: 4px 4px 0 0;
+}
+
+.back-content {
+  position: relative;
+  top: 12px;
+  left: 35px;
+  width: 80px;
+  height: 24px;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1F2329;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+.el-icon-back:before {
+  font-size: 20px;
+}
+
+:deep(i.el-icon-back:hover) {
+  color: #783887;
+  cursor: pointer;
+}
+
+/* 作用域处理 */
+.test-case-aside-layout :deep(.el-button--small span),
+.back-layout :deep(.el-button--small span),
+.top-btn-group-layout :deep(.el-button--small span),
+.export-case-layout :deep(.el-button--small span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+  top: -5px;
+}
+
+.edit-layout :deep(.el-button--small span){
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  text-align: center;
+  /* color:#783887; */
+}
+
+.el-button--small {
+  min-width: 80px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: rgba(31, 35, 41, 0.1)!important;
+}
 </style>

@@ -5,7 +5,7 @@
         <div style="margin: 16px 0 0 16px">
           <span class="addition-info-title"> {{ title }}</span>
           <el-tooltip class="item" effect="dark" :content="toolTip" placement="top">
-            <img style="height: 14px; width: 14px; margin-left: 4px" src="/assets/figma/icon_question.svg" />
+            <img style="height: 14px; width: 14px; margin-left: 4px" src="/assets/module/figma/icon_question.svg" />
           </el-tooltip>
           <div class="common-amount" @mouseenter="isHover = true">
             <span class="addition-info-text">

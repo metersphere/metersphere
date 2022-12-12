@@ -248,6 +248,7 @@ import {
 import { testPlanEditStatus } from "@/api/remote/plan/test-plan";
 import { getTestTemplate } from "@/api/custom-field-template";
 import { checkProjectPermission } from "@/api/testCase";
+import {openCaseEdit} from "@/business/case/test-case";
 
 export default {
   name: "FunctionalTestCaseEdit",

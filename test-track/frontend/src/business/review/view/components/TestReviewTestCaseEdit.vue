@@ -4,212 +4,111 @@
     :visible.sync="showDialog"
     :with-header="false"
     :modal-append-to-body="false"
-    size="100%"
-    ref="drawer"
-    v-loading="loading"
-  >
+    size="90%"
+    ref="drawer">
+
     <template>
-      <el-row :gutter="10">
-        <el-col :span="17">
-          <div class="container">
-            <el-card>
-              <el-scrollbar>
-                <el-header style="height: 100%">
-                  <el-row type="flex" class="head-bar">
-                    <el-col :span="2">
-                      <el-button
-                        plain
-                        size="mini"
-                        icon="el-icon-back"
-                        @click="cancel"
-                        >{{ $t("test_track.return") }}
-                      </el-button>
-                    </el-col>
+      <div class="edit-container" v-loading="loading">
 
-                    <el-col :span="22" class="head-right">
-                      <ms-previous-next-button
-                        :index="index"
-                        :page-num="pageNum"
-                        :page-size="pageSize"
-                        :page-total="pageTotal"
-                        :total="total"
-                        :next-page-data="nextPageData"
-                        :pre-page-data="prePageData"
-                        :list="testCases"
-                        @pre="handlePre"
-                        @next="handleNext"
-                      />
-                    </el-col>
-                  </el-row>
+        <test-review-test-case-edit-header-bar
+          :test-case="testCase"
+          @close="handleClose"
+          ref="headerBar"/>
 
-                  <el-row style="margin-top: 0">
-                    <el-col>
-                      <el-divider content-position="left" class="title-divider">
-                        <el-button
-                          class="test-case-name"
-                          type="text"
-                          @click="openTestTestCase(testCase)"
-                        >
-                          <span
-                            class="title-link"
-                            :title="testCase.name"
-                            :style="{ 'max-width': titleWith + 'px' }"
-                          >
-                            {{ testCase.num }}-{{ testCase.name }}
-                          </span>
-                        </el-button>
-                      </el-divider>
-                    </el-col>
-                  </el-row>
-                </el-header>
+        <div class="case-container" :class="{'comment-empty-container': isCommentEmpty}">
+          <el-scrollbar>
+            <el-form>
 
-                <div class="case_container">
-                  <el-form>
-                    <el-row>
-                      <el-col :span="7">
-                        <el-form-item
-                          :label="$t('test_track.case.module')"
-                          prop="nodePath"
-                          :label-width="formLabelWidth"
-                        >
-                          {{ testCase.nodePath }}
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="7">
-                        <el-form-item
-                          :label="$t('test_track.plan.plan_project')"
-                          prop="projectName"
-                          :label-width="formLabelWidth"
-                        >
-                          {{ testCase.projectName }}
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="10">
-                        <el-form-item
-                          :label="$t('评审状态')"
-                          :label-width="formLabelWidth"
-                        >
-                          <status-table-item :value="oldReviewStatus" />
-                        </el-form-item>
-                      </el-col>
-                    </el-row>
+              <el-row>
+                <el-col :span="7">
+                  <el-form-item :label="$t('test_track.case.module')" prop="nodePath"
+                                :label-width="formLabelWidth">
+                    {{ testCase.nodePath }}
+                  </el-form-item>
+                </el-col>
+                <el-col :span="7">
+                  <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName"
+                                :label-width="formLabelWidth">
+                    {{ testCase.projectName }}
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
-                    <el-form
-                      ref="customFieldForm"
-                      v-if="isCustomFiledActive"
-                      class="case-form"
-                    >
-                      <el-row>
-                        <el-col
-                          :span="7"
-                          v-for="(item, index) in testCaseTemplate.customFields"
-                          :key="index"
-                        >
-                          <el-form-item
-                            :label="
-                              item.system
-                                ? $t(systemNameMap[item.name])
-                                : item.name
-                            "
-                            :prop="item.name"
-                            :label-width="formLabelWidth"
-                          >
-                            <custom-filed-component
-                              :disabled="true"
-                              :data="item"
-                              :form="{}"
-                              prop="defaultValue"
-                            />
-                          </el-form-item>
-                        </el-col>
-                      </el-row>
-                    </el-form>
-
-                    <form-rich-text-item
-                      :label-width="formLabelWidth"
-                      :disabled="true"
-                      :title="$t('test_track.case.prerequisite')"
-                      :data="testCase"
-                      prop="prerequisite"
-                    />
-                    <step-change-item
-                      :disable="true"
-                      :label-width="formLabelWidth"
-                      :form="testCase"
-                    />
-                    <form-rich-text-item
-                      :label-width="formLabelWidth"
-                      :disabled="true"
-                      v-if="testCase.stepModel === 'TEXT'"
-                      :title="$t('test_track.case.step_desc')"
-                      :data="testCase"
-                      prop="stepDescription"
-                    />
-                    <form-rich-text-item
-                      :label-width="formLabelWidth"
-                      :disabled="true"
-                      v-if="testCase.stepModel === 'TEXT'"
-                      :title="$t('test_track.case.expected_results')"
-                      :data="testCase"
-                      prop="expectedResult"
-                    />
-
-                    <test-case-step-item
-                      :label-width="formLabelWidth"
-                      :read-only="true"
-                      v-if="testCase.stepModel === 'STEP'"
-                      :form="testCase"
-                    />
-
-                    <el-form-item
-                      :label="$t('test_track.case.other_info')"
-                      :label-width="formLabelWidth"
-                    >
-                      <test-case-edit-other-info
-                        @openTest="openTest"
-                        :read-only="true"
-                        @syncRelationGraphOpen="syncRelationGraphOpen"
-                        :project-id="projectId"
-                        :form="testCase"
-                        :case-id="testCase.caseId"
-                        ref="otherInfo"
-                      />
+              <el-form ref="customFieldForm"
+                       v-if="isCustomFiledActive"
+                       class="case-form">
+                <el-row>
+                  <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                    <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name"
+                                  :prop="item.name"
+                                  :label-width="formLabelWidth">
+                      <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
                     </el-form-item>
-                  </el-form>
-                </div>
-              </el-scrollbar>
-            </el-card>
-          </div>
-        </el-col>
-        <el-col :span="7" v-if="!relationGraphOpen">
-          <div class="comment-card">
-            <test-review-test-case-execute
-              :test-case="testCase"
-              :is-read-only="isReadOnly"
-              :origin-status="oldReviewStatus"
-              @saveCase="saveCase()"
-            />
+                  </el-col>
+                </el-row>
+              </el-form>
 
-            <review-comment
-              default-type="REVIEW"
-              :case-id="testCase.caseId"
-              @saveCaseReview="saveCaseReview"
-              ref="comment"
-            />
-          </div>
-        </el-col>
-      </el-row>
+              <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
+                                   :title="$t('test_track.case.prerequisite')"
+                                   :data="testCase" prop="prerequisite"/>
+              <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
+              <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
+                                   v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')"
+                                   :data="testCase" prop="stepDescription"/>
+              <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
+                                   v-if="testCase.stepModel === 'TEXT'"
+                                   :title="$t('test_track.case.expected_results')" :data="testCase"
+                                   prop="expectedResult"/>
+
+              <test-case-step-item :label-width="formLabelWidth" :read-only="true"
+                                   v-if="testCase.stepModel === 'STEP'" :form="testCase"/>
+
+              <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
+                <test-case-edit-other-info @openTest="openTest" :read-only="true"
+                                           @syncRelationGraphOpen="syncRelationGraphOpen"
+                                           :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
+                                           ref="otherInfo"/>
+              </el-form-item>
+
+            </el-form>
+          </el-scrollbar>
+        </div>
+
+        <ms-vertical-drag-bar top-min-height="40" bottom-min-height="40"/>
+
+        <comment-history
+          default-type="REVIEW"
+          :case-id="testCase.caseId"
+          :review-id="testCase.reviewId"
+          @emptyChange="handleCommentEmptyChange"
+          ref="comment"/>
+
+        <test-review-test-case-edit-operation-bar
+          :index="index"
+          :page-num="pageNum"
+          :page-size="pageSize"
+          :page-total="pageTotal"
+          :total="total"
+          :next-page-data="nextPageData"
+          :pre-page-data="prePageData"
+          :list="testCases"
+          :test-case="testCase"
+          @refreshComment="refreshComment"
+          @refreshTestCaseStatus="refreshTestCaseStatus"
+          @pre="handlePre"
+          @next="handleNext"/>
+
+      </div>
+
     </template>
   </el-drawer>
 </template>
 
 <script>
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
-import {
-  getUUID,
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
+import MsVerticalDragBar from "metersphere-frontend/src/components/dragbar/MsVerticalDragBar";
+
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
 import ReviewComment from "@/business/review/commom/ReviewComment";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import {
@@ -224,29 +123,32 @@ import CustomFiledComponent from "metersphere-frontend/src/components/template/C
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import MsPreviousNextButton from "metersphere-frontend/src/components/MsPreviousNextButton";
-import TestReviewTestCaseExecute from "./TestReviewTestCaseExecute";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 import { getTestTemplate } from "@/api/custom-field-template";
 import {
-  editTestCaseReviewStatus,
-  editTestReviewTestCase,
   getRelateTest,
   getTestReviewTestCase,
 } from "@/api/test-review";
+import TestReviewTestCaseEditOperationBar from "@/business/review/view/components/TestReviewTestCaseEditOperationBar";
+import TestReviewTestCaseEditHeaderBar from "@/business/review/view/components/TestReviewTestCaseEditHeaderBar";
+import CommentHistory from "@/business/review/view/components/commnet/CommentHistory";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    CommentHistory,
+    TestReviewTestCaseEditHeaderBar,
+    TestReviewTestCaseEditOperationBar,
     StatusTableItem,
-    TestReviewTestCaseExecute,
     MsPreviousNextButton,
     TestCaseStepItem,
     StepChangeItem,
     CustomFiledComponent,
     FormRichTextItem,
     TestCaseEditOtherInfo,
-    ReviewComment,
     TestCaseAttachment,
+    MsVerticalDragBar,
+    ReviewComment,
   },
   data() {
     return {
@@ -273,6 +175,7 @@ export default {
       oldReviewStatus: "",
       titleWith: 0,
       relationGraphOpen: false,
+      isCommentEmpty: true
     };
   },
   props: {
@@ -350,62 +253,35 @@ export default {
     },
     handleClose() {
       removeGoBackListener(this.handleClose);
+
       this.showDialog = false;
+      this.$refs.comment.clearComments();
     },
     cancel() {
       this.handleClose();
       this.$emit("refreshTable");
     },
-    saveCase() {
-      let param = {};
-      param.id = this.testCase.id;
-      param.caseId = this.testCase.caseId;
-      param.reviewId = this.testCase.reviewId;
-      param.comment = this.testCase.comment;
-      param.status = this.testCase.reviewStatus;
-      editTestReviewTestCase(param).then(() => {
-        this.$success(this.$t("commons.save_success"));
-        this.updateTestCases(param);
-        this.setReviewStatus(this.testCase.reviewId);
-
-        // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].status = this.testCase.status;
-        // 切换状态后需要修改旧的状态
-        this.oldReviewStatus = this.testCase.reviewStatus;
-
-        if (this.testCase.comment) {
-          this.$refs.comment.getComments();
-          this.testCase.comment = "";
-        }
-      });
+    refreshComment() {
+      this.$refs.comment.getComments();
     },
-    saveCaseReview() {
-      let param = {};
-      let status = this.testCase.status;
-      param.id = this.testCase.id;
-      param.caseId = this.testCase.caseId;
-      param.reviewId = this.testCase.reviewId;
-      param.status = status;
-      editTestReviewTestCase(param).then(() => {
-        this.updateTestCases(param);
-        this.setReviewStatus(this.testCase.reviewId);
-        this.oldReviewStatus = status;
-        // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].status = status;
-        if (this.index < this.testCases.length - 1) {
-          this.handleNext();
-        }
-        this.$success(this.$t("commons.save_success"));
-      });
+    refreshTestCaseStatus(status) {
+      this.testCase.reviewStatus = status;
+      this.updateTestCases(this.testCase);
+      this.$refs.comment.getComments();
+      this.$refs.headerBar.getReviewerStatus();
     },
     updateTestCases(param) {
       for (let i = 0; i < this.testCases.length; i++) {
         let testCase = this.testCases[i];
         if (testCase.id === param.id) {
-          testCase.status = param.status;
+          testCase.reviewStatus = param.reviewStatus;
           return;
         }
       }
+    },
+    handleCommentEmptyChange(isCommentEmpty) {
+      this.isCommentEmpty = isCommentEmpty;
+      this.$forceUpdate();
     },
     handleNext() {
       if (
@@ -482,6 +358,11 @@ export default {
       });
     },
     openTestCaseEdit(testCase, tableData) {
+      if (this.$refs.comment) {
+        this.$refs.comment.clearComments();
+      }
+      this.loading = true;
+
       this.showDialog = true;
       // 一开始加载时候需要保存用例评审旧的状态
       this.oldReviewStatus = testCase.reviewStatus;
@@ -509,17 +390,9 @@ export default {
       if (this.$refs.otherInfo) {
         this.$refs.otherInfo.reset();
       }
-    },
-    openTestTestCase(item) {
-      let testCaseData = this.$router.resolve({
-        path: "/track/case/all",
-        query: {
-          redirectID: getUUID(),
-          dataType: "testCase",
-          dataSelectRange: item.caseId,
-        },
-      });
-      window.open(testCaseData.href, "_blank");
+      if (this.$refs.comment) {
+        this.$refs.comment.getComments();
+      }
     },
     getRelatedTest() {
       if (
@@ -587,12 +460,20 @@ export default {
   height: 100%;
 }
 
-.container {
+.edit-container {
   height: 100vh;
 }
 
-.case_container > .el-row {
+.case-container > .el-row {
   margin-top: 1%;
+}
+
+.case-container {
+  height: calc(100vh - 355px);
+}
+
+.comment-empty-container {
+  height: calc(100vh - 355px + 198px);
 }
 
 .el-switch :deep(.el-switch__label) {
@@ -601,10 +482,6 @@ export default {
 
 .el-switch :deep(.el-switch__label.is-active) {
   color: #409eff;
-}
-
-.container :deep(.el-card__body) {
-  height: calc(100vh - 50px);
 }
 
 .comment-card {

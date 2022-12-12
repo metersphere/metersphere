@@ -19,6 +19,7 @@ export default {
   methods: {
     change(bool) {
       this.$emit("update:isFullScreen", bool);
+      this.$emit("toggleMinderFullScreen", bool);
     }
   }
 }

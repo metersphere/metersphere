@@ -1,20 +1,30 @@
 <template>
   <div>
     <el-dialog
-      :title="$t('test_track.please_related_requirements')"
+      :title="$t('test_track.batch_related_requirements')"
       :visible.sync="dialogVisible"
-      width="30%"
+      width="40%"
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
+      append-to-body
+      :close-on-click-modal="false"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" size="medium" ref="form">
+      <span class="select-row">{{$t('test_track.batch_operate_select_row_count', [size])}}</span>
+
+      <el-form :model="form" label-position="right" size="medium" ref="form" style="margin-top: 24px;">
         <el-form-item :label="$t('test_track.related_requirements')" prop="demandId">
           <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions"
                        clearable filterable :filter-method="filterDemand" style="width: 100%;">
             <template slot-scope="{ data }">
-              <span class="demand-span" :title="data.label">{{ data.label }}</span>
+              <div class="story-box">
+                <div class="story-platform">{{ data.platform }}</div>
+                <div class="story-label" v-if="data.value === 'other'">
+                  {{ $t("test_track.case.other") }}
+                </div>
+                <div class="story-label" v-else>{{ data.label }}</div>
+              </div>
             </template>
           </el-cascader>
         </el-form-item>
@@ -24,7 +34,10 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="submit()"/>
+<!--        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="submit()"/>-->
+        <el-button @click="dialogVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+        <el-button v-prevent-re-click :type="!form.demandId ? 'info' : 'primary'" @click="submit"
+                   @keydown.enter.native.prevent size="small" :disabled="!form.demandId" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -48,7 +61,8 @@ export default {
       },
       demandValue: [],
       demandOptions: [],
-      dialogVisible: false
+      dialogVisible: false,
+      size: 0,
     }
   },
   watch: {
@@ -61,10 +75,15 @@ export default {
     }
   },
   methods: {
-    open() {
+    open(size) {
       this.form = {};
       this.dialogVisible = true;
       this.getDemandOptions();
+      if (size) {
+        this.size = size;
+      } else {
+        this.size = this.$parent.selectDataCounts;
+      }
     },
     handleClose() {
       this.form = {};
@@ -125,11 +144,11 @@ export default {
     },
     submit() {
       if (!this.form.demandId) {
-        this.$warning(this.$t('test_track.demand.relate_is_null_warn'));
+        this.$warning(this.$t('test_track.demand.relate_is_null_warn'), false);
         return;
       }
       if (this.form.demandId === 'other' && !this.form.demandName) {
-        this.$warning(this.$t('test_track.demand.relate_name_is_null_warn'));
+        this.$warning(this.$t('test_track.demand.relate_name_is_null_warn'), false);
         return;
       }
       this.$emit('batchRelate', this.form);
@@ -150,5 +169,72 @@ export default {
   overflow: hidden;
   word-break: break-all;
   margin-right: 5px;
+}
+
+.select-row {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #646A73;
+  flex: none;
+  order: 1;
+  align-self: center;
+  flex-grow: 0;
+}
+
+.el-form-item__label {
+  line-height: 36px;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin-bottom: 8px;
+}
+
+:deep(.el-button--small span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+  top: -5px;
+}
+
+.el-button--small {
+  min-width: 80px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+/* 关联需求下拉框 */
+.story-box {
+  display: flex;
+}
+
+.story-platform {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #783887;
+  padding: 1px 6px;
+  gap: 4px;
+  width: 49px;
+  height: 24px;
+  background: rgba(120, 56, 135, 0.2);
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.story-label {
+  line-height: 22px;
+  color: #1f2329;
 }
 </style>

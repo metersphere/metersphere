@@ -3,6 +3,7 @@
     :title="title"
     :visible.sync="deleteApiVisible"
     :show-close="false"
+    append-to-body
     width="30%"
   >
     <el-radio-group v-model="deleteCurrentVersion">
