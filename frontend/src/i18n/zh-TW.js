@@ -58,6 +58,7 @@ export default {
     current_project: '當前項目',
     not_exist: "不存在",
     name: '名稱',
+    template_name: '模版名稱',
     description: '描述',
     annotation: '註釋',
     clear: '清空',

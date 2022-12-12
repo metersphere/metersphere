@@ -59,6 +59,7 @@ export default {
     current_project: 'Current Project',
     not_exist: "Not exist",
     name: 'Name',
+    template_name: 'Template Name',
     description: 'Description',
     annotation: 'Annotation',
     clear: 'Clear',
