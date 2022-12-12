@@ -852,7 +852,6 @@ export default {
         };
       }
 
-      // todo
       if (projectId != null && typeof projectId === 'string') {
         this.condition.projectId = projectId;
       } else if (this.projectId != null) {
@@ -1325,6 +1324,10 @@ export default {
       this.selectDataRange = 'all';
       this.selectDataType = 'all';
       let routeParamObj = this.$route.params;
+      let redirectVersionId = this.$route.params.versionId;
+      if (redirectVersionId !== 'default') {
+        this.condition.versionId = redirectVersionId;
+      }
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;

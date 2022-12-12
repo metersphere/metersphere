@@ -1279,6 +1279,10 @@ export default {
       this.selectDataRange = 'all';
       let routeParam = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
+      let redirectVersionId = this.$route.params.versionId;
+      if (redirectVersionId !== 'default') {
+        this.condition.versionId = redirectVersionId;
+      }
       if (dataType === 'apiTestCase') {
         this.selectDataRange = routeParam;
       }

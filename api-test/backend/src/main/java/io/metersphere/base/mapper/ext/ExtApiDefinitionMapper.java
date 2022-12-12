@@ -39,13 +39,13 @@ public interface ExtApiDefinitionMapper {
 
     int reduction(@Param("ids") List<String> ids);
 
-    List<ApiDataCountResult> countProtocolByProjectID(String projectId);
+    List<ApiDataCountResult> countProtocolByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    Long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    Long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("versionId") String versionId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
-    List<ApiDataCountResult> countStateByProjectID(String projectId);
+    List<ApiDataCountResult> countStateByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    List<ApiDataCountResult> countApiCoverageByProjectID(String projectId);
+    List<ApiDataCountResult> countApiCoverageByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     ApiDefinition getNextNum(@Param("projectId") String projectId);
 
@@ -55,7 +55,7 @@ public interface ExtApiDefinitionMapper {
 
     List<String> selectIds(@Param("request") BaseQueryRequest query);
 
-    List<ApiDefinition> selectEffectiveIdByProjectId(String projectId);
+    List<ApiDefinition> selectEffectiveIdByProjectId(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<ApiDefinitionResult> listByIds(@Param("ids") List<String> ids);
 
@@ -73,7 +73,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
-    long countApiByProjectIdAndHasCase(String projectId);
+    long countApiByProjectIdAndHasCase(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
 
@@ -99,7 +99,7 @@ public interface ExtApiDefinitionMapper {
 
     int countById(String id);
 
-    List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId);
+    List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     int deleteApiToGc(ApiDefinitionRequest request);
 

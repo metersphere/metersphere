@@ -347,7 +347,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, boolean selectFunctionCase, int limitNumber) {
+    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId, boolean selectFunctionCase, int limitNumber) {
 
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
@@ -362,7 +362,7 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFunctionCase, startTime.getTime(), limitNumber);
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, selectFunctionCase, startTime.getTime(), limitNumber);
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 

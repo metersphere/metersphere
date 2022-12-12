@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioParamDTO;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
 import io.metersphere.api.jmeter.JMeterService;
@@ -56,7 +57,6 @@ import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
-import io.metersphere.api.dto.scenario.ApiScenarioParamDTO;
 import io.metersphere.xpack.api.service.ApiAutomationRelationshipEdgeService;
 import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
@@ -1005,23 +1005,23 @@ public class ApiScenarioService {
         return "success";
     }
 
-    public long countScenarioByProjectID(String projectId) {
-        return extApiScenarioMapper.countByProjectID(projectId);
+    public long countScenarioByProjectID(String projectId, String versionId) {
+        return extApiScenarioMapper.countByProjectID(projectId, versionId);
     }
 
-    public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
+    public long countScenarioByProjectIDAndCreatInThisWeek(String projectId, String versionId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioMapper.countByProjectIDAndCreatInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioMapper.countByProjectIDAndCreatInThisWeek(projectId, versionId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
-    public List<ApiDataCountResult> countRunResultByProjectID(String projectId) {
-        return extApiScenarioMapper.countRunResultByProjectID(projectId);
+    public List<ApiDataCountResult> countRunResultByProjectID(String projectId, String versionId) {
+        return extApiScenarioMapper.countRunResultByProjectID(projectId, versionId);
     }
 
     public List<ApiScenarioWithBLOBs> selectByIdsWithBLOBs(List<String> ids) {
@@ -2176,8 +2176,8 @@ public class ApiScenarioService {
      * @param projectId
      * @return <get/post, <step-id,url>>
      */
-    public Map<String, Map<String, String>> selectScenarioUseUrlByProjectId(String projectId) {
-        List<ApiScenarioReferenceId> list = apiScenarioReferenceIdService.selectUrlByProjectId(projectId);
+    public Map<String, Map<String, String>> selectScenarioUseUrlByProjectId(String projectId, String versionId) {
+        List<ApiScenarioReferenceId> list = apiScenarioReferenceIdService.selectUrlByProjectId(projectId, versionId);
         Map<String, Map<String, String>> returnMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(item -> {

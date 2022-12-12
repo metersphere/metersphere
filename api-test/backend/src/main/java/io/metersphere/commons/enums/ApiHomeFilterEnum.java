@@ -8,4 +8,5 @@ public class ApiHomeFilterEnum {
     public static final String SCHEDULE_EXECUTION_PASS = "scheduleExecutionPass";
     public static final String SCHEDULE_EXECUTION_FAKE_ERROR = "scheduleExecutionFakeError";
     public static final String SCHEDULE_EXECUTION_FAILED = "scheduleExecutionFailed";
+    public static final String DEFAULT_VERSION = "default";
 }

@@ -4,12 +4,17 @@
     <select id="selectUrlByProjectId" resultType="io.metersphere.base.domain.ApiScenarioReferenceId">
         SELECT method, url, reference_id
         from api_scenario_reference_id
-        WHERE api_scenario_id in (SELECT id
-                                  from api_scenario
-                                  WHERE status
-            != 'Trash'
-          AND project_id = #{0}
-          AND latest = 1)
+        WHERE api_scenario_id in (
+            SELECT id from api_scenario
+            WHERE status != 'Trash'
+                AND project_id = #{projectId}
+            <if test="versionId != null">
+                AND version_id = #{versionId}
+            </if>
+            <if test="versionId == null">
+                AND latest = 1
+            </if>
+          )
           AND reference_id IS NOT NULL
     </select>
     <select id="selectReferenceIdByIds" resultType="io.metersphere.base.domain.ApiScenarioReferenceId">

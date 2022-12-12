@@ -537,14 +537,26 @@
     <select id="countByProjectID" resultType="java.lang.Long">
         SELECT COUNT(DISTINCT ref_id) AS countNumber
         FROM api_scenario
-        WHERE project_id = #{0}
-          AND status != 'Trash' AND latest = 1
+        WHERE project_id = #{projectId}
+          AND status != 'Trash'
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND latest = 1
+        </if>
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
         FROM api_scenario
         WHERE project_id = #{projectId}
-          AND status != 'Trash' and latest = 1
+          AND status != 'Trash'
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND latest = 1
+        </if>
         AND create_time BETWEEN #{firstDayTimestamp}
           AND #{lastDayTimestamp}
     </select>
@@ -552,8 +564,14 @@
     <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, if(last_result is null, "notRun", last_result) AS groupField
         FROM api_scenario
-        WHERE project_id = #{0}
-          AND status != 'Trash' and latest = 1
+        WHERE project_id = #{projectId}
+          AND status != 'Trash'
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND latest = 1
+        </if>
         GROUP BY groupField
     </select>
 

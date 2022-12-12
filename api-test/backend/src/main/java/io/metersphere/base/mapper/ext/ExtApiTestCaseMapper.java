@@ -25,9 +25,9 @@ public interface ExtApiTestCaseMapper {
 
     List<String> selectIdsNotExistsInReview(@Param("projectId") String projectId, @Param("reviewId") String reviewId);
 
-    List<ApiDataCountResult> countProtocolByProjectID(String projectId);
+    List<ApiDataCountResult> countProtocolByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("versionId") String versionId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     List<ApiTestCaseInfo> getRequest(@Param("request") ApiTestCaseRequest request);
 
@@ -87,7 +87,7 @@ public interface ExtApiTestCaseMapper {
 
     int countById(String resourceID);
 
-    List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId);
+    List<ExecuteResultCountDTO> selectExecuteResultByProjectId(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     int deleteCaseToGc(ApiTestCaseRequest request);
 
