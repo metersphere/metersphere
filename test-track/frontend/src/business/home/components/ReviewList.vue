@@ -13,7 +13,7 @@
       <div v-show="loadError"
            style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
         <img style="height: 100px;width: 100px;"
-             src="/assets/figma/icon_load_error.svg"/>
+             src="/assets/module/figma/icon_load_error.svg"/>
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
       <div v-show="!loadError">
@@ -52,7 +52,7 @@
             show-overflow-tooltip
             width="350px">
             <template v-slot:default="scope">
-              <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass)"
+              <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass, scope.row.prepare, scope.row.again)"
                           placement="top" :enterable="false" class="item" effect="dark">
                 <yan-progress :total="scope.row.total" :done="scope.row.reviewed" :modify="scope.row.pass" :tip="tip"/>
               </el-tooltip>
@@ -62,7 +62,7 @@
             <div
               style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
               <img style="height: 100px;width: 100px;margin-bottom: 8px"
-                   src="/assets/figma/icon_none.svg"/>
+                   src="/assets/module/figma/icon_none.svg"/>
               <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
             </div>
           </template>
@@ -142,8 +142,8 @@ export default {
       }
       this.search();
     },
-    getResultTip(total, reviewed, pass) {
-      return '通过: ' + pass + '; ' + '未通过: ' + (reviewed - pass) + '; ' + '未评审: ' + (total - reviewed);
+    getResultTip(total, reviewed, pass, prepare, again) {
+      return '通过: ' + pass + '; ' + '未通过: ' + (reviewed - pass) + '; ' + '未评审: ' + prepare + '; ' + '重新提审: ' + again;
     }
   }
 }

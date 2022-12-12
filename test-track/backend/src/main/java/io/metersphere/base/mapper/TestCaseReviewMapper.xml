@@ -12,6 +12,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="review_pass_rule" jdbcType="VARCHAR" property="reviewPassRule" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReview">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags,
-    create_user
+    create_user, review_pass_rule
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -131,13 +132,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReview">
     insert into test_case_review (id, `name`, creator,
-                                  `status`, create_time, update_time,
-                                  end_time, project_id, tags,
-                                  create_user, description)
+      `status`, create_time, update_time,
+      end_time, project_id, tags,
+      create_user, review_pass_rule, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR},
-            #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-            #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
-            #{createUser,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
+      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
+      #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
+      #{createUser,jdbcType=VARCHAR}, #{reviewPassRule,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReview">
     insert into test_case_review
@@ -171,6 +174,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="reviewPassRule != null">
+        review_pass_rule,
       </if>
       <if test="description != null">
         description,
@@ -206,6 +212,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewPassRule != null">
+        #{reviewPassRule,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -251,6 +260,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.reviewPassRule != null">
+        review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -271,6 +283,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -279,15 +292,16 @@
   <update id="updateByExample" parameterType="map">
     update test_case_review
     set id = #{record.id,jdbcType=VARCHAR},
-    `name` = #{record.name,jdbcType=VARCHAR},
-    creator = #{record.creator,jdbcType=VARCHAR},
-    `status` = #{record.status,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    end_time = #{record.endTime,jdbcType=BIGINT},
-    project_id = #{record.projectId,jdbcType=VARCHAR},
-    tags = #{record.tags,jdbcType=VARCHAR},
-    create_user = #{record.createUser,jdbcType=VARCHAR}
+      `name` = #{record.name,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -322,6 +336,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="reviewPassRule != null">
+        review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -339,20 +356,22 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseReview">
     update test_case_review
-    set `name`      = #{name,jdbcType=VARCHAR},
-        creator     = #{creator,jdbcType=VARCHAR},
-        `status`    = #{status,jdbcType=VARCHAR},
-        create_time = #{createTime,jdbcType=BIGINT},
-        update_time = #{updateTime,jdbcType=BIGINT},
-        end_time    = #{endTime,jdbcType=BIGINT},
-        project_id  = #{projectId,jdbcType=VARCHAR},
-        tags        = #{tags,jdbcType=VARCHAR},
-        create_user = #{createUser,jdbcType=VARCHAR}
+    set `name` = #{name,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

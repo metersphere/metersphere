@@ -11,6 +11,7 @@
       :update-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
       default-label="未规划用例"
       local-suffix="test_case"
+      :hide-node-operator="hideNodeOperator"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -24,30 +25,18 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-        <module-trash-button
-          :condition="condition"
-          :total="total"
-          :exe="enableTrash"/>
         <module-public-button
+          v-if="showPublicBtn"
           :condition="condition"
           :public-total="publicTotal"
           :exe="enablePublic"/>
       </template>
     </ms-node-tree>
-    <test-case-import
-      @refreshAll="importRefresh"
-      ref="testCaseImport"/>
-    <test-case-export
-      @refreshAll="refreshAll"
-      @exportTestCase="exportTestCase"
-      ref="testCaseExport"/>
-    <test-case-create
-      :tree-nodes="treeNodes"
-      @saveAsEdit="saveAsEdit"
-      @createCase="createCase"
-      @refresh="refresh"
-      ref="testCaseCreate"/>
-
+    <module-trash-button
+      v-if="showTrashBtn"
+      :condition="condition"
+      :total="total"
+      :exe="enableTrash"/>
     <is-change-confirm
       :tip="$t('test_track.case.minder_import_save_confirm_tip')"
       @confirm="changeConfirm"
@@ -58,11 +47,11 @@
 </template>
 
 <script>
-import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
+import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import TestCaseCreate from "@/business/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/case/components/import/TestCaseImport";
 import TestCaseExport from "@/business/case/components/export/TestCaseExport";
-import MsSearchBar from "metersphere-frontend/src/components/search/MsSearchBar";
+import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar";
 import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import ModuleTrashButton from "metersphere-frontend/src/components/ModuleTrashButton";
@@ -131,7 +120,19 @@ export default {
     showOperator: Boolean,
     total: Number,
     publicTotal: Number,
-    caseCondition: Object
+    caseCondition: Object,
+    showTrashBtn: {
+      type: Boolean,
+      default: true
+    },
+    showPublicBtn: {
+      type: Boolean,
+      default: true
+    },
+    hideNodeOperator: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     treeNodes() {
@@ -211,6 +212,26 @@ export default {
           });
       }
     },
+    async waitList() {
+      if (this.projectId) {
+        this.caseCondition.casePublic = false;
+        this.loading = true;
+        await getTestCaseNodesByCaseFilter(this.projectId, this.caseCondition)
+          .then(r => {
+            this.loading = false;
+            this.treeNodes = r.data;
+            this.treeNodes.forEach(node => {
+              node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+              buildTree(node, {path: ''});
+            });
+            this.setModuleOptions();
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+            }
+            this.setCurrentKey();
+          });
+      }
+    },
     setCurrentKey() {
       if (this.$refs.nodeTree) {
         this.$refs.nodeTree.setCurrentKey(this.currentNode);
@@ -226,7 +247,6 @@ export default {
       param.projectId = this.projectId;
       testCaseNodeEdit(param)
         .then(() => {
-          this.$success(this.$t('commons.save_success'));
           this.list();
           this.$emit("refreshTable");
         });
@@ -235,7 +255,7 @@ export default {
       param.projectId = this.projectId;
       testCaseNodeAdd(param)
         .then(() => {
-          this.$success(this.$t('commons.save_success'));
+          this.$success(this.$t("test_track.module.success_create"), false);
           this.list();
         });
     },
@@ -266,6 +286,7 @@ export default {
         .then(() => {
           this.list();
           this.$emit("refreshTable")
+          this.$success(this.$t('commons.delete_success'), false);
         });
     },
     drag(param, list) {

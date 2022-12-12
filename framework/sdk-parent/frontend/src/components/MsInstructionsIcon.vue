@@ -2,7 +2,7 @@
   <el-tooltip class="instructions-icon" :effect="effect" :placement="placement">
     <template v-slot:content>
       <slot>
-        {{ content }}
+        <span v-html="content"/>
       </slot>
     </template>
     <i :style="{'font-size': size + 'px'}" class="el-icon-info"></i>

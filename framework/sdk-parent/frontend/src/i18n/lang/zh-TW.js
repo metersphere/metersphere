@@ -4,6 +4,12 @@ import test_track from "./track/zh-TW";
 
 const message = {
   commons: {
+    pre_page: '上一頁',
+    next_page: '下一頁',
+    table_select_row_count: '已選擇 {0} 條',
+    header_custom_select_tips: '請選擇列表中要展示的信息',
+    advance_search_total_suffix: '個結果',
+    advance_search_clear: '清空條件',
     project_permission: '請先添加該項目權限',
     no_permission: '暫無權限',
     failure_continues: "失敗繼續",
@@ -141,6 +147,7 @@ const message = {
     my_workstation: '工作臺',
     ui_test: 'UI測試',
     input_content: '請輸入內容',
+    input_un_pass_reason: '請輸入不通過原因',
     create: '新建',
     edit: '編輯',
     copy: '復製',
@@ -152,7 +159,7 @@ const message = {
     not_filled: '未填寫',
     please_select: '請選擇',
     search_by_name: '根據名稱搜索',
-    search_by_name_or_id: '根據 ID/名稱 搜索',
+    search_by_name_or_id: '通過ID或名稱搜索',
     search_by_id_name_tag_path: '根據 ID/名稱/標簽/路徑 搜索',
     search_by_id_name_tag: '根據 ID/名稱/標簽 搜索',
     personal_information: '個人信息',
@@ -331,6 +338,7 @@ const message = {
     },
     adv_search: {
       title: '高級搜索',
+      new_title: '篩選',
       combine: '組合查詢',
       test: "所屬測試",
       project: "所屬項目",
@@ -370,6 +378,8 @@ const message = {
       select_module: "選擇模塊",
       default_module: "默認模塊",
     },
+    reviewer: '評審人',
+    append_reviewer: '追加評審人',
     report_statistics: {
       reserved: "預留模塊敬請期待",
       menu: {
@@ -597,7 +607,7 @@ const message = {
     system_field: '系統字段',
     scene: '使用場景',
     attribute_type: '屬性類型',
-    field_name: '字段名',
+    field_name: '字段名稱',
     field: '字段',
     field_remark: '字段備註',
     field_type: '字段類型',
@@ -883,6 +893,8 @@ const message = {
     test_case_custom_id_info: '用例ID默認為系統自增ID',
     scenario_custom_id: '場景自定義ID',
     scenario_custom_id_info: '場景用例ID默認為系統自增ID',
+    re_review: '重新提審',
+    re_review_info: '評審中的用例發生變更，用例狀態自動切換為重新提審',
     version: {
       name: '版本',
       read: '查看',
@@ -1291,6 +1303,8 @@ const message = {
     batch_menus: {
       select_all_data: "選擇所有數據(共{0}條)",
       select_show_data: "選擇可見數據(共{0}條)",
+      select_current_page: "全選當頁",
+      select_all_page: "全選所有頁"
     },
     mock: {
       create_error: "接口信息未保存",
@@ -1931,7 +1945,7 @@ const message = {
       import_version: '導入版本',
       data_update_version: '同一API更新到',
       data_new_version: '新增API創建到',
-      latest_version: '最新版本',
+      latest_version: '默認最新版本',
     },
     scenario_import: {
       data_update_version: '同一場景更新到',
@@ -2399,7 +2413,7 @@ const message = {
   table: {
     header_display_field: '表頭顯示字段',
     fields_to_be_selected: '待選字段',
-    selected_fields: '已選字段'
+    selected_fields: '已選字段',
   },
   run_mode: {
     title: "模式",

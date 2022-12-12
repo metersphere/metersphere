@@ -47,3 +47,19 @@ export function initTestCaseConditionComponents(condition, customFields, trashEn
   conditionComponents.push(...comp);
   return conditionComponents;
 }
+
+
+export function openCaseEdit(caseId, type, v) {
+  if (!caseId) {
+    return;
+  }
+  let query = {};
+  if (type) {
+    query.type = type;
+  }
+  let TestCaseData = v.$router.resolve({
+    path: "/track/case/edit/" + caseId,
+    query,
+  });
+  window.open(TestCaseData.href, "_blank");
+}

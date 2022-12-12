@@ -21,41 +21,41 @@ export const $confirm = (message, callback, options = {}) => {
   });
 }
 
-export const $success = (message, duration) => {
+export const $success = (message, close, duration) => {
   Message.success({
     message: message,
     type: "success",
-    showClose: true,
+    showClose: close ?? true,
     duration: duration || 1500,
     customClass: "ms-custom-message-class"
   })
 }
 
-export const $info = (message, duration) => {
+export const $info = (message, close, duration) => {
   Message.info({
     message: message,
     type: "info",
-    showClose: true,
+    showClose: close ?? true,
     duration: duration || 3000,
     customClass: "ms-custom-message-class"
   })
 }
 
-export const $warning = (message, duration) => {
+export const $warning = (message, close, duration) => {
   Message.warning({
     message: message,
     type: "warning",
-    showClose: true,
+    showClose: close ?? true,
     duration: duration || 5000,
     customClass: "ms-custom-message-class"
   })
 }
 
-export const $error = (message, duration) => {
+export const $error = (message, close, duration) => {
   Message.error({
     message: message,
     type: "error",
-    showClose: true,
+    showClose: close ?? true,
     duration: duration || 10000,
     customClass: "ms-custom-message-class"
   })

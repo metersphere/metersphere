@@ -16,7 +16,7 @@
       </el-col>
       <el-col v-else>
         <img style="height: 100px;width: 100px;padding-top: 10%;padding-left: 40%;"
-             src="/assets/figma/icon_none.svg"/>
+             src="/assets/module/figma/icon_none.svg"/>
         <p class="right-other-css"  v-permission="['PROJECT_TRACK_ISSUE:READ']">{{ $t('workstation.creation_issue_tip') }}&nbsp;&nbsp;<span style="color: var(--primary_color)" @click="toCreatIssue()">{{$t('permission.project_track_issue.create') }}</span> </p>
       </el-col>
     </el-row>

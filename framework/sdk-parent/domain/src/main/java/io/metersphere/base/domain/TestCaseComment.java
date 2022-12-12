@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class TestCaseComment implements Serializable {
@@ -19,6 +18,8 @@ public class TestCaseComment implements Serializable {
     private String status;
 
     private String type;
+
+    private String belongId;
 
     private String description;
 

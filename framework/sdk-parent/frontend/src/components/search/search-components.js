@@ -563,6 +563,50 @@ export const PRINCIPAL = {
   }
 };
 
+// 评审人
+export const REVIEWER = {
+  key: "reviewer",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.review.reviewer',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: MS_PROJECT_USER_OPTIONS,
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+};
+
+// 责任人
+export const MAINTAINER = {
+  key: "maintainer",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.plan.plan_principal',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: MS_PROJECT_USER_OPTIONS,
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+};
+
 export const API_PRINCIPAL = {};
 Object.assign(API_PRINCIPAL, PRINCIPAL);
 API_PRINCIPAL.key = 'creator';
@@ -651,6 +695,8 @@ export const CASE_REVIEW_STATUS = {
     {label: "test_track.review.prepare", value: "Prepare"},
     {label: "test_track.review.pass", value: "Pass"},
     {label: "test_track.review.un_pass", value: "UnPass"},
+    {label: "test_track.review.again", value: "Again"},
+    {label: 'test_track.review.underway', value: 'Underway'},
   ],
   props: {
     multiple: true
@@ -902,6 +948,7 @@ export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TES
 
 // 测试跟踪 测试评审列表
 export const TEST_REVIEW = [NAME, CREATOR, TAGS, TEST_PLAN_STATUS, FOLLOW_PEOPLE, CREATE_TIME, UPDATE_TIME, END_TIME];
+export const TEST_REVIEW_CASE = [NAME, REVIEWER, MAINTAINER];
 
 export const API_DEFINITION_CONFIGS = [ID, NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE];
 export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE];

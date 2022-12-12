@@ -390,6 +390,49 @@ export function getAllFieldWithCustomFields(key, customFields) {
   return fieldSetting;
 }
 
+/**
+ * 获取所有字段(排序后)
+ * @param key
+ * @param customFields
+ * @returns {*[]}
+ */
+export function getAllDragOrCheckFieldWithCustomFields(fieldKey, fieldDragKey, customFields) {
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[fieldKey]];
+  // 如果没有 license, 排除 xpack
+  if (!hasLicense()) {
+    fieldSetting = fieldSetting.filter(v => !v.xpack);
+  }
+  fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
+  translateLabel(fieldSetting);
+  if (customFields) {
+    customFields.forEach(item => {
+      let field = {
+        id: item.name,
+        key: item.key,
+        label: item.name,
+        isCustom: true
+      }
+      fieldSetting.push(field);
+    });
+  }
+  let fieldStr = localStorage.getItem(fieldDragKey);
+  if (fieldStr !== null && fieldStr !== "") {
+    let fields = [];
+    for (let i = 0; i < fieldStr.length; i++) {
+      let fieldKey = fieldStr[i];
+      for (let j = 0; j < fieldSetting.length; j++) {
+        let item = fieldSetting[j];
+        if (item.key === fieldKey) {
+          fields.push(item);
+          break;
+        }
+      }
+    }
+    return fields;
+  }
+  return fieldSetting;
+}
+
 export function generateTableHeaderKey(keys) {
   let customFieldKeys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   for (let i = 0; i < customFieldKeys.length; i++) {

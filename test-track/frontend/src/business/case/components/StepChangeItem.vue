@@ -1,10 +1,10 @@
 <template>
   <el-form-item :label="form.stepModel === 'STEP' ? $t('test_track.case.step_describe') : $t('test_track.case.text_describe')" :label-width="labelWidth">
-    <el-dropdown placement="bottom-start" @command="handleCommand" v-if="!disable">
+    <el-dropdown placement="bottom-start" @command="handleCommand" v-if="!disable" class="case-desc-dropdown">
                   <span class="el-dropdown-link">
                     {{ $t('test_track.case.change_type') }} <i class="el-icon-arrow-down el-icon--right"/>
                   </span>
-      <el-dropdown-menu>
+      <el-dropdown-menu style="margin: -10px 0">
         <el-dropdown-item :disabled="disable" command="STEP">
           <div>{{ $t('test_track.case.step_describe') }}</div>
 <!--          <div>{{ $t('test_track.case.step_describe_tip') }}</div>-->
@@ -51,4 +51,4 @@ export default {
   color: var(--primary_color);
   background-color: #F5F7FA;
 }
-</style>
+ </style>

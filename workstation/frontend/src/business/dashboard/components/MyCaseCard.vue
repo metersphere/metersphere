@@ -13,7 +13,7 @@
         </el-col>
         <el-col  v-else>
           <img style="height: 100px;width: 100px;padding-top: 10%;padding-left: 40%;"
-               src="/assets/figma/icon_none.svg"/>
+               src="/assets/module/figma/icon_none.svg"/>
           <p class="right-other-css" v-permission="['PROJECT_TRACK_CASE:READ']">{{ $t('workstation.creation_case_tip') }} &nbsp;&nbsp;<span style="color: var(--primary_color)" @click="toCreatCase()">{{$t('permission.project_track_case.create') }}</span></p>
         </el-col>
       </el-row>

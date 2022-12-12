@@ -244,6 +244,7 @@ export default {
     },
     //下拉框select点击[入口]
     selectClick() {
+      this.$emit("selectClick")
       if (this.disabled) {
         return;
       }

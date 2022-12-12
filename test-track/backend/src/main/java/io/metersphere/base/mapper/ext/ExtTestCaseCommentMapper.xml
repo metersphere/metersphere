@@ -9,7 +9,9 @@
         <if test="type != null and type != ''">
             and test_case_comment.type = #{type}
         </if>
-        order by test_case_comment.update_time desc
+        <if test="belongId != null and belongId != ''">
+            and test_case_comment.belong_id = #{belongId}
+        </if>
+        order by test_case_comment.create_time desc
     </select>
-
 </mapper>

@@ -1,4 +1,4 @@
-export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, resizeTextarea,
+export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, sizeToByte, resizeTextarea,
   getTypeByFileName, strMapToObj, getUUID, windowPrint, parseTag} from "metersphere-frontend/src/utils";
 export {parseCustomFilesForList, getCustomFieldFilter, buildBatchParam} from "metersphere-frontend/src/utils/tableUtils";
 export {sortCustomFields, parseCustomField, buildCustomFields} from "metersphere-frontend/src/utils/custom_field";

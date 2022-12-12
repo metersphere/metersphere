@@ -35,4 +35,5 @@ public class ProjectConfig {
     private Boolean openUpdateRule;
     private String resourcePoolId;
     private Boolean poolEnable = false;
+    private Boolean reReview = false;
 }

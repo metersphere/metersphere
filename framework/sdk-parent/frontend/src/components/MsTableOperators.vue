@@ -3,8 +3,10 @@
     <ms-table-operator-button v-for="(btn, index) in buttons" :key="index"
                               v-permission="btn.permissions"
                               :disabled="isDisable(btn)"
-                              :class="btn.class"
-                              :tip="btn.tip" :icon="btn.icon" :type="btn.type" :isDivButton="btn.isDivButton"
+                              :class="btn.class" :row-data="row"
+                              :tip="btn.tip" :icon="btn.icon" :type="btn.type"
+                              :isDivButton="btn.isDivButton" :is-text-button="btn.isTextButton"
+                              :is-more-operate="btn.isMoreOperate" :child-operate="btn.childOperate"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
   </span>
 </template>
