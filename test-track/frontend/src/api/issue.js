@@ -212,6 +212,10 @@ export function getPlatformStatus(param) {
   return post('/issues/platform/status', param);
 }
 
+export function getPlatformTransitions(param) {
+  return post('/issues/platform/transitions', param);
+}
+
 export function enableThirdPartTemplate(projectId) {
   return get(BASE_URL + 'third/part/template/enable/' + projectId);
 }

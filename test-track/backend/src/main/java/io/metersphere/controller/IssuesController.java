@@ -210,6 +210,11 @@ public class IssuesController {
         return issuesService.getPlatformTransitions(request);
     }
 
+    @PostMapping("/platform/status")
+    public List<PlatformStatusDTO> getPlatformStatus(@RequestBody PlatformIssueTypeRequest request) {
+        return issuesService.getPlatformStatus(request);
+    }
+
     @GetMapping("/platform/option")
     public List<SelectOption> getPlatformOptions() {
         return platformPluginService.getPlatformOptions();

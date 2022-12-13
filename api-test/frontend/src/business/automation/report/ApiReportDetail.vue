@@ -13,6 +13,8 @@
               :debug="debug"
               :report="report"
               :project-env-map="projectEnvMap"
+              :mode="mode"
+              :pool-name="poolName"
               @reportExport="handleExport"
               @reportSave="handleSave" />
 
@@ -99,6 +101,8 @@
       :project-env-map="projectEnvMap"
       :title="report.name"
       :content="content"
+      :mode="mode"
+      :pool-name="poolName"
       :report="report"
       :total-time="totalTime" />
   </div>
@@ -163,6 +167,8 @@ export default {
       tempResult: [],
       projectEnvMap: {},
       showCancel: false,
+      poolName: '',
+      mode: '',
     };
   },
   activated() {
@@ -489,6 +495,10 @@ export default {
               if (report.projectEnvMap) {
                 this.projectEnvMap = report.projectEnvMap;
               }
+              if (report.poolName) {
+                this.poolName = report.poolName;
+              }
+              this.mode = report.mode;
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
