@@ -22,6 +22,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
+import io.metersphere.plan.constant.RunMode;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
 import io.metersphere.plan.request.AddTestPlanRequest;
@@ -64,6 +65,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -149,6 +152,8 @@ public class TestPlanService {
     private KafkaTemplate<String, String> kafkaTemplate;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private SystemParameterService systemParameterService;
     @Resource
@@ -1953,5 +1958,55 @@ public class TestPlanService {
             }
         }
         this.deleteTestPlans(ids);
+    }
+
+    public TestPlanExtReportDTO getExtReport(String planId) throws JsonProcessingException {
+        String reportId = testPlanReportService.getLastReportByPlanId(planId);
+        if(StringUtils.isEmpty(reportId)){
+            return null;
+        }
+        TestPlanExtReportDTO testPlanExtReportDTO = new TestPlanExtReportDTO();
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            List<ApiDefinitionExecResultWithBLOBs> apiDefinitionLists = planTestPlanApiCaseService.selectExtForPlanReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+                ApiDefinitionExecResultWithBLOBs apiDefinition = apiDefinitionLists.get(0);
+                convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
+        }
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+                UiScenarioReportWithBLOBs apiDefinition = apiDefinitionLists.get(0);
+                convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
+        }
+        return null;
+    }
+
+    private void convertEnvConfig(String envConfig, TestPlanExtReportDTO testPlanExtReportDTO) throws JsonProcessingException {
+        if(StringUtils.isEmpty(envConfig)){
+            return;
+        }
+        EnvConfig env = objectMapper.readValue(envConfig, EnvConfig.class);
+        if(StringUtils.isNotEmpty(env.getMode())){
+            if(RunMode.RUN_MODE_SERIAL.getCode().equals(env.getMode())){
+                testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_SERIAL.getDesc());
+            } else if (RunMode.RUN_MODE_PARALLEL.getCode().equals(env.getMode())) {
+                testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_PARALLEL.getDesc());
+            }
+        }
+    }
+
+    private void getResourcePool(String actuator, TestPlanExtReportDTO testPlanExtReportDTO){
+        if(StringUtils.isEmpty(actuator)){
+            return;
+        }
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(actuator);
+        testPlanExtReportDTO.setResourcePool(testResourcePool == null ? null : testResourcePool.getName());
     }
 }

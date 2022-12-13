@@ -1357,4 +1357,15 @@ public class TestPlanReportService {
         extTestPlanReportMapper.updateAllStatus();
         LogUtil.info("处理服务重启导致执行未完成的报告状态完成");
     }
+
+    public String getLastReportByPlanId(String planId) {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.setOrderByClause("create_time desc");
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
+        if(CollectionUtils.isNotEmpty(testPlanReports)){
+            return testPlanReports.get(0).getId();
+        }
+        return null;
+    }
 }

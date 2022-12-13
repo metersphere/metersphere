@@ -764,16 +764,6 @@ public class TestPlanApiCaseService {
         result.setName(reportName);
         result.setProjectId(apiCase.getProjectId());
         result.setTriggerMode(TriggerMode.MANUAL.name());
-        RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
-        jMeterService.verifyPool(result.getProjectId(), runModeConfigDTO);
-        if (StringUtils.isNotEmpty(testPlanApiCase.getEnvironmentId())) {
-            runModeConfigDTO.setEnvMap(new HashMap<>() {{
-                this.put(result.getProjectId(), testPlanApiCase.getEnvironmentId());
-            }});
-            runModeConfigDTO.setResourcePoolId(runModeConfigDTO.getResourcePoolId());
-            result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
-        }
-        result.setActuator(runModeConfigDTO.getResourcePoolId());
         apiDefinitionExecResultMapper.insert(result);
         apiCase.setId(testId);
 
@@ -811,5 +801,12 @@ public class TestPlanApiCaseService {
             request.setScenarioId(request.getId());
         }
         return extTestPlanApiCaseMapper.selectTestPlanByRelevancy(request);
+    }
+
+    public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(String planId) {
+        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+        example.createCriteria().andRelevanceTestPlanReportIdEqualTo(planId);
+        List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+        return results;
     }
 }

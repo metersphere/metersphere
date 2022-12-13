@@ -309,3 +309,9 @@ export function testPlanLoadCaseEditStatus(planId) {
   return post(BASE_URL + `edit/status/${planId}`, new Promise(() => {}));
 }
 
+export function getTestPlanExtReport(planId) {
+  if (planId) {
+    return get('/test/plan/ext/report/' + planId);
+  }
+}
+

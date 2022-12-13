@@ -4,6 +4,21 @@
       <el-form-item :label="$t('test_track.report.testing_time') + ':'">
         {{ showTime }}
       </el-form-item>
+
+      <el-row justify="space-between" class="select-time">
+        <el-col :span="8">
+          <el-form-item :label="$t('report.run_model') + ':'">
+            {{ runMode }}
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item :label="$t('load_test.select_resource_pool') + ':'">
+            {{ resourcePool }}
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+        </el-col>
+      </el-row>
       <el-row class="select-time"
               v-if="report.envGroupName || report.projectEnvMap" style="display:inline-block">
         <div>
@@ -54,12 +69,15 @@ import TestPlanReportContainer from "@/business/plan/view/comonents/report/detai
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import {datetimeFormat} from "fit2cloud-ui/src/filters/time";
+import {getTestPlanExtReport} from "@/api/remote/plan/test-plan"
 
 export default {
   name: "TestPlanOverviewReport",
   components: {MsInstructionsIcon, TestPlanReportContainer, MsFormDivider, MsTag},
   props: {
     report: Object,
+    runMode: String,
+    resourcePool: String
   },
   data() {
     return {
@@ -90,6 +108,6 @@ export default {
 
 .el-form-item:first-child {
   margin-bottom: 0;
-  height: 60px;
+  height: 40px;
 }
 </style>

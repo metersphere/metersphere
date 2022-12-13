@@ -22,7 +22,7 @@ import vueMinderEditor from 'vue-minder-editor-plus'
 import VueClipboard from 'vue-clipboard2'
 import VueFab from 'vue-float-action-button';
 import CKEditor from '@ckeditor/ckeditor5-vue';
-
+Vue.prototype._i18n = i18n;
 Vue.config.productionTip = false
 
 const pinia = createPinia()
