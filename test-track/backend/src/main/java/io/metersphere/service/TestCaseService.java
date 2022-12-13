@@ -463,7 +463,7 @@ public class TestCaseService {
             dealWithOtherInfoOfNewVersion(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
-        checkAndSetLatestVersion(testCase.getRefId());
+        //checkAndSetLatestVersion(testCase.getRefId());
     }
 
     /**
