@@ -7,6 +7,7 @@ import io.metersphere.api.dto.automation.TestPlanDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
+import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -192,5 +193,10 @@ public class TestPlanApiCaseController {
     public Pager<List<TestPlanDTO>> getReference(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryReferenceRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanApiCaseService.getReference(request));
+    }
+
+    @GetMapping("/get/report/ext/{planId}")
+    public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(@PathVariable("planId") String planId) {
+        return testPlanApiCaseService.selectExtForPlanReport(planId);
     }
 }
