@@ -325,7 +325,7 @@ public class PerformanceTestService {
             copyLoadTestFiles(testId, loadTest.getId());
             loadTestMapper.insertSelective(loadTest);
         }
-        checkAndSetLatestVersion(loadTest.getRefId());
+        //checkAndSetLatestVersion(loadTest.getRefId());
         return loadTest;
     }
 
