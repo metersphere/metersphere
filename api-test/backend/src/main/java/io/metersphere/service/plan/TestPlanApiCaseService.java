@@ -812,4 +812,11 @@ public class TestPlanApiCaseService {
         }
         return extTestPlanApiCaseMapper.selectTestPlanByRelevancy(request);
     }
+
+    public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(String planId) {
+        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+        example.createCriteria().andRelevanceTestPlanReportIdEqualTo(planId);
+        List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+        return results;
+    }
 }
