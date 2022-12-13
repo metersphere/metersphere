@@ -1,52 +1,9 @@
 <template>
   <div>
-    <div>
-      <div style="padding-bottom: 10px; float: left">
-        <el-input
-          :placeholder="$t('api_test.search_by_variables')"
-          size="mini"
-          v-model="selectVariable"
-          @change="filter"
-          @keyup.enter="filter"
-        >
-        </el-input>
-      </div>
-      <div style="padding-bottom: 10px; float: right">
-        <ms-table-button
-          v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT']"
-          icon="el-icon-box"
-          :content="$t('commons.import')"
-          @click="importJSON"
-        />
-        <el-popover
-          v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']"
-          placement="bottom"
-          trigger="hover"
-          :content="$t('envrionment.export_variable_tip')"
-          width="300">
-          <ms-table-button
-            style="margin-left: 10px"
-            slot="reference"
-            v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']"
-            icon="el-icon-box"
-            :content="$t('commons.export')"
-            @click="exportJSON"
-          />
-        </el-popover>
-        <el-link
-          style="margin-left: 10px"
-          @click="batchAdd"
-          type="primary"
-          :disabled="isReadOnly"
-        >
-          {{ $t("commons.batch_add") }}
-        </el-link>
-      </div>
-    </div>
     <div
       style="
         border: 1px #dcdfe6 solid;
-        min-height: 300px;
+        min-height: 50px;
         border-radius: 4px;
         width: 99%;
         margin-top: 10px;
@@ -58,155 +15,128 @@
         row-key="id"
         :data="variables"
         :total="items.length"
-        :screen-height="screenHeight"
+        :screen-height="'100px'"
         :batch-operators="batchButtons"
         :remember-order="true"
         :highlightCurrentRow="true"
         @refresh="onChange"
         ref="variableTable"
       >
-        <ms-table-column prop="num" sortable label="ID" min-width="60">
-        </ms-table-column>
-
-        <ms-table-column
-          prop="scope"
-          sortable
-          :label="$t('commons.scope')"
-          :filters="scopeTypeFilters"
-          :filter-method="filterScope"
-          min-width="120">
+        <ms-table-column prop="cookie" label="cookie" min-width="160">
           <template slot-scope="scope">
-            <el-select
-              v-model="scope.row.scope"
-              :placeholder="$t('commons.please_select')"
+            <el-input
+              v-model="scope.row.cookie"
               size="mini"
-              @change="changeType(scope.row)"
-            >
-              <el-option
-                v-for="item in scopeTypeFilters"
-                :key="item.value"
-                :label="item.text"
-                :value="item.value"
-              />
-            </el-select>
+              :placeholder="$t('cookie')"
+              @change="change"
+            />
           </template>
         </ms-table-column>
 
         <ms-table-column
-          prop="name"
-          :label="$t('api_test.variable_name')"
+          prop="userName"
+          :label="$t('api_test.request.sql.username')"
           min-width="200"
-          sortable
         >
           <template slot-scope="scope">
             <el-input
-              v-model="scope.row.name"
+              v-model="scope.row.userName"
               size="mini"
               maxlength="200"
-              :placeholder="$t('api_test.variable_name')"
+              :placeholder="$t('api_test.request.sql.username')"
               show-word-limit
               @change="change"
             />
           </template>
         </ms-table-column>
-        <ms-table-column
-          prop="type"
-          :label="$t('test_track.case.type')"
-          min-width="140"
-          sortable
-        >
-          <template slot-scope="scope">
-            <el-select
-              v-model="scope.row.type"
-              :placeholder="$t('commons.please_select')"
-              size="mini"
-              @change="changeType(scope.row)"
-            >
-              <el-option
-                v-for="item in typeSelectOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </template>
-        </ms-table-column>
 
-        <el-table-column
-          prop="value"
-          :label="$t('api_test.value')"
-          min-width="200px"
-          sortable
-          show-overflow-tooltip
+        <ms-table-column
+          prop="password"
+          :label="$t('api_test.request.tcp.password')"
+          min-width="140"
         >
           <template slot-scope="scope">
             <el-input
-              v-model="scope.row.value"
+              v-model="scope.row.password"
               size="mini"
-              v-if="scope.row.type !== 'CSV'"
-              :placeholder="valueText(scope.row)"
-              :disabled="
-                scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'
-              "
-            />
-            <csv-file-upload
-              :parameter="scope.row"
-              v-if="scope.row.type === 'CSV'"
+              maxlength="200"
+              show-password
+              :placeholder="$t('api_test.request.tcp.password')"
+              @change="change"
             />
           </template>
-        </el-table-column>
+        </ms-table-column>
+
         <ms-table-column
           prop="description"
-          :label="$t('commons.remark')"
-          min-width="160"
-          sortable
+          :label="$t('commons.validity_period')"
+          min-width="200"
+          :editContent="'aaa'"
         >
           <template slot-scope="scope">
-            <el-input v-model="scope.row.description" size="mini"/>
+            <mini-timing-item :expr="scope.row.expireTime"></mini-timing-item>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          prop="updateTime"
+          :label="$t('commons.update_time')"
+          min-width="160"
+        >
+          <template slot-scope="scope">
+            {{
+              scope.row.updateTime | datetimeFormat
+            }}
           </template>
         </ms-table-column>
 
         <ms-table-column :label="$t('commons.operating')" width="150">
           <template v-slot:default="scope">
-            <span>
-              <el-switch v-model="scope.row.enable" size="mini"/>
-              <el-tooltip
-                effect="dark"
-                :content="$t('commons.remove')"
-                placement="top-start"
-              >
+            <el-switch v-model="scope.row.enable" size="mini"></el-switch>
+            <el-tooltip
+              effect="dark"
+              :content="$t('关联登录场景/指令')"
+              placement="top-start"
+            >
+              <el-button
+                icon="el-icon-setting"
+                circle
+                size="mini"
+                @click="openRelevance"
+                v-if="!existCookieConfig"
+                style="margin-left: 10px"
+              />
+
+              <el-dropdown @command="handleCommand" v-if="existCookieConfig">
                 <el-button
-                  icon="el-icon-delete"
-                  type="danger"
+                  icon="el-icon-paperclip"
                   circle
                   size="mini"
                   style="margin-left: 10px"
-                  @click="remove(scope.row)"
-                  v-if="isDisable(scope.row)"
                 />
-              </el-tooltip>
-              <el-tooltip
-                effect="dark"
-                :content="$t('schema.adv_setting')"
-                placement="top-start"
-              >
-                <el-button
-                  icon="el-icon-setting"
-                  circle
-                  size="mini"
-                  style="margin-left: 10px"
-                  @click="openSetting(scope.row)"
-                  v-if="scope.row.type !== 'LIST'"
-                  @change="change"
-                />
-              </el-tooltip>
-            </span>
+
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="view">查看关联</el-dropdown-item>
+                  <el-dropdown-item command="cancelRelevance">取消关联</el-dropdown-item>
+                  <el-dropdown-item command="relevance">重新关联</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
+            </el-tooltip>
           </template>
         </ms-table-column>
       </ms-table>
     </div>
     <batch-add-parameter @batchSave="batchSave" ref="batchAdd"/>
     <api-variable-setting ref="apiVariableSetting"></api-variable-setting>
+
+    <!-- 关联登录获取cookie的场景 -->
+    <ui-scenario-edit-relevance
+      ref="relevanceUiDialog"
+      @reference="reference"
+      :scenarioType="currentRelevanceType"
+    />
+
     <variable-import
       ref="variableImport"
       @mergeData="mergeData"
@@ -215,20 +145,22 @@
 </template>
 
 <script>
-import {KeyValue} from "../../../model/EnvTestModel";
-import MsApiVariableInput from "./ApiVariableInput";
-import BatchAddParameter from "./BatchAddParameter";
-import MsTableButton from "../../MsTableButton";
-import MsTable from "../../table/MsTable";
-import MsTableColumn from "../../table/MsTableColumn";
-import ApiVariableSetting from "./ApiVariableSetting";
-import CsvFileUpload from "./variable/CsvFileUpload";
-import {downloadFile, getUUID, operationConfirm} from "../../../utils";
-import VariableImport from "./variable/VariableImport";
+import {KeyValue} from "metersphere-frontend/src/model/EnvTestModel";
+import MsApiVariableInput from "metersphere-frontend/src/components/environment/commons/ApiVariableInput";
+import BatchAddParameter from "metersphere-frontend/src/components/environment/commons/BatchAddParameter";
+import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
+import MsTable from "metersphere-frontend/src/components/table/MsTable";
+import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
+import ApiVariableSetting from "metersphere-frontend/src/components/environment/commons/ApiVariableSetting";
+import CsvFileUpload from "metersphere-frontend/src/components/environment/commons/variable/CsvFileUpload";
+import {downloadFile, getUUID, operationConfirm} from "metersphere-frontend/src/utils";
+import VariableImport from "metersphere-frontend/src/components/environment/VariableImport";
 import _ from "lodash";
+import MiniTimingItem from "metersphere-frontend/src/components/environment/commons/MiniTimingItem";
+import UiScenarioEditRelevance from "@/business/menu/environment/components/ui-related/UiScenarioEditRelevance";
 
 export default {
-  name: "MsApiScenarioVariables",
+  name: "MsUiScenarioCookieTable",
   components: {
     BatchAddParameter,
     MsApiVariableInput,
@@ -238,6 +170,8 @@ export default {
     ApiVariableSetting,
     CsvFileUpload,
     VariableImport,
+    MiniTimingItem,
+    UiScenarioEditRelevance,
   },
   props: {
     items: Array,
@@ -277,7 +211,9 @@ export default {
       scopeTypeFilters: [
         {text: this.$t("commons.api"), value: "api"},
         {text: this.$t("commons.ui_test"), value: "ui"},
-      ]
+      ],
+      currentRelevanceType: 'scenario',
+      existCookieConfig: false
     };
   },
   watch: {
@@ -289,6 +225,17 @@ export default {
       immediate: true,
       deep: true,
     },
+    variables: {
+      handler(v) {
+        if (this.variables && this.variables.length && this.variables[0].relevanceId) {
+          this.existCookieConfig = true;
+        } else {
+          this.existCookieConfig = false;
+        }
+      },
+      immediate: true,
+      deep: true,
+    }
   },
   methods: {
     remove: function (index) {
@@ -324,13 +271,7 @@ export default {
           this.$t("load_test.param_is_duplicate")
         );
       }
-      if (isNeedCreate) {
-        this.variables.push(
-          new KeyValue({enable: true, id: getUUID(), type: "CONSTANT", scope: "api"})
-        );
-      }
       this.$emit("change", this.variables);
-      // TODO 检查key重复
     },
     changeType(data) {
       data.value = "";
@@ -565,10 +506,32 @@ export default {
         }
       });
     },
+    handleCommand(c) {
+      switch (c) {
+        case "view":
+          break;
+        case "cancelRelevance":
+          this.variables[0].relevanceId = null;
+          break;
+        case "relevance":
+          this.openRelevance();
+          break;
+        default:
+          break;
+      }
+    },
+    openRelevance() {
+      this.$refs.relevanceUiDialog.open();
+    },
+    reference(id) {
+      this.variables[0].relevanceId = id.keys().next().value.id;
+      this.$refs.relevanceUiDialog.close();
+      this.$success(this.$t('commons.save_success'));
+    }
   },
   created() {
     if (this.items.length === 0) {
-      this.items.push(new KeyValue({enable: true, scope: "api"}));
+      this.items.push(new KeyValue({enable: true, expireTime: '1Y'}));
     } else {
       //历史数据默认是 api 应用场景
       _.forEach(this.items, item => {
