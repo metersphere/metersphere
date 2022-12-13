@@ -137,7 +137,7 @@ import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOp
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
 import {Environment, parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
-import EnvironmentEdit from "metersphere-frontend/src/components/environment/EnvironmentEdit";
+import EnvironmentEdit from "./components/EnvironmentEdit";
 import MsAsideItem from "metersphere-frontend/src/components/MsAsideItem";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitch";

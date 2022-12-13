@@ -1589,6 +1589,7 @@ const message = {
       environment_group_id: "環境組ID",
       select_environment: "請選擇環境",
       select_variable: "請選擇变量",
+      select_api_variable: "請選擇接口測試变量",
       please_save_test: "請先保存測試",
       common_config: "通用配置",
       http_config: "HTTP配置",
