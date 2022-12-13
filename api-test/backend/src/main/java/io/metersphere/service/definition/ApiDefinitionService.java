@@ -783,7 +783,7 @@ public class ApiDefinitionService {
             apiTestCaseService.updateByApiDefinitionId(ids, test, request.getTriggerUpdate());
         }
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
-        checkAndSetLatestVersion(result.getRefId());
+        //checkAndSetLatestVersion(result.getRefId());
 
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.API.name());

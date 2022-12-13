@@ -529,31 +529,42 @@ public class ApiDefinitionImportUtilService {
                 if (i == v.size()) {
                     //如果系统内的所有版本都不是当前选择的数据更新版本，需要与lasted = 1 比较请求参数，参数一致，仅变更接口模块为当前导入接口的模块，不一致，新增并变更接口模块为当前导入接口的模块
                     if (latestApi != null) {
-                        Boolean hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
+                        Boolean hasChange;
+                        if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                            hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
+                        } else {
+                            hasChange = true;
+                        }
                         if (!hasChange) {
-                            for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
-                                definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
-                                definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
-                                definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-                                updateApiList.add(definitionWithBLOBs);
+                            if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                                for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
+                                    definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
+                                    definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
+                                    definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+                                    updateApiList.add(definitionWithBLOBs);
+                                }
                             }
                             apiDefinitionWithBLOBs.setVersionId("trash");
                         } else {
                             addNewVersionApi(apiDefinitionWithBLOBs, latestApi, "update");
-                            for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
-                                definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
-                                definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
-                                definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-                                updateApiList.add(definitionWithBLOBs);
+                            if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                                for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
+                                    definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
+                                    definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
+                                    definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+                                    updateApiList.add(definitionWithBLOBs);
+                                }
                             }
                         }
                     }
                 } else {
-                    for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
-                        definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
-                        definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
-                        definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-                        updateApiList.add(definitionWithBLOBs);
+                    if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                        for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
+                            definitionWithBLOBs.setModuleId(apiDefinitionWithBLOBs.getModuleId());
+                            definitionWithBLOBs.setModulePath(apiDefinitionWithBLOBs.getModulePath());
+                            definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+                            updateApiList.add(definitionWithBLOBs);
+                        }
                     }
                     optionData.remove(apiDefinitionWithBLOBs);
                 }
@@ -862,7 +873,6 @@ public class ApiDefinitionImportUtilService {
                     if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs, optionDataCases);
                     }
-
                     ApiDefinitionWithBLOBs api = new ApiDefinitionWithBLOBs();
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
                     api.setId(definitionWithBLOBs.getId());
@@ -874,7 +884,12 @@ public class ApiDefinitionImportUtilService {
                 }
                 if (i == v.size()) {
                     if (latestApi!=null) {
-                        Boolean hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
+                        boolean hasChange;
+                        if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                            hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
+                        } else {
+                            hasChange = true;
+                        }
                         if (!hasChange) {
                             optionData.remove(apiDefinitionWithBLOBs);
                         } else {
