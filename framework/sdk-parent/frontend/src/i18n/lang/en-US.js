@@ -893,7 +893,7 @@ const message = {
       delete_tip: 'This version has associated system resources, this operation will delete the associated resources',
       checkout: 'Checkout',
       compare: 'Compare',
-      set_new: 'SetNew',
+      set_new: 'Make latest version',
       change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
     },
     project_file: {
