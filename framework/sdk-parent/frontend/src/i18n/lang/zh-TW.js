@@ -893,7 +893,7 @@ const message = {
       delete_tip: '此版本已經關聯繫統資源，此操作會將所關聯的資源一併刪除',
       checkout: '切換',
       compare: '對比',
-      set_new: '置新',
+      set_new: '設為最新版本',
       change_latest_tip: '此操作會修改接口，場景，測試用例等列表頁面的默認展示，可能會消耗一些時間。請耐心等待！ '
     },
     project_file: {

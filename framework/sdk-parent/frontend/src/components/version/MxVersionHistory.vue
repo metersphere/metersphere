@@ -48,14 +48,26 @@
             {{ $t('commons.create') }}&nbsp;
           </el-link>
 
-          <el-link @click="del(scope.row)" v-if="scope.row.isCheckout" :disabled="scope.row.isCurrent || isRead">
-            {{ $t('commons.delete') }}&nbsp;
-          </el-link>
+          <el-popover
+            placement="bottom"
+            width="100"
+            trigger="hover"
+            v-if="!scope.row.latest"
+          >
+            <div style="text-align: left;">
+              <el-link @click="setLatest(scope.row)" v-if="hasLatest && !scope.row.isCurrent && scope.row.isCheckout"
+                       :disabled="scope.row.isCurrent || isRead">
+                {{ $t('project.version.set_new') }}&nbsp;
+              </el-link>
+              <br/>
+              <el-link @click="del(scope.row)" v-if="scope.row.isCheckout" :disabled="scope.row.isCurrent || isRead">
+                {{ $t('commons.delete') }}&nbsp;
+              </el-link>
+            </div>
+            <span slot="reference">...</span>
+          </el-popover>
 
-          <el-link @click="setLatest(scope.row)" v-if="hasLatest && !scope.row.isCurrent && scope.row.isCheckout"
-                   :disabled="scope.row.isCurrent || isRead">
-            {{ $t('project.version.set_new') }}&nbsp;
-          </el-link>
+
         </template>
       </el-table-column>
     </el-table>
