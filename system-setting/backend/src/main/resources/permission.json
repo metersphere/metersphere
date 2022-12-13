@@ -108,12 +108,14 @@
     {
       "id": "SYSTEM_QUOTA:READ",
       "name": "permission.system_quota.read",
-      "resourceId": "SYSTEM_QUOTA"
+      "resourceId": "SYSTEM_QUOTA",
+      "license": true
     },
     {
       "id": "SYSTEM_QUOTA:READ+EDIT",
       "name": "permission.system_quota.edit",
-      "resourceId": "SYSTEM_QUOTA"
+      "resourceId": "SYSTEM_QUOTA",
+      "license": true
     },
     {
       "id": "SYSTEM_AUTH:READ",
@@ -337,7 +339,8 @@
     },
     {
       "id": "SYSTEM_QUOTA",
-      "name": "permission.system_quota.name"
+      "name": "permission.system_quota.name",
+      "license": true
     },
     {
       "id": "SYSTEM_AUTH",
