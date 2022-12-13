@@ -24,6 +24,7 @@ import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.ext.ExtApiScheduleService;
+import io.metersphere.xpack.api.service.ApiDefinitionSyncService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,8 +55,6 @@ public class ApiDefinitionImportUtilService {
     private NoticeSendService noticeSendService;
     @Resource
     private BaseProjectApplicationService projectApplicationService;
-    @Resource
-    private ApiModuleService apiModuleService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -172,6 +171,7 @@ public class ApiDefinitionImportUtilService {
         if (filterData.isEmpty()) {
             return new ArrayList<>();
         }
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         //处理模块路径
         UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
         //重新设置模块路径后的数据
@@ -1006,6 +1006,7 @@ public class ApiDefinitionImportUtilService {
         if (StringUtils.isBlank(modulePath)) {
             return;
         }
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         String[] pathTree = apiModuleService.getPathTree(modulePath);
         String lastPath = pathTree[pathTree.length - 1];
         String substring = modulePath.substring(0, modulePath.indexOf("/" + lastPath));
@@ -1240,4 +1241,5 @@ public class ApiDefinitionImportUtilService {
         currentApiCaseOrder.set(order);
         return order;
     }
+
 }
