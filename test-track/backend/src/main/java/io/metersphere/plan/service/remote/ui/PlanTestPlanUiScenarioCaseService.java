@@ -1,6 +1,7 @@
 package io.metersphere.plan.service.remote.ui;
 
 import io.metersphere.base.domain.TestPlanUiScenario;
+import io.metersphere.base.domain.UiScenarioReportWithBLOBs;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -147,5 +148,9 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     public void relevanceByTestIds(List<String> uiScenarioIds, String planId) {
         microService.postForData(serviceName, BASE_URL + "/relevance/" + planId, uiScenarioIds);
+    }
+
+    public List<UiScenarioReportWithBLOBs> selectExtForPlanReport(String planId) {
+        return microService.getForDataArray(serviceName, BASE_URL + "/get/report/ext/" + planId, UiScenarioReportWithBLOBs.class);
     }
 }

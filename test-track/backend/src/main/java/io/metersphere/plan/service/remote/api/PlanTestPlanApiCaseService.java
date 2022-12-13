@@ -1,5 +1,6 @@
 package io.metersphere.plan.service.remote.api;
 
+import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -156,5 +157,9 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
     public Object relevanceList(int pageNum, int pageSize, ApiTestCaseRequest request) {
         request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getPlanId()));
         return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
+    }
+
+    public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(String planId) {
+        return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/ext/" + planId, ApiDefinitionExecResultWithBLOBs.class);
     }
 }
