@@ -239,7 +239,7 @@ export default {
                 this.responseLoading = false;
                 if (response.data) {
                   let data = response.data;
-                  if (data && data.content) {
+                  if (data) {
                     this.showResponse = true;
                     try {
                       this.response = JSON.parse(data.content);
