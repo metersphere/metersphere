@@ -45,7 +45,6 @@ export default {
   persist: true,
   getters: {
     currentUser(store) {
-      // console.log('查询用户信息: ', store.$state);
       return store.$state
     },
   },

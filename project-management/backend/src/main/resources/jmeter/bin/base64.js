@@ -69,7 +69,6 @@
      * polyfill version of `btoa`
      */
     var btoaPolyfill = function (bin) {
-        // console.log('polyfilled');
         var u32, c0, c1, c2, asc = '';
         var pad = bin.length % 3;
         for (var i = 0; i < bin.length;) {
@@ -197,7 +196,6 @@
      * polyfill version of `atob`
      */
     var atobPolyfill = function (asc) {
-        // console.log('polyfilled');
         asc = asc.replace(/\s+/g, '');
         if (!b64re.test(asc))
             throw new TypeError('malformed base64.');
