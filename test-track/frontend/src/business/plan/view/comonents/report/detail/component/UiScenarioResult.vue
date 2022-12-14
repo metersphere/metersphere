@@ -168,7 +168,6 @@ export default {
           if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
             this.showResponse = true;
             this.reportId = row.reportId;
-            console.log(this.isTemplate);
           }
        }
       })

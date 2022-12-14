@@ -86,7 +86,6 @@ export default {
           this.loading = false;
           this.$EventBus.$emit('API_TEST_END', this.reportId);
         } catch (e) {
-          console.log(e); // for debug
           this.websocket.close();
           this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
         }
