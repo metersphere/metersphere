@@ -25,17 +25,17 @@
     <el-row style="margin: 20px">
       <span style="margin-right: 10px"> {{ $t('api_test.request.cert_alias') }}: </span>
       <span style="margin-right: 10px">
-        <el-input size="small" style="width: 350px" v-model="request.alias" />
+        <el-input size="small" style="width: 350px" v-model="request.alias" :disabled="isReadOnly"/>
       </span>
     </el-row>
     <el-row style="margin: 20px">
       <span style="margin-right: 10px">
-        <el-checkbox class="follow-redirects-item" v-model="request.followRedirects" @change="changeFollow">{{
+        <el-checkbox class="follow-redirects-item" v-model="request.followRedirects" @change="changeFollow" :disabled="isReadOnly">{{
           $t('api_test.request.follow_redirects')
         }}</el-checkbox>
       </span>
       <span style="margin-left: 10px; margin-right: 10px">
-        <el-checkbox class="follow-redirects-item" v-model="request.autoRedirects" @change="changeAuto">{{
+        <el-checkbox class="follow-redirects-item" v-model="request.autoRedirects" @change="changeAuto" :disabled="isReadOnly">{{
           $t('api_definition.request.auto_redirects')
         }}</el-checkbox>
       </span>
