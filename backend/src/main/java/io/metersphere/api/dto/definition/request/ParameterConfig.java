@@ -267,7 +267,9 @@ public class ParameterConfig extends MsParameter {
                 }
             }
             // 添加当前没有的值
-            transferVariables.forEach(item -> {
+            List<ScenarioVariable> transferConstants = transferVariables.stream()
+                    .filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
+            transferConstants.forEach(item -> {
                 if (!constantsGroup.containsKey(item.getName())) {
                     variables.add(item);
                 }
