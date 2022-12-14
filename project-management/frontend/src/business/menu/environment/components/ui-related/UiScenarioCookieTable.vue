@@ -16,10 +16,10 @@
         :data="variables"
         :total="items.length"
         :screen-height="'100px'"
-        :batch-operators="batchButtons"
         :remember-order="true"
         :highlightCurrentRow="true"
         @refresh="onChange"
+        :enable-selection="false"
         ref="variableTable"
       >
         <ms-table-column prop="cookie" label="cookie" min-width="160">
@@ -28,44 +28,44 @@
               v-model="scope.row.cookie"
               size="mini"
               :placeholder="$t('cookie')"
-              @change="change"
+              @change="change(scope.row)"
             />
           </template>
         </ms-table-column>
 
-        <ms-table-column
-          prop="userName"
-          :label="$t('api_test.request.sql.username')"
-          min-width="200"
-        >
-          <template slot-scope="scope">
-            <el-input
-              v-model="scope.row.userName"
-              size="mini"
-              maxlength="200"
-              :placeholder="$t('api_test.request.sql.username')"
-              show-word-limit
-              @change="change"
-            />
-          </template>
-        </ms-table-column>
+        <!--        <ms-table-column-->
+        <!--          prop="userName"-->
+        <!--          :label="$t('api_test.request.sql.username')"-->
+        <!--          min-width="200"-->
+        <!--        >-->
+        <!--          <template slot-scope="scope">-->
+        <!--            <el-input-->
+        <!--              v-model="scope.row.userName"-->
+        <!--              size="mini"-->
+        <!--              maxlength="200"-->
+        <!--              :placeholder="$t('api_test.request.sql.username')"-->
+        <!--              show-word-limit-->
+        <!--              @change="change"-->
+        <!--            />-->
+        <!--          </template>-->
+        <!--        </ms-table-column>-->
 
-        <ms-table-column
-          prop="password"
-          :label="$t('api_test.request.tcp.password')"
-          min-width="140"
-        >
-          <template slot-scope="scope">
-            <el-input
-              v-model="scope.row.password"
-              size="mini"
-              maxlength="200"
-              show-password
-              :placeholder="$t('api_test.request.tcp.password')"
-              @change="change"
-            />
-          </template>
-        </ms-table-column>
+        <!--        <ms-table-column-->
+        <!--          prop="password"-->
+        <!--          :label="$t('api_test.request.tcp.password')"-->
+        <!--          min-width="140"-->
+        <!--        >-->
+        <!--          <template slot-scope="scope">-->
+        <!--            <el-input-->
+        <!--              v-model="scope.row.password"-->
+        <!--              size="mini"-->
+        <!--              maxlength="200"-->
+        <!--              show-password-->
+        <!--              :placeholder="$t('api_test.request.tcp.password')"-->
+        <!--              @change="change"-->
+        <!--            />-->
+        <!--          </template>-->
+        <!--        </ms-table-column>-->
 
         <ms-table-column
           prop="description"
@@ -74,7 +74,7 @@
           :editContent="'aaa'"
         >
           <template slot-scope="scope">
-            <mini-timing-item :expr="scope.row.expireTime"></mini-timing-item>
+            <mini-timing-item :expr.sync="scope.row.expireTime" @chooseChange="change(scope.row)"></mini-timing-item>
           </template>
         </ms-table-column>
 
@@ -95,7 +95,8 @@
             <el-switch v-model="scope.row.enable" size="mini"></el-switch>
             <el-tooltip
               effect="dark"
-              :content="$t('关联登录场景/指令')"
+              :content="$t('environment.relevance_ui')"
+              v-if="!existCookieConfig"
               placement="top-start"
             >
               <el-button
@@ -103,26 +104,26 @@
                 circle
                 size="mini"
                 @click="openRelevance"
-                v-if="!existCookieConfig"
+                style="margin-left: 10px"
+              />
+            </el-tooltip>
+
+            <el-dropdown @command="handleCommand" v-if="existCookieConfig">
+              <el-button
+                icon="el-icon-paperclip"
+                circle
+                size="mini"
                 style="margin-left: 10px"
               />
 
-              <el-dropdown @command="handleCommand" v-if="existCookieConfig">
-                <el-button
-                  icon="el-icon-paperclip"
-                  circle
-                  size="mini"
-                  style="margin-left: 10px"
-                />
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="view">{{ $t("environment.view_ui_relevane") }}</el-dropdown-item>
+                <el-dropdown-item command="cancelRelevance">{{ $t("environment.cancel_ui_relevane") }}
+                </el-dropdown-item>
+                <el-dropdown-item command="relevance">{{ $t("environment.re_ui_relevane") }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
 
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="view">查看关联</el-dropdown-item>
-                  <el-dropdown-item command="cancelRelevance">取消关联</el-dropdown-item>
-                  <el-dropdown-item command="relevance">重新关联</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-
-            </el-tooltip>
           </template>
         </ms-table-column>
       </ms-table>
@@ -158,6 +159,7 @@ import VariableImport from "metersphere-frontend/src/components/environment/Vari
 import _ from "lodash";
 import MiniTimingItem from "metersphere-frontend/src/components/environment/commons/MiniTimingItem";
 import UiScenarioEditRelevance from "@/business/menu/environment/components/ui-related/UiScenarioEditRelevance";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 
 export default {
   name: "MsUiScenarioCookieTable",
@@ -218,8 +220,8 @@ export default {
   },
   watch: {
     items: {
-      handler(v) {
-        this.variables = v;
+      handler(val) {
+        this.variables = val;
         this.sortParameters();
       },
       immediate: true,
@@ -235,7 +237,7 @@ export default {
       },
       immediate: true,
       deep: true,
-    }
+    },
   },
   methods: {
     remove: function (index) {
@@ -271,6 +273,7 @@ export default {
           this.$t("load_test.param_is_duplicate")
         );
       }
+      this.variables[0].updateTime = new Date().getTime();
       this.$emit("change", this.variables);
     },
     changeType(data) {
@@ -314,23 +317,22 @@ export default {
     },
     sortParameters() {
       let index = 1;
-      this.variables.forEach((item) => {
-        item.num = index;
-        if (!item.type || item.type === "text") {
-          item.type = "CONSTANT";
-        }
-        if (!item.id) {
-          item.id = getUUID();
-        }
-        if (item.remark) {
-          this.$set(item, "description", item.remark);
-          item.remark = undefined;
-        }
-        if (!item.scope) {
-          this.$set(item, "scope", "api");
-        }
-        index++;
-      });
+      if (this.variables) {
+        this.variables.forEach((item) => {
+          item.num = index;
+          if (!item.type || item.type === "text") {
+            item.type = "CONSTANT";
+          }
+          if (!item.id) {
+            item.id = getUUID();
+          }
+          if (item.remark) {
+            this.$set(item, "description", item.remark);
+            item.remark = undefined;
+          }
+          index++;
+        });
+      }
     },
     handleDeleteBatch() {
       operationConfirm(
@@ -509,16 +511,35 @@ export default {
     handleCommand(c) {
       switch (c) {
         case "view":
+          this.redirectPage(this.variables[0].relevanceId);
           break;
         case "cancelRelevance":
           this.variables[0].relevanceId = null;
+          this.$success(this.$t("organization.integration.successful_operation"));
           break;
         case "relevance":
-          this.openRelevance();
+          this.openRelevance("scenario", "scenario",);
           break;
         default:
           break;
       }
+    },
+    redirectPage(resourceId) {
+      let uuid = getUUID().substring(1, 5);
+      let projectId = getCurrentProjectID();
+      let workspaceId = getCurrentWorkspaceId();
+      let prefix = '/#';
+      if (
+        this.$route &&
+        this.$route.path.startsWith('/#')
+      ) {
+        prefix = '';
+      }
+      let path = `/ui/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${resourceId}`;
+      let data = this.$router.resolve({
+        path: path,
+      });
+      window.open(data.href, '_blank');
     },
     openRelevance() {
       this.$refs.relevanceUiDialog.open();
@@ -527,19 +548,31 @@ export default {
       this.variables[0].relevanceId = id.keys().next().value.id;
       this.$refs.relevanceUiDialog.close();
       this.$success(this.$t('commons.save_success'));
+    },
+    validate() {
+      if (!this.variables[0].enable) {
+        return true;
+      }
+      let cookieConfig = this.variables[0];
+      if (!cookieConfig) {
+        this.$warning(this.$t("配置错误"));
+        return false;
+      }
+      if (!cookieConfig.expireTime || cookieConfig.expireTime === "") {
+        this.$warning(this.$t("environment.need_expire_time"));
+        return false;
+      }
+      if (!cookieConfig.relevanceId) {
+        this.$warning(this.$t("environment.need_relevance_ui_scenario"));
+        return false;
+      }
+      return true;
     }
   },
   created() {
-    if (this.items.length === 0) {
-      this.items.push(new KeyValue({enable: true, expireTime: '1Y'}));
-    } else {
-      //历史数据默认是 api 应用场景
-      _.forEach(this.items, item => {
-        if (!item.scope) {
-          this.$set(item, "scope", "api");
-        }
-      })
-      this.variables = this.items;
+    if (!this.items || this.items.length === 0) {
+      this.items = [];
+      this.items.push(new KeyValue({id: getUUID(), enable: true, expireTime: '1M'}));
     }
   },
 };

@@ -84,6 +84,7 @@ export class HttpConfig extends BaseConfig {
     this.protocol = 'https';
     this.port = undefined;
     this.conditions = [];
+    this.cookie = options.cookie ? options.cookie : [new Cookie()];
     this.isMock = false;
     this.description = "";
     this.set(options);
@@ -93,6 +94,7 @@ export class HttpConfig extends BaseConfig {
 
   initOptions(options = {}) {
     options.headers = options.headers || [new KeyValue()];
+    options.cookie = options.cookie || [new Cookie()];
     return options;
   }
 }
@@ -106,6 +108,20 @@ export class Host extends BaseConfig {
     this.status = undefined;
     this.annotation = undefined;
     this.uuid = undefined;
+
+    this.set(options);
+  }
+}
+
+export class Cookie extends BaseConfig {
+  constructor(options = {}) {
+    super();
+
+    this.cookie = undefined;
+    this.expireTime = "1D";
+    this.updateTime = undefined;
+    this.relevanceId = undefined;
+    this.enable = false;
 
     this.set(options);
   }

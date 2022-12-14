@@ -45,7 +45,7 @@
           </el-input>
         </div>
 
-<!-- 接口测试配置       -->
+        <!-- 接口测试配置       -->
         <form-section :title="$t('commons.api')" :init-active=true>
           <p>{{ $t('api_test.request.headers') }}</p>
           <el-row>
@@ -71,12 +71,12 @@
           </div>
         </form-section>
 
-<!--    UI 配置    -->
-        <form-section :title="$t('commons.ui_test')" :init-active="false">
+        <!--    UI 配置    -->
+        <form-section :title="$t('commons.ui_test')" :init-active=false>
           <el-row :gutter="10" style="padding-top: 10px;">
             <el-col :span="6">
               <!-- 浏览器驱动 -->
-              <span style="margin-right: 10px;">{{$t("ui.browser")}}</span>
+              <span style="margin-right: 10px;">{{ $t("ui.browser") }}</span>
               <el-select
                 size="mini"
                 v-model="httpConfig.browser"
@@ -104,7 +104,7 @@
 
           <el-row :gutter="10">
             <el-col :span="24">
-              <ms-ui-scenario-cookie-table :items="httpConfig.cookie"/>
+              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>
             </el-col>
           </el-row>
         </form-section>
@@ -174,9 +174,10 @@ export default {
   name: "MsEnvironmentHttpConfig",
   components: {
     MsUiScenarioCookieTable,
-    FormSection, MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter, MsInstructionsIcon},
+    FormSection, MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter, MsInstructionsIcon
+  },
   props: {
-    httpConfig: new HttpConfig({cookie: []}),
+    httpConfig: new HttpConfig(),
     projectId: String,
     isReadOnly: {
       type: Boolean,
@@ -185,9 +186,6 @@ export default {
   },
   created() {
     this.list();
-    if (this.httpConfig && !this.httpConfig.cookie) {
-      this.$set(this.httpConfig, "cookie", []);
-    }
   },
   data() {
     let socketValidator = (rule, value, callback) => {
@@ -220,7 +218,7 @@ export default {
         port: 0,
         headers: [new KeyValue()],
         headlessEnabled: true,
-        browser : 'CHROME'
+        browser: 'CHROME'
       },
       beforeCondition: {},
       browsers: [
@@ -354,7 +352,7 @@ export default {
     list() {
       if (this.projectId) {
         this.result = getApiModuleByProjectIdAndProtocol(this.projectId, "HTTP").then((response) => {
-          if (response.data  && response.data !== null) {
+          if (response.data && response.data !== null) {
             this.moduleOptions = response.data;
           }
         });
@@ -507,6 +505,9 @@ export default {
       this.$refs["httpConfig"].validate((valid) => {
         isValidate = valid;
       });
+      if (this.$refs.cookieTable && !this.$refs.cookieTable.validate()) {
+        return false;
+      }
       return isValidate;
     },
     batchAdd() {

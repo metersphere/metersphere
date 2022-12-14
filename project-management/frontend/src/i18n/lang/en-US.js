@@ -35,6 +35,15 @@ const message = {
   },
   project_version: {
     version_time: 'Version cycle',
+  },
+  environment: {
+    export_variable_tip : "Export interface test variables",
+    need_expire_time : "Please enter an expiration time",
+    need_relevance_ui_scenario : "Please associate the login scenario",
+    view_ui_relevane : "View Relevane",
+    cancel_ui_relevane : "Relevant",
+    re_ui_relevane : "Relevane",
+    relevance_ui : "Relevance login scene/command",
   }
 }
 
