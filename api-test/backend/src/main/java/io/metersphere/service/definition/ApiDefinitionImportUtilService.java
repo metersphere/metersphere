@@ -240,7 +240,7 @@ public class ApiDefinitionImportUtilService {
                     sameRefIds = toUpdates;
                 }
             }
-            if (item.getVersionId().equalsIgnoreCase("trash")) {
+            if (StringUtils.equalsIgnoreCase(item.getVersionId(), "trash")) {
                 if (CollectionUtils.isNotEmpty(sameRefIds)) {
                     for (ApiDefinitionWithBLOBs sameRefId : sameRefIds) {
                         batchMapper.updateByPrimaryKey(sameRefId);
@@ -669,8 +669,11 @@ public class ApiDefinitionImportUtilService {
     }
 
     private static void updateExitData(ApiDefinitionMapper batchMapper, ApiDefinitionImportParamDTO apiDefinitionImportParamDTO, ApiDefinitionWithBLOBs apiDefinition) {
+        List<ApiDefinitionWithBLOBs> repeatList = apiDefinitionImportParamDTO.getRepeatList();
+        if (CollectionUtils.isEmpty(repeatList)) {
+            return;
+        }
         if (apiDefinition.getLatest()) {
-            List<ApiDefinitionWithBLOBs> repeatList = apiDefinitionImportParamDTO.getRepeatList();
             for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
                 if (apiDefinitionWithBLOBs.getLatest()) {
                     apiDefinitionWithBLOBs.setLatest(false);
@@ -678,7 +681,6 @@ public class ApiDefinitionImportUtilService {
                 batchMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
             }
         } else {
-            List<ApiDefinitionWithBLOBs> repeatList = apiDefinitionImportParamDTO.getRepeatList();
             for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
                 batchMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
             }
