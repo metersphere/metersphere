@@ -46,10 +46,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.extractor.BeanShellPostProcessor;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.extractor.XPath2Extractor;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
+import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -110,10 +112,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             for (MsTestElement element : results) {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = buildApiDefinition(element);
                 if (apiDefinitionWithBLOBs != null) {
-                    if (element.getHashTree() != null) {
-                        element.getHashTree().clear();
-                    }
-
                     element.setEnable(true);
                     apiDefinitionWithBLOBs.setRequest(JSON.toJSONString(element));
                     HttpResponse defaultHttpResponse = getDefaultHttpResponse();
@@ -394,6 +392,10 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
                 ((MsJSR223PreProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
                 ((MsJSR223PreProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
+            } else if (key instanceof BeanShellPostProcessor) {
+                elementNode = MsJmeterParser.getMsTestElement((BeanShellPostProcessor) key);
+            } else if (key instanceof BeanShellPreProcessor) {
+                elementNode = MsJmeterParser.getMsTestElement((BeanShellPreProcessor) key);
             }
             // 断言规则
             else if (key instanceof ResponseAssertion || key instanceof JSONPathAssertion || key instanceof XPath2Assertion || key instanceof JSR223Assertion || key instanceof DurationAssertion) {
