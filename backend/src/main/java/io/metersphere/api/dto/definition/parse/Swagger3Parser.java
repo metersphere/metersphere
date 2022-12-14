@@ -346,7 +346,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
             if (jsonSchemaItem==null){
                 jsonSchemaItem = new JsonSchemaItem();
-                if (StringUtils.isNotBlank(schema.getType())) {
+                if (schema != null && StringUtils.isNotBlank(schema.getType())) {
                     jsonSchemaItem.setType(schema.getType());
                 }
             }
@@ -579,7 +579,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private Schema getSchema(Schema schema) {
-        if (StringUtils.isBlank(schema.get$ref()) && StringUtils.equalsIgnoreCase(schema.getType(),"string")) {
+        if (schema != null && StringUtils.isBlank(schema.get$ref()) && StringUtils.equalsIgnoreCase(schema.getType(), "string")) {
             ObjectSchema objectSchema = new ObjectSchema();
             objectSchema.setExample(schema.getExample());
             schema = objectSchema;
@@ -988,7 +988,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         statusCodeInfo.put("description", "");
         // 返回code
         JSONArray statusCode = response.getJSONArray("statusCode");
-        responseBody.put(JSON.toJSONString(statusCode), statusCodeInfo);
+        for (int i = 0; i < statusCode.size(); i++) {
+            JSONObject jsonObject = statusCode.getJSONObject(i);
+            jsonObject.get("name");
+            statusCodeInfo.put("description", jsonObject.get("value"));
+            responseBody.put(jsonObject.get("name").toString(), statusCodeInfo);
+        }
         return responseBody;
     }
 
