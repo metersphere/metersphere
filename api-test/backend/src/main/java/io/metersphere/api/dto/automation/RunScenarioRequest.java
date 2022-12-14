@@ -53,4 +53,6 @@ public class RunScenarioRequest {
     private String serialReportId;
     private Map<String, ApiScenarioReportResult> reportMap;
 
+    private String versionId;
+
 }
