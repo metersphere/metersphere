@@ -199,6 +199,8 @@ export default {
               this.showContinueBtn = true;
             }
           }
+        }).catch(() => {
+          this.loading = false;
         });
     },
     changeVersion(data) {
