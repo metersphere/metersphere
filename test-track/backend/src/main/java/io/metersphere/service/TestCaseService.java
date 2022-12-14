@@ -704,14 +704,8 @@ public class TestCaseService {
     }
 
     public int deleteToGcBatch(TestCaseBatchRequest request) {
-        List<String> ids = new ArrayList<String>();
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            List<TestCaseDTO> testCaseDTOS = listTestCase(request.getCondition());
-            ids = testCaseDTOS.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
-        } else {
-            ids = request.getIds();
-        }
-        return deleteToGcBatch(ids, null);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extTestCaseMapper.selectIds(query));
+        return deleteToGcBatch(request.getIds(), null);
     }
 
     public int deleteToGcBatch(List<String> ids, String projectId) {
@@ -2434,13 +2428,8 @@ public class TestCaseService {
     }
 
     public void reduction(TestCaseBatchRequest request) {
-        List<String> ids = new ArrayList<>();
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            List<TestCaseDTO> allReductionTestCases = listTestCase(request.getCondition());
-            ids = allReductionTestCases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
-        } else {
-            ids = request.getIds();
-        }
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extTestCaseMapper.selectIds(query));
+        List<String> ids = request.getIds();
         if (CollectionUtils.isNotEmpty(ids)) {
             extTestCaseMapper.checkOriginalStatusByIds(ids);
 

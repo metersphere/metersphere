@@ -170,9 +170,9 @@ public class IssuesService {
             issues = platformPluginService.getPlatform(project.getPlatform())
                     .addIssue(platformIssuesUpdateRequest);
 
+            issues.setPlatform(project.getPlatform());
             insertIssues(issues);
             issuesRequest.setId(issues.getId());
-            issues.setPlatform(project.getPlatform());
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
 
