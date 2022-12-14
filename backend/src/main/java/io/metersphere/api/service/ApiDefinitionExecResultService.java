@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
@@ -9,13 +8,15 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.commons.constants.*;
-import io.metersphere.commons.utils.*;
-import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ResponseUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
-import io.metersphere.notice.sender.NoticeModel;
-import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -23,7 +24,6 @@ import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import io.metersphere.utils.LoggerUtil;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,51 +58,35 @@ public class ApiDefinitionExecResultService {
     @Resource
     private TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
     @Resource
-    private NoticeSendService noticeSendService;
-    @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
-    private UserMapper userMapper;
-    @Resource
-    private ProjectMapper projectMapper;
-    @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    public void saveApiResult(ResultDTO dto) {
+    public List<ApiDefinitionExecResult> saveApiResult(ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】条");
-
+        List<ApiDefinitionExecResult> results = new LinkedList<>();
         for (RequestResult item : dto.getRequestResults()) {
             if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
-                if (result != null) {
-                    User user = null;
-                    if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
-                        if (dto.getExtendedParameters().containsKey("userId") && dto.getExtendedParameters().containsKey("userName")) {
-                            user = new User() {{
-                                this.setId(dto.getExtendedParameters().get("userId").toString());
-                                this.setName(dto.getExtendedParameters().get("userName").toString());
-                            }};
-                        } else if (dto.getExtendedParameters().containsKey("userId")) {
-                            result.setUserId(dto.getExtendedParameters().get("userId").toString());
-                        }
-                    }
-                    // 发送通知
+                if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")) {
                     result.setResourceId(dto.getTestId());
                     LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
-                    sendNotice(result, user);
+                    results.add(result);
                 }
             }
         }
+        return results;
     }
 
-    public void batchSaveApiResult(List<ResultDTO> resultDTOS, boolean isSchedule) {
+    public Map<ResultDTO, List<ApiDefinitionExecResult>> batchSaveApiResult(List<ResultDTO> resultDTOS, boolean isSchedule) {
+        Map<ResultDTO, List<ApiDefinitionExecResult>> results = new HashMap<>();
         if (CollectionUtils.isEmpty(resultDTOS)) {
-            return;
+            return results;
         }
         LoggerUtil.info("接收到API/CASE执行结果【 " + resultDTOS.size() + " 】");
 
@@ -111,8 +95,8 @@ public class ApiDefinitionExecResultService {
         TestPlanApiCaseMapper planApiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
         TestCaseReviewApiCaseMapper reviewApiCaseMapper = sqlSession.getMapper(TestCaseReviewApiCaseMapper.class);
         ApiTestCaseMapper batchApiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-
         for (ResultDTO dto : resultDTOS) {
+            List<ApiDefinitionExecResult> resultList = new LinkedList<>();
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                 for (RequestResult item : dto.getRequestResults()) {
                     if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
@@ -123,78 +107,27 @@ public class ApiDefinitionExecResultService {
                                 planApiCaseMapper, reviewApiCaseMapper, batchApiTestCaseMapper
                         );
 
-                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
-                            User user = null;
-                            if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user") && dto.getExtendedParameters().get("user") instanceof User) {
-                                user = (User) dto.getExtendedParameters().get("user");
-                            } else if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")) {
-                                result.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
-                            }
+                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")) {
                             // 发送通知
                             result.setResourceId(dto.getTestId());
-                            sendNotice(result, user);
+                            resultList.add(result);
                         }
                     }
                 }
                 if (isSchedule) {
                     // 这个方法得优化大批量跑有问题
                     updateTestCaseStates(dto.getTestId());
-                    Map<String, String> apiIdResultMap = new HashMap<>();
-                    long errorSize = dto.getRequestResults().stream().filter(requestResult -> requestResult.getError() > 0).count();
-                    String status = errorSize > 0 || dto.getRequestResults().isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
-                    if (StringUtils.isNotEmpty(dto.getReportId())) {
-                        apiIdResultMap.put(dto.getReportId(), status);
-                    }
-                    LoggerUtil.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] API CASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
                 }
+            }
+            if (CollectionUtils.isNotEmpty(resultList)) {
+                results.put(dto, resultList);
             }
         }
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
-    }
-
-    private void sendNotice(ApiDefinitionExecResult result, User user) {
-        try {
-            String resourceId = result.getResourceId();
-            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
-            // 接口定义直接执行不发通知
-            if (apiTestCaseWithBLOBs == null) {
-                return;
-            }
-            BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
-
-            String event;
-            String status;
-            if (StringUtils.equals(result.getStatus(), "success")) {
-                event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
-                status = "成功";
-            } else {
-                event = NoticeConstants.Event.EXECUTE_FAILED;
-                status = "失败";
-            }
-            if (user == null && StringUtils.isNotBlank(result.getUserId())) {
-                user = userMapper.selectByPrimaryKey(result.getUserId());
-            }
-            Map paramMap = new HashMap<>(beanMap);
-            paramMap.put("operator", user != null ? user.getName() : result.getUserId());
-            paramMap.put("status", result.getStatus());
-            String context = "${operator}执行接口用例" + status + ": ${name}";
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .operator(result.getUserId() != null ? result.getUserId() : SessionUtils.getUserId())
-                    .context(context)
-                    .subject("接口用例通知")
-                    .paramMap(paramMap)
-                    .event(event)
-                    .build();
-
-            String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
-            noticeSendService.send(project, taskType, noticeModel);
-        } catch (Exception e) {
-            LogUtil.error("消息发送失败：" + e.getMessage());
-        }
+        return results;
     }
 
     public void setExecResult(String id, String status, Long time) {
@@ -336,12 +269,6 @@ public class ApiDefinitionExecResultService {
             }
         }
         updateTestCaseStates(dto.getTestId());
-        Map<String, String> apiIdResultMap = new HashMap<>();
-        long errorSize = dto.getRequestResults().stream().filter(requestResult -> requestResult.getError() > 0).count();
-        String status = errorSize > 0 || dto.getRequestResults().isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
-        if (StringUtils.isNotEmpty(dto.getReportId())) {
-            apiIdResultMap.put(dto.getReportId(), status);
-        }
     }
 
 
@@ -507,30 +434,12 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    public ApiDefinitionExecResult getInfo(String id) {
-        return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
-    }
-
     public List<PlanReportCaseDTO> selectForPlanReport(List<String> apiReportIds) {
         if (CollectionUtils.isEmpty(apiReportIds))
             return new ArrayList<>();
         return extApiDefinitionExecResultMapper.selectForPlanReport(apiReportIds);
     }
 
-    private static List<OrderRequest> getDefaultOrderByField(String prefix, List<OrderRequest> orders, String field) {
-        if (orders == null || orders.size() < 1) {
-            OrderRequest orderRequest = new OrderRequest();
-            orderRequest.setName(field);
-            orderRequest.setType("desc");
-            if (StringUtils.isNotBlank(prefix)) {
-                orderRequest.setPrefix(prefix);
-            }
-            orders = new ArrayList<>();
-            orders.add(orderRequest);
-            return orders;
-        }
-        return orders;
-    }
 
     public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "end_time"));

@@ -2,9 +2,7 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.UiScenarioMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -12,11 +10,11 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
@@ -26,16 +24,14 @@ import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class TestResultService {
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
@@ -59,6 +55,14 @@ public class TestResultService {
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
     @Resource
     private RedisTemplateService redisTemplateService;
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -93,6 +97,48 @@ public class TestResultService {
 
     }};
 
+    private void sendNotice(ApiDefinitionExecResult result, User user) {
+        try {
+            String resourceId = result.getResourceId();
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
+            // 接口定义直接执行不发通知
+            if (apiTestCaseWithBLOBs == null) {
+                return;
+            }
+            BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
+
+            String event;
+            String status;
+            if (StringUtils.equals(result.getStatus(), "success")) {
+                event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+                status = "成功";
+            } else {
+                event = NoticeConstants.Event.EXECUTE_FAILED;
+                status = "失败";
+            }
+            if (user == null && StringUtils.isNotBlank(result.getUserId())) {
+                user = userMapper.selectByPrimaryKey(result.getUserId());
+            }
+            Map paramMap = new HashMap<>(beanMap);
+            paramMap.put("operator", user != null ? user.getName() : result.getUserId());
+            paramMap.put("status", result.getStatus());
+            String context = "${operator}执行接口用例" + status + ": ${name}";
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(result.getUserId() != null ? result.getUserId() : SessionUtils.getUserId())
+                    .context(context)
+                    .subject("接口用例通知")
+                    .paramMap(paramMap)
+                    .event(event)
+                    .build();
+
+            String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
+            Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
+            noticeSendService.send(project, taskType, noticeModel);
+        } catch (Exception e) {
+            LogUtil.error("消息发送失败：" + e.getMessage());
+        }
+    }
+
     /**
      * 执行结果存储
      *
@@ -114,7 +160,8 @@ public class TestResultService {
             apiDefinitionExecResultService.saveApiResultByScheduleTask(dto);
         } else if (caseRunModes.contains(dto.getRunMode())) {
             // 手动触发/批量触发 用例结果处理
-            apiDefinitionExecResultService.saveApiResult(dto);
+            List<ApiDefinitionExecResult> results = apiDefinitionExecResultService.saveApiResult(dto);
+            sendMessage(results, dto);
         } else if (scenarioRunModes.contains(dto.getRunMode())) {
             // 场景报告结果处理
             apiScenarioReportService.saveResult(dto);
@@ -123,6 +170,23 @@ public class TestResultService {
             apiScenarioReportService.saveUiResult(dto.getRequestResults(), dto);
         }
         updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
+    }
+
+    private void sendMessage(List<ApiDefinitionExecResult> results, ResultDTO dto) {
+        results.forEach(result -> {
+            User user = null;
+            if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
+                if (dto.getExtendedParameters().containsKey("userId") && dto.getExtendedParameters().containsKey("userName")) {
+                    user = new User() {{
+                        this.setId(dto.getExtendedParameters().get("userId").toString());
+                        this.setName(dto.getExtendedParameters().get("userName").toString());
+                    }};
+                } else if (dto.getExtendedParameters().containsKey("userId")) {
+                    result.setUserId(dto.getExtendedParameters().get("userId").toString());
+                }
+            }
+            sendNotice(result, user);
+        });
     }
 
     /**
@@ -134,8 +198,7 @@ public class TestResultService {
         // 处理环境
         List<String> environmentList = new LinkedList<>();
         for (String key : resultDtoMap.keySet()) {
-            List<ResultDTO> dtos = resultDtoMap.get(key);
-            for (ResultDTO dto : dtos) {
+            for (ResultDTO dto : resultDtoMap.get(key)) {
                 if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
                     environmentList = (List<String>) dto.getArbitraryData().get("ENV");
                 }
@@ -148,11 +211,17 @@ public class TestResultService {
             }
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
             if (StringUtils.equals(key, "schedule-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(dtos, true);
+                Map<ResultDTO, List<ApiDefinitionExecResult>> results = apiDefinitionExecResultService.batchSaveApiResult(resultDtoMap.get(key), true);
+                for (ResultDTO dto : results.keySet()) {
+                    sendMessage(results.get(dto), dto);
+                }
             } else if (StringUtils.equals(key, "api-test-case-task")) {
-                apiDefinitionExecResultService.batchSaveApiResult(dtos, false);
+                Map<ResultDTO, List<ApiDefinitionExecResult>> results = apiDefinitionExecResultService.batchSaveApiResult(resultDtoMap.get(key), false);
+                for (ResultDTO dto : results.keySet()) {
+                    sendMessage(results.get(dto), dto);
+                }
             } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
-                apiScenarioReportService.batchSaveResult(dtos);
+                apiScenarioReportService.batchSaveResult(resultDtoMap.get(key));
             }
 
         }
