@@ -290,6 +290,7 @@
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time,
         api_definition.delete_user_id, api_definition.create_user,api_definition.delete_time, api_definition.remark,
         api_definition.version_id,
+        api_definition.latest,
         project_version.name as version_name, api_definition.ref_id, user.name as user_name
         from api_definition
         left join user on api_definition.user_id = user.id

@@ -12,6 +12,9 @@
           <font-awesome-icon v-if="scope.row.isCurrent"
                              class="icon global focusing" :icon="['fas', 'tag']"/>
           {{ scope.row.name }}
+          <el-tag v-if="scope.row.id === dataLatestId" size="mini" type="primary">
+            {{ $t('api_test.api_import.latest_version') }}&nbsp;
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="status" column-key="status"
@@ -52,11 +55,11 @@
             placement="bottom"
             width="100"
             trigger="hover"
-            v-if="!scope.row.latest"
+            v-if="scope.row.isCheckout || scope.row.status !== 'open'"
           >
             <div style="text-align: left;">
-              <el-link @click="setLatest(scope.row)" v-if="hasLatest && !scope.row.isCurrent && scope.row.isCheckout"
-                       :disabled="scope.row.isCurrent || isRead">
+              <el-link @click="setLatest(scope.row)" v-if="hasLatest && scope.row.isCheckout"
+                       :disabled="isRead || scope.row.id === dataLatestId">
                 {{ $t('project.version.set_new') }}&nbsp;
               </el-link>
               <br/>
@@ -66,8 +69,6 @@
             </div>
             <span slot="reference">...</span>
           </el-popover>
-
-
         </template>
       </el-table-column>
     </el-table>
@@ -109,7 +110,7 @@ export default {
     hasLatest: {
       type: Boolean,
       default: false
-    },
+    }
   },
   data() {
     return {
@@ -118,6 +119,7 @@ export default {
       versionOptions: [],
       userData: {},
       currentVersion: {},
+      dataLatestId: ''
     };
   },
   methods: {
@@ -176,6 +178,10 @@ export default {
         this.loading = false;
         return;
       }
+      let latestData = versionData.filter((v) => v.latest === true);
+      if (latestData) {
+        this.dataLatestId = latestData[0].versionId;
+      }
       this.versionOptions.forEach(version => {
         let vs = versionData.filter(v => v.versionId === version.id);
         version.isCheckout = vs.length > 0; // 已存在可以切换，不存在则创建
@@ -210,7 +216,7 @@ export default {
     testUsers() {
       this.updateUserDataByExternal();
     }
-  }
+  },
 };
 </script>
 
