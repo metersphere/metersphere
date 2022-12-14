@@ -221,11 +221,12 @@ public class BaseScheduleService {
         });
     }
 
-    public List<Schedule> selectScenarioTaskByProjectId(String projectId) {
-        return baseScheduleMapper.selectScenarioTaskByProjectId(projectId);
+    public List<Schedule> selectScenarioTaskByProjectId(String projectId, String versionId) {
+        return baseScheduleMapper.selectScenarioTaskByProjectId(projectId, versionId);
     }
 
-    public long countTaskByProjectIdInThisWeek(String projectId) {
+
+    public long countTaskByProjectIdInThisWeek(String projectId, String versionId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -234,7 +235,7 @@ public class BaseScheduleService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return baseScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId, firstTime.getTime(), lastTime.getTime());
+            return baseScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId, versionId, firstTime.getTime(), lastTime.getTime());
         }
     }
 

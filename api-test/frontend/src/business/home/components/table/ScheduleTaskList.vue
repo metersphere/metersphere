@@ -142,12 +142,11 @@ export default {
         }
       }
     },
-    search() {
+    search(versionId) {
       let projectId = getCurrentProjectID();
       this.loading = true;
       this.loadError = false;
-      this.condition.filters.task_type = ['SWAGGER_IMPORT', 'API_SCENARIO_TEST'];
-      this.result = getRunningTask(projectId, this.currentPage, this.pageSize, this.condition)
+      this.result = getRunningTask(projectId, versionId, this.currentPage, this.pageSize)
         .then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

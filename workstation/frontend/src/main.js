@@ -62,7 +62,6 @@ if (!window.__POWERED_BY_QIANKUN__) {
  * 通常我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
  */
 export async function bootstrap(props) {
-  // console.log('vue sub app bootstrap ', props);
 }
 
 /**
@@ -71,8 +70,6 @@ export async function bootstrap(props) {
 export async function mount(props) {
   props.onGlobalStateChange((state, prev) => {
     // state: 变更后的状态; prev 变更前的状态
-    // console.log('state: 变更后的状态; prev 变更前的状态')
-    // console.log(state, prev);
   });
   props.setGlobalState({event: 'opendialog'});
   render(props);
@@ -89,5 +86,4 @@ export async function unmount(props) {
  * 可选生命周期钩子，仅使用 loadMicroApp 方式加载微应用时生效
  */
 export async function update(props) {
-  // console.log('update props', props);
 }

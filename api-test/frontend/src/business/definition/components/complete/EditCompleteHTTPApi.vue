@@ -39,10 +39,13 @@
             ref="versionHistory"
             :version-data="versionData"
             :current-id="httpForm.id"
+            :has-latest="hasLatest"
             @compare="compare"
             @checkout="checkout"
             @create="create"
-            @del="del" />
+            @setLatest="setLatest"
+            @del="del"
+          />
           <el-button
             v-if="!isXpack || !apiSyncRuleRelation.showUpdateRule"
             type="primary"
@@ -257,20 +260,22 @@ import MsJsr233Processor from '../../../automation/scenario/component/Jsr233Proc
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import MsChangeHistory from '@/business/history/ApiHistory';
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
-import { getUUID } from 'metersphere-frontend/src/utils';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import {getUUID} from 'metersphere-frontend/src/utils';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 import MsFormDivider from 'metersphere-frontend/src/components/MsFormDivider';
 import ApiOtherInfo from '@/business/definition/components/complete/ApiOtherInfo';
 import HttpApiVersionDiff from './version/HttpApiVersionDiff';
-import { createComponent } from '.././jmeter/components';
-import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import {createComponent} from '.././jmeter/components';
+import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import { getProjectMemberOption } from '@/api/project';
-import { deepClone } from 'metersphere-frontend/src/utils/tableUtils';
-import SyncSetting from '@/business/definition/util/SyncSetting';
-import { useApiStore } from '@/store';
+import {getProjectMemberOption} from '@/api/project';
+import {deepClone} from 'metersphere-frontend/src/utils/tableUtils';
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
-const { Body } = require('@/business/definition/model/ApiTestModel');
+import SyncSetting from '@/business/definition/util/SyncSetting';
+import {useApiStore} from '@/store';
+
+const {Body} = require('@/business/definition/model/ApiTestModel');
 const Sampler = require('@/business/definition/components/jmeter/components/sampler/sampler');
 
 const store = useApiStore();
@@ -384,6 +389,8 @@ export default {
       },
       noShowSyncRuleRelation: false,
       citedScenarioCount: 0,
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   props: {
@@ -761,12 +768,25 @@ export default {
         }
       }
     },
+    getDefaultVersion() {
+      getDefaultVersion(this.projectId)
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
     getVersionHistory() {
       getDefinitionVersions(this.httpForm.id).then((response) => {
         if (this.httpForm.isCopy) {
           this.versionData = response.data.filter((v) => v.versionId === this.httpForm.versionId);
         } else {
           this.versionData = response.data;
+        }
+        let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false
+        } else {
+          this.hasLatest = true;
         }
       });
     },
@@ -954,6 +974,18 @@ export default {
         },
       });
     },
+    setLatest(row) {
+      let param = {
+        projectId: this.projectId,
+        type: 'API',
+        versionId: row.id,
+        resourceId: this.basisData.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
+      });
+    },
     gotoApiMessage() {
       let apiResolve = this.$router.resolve({
         path: '/project/messagesettings',
@@ -1041,7 +1073,7 @@ export default {
     this.initMockEnvironment();
 
     if (hasLicense()) {
-      this.getVersionHistory();
+      this.getDefaultVersion();
       this.getSyncRule();
       this.getCitedScenarioCount();
       this.getCaseCount();

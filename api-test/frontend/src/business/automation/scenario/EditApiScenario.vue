@@ -231,6 +231,8 @@
                 ref="versionHistory"
                 :version-data="versionData"
                 :current-id="currentScenario.id"
+                :has-latest="hasLatest"
+                @setLatest="setLatest"
                 @compare="compare"
                 @checkout="checkout"
                 @create="create"
@@ -574,10 +576,12 @@ import {
   saveScenario,
 } from '@/business/automation/api-automation';
 import MsComponentConfig from './component/ComponentConfig';
-import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
-import { mergeRequestDocumentData } from '@/business/definition/api-definition';
-import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
-import { useApiStore } from '@/store';
+import {ENV_TYPE} from 'metersphere-frontend/src/utils/constants';
+import {mergeRequestDocumentData} from '@/business/definition/api-definition';
+import {getEnvironmentByProjectId} from 'metersphere-frontend/src/api/environment';
+import {useApiStore} from '@/store';
+import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+
 
 const store = useApiStore();
 
@@ -785,6 +789,8 @@ export default {
       oldUserName: '',
       debugReportId: '',
       isPreventReClick: false,
+      latestVersionId: '',
+      hasLatest: false
     };
   },
   created() {
@@ -808,7 +814,7 @@ export default {
       this.initPlugins();
     });
 
-    this.getVersionHistory();
+    this.getDefaultVersion();
   },
   mounted() {
     this.$nextTick(() => {
@@ -1518,7 +1524,7 @@ export default {
           }
           this.resetResourceId(item.hashTree, item.referenced);
           item.enable === undefined ? (item.enable = true) : item.enable;
-          item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
+          item.mixEnable = item.mixEnable === undefined && !item.variableEnable ? true : item.mixEnable;
           if (this.selectedTreeNode) {
             if (this.stepFilter.get('SpecialSteps').indexOf(this.selectedTreeNode.type) !== -1) {
               this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, item);
@@ -2479,6 +2485,16 @@ export default {
       this.currentItem = data;
       this.$refs.scenarioVariableAdvance.open();
     },
+    getDefaultVersion() {
+      if (!hasLicense()) {
+        return;
+      }
+      getDefaultVersion(this.projectId)
+        .then(response => {
+          this.latestVersionId = response.data;
+          this.getVersionHistory();
+        });
+    },
     getVersionHistory() {
       if (!hasLicense()) {
         return;
@@ -2488,6 +2504,12 @@ export default {
           this.versionData = response.data.filter((v) => v.versionId === this.currentScenario.versionId);
         } else {
           this.versionData = response.data;
+        }
+        let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false
+        } else {
+          this.hasLatest = true;
         }
       });
     },
@@ -2538,6 +2560,18 @@ export default {
             });
           }
         },
+      });
+    },
+    setLatest(row) {
+      let param = {
+        projectId: this.projectId,
+        type: 'SCENARIO',
+        versionId: row.id,
+        resourceId: this.currentScenario.id
+      }
+      setLatestVersionById(param).then(() => {
+        this.$success(this.$t('commons.modify_success'));
+        this.checkout(row);
       });
     },
   },

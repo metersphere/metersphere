@@ -600,11 +600,11 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.selectIdsNotExistsInReview(projectId, reviewId);
     }
 
-    public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return extApiTestCaseMapper.countProtocolByProjectID(projectId);
+    public List<ApiDataCountResult> countProtocolByProjectID(String projectId, String versionId) {
+        return extApiTestCaseMapper.countProtocolByProjectID(projectId, versionId);
     }
 
-    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+    public long countByProjectIDAndCreateInThisWeek(String projectId, String versionId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -613,7 +613,7 @@ public class ApiTestCaseService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId, versionId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
@@ -1112,8 +1112,8 @@ public class ApiTestCaseService {
         return null;
     }
 
-    public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId) {
-        return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId);
+    public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId, String versionId) {
+        return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId, versionId);
     }
 
     /**

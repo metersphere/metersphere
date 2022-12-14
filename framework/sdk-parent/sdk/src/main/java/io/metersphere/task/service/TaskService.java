@@ -167,4 +167,8 @@ public class TaskService {
         }
         return false;
     }
+
+    public List<TaskInfoResult> findScenarioAndSwaggerRunningTaskInfoByProjectID(String projectId, String versionId) {
+        return baseScheduleMapper.findScenarioAndSwaggerRunningTaskInfoByProjectID(projectId, versionId);
+    }
 }

@@ -5,6 +5,7 @@ import mf from 'metersphere-frontend/src/i18n/lang/zh-CN';
 const message = {
   api_case: {
     please_add_api_case: '请先添加接口用例',
+    mix_enable: '优先使用当前场景变量，没有则使用原场景变量',
   },
   api_definition: {
     debug_pool_warning: '调用资源池执行失败，请检查资源池是否配置正常',
@@ -36,6 +37,7 @@ const message = {
   home: {
     dashboard: {
       public: {
+        default_version: '默认最新版本',
         no_data: '暂无数据',
         load_error: '加载失败',
         this_week: '本周',

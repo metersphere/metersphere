@@ -4,7 +4,6 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {getCurrentProject} from "@/api/project";
-import {JIRA} from "metersphere-frontend/src/utils/constants";
 
 export function getJiraIssueType(param) {
   return post('/issues/jira/issuetype', param);
@@ -33,24 +32,27 @@ export function getDashboardIssues(page) {
 export function getIssuePartTemplateWithProject(callback) {
   getCurrentProject().then((response) => {
     let currentProject = response.data;
-    if (enableThirdPartTemplate(currentProject)) {
-      getIssueThirdPartTemplate()
-        .then((template) => {
-          if (callback)
-            callback(template, currentProject);
-        });
-    } else {
-      getIssueTemplate()
-        .then((template) => {
-          if (callback)
-            callback(template, currentProject);
-        });
-    }
+    enableThirdPartTemplate(currentProject.id)
+      .then((r) => {
+        if (r.data) {
+          getIssueThirdPartTemplate()
+            .then((template) => {
+              if (callback)
+                callback(template, currentProject);
+            });
+        } else {
+          getIssueTemplate()
+            .then((template) => {
+              if (callback)
+                callback(template, currentProject);
+            });
+        }
+      });
   });
 }
 
-export function enableThirdPartTemplate(currentProject) {
-  return currentProject && currentProject.thirdPartTemplate && currentProject.platform === JIRA;
+export function enableThirdPartTemplate(projectId) {
+  return get('/issues/third/part/template/enable/' + projectId);
 }
 
 export function getIssueThirdPartTemplate() {
@@ -74,5 +76,9 @@ export function getIssuesCount(param) {
 
 export function getIssuesWeekCount(workstationId) {
   return get('/workstation/issue/week/count/'+workstationId);
+}
+
+export function getPlatformOption() {
+  return get( '/issues/platform/option');
 }
 

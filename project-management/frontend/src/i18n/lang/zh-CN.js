@@ -35,6 +35,9 @@ const message = {
   },
   project_version: {
     version_time: '版本周期',
+  },
+  environment: {
+    export_variable_tip : "导出接口测试变量"
   }
 }
 

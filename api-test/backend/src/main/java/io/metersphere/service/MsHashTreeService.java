@@ -62,6 +62,7 @@ public class MsHashTreeService {
     public static final String NUM = "num";
     public static final String ENV_ENABLE = "environmentEnable";
     public static final String VARIABLE_ENABLE = "variableEnable";
+    public static final String MIX_ENABLE = "mixEnable";
     public static final String DISABLED = "disabled";
     public static final String VERSION_NAME = "versionName";
     public static final String VERSION_ENABLE = "versionEnable";
@@ -199,14 +200,17 @@ public class MsHashTreeService {
 
     private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.has(ENABLE) ? element.optBoolean(ENABLE) : true;
-        if (!element.has(VARIABLE_ENABLE)) {
-            element.put(VARIABLE_ENABLE, true);
+        if (!element.has(MIX_ENABLE)) {
+            element.put(MIX_ENABLE, true);
         }
 
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.optString(ID));
         if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             boolean environmentEnable = element.has(ENV_ENABLE) ? element.optBoolean(ENV_ENABLE) : false;
-            boolean variableEnable = element.has(VARIABLE_ENABLE) ? element.optBoolean(VARIABLE_ENABLE) : true;
+            boolean variableEnable = element.has(VARIABLE_ENABLE) ? element.optBoolean(VARIABLE_ENABLE) : false;
+            boolean mixEnable = element.has(MIX_ENABLE)
+                    ? element.getBoolean(MIX_ENABLE) : true;
+
             if (environmentEnable && StringUtils.isNotEmpty(scenarioWithBLOBs.getEnvironmentJson())) {
                 element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
             }
@@ -219,6 +223,9 @@ public class MsHashTreeService {
             element.put(ENV_ENABLE, environmentEnable);
             if (!element.has(VARIABLE_ENABLE)) {
                 element.put(VARIABLE_ENABLE, variableEnable);
+            }
+            if (!element.has(MIX_ENABLE) && !variableEnable) {
+                element.put(MIX_ENABLE, mixEnable);
             }
             //获取场景的当前项目是否开启了自定义id
             ProjectConfig projectApplication = baseProjectApplicationService.getSpecificTypeValue(scenarioWithBLOBs.getProjectId(), "SCENARIO_CUSTOM_NUM");

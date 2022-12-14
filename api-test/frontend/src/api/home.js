@@ -1,20 +1,20 @@
 import { fileUpload } from '@/api/base-network';
 import { get, post } from 'metersphere-frontend/src/plugins/request';
 
-export function apiCountByProjectId(projectId) {
-  return get('/home/api/count/' + projectId);
+export function apiCountByProjectId(projectId, versionId) {
+  return get('/home/api/count/' + projectId + '/' + versionId);
 }
 
-export function scenarioCountByProjectId(projectId) {
-  return get('/home/scenario/count/' + projectId);
+export function scenarioCountByProjectId(projectId, versionId) {
+  return get('/home/scenario/count/' + projectId + '/' + versionId);
 }
 
-export function apiCaseCountByProjectId(projectId) {
-  return get('/home/api/case/count/' + projectId);
+export function apiCaseCountByProjectId(projectId, versionId) {
+  return get('/home/api/case/count/' + projectId + '/' + versionId);
 }
 
-export function scheduleTaskCountByProjectId(projectId) {
-  return get('/home/schedule/task/count/' + projectId);
+export function scheduleTaskCountByProjectId(projectId, versionId) {
+  return get('/home/schedule/task/count/' + projectId + '/' + versionId);
 }
 
 export function dubboProviders(params) {
@@ -30,8 +30,8 @@ export function genPerformanceTestXml(file, files, params) {
   return fileUpload(url, file, files, params);
 }
 
-export function getRunningTask(selectProjectId, currentPage, pageSize, param) {
-  return post('/task/center/runningTask/' + selectProjectId + '/' + currentPage + '/' + pageSize, param);
+export function getRunningTask(selectProjectId, versionId, currentPage, pageSize) {
+  return post('/home/runningTask/' + selectProjectId + '/' + versionId + '/' + currentPage + '/' + pageSize);
 }
 
 export function formatNumber(param) {

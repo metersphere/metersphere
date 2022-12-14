@@ -665,9 +665,14 @@
         SELECT apiDef.protocol AS groupField, COUNT(testCase.id) AS countNumber
         FROM api_test_case testCase
                  INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{0}
+        WHERE testCase.project_id = #{projectId}
           AND (testCase.status IS NULL or testCase.status != "Trash")
-          and latest = 1
+        <if test="versionId != null">
+            AND apiDef.version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND apiDef.latest = 1
+        </if>
         GROUP BY apiDef.protocol
     </select>
     <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
@@ -682,12 +687,17 @@
         SELECT count(testCase.id) AS countNumber
         FROM api_test_case testCase
                  INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{projectId}AND apiDef.status != "Trash"
+        WHERE testCase.project_id = #{projectId} AND apiDef.status != "Trash"
           AND (testCase.create_time BETWEEN #{firstDayTimestamp}
           AND #{lastDayTimestamp})
           AND (testCase.status is null
            or testCase.status != 'Trash')
-          and latest = 1
+        <if test="versionId != null">
+            AND apiDef.version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND apiDef.latest = 1
+        </if>
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
@@ -1017,7 +1027,14 @@
         FROM api_test_case
         WHERE `status` != 'Trash' AND  api_definition_id IN
             (SELECT id FROM api_definition
-            WHERE project_id = #{0} AND latest IS TRUE)
+            WHERE project_id = #{projectId}
+                <if test="versionId != null">
+                    AND version_id = #{versionId}
+                </if>
+                <if test="versionId == null">
+                    AND latest IS TRUE
+                </if>
+            )
         GROUP BY `status`
     </select>
     <select id="caseList" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">

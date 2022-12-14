@@ -22,4 +22,6 @@ public interface ProjectVersionService {
     void changeStatus(String id, String status);
 
     List<ProjectVersion> getProjectVersionByIds(List<String> versionIds);
+
+    void setLatestVersionById(ProjectVersionRequest request);
 }

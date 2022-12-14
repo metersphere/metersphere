@@ -23,6 +23,7 @@ import io.metersphere.service.MsHashTreeService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jorphan.collections.HashTree;
@@ -49,6 +50,7 @@ public class MsScenario extends MsTestElement {
     private boolean environmentEnable;
     private Boolean variableEnable;
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
+    private Boolean mixEnable;
 
     public MsScenario() {
     }
@@ -112,12 +114,20 @@ public class MsScenario extends MsTestElement {
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
+        // 启用当前场景变量优先选择
+        if ((mixEnable == null || BooleanUtils.isTrue(mixEnable))
+                && (this.variableEnable == null || BooleanUtils.isFalse(this.variableEnable))) {
+            config.margeVariables(this.variables, config.getTransferVariables());
+        }
         // 环境变量
-        Arguments arguments = ElementUtil.getConfigArguments(this.isEnvironmentEnable() ? newConfig : config, this.getName(), this.getProjectId(), this.getVariables());
-        if (arguments != null && (this.variableEnable == null || this.variableEnable)) {
+        Arguments arguments = ElementUtil.getConfigArguments(this.isEnvironmentEnable() ?
+                newConfig : config, this.getName(), this.getProjectId(), this.getVariables());
+        if (arguments != null && ((this.variableEnable == null || this.variableEnable)
+                || (this.mixEnable == null || this.mixEnable))) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
-            if (this.variableEnable != null && this.variableEnable) {
+            if ((this.variableEnable == null || this.variableEnable)
+                    || (this.mixEnable == null || this.mixEnable)) {
                 scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
             } else {
                 scenarioTree.add(valueSupposeMock);

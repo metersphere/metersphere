@@ -24,7 +24,7 @@ public class QueryAPIReportRequest {
     private Map<String, Object> combine;
     private String selectDataType;
     private String selectDataRange;
-
+    private String versionId;
     /**
      * 查询哪种用例的报告 SCENARIO/API
      */

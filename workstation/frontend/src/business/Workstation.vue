@@ -25,9 +25,6 @@ export default {
   activated() {
     this.$refs.table.doLayout()
   },
-  mounted() {
-    console.log('workstation')
-  }
 }
 </script>
 <style scoped>

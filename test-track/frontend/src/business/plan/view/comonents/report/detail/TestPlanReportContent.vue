@@ -4,7 +4,7 @@
       <el-card v-loading="loading">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
-        <test-plan-overview-report v-if="overviewEnable" :report="report"/>
+        <test-plan-overview-report v-if="overviewEnable" :report="report" :run-mode="runMode" :resource-pool="resourcePool"/>
         <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare"
                                   :report="report" :plan-id="planId"/>
         <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
@@ -35,7 +35,8 @@ import {
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
-  getTestPlanReportContent
+  getTestPlanReportContent,
+  getTestPlanExtReport
 } from "@/api/remote/plan/test-plan";
 import TestPlanApiReport from "@/business/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanUiReport from "@/business/plan/view/comonents/report/detail/TestPlanUiReport";
@@ -70,6 +71,8 @@ export default {
     isDb: Boolean,
     shareId: String,
     reportId: String,
+    runMode: String,
+    resourcePool: String,
     needMoveBar: Boolean
   },
   data() {
@@ -180,6 +183,11 @@ export default {
             });
         }
       }
+
+      getTestPlanExtReport(this.planId).then((response) => {
+        this.runMode = response.data.runMode;
+        this.resourcePool = response.data.resourcePool;
+      })
     },
     getDefaultConfig(report) {
       let dbConfig = null;

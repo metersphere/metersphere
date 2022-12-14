@@ -23,7 +23,6 @@ export function getCurrentUser() {
     const store = useUserStore();
     return store.currentUser;
   } catch (e) {
-    console.log(e)
     return {};
   }
 }
