@@ -3489,5 +3489,11 @@ export default {
       edit_job_template: "Edit Job Template",
       edit_job_template_tip: "The Kubernetes Job template is a text in YAML format that defines the running parameters of the Job. You can edit the Job template here.",
     }
+  },
+  task: {
+    api_title: "Api testing tasks",
+    scenario_title: "Scenario testing tasks",
+    ui_title: "UI testing tasks",
+    perf_title: "Perf testing tasks"
   }
 };

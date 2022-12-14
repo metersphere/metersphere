@@ -3496,5 +3496,10 @@ export default {
       edit_job_template: "编辑Job模版",
       edit_job_template_tip: "Kubernetes Job模版是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模版。",
     }
+  },
+  task: {
+    api_title: "接口测试任务",
+    scenario_title: "场景测试任务",
+    perf_title: "性能测试任务"
   }
 };
