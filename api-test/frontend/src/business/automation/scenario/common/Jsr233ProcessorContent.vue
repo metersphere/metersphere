@@ -28,7 +28,8 @@
         <el-checkbox
           v-model="jsr223ProcessorData.jsrEnable"
           style="padding-left: 10px"
-          :disabled="jsr223ProcessorData.scriptLanguage !== 'beanshell'">
+          :disabled="jsr223ProcessorData.scriptLanguage !== 'beanshell'"
+          @change="changeEnable">
           JSR223
         </el-checkbox>
         <script-nav-menu
@@ -219,6 +220,33 @@ export default {
         this.jsr223ProcessorData.jsrEnable = true;
       }
       this.$emit('languageChange');
+    },
+    changeEnable() {
+      if (this.jsr223ProcessorData.jsrEnable) {
+        if (this.jsr223ProcessorData.type === 'JSR223PostProcessor') {
+          this.jsr223ProcessorData.name =
+            this.jsr223ProcessorData.name !== 'BeanShellPostProcessor'
+              ? this.jsr223ProcessorData.name
+              : 'JSR223PostProcessor';
+        } else {
+          this.jsr223ProcessorData.name =
+            this.jsr223ProcessorData.name !== 'BeanShellPreProcessor'
+              ? this.jsr223ProcessorData.name
+              : 'JSR223PreProcessor';
+        }
+      } else {
+        if (this.jsr223ProcessorData.type === 'JSR223PostProcessor') {
+          this.jsr223ProcessorData.name =
+            this.jsr223ProcessorData.name !== 'JSR223PostProcessor'
+              ? this.jsr223ProcessorData.name
+              : 'BeanShellPostProcessor';
+        } else {
+          this.jsr223ProcessorData.name =
+            this.jsr223ProcessorData.name !== 'JSR223PreProcessor'
+              ? this.jsr223ProcessorData.name
+              : 'BeanShellPreProcessor';
+        }
+      }
     },
     addCustomFuncScript(script) {
       this.jsr223ProcessorData.script = this.jsr223ProcessorData.script
