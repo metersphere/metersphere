@@ -32,7 +32,7 @@
       :title="$t('commons.task_center')"
       :size="size.toString()"
       custom-class="ms-drawer-task">
-      <el-card style="float: left;width: 850px" v-if="size > 550 ">
+      <el-card style="float: left;width: 850px" :style="{'width': (size - 600)+'px'}" v-if="size > 600 ">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="executionModule === 'API' && reportType !=='API_INTEGRATED'"/>
@@ -48,7 +48,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.triggerMode" @change="changeInit"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -56,7 +56,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.status')" prop="status">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
+                  <el-select size="mini" style="margin-right: 10px" v-model="condition.executionStatus" @change="init(true)"
                              :disabled="isDebugHistory">
                     <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
@@ -67,7 +67,7 @@
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
                   <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
-                             style="margin-right: 10px" @change="init" :disabled="isDebugHistory">
+                             style="margin-right: 10px" @change="init(true)" :disabled="isDebugHistory">
                     <el-option
                       v-for="item in maintainerOptions"
                       :key="item.id"
@@ -78,7 +78,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
+                <el-button size="mini" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
                   {{ $t('report.stop_btn_all') }}
                 </el-button>
               </el-col>
@@ -87,44 +87,26 @@
         </div>
         <el-divider direction="horizontal" style="width: 100%"/>
 
-        <div class="report-container">
-          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
-            <el-card class="ms-card-task" @click.native="showReport(item)">
-              <span>
-                {{ getModeName(item.executionModule) }} : <el-link type="primary" class="ms-task-name-width"> {{
-                  item.name
-                }} </el-link>
-              </span>
-              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)"
-                         v-if="showStop(item.executionStatus)">
-                {{ $t('report.stop_btn') }}
-              </el-button>
-              <br/>
-              <span>
-                  {{ $t('commons.actuator') }}：{{ item.actuator }} {{ $t('commons.from') }} {{ item.executor }} {{
-                  item.executionTime | timestampFormatDate
-                }} {{ getMode(item.triggerMode) }}
-              </span>
-              <br/>
-              <el-row>
-                <el-col :span="20">
-                  <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
-                </el-col>
-                <el-col :span="4">
-                  <span :class="showClass(item.executionStatus.toLowerCase())">
-                     {{ showStatus(item.executionStatus.toLowerCase()) }}
-                  </span>
-                </el-col>
-              </el-row>
-            </el-card>
-          </div>
-        </div>
-        <div class="report-bottom">
-          <ms-table-pagination v-if="showType !== 'SCENARIO' && showType !== 'CASE'" :change="init"
-                               :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
-                               small/>
-          <span v-else> {{ $t('commons.task_center_remark') }}</span>
-        </div>
+        <el-tabs v-model="activeName" @tab-click="init(true)" v-loading="loading">
+          <el-tab-pane :key="tab.id" :name="tab.id" :label="tab.label" v-for="tab in tabs" :disabled="isDebugHistory">
+            <span slot="label">
+              <el-badge class="ms-badge-item" v-if="showBadge(tab.id) > 0" :value="showBadge(tab.id)">
+                {{ tab.label }}
+              </el-badge>
+              <span style="font-size: 13px" v-else>{{ tab.label }}</span>
+            </span>
+            <task-center-item
+              :task-data="taskData"
+              :is-debug-history="isDebugHistory"
+              :show-type="showType"
+              :total="total"
+              :maintainer-options="maintainerOptions"
+              @packUp="packUp"
+              @nextPage="nextPage"
+              @showReport="showReport"
+            />
+          </el-tab-pane>
+        </el-tabs>
       </el-card>
 
     </el-drawer>
@@ -134,11 +116,13 @@
 <script>
 import MsDrawer from "../common/components/MsDrawer";
 import {getCurrentProjectID, getCurrentUser, hasPermissions} from "@/common/js/utils";
+import TaskCenterItem from "./TaskCenterItem";
 
 export default {
   name: "MsTaskCenter",
   components: {
     MsDrawer,
+    TaskCenterItem,
     MsRequestResultTail: () => import("../../components/api/definition/components/response/RequestResultTail"),
     MsApiReportDetail: () => import("../../components/api/automation/report/ApiReportDetail"),
     PerformanceReportView: () => import("../../components/performance/report/PerformanceReportView"),
@@ -162,7 +146,7 @@ export default {
       currentPage: 1,
       total: 0,
       runMode: [
-        {id: '', label: this.$t('api_test.definition.document.data_set.all')},
+        {id: 'ALL', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
         {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
         {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
@@ -185,11 +169,18 @@ export default {
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
       websocket: Object,
-      size: 550,
+      size: 600,
       reportId: "",
       executionModule: "",
       reportType: "",
-      isDebugHistory: false
+      isDebugHistory: false,
+      runningData: {},
+      activeName: "API",
+      tabs: [
+        {id: 'API', label: this.$t('task.api_title')},
+        {id: 'SCENARIO', label: this.$t('task.scenario_title')},
+        {id: 'PERF', label: this.$t('task.perf_title')}
+      ],
     };
   },
   props: {
@@ -242,7 +233,7 @@ export default {
       return '';
     },
     packUp() {
-      this.size = 550;
+      this.size = 600;
     },
     stop(row) {
       let array = [];
@@ -256,7 +247,7 @@ export default {
       }
       this.$post('/api/automation/stop/batch', array, response => {
         this.$success(this.$t('report.test_stop_success'));
-        this.init();
+        this.init(true);
       });
     },
     getMaintainerOptions() {
@@ -270,7 +261,8 @@ export default {
       if (window.location.protocol === 'https:') {
         protocol = "wss://";
       }
-      const uri = protocol + window.location.host + "/task/center/count/running/" + getCurrentProjectID() + "/" + getCurrentUser().id;
+      this.condition.triggerMode = this.condition.triggerMode || 'ALL';
+      const uri = protocol + window.location.host + "/task/center/count/running/" + this.condition.executor + "/" + this.condition.triggerMode;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
@@ -282,24 +274,40 @@ export default {
     onError(e) {
     },
     onMessage(e) {
-      this.currentPage = 1;
       this.loading = false;
-      let taskTotal = e.data;
-      this.runningTotal = taskTotal;
-      this.initIndex++;
-      if (this.taskVisible && this.initEnd) {
-        setTimeout(() => {
-          this.initEnd = false;
-          this.init();
-        }, 3000);
+      this.runningData = JSON.parse(e.data);
+      if (this.runningData) {
+        this.setActiveName();
       }
+      this.runningTotal = this.runningData.total;
+      this.init(true);
     },
     onClose(e) {
     },
+    changeInit(){
+      if (this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
+      this.getTaskRunning();
+      this.init(true);
+    },
+    setActiveName() {
+      if (this.runningData.apiTotal > 0) {
+        this.activeName = 'API';
+      } else if (this.runningData.scenarioTotal > 0) {
+        this.activeName = 'SCENARIO';
+      } else if (this.runningData.perfTotal > 0) {
+        this.activeName = 'PERF';
+      }
+    },
+    listenScreenChange() {
+      this.size = document.body.clientWidth;
+    },
     showTaskCenter() {
+      this.init(true);
       this.getTaskRunning();
       this.getMaintainerOptions();
-      this.init();
+      window.addEventListener("resize", this.listenScreenChange, false);
       this.taskVisible = true;
     },
     close() {
@@ -311,11 +319,11 @@ export default {
         this.websocket.close();
       }
     },
-    open() {
+    open(activeName) {
+      if (activeName) {
+        this.activeName = activeName;
+      }
       this.showTaskCenter();
-      this.initIndex = 0;
-      this.noMore = false;
-      this.currentPage = 1;
     },
     getPercentage(status) {
       if (status) {
@@ -349,7 +357,7 @@ export default {
       }
     },
     showReport(row) {
-      if (this.size > 550 && this.reportId === row.id) {
+      if (this.size > 600 && this.reportId === row.id) {
         this.packUp();
         return;
       }
@@ -408,20 +416,22 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
-    init() {
+    init(loading) {
       if (this.showType === "CASE" || this.showType === "SCENARIO") {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
       this.condition.userId = getCurrentUser().id;
+      this.condition.activeName = this.activeName;
+      this.loading = loading;
       this.result = this.$post('/task/center/list/' + this.currentPage + '/' + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.taskData = response.data.listObject;
-        this.initEnd = true;
         this.loading = false;
       });
     },
     initCaseHistory(id) {
+      this.activeName = 'API';
       this.result = this.$get('/task/center/case/' + id, response => {
         this.taskData = response.data;
       });
@@ -434,6 +444,7 @@ export default {
       this.showType = "CASE";
     },
     openScenarioHistory(id) {
+      this.activeName = 'SCENARIO';
       this.result = this.$get('/task/center/scenario/' + id, response => {
         this.taskData = response.data;
       });
@@ -441,7 +452,22 @@ export default {
       this.isDebugHistory = true;
       this.condition.triggerMode = "MANUAL";
       this.taskVisible = true;
-    }
+    },
+    showBadge(executionModule) {
+      switch (executionModule) {
+        case "SCENARIO":
+          return this.runningData.scenarioTotal;
+        case "PERF":
+          return this.runningData.perfTotal;
+        case "API":
+          return this.runningData.apiTotal;
+      }
+    },
+    nextPage(currentPage, pageSize) {
+      this.currentPage = currentPage;
+      this.pageSize = pageSize;
+      this.init();
+    },
   }
 };
 </script>
@@ -620,4 +646,17 @@ export default {
 .report-bottom {
   margin-top: 10px;
 }
+
+.ms-badge-item {
+  margin-top: 0px;
+  margin-right: 0px;
+  font-size: 13px;
+}
+
+/deep/ .el-badge__content.is-fixed {
+  transform: translateY(-10%) translateX(100%);
+  border-radius: 10px;
+}
+
+
 </style>

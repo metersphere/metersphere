@@ -1,6 +1,8 @@
 package io.metersphere.task.service;
 
 import com.alibaba.fastjson.JSON;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.TaskRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
@@ -16,13 +18,17 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTaskMapper;
+import io.metersphere.commons.constants.TaskCenterType;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
+import io.metersphere.task.dto.TaskStatisticsDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,17 +83,42 @@ public class TaskService {
         return new ArrayList<>(userRelatedProjectIds);
     }
 
-    public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
+    public Pager<List<TaskCenterDTO>> getTasks(TaskCenterRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getGoPage(), request.getPageSize(), true);
+        if (StringUtils.equals(request.getActiveName(), TaskCenterType.SCENARIO.name())) {
+            return PageUtils.setPageInfo(page, getScenarioTasks(request));
+        } else if (StringUtils.equals(request.getActiveName(), TaskCenterType.PERF.name())) {
+            return PageUtils.setPageInfo(page, getPerfTasks(request));
+        } else {
+            return PageUtils.setPageInfo(page, getApiTasks(request));
+        }
+    }
+
+    public List<TaskCenterDTO> getApiTasks(TaskCenterRequest request) {
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new ArrayList<>();
         }
-        return extTaskMapper.getTasks(request);
+        return extTaskMapper.getApiTasks(request);
     }
 
-    public int getRunningTasks(TaskCenterRequest request) {
+    public List<TaskCenterDTO> getPerfTasks(TaskCenterRequest request) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
+            return new ArrayList<>();
+        }
+        return extTaskMapper.getPerfTasks(request);
+    }
+
+    public List<TaskCenterDTO> getScenarioTasks(TaskCenterRequest request) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
+            return new ArrayList<>();
+        }
+        return extTaskMapper.getScenarioTasks(request);
+    }
+
+    public TaskStatisticsDTO getRunningTasks(TaskCenterRequest request) {
         request.setProjects(this.getOwnerProjectIds(request.getUserId()));
         if (CollectionUtils.isEmpty(request.getProjects())) {
-            return 0;
+            return new TaskStatisticsDTO();
         }
         return extTaskMapper.getRunningTasks(request);
     }
