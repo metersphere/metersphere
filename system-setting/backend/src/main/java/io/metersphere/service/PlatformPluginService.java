@@ -18,8 +18,10 @@ import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +48,9 @@ public class PlatformPluginService {
     private BaseIntegrationService baseIntegrationService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
+    @Resource
+    @Lazy
+    private PluginService pluginService;
 
     private static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
@@ -58,6 +63,13 @@ public class PlatformPluginService {
         return pluginManager;
     }
 
+    /**
+     * 新开一个事务，保证发送 kafka 消息是在事务提交之后
+     * 因为接受消息需要判断数据库是否有数据
+     * @param file
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PluginWithBLOBs addPlatformPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
 
@@ -75,7 +87,6 @@ public class PlatformPluginService {
         plugin.setPluginId(pluginMetaInfo.getKey() + "-" + pluginMetaInfo.getVersion());
         plugin.setScriptId(pluginMetaInfo.getKey());
         plugin.setSourcePath("");
-//      plugin.setFormOption(item.getFormOption());
         plugin.setFormScript(JSON.toJSONString(map));
         plugin.setClazzName("");
         plugin.setSourceName(file.getOriginalFilename());
@@ -84,9 +95,14 @@ public class PlatformPluginService {
         plugin.setCreateUserId(SessionUtils.getUserId());
         plugin.setXpack(pluginMetaInfo.isXpack());
         plugin.setScenario(PluginScenario.platform.name());
-        // 初始化项目默认节点
-        kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_ADD, id);
+
+        pluginService.addPlugin(plugin);
         return plugin;
+    }
+
+    public void notifiedPlatformPluginAdd(String pluginId) {
+        // 初始化项目默认节点
+        kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_ADD, pluginId);
     }
 
     /**
