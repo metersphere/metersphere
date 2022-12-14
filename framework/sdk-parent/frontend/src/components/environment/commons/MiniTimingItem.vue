@@ -3,7 +3,7 @@
     <el-col :span="16">
       <el-select v-model="selfQuantity" placeholder=" " size="mini" filterable default-first-option
                  allow-create
-                 class="timing_select" :disabled="selfChoose">
+                 class="timing_select" :disabled="selfChoose" @change="chooseChange(true)">
         <el-option
           v-for="item in quantityOptions"
           :key="item"
@@ -12,7 +12,7 @@
         </el-option>
       </el-select>
       <el-select v-model="selfUnit" placeholder=" " size="mini"
-                 class="timing_select" :disabled="selfChoose">
+                 class="timing_select" :disabled="selfChoose" @change="chooseChange(true)">
         <el-option
           v-for="item in unitOptions"
           :key="item.value"
@@ -58,6 +58,7 @@ export default {
       type: Array,
       default() {
         return [
+          {value: "H", label: this.$t('commons.date_unit.hour')},
           {value: "D", label: this.$t('commons.date_unit.day')},
           {value: "M", label: this.$t('commons.date_unit.month')},
           {value: "Y", label: this.$t('commons.date_unit.year')},
@@ -66,8 +67,11 @@ export default {
     }
   },
   watch: {
-    expr(val) {
-      this.parseExpr(val);
+    expr: {
+      handler(val) {
+        this.parseExpr(val);
+      },
+      immediate: true
     },
     choose(val) {
       this.selfChoose = val;
