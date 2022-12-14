@@ -297,8 +297,8 @@ public class ApiExecuteService {
 
         // 线程组
         MsThreadGroup group = new MsThreadGroup();
-        group.setLabel(testCaseWithBLOBs.getName());
-        group.setName(testCaseWithBLOBs.getId());
+        group.setLabel(request.getReportId());
+        group.setName(request.getReportId());
         group.setOnSampleError(true);
         LinkedList<MsTestElement> hashTrees = new LinkedList<>();
         hashTrees.add(element);
