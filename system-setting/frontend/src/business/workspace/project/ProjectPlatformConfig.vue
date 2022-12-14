@@ -23,8 +23,7 @@
           <template>
             <img v-if="item.instructionsIcon"
                  :src="getPlatformImageUrl(config, item)"/>
-            <span v-if="item.instructionsTip">
-              {{ item.instructionsTip }}
+            <span v-if="item.instructionsTip" v-html="item.instructionsTip">
             </span>
           </template>
         </ms-instructions-icon>
