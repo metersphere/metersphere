@@ -836,6 +836,9 @@
             <if test="request.protocol != null and request.protocol !=''">
                 and a.protocol = #{request.protocol}
             </if>
+            <if test="request.versionId !='' and request.versionId != null">
+                and t1.version_id =#{request.versionId}
+            </if>
             <if test="request.combine != null">
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>

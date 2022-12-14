@@ -227,11 +227,14 @@ public class ParameterConfig extends MsParameter {
 
     public void margeVariables(List<ScenarioVariable> variables, List<ScenarioVariable> transferVariables) {
         if (CollectionUtils.isNotEmpty(transferVariables)) {
-            List<ScenarioVariable> constants = variables.stream().filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
-            Map<String, List<ScenarioVariable>> transferVariableGroup =
-                    transferVariables.stream().collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
-            Map<String, List<ScenarioVariable>> constantsGroup =
-                    constants.stream().collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
+            List<ScenarioVariable> constants = variables.stream()
+                    .filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
+
+            Map<String, List<ScenarioVariable>> transferVariableGroup = transferVariables.stream()
+                    .collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
+
+            Map<String, List<ScenarioVariable>> constantsGroup = constants.stream()
+                    .collect(Collectors.groupingBy(ScenarioVariable::getName, LinkedHashMap::new, Collectors.toList()));
             // 更新相同名称的值
             for (ScenarioVariable constant : constants) {
                 if (transferVariableGroup.containsKey(constant.getName())
@@ -240,7 +243,9 @@ public class ParameterConfig extends MsParameter {
                 }
             }
             // 添加当前没有的值
-            transferVariables.forEach(item -> {
+            List<ScenarioVariable> transferConstants = transferVariables.stream()
+                    .filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
+            transferConstants.forEach(item -> {
                 if (!constantsGroup.containsKey(item.getName())) {
                     variables.add(item);
                 }

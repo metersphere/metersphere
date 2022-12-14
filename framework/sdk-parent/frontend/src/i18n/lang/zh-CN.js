@@ -897,7 +897,7 @@ const message = {
       delete_tip: '此版本已经关联系统资源，此操作会将所关联的资源一并删除',
       checkout: '切换',
       compare: '对比',
-      set_new: '置新',
+      set_new: '设为最新版本',
       change_latest_tip: '此操作会修改接口，场景，测试用例等列表页面的默认展示，可能会消耗一些时间。请耐心等待！'
     },
     project_file: {
