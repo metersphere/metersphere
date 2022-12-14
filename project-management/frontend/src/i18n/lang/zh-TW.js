@@ -35,6 +35,15 @@ const message = {
   },
   project_version: {
     version_time: '版本週期',
+  },
+  environment: {
+    export_variable_tip : "導出接口測試變量",
+    need_expire_time : "請輸入過期時間",
+    need_relevance_ui_scenario : "請關聯登錄場景",
+    view_ui_relevane : "查看關聯",
+    cancel_ui_relevane : "取消關聯",
+    re_ui_relevane : "重新關聯",
+    relevance_ui : "關聯登錄場景/指令",
   }
 }
 

@@ -8,9 +8,9 @@
         :class="{ 'el-icon-arrow-left pointer' : !active, 'el-icon-arrow-down pointer' : active}"
         @click="active=!active"></span>
       </el-tooltip>
-      <template v-if="active">
+      <div v-show="active">
         <slot></slot>
-      </template>
+      </div>
     </div>
   </div>
 </template>
