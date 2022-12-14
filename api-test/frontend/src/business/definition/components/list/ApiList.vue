@@ -1047,7 +1047,6 @@ export default {
         });
       }
     },
-
     getColor(enable, method) {
       if (enable) {
         return this.methodColorMap.get(method);
@@ -1061,7 +1060,7 @@ export default {
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
       let redirectVersionId = this.$route.params.versionId;
-      if (redirectVersionId !== 'default') {
+      if (redirectVersionId && redirectVersionId !== 'default') {
         this.condition.versionId = redirectVersionId;
       }
       this.selectDataRange = dataType === 'api' ? dataRange : 'all';

@@ -1325,7 +1325,7 @@ export default {
       this.selectDataType = 'all';
       let routeParamObj = this.$route.params;
       let redirectVersionId = this.$route.params.versionId;
-      if (redirectVersionId !== 'default') {
+      if (redirectVersionId && redirectVersionId !== 'default') {
         this.condition.versionId = redirectVersionId;
       }
       if (routeParamObj) {
