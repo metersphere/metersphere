@@ -72,7 +72,7 @@
         </form-section>
 
         <!--    UI 配置    -->
-        <form-section :title="$t('commons.ui_test')" :init-active=false>
+        <form-section :title="$t('commons.ui_test')" :init-active=false v-if="condition.type !== 'MODULE'">
           <el-row :gutter="10" style="padding-top: 10px;">
             <el-col :span="6">
               <!-- 浏览器驱动 -->
