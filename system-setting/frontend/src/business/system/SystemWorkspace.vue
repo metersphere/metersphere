@@ -68,7 +68,7 @@
                width="30%" @close="close" v-loading="workspaceUpdateLoading">
       <el-form :model="form" :rules="rules" ref="updateForm" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off" class="form-input"/>
+          <el-input v-model="form.name" autocomplete="off" class="form-input" show-word-limit maxlength="100"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input type="textarea" v-model="form.description" class="form-input"></el-input>
