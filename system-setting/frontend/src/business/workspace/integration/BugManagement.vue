@@ -4,14 +4,14 @@
       <div>{{ $t('organization.integration.select_defect_platform') }}</div>
       <el-radio-group v-model="platform" style="margin-top: 10px">
         <span v-for="config in platformConfigs" :key="config.key">
-           <el-radio :label="config.label">
+           <el-radio :label="config.label" class="platform-radio">
             <img class="platform" :src="getPlatformImageUrl(config)" :alt="config.label"/>
           </el-radio>
         </span>
-        <el-radio label="Tapd">
+        <el-radio label="Tapd" class="platform-radio">
           <img class="platform" src="/assets/tapd.png" alt="Tapd"/>
         </el-radio>
-        <el-radio label="AzureDevops" v-xpack>
+        <el-radio label="AzureDevops" class="platform-radio" v-xpack>
           <img class="platform" src="/assets/AzureDevops.png" alt="AzureDevops"/>
         </el-radio>
       </el-radio-group>
@@ -80,5 +80,9 @@ export default {
 .platform {
   height: 80px;
   vertical-align: middle
+}
+
+.platform-radio {
+  margin-left: 20px;
 }
 </style>

@@ -34,31 +34,27 @@
                     :show.sync="show"
                     ref="bugBtn"/>
 
-    <div class="defect-tip" v-html="config.tips">
-<!--      todo 处理跳转逻辑 -->
-<!--      {{config.tips}}-->
-<!--      <div>{{ $t('organization.integration.use_tip') }}</div>-->
-<!--      <div>-->
-<!--        1. {{ $t('organization.integration.use_tip_jira') }}-->
-<!--      </div>-->
-<!--      <div>-->
-<!--        2. {{ $t('organization.integration.use_tip_two') }}-->
-<!--        <router-link to="/setting/project/all"-->
-<!--                     style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer">-->
-<!--          {{ $t('organization.integration.link_the_project_now') }}-->
-<!--        </router-link>-->
-<!--      </div>-->
-<!--      <div>-->
-<!--        3. {{ $t('organization.integration.use_tip_three') }}-->
-<!--        <span style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer"-->
-<!--              @click="resVisible = true">-->
-<!--          {{ $t('organization.integration.link_the_info_now') }}-->
-<!--        </span>-->
-<!--        <el-dialog :close-on-click-modal="false" width="80%"-->
-<!--                   :visible.sync="resVisible" destroy-on-close @close="closeDialog">-->
-<!--          <ms-person-router @closeDialog="closeDialog"/>-->
-<!--        </el-dialog>-->
-<!--      </div>-->
+    <div class="defect-tip" >
+      <div>{{ $t('organization.integration.use_tip') }}</div>
+      <div v-html="config.tips"></div>
+      <div>
+        {{ $t('organization.integration.use_tip_two') }}
+        <router-link to="/setting/project/all"
+                     style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer">
+          {{ $t('organization.integration.link_the_project_now') }}
+        </router-link>
+      </div>
+      <div>
+        {{ $t('organization.integration.use_tip_three') }}
+        <span style="margin-left: 5px;color: #551A8B; text-decoration: underline; cursor: pointer"
+              @click="resVisible = true">
+          {{ $t('organization.integration.link_the_info_now') }}
+        </span>
+        <el-dialog :close-on-click-modal="false" width="80%"
+                   :visible.sync="resVisible" destroy-on-close @close="closeDialog">
+          <ms-person-router @closeDialog="closeDialog"/>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>
@@ -205,6 +201,7 @@ export default {
   margin: 10px 0;
   padding: 10px;
   border-radius: 3px;
+  line-height: 25px;
 }
 
 .el-input {
