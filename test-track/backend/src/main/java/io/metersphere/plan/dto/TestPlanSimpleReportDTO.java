@@ -28,6 +28,7 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
      * projectEnvMap: <项目,运行环境>
      */
     private String runMode;
+    private String resourcePool;
     private String envGroupName;
     private Map<String, List<String>> projectEnvMap;
 
