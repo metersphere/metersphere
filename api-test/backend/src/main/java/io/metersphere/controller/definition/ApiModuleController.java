@@ -1,5 +1,6 @@
 package io.metersphere.controller.definition;
 
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.service.definition.ApiModuleService;
@@ -37,6 +38,13 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId, protocol, versionId);
     }
 
+    @PostMapping("/list/{projectId}/{protocol}")
+    public List<ApiModuleDTO> searchNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol, @RequestBody ApiDefinitionRequest request) {
+        String userId = SessionUtils.getUserId();
+        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
+        return apiModuleService.getNodeTreeByCondition(projectId, protocol, null, request);
+    }
+
     @GetMapping("/trash/list/{projectId}/{protocol}/{versionId}")
     public List<ApiModuleDTO> getTrashNodeByProtocolAndProjectId(@PathVariable String projectId, @PathVariable String protocol,
                                                                  @PathVariable String versionId) {
@@ -46,6 +54,11 @@ public class ApiModuleController {
     @GetMapping("/trash/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getTrashNodeByProtocolAndProjectId(@PathVariable String projectId, @PathVariable String protocol) {
         return apiModuleService.getTrashNodeTreeByProtocolAndProjectId(projectId, protocol, null);
+    }
+
+    @PostMapping("/trash/list/{projectId}/{protocol}")
+    public List<ApiModuleDTO> searchTrashNodeByProtocolAndProjectId(@PathVariable String projectId, @PathVariable String protocol, @RequestBody ApiDefinitionRequest request) {
+        return apiModuleService.getTrashNodeTreeByProtocolAndProjectId(projectId, protocol, null, request);
     }
 
     @GetMapping("/trash-count/{projectId}/{protocol}")

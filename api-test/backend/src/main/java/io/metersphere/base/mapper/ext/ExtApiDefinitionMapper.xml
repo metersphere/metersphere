@@ -1238,6 +1238,22 @@
             AND latest IS TRUE
         </if>
     </select>
+
+    <select id="selectApiBaseInfoByCondition" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id, module_id
+        from api_definition
+        <include refid="queryWhereCondition"/>
+        AND project_id = #{projectId}
+        AND protocol = #{protocol}
+        AND status = #{status}
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND latest IS TRUE
+        </if>
+    </select>
+
     <select id="selectApiIdInExecutionInfoByProjectIdIsNull" resultType="java.lang.String">
         SELECT DISTINCT source_id FROM api_execution_info
         WHERE project_id IS NULL

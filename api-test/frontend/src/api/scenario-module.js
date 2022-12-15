@@ -5,6 +5,11 @@ export function getModuleByProjectId(projectId) {
   return get(url);
 }
 
+export function postModuleByProjectId(projectId, param) {
+  let url = '/api/automation/module/list/' + projectId;
+  return post(url, param);
+}
+
 export function getModuleByRelevanceProjectId(relevanceProjectId) {
   let url = '/api/automation/module/list/' + relevanceProjectId;
   return get(url);
@@ -13,6 +18,11 @@ export function getModuleByRelevanceProjectId(relevanceProjectId) {
 export function getModuleByTrash(projectId) {
   let url = '/api/automation/module/trash/list/' + projectId;
   return get(url);
+}
+
+export function postModuleByTrash(projectId, param) {
+  let url = '/api/automation/module/trash/list/' + projectId;
+  return post(url, param);
 }
 
 export function editScenarioModule(params) {
