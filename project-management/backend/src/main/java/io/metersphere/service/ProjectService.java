@@ -283,14 +283,6 @@ public class ProjectService {
         return project;
     }
 
-
-    public boolean isThirdPartTemplate(Project project) {
-        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && project.getPlatform().equals(IssuesManagePlatform.Jira.name())) {
-            return true;
-        }
-        return false;
-    }
-
     public List<Project> getByCaseTemplateId(String templateId) {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andCaseTemplateIdEqualTo(templateId);
