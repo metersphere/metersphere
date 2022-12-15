@@ -1,6 +1,6 @@
 <template>
   <div class="json-schema-editor" style="padding: 0 10px">
-    <el-row class="row" :gutter="10">
+    <el-row class="row" :gutter="10" v-if="reloadSelfOver">
       <el-col :style="{ minWidth: `${200 - 10 * deep}px` }" class="ms-col-name">
         <div :style="{ marginLeft: `${10 * deep}px` }" class="ms-col-name-c" />
         <span
@@ -401,6 +401,7 @@ export default {
       countAdd: 1,
       modalVisible: false,
       reloadItemOver: true,
+      reloadSelfOver: true,
       advancedValue: {},
       addProp: {}, // 自定义属性
       customProps: [],
@@ -484,14 +485,18 @@ export default {
     changeAllItemsType(changeType) {
       if (this.isArray(this.pickValue) && this.pickValue.items && this.pickValue.items.length > 0) {
         this.pickValue.items.forEach((item) => {
-          item.type = changeType;
           delete item['properties'];
           delete item['items'];
           delete item['required'];
           delete item['mock'];
+          this.$set(item, 'type', changeType);
           if (changeType === 'array') {
             this.$set(item, 'items', [{ type: 'string', mock: { mock: '' } }]);
           }
+        });
+        this.$nextTick(() => {
+          this.reloadSelf();
+          this.reloadItems();
         });
       }
     },
@@ -607,6 +612,13 @@ export default {
       this.reloadItemOver = false;
       this.$nextTick(() => {
         this.reloadItemOver = true;
+      });
+    },
+
+    reloadSelf() {
+      this.reloadSelfOver = false;
+      this.$nextTick(() => {
+        this.reloadSelfOver = true;
       });
     },
     editScenarioAdvance(data) {
