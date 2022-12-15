@@ -299,7 +299,8 @@ export default {
       if (activeName) {
         this.activeName = activeName;
       }
-      this.showTaskCenter();
+      this.init(true);
+      setTimeout(this.showTaskCenter, 2000);
     },
     getPercentage(status) {
       if (status) {
