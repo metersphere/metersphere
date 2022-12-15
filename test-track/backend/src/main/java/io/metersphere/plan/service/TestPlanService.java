@@ -1385,15 +1385,22 @@ public class TestPlanService {
         return report;
     }
 
-    public void exportPlanReport(String planId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void exportPlanReport(String planId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         TestPlanSimpleReportDTO report = buildPlanReport(planId, true);
         report.setLang(lang);
+        TestPlanExtReportDTO extReport = getExtReport(planId);
+        if(extReport != null) {
+            BeanUtils.copyBean(report, extReport);
+        }
         render(report, response);
     }
 
-    public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
-
+        TestPlanExtReportDTO extReport = getExtReportByReportId(reportId);
+        if(extReport != null) {
+            BeanUtils.copyBean(report, extReport);
+        }
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             report.setApiAllCases(planTestPlanApiCaseService.buildResponse(report.getApiAllCases()));
@@ -2008,5 +2015,29 @@ public class TestPlanService {
         }
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(actuator);
         testPlanExtReportDTO.setResourcePool(testResourcePool == null ? null : testResourcePool.getName());
+    }
+
+    public TestPlanExtReportDTO getExtReportByReportId(String reportId) throws JsonProcessingException {
+        TestPlanExtReportDTO testPlanExtReportDTO = new TestPlanExtReportDTO();
+        Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
+        if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
+            List<ApiDefinitionExecResultWithBLOBs> apiDefinitionLists = planTestPlanApiCaseService.selectExtForPlanReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+                ApiDefinitionExecResultWithBLOBs apiDefinition = apiDefinitionLists.get(0);
+                convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
+        }
+        if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
+            List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+                UiScenarioReportWithBLOBs apiDefinition = apiDefinitionLists.get(0);
+                convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
+        }
+        return null;
     }
 }
