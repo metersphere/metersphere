@@ -18,6 +18,10 @@ export function getCurrentProjectID() {
   return getCurrentUser().lastProjectId;
 }
 
+export function setCurrentProjectID(projectId) {
+  sessionStorage.setItem(PROJECT_ID, projectId);
+}
+
 export function getCurrentUser() {
   try {
     const store = useUserStore();
