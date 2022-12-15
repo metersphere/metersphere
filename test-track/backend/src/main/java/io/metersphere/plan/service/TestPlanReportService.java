@@ -38,7 +38,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -561,6 +560,11 @@ public class TestPlanReportService {
                 resourceId = planExecutionQueues.get(0).getResourceId();
                 testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
             }
+            
+            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+            //发送通知
+            testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+
             if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
                 TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
                 queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
@@ -577,10 +581,8 @@ public class TestPlanReportService {
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 testPlanService.runPlan(runRequest);
             }
-            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+
         }
-        //发送通知
-        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
         return testPlanReport;
     }
 
@@ -1053,7 +1055,7 @@ public class TestPlanReportService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        if(extReport != null) {
+        if (extReport != null) {
             BeanUtils.copyBean(testPlanReportDTO, extReport);
         }
         return testPlanReportDTO;
@@ -1375,7 +1377,7 @@ public class TestPlanReportService {
         example.setOrderByClause("create_time desc");
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
-        if(CollectionUtils.isNotEmpty(testPlanReports)){
+        if (CollectionUtils.isNotEmpty(testPlanReports)) {
             return testPlanReports.get(0).getId();
         }
         return null;

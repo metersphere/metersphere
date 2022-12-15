@@ -130,9 +130,6 @@ export default {
       },
     };
   },
-  activated() {
-    this.search();
-  },
   methods: {
     clickRow(row, column) {
       if (column.property !== 'status') {
