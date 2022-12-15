@@ -102,6 +102,19 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return getNodeTrees(trashModuleList);
     }
 
+    public List<ApiModuleDTO> getTrashNodeTreeByProtocolAndProjectId(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
+        //回收站数据初始化：检查是否存在模块被删除的接口，则把接口挂再默认节点上
+        initTrashDataModule(projectId, protocol, versionId);
+        //通过回收站里的接口模块进行反显
+        Map<String, List<ApiDefinition>> trashApiMap =
+                apiDefinitionService.selectApiBaseInfoGroupByModuleId(projectId, protocol, versionId,
+                        ApiTestDataStatus.TRASH.getValue(), request);
+        //查找回收站里的模块
+        List<ApiModuleDTO> trashModuleList = this.selectTreeStructModuleById(trashApiMap.keySet());
+        this.initApiCount(trashModuleList, trashApiMap);
+        return getNodeTrees(trashModuleList);
+    }
+
     private void initApiCount(List<ApiModuleDTO> apiModules, Map<String, List<ApiDefinition>> trashApiMap) {
         if (CollectionUtils.isNotEmpty(apiModules) && MapUtils.isNotEmpty(trashApiMap)) {
             apiModules.forEach(node -> {
@@ -148,6 +161,53 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId, protocol);
         ApiDefinitionRequest request = new ApiDefinitionRequest();
+        List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
+        request.setProjectId(projectId);
+        request.setProtocol(protocol);
+        List<String> list = new ArrayList<>();
+        list.add(ApiTestDataStatus.PREPARE.getValue());
+        list.add(ApiTestDataStatus.UNDERWAY.getValue());
+        list.add(ApiTestDataStatus.COMPLETED.getValue());
+        Map<String, List<String>> filters = new LinkedHashMap<>();
+        filters.put("status", list);
+        request.setFilters(filters);
+
+        //优化： 所有统计SQL一次查询出来
+        List<String> allModuleIdList = new ArrayList<>();
+        for (ApiModuleDTO node : apiModules) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if (!allModuleIdList.contains(moduleId)) {
+                    allModuleIdList.add(moduleId);
+                }
+            }
+        }
+        request.setModuleIds(allModuleIdList);
+        if (StringUtils.isNotBlank(versionId)) {
+            request.setVersionId(versionId);
+        }
+        List<Map<String, Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
+        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        apiModules.forEach(node -> {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if (moduleCountMap.containsKey(moduleId)) {
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
+        });
+        return getNodeTrees(apiModules);
+    }
+
+    public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request ) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
         request.setProtocol(protocol);

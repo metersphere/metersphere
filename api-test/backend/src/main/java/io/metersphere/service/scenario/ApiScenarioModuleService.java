@@ -100,12 +100,70 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         return getNodeTrees(nodes);
     }
 
+    public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId);
+        List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
+        request.setProjectId(projectId);
+        List<String> list = new ArrayList<>();
+        list.add(ApiTestDataStatus.PREPARE.getValue());
+        list.add(ApiTestDataStatus.UNDERWAY.getValue());
+        list.add(ApiTestDataStatus.COMPLETED.getValue());
+        Map<String, List<String>> filters = new LinkedHashMap<>();
+        filters.put("status", list);
+        request.setFilters(filters);
+        List<String> allModuleIdList = new ArrayList<>();
+        for (ApiScenarioModuleDTO node : nodes) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if (!allModuleIdList.contains(moduleId)) {
+                    allModuleIdList.add(moduleId);
+                }
+            }
+        }
+        request.setModuleIds(allModuleIdList);
+        List<Map<String, Object>> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
+        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        nodes.forEach(node -> {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if (moduleCountMap.containsKey(moduleId)) {
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
+        });
+        return getNodeTrees(nodes);
+    }
+
     public List<ApiScenarioModuleDTO> getTrashNodeTreeByProjectId(String projectId) {
         //回收站数据初始化：被删除了的数据挂在默认模块上
         initTrashDataModule(projectId);
         //通过回收站里的接口模块进行反显
         Map<String, List<ApiScenario>> trashApiMap = apiAutomationService.selectApiBaseInfoGroupByModuleId(projectId,
                 ApiTestDataStatus.TRASH.getValue());
+        //查找回收站里的模块
+        List<ApiScenarioModuleDTO> trashModuleList = this.selectTreeStructModuleById(trashApiMap.keySet());
+        this.initApiCount(trashModuleList, trashApiMap);
+        return getNodeTrees(trashModuleList);
+    }
+
+    public List<ApiScenarioModuleDTO> getTrashNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
+        //回收站数据初始化：被删除了的数据挂在默认模块上
+        initTrashDataModule(projectId);
+        //通过回收站里的接口模块进行反显
+        if(request.getFilters() != null && request.getFilters().get("status") != null){
+            List<String> statusList = new ArrayList<>();
+            statusList.add(ApiTestDataStatus.TRASH.getValue());
+            request.getFilters().put("status", statusList);
+        }
+        Map<String, List<ApiScenario>> trashApiMap = apiAutomationService.selectApiBaseInfoGroupByModuleId(projectId,
+                ApiTestDataStatus.TRASH.getValue(), request);
         //查找回收站里的模块
         List<ApiScenarioModuleDTO> trashModuleList = this.selectTreeStructModuleById(trashApiMap.keySet());
         this.initApiCount(trashModuleList, trashApiMap);

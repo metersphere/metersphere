@@ -2204,6 +2204,11 @@ public class ApiScenarioService {
         return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
     }
 
+    public Map<String, List<ApiScenario>> selectApiBaseInfoGroupByModuleId(String projectId, String status, ApiScenarioRequest request) {
+        List<ApiScenario> apiScenarioList = extApiScenarioMapper.selectBaseInfoByCondition(projectId, status, request);
+        return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
+    }
+
     public List<ApiCountChartResult> countByRequest(ApiCountRequest request) {
         return extApiScenarioMapper.countByRequest(request);
     }

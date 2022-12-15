@@ -1,6 +1,7 @@
 package io.metersphere.controller.scenario;
 
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
 import io.metersphere.base.domain.ApiScenarioModule;
@@ -24,9 +25,19 @@ public class ApiScenarioModuleController {
         return apiScenarioModuleService.getNodeTreeByProjectId(projectId);
     }
 
+    @PostMapping("/list/{projectId}")
+    public List<ApiScenarioModuleDTO> searchNodeByProjectId(@PathVariable String projectId, @RequestBody ApiScenarioRequest request) {
+        return apiScenarioModuleService.getNodeTreeByProjectId(projectId, request);
+    }
+
     @GetMapping("/trash/list/{projectId}")
     public List<ApiScenarioModuleDTO> getTrashNodeByProjectId(@PathVariable String projectId) {
         return apiScenarioModuleService.getTrashNodeTreeByProjectId(projectId);
+    }
+
+    @PostMapping("/trash/list/{projectId}")
+    public List<ApiScenarioModuleDTO> searchTrashNodeByProjectId(@PathVariable String projectId, @RequestBody ApiScenarioRequest request) {
+        return apiScenarioModuleService.getTrashNodeTreeByProjectId(projectId, request);
     }
 
     @PostMapping("/add")

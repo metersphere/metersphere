@@ -1919,6 +1919,11 @@ public class ApiDefinitionService {
         return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
     }
 
+    public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(String projectId, String protocol, String versionId, String status, ApiDefinitionRequest request) {
+        List<ApiDefinition> apiList = extApiDefinitionMapper.selectApiBaseInfoByCondition(projectId, protocol, versionId, status, request);
+        return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
+    }
+
     /**
      * 将模块删除了的接口模块改为默认模块
      *
