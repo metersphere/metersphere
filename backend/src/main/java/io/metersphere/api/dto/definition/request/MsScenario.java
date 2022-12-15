@@ -157,17 +157,16 @@ public class MsScenario extends MsTestElement {
 
         // 环境变量
         Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
-        if (arguments != null && ((this.variableEnable == null || this.variableEnable)
-                || (this.mixEnable == null || this.mixEnable))) {
+        if (arguments != null && !arguments.getArguments().isEmpty()) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
-            if ((this.variableEnable == null || this.variableEnable) || (this.mixEnable == null || this.mixEnable)) {
+            if (BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
                 scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
-            } else {
+            } else if (config != null && StringUtils.equals(this.getId(), config.getScenarioId())) {
                 scenarioTree.add(valueSupposeMock);
             }
         }
-        if (this.variableEnable == null || this.variableEnable) {
+        if (this.variableEnable == null || this.variableEnable || BooleanUtils.isTrue(this.mixEnable)) {
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
             ElementUtil.addCounter(scenarioTree, variables, false);
             ElementUtil.addRandom(scenarioTree, variables);
