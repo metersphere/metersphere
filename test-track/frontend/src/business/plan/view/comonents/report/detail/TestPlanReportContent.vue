@@ -71,13 +71,13 @@ export default {
     isDb: Boolean,
     shareId: String,
     reportId: String,
-    runMode: String,
-    resourcePool: String,
     needMoveBar: Boolean
   },
   data() {
     return {
       report: {},
+      runMode: '',
+      resourcePool: '',
       loading: false,
       shareUrl: ''
     };
@@ -187,8 +187,7 @@ export default {
             });
         }
       }
-
-      getTestPlanExtReport(this.planId).then((response) => {
+      getTestPlanExtReport(this.planId, this.reportId).then((response) => {
         this.runMode = response.data.runMode;
         this.resourcePool = response.data.resourcePool;
       })

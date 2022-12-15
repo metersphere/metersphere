@@ -1049,7 +1049,7 @@ public class TestPlanReportService {
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
         TestPlanExtReportDTO extReport = null;
         try {
-            extReport = testPlanService.getExtReportByReportId(reportId);
+            extReport = testPlanService.getExtInfoByReportId(reportId);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
