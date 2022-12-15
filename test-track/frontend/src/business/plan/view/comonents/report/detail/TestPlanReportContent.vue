@@ -139,6 +139,8 @@ export default {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
+        this.runMode = this.report.runMode;
+        this.resourcePool = this.report.resourcePool;
         if (this.report.lang) {
           this.$setLang(this.report.lang);
         }
@@ -151,6 +153,8 @@ export default {
             .then((r) => {
               this.loading = false;
               this.report = r.data;
+              this.runMode = r.data.runMode;
+              this.resourcePool = r.data.resourcePool;
               this.report.config = this.getDefaultConfig(this.report);
             });
         } else {

@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
@@ -37,6 +38,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1044,6 +1046,16 @@ public class TestPlanReportService {
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        TestPlanExtReportDTO extReport = null;
+        try {
+            extReport = testPlanService.getExtReportByReportId(reportId);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if(extReport != null) {
+            BeanUtils.copyBean(testPlanReportDTO, extReport);
+        }
         return testPlanReportDTO;
     }
 
