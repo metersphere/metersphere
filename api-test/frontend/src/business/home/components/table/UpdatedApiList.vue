@@ -156,12 +156,14 @@ export default {
       }
     },
     search(versionId) {
-      this.versionId = versionId;
+      if (versionId) {
+        this.versionId = versionId;
+      }
       let projectId = getCurrentProjectID();
       this.loading = true;
       this.loadError = false;
 
-      this.result = definitionWeekList(projectId, versionId, this.currentPage, this.pageSize)
+      this.result = definitionWeekList(projectId, this.versionId, this.currentPage, this.pageSize)
         .then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

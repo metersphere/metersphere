@@ -1669,9 +1669,11 @@ public class ApiDefinitionService {
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
             ApiDefinitionExample.Criteria criteria = example.createCriteria();
-            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
+            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
             if (StringUtils.isNotBlank(versionId)) {
                 criteria.andVersionIdEqualTo(versionId);
+            } else {
+                criteria.andLatestEqualTo(true);
             }
             return apiDefinitionMapper.countByExample(example);
         }
