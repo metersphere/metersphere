@@ -1388,7 +1388,7 @@ public class TestPlanService {
     public void exportPlanReport(String planId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         TestPlanSimpleReportDTO report = buildPlanReport(planId, true);
         report.setLang(lang);
-        TestPlanExtReportDTO extReport = getExtReport(planId);
+        TestPlanExtReportDTO extReport = getExtInfoByPlanId(planId);
         if(extReport != null) {
             BeanUtils.copyBean(report, extReport);
         }
@@ -1397,7 +1397,7 @@ public class TestPlanService {
 
     public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
-        TestPlanExtReportDTO extReport = getExtReportByReportId(reportId);
+        TestPlanExtReportDTO extReport = getExtInfoByReportId(reportId);
         if(extReport != null) {
             BeanUtils.copyBean(report, extReport);
         }
@@ -1967,11 +1967,7 @@ public class TestPlanService {
         this.deleteTestPlans(ids);
     }
 
-    public TestPlanExtReportDTO getExtReport(String planId) throws JsonProcessingException {
-        String reportId = testPlanReportService.getLastReportByPlanId(planId);
-        if(StringUtils.isEmpty(reportId)){
-            return null;
-        }
+    public TestPlanExtReportDTO getExtInfoByReportId(String reportId) throws JsonProcessingException {
         TestPlanExtReportDTO testPlanExtReportDTO = new TestPlanExtReportDTO();
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
@@ -1992,7 +1988,7 @@ public class TestPlanService {
                 return testPlanExtReportDTO;
             }
         }
-        return null;
+        return testPlanExtReportDTO;
     }
 
     private void convertEnvConfig(String envConfig, TestPlanExtReportDTO testPlanExtReportDTO) throws JsonProcessingException {
@@ -2017,7 +2013,11 @@ public class TestPlanService {
         testPlanExtReportDTO.setResourcePool(testResourcePool == null ? null : testResourcePool.getName());
     }
 
-    public TestPlanExtReportDTO getExtReportByReportId(String reportId) throws JsonProcessingException {
+    public TestPlanExtReportDTO getExtInfoByPlanId(String planId) throws JsonProcessingException {
+        String reportId = testPlanReportService.getLastReportByPlanId(planId);
+        if(StringUtils.isEmpty(reportId)){
+            return null;
+        }
         TestPlanExtReportDTO testPlanExtReportDTO = new TestPlanExtReportDTO();
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
@@ -2038,6 +2038,6 @@ public class TestPlanService {
                 return testPlanExtReportDTO;
             }
         }
-        return null;
+        return testPlanExtReportDTO;
     }
 }
