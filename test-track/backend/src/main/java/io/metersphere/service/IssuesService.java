@@ -173,6 +173,7 @@ public class IssuesService {
             issues.setPlatform(project.getPlatform());
             insertIssues(issues);
             issuesRequest.setId(issues.getId());
+            issuesRequest.setPlatformId(issues.getPlatformId());
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
 
@@ -621,13 +622,13 @@ public class IssuesService {
             issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
             List<IssuesDao> issuesDaos = listByWorkspaceId(issuesRequest);
             if (CollectionUtils.isNotEmpty(issuesDaos)) {
-                issuesDaos.parallelStream().forEach(issuesDao -> {
+                issuesDaos.forEach(issuesDao -> {
                     delete(issuesDao.getId());
                 });
             }
         } else {
             if (CollectionUtils.isNotEmpty(request.getBatchDeleteIds())) {
-                request.getBatchDeleteIds().parallelStream().forEach(id -> delete(id));
+                request.getBatchDeleteIds().forEach(id -> delete(id));
             }
         }
     }
@@ -1775,13 +1776,13 @@ public class IssuesService {
     }
 
     public void saveImportData(List<IssuesUpdateRequest> issues) {
-        issues.parallelStream().forEach(issue -> {
+        issues.forEach(issue -> {
             addIssues(issue, null);
         });
     }
 
     public void updateImportData(List<IssuesUpdateRequest> issues) {
-        issues.parallelStream().forEach(issue -> {
+        issues.forEach(issue -> {
             updateIssues(issue);
         });
     }
