@@ -421,7 +421,7 @@ public class FileUtils {
     public static byte[] fileToByte(File tradeFile) {
         byte[] buffer = null;
         try (FileInputStream fis = new FileInputStream(tradeFile);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             byte[] b = new byte[1024];
             int n;
             while ((n = fis.read(b)) != -1) {
@@ -429,7 +429,7 @@ public class FileUtils {
             }
             buffer = bos.toByteArray();
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LogUtil.error(e);
         }
         return buffer;
     }
