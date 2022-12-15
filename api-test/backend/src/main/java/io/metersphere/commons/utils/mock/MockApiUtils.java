@@ -103,7 +103,7 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type, "XML")) {
                 if (bodyObj.has("raw")) {
                     String xmlStr = bodyObj.optString("raw");
-                    xmlStr = xmlStr.replaceAll("\r","").replaceAll("\n","");
+                    xmlStr = xmlStr.replaceAll("\r", "").replaceAll("\n", "");
                     JSONObject matchObj = XMLUtil.xmlStringToJSONObject(xmlStr);
                     returnJson = matchObj;
                 }
@@ -360,7 +360,10 @@ public class MockApiUtils {
                         bodyParams = new JSONArray();
                         bodyParams.put(paramJson);
                     } else {
-                        bodyParams.put(((JSONObject) paramJson));
+                        JSONArray oldArray = returnParams.getBodyParams();
+                        if (!JsonStructUtils.checkJsonArrayCompliance(oldArray, ((JSONObject) paramJson))) {
+                            bodyParams.put(((JSONObject) paramJson));
+                        }
                     }
                     returnParams.setBodyParams(bodyParams);
                 }

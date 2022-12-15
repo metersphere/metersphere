@@ -79,7 +79,7 @@ public class ApiHomeController {
         long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId, versionId);
         long apiHasCase = apiDefinitionService.countApiByProjectIdAndHasCase(projectId, versionId);
         List<ApiDefinition> apiNoCaseList = apiDefinitionService.selectEffectiveIdByProjectIdAndHaveNotCase(projectId, versionId);
-        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, versionId);
+        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
         int apiInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList).size();
 
         if (effectiveApiCount == 0) {
@@ -185,7 +185,6 @@ public class ApiHomeController {
         apiCountResult.setCoveredCount(coveredDTO.covered);
         apiCountResult.setNotCoveredCount(coveredDTO.notCovered);
         apiCountResult.setApiCoveredRate(coveredDTO.rateOfCovered);
-
         return apiCountResult;
     }
 
