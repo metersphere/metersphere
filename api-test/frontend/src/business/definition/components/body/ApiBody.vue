@@ -212,6 +212,14 @@ export default {
           this.assignKey(to, from, key);
         }
       }
+      //判断null
+      if (to.type && from.type) {
+        to.type = from.type;
+        if (from.type === 'null') {
+          this.assign(Object(to.mock), { mock: '' });
+        }
+      }
+
       let property = ['description', 'maxLength', 'minLength', 'pattern', 'format', 'enum', 'default'];
       // 清除多出部分属性
       for (let key in to) {
