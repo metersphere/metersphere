@@ -913,6 +913,15 @@
           AND latest IS TRUE
     </select>
 
+    <select id="selectBaseInfoByCondition" resultType="io.metersphere.base.domain.ApiScenario">
+        select api_scenario.id, api_scenario.api_scenario_module_id
+        from api_scenario
+        <include refid="queryWhereCondition"/>
+        AND api_scenario.project_id = #{projectId}
+        AND api_scenario.status = #{status}
+        AND api_scenario.latest IS TRUE
+    </select>
+
     <select id="countByRequest" resultType="io.metersphere.api.dto.ApiCountChartResult">
         select
         <if test="testCaseGroupColumn != null and testCaseGroupColumn != ''">

@@ -52,7 +52,7 @@ import {
   getApiModuleByTrash,
   getApiModules,
   getUserDefaultApiType,
-  posModule,
+  posModule, postApiModuleByTrash, postApiModules,
 } from '@/api/definition-module';
 import MsAddBasisApi from '../basis/AddBasisApi';
 import SelectMenu from '@/business/commons/SelectMenu';
@@ -83,6 +83,7 @@ export default {
       },
       data: [],
       currentModule: {},
+      param: {},
     };
   },
   props: {
@@ -173,6 +174,16 @@ export default {
       }
     },
   },
+  created(){
+    this.$EventBus.$on("apiConditionBus", (param)=>{
+      this.param = param;
+    })
+  },
+  beforeDestroy() {
+    this.$EventBus.$off("apiConditionBus", (param)=>{
+      this.param = param;
+    })
+  },
   methods: {
     initProtocol() {
       //不是跳转来的页面不查询上次请求类型
@@ -220,11 +231,11 @@ export default {
           }
         );
       } else if (this.isTrashData) {
-        this.result = getApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion).then((response) => {
+        this.result = postApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getApiModules(projectId, this.condition.protocol, this.currentVersion).then((response) => {
+        this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
           this.setData(response);
         });
       }

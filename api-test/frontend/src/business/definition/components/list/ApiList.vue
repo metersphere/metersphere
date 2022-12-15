@@ -849,6 +849,7 @@ export default {
       this.search();
     },
     search() {
+      this.$EventBus.$emit("apiConditionBus", this.condition)
       this.changeSelectDataRangeAll();
       this.initTable();
     },

@@ -105,6 +105,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinition> selectApiBaseInfoByProjectIdAndProtocolAndStatus(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("versionId") String versionId, @Param("status") String status);
 
+    List<ApiDefinition> selectApiBaseInfoByCondition(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("versionId") String versionId, @Param("status") String status, @Param("request") ApiDefinitionRequest request);
+
     void updateNoModuleApiToDefaultModule(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("status") String status, @Param("versionId") String versionId, @Param("moduleId") String moduleId);
 
     List<String> selectApiIdInExecutionInfoByProjectIdIsNull();
