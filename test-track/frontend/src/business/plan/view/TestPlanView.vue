@@ -76,13 +76,13 @@ import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
 import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestPlanUi from "./comonents/ui/TestPlanUi";
 import TestPlanLoad from "@/business/plan/view/comonents/load/TestPlanLoad";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
 import TestPlanReportContent from "@/business/plan/view/comonents/report/detail/TestPlanReportContent";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import {PROJECT_ID, WORKSPACE_ID} from "metersphere-frontend/src/utils/constants";
 import {useStore} from "@/store";
-import {testPlanListAll} from "@/api/remote/plan/test-plan";
+import {testPlanGet, testPlanListAll} from "@/api/remote/plan/test-plan";
 import {isProjectVersionEnable} from "@/business/utils/sdk-utils";
 
 export default {
@@ -207,11 +207,23 @@ export default {
       testPlanListAll({projectId: getCurrentProjectID()})
         .then(response => {
           this.testPlans = response.data;
+          let hasPlan = false;
           this.testPlans.forEach(plan => {
             if (this.planId && plan.id === this.planId) {
+              hasPlan = true;
               this.currentPlan = plan;
             }
           });
+          if (!hasPlan) {
+            if (this.planId) {
+              testPlanGet(this.planId)
+                .then((r) => {
+                  let plan = r.data;
+                  setCurrentProjectID(plan.projectId);
+                  location.reload();
+                });
+            }
+          }
         });
     },
     changePlan(plan) {
