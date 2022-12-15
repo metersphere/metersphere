@@ -102,11 +102,12 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="10">
-            <el-col :span="24">
-              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>
-            </el-col>
-          </el-row>
+<!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
+<!--          <el-row :gutter="10">-->
+<!--            <el-col :span="24">-->
+<!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
+<!--            </el-col>-->
+<!--          </el-row>-->
         </form-section>
 
       </el-form-item>
@@ -505,9 +506,9 @@ export default {
       this.$refs["httpConfig"].validate((valid) => {
         isValidate = valid;
       });
-      if (this.$refs.cookieTable && !this.$refs.cookieTable.validate()) {
-        return false;
-      }
+      // if (this.$refs.cookieTable && !this.$refs.cookieTable.validate()) {
+      //   return false;
+      // }
       return isValidate;
     },
     batchAdd() {
