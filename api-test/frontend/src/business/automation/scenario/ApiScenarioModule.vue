@@ -55,7 +55,7 @@ import {
   getModuleByProjectId,
   getModuleByRelevanceProjectId,
   getModuleByTrash,
-  posScenarioModule,
+  posScenarioModule, postModuleByProjectId, postModuleByTrash,
 } from '@/api/scenario-module';
 
 export default {
@@ -112,6 +112,7 @@ export default {
         filterText: '',
         trashEnable: false,
       },
+      param: {},
       data: [],
       currentModule: undefined,
       operators: [
@@ -165,6 +166,16 @@ export default {
       this.list();
     },
   },
+  created(){
+    this.$EventBus.$on("scenarioConditionBus", (param)=>{
+      this.param = param;
+    })
+  },
+  beforeDestroy() {
+    this.$EventBus.$off("scenarioConditionBus", (param)=>{
+      this.param = param;
+    })
+  },
   methods: {
     handleImport() {
       if (this.projectId) {
@@ -188,11 +199,11 @@ export default {
           this.setData(response);
         });
       } else if (this.isTrashData) {
-        this.result = getModuleByTrash(projectId ? projectId : this.projectId).then((response) => {
+        this.result = postModuleByTrash(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getModuleByProjectId(projectId ? projectId : this.projectId).then((response) => {
+        this.result = postModuleByProjectId(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
       }

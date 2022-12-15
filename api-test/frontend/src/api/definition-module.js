@@ -5,6 +5,11 @@ export function getApiModules(projectId, protocol, currentVersion) {
   return get(url);
 }
 
+export function postApiModules(projectId, protocol, currentVersion, param) {
+  let url = '/api/module/list/' + projectId + '/' + protocol + (currentVersion ? '/' + currentVersion : '');
+  return post(url, param);
+}
+
 export function getApiModuleByProjectIdAndProtocol(projectId, protocol) {
   let url = '/api/module/list/' + projectId + '/' + protocol;
   return get(url);
@@ -13,6 +18,11 @@ export function getApiModuleByProjectIdAndProtocol(projectId, protocol) {
 export function getApiModuleByTrash(projectId, protocol, currentVersion) {
   let url = '/api/module/trash/list/' + projectId + '/' + protocol + '/' + (currentVersion ? '/' + currentVersion : '');
   return get(url);
+}
+
+export function postApiModuleByTrash(projectId, protocol, currentVersion, param) {
+  let url = '/api/module/trash/list/' + projectId + '/' + protocol + '/' + (currentVersion ? '/' + currentVersion : '');
+  return post(url, param);
 }
 
 export function getUserDefaultApiType() {
