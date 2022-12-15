@@ -496,8 +496,6 @@ public class IssuesService {
     public List<String> getPlatforms(Project project) {
         String workspaceId = project.getWorkspaceId();
         boolean tapd = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Tapd.toString());
-        boolean jira = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Jira.toString());
-        boolean zentao = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Zentao.toString());
         boolean azure = isIntegratedPlatform(workspaceId, IssuesManagePlatform.AzureDevops.toString());
 
         List<String> platforms = new ArrayList<>();
@@ -508,20 +506,6 @@ public class IssuesService {
                 platforms.add(IssuesManagePlatform.Tapd.name());
             }
 
-        }
-
-        if (jira) {
-            String jiraKey = project.getJiraKey();
-            if (StringUtils.isNotBlank(jiraKey) && PlatformPluginService.isPluginPlatform(project.getPlatform())) {
-                platforms.add(IssuesManagePlatform.Jira.name());
-            }
-        }
-
-        if (zentao) {
-            String zentaoId = project.getZentaoId();
-            if (StringUtils.isNotBlank(zentaoId) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Zentao.toString())) {
-                platforms.add(IssuesManagePlatform.Zentao.name());
-            }
         }
 
         if (azure) {
@@ -945,10 +929,10 @@ public class IssuesService {
     }
 
     private String getDefaultCustomField(Project project) {
-        if (!trackProjectService.isThirdPartTemplate(project)) {
-            return getDefaultCustomFields(project.getId());
+        if (isThirdPartTemplate(project)) {
+            return null;
         }
-        return null;
+        return getDefaultCustomFields(project.getId());
     }
 
     public void syncPluginThirdPartyIssues(List<IssuesDao> issues, Project project, String defaultCustomFields) {
@@ -1057,10 +1041,6 @@ public class IssuesService {
     }
 
     private void syncAllPluginIssueAttachment(Project project, IssueSyncRequest syncIssuesResult) {
-        // todo 所有平台改造完之后删除
-        if (!StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
-            return;
-        }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         try {
             AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
@@ -1510,7 +1490,8 @@ public class IssuesService {
     public boolean isThirdPartTemplate(Project project) {
         return project.getThirdPartTemplate() != null
                 && project.getThirdPartTemplate()
-                && PlatformPluginService.isPluginPlatform(project.getPlatform());
+                && PlatformPluginService.isPluginPlatform(project.getPlatform())
+                && platformPluginService.isThirdPartTemplateSupport(project.getPlatform());
     }
 
     public void checkThirdProjectExist(Project project) {
