@@ -170,7 +170,6 @@ public class ApiDefinitionService {
     private static final String SCHEDULE = "schedule";
 
 
-
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
@@ -354,8 +353,8 @@ public class ApiDefinitionService {
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId(), versionId);
             }
             if (CollectionUtils.isNotEmpty(definitionList)) {
-                //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
-                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), versionId);
+                //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数. 这里不根据版本筛选覆盖的url。
+                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), null);
                 List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
                 if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                     request.setCoverageIds(apiIdInScenario);
@@ -933,21 +932,6 @@ public class ApiDefinitionService {
             return Optional.of(apiDefinition.getNum() + 1).orElse(100001);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
