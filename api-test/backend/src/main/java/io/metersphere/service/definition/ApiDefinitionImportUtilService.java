@@ -320,9 +320,8 @@ public class ApiDefinitionImportUtilService {
             String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
             //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
             if (fullCoverage) {
-                List<ApiDefinitionWithBLOBs> singleOptionData = new ArrayList<>();
-                removeHttpChooseModuleRepeat(optionData, singleOptionData, chooseModulePath);
-                optionData = singleOptionData;
+                removeHttpChooseModuleRepeat(optionData, chooseModulePath);
+                //  optionData = singleOptionData;
                 optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(chooseModulePath), api -> api));
             } else {
                 getChooseModuleUrlRepeatOptionMap(optionData, optionMap, chooseModulePath);
@@ -357,19 +356,6 @@ public class ApiDefinitionImportUtilService {
             //不覆盖,同一接口不做更新;可能创建新版本，case也直接创建，
             if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
                 removeSameData(repeatDataMap, optionMap, optionData, moduleMap, optionDataCases);
-            }
-        }
-        //最后在整个体统内检查一遍（防止在有选择的模块时，未找到重复，直接创建的情况）
-        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
-            optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath()), api -> api));
-            if (fullCoverage) {
-                startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,null);
-            } else {
-                //不覆盖,同一接口不做更新
-                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
-                    removeSameData(repeatDataMap, optionMap, optionData, moduleMap, optionDataCases);
-                }
             }
         }
         //将原来的case和更改的case组合在一起，为了同步的设置
@@ -462,18 +448,20 @@ public class ApiDefinitionImportUtilService {
         return s;
     }
 
-    private static void removeHttpChooseModuleRepeat(List<ApiDefinitionWithBLOBs> optionData, List<ApiDefinitionWithBLOBs> singleOptionData, String chooseModulePath) {
+    private static void removeHttpChooseModuleRepeat(List<ApiDefinitionWithBLOBs> optionData, String chooseModulePath) {
         LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = optionData.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(chooseModulePath), LinkedHashMap::new, Collectors.toList()));
-        methodPathMap.forEach((k, v) -> singleOptionData.add(v.get(v.size() - 1)));
+        methodPathMap.forEach((k, v) -> {
+            if (v.size() > 1) {
+                for (int i = 0; i < v.size() - 1; i++) {
+                    optionData.remove(v.get(i));
+                }
+            }
+        });
     }
 
     private static void getChooseModuleUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> optionMap, String chooseModulePath) {
         for (ApiDefinitionWithBLOBs optionDatum : optionData) {
-            if (optionDatum.getModulePath() == null) {
-                optionMap.put(optionDatum.getName().concat(optionDatum.getMethod()).concat(optionDatum.getPath()).concat(chooseModulePath), optionDatum);
-            } else {
-                optionMap.put(optionDatum.getName().concat(optionDatum.getMethod()).concat(optionDatum.getPath()).concat(chooseModulePath).concat(optionDatum.getModulePath()), optionDatum);
-            }
+            optionMap.put(optionDatum.getName().concat(optionDatum.getMethod()).concat(optionDatum.getPath()).concat(chooseModulePath), optionDatum);
         }
     }
 
