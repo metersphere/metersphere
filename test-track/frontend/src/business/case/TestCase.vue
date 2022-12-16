@@ -1,9 +1,9 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
 
-    <ms-main-button-group :button-group="mainButtons" />
+    <ms-main-button-group :button-group="mainButtons" v-if="!editable"/>
 
-    <div style="display: flex; margin-top: 16px">
+    <div style="display: flex; margin-top: 16px" v-if="!editable">
       <ms-aside-container v-show="isAsideHidden" :min-width="'0'">
         <test-case-node-tree
           :type="'edit'"
@@ -192,15 +192,36 @@
           ref="isChangeConfirm"/>
       </ms-main-container>
     </div>
-
-
+ <!-- since v2.6 创建用例流程变更 -->
+ <ms-container v-if="editable">
+  <div v-for="item in tabs" :key="item.name">
+    <test-case-edit
+      :currentTestCaseInfo="item.testCaseInfo"
+      :version-enable="versionEnable"
+      @refresh="refreshAll"
+      @caseEdit="handleCaseCreateOrEdit($event, 'edit')"
+      @caseCreate="handleCaseCreateOrEdit($event, 'add')"
+      @checkout="checkout($event, item)"
+      :is-public="item.isPublic"
+      :read-only="testCaseReadOnly"
+      :tree-nodes="treeNodes"
+      :select-node="selectNode"
+      :select-condition="item.isPublic ? publicCondition : condition"
+      :public-enable="item.isPublic"
+      :case-type="type"
+      @addTab="addTab"
+      :editable="item.edit"
+      ref="testCaseEdit"
+    >
+    </test-case-edit>
+  </div>
+</ms-container>
   </ms-container>
 
 </template>
 
 <script>
-
-import TestCaseEdit from './components/TestCaseEdit';
+import TestCaseEdit from "./components/TestCaseEdit";
 import TestCaseList from "./components/TestCaseList";
 import SelectMenu from "../common/SelectMenu";
 import MsContainer from "metersphere-frontend/src/components/new-ui/MsContainer";
@@ -270,9 +291,9 @@ export default {
           name: this.$t('test_track.case.create_case'),
           icon: 'el-icon-plus',
           isPrimary: true,
-          size: 'small'
-          // handleClick: this.handleBatchEdit,
-          // permissions: ['PROJECT_TRACK_CASE:READ+BATCH_EDIT']
+          size: 'small',
+          handleClick: this.handleCreateCase,
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_EDIT']
         },
         {
           name: this.$t('commons.import'),
@@ -399,10 +420,16 @@ export default {
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
-    }
+    },
+    editable() {
+      return this.tabs.length > 0;
+    },
   },
   methods: {
     hasPermission,
+    handleCreateCase(){
+      this.handleCommand("ADD");
+    },
     handleCommand(e) {
       switch (e) {
         case "ADD":
@@ -500,7 +527,7 @@ export default {
         this.activeName = name;
         this.currentActiveName = 'default'
         this.type = 'add';
-        this.tabs.push({label: label, name: name, testCaseInfo: {testCaseModuleId: "", id: getUUID()}});
+        this.tabs.push({ edit: true, label: label, name: name, testCaseInfo: {testCaseModuleId: "", id: getUUID()}});
       }
       if (tab.name === 'edit' || tab.name === 'show') {
         let label = this.$t('test_track.case.create');
@@ -512,7 +539,7 @@ export default {
         }
         this.activeName = name;
         label = tab.testCaseInfo.name;
-        this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo, isPublic: tab.isPublic});
+        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo, isPublic: tab.isPublic});
       }
 
       if (tab.name === 'public') {
@@ -541,7 +568,7 @@ export default {
         this.activeName = name;
         this.currentActiveName = 'public'
         label = tab.testCaseInfo.name;
-        this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
+        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }
       this.setCurTabId(this, tab, 'testCaseEditShow');
     },

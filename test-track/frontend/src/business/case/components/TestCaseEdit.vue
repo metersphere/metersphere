@@ -1,156 +1,353 @@
 <template>
-  <el-card :bodyStyle="{padding:'0px'}">
-    <div class="card-content">
-      <div class="ms-main-div" @click="showAll">
-        <ms-container v-loading="loading" style="overflow: auto">
-          <ms-aside-container :height="pageHeight">
-            <test-case-base-info
-              :form="form"
-              :is-form-alive="isFormAlive"
-              :isloading="loading"
-              :read-only="readOnly"
-              :public-enable="publicEnable"
-              :show-input-tag="showInputTag"
-              :tree-nodes="treeNodes"
-              :project-list="projectList"
-              :custom-field-form="customFieldForm"
-              :custom-field-rules="customFieldRules"
-              :test-case-template="testCaseTemplate"
-              :default-open="richTextDefaultOpen"
-              ref="testCaseBaseInfo"
-            />
-          </ms-aside-container>
-          <ms-main-container :style="{height: pageHeight + 'px'}">
-            <el-form :model="form" :rules="rules" ref="caseFrom" class="case-form">
+  <div class="case-edit-wrap" style="min-width: 1100px">
+    <el-card :bodyStyle="{ padding: '0px' }" v-if="false">
+      <div class="card-content">
+        <div class="ms-main-div" @click="showAll">
+          <ms-container v-loading="loading" style="overflow: auto">
+            <ms-aside-container :height="pageHeight">
+              <test-case-base-info
+                :form="form"
+                :is-form-alive="isFormAlive"
+                :isloading="loading"
+                :read-only="readOnly"
+                :public-enable="publicEnable"
+                :show-input-tag="showInputTag"
+                :tree-nodes="treeNodes"
+                :project-list="projectList"
+                :custom-field-form="customFieldForm"
+                :custom-field-rules="customFieldRules"
+                :test-case-template="testCaseTemplate"
+                :default-open="richTextDefaultOpen"
+                ref="testCaseBaseInfo"
+              />
+            </ms-aside-container>
+            <ms-main-container :style="{ height: pageHeight + 'px' }">
+              <el-form
+                :model="form"
+                :rules="rules"
+                ref="caseFrom"
+                class="case-form"
+              >
+                <!--操作按钮-->
+                <div class="ms-opt-btn">
+                  <el-tooltip
+                    :content="$t('commons.follow')"
+                    placement="bottom"
+                    effect="dark"
+                    v-if="!showFollow"
+                  >
+                    <i
+                      class="el-icon-star-off"
+                      style="
+                        color: var(--primary_color);
+                        font-size: 25px;
+                        margin-right: 15px;
+                        cursor: pointer;
+                        position: relative;
+                        top: 5px;
+                      "
+                      @click="saveFollow"
+                    />
+                  </el-tooltip>
+                  <el-tooltip
+                    :content="$t('commons.cancel')"
+                    placement="bottom"
+                    effect="dark"
+                    v-if="showFollow"
+                  >
+                    <i
+                      class="el-icon-star-on"
+                      style="
+                        color: var(--primary_color);
+                        font-size: 28px;
+                        margin-right: 15px;
+                        cursor: pointer;
+                        position: relative;
+                        top: 5px;
+                      "
+                      @click="saveFollow"
+                    />
+                  </el-tooltip>
+                  <el-link
+                    type="primary"
+                    style="margin-right: 20px"
+                    @click="openHis"
+                    v-if="form.id"
+                  >
+                    {{ $t("operating_log.change_history") }}
+                  </el-link>
+                  <!--  版本历史 -->
+                  <mx-version-history
+                    v-xpack
+                    ref="versionHistory"
+                    :version-data="versionData"
+                    :current-id="currentTestCaseInfo.id"
+                    :is-read="currentTestCaseInfo.trashEnable || readOnly"
+                    @confirmOtherInfo="confirmOtherInfo"
+                    :current-project-id="currentProjectId"
+                    :has-latest="hasLatest"
+                    @setLatest="setLatest"
+                    @compare="compare"
+                    @checkout="checkout"
+                    @create="create"
+                    @del="del"
+                  />
+                  <el-dropdown
+                    split-button
+                    type="primary"
+                    class="ms-api-buttion"
+                    @click="handleCommand"
+                    @command="handleCommand"
+                    size="small"
+                    style="float: right; margin-right: 20px"
+                    v-if="
+                      this.path === '/test/case/add' ||
+                      (this.isPublic && this.isXpack)
+                    "
+                    :disabled="readOnly"
+                  >
+                    {{ $t("commons.save") }}
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item
+                        command="ADD_AND_CREATE"
+                        v-if="this.path == '/test/case/add'"
+                        >{{ $t("test_track.case.save_create_continue") }}
+                      </el-dropdown-item>
+                      <el-dropdown-item
+                        command="ADD_AND_PUBLIC"
+                        v-if="this.isPublic && this.isXpack"
+                        >{{ $t("test_track.case.save_add_public") }}
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <el-button
+                    v-else
+                    type="primary"
+                    class="ms-api-buttion"
+                    @click="handleCommand"
+                    :disabled="readOnly"
+                    @command="handleCommand"
+                    size="small"
+                    style="float: right; margin-right: 20px"
+                  >
+                    {{ $t("commons.save") }}
+                  </el-button>
+                </div>
+                <ms-form-divider :title="$t('test_track.case.step_info')" />
 
-              <!--操作按钮-->
-              <div class="ms-opt-btn">
-                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-                  <i class="el-icon-star-off"
-                     style="color: var(--primary_color); font-size: 25px;  margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-                     @click="saveFollow"/>
-                </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-                  <i class="el-icon-star-on"
-                     style="color: var(--primary_color); font-size: 28px; margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-                     @click="saveFollow"/>
-                </el-tooltip>
-                <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
-                  {{ $t('operating_log.change_history') }}
-                </el-link>
-                <!--  版本历史 -->
-                <mx-version-history v-xpack
-                                    ref="versionHistory"
-                                    :version-data="versionData"
-                                    :current-id="currentTestCaseInfo.id"
-                                    :is-read="currentTestCaseInfo.trashEnable || readOnly"
-                                    @confirmOtherInfo="confirmOtherInfo"
-                                    :current-project-id="currentProjectId"
-                                    :has-latest="hasLatest"
-                                    @setLatest="setLatest"
-                                    @compare="compare" @checkout="checkout" @create="create" @del="del"/>
-                <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                             @command="handleCommand" size="small" style="float: right;margin-right: 20px"
-                             v-if="(this.path ==='/test/case/add') || (this.isPublic && this.isXpack)"
-                             :disabled="readOnly">
-                  {{ $t('commons.save') }}
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
-                        $t('test_track.case.save_create_continue')
-                      }}
-                    </el-dropdown-item>
-                    <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.isPublic && this.isXpack">{{
-                        $t('test_track.case.save_add_public')
-                      }}
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-                <el-button v-else type="primary" class="ms-api-buttion" @click="handleCommand"
-                           :disabled="readOnly"
-                           @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-                  {{ $t('commons.save') }}
-                </el-button>
-              </div>
-              <ms-form-divider :title="$t('test_track.case.step_info')"/>
+                <form-rich-text-item
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.prerequisite')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                  prop="prerequisite"
+                />
 
-              <form-rich-text-item :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.prerequisite')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"
-                                   prop="prerequisite"/>
+                <step-change-item :label-width="formLabelWidth" :form="form" />
+                <form-rich-text-item
+                  v-if="form.stepModel === 'TEXT'"
+                  prop="stepDescription"
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.step_desc')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                />
 
-              <step-change-item :label-width="formLabelWidth" :form="form"/>
-              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
-                                   prop="stepDescription"
-                                   :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.step_desc')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"/>
+                <form-rich-text-item
+                  v-if="form.stepModel === 'TEXT'"
+                  prop="expectedResult"
+                  :disabled="readOnly"
+                  :label-width="formLabelWidth"
+                  :title="$t('test_track.case.expected_results')"
+                  :data="form"
+                  :default-open="richTextDefaultOpen"
+                />
 
-              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
-                                   prop="expectedResult"
-                                   :disabled="readOnly"
-                                   :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.expected_results')"
-                                   :data="form"
-                                   :default-open="richTextDefaultOpen"/>
+                <test-case-step-item
+                  v-if="form.stepModel === 'STEP' || !form.stepModel"
+                  :label-width="formLabelWidth"
+                  :form="form"
+                  :read-only="readOnly"
+                />
 
-              <test-case-step-item v-if="form.stepModel === 'STEP' || !form.stepModel"
-                                   :label-width="formLabelWidth"
-                                   :form="form"
-                                   :read-only="readOnly"/>
+                <ms-form-divider :title="$t('test_track.case.other_info')" />
 
-              <ms-form-divider :title="$t('test_track.case.other_info')"/>
+                <test-case-edit-other-info
+                  :read-only="readOnly"
+                  :project-id="projectIds"
+                  :form="form"
+                  :is-copy="currentTestCaseInfo.isCopy"
+                  :copy-case-id="copyCaseId"
+                  :label-width="formLabelWidth"
+                  :case-id="form.id"
+                  :type="type"
+                  :comments.sync="comments"
+                  @openComment="openComment"
+                  :is-click-attachment-tab.sync="isClickAttachmentTab"
+                  :version-enable="versionEnable"
+                  :default-open="richTextDefaultOpen"
+                  ref="otherInfo"
+                />
+                <test-case-comment
+                  :case-id="form.id"
+                  @getComments="getComments"
+                  ref="testCaseComment"
+                />
+              </el-form>
+            </ms-main-container>
+          </ms-container>
+        </div>
+        <ms-change-history ref="changeHistory" />
+        <el-dialog
+          :fullscreen="true"
+          :visible.sync="dialogVisible"
+          :destroy-on-close="true"
+          width="100%"
+        >
+          <test-case-version-diff
+            v-if="dialogVisible"
+            :old-data="oldData"
+            :new-data="newData"
+            :tree-nodes="treeNodes"
+          ></test-case-version-diff>
+        </el-dialog>
 
-              <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                         :is-copy="currentTestCaseInfo.isCopy"
-                                         :copy-case-id="copyCaseId"
-                                         :label-width="formLabelWidth" :case-id="form.id"
-                                         :type="type" :comments.sync="comments"
-                                         @openComment="openComment"
-                                         :is-click-attachment-tab.sync="isClickAttachmentTab"
-                                         :version-enable="versionEnable"
-                                         :default-open="richTextDefaultOpen"
-                                         ref="otherInfo"/>
-              <test-case-comment :case-id="form.id"
-                                 @getComments="getComments" ref="testCaseComment"/>
-            </el-form>
-          </ms-main-container>
-        </ms-container>
+        <version-create-other-info-select
+          @confirmOtherInfo="confirmOtherInfo"
+          ref="selectPropDialog"
+        ></version-create-other-info-select>
       </div>
-      <ms-change-history ref="changeHistory"/>
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        width="100%"
-      >
-        <test-case-version-diff v-if="dialogVisible" :old-data="oldData" :new-data="newData"
-                                :tree-nodes="treeNodes"></test-case-version-diff>
+    </el-card>
 
-      </el-dialog>
-
-      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo"
-                                        ref="selectPropDialog"></version-create-other-info-select>
+    <!-- since v2.6 -->
+    <div class="case-edit-box">
+      <!-- 创建 or 编辑用例 -->
+      <div class="edit-header-container">
+        <div class="header-content-row">
+          <div class="back">
+            <img src="/assets/figma/icon_arrow-left_outlined.svg" alt="" />
+          </div>
+          <div class="case-name">{{ !editable ? form.name : "创建用例" }}</div>
+          <div class="case-edit">
+            <div class="case-level"></div>
+            <div class="case-version">
+              <div class="version-icon"></div>
+              <div class="version-title"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 正文 -->
+      <div class="edit-content-container">
+        <div class="content-body-wrap">
+          <!-- 非创建状态下 展示 -->
+          <div class="tab-pane-wrap" v-if="!editable">
+            <el-tabs v-model="caseActiveName">
+              <el-tab-pane label="用例详情" name="detail">
+                <case-detail-component
+                  :editable="editable"
+                  :form="form"
+                  :richTextDefaultOpen="richTextDefaultOpen"
+                  :formLabelWidth="formLabelWidth"
+                ></case-detail-component>
+              </el-tab-pane>
+              <el-tab-pane label="关联测试用例" name="associateTestCases"
+                >关联测试用例
+              </el-tab-pane>
+              <el-tab-pane label="关联缺陷" name="associatedDefects"
+                >关联缺陷
+              </el-tab-pane>
+              <el-tab-pane label="依赖关系" name="dependencies"
+                >依赖关系
+              </el-tab-pane>
+              <el-tab-pane label="评论" name="comment">评论 </el-tab-pane>
+              <el-tab-pane label="变更记录" name="changeRecord"
+                >变更记录
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          <case-detail-component
+            v-if="editable"
+            :editable="editable"
+            :form="form"
+            :richTextDefaultOpen="richTextDefaultOpen"
+            :formLabelWidth="formLabelWidth"
+            ref="testCaseBaseInfo"
+          ></case-detail-component>
+        </div>
+        <!-- 基础信息 -->
+        <div class="content-base-info-wrap">
+          <case-base-info
+            :editable="editable"
+            :form="form"
+            :is-form-alive="isFormAlive"
+            :isloading="loading"
+            :read-only="readOnly"
+            :public-enable="publicEnable"
+            :show-input-tag="showInputTag"
+            :tree-nodes="treeNodes"
+            :project-list="projectList"
+            :custom-field-form="customFieldForm"
+            :custom-field-rules="customFieldRules"
+            :test-case-template="testCaseTemplate"
+            :default-open="richTextDefaultOpen"
+            ref="testCaseBaseInfo"
+          ></case-base-info>
+        </div>
+      </div>
+      <!-- 底部操作按钮 -->
+      <div class="edit-footer-container">
+        <template v-if="editable">
+          <!-- 保存 -->
+          <div class="save-btn-row">
+            <el-button size="small" @click="handleCommand">保存</el-button>
+          </div>
+          <!-- 保存并添加到公共用例库 -->
+          <div
+            class="save-add-pub-row"
+            v-if="this.isPublic && this.isXpack"
+            @click="handleCommand('ADD_AND_PUBLIC')"
+          >
+            <el-button size="small">保存并添加到公共用例库</el-button>
+          </div>
+          <!-- 保存并新建 -->
+          <div class="save-create-row">
+            <el-button
+              size="small"
+              @click="handleCommand('ADD_AND_CREATE')"
+              v-if="
+                this.path === '/test/case/add' ||
+                (this.isPublic && this.isXpack)
+              "
+              :disabled="readOnly"
+              >保存并新建</el-button
+            >
+          </div>
+        </template>
+      </div>
     </div>
-  </el-card>
-
-
+  </div>
 </template>
 
 <script>
-import {TokenKey} from 'metersphere-frontend/src/utils/constants';
-import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import {getCurrentProjectID, getCurrentUser} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
+import { TokenKey } from "metersphere-frontend/src/utils/constants";
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+} from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
 import {
   getUUID,
   getNodePath,
   listenGoBack,
   removeGoBackListener,
-  handleCtrlSEvent
+  handleCtrlSEvent,
 } from "metersphere-frontend/src/utils";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import CaseComment from "@/business/case/components/CaseComment";
@@ -165,15 +362,15 @@ import CustomFiledComponent from "metersphere-frontend/src/components/template/C
 import {
   buildCustomFields,
   buildTestCaseOldFields,
-  parseCustomField
+  parseCustomField,
 } from "metersphere-frontend/src/utils/custom_field";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
-import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
+import FormRichTextItem from "@/business/case/components/richtext/FormRichTextItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
-import {getTestTemplate} from "@/api/custom-field-template";
+import { getTestTemplate } from "@/api/custom-field-template";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import TestCaseVersionDiff from "@/business/case/version/TestCaseVersionDiff";
 import VersionCreateOtherInfoSelect from "@/business/case/components/VersionCreateOtherInfoSelect";
@@ -181,24 +378,37 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {useStore} from "@/store";
-import {getProjectApplicationConfig} from "@/api/project-application";
+import { useStore } from "@/store";
+import { getProjectApplicationConfig } from "@/api/project-application";
 import {
   deleteTestCaseVersion,
   getTestCase,
   getTestCaseFollow,
-  getTestCaseVersions, hasTestCaseOtherInfo,
+  getTestCaseVersions,
+  hasTestCaseOtherInfo,
   testCaseEditFollows,
-  testCaseGetByVersionId
+  testCaseGetByVersionId,
 } from "@/api/testCase";
 
-import {getProjectListAll, getProjectMemberOption} from "@/business/utils/sdk-utils";
-import {testCaseCommentList} from "@/api/test-case-comment";
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+import {
+  getProjectListAll,
+  getProjectMemberOption,
+} from "@/business/utils/sdk-utils";
+import { testCaseCommentList } from "@/api/test-case-comment";
+import {
+  getDefaultVersion,
+  setLatestVersionById,
+} from "metersphere-frontend/src/api/version";
+import BaseEditItemComponent from "./BaseEditItemComponent";
+import CaseDetailComponent from "./case/CaseDetailComponent";
+import CaseBaseInfo from "./case/CaseBaseInfo";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    CaseBaseInfo,
+    CaseDetailComponent,
+    BaseEditItemComponent,
     CustomFiledFormItem,
     StepChangeItem,
     TestCaseStepItem,
@@ -209,7 +419,12 @@ export default {
     MsTableButton,
     MsSelectTree,
     ReviewCommentItem,
-    TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
+    TestCaseComment,
+    MsPreviousNextButton,
+    MsInputTag,
+    CaseComment,
+    MsDialogFooter,
+    TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
     TestCaseVersionDiff,
@@ -218,15 +433,20 @@ export default {
     MsContainer,
     MsAsideContainer,
     MsMainContainer,
-    MxVersionHistory: () => import("metersphere-frontend/src/components/version/MxVersionHistory")
+    MxVersionHistory: () =>
+      import("metersphere-frontend/src/components/version/MxVersionHistory"),
   },
   data() {
     return {
+      // since v2.6
+      caseActiveName: "detail",
+
+      // origin
       path: "/test/case/add",
       isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
-      pageHeight: document.documentElement.clientHeight - 150 + '',
+      pageHeight: document.documentElement.clientHeight - 150 + "",
       projectList: [],
       comments: [],
       loading: false,
@@ -236,70 +456,114 @@ export default {
       currentValidateName: "",
       type: "",
       form: {
-        name: '',
-        module: 'default-module',
-        nodePath: '/未规划用例',
+        name: "",
+        module: "default-module",
+        nodePath: "/未规划用例",
         maintainer: getCurrentUser().id,
-        priority: 'P0',
-        type: '',
-        method: '',
-        prerequisite: '',
-        testId: '',
-        steps: [{
-          num: 1,
-          desc: '',
-          result: ''
-        }],
-        stepDesc: '',
-        stepResult: '',
+        priority: "P0",
+        type: "",
+        method: "",
+        prerequisite: "",
+        testId: "",
+        steps: [
+          {
+            num: 1,
+            desc: "",
+            result: "",
+          },
+        ],
+        stepDesc: "",
+        stepResult: "",
         selected: [],
-        remark: '',
+        remark: "",
         tags: [],
-        demandId: '',
-        demandName: '',
-        status: 'Prepare',
-        reviewStatus: 'Prepare',
-        stepDescription: '',
-        expectedResult: '',
-        stepModel: 'STEP',
-        customNum: '',
-        followPeople: '',
+        demandId: "",
+        demandName: "",
+        status: "Prepare",
+        reviewStatus: "Prepare",
+        stepDescription: "",
+        expectedResult: "",
+        stepModel: "STEP",
+        customNum: "",
+        followPeople: "",
       },
       maintainerOptions: [],
-      workspaceId: '',
+      workspaceId: "",
       rules: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
+          {
+            required: true,
+            message: this.$t("test_track.case.input_name"),
+            trigger: "blur",
+          },
+          {
+            max: 255,
+            message: this.$t("test_track.length_less_than") + "255",
+            trigger: "blur",
+          },
         ],
-        module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        module: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_module"),
+            trigger: "change",
+          },
+        ],
         customNum: [
-          {required: true, message: "ID必填", trigger: 'blur'},
-          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          { required: true, message: "ID必填", trigger: "blur" },
+          {
+            max: 50,
+            message: this.$t("test_track.length_less_than") + "50",
+            trigger: "blur",
+          },
         ],
-        demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
-        maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
-        method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
+        demandName: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_demand_name"),
+            trigger: "change",
+          },
+        ],
+        maintainer: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_maintainer"),
+            trigger: "change",
+          },
+        ],
+        priority: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_priority"),
+            trigger: "change",
+          },
+        ],
+        method: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_method"),
+            trigger: "change",
+          },
+        ],
       },
       customFieldRules: {},
       customFieldForm: null,
       formLabelWidth: "100px",
-      operationType: '',
+      operationType: "",
       isCreateContinue: false,
       isStepTableAlive: true,
       isFormAlive: true,
       methodOptions: [
-        {value: 'auto', label: this.$t('test_track.case.auto')},
-        {value: 'manual', label: this.$t('test_track.case.manual')}
+        { value: "auto", label: this.$t("test_track.case.auto") },
+        { value: "manual", label: this.$t("test_track.case.manual") },
       ],
       testCase: {},
       copyCaseId: "",
       showInputTag: true,
       tableType: "",
       moduleObj: {
-        id: 'id',
-        label: 'name',
+        id: "id",
+        label: "name",
       },
       tabId: getUUID(),
       versionData: [],
@@ -310,20 +574,20 @@ export default {
       currentProjectId: "",
       casePublic: false,
       isClickAttachmentTab: false,
-      latestVersionId: '',
-      hasLatest: false
+      latestVersionId: "",
+      hasLatest: false,
     };
   },
   props: {
     treeNodes: {
-      type: Array
+      type: Array,
     },
     currentTestCaseInfo: {},
     selectNode: {
-      type: Object
+      type: Object,
     },
     selectCondition: {
-      type: Object
+      type: Object,
     },
     caseType: String,
     publicEnable: {
@@ -332,6 +596,7 @@ export default {
     },
     activeName: String,
     versionEnable: Boolean,
+    editable: Boolean,
   },
   computed: {
     projectIds() {
@@ -344,16 +609,18 @@ export default {
       return useStore().currentProjectIsCustomNum;
     },
     richTextDefaultOpen() {
-      return this.type === 'edit' ? 'preview' : 'edit';
+      return this.type === "edit" ? "preview" : "edit";
     },
     readOnly() {
-      const {rowClickHasPermission} = this.currentTestCaseInfo;
+      const { rowClickHasPermission } = this.currentTestCaseInfo;
       if (rowClickHasPermission !== undefined) {
         return !rowClickHasPermission;
       }
-      return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
-        !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
-    }
+      return (
+        !hasPermission("PROJECT_TRACK_CASE:READ+CREATE") &&
+        !hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
+      );
+    },
   },
   watch: {
     form: {
@@ -364,7 +631,7 @@ export default {
           useStore().testCaseMap.set(this.form.id, change);
         }
       },
-      deep: true
+      deep: true,
     },
     customFieldForm: {
       handler(val) {
@@ -374,20 +641,20 @@ export default {
           useStore().testCaseMap.set(this.form.id, change);
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   beforeDestroy() {
     this.removeListener();
   },
   mounted() {
     this.getSelectOptions();
-    if (this.type === 'edit' || this.type === 'copy') {
+    if (this.type === "edit" || this.type === "copy") {
       this.open(this.currentTestCaseInfo);
     }
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
-      document.querySelectorAll('.el-cascader-node__label').forEach(el => {
+      document.querySelectorAll(".el-cascader-node__label").forEach((el) => {
         el.onclick = function () {
           if (this.previousElementSibling) this.previousElementSibling.click();
         };
@@ -397,7 +664,12 @@ export default {
       this.form.module = this.selectNode.data.id;
       this.form.nodePath = this.selectNode.data.path;
     }
-    if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
+    if (
+      (!this.form.module ||
+        this.form.module === "default-module" ||
+        this.form.module === "root") &&
+      this.treeNodes.length > 0
+    ) {
       this.form.module = this.treeNodes[0].id;
       this.form.nodePath = this.treeNodes[0].path;
     }
@@ -407,58 +679,60 @@ export default {
     if (this.form.id) {
       useStore().testCaseMap.set(this.form.id, 0);
     }
-
   },
   created() {
     this.type = this.caseType;
-    if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
-      getProjectListAll()
-        .then((response) => {
-          this.projectList = response.data;  //获取当前工作空间所拥有的项目,
-        });
+    if (!this.projectList || this.projectList.length === 0) {
+      //没有项目数据的话请求项目数据
+      getProjectListAll().then((response) => {
+        this.projectList = response.data; //获取当前工作空间所拥有的项目,
+      });
     }
     this.projectId = this.projectIds;
     let initAddFuc = this.initAddFuc;
     this.loading = true;
-    getTestTemplate()
-      .then((template) => {
-        this.testCaseTemplate = template;
-        useStore().testCaseTemplate = this.testCaseTemplate;
-        initAddFuc();
-      });
+    getTestTemplate().then((template) => {
+      this.testCaseTemplate = template;
+      useStore().testCaseTemplate = this.testCaseTemplate;
+      initAddFuc();
+    });
     if (this.selectNode && this.selectNode.data && !this.form.id) {
       this.form.module = this.selectNode.data.id;
       this.form.nodePath = this.selectNode.data.path;
     } else {
-      this.form.module = this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
+      this.form.module =
+        this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
     }
-    if (this.type === 'edit' || this.type === 'copy') {
+    if (this.type === "edit" || this.type === "copy") {
       this.form.module = this.currentTestCaseInfo.nodeId;
       this.form.nodePath = this.currentTestCaseInfo.nodePath;
     }
-    if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
+    if (
+      (!this.form.module ||
+        this.form.module === "default-module" ||
+        this.form.module === "root") &&
+      this.treeNodes.length > 0
+    ) {
       this.form.module = this.treeNodes[0].id;
       this.form.nodePath = this.treeNodes[0].path;
     }
-    getTestCaseFollow(this.currentTestCaseInfo.id)
-      .then(response => {
-        this.form.follows = response.data;
-        for (let i = 0; i < response.data.length; i++) {
-          if (response.data[i] === this.currentUser().id) {
-            this.showFollow = true;
-            break;
-          }
+    getTestCaseFollow(this.currentTestCaseInfo.id).then((response) => {
+      this.form.follows = response.data;
+      for (let i = 0; i < response.data.length; i++) {
+        if (response.data[i] === this.currentUser().id) {
+          this.showFollow = true;
+          break;
         }
-      });
-    getProjectApplicationConfig('CASE_PUBLIC')
-      .then(res => {
-        let data = res.data;
-        if (data && data.typeValue === 'true') {
-          this.isPublic = true;
-        } else {
-          this.isPublic = false;
-        }
-      });
+      }
+    });
+    getProjectApplicationConfig("CASE_PUBLIC").then((res) => {
+      let data = res.data;
+      if (data && data.typeValue === "true") {
+        this.isPublic = true;
+      } else {
+        this.isPublic = false;
+      }
+    });
     if (hasLicense()) {
       this.isXpack = true;
     } else {
@@ -471,7 +745,7 @@ export default {
     //浏览器拉伸时窗口编辑窗口自适应
     this.$nextTick(() => {
       // 解决错位问题
-      window.addEventListener('resize', this.resizeContainer);
+      window.addEventListener("resize", this.resizeContainer);
     });
   },
   methods: {
@@ -480,10 +754,15 @@ export default {
       return getCurrentUser();
     },
     resizeContainer() {
-      this.pageHeight = document.documentElement.clientHeight - 150 + '';
+      this.pageHeight = document.documentElement.clientHeight - 150 + "";
     },
     openHis() {
-      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);
+      this.$refs.changeHistory.open(this.form.id, [
+        "测试用例",
+        "測試用例",
+        "Test case",
+        "TRACK_TEST_CASE",
+      ]);
     },
     setModule(id, data) {
       this.form.module = id;
@@ -496,19 +775,29 @@ export default {
         this.form.module = this.selectNode.data.id;
         this.form.nodePath = this.selectNode.data.path;
       } else {
-        this.form.module = this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
+        this.form.module =
+          this.treeNodes && this.length > 0 ? this.treeNodes[0].id : "";
       }
-      if (this.type === 'edit' || this.type === 'copy') {
+      if (this.type === "edit" || this.type === "copy") {
         this.form.module = this.currentTestCaseInfo.nodeId;
         this.form.nodePath = this.currentTestCaseInfo.nodePath;
       }
-      if ((!this.form.module || this.form.module === "default-module" || this.form.module === "root") && this.treeNodes.length > 0) {
+      if (
+        (!this.form.module ||
+          this.form.module === "default-module" ||
+          this.form.module === "root") &&
+        this.treeNodes.length > 0
+      ) {
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
       }
-      if (this.type === 'add') {
+      if (this.type === "add") {
         //设置自定义熟悉默认值
-        this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
+        this.customFieldForm = parseCustomField(
+          this.form,
+          this.testCaseTemplate,
+          this.customFieldRules
+        );
         this.form.name = this.testCaseTemplate.caseName;
         this.form.stepDescription = this.testCaseTemplate.stepDescription;
         this.form.expectedResult = this.testCaseTemplate.expectedResult;
@@ -518,7 +807,7 @@ export default {
           this.form.steps = JSON.parse(this.testCaseTemplate.steps);
         }
       }
-      if (this.type === 'add' || this.type === 'copy') {
+      if (this.type === "add" || this.type === "copy") {
         this.loading = false;
       }
     },
@@ -541,18 +830,18 @@ export default {
     },
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
-        this.$refs['caseFrom'].validate((valid) => {
+        this.$refs["caseFrom"].validate((valid) => {
           if (!valid) {
             this.saveCase();
           } else {
             this.saveCase(function (t) {
               let tab = {};
-              tab.name = 'add';
-              t.$emit('addTab', tab);
+              tab.name = "add";
+              t.$emit("addTab", tab);
             });
           }
-        })
-      } else if (e === 'ADD_AND_PUBLIC') {
+        });
+      } else if (e === "ADD_AND_PUBLIC") {
         this.casePublic = true;
         this.saveCase();
       } else {
@@ -560,21 +849,20 @@ export default {
       }
     },
     openComment() {
-      this.$refs.testCaseComment.open()
+      this.$refs.testCaseComment.open();
     },
     getComments(testCase) {
-      let id = '';
+      let id = "";
       if (testCase) {
         id = testCase.id;
       } else {
         id = this.form.id;
       }
       this.loading = true;
-      testCaseCommentList(id)
-        .then(res => {
-          this.loading = false;
-          this.comments = res.data;
-        });
+      testCaseCommentList(id).then((res) => {
+        this.loading = false;
+        this.comments = res.data;
+      });
     },
     showAll() {
       if (!this.customizeVisible) {
@@ -602,32 +890,31 @@ export default {
       this.projectId = this.projectIds;
       let initFuc = this.initEdit;
       this.loading = true;
-      getTestTemplate()
-        .then(template => {
-          this.testCaseTemplate = template;
-          useStore().testCaseTemplate = this.testCaseTemplate;
-          initFuc(testCase);
-        });
+      getTestTemplate().then((template) => {
+        this.testCaseTemplate = template;
+        useStore().testCaseTemplate = this.testCaseTemplate;
+        initFuc(testCase);
+      });
     },
     initEdit(testCase, callback) {
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', this.close);
+        window.addEventListener("popstate", this.close);
       }
       this.resetForm();
       listenGoBack(this.close);
-      this.operationType = 'add';
+      this.operationType = "add";
       if (testCase) {
         //修改
-        this.operationType = 'edit';
-        this.copyCaseId = '';
+        this.operationType = "edit";
+        this.copyCaseId = "";
         //复制
-        if (this.type === 'copy') {
+        if (this.type === "copy") {
           this.showInputTag = false;
-          this.operationType = 'add';
+          this.operationType = "add";
           this.copyCaseId = testCase.copyId;
           this.setFormData(testCase);
-          this.testCaseTemplate.customFields.forEach(item => {
+          this.testCaseTemplate.customFields.forEach((item) => {
             item.isEdit = false;
           });
           this.setTestCaseExtInfo(testCase);
@@ -651,21 +938,25 @@ export default {
           }
         }
         let user = JSON.parse(localStorage.getItem(TokenKey));
-        this.copyCaseId = '';
-        this.form.priority = 'P3';
-        this.form.type = 'functional';
-        this.form.method = 'manual';
+        this.copyCaseId = "";
+        this.form.priority = "P3";
+        this.form.type = "functional";
+        this.form.method = "manual";
         this.form.maintainer = user.id;
         this.form.tags = [];
         this.getSelectOptions();
-        this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
+        this.customFieldForm = parseCustomField(
+          this.form,
+          this.testCaseTemplate,
+          this.customFieldRules
+        );
         this.reload();
         this.loading = false;
       }
       if (callback) {
         callback();
       }
-      if (this.type !== 'copy') {
+      if (this.type !== "copy") {
         this.getComments(this.currentTestCaseInfo);
       }
     },
@@ -675,42 +966,43 @@ export default {
         id = this.currentTestCaseInfo.id;
       }
       this.loading = true;
-      getTestCase(id)
-        .then(response => {
-          this.loading = false;
-          if (response.data) {
-            this.path = "/test/case/edit";
-            if (this.currentTestCaseInfo.isCopy) {
-              this.path = "/test/case/add";
-            }
-          } else {
+      getTestCase(id).then((response) => {
+        this.loading = false;
+        if (response.data) {
+          this.path = "/test/case/edit";
+          if (this.currentTestCaseInfo.isCopy) {
             this.path = "/test/case/add";
           }
-          let testCase = response.data;
-          this.setFormData(testCase);
-          this.setTestCaseExtInfo(testCase);
-          this.getSelectOptions();
-          this.reload();
-          this.$nextTick(() => {
-            this.showInputTag = true;
-          });
+        } else {
+          this.path = "/test/case/add";
+        }
+        let testCase = response.data;
+        this.setFormData(testCase);
+        this.setTestCaseExtInfo(testCase);
+        this.getSelectOptions();
+        this.reload();
+        this.$nextTick(() => {
+          this.showInputTag = true;
         });
+      });
     },
     async setFormData(testCase) {
       try {
         testCase.selected = JSON.parse(testCase.testId);
       } catch (error) {
-        testCase.selected = testCase.testId
+        testCase.selected = testCase.testId;
       }
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
       if (!tmp.steps || tmp.steps.length < 1) {
-        tmp.steps = [{
-          num: 1,
-          desc: '',
-          result: ''
-        }];
+        tmp.steps = [
+          {
+            num: 1,
+            desc: "",
+            result: "",
+          },
+        ];
       }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
@@ -720,27 +1012,32 @@ export default {
       this.casePublic = tmp.casePublic;
       this.form.module = testCase.nodeId;
       //设置自定义熟悉默认值
-      this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, testCase ? buildTestCaseOldFields(this.form) : null);
+      this.customFieldForm = parseCustomField(
+        this.form,
+        this.testCaseTemplate,
+        this.customFieldRules,
+        testCase ? buildTestCaseOldFields(this.form) : null
+      );
       this.setDefaultValue();
       this.resetSystemField();
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
     },
     resetSystemField() {
-      if (this.operationType === 'add') {
+      if (this.operationType === "add") {
         return;
       }
       // 用例等级等字段以表中对应字段为准，后端复杂操作直接改表中对应字段即可
       this.from;
-      this.customFieldForm['用例等级'] = this.form.priority;
-      this.customFieldForm['责任人'] = this.form.maintainer;
-      this.customFieldForm['用例状态'] = this.form.status;
-      this.testCaseTemplate.customFields.forEach(field => {
-        if (field.name === '用例等级') {
+      this.customFieldForm["用例等级"] = this.form.priority;
+      this.customFieldForm["责任人"] = this.form.maintainer;
+      this.customFieldForm["用例状态"] = this.form.status;
+      this.testCaseTemplate.customFields.forEach((field) => {
+        if (field.name === "用例等级") {
           field.defaultValue = this.form.priority;
-        } else if (field.name === '责任人') {
+        } else if (field.name === "责任人") {
           field.defaultValue = this.form.maintainer;
-        } else if (field.name === '用例状态') {
+        } else if (field.name === "用例状态") {
           field.defaultValue = this.form.status;
         }
       });
@@ -775,12 +1072,14 @@ export default {
             response = response.data;
             // 保存用例后刷新附件
             this.currentTestCaseInfo.isCopy = false;
-            this.$refs.otherInfo.getFileMetaData(response.data.id);
+            if(this.$refs.otherInfo){
+              this.$refs.otherInfo.getFileMetaData(response.data.id);
+            }
             this.loading = false;
-            this.$success(this.$t('commons.save_success'));
+            this.$success(this.$t("commons.save_success"));
             this.path = "/test/case/edit";
-            this.operationType = "edit"
-            this.$emit("refreshTestCase",);
+            this.operationType = "edit";
+            this.$emit("refreshTestCase");
             useStore().testCaseMap.set(this.form.id, 0);
             this.$emit("refresh", response.data);
             if (this.form.id) {
@@ -788,7 +1087,7 @@ export default {
             } else {
               param.id = response.data.id;
               this.$emit("caseCreate", param);
-              this.type = 'edit';
+              this.type = "edit";
               this.close();
             }
             this.form.id = response.data.id;
@@ -807,7 +1106,11 @@ export default {
             if (hasLicense()) {
               this.getDefaultVersion();
             }
-          }).catch(() => {
+
+            // 取消编辑状态
+            this.editable = false;
+          })
+          .catch(() => {
             this.loading = false;
           });
       }
@@ -817,7 +1120,7 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
-      param.copyCaseId = this.copyCaseId
+      param.copyCaseId = this.copyCaseId;
       if (!this.publicEnable) {
         param.nodePath = getNodePath(this.form.module, this.moduleOptions);
         if (this.projectId) {
@@ -839,31 +1142,34 @@ export default {
       }
       param.tags = this.form.tags;
       param.casePublic = this.casePublic;
-      param.type = 'functional';
+      param.type = "functional";
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
       //配置多版本复制的时候是否要连带复制其他信息
       if (this.selectedOtherInfo) {
         param.otherInfoConfig = this.selectedOtherInfo;
       }
-      if (this.$refs.otherInfo.relateFiles.length > 0) {
-        param.relateFileMetaIds = this.$refs.otherInfo.relateFiles;
-      }
-      if (this.$refs.otherInfo.unRelateFiles.length > 0) {
-        param.unRelateFileMetaIds = this.$refs.otherInfo.unRelateFiles;
+      // TODO since v2.6
+      if (this.$refs.otherInfo) {
+        if (this.$refs.otherInfo.relateFiles.length > 0) {
+          param.relateFileMetaIds = this.$refs.otherInfo.relateFiles;
+        }
+        if (this.$refs.otherInfo.unRelateFiles.length > 0) {
+          param.unRelateFileMetaIds = this.$refs.otherInfo.unRelateFiles;
+        }
       }
       return param;
     },
     parseOldFields(param) {
       let customFields = this.testCaseTemplate.customFields;
-      customFields.forEach(item => {
-        if (item.name === '用例等级') {
+      customFields.forEach((item) => {
+        if (item.name === "用例等级") {
           param.priority = item.defaultValue;
         }
-        if (item.name === '责任人') {
+        if (item.name === "责任人") {
           param.maintainer = item.defaultValue;
         }
-        if (item.name === '用例状态') {
+        if (item.name === "用例状态") {
           param.status = item.defaultValue;
         }
       });
@@ -871,58 +1177,67 @@ export default {
     getOption(param) {
       let formData = new FormData();
       let requestJson = JSON.stringify(param, function (key, value) {
-        return key === "file" ? undefined : value
+        return key === "file" ? undefined : value;
       });
 
-      if (this.$refs.otherInfo.uploadFiles.length > 0) {
-        this.$refs.otherInfo.uploadFiles.forEach(f => {
+      if (this.$refs.otherInfo && this.$refs.otherInfo.uploadFiles.length > 0) {
+        this.$refs.otherInfo.uploadFiles.forEach((f) => {
           formData.append("file", f);
         });
       }
-      formData.append('request', new Blob([requestJson], {
-        type: "application/json"
-      }));
+      formData.append(
+        "request",
+        new Blob([requestJson], {
+          type: "application/json",
+        })
+      );
       return {
-        method: 'POST',
+        method: "POST",
         url: this.path,
         data: formData,
         headers: {
-          'Content-Type': undefined
-        }
+          "Content-Type": undefined,
+        },
       };
     },
     validate(param) {
       for (let i = 0; i < param.steps.length; i++) {
-        if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
-          (param.steps[i].result && param.steps[i].result.length > 300)) {
-          this.$warning(this.$t('test_track.case.step_desc') + ","
-            + this.$t('test_track.case.expected_results') + this.$t('test_track.length_less_than') + '300');
+        if (
+          (param.steps[i].desc && param.steps[i].desc.length > 300) ||
+          (param.steps[i].result && param.steps[i].result.length > 300)
+        ) {
+          this.$warning(
+            this.$t("test_track.case.step_desc") +
+              "," +
+              this.$t("test_track.case.expected_results") +
+              this.$t("test_track.length_less_than") +
+              "300"
+          );
           return false;
         }
       }
-      if (param.name === '') {
-        this.$warning(this.$t('test_track.case.input_name'));
+      if (param.name === "") {
+        this.$warning(this.$t("test_track.case.input_name"));
         return false;
       }
       return true;
     },
     typeChange() {
-      this.form.testId = '';
+      this.form.testId = "";
     },
     getMaintainerOptions() {
-      getProjectMemberOption()
-        .then(response => {
-          this.maintainerOptions = response.data;
-        });
+      getProjectMemberOption().then((response) => {
+        this.maintainerOptions = response.data;
+      });
     },
     getSelectOptions() {
       this.getMaintainerOptions();
     },
     resetForm() {
       //防止点击修改后，点击新建触发校验
-      if (this.$refs['caseFrom']) {
-        this.$refs['caseFrom'].validate(() => {
-          this.$refs['caseFrom'].resetFields();
+      if (this.$refs["caseFrom"]) {
+        this.$refs["caseFrom"].validate(() => {
+          this.$refs["caseFrom"].resetFields();
           this._resetForm();
           return true;
         });
@@ -931,22 +1246,24 @@ export default {
       }
     },
     _resetForm() {
-      this.form.name = '';
-      this.form.module = '';
-      this.form.type = '';
-      this.form.method = '';
-      this.form.maintainer = '';
-      this.form.priority = '';
-      this.form.prerequisite = '';
-      this.form.remark = '';
-      this.form.testId = '';
-      this.form.testName = '';
-      this.form.steps = [{
-        num: 1,
-        desc: '',
-        result: ''
-      }];
-      this.form.customNum = '';
+      this.form.name = "";
+      this.form.module = "";
+      this.form.type = "";
+      this.form.method = "";
+      this.form.maintainer = "";
+      this.form.priority = "";
+      this.form.prerequisite = "";
+      this.form.remark = "";
+      this.form.testId = "";
+      this.form.testName = "";
+      this.form.steps = [
+        {
+          num: 1,
+          desc: "",
+          result: "",
+        },
+      ];
+      this.form.customNum = "";
       this.form.tags = [];
     },
     addListener() {
@@ -970,59 +1287,57 @@ export default {
         this.showFollow = false;
         for (let i = 0; i < this.form.follows.length; i++) {
           if (this.form.follows[i] === this.currentUser().id) {
-            this.form.follows.splice(i, 1)
+            this.form.follows.splice(i, 1);
             break;
           }
         }
         this.loading = true;
-        testCaseEditFollows(this.form.id, this.form.follows)
-          .then(() => {
-            this.loading = false
-            this.$success(this.$t('commons.cancel_follow_success'));
-          });
+        testCaseEditFollows(this.form.id, this.form.follows).then(() => {
+          this.loading = false;
+          this.$success(this.$t("commons.cancel_follow_success"));
+        });
       } else {
         this.showFollow = true;
         if (!this.form.follows) {
           this.form.follows = [];
         }
-        this.form.follows.push(this.currentUser().id)
+        this.form.follows.push(this.currentUser().id);
 
         this.loading = true;
-        testCaseEditFollows(this.form.id, this.form.follows)
-          .then(() => {
-            this.loading = false
-            this.$success(this.$t('commons.follow_success'));
-          });
+        testCaseEditFollows(this.form.id, this.form.follows).then(() => {
+          this.loading = false;
+          this.$success(this.$t("commons.follow_success"));
+        });
       }
     },
     getDefaultVersion() {
-      getDefaultVersion(this.projectId)
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(this.projectId).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
     getVersionHistory() {
-      getTestCaseVersions(this.currentTestCaseInfo.id)
-        .then(response => {
-          if (response.data.length > 0) {
-            for (let i = 0; i < response.data.length; i++) {
-              this.currentProjectId = response.data[i].projectId;
-            }
-          } else {
-            this.currentProjectId = getCurrentProjectID();
+      getTestCaseVersions(this.currentTestCaseInfo.id).then((response) => {
+        if (response.data.length > 0) {
+          for (let i = 0; i < response.data.length; i++) {
+            this.currentProjectId = response.data[i].projectId;
           }
-          this.versionData = response.data;
-          let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
-          if (latestVersionData.length > 0) {
-            this.hasLatest = false
-          } else {
-            this.hasLatest = true;
-          }
-          if (this.$refs.versionHistory) {
-            this.$refs.versionHistory.loading = false;
-          }
-        });
+        } else {
+          this.currentProjectId = getCurrentProjectID();
+        }
+        this.versionData = response.data;
+        let latestVersionData = response.data.filter(
+          (v) => v.versionId === this.latestVersionId
+        );
+        if (latestVersionData.length > 0) {
+          this.hasLatest = false;
+        } else {
+          this.hasLatest = true;
+        }
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
+      });
     },
     setSpecialPropForCompare: function (that) {
       that.newData.tags = JSON.parse(that.newData.tags || "{}");
@@ -1033,69 +1348,84 @@ export default {
       that.oldData.readOnly = true;
     },
     compare(row) {
-      testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId)
-        .then(response => {
+      testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId).then(
+        (response) => {
           let p1 = getTestCase(response.data.id);
           let p2 = getTestCase(this.currentTestCaseInfo.id);
           let that = this;
-          Promise.all([p1, p2]).then(r => {
+          Promise.all([p1, p2]).then((r) => {
             if (r[0] && r[1]) {
               that.newData = r[0].data;
               that.oldData = r[1].data;
               that.newData.createTime = row.createTime;
-              that.oldData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === that.oldData.versionId)[0].createTime;
-              that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
-              that.oldData.versionName = that.versionData.filter(v => v.id === that.oldData.id)[0].versionName;
+              that.oldData.createTime =
+                this.$refs.versionHistory.versionOptions.filter(
+                  (v) => v.id === that.oldData.versionId
+                )[0].createTime;
+              that.newData.versionName = that.versionData.filter(
+                (v) => v.id === that.newData.id
+              )[0].versionName;
+              that.oldData.versionName = that.versionData.filter(
+                (v) => v.id === that.oldData.id
+              )[0].versionName;
               that.newData.userName = response.data.createName;
-              that.oldData.userName = that.versionData.filter(v => v.id === that.oldData.id)[0].createName;
+              that.oldData.userName = that.versionData.filter(
+                (v) => v.id === that.oldData.id
+              )[0].createName;
               this.setSpecialPropForCompare(that);
               that.dialogVisible = true;
             }
           });
-        });
+        }
+      );
     },
     checkout(row) {
       this.getVersionHistory();
       this.$refs.versionHistory.loading = true;
-      let testCase = this.versionData.filter(v => v.versionId === row.id)[0];
+      let testCase = this.versionData.filter((v) => v.versionId === row.id)[0];
 
       if (testCase) {
-        getTestCase(testCase.id)
-          .then(response => {
-            let testCase = response.data;
-            this.$emit("checkout", testCase);
-            this.$refs.versionHistory.loading = false;
-          });
+        getTestCase(testCase.id).then((response) => {
+          let testCase = response.data;
+          this.$emit("checkout", testCase);
+          this.$refs.versionHistory.loading = false;
+        });
       }
     },
     validateForm() {
       let isValidate = true;
-      this.$refs['caseFrom'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          return false;
-        }
-      });
+      if (this.$refs["caseFrom"]) {
+        this.$refs["caseFrom"].validate((valid) => {
+          if (!valid) {
+            isValidate = false;
+            return false;
+          }
+        });
+      }
       let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm();
       if (!baseInfoValidate) {
         return false;
       }
       let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
       if (!customValidate) {
-        let customFieldFormFields = this.$refs.testCaseBaseInfo.getCustomFields();
+        let customFieldFormFields =
+          this.$refs.testCaseBaseInfo.getCustomFields();
         for (let i = 0; i < customFieldFormFields.length; i++) {
           let customField = customFieldFormFields[i];
-          if (customField.validateState === 'error') {
+          if (customField.validateState === "error") {
             if (this.currentValidateName) {
-              this.currentValidateName = this.currentValidateName + "," + customField.label
+              this.currentValidateName =
+                this.currentValidateName + "," + customField.label;
             } else {
-              this.currentValidateName = customField.label
+              this.currentValidateName = customField.label;
             }
           }
         }
         this.isValidate = true;
-        this.$warning(this.currentValidateName + this.$t('commons.cannot_be_null'));
-        this.currentValidateName = '';
+        this.$warning(
+          this.currentValidateName + this.$t("commons.cannot_be_null")
+        );
+        this.currentValidateName = "";
         return false;
       }
       return isValidate;
@@ -1124,63 +1454,63 @@ export default {
     },
     del(row) {
       let that = this;
-      this.$alert(this.$t('test_track.case.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            deleteTestCaseVersion(row.id, this.form.refId)
-              .then(() => {
-                this.$success(this.$t('commons.delete_success'));
+      this.$alert(
+        this.$t("test_track.case.delete_confirm") + " " + row.name + " ？",
+        "",
+        {
+          confirmButtonText: this.$t("commons.confirm"),
+          callback: (action) => {
+            if (action === "confirm") {
+              deleteTestCaseVersion(row.id, this.form.refId).then(() => {
+                this.$success(this.$t("commons.delete_success"));
                 this.getVersionHistory();
                 this.$emit("refresh");
               });
-          } else {
-            that.$refs.versionHistory.loading = false;
-          }
+            } else {
+              that.$refs.versionHistory.loading = false;
+            }
+          },
         }
-      });
+      );
     },
     setLatest(row) {
       let param = {
         projectId: getCurrentProjectID(),
-        type: 'TEST_CASE',
+        type: "TEST_CASE",
         versionId: row.id,
-        resourceId: this.currentTestCaseInfo.id
-      }
+        resourceId: this.currentTestCaseInfo.id,
+      };
       setLatestVersionById(param).then(() => {
-        this.$success(this.$t('commons.modify_success'));
+        this.$success(this.$t("commons.modify_success"));
         this.checkout(row);
       });
     },
     hasOtherInfo() {
       return new Promise((resolve) => {
         if (this.form.id) {
-          hasTestCaseOtherInfo(this.form.id)
-            .then((res) => {
-              resolve(res.data);
-            });
+          hasTestCaseOtherInfo(this.form.id).then((res) => {
+            resolve(res.data);
+          });
         } else {
           resolve();
         }
-        }
-      );
+      });
     },
     confirmOtherInfo(selectedOtherInfo) {
       this.selectedOtherInfo = selectedOtherInfo;
       this.saveCase();
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-
 .el-switch {
   margin-bottom: 10px;
 }
 
 .case-name {
-  width: 194px;
+  min-width: 194px;
 }
 
 .container {
@@ -1240,5 +1570,271 @@ export default {
 .other-info-tabs {
   padding-left: 60px;
   margin-left: 40px;
+}
+</style>
+
+<style scoped lang="scss">
+@import "@/business/style/index.scss";
+.case-edit-wrap {
+  :deep(.el-form-item__content) {
+    line-height: px2rem(32);
+  }
+  .case-edit-box {
+    width: px2rem(1328);
+    min-height: px2rem(1001);
+    /* margin-left: px2rem(34); */
+    background-color: #fff;
+    .edit-header-container {
+      height: px2rem(56);
+      width: 100%;
+      border-bottom: 1px solid rgba(31, 35, 41, 0.15);
+      display: flex;
+      align-items: center;
+      .header-content-row {
+        display: flex;
+        .back {
+          margin-left: px2rem(24);
+          width: px2rem(20);
+          height: px2rem(20);
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .case-name {
+          min-width: px2rem(64);
+          height: px2rem(24);
+          font-size: 16px;
+          font-family: "PingFang SC";
+          font-style: normal;
+          font-weight: 500;
+          line-height: px2rem(24);
+          color: #1f2329;
+          order: 1;
+          flex-grow: 0;
+          margin-left: px2rem(8);
+        }
+
+        .case-edit {
+          .case-level {
+          }
+
+          .case-version {
+            .version-icon {
+            }
+
+            .version-title {
+            }
+          }
+        }
+      }
+    }
+
+    .edit-content-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      background-color: #fff;
+      .required-item:after {
+        content: "*";
+        color: #f54a45;
+        margin-left: px2rem(4);
+        width: px2rem(8);
+        height: 22px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+      }
+      .content-body-wrap {
+        // 1024 减去左右padding 各24 和 1px右边框
+        width: px2rem(975);
+        height: 100%;
+        padding-left: px2rem(24);
+        padding-right: px2rem(24);
+        .case-title-wrap {
+          display: flex;
+          margin-top: px2rem(24);
+          margin-bottom: px2rem(8);
+          .title-wrap {
+            height: 22px;
+            font-family: "PingFang SC";
+            font-style: normal;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 22px;
+            color: #1f2329;
+          }
+        }
+
+        //公共样式
+        .content-wrap {
+          :deep(.v-note-op) {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #bbbfc4;
+          }
+          :deep(.v-note-wrapper) {
+            box-sizing: border-box;
+            border: 1px solid #bbbfc4 !important;
+            border-radius: 4px;
+            box-shadow: none !important;
+          }
+          :deep(.v-note-show) {
+            min-height: 65px;
+          }
+          :deep(.v-left-item) {
+            flex: none !important;
+          }
+        }
+
+        .case-name-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            .opt-row {
+              width: 100%;
+              height: 32px;
+            }
+          }
+        }
+        .pre-condition-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 100px;
+            .opt-row {
+              :deep(.el-form-item) {
+                margin: 0;
+              }
+              width: 100%;
+            }
+          }
+        }
+        .remark-row {
+          .content-wrap {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 100px;
+            .opt-row {
+              width: 100%;
+              :deep(.el-form-item) {
+                margin: 0;
+              }
+            }
+          }
+        }
+        .attachment-row {
+          .attachment-name.case-title-wrap {
+            .name.title-wrap {
+            }
+          }
+
+          .content-wrap {
+            .opt-btn {
+            }
+
+            .opt-tip {
+              font-family: "PingFang SC";
+              font-style: normal;
+              font-weight: 400;
+              font-size: 14px;
+              line-height: 22px;
+              /* identical to box height, or 157% */
+
+              color: #8f959e;
+            }
+          }
+        }
+      }
+
+      .content-base-info-wrap {
+        width: px2rem(304);
+        min-height: px2rem(864);
+        border-left: 1px solid rgba(31, 35, 41, 0.15);
+        .case-wrap {
+          margin-left: px2rem(24);
+          margin-top: px2rem(24);
+        }
+        .case-title-wrap {
+          display: flex;
+          .title-wrap {
+            font-weight: 500;
+            height: 22px;
+            font-size: 14px;
+            line-height: 22px;
+            color: #1f2329;
+          }
+          margin-bottom: px2rem(8);
+        }
+        .side-content {
+          width: px2rem(256);
+          height: 32px;
+          :deep(.el-select) {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    .edit-footer-container {
+      display: flex;
+      width: 100%;
+      height: px2rem(80);
+      background: #ffffff;
+      box-shadow: 0px -1px 4px rgba(31, 35, 41, 0.1);
+      align-items: center;
+      font-family: "PingFang SC";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 22px;
+      text-align: center;
+      // 底部按钮激活样式
+      .opt-active-primary {
+        background: #783887;
+        color: #ffffff;
+      }
+      .opt-disable-primary {
+        background: #bbbfc4;
+        color: #ffffff;
+      }
+      .opt-active {
+        background: #ffffff;
+        color: #1f2329;
+      }
+      .opt-disable {
+        background: #ffffff;
+        color: #bbbfc4;
+      }
+
+      .save-btn-row {
+        margin-left: px2rem(24);
+        el-button {
+        }
+      }
+
+      .save-add-pub-row {
+        margin-left: px2rem(12);
+        el-button {
+        }
+      }
+
+      .save-create-row {
+        margin-left: px2rem(12);
+        el-button {
+        }
+      }
+    }
+  }
+}
+</style>
+<style>
+.attachment-popover {
+  padding: 0 !important;
+  height: 80px;
+  min-width: 120px !important;
 }
 </style>
