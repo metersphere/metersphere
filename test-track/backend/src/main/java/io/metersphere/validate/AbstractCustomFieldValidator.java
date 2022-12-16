@@ -52,11 +52,21 @@ public abstract class AbstractCustomFieldValidator {
         try {
             // [a, b] => ["a","b"]
             if (!StringUtils.equals(value, "[]")) {
-                value = value.replace("[", "[\"")
-                        .replace("]", "\"]")
-                        .replace(",", "\",\"")
-                        .replace("，", "\"，\"")
-                        .replace(StringUtils.SPACE, StringUtils.EMPTY);
+                if (!value.contains("[\"")) {
+                    value = value.replace("[", "[\"");
+                }
+                if (!value.contains("\"]")) {
+                    value = value.replace("]", "\"]");
+
+                }
+                if (!value.contains("\",\"")) {
+                    value = value.replace(",", "\",\"");
+
+                }
+                if (!value.contains("\"，\"")) {
+                    value = value.replace("，", "\"，\"");
+                }
+                value = value.replace(StringUtils.SPACE, StringUtils.EMPTY);
             }
             return JSON.parseArray(value, String.class);
         } catch (Exception e) {
