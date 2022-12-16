@@ -201,7 +201,7 @@ export default {
               // 选中环境是否存在
               temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
             }
-            if (this.projectEnvMap)  {
+            if (this.projectEnvMap && Object.keys(this.projectEnvMap).length > 0)  {
               let projectEnvMapElement = this.projectEnvMap[d];
               if (projectEnvMapElement.length>0) {
                 projectEnvMapElement.forEach(envId => {
