@@ -376,8 +376,13 @@ public class TestPlanController {
         testPlanService.resetStatus(planId);
     }
 
-    @GetMapping("/ext/report/{planId}")
-    public TestPlanExtReportDTO getExtReport(@PathVariable String planId) throws JsonProcessingException {
-        return testPlanService.getExtReport(planId);
+    @GetMapping("/ext/report/{reportId}")
+    public TestPlanExtReportDTO getExtReport(@PathVariable String reportId) throws JsonProcessingException {
+        return testPlanService.getExtInfoByReportId(reportId);
+    }
+
+    @GetMapping("/ext/plan/{planId}")
+    public TestPlanExtReportDTO getExtPlan(@PathVariable String planId) throws JsonProcessingException {
+        return testPlanService.getExtInfoByPlanId(planId);
     }
 }
