@@ -19,6 +19,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.constants.RunModeConstants;
@@ -111,7 +112,7 @@ public class ApiScenarioRerunService {
                 config.setMode(RunModeConstants.PARALLEL.toString());
             }
             config.setReportType(RunModeConstants.SET_REPORT.toString());
-            if (!StringUtils.equalsAnyIgnoreCase(reportResults.get(0).getActuator(), "LOCAL")) {
+            if (!StringUtils.equalsAnyIgnoreCase(reportResults.get(0).getActuator(), StorageEnums.LOCAL.name())) {
                 config.setResourcePoolId(reportResults.get(0).getActuator());
             }
             request.setConfig(config);
@@ -165,7 +166,7 @@ public class ApiScenarioRerunService {
                     config.setMode(RunModeConstants.PARALLEL.toString());
                 }
                 config.setReportName(reportDTO.getName());
-                if (!StringUtils.equalsAnyIgnoreCase(reportDTO.getActuator(), "LOCAL")) {
+                if (!StringUtils.equalsAnyIgnoreCase(reportDTO.getActuator(), StorageEnums.LOCAL.name())) {
                     config.setResourcePoolId(reportDTO.getActuator());
                 }
                 config.setReportType(RunModeConstants.SET_REPORT.toString());
@@ -241,7 +242,7 @@ public class ApiScenarioRerunService {
                             continue;
                         }
                         runModeConfig.setReportType(report.getReportType());
-                        if (!StringUtils.equalsAnyIgnoreCase(report.getActuator(), "LOCAL")) {
+                        if (!StringUtils.equalsAnyIgnoreCase(report.getActuator(), StorageEnums.LOCAL.name())) {
                             runModeConfig.setResourcePoolId(report.getActuator());
                         }
                         executeQueue.put(testPlanApiCase.getId(), report);
@@ -293,7 +294,7 @@ public class ApiScenarioRerunService {
             // 执行配置
             RunModeConfigDTO config = new RunModeConfigDTO();
             config.setMode(RunModeConstants.PARALLEL.toString());
-            if (!StringUtils.equalsAnyIgnoreCase(reports.get(0).getActuator(), "LOCAL")) {
+            if (!StringUtils.equalsAnyIgnoreCase(reports.get(0).getActuator(), StorageEnums.LOCAL.name())) {
                 config.setResourcePoolId(reports.get(0).getActuator());
             }
 
