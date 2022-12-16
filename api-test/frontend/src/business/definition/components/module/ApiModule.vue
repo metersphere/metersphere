@@ -156,6 +156,7 @@ export default {
       this.list();
     },
     'condition.trashEnable'() {
+      this.param = {};
       this.$emit('enableTrash', this.condition.trashEnable);
     },
     relevanceProjectId() {
@@ -165,6 +166,7 @@ export default {
       this.list();
     },
     isTrashData() {
+      this.param = {};
       this.condition.trashEnable = this.isTrashData;
       this.list();
     },
@@ -177,11 +179,13 @@ export default {
   created(){
     this.$EventBus.$on("apiConditionBus", (param)=>{
       this.param = param;
+      this.list();
     })
   },
   beforeDestroy() {
     this.$EventBus.$off("apiConditionBus", (param)=>{
       this.param = param;
+      this.list();
     })
   },
   methods: {
@@ -233,6 +237,8 @@ export default {
       } else if (this.isTrashData) {
         this.result = postApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
           this.setData(response);
+        }).catch(e => {
+          console.log(e)
         });
       } else {
         this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
