@@ -156,6 +156,7 @@ export default {
       this.filter();
     },
     'condition.trashEnable'() {
+      this.param = {};
       this.$emit('enableTrash', this.condition.trashEnable);
     },
     relevanceProjectId() {
@@ -163,17 +164,19 @@ export default {
     },
     isTrashData() {
       this.condition.trashEnable = this.isTrashData;
-      this.list();
+      this.param = {};
     },
   },
   created(){
     this.$EventBus.$on("scenarioConditionBus", (param)=>{
       this.param = param;
+      this.list();
     })
   },
   beforeDestroy() {
     this.$EventBus.$off("scenarioConditionBus", (param)=>{
       this.param = param;
+      this.list();
     })
   },
   methods: {
