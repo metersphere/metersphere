@@ -65,6 +65,9 @@ export default {
             } else {
               this.$EventBus.$emit('API_TEST_ERROR', this.reportId);
             }
+          } else {
+            this.loading = true;
+            this.socketSync();
           }
         });
       }
