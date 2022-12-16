@@ -3,22 +3,23 @@
     <el-dialog
       :title="dialogTitle"
       :visible.sync="dialogVisible"
-      width="25%"
+      width="40%"
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
       v-loading="loading"
     >
-      <el-form :model="form" label-position="right" label-width="180px" size="medium" ref="form" :rules="rules">
+      <span class="select-row">{{$t('test_track.batch_operate_select_row_count', [size])}}</span>
 
-        <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
+      <el-form :model="form" label-position="top" label-width="180px" size="small" ref="form" :rules="rules" style="margin-top: 24px">
+        <el-form-item :label="$t('test_track.case.select_attr')" prop="type">
           <el-select v-model="form.type" style="width: 100%" @change="changeType">
             <el-option v-for="(type, index) in typeArr" :key="index" :value="type.custom ? type.custom : type.id"
                        :label="type.name"/>
           </el-select>
         </el-form-item>
 
-        <el-form-item v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
+        <el-form-item v-if="form.type === 'projectEnv'" :label="$t('test_track.case.batch_update_to')">
           <env-popover :env-map="projectEnvMap"
                        :project-ids="projectIds"
                        @setProjectEnvMap="setProjectEnvMap"
@@ -31,7 +32,7 @@
                        ref="envPopover"/>
         </el-form-item>
 
-        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
+        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.batch_update_to')">
           <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
           <el-checkbox v-model="form.appendTag">
             {{ $t('commons.append_tag') }}
@@ -41,13 +42,12 @@
           </el-checkbox>
         </el-form-item>
 
-        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue"
-                      :label="$t('test_track.case.updated_attr_value')">
+        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.batch_update_to')">
           <custom-filed-component v-if="customField" :data="customField" prop="defaultValue"/>
         </el-form-item>
 
-        <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
-          <el-select v-model="form.value" style="width: 100%" :filterable="filterable">
+        <el-form-item v-else prop="value" :label="$t('test_track.case.batch_update_to')">
+          <el-select v-model="form.value" style="width: 100%" :filterable="filterable" :disabled="!form.type">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
                 <span>{{ option.id }}({{ option.name }})</span>
@@ -58,9 +58,9 @@
 
       </el-form>
       <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="dialogVisible = false"
-          @confirm="submit('form')"/>
+        <el-button @click="dialogVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+        <el-button v-prevent-re-click :type="!form.type ? 'info' : 'primary'" @click="submit('form')"
+                   @keydown.enter.native.prevent size="small" :disabled="!form.type" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -299,5 +299,94 @@ export default {
 </script>
 
 <style scoped>
+.select-row {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #646A73;
+  flex: none;
+  order: 1;
+  align-self: center;
+  flex-grow: 0;
+}
 
+:deep(.el-dialog) {
+  padding: 24px;
+}
+
+:deep(.el-dialog__header) {
+  padding: 0px!important;
+}
+
+:deep(.el-dialog__title) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+:deep(.el-dialog__body) {
+  padding: 12px 0px 6px 0px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 0px;
+}
+
+:deep(.el-form-item__label) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  padding-bottom: 8px;
+}
+
+/* common style el-input__inner 字体*/
+:deep(input.el-input__inner) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
+}
+
+/* common style:  elementui small btn 样式可提取为公共*/
+:deep(.el-button--small span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+  top: -5px;
+}
+
+:deep(.el-button) {
+  width: 80px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+:deep(.el-button--default) {
+  background: #FFFFFF;
+  border: 1px solid #BBBFC4;
+}
+
+:deep(.el-button--default:hover) {
+  border: 1px solid #783887;
+  background: rgba(120, 56, 135, 0.15);
+}
 </style>

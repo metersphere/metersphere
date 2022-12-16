@@ -4,6 +4,7 @@ import test_track from "./track/zh-TW";
 
 const message = {
   commons: {
+    table_select_row_count: '已選擇 {0} 條',
     header_custom_select_tips: '請選擇列表中要展示的信息',
     advance_search_total_suffix: '個結果',
     advance_search_clear: '清空條件',

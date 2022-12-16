@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import {SYSTEM_FIELD_NAME_MAP} from "../utils/table-constants";
-import {getAllFieldWithCustomFields, getCustomTableHeader, saveCustomTableHeader} from "../utils/tableUtils";
+import {SYSTEM_FIELD_NAME_MAP} from "../../utils/table-constants";
+import {getAllFieldWithCustomFields, getCustomTableHeader, saveCustomTableHeader} from "../../utils/tableUtils";
 
 export default {
   name: "MsTableHeaderCustomPopover.vue",
@@ -80,7 +80,7 @@ export default {
         let checkFields = [];
         let allFields = getAllFieldWithCustomFields(this.fieldKey, this.customFields);
         allFields.forEach(field => {
-          if (this.checkedFieldsLabel.indexOf(field['label']) != -1) {
+          if (this.checkedFieldsLabel.indexOf(field['label']) !== -1) {
             checkFields.push(field)
           }
         })

@@ -669,7 +669,7 @@ export default {
 
 <style scoped>
 :deep(.minder) {
-  max-height: 620px;
+  max-height: calc(100vh - 218px);
   position: relative;
   top: 12px;
 }

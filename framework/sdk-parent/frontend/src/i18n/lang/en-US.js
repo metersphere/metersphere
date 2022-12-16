@@ -4,6 +4,7 @@ import test_track from "./track/en-US";
 
 const message = {
   commons: {
+    table_select_row_count: 'Selected {0} Record',
     header_custom_select_tips: 'Please customize table header by select field',
     advance_search_total_suffix: 'results',
     advance_search_clear: 'Reset condition',

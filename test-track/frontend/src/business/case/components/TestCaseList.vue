@@ -14,14 +14,14 @@
       <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
 
       <!-- 高级搜索框  -->
-      <ms-new-ui-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
+      <ms-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
 
       <!-- 表头自定义显示Popover  -->
       <ms-table-header-custom-popover :fields.sync="fields" :custom-fields="testCaseTemplate.customFields"
                                       :field-key="tableHeaderKey" @reload="reloadTable" />
     </div>
 
-    <ms-new-ui-table
+    <ms-table
       v-loading="loading"
       operator-width="170px"
       row-key="id"
@@ -43,6 +43,8 @@
       @handlePageChange="initTableData"
       @order="initTableData"
       @filter="search"
+      @callBackSelect="callBackSelect"
+      @callBackSelectAll="callBackSelectAll"
       ref="table">
 
       <ms-table-column
@@ -197,9 +199,11 @@
 
       </span>
 
-    </ms-new-ui-table>
+    </ms-table>
 
-    <home-pagination v-if="page.data.length > 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+    <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts"/>
+
+    <home-pagination v-if="page.data.length > 0 && selectCounts == 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                      :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 16px"/>
 
 
@@ -224,9 +228,10 @@
 </template>
 
 <script>
-import MsNewUiTableAdvSearch from "metersphere-frontend/src/components/MsNewUiTableAdvSearch";
+import MsTableBatchOperatorGroup from "metersphere-frontend/src/components/new-ui/MsTableBatchOperatorGroup";
+import MsTableAdvSearch from "metersphere-frontend/src/components/new-ui/MsTableAdvSearch";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import MsTableHeaderCustomPopover from 'metersphere-frontend/src/components/MsTableHeaderCustomPopover'
+import MsTableHeaderCustomPopover from 'metersphere-frontend/src/components/new-ui/MsTableHeaderCustomPopover'
 import CaseStatusTableItem from "@/business/common/tableItems/planview/CaseStatusTableItem";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
@@ -257,7 +262,7 @@ import {getUUID, operationConfirm, parseTag} from "metersphere-frontend/src/util
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
 import {getTestTemplate} from "@/api/custom-field-template";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
-import MsNewUiTable from "metersphere-frontend/src/components/table/MsNewUiTable";
+import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import BatchMove from "@/business/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
@@ -277,7 +282,7 @@ import {
 import {getGraphByCondition} from "@/api/graph";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer";
-import MsNewUiSearch from "metersphere-frontend/src/components/search/MsNewUiSearch";
+import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 import {mapState} from "pinia";
 import {useStore} from "@/store"
 import {getProject} from "@/api/project";
@@ -309,7 +314,7 @@ export default {
     TestCasePreview,
     BatchMove,
     MsTableColumn,
-    MsNewUiTable,
+    MsTable,
     PlanStatusTableItem,
     TypeTableItem,
     PriorityTableItem,
@@ -325,7 +330,8 @@ export default {
     CaseStatusTableItem,
     MsTableHeaderCustomPopover,
     'VersionSelect': MxVersionSelect,
-    MsNewUiTableAdvSearch
+    MsTableAdvSearch,
+    MsTableBatchOperatorGroup
   },
   data() {
     return {
@@ -348,22 +354,22 @@ export default {
       batchButtons: [],
       simpleButtons: [
         {
-          name: this.$t('test_track.case.batch_edit_case'),
+          name: this.$t('test_track.case.batch_edit_btn'),
           handleClick: this.handleBatchEdit,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_EDIT']
         },
         {
-          name: this.$t('test_track.case.batch_move_case'),
+          name: this.$t('test_track.case.batch_move_btn'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_MOVE']
         },
         {
-          name: this.$t('api_test.batch_copy'),
+          name: this.$t('test_track.case.batch_copy_btn'),
           handleClick: this.handleBatchCopy,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
         },
         {
-          name: this.$t('test_track.case.batch_delete_case'),
+          name: this.$t('test_track.case.batch_delete_btn'),
           handleClick: this.handleDeleteBatchToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE']
         },
@@ -379,7 +385,7 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES']
         },
         {
-          name: this.$t('test_track.case.batch_add_public'),
+          name: this.$t('test_track.case.batch_add_public_btn'),
           isXPack: true,
           handleClick: this.handleBatchAddPublic,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC'],
@@ -442,7 +448,8 @@ export default {
       rowCase: {},
       rowCaseResult: {loading: false},
       userFilter: [],
-      advanceSearchShow: false
+      advanceSearchShow: false,
+      selectCounts: 0
     };
   },
   props: {
@@ -765,6 +772,12 @@ export default {
       this.page.currentPage = 1;
       this.initTableData();
       this.$emit('search');
+    },
+    callBackSelect(selection) {
+      this.selectCounts = this.$refs.table.selectDataCounts;
+    },
+    callBackSelectAll(selection) {
+      this.selectCounts = this.$refs.table.selectDataCounts;
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;

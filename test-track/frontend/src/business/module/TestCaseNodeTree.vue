@@ -28,25 +28,27 @@
           :condition="condition"
           :total="total"
           :exe="enableTrash"/>
+      </template>
+      <template v-slot:bottom>
         <module-public-button
           :condition="condition"
           :public-total="publicTotal"
           :exe="enablePublic"/>
       </template>
     </ms-node-tree>
-    <test-case-import
-      @refreshAll="importRefresh"
-      ref="testCaseImport"/>
-    <test-case-export
-      @refreshAll="refreshAll"
-      @exportTestCase="exportTestCase"
-      ref="testCaseExport"/>
-    <test-case-create
-      :tree-nodes="treeNodes"
-      @saveAsEdit="saveAsEdit"
-      @createCase="createCase"
-      @refresh="refresh"
-      ref="testCaseCreate"/>
+<!--    <test-case-import-->
+<!--      @refreshAll="importRefresh"-->
+<!--      ref="testCaseImport"/>-->
+<!--    <test-case-export-->
+<!--      @refreshAll="refreshAll"-->
+<!--      @exportTestCase="exportTestCase"-->
+<!--      ref="testCaseExport"/>-->
+<!--    <test-case-create-->
+<!--      :tree-nodes="treeNodes"-->
+<!--      @saveAsEdit="saveAsEdit"-->
+<!--      @createCase="createCase"-->
+<!--      @refresh="refresh"-->
+<!--      ref="testCaseCreate"/>-->
 
     <is-change-confirm
       :tip="$t('test_track.case.minder_import_save_confirm_tip')"
@@ -58,7 +60,7 @@
 </template>
 
 <script>
-import MsNodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
+import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import TestCaseCreate from "@/business/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/case/components/import/TestCaseImport";
 import TestCaseExport from "@/business/case/components/export/TestCaseExport";
@@ -226,7 +228,6 @@ export default {
       param.projectId = this.projectId;
       testCaseNodeEdit(param)
         .then(() => {
-          this.$success(this.$t('commons.save_success'));
           this.list();
           this.$emit("refreshTable");
         });
@@ -235,7 +236,6 @@ export default {
       param.projectId = this.projectId;
       testCaseNodeAdd(param)
         .then(() => {
-          this.$success(this.$t('commons.save_success'));
           this.list();
         });
     },

@@ -22,7 +22,7 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       @row-click="handleRowClick"
-      :max-height="466"
+      :max-height="data.length > 0 ? 466 : 524"
       ref="table">
 
       <el-table-column
@@ -38,22 +38,6 @@
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"
                                       ref="selectPopover"/>
-
-      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0"
-                       width="15"
-                       fixed="left"
-                       column-key="batchBtnCol"
-                       align="center"
-                       :resizable="false">
-
-        <template v-slot:default="scope">
-          <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :has-showed="hasBatchTipShow"
-                         :is-show="scope.row.showMore"
-                         :buttons="batchOperators"
-                         :size="selectDataCounts"/>
-        </template>
-      </el-table-column>
 
       <el-table-column width="1">
         <template v-slot:header>
@@ -105,6 +89,15 @@
           </div>
         </template>
       </el-table-column>
+
+      <template #empty>
+        <div
+          style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+          <img style="height: 100px;width: 100px;margin-bottom: 8px"
+               src="/assets/module/figma/icon_none.svg"/>
+          <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
+        </div>
+      </template>
     </el-table>
 
     <ms-custom-table-header
@@ -133,14 +126,14 @@ import {
   handleRowDrop,
   clearShareDragParam,
 } from "../../utils/tableUtils";
-import MsTableHeaderSelectPopover from "./MsTableHeaderSelectPopover";
+import MsTableHeaderSelectPopover from "../table/MsTableHeaderSelectPopover";
 import MsTablePagination from "../pagination/TablePagination";
-import ShowMoreBtn from "./ShowMoreBtn";
-import MsTableColumn from "./MsTableColumn";
+import ShowMoreBtn from "../table/ShowMoreBtn";
+import MsTableColumn from "../table/MsTableColumn";
 import MsTableOperators from "../MsTableOperators";
 import HeaderLabelOperate from "../head/HeaderLabelOperate";
 import HeaderCustom from "../head/HeaderCustom";
-import MsCustomTableHeader from "./MsCustomTableHeader";
+import MsCustomTableHeader from "../table/MsCustomTableHeader";
 import {lineToHump} from "../../utils";
 import {getUUID} from "../../utils";
 
