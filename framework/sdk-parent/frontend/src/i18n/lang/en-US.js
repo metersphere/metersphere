@@ -1915,9 +1915,13 @@ const message = {
       no_cover_tip_scenario_1: "1. The same Scenario that already exists in the system will not be changed",
       no_cover_tip_scenario_2: "2. Add Scenario that do not exist in the system",
       import_version: 'Import version',
-      data_update_version: 'New API created to',
-      data_new_version: 'The same API is updated to',
+      data_update_version: 'The same API is updated to',
+      data_new_version: 'New API created to',
       latest_version: 'Latest version',
+    },
+    scenario_import: {
+      data_update_version: 'The same Scenario is updated to',
+      data_new_version: 'New Scenario created to',
     },
     home_page: {
       unit_of_measurement: "",
