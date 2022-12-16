@@ -1928,6 +1928,10 @@ const message = {
       data_new_version: '新增API创建到',
       latest_version: '最新版本',
     },
+    scenario_import: {
+      data_update_version: '同一场景更新到',
+      data_new_version: '新增场景创建到',
+    },
     home_page: {
       unit_of_measurement: "个",
       unit_of_count: "个",
