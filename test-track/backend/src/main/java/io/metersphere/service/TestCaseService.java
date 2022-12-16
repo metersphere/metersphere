@@ -463,7 +463,11 @@ public class TestCaseService {
             dealWithOtherInfoOfNewVersion(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
-        //checkAndSetLatestVersion(testCase.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(testCase.getProjectId());
+        if (StringUtils.equalsIgnoreCase(testCase.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(testCase.getRefId());
+        }
+
     }
 
     /**
