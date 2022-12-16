@@ -70,6 +70,8 @@ public class GroupService {
     @Resource
     private BaseUserService baseUserService;
     private static final String GLOBAL = "global";
+    private static final String SUPER_GROUP = "super_group";
+
 
     // 服务权限拼装顺序
     private static final String[] servicePermissionLoadOrder = {MicroServiceName.PROJECT_MANAGEMENT,
@@ -223,6 +225,9 @@ public class GroupService {
     }
 
     public void editGroupPermission(EditGroupRequest request) {
+        if (StringUtils.equals(request.getUserGroupId(), SUPER_GROUP)) {
+            return;
+        }
         List<GroupPermission> permissions = request.getPermissions();
         if (CollectionUtils.isEmpty(permissions)) {
             return;
