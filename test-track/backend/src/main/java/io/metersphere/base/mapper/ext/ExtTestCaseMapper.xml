@@ -271,7 +271,7 @@
             test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.ref_id
+            test_case.ref_id,test_case.latest
         </if>
         from test_case
         left join project_version on project_version.id = test_case.version_id
