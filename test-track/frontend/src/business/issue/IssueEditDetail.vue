@@ -425,7 +425,8 @@ export default {
       let platform = this.issueTemplate.platform;
 
       this.platformTransitions = null;
-      if (this.form.platformId) {
+      // 编辑的时候才展示
+      if (this.form.platformId && this.form.id) {
         let data = {
           platformKey: this.form.platformId,
           projectId: getCurrentProjectID(),
