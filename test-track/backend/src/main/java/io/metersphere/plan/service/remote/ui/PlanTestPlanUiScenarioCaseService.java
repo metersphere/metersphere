@@ -153,4 +153,8 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     public List<UiScenarioReportWithBLOBs> selectExtForPlanReport(String planId) {
         return microService.getForDataArray(serviceName, BASE_URL + "/get/report/ext/" + planId, UiScenarioReportWithBLOBs.class);
     }
+
+    public Map<String, List<String>> getUiScenarioEnv(String planId) {
+        return microService.getForData(serviceName, BASE_URL + "/get/env/" + planId, Map.class);
+    }
 }
