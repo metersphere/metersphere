@@ -8,10 +8,10 @@ import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.dto.RunModeConfigDTO;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
-        apiResult.setActuator("LOCAL");
+        apiResult.setActuator(StorageEnums.LOCAL.name());
         if (config != null && GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
             apiResult.setActuator(config.getResourcePoolId());
         }
@@ -42,31 +42,33 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResultWithBLOBs addResult(BatchRunDefinitionRequest request, RunModeConfigDTO runModeConfigDTO, TestPlanApiCase key, String status,
-                                                             Map<String, ApiTestCase> caseMap, String poolId) {
+    public static ApiDefinitionExecResultWithBLOBs addResult(
+            BatchRunDefinitionRequest request,
+            RunModeConfigDTO runModeConfigDTO,
+            TestPlanApiCase key,
+            String status,
+            ApiTestCase testCase,
+            String poolId) {
+
         ApiDefinitionExecResultWithBLOBs apiResult = new ApiDefinitionExecResultWithBLOBs();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
-        ApiTestCase testCase = caseMap.get(key.getApiCaseId());
         if (testCase != null) {
             apiResult.setName(testCase.getName());
             apiResult.setProjectId(testCase.getProjectId());
             apiResult.setVersionId(testCase.getVersionId());
         }
         apiResult.setTriggerMode(request.getTriggerMode());
-        apiResult.setActuator("LOCAL");
+        apiResult.setActuator(StorageEnums.LOCAL.name());
         if (StringUtils.isNotEmpty(poolId)) {
             apiResult.setActuator(poolId);
         }
-        if (StringUtils.isEmpty(request.getUserId())) {
-            if (SessionUtils.getUser() != null) {
-                apiResult.setUserId(SessionUtils.getUser().getId());
-            }
-        } else {
-            apiResult.setUserId(request.getUserId());
+        apiResult.setUserId(request.getUserId());
+        if (StringUtils.isEmpty(apiResult.getUserId())) {
+            apiResult.setUserId(SessionUtils.getUserId());
         }
 
         apiResult.setResourceId(key.getId());
@@ -92,7 +94,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
-        apiResult.setActuator("LOCAL");
+        apiResult.setActuator(StorageEnums.LOCAL.name());
         apiResult.setUserId(userId);
         apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());

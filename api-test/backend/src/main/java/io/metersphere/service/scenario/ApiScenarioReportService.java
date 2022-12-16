@@ -790,7 +790,7 @@ public class ApiScenarioReportService {
         if (initModel.getConfig() != null && StringUtils.isNotBlank(initModel.getConfig().getResourcePoolId())) {
             report.setActuator(initModel.getConfig().getResourcePoolId());
         } else {
-            report.setActuator("LOCAL");
+            report.setActuator(StorageEnums.LOCAL.name());
         }
         report.setTriggerMode(initModel.getTriggerMode());
         report.setReportVersion(2);

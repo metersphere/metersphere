@@ -14,6 +14,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
@@ -203,7 +204,7 @@ public class ExtApiTaskService extends TaskService {
         if (StringUtils.isEmpty(reportId)) {
             return;
         }
-        if (StringUtils.isNotEmpty(actuator) && !StringUtils.equals(actuator, "LOCAL")) {
+        if (StringUtils.isNotEmpty(actuator) && !StringUtils.equals(actuator, StorageEnums.LOCAL.name())) {
             if (poolMap.containsKey(actuator)) {
                 poolMap.get(actuator).add(reportId);
             } else {

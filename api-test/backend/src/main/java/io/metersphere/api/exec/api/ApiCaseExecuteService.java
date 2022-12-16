@@ -83,23 +83,21 @@ public class ApiCaseExecuteService {
         if (StringUtils.equals(EnvironmentType.GROUP.toString(), request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
-        LoggerUtil.debug("开始查询测试计划用例");
+        LoggerUtil.info("开始查询测试计划用例", request.getPlanIds().size());
 
-        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-        example.createCriteria().andIdIn(request.getPlanIds());
-        example.setOrderByClause("`order` DESC");
-        List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
+        List<TestPlanApiCase> planApiCases = this.selectByPlanApiCaseIds(request.getPlanIds());
         if (CollectionUtils.isEmpty(planApiCases)) {
             return responseDTOS;
         }
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
-        LoggerUtil.debug("查询到测试计划用例 " + planApiCases.size());
+        LoggerUtil.info("查询到测试计划用例 " + planApiCases.size());
 
         Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = request.isRerun() ? request.getExecuteQueue() : new LinkedHashMap<>();
-        String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? ApiReportStatus.PENDING.name()
-                : ApiReportStatus.RUNNING.name();
+
+        String status = StringUtils.equals(request.getConfig().getMode(), RunModeConstants.SERIAL.toString())
+                ? ApiReportStatus.PENDING.name() : ApiReportStatus.RUNNING.name();
 
         // 查出用例
         List<String> apiCaseIds = planApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
@@ -117,23 +115,24 @@ public class ApiCaseExecuteService {
                 //处理环境配置为空时的情况
                 RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
                 BeanUtils.copyBean(runModeConfigDTO, request.getConfig());
-                if (MapUtils.isEmpty(runModeConfigDTO.getEnvMap())) {
-                    ApiTestCase testCase = caseMap.get(testPlanApiCase.getApiCaseId());
-                    if (testCase != null) {
-                        runModeConfigDTO.setEnvMap(new HashMap<>() {{
-                            this.put(testCase.getProjectId(), testPlanApiCase.getEnvironmentId());
-                        }});
-                    }
+                ApiTestCase testCase = caseMap.get(testPlanApiCase.getApiCaseId());
+                if (testCase == null) {
+                    continue;
                 }
-                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, runModeConfigDTO, testPlanApiCase, status, caseMap, resourcePoolId);
+                if (MapUtils.isEmpty(runModeConfigDTO.getEnvMap())) {
+                    runModeConfigDTO.setEnvMap(new HashMap<>() {{
+                        this.put(testCase.getProjectId(), testPlanApiCase.getEnvironmentId());
+                    }});
+                }
+                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, runModeConfigDTO, testPlanApiCase, status, testCase, resourcePoolId);
                 executeQueue.put(testPlanApiCase.getId(), report);
                 responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-                LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
+                LoggerUtil.info("预生成测试用例结果报告：" + report.getName(), report.getId());
             }
             apiCaseResultService.batchSave(executeQueue);
         }
 
-        LoggerUtil.debug("开始生成测试计划队列");
+        LoggerUtil.info("开始生成测试计划队列");
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
@@ -155,6 +154,16 @@ public class ApiCaseExecuteService {
             thread.start();
         }
         return responseDTOS;
+    }
+
+    public List<TestPlanApiCase> selectByPlanApiCaseIds(List<String> planApiCaseIds) {
+        if (CollectionUtils.isEmpty(planApiCaseIds)) {
+            return new ArrayList<>();
+        }
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andIdIn(planApiCaseIds);
+        example.setOrderByClause("`order` DESC");
+        return testPlanApiCaseMapper.selectByExample(example);
     }
 
     public Map<String, List<String>> checkEnv(List<ApiTestCaseWithBLOBs> caseList) {
