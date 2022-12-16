@@ -137,6 +137,8 @@ public class MockConfigService {
         }
         if (request.getApiId() != null) {
             criteria.andApiIdEqualTo(request.getApiId());
+        } else {
+            return new MockConfigResponse(null, new ArrayList<>());
         }
         if (request.getProjectId() != null) {
             criteria.andProjectIdEqualTo(request.getProjectId());
