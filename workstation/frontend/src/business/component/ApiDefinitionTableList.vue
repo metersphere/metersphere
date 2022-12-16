@@ -14,7 +14,8 @@
       :enable-order-drag="enableOrderDrag"
       :enable-selection="((isUpcoming===true||isFocus===true||isCreation===true) && isShowAllColumn === true)"
       :batch-operators="batchButtons"
-      :operators="isFinish===false?tableOperatorButtons:[]" :operator-width="isFinish===false?'140':'0'"
+      :operators="(isFinish===false && showColum===true) ?tableOperatorButtons:[]"
+      :operator-width="(isFinish===false && showColum===true)?'140':'0'"
       row-key="id"
       :disable-header-config=true
       @refresh="initTable"
@@ -458,11 +459,13 @@ export default {
         {
           name: this.$t('commons.batch') + this.$t('workstation.sync'),
           handleClick: this.openBatchSync,
+          isXPack: true,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         },
         {
           name: this.$t('commons.batch') + this.$t('workstation.ignore'),
           handleClick: this.openBatchIgnore,
+          isXPack: true,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         },
         {
@@ -515,8 +518,8 @@ export default {
       batchIgnoreApiVisible: false,
       hasEditPermission: false,
       showFullscreen: false,
-      openUpdateRule: true
-
+      openUpdateRule: true,
+      showColum: false
     };
   },
   props: {
@@ -594,6 +597,9 @@ export default {
     }
   },
   created: function () {
+    if (hasLicense()) {
+      this.showColum = true;
+    }
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
