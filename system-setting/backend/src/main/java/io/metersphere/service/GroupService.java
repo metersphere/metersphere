@@ -235,6 +235,10 @@ public class GroupService {
     }
 
     public void editGroupPermission(EditGroupRequest request) {
+        // 超级用户组禁止修改权限
+        if (StringUtils.equals(request.getUserGroupId(), SUPER_GROUP)) {
+            return;
+        }
         List<GroupPermission> permissions = request.getPermissions();
         if (CollectionUtils.isEmpty(permissions)) {
             return;

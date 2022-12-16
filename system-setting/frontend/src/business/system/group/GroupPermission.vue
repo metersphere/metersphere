@@ -44,9 +44,13 @@ export default {
   computed: {
     isReadOnly() {
       return function (permission) {
+        // 禁止取消系统管理员用户组权限
+        if (this.group.id === 'super_group') {
+          return true;
+        }
         // 禁止取消系统管理员用户组和超级管理员用户组的读取和设置权限
         const isSystemGroupPermission = permission.id === 'SYSTEM_GROUP:READ' || permission.id === 'SYSTEM_GROUP:READ+SETTING_PERMISSION';
-        const isDefaultSystemGroup = (this.group.id === 'admin' || this.group.id === 'super_group') && isSystemGroupPermission;
+        const isDefaultSystemGroup = this.group.id === 'admin' && isSystemGroupPermission;
         return this.readOnly || isDefaultSystemGroup;
       }
     }
