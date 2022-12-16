@@ -10,7 +10,7 @@
             <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"/>
           </el-badge>
         </div>
-        <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
+        <font-awesome-icon @click="open('API')" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
       </el-tooltip>
     </div>
     <el-drawer
@@ -300,6 +300,7 @@ export default {
         this.activeName = activeName;
       }
       this.init(true);
+      this.taskVisible = true;
       setTimeout(this.showTaskCenter, 2000);
     },
     getPercentage(status) {
