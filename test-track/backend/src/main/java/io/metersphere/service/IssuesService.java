@@ -1691,6 +1691,7 @@ public class IssuesService {
         IssueTemplateDao issueTemplateDao;
         Project project = baseProjectService.getProjectById(projectId);
         if (PlatformPluginService.isPluginPlatform(project.getPlatform())
+                && platformPluginService.isThirdPartTemplateSupport(project.getPlatform())
                 && project.getThirdPartTemplate()) {
             // 第三方Jira平台
             issueTemplateDao = getThirdPartTemplate(project.getId());
