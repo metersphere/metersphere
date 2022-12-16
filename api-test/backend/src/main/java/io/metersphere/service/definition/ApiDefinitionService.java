@@ -26,6 +26,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.enums.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -997,7 +998,7 @@ public class ApiDefinitionService {
                 apiReportEnvConfig.setResourcePoolName(resourcePool.getName());
             }
         } else {
-            apiReportEnvConfig.setResourcePoolName("LOCAL");
+            apiReportEnvConfig.setResourcePoolName(StorageEnums.LOCAL.name());
         }
         return apiReportEnvConfig;
     }
