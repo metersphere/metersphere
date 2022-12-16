@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result" ref="form">
+    <el-form :model="formData" :rules="rules" label-width="110px" v-loading="result" ref="form">
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')">
@@ -37,8 +37,8 @@
               checkStrictly />
           </el-form-item>
           <el-form-item :label="$t('commons.import_mode')" prop="modeId">
-            <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
-              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <el-select size="small" v-model="formData.modeId" class="project-select" clearable style="width: 100%">
+              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
             <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule">
               {{ this.$t('commons.cover_scenario') }}
@@ -56,7 +56,7 @@
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-            :label="$t('api_test.api_import.data_update_version')"
+            :label="$t('api_test.scenario_import.data_update_version')"
             prop="versionId">
             <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
               <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
@@ -65,7 +65,7 @@
           <el-form-item
             v-xpack
             v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
-            :label="$t('api_test.api_import.data_new_version')"
+            :label="$t('api_test.scenario_import.data_new_version')"
             prop="versionId">
             <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
               <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
@@ -426,9 +426,6 @@ export default {
   margin-left: 10px;
 }
 
-.el-form {
-  padding: 30px 10px;
-}
 
 .dialog-footer {
   float: right;
