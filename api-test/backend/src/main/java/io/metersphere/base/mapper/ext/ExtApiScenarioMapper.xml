@@ -189,7 +189,7 @@
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
         api_scenario.custom_num, api_scenario.version, api_scenario.environment_type, api_scenario.environment_group_id,
-        api_scenario.version_id, api_scenario.ref_id, project_version.name as version_name,
+        api_scenario.version_id, api_scenario.ref_id,api_scenario.latest, project_version.name as version_name,
         <if test="request.selectEnvironment == true">
             api_scenario.environment_json as env,
         </if>
