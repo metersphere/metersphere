@@ -409,7 +409,10 @@ public class ApiScenarioService {
         if (relationshipEdgeService != null) {
             relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
         }
-        //checkAndSetLatestVersion(beforeScenario.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(beforeScenario.getRefId());
+        }
         // 存储附件关系
         extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;

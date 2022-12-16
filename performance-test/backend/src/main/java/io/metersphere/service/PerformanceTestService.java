@@ -325,7 +325,10 @@ public class PerformanceTestService {
             copyLoadTestFiles(testId, loadTest.getId());
             loadTestMapper.insertSelective(loadTest);
         }
-        //checkAndSetLatestVersion(loadTest.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(loadTest.getRefId());
+        }
         return loadTest;
     }
 
