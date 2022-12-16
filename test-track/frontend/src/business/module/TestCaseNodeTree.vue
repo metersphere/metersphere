@@ -24,16 +24,16 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-        <module-trash-button
-          :condition="condition"
-          :total="total"
-          :exe="enableTrash"/>
-      </template>
-      <template v-slot:bottom>
         <module-public-button
           :condition="condition"
           :public-total="publicTotal"
           :exe="enablePublic"/>
+      </template>
+      <template v-slot:bottom>
+        <module-trash-button
+          :condition="condition"
+          :total="total"
+          :exe="enableTrash"/>
       </template>
     </ms-node-tree>
 <!--    <test-case-import-->
@@ -266,6 +266,7 @@ export default {
         .then(() => {
           this.list();
           this.$emit("refreshTable")
+          this.$success(this.$t('commons.delete_success'));
         });
     },
     drag(param, list) {

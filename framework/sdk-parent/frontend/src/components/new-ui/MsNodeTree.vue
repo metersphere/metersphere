@@ -22,76 +22,75 @@
         ref="tree">
 
         <template v-slot:default="{node,data}">
-      <span class="custom-tree-node father" @click="handleNodeSelect(node)">
+          <span class="custom-tree-node father" @click="handleNodeSelect(node)">
+            <span v-if="!disabled" class="node-operate drag child">
+              <svg-icon v-if="data.id !== 'root' && !hideOpretor" icon-class="icon_drag_outlined"/>
+            </span>
 
-        <span v-if="data.isEdit" @click.stop>
-          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
-                    class="name-input" size="mini" ref="nameInput" :draggable="true"/>
-        </span>
+            <span v-if="data.isEdit" @click.stop>
+              <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
+                        class="name-input" size="mini" ref="nameInput" :draggable="true"/>
+            </span>
 
-        <span v-if="!data.isEdit" class="node-icon">
-          <svg-icon icon-class="icon_folder"/>
-<!--          <i class="el-icon-folder"/>-->
-        </span>
-        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-          <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
-        </el-tooltip>
-        <span class="count-title" v-if="showCaseNum && data.caseNum !== null && data.caseNum !== undefined">
-          <span style="color: var(--primary_color);">{{ data.caseNum }}</span>
-        </span>
-        <span v-if="!disabled" class="node-operate child">
-          <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
-            class="item"
-            effect="dark"
-            v-permission="updatePermission"
-            :open-delay="200"
-            :content="$t('test_track.module.rename')"
-            placement="top">
-            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
-          </el-tooltip>
-          <el-tooltip
-            v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
-            v-permission="updatePermission"
-            class="item"
-            effect="dark"
-            :open-delay="200"
-            :content="$t('test_track.module.rename')"
-            placement="top">
-            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
-          </el-tooltip>
-          <el-tooltip
-            class="item"
-            effect="dark"
-            :open-delay="200"
-            v-permission="addPermission"
-            v-if="!isDefault(data) && !hideOpretor"
-            :content="$t('test_track.module.add_submodule')"
-            placement="top">
-            <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
-          </el-tooltip>
+            <span v-if="!data.isEdit" class="node-icon">
+              <svg-icon :icon-class="node.isCurrent ? 'icon_folder_selected' : 'icon_folder'"/>
+            </span>
 
-          <el-tooltip
-            v-if="data.name === defaultLabel && data.level !==1 && !hideOpretor"
-            class="item" effect="dark"
-            :open-delay="200"
-            v-permission="deletePermission"
-            :content="$t('commons.delete')"
-            placement="top">
-            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
-          </el-tooltip>
+            <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
+              <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
+            </el-tooltip>
 
-          <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
-            class="item" effect="dark"
-            :open-delay="200"
-            :content="$t('commons.delete')"
-            v-permission="deletePermission"
-            placement="top">
-            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
-          </el-tooltip>
-        </span>
-      </span>
+            <span v-if="!disabled" class="node-operate child">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :open-delay="200"
+                v-permission="addPermission"
+                v-if="data.id && !isDefault(data) && !hideOpretor"
+                :content="$t('test_track.module.add_submodule')"
+                placement="top">
+                <el-button class="node-operate-btn" @click.stop="append(node, data)" icon="el-icon-plus"/>
+              </el-tooltip>
+
+              <el-button v-if="!data.id" class="node-operate-btn" @click="remove(node, data)" icon="el-icon-delete"/>
+
+              <el-dropdown placement="bottom-start" v-if="data.id && data.id !== 'root' && data.name !== defaultLabel && !hideOpretor">
+                <el-button class="node-operate-btn" icon="el-icon-more" />
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item :disabled="!updatePermission">
+                    <span @click.stop="edit(node, data)" class="more-operate-btn">
+                      <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
+                      {{$t('test_track.module.rename')}}
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                    <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
+                      <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
+                      {{$t('commons.delete')}}
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
+              <el-dropdown placement="bottom-start" v-if="data.id && data.name === defaultLabel && data.level !== 1 && !hideOpretor">
+                <el-button class="node-operate-btn" icon="el-icon-more" />
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item :disabled="!updatePermission">
+                    <span @click.stop="edit(node, data)" class="more-operate-btn">
+                      <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
+                      {{$t('test_track.module.rename')}}
+                    </span>
+                  </el-dropdown-item>
+                  <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                    <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
+                      <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
+                      {{$t('commons.delete')}}
+                    </span>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </span>
+          </span>
         </template>
       </el-tree>
     </ms-left-2-right-container>
@@ -114,21 +113,9 @@
 
       <template v-slot:default="{node,data}">
         <span class="custom-tree-node father" @click="handleNodeSelect(node)">
-<!--          <span v-if="!disabled" class="node-operate drag">-->
-<!--            <el-tooltip-->
-<!--              v-if="data.id !== 'root' && !hideOpretor"-->
-<!--              class="item"-->
-<!--              effect="dark"-->
-<!--              v-permission="updatePermission"-->
-<!--              :open-delay="200"-->
-<!--              :content="$t('test_track.module.rename')"-->
-<!--              placement="top">-->
-<!--              <div class="tree-node-drag-hover">-->
-<!--                <i class="el-icon-more ms-icon-more"/>-->
-<!--                <i class="el-icon-more ms-icon-more"/>-->
-<!--              </div>-->
-<!--            </el-tooltip>-->
-<!--          </span>-->
+          <span v-if="!disabled" class="node-operate drag child">
+            <svg-icon v-if="data.id !== 'root' && !hideOpretor" icon-class="icon_drag_outlined"/>
+          </span>
 
           <span v-if="data.isEdit" @click.stop>
             <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
@@ -140,8 +127,9 @@
           </span>
 
           <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? (showBySubStr(getLocalDefaultName()) + getCaseNum(data)) : (showBySubStr(data.name) + getCaseNum(data))"/>
+            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
           </el-tooltip>
+
 
           <span v-if="!disabled" class="node-operate child">
             <el-tooltip
@@ -166,7 +154,7 @@
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!deletePermission">
+                <el-dropdown-item :disabled="!deletePermission" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
@@ -184,7 +172,7 @@
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!deletePermission">
+                <el-dropdown-item :disabled="!deletePermission" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
@@ -451,7 +439,6 @@ export default {
       });
     },
     save(node, data) {
-      console.log("save....");
       if (data.name.trim() === '') {
         this.$warning(this.$t('test_track.case.input_name'));
         this.$refs['nameInput'].focus();
@@ -492,6 +479,7 @@ export default {
         this.$confirm(this.$t('test_track.module.delete_tip'), title, {
             cancelButtonText: this.$t("commons.cancel"),
             confirmButtonText: this.$t("commons.confirm"),
+            customClass: 'custom-confirm-delete',
             callback: action => {
               if (action === "confirm") {
                 let nodeIds = [];
@@ -506,7 +494,6 @@ export default {
         this.getChildNodeId(node.data, nodeIds);
         this.$emit('remove', nodeIds, data);
       }
-
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       if (dropType === "none" || dropType === undefined) {
@@ -693,7 +680,11 @@ export default {
   display: none;
 }
 
-.father:hover .child {
+/*.father:hover .child {*/
+/*  display: block;*/
+/*}*/
+
+:deep(.el-tree-node__content:hover .child) {
   display: block;
 }
 
@@ -718,6 +709,12 @@ export default {
   display: flex;
   align-items: center;
   color: #1F2329;
+}
+
+.node-title:after {
+  color: #8F959E;
+  content: attr(case-num);
+  margin-left: 10px;
 }
 
 .count-title {
@@ -772,6 +769,11 @@ export default {
   font-weight: 500;
 }
 
+:deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content  .el-tooltip.node-title.item:after) {
+  color: #783887;
+  font-weight: 500;
+}
+
 .tree-node-drag-hover {
   text-align: center;
   height: 28px;
@@ -790,7 +792,13 @@ export default {
 .drag {
   position: relative;
   left: -38px;
-  top: 4px;
+  top: 2px;
+  width: 0;
+}
+
+.drag .svg-icon {
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .node-operate-btn {

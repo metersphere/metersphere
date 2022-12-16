@@ -91,10 +91,8 @@
       </el-table-column>
 
       <template #empty>
-        <div
-          style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
-          <img style="height: 100px;width: 100px;margin-bottom: 8px"
-               src="/assets/module/figma/icon_none.svg"/>
+        <div style="width: 100%;height: 238px;display: flex;flex-direction: column;justify-content: center;align-items: center">
+          <img src="../../assets/module/figma/icon_none.svg" style="height: 100px;width: 100px;margin-bottom: 8px"/>
           <span class="addition-info-title">{{ $t("home.dashboard.public.no_data") }}</span>
         </div>
       </template>
