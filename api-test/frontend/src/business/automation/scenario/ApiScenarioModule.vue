@@ -301,14 +301,14 @@ export default {
         if (!this.projectId) {
           return;
         }
-        getModuleByTrash(this.projectId).then((response) => {
+        postModuleByTrash(this.projectId, this.param).then((response) => {
           this.setModuleList(response, selectNodeId);
         });
       } else {
         if (!this.projectId) {
           return;
         }
-        getModuleByProjectId(this.projectId).then((response) => {
+        postModuleByProjectId(this.projectId, this.param).then((response) => {
           this.setModuleList(response, selectNodeId);
         });
       }
