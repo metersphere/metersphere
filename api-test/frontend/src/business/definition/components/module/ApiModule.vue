@@ -344,16 +344,20 @@ export default {
           this.setNohupData(response, selectNodeId);
         });
       } else if (this.isTrashData) {
-        getApiModuleByTrash(
+        postApiModuleByTrash(
           this.projectId,
-          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol,
+          this.currentVersion,
+          this.param
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });
       } else {
-        getApiModules(
+        postApiModules(
           this.projectId,
-          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol,
+          this.currentVersion,
+          this.param
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });
