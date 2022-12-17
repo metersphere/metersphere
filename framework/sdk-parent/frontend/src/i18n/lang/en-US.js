@@ -3189,7 +3189,7 @@ const message = {
     store_window_handle: "Window Handle(storeWindowHandle)",
     store_title: "Web page title (storeTitle)",
     wait_time: "Wait time",
-    per_tip: "After enabling the performance mode, the memory and cpu usage will be reduced, and the running results will not show step screenshots",
+    per_tip: "After enabling the performance mode, the memory and cpu usage will be reduced",
     fail_over: "Failed to terminate",
     validate_tip: "Check means a hard assertion (assert), if the assertion fails, the program will terminate. Unchecked means a soft assertion (verify), if the assertion fails, the program will not terminate.",
     scenario: "Scenario",
