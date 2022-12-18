@@ -55,20 +55,6 @@
             </el-link>
           </el-row>
           <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
-          <div style="margin-top: 20px">
-            <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
-              {{ $t('commons.add') }}
-            </el-button>
-            <div v-else>
-              <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
-                {{ $t('commons.clear') }}
-              </el-button>
-              <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
-                  $t('commons.update')
-                }}
-              </el-button>
-            </div>
-          </div>
         </form-section>
 
         <!--    UI 配置    -->
@@ -102,13 +88,28 @@
             </el-col>
           </el-row>
 
-<!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
-<!--          <el-row :gutter="10">-->
-<!--            <el-col :span="24">-->
-<!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
+          <!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
+          <!--          <el-row :gutter="10">-->
+          <!--            <el-col :span="24">-->
+          <!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
+          <!--            </el-col>-->
+          <!--          </el-row>-->
         </form-section>
+
+        <div style="margin-top: 20px">
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+            {{ $t('commons.add') }}
+          </el-button>
+          <div v-else>
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+              {{ $t('commons.clear') }}
+            </el-button>
+            <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
+                $t('commons.update')
+              }}
+            </el-button>
+          </div>
+        </div>
 
       </el-form-item>
     </div>
