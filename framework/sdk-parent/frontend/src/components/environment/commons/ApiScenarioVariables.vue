@@ -118,12 +118,26 @@
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.type"
+              v-if="!scope.row.scope || scope.row.scope == 'api'"
               :placeholder="$t('commons.please_select')"
               size="mini"
-              @change="changeType(scope.row)"
             >
               <el-option
                 v-for="item in typeSelectOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+
+            <el-select
+              v-else
+              v-model="scope.row.type"
+              :placeholder="$t('commons.please_select')"
+              size="mini"
+            >
+              <el-option
+                v-for="item in uiTypeSelectOptions"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -271,6 +285,12 @@ export default {
         {value: "COUNTER", label: this.$t("api_test.automation.counter")},
         {value: "RANDOM", label: this.$t("api_test.automation.random")},
       ],
+      uiTypeSelectOptions: [
+        {value: "STRING", label: this.$t("api_test.automation.string")},
+        {value: "ARRAY", label: this.$t("api_test.automation.array")},
+        {value: "JSON", label: this.$t("api_test.automation.json")},
+        {value: "NUMBER", label: this.$t("api_test.automation.number")},
+      ],
       variables: {},
       selectVariable: "",
       editData: {},
@@ -342,6 +362,10 @@ export default {
         data.delimiter = ",";
         data.files = [];
         data.quotedData = "false";
+      }
+
+      if (!data.scope || data.scope == "ui") {
+        data.type = 'STRING';
       }
     },
     valueText(data) {
