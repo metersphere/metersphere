@@ -247,6 +247,16 @@ public class ApiScenarioExecuteService {
             return;
         }
         Map<String, ApiScenarioWithBLOBs> scenarioMap = apiScenarios.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, Function.identity(), (t1, t2) -> t1));
+        //检查环境组
+        Map<String, String> configEnvMap = new HashMap<>();
+        if (request.getConfig() != null) {
+            if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.JSON.toString()) && MapUtils.isNotEmpty(request.getConfig().getEnvMap())) {
+                configEnvMap = request.getConfig().getEnvMap();
+            } else if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(request.getConfig().getEnvironmentGroupId())) {
+                configEnvMap = environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId());
+            }
+        }
+
         for (String testPlanScenarioId : planScenarioIdMap.keySet()) {
             String scenarioId = planScenarioIdMap.get(testPlanScenarioId);
             ApiScenarioWithBLOBs scenario = scenarioMap.get(scenarioId);
@@ -268,6 +278,8 @@ public class ApiScenarioExecuteService {
             } else if (StringUtils.equals(planApiScenario.getEnvironmentType(), EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(planApiScenario.getEnvironmentGroupId())) {
                 planEnvMap = environmentGroupProjectService.getEnvMap(planApiScenario.getEnvironmentGroupId());
             }
+            planEnvMap.putAll(configEnvMap);
+            
             if (StringUtils.isEmpty(request.getProjectId())) {
                 request.setProjectId(extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId));
             }

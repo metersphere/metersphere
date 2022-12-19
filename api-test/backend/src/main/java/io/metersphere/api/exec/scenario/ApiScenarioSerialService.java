@@ -21,6 +21,7 @@ import io.metersphere.commons.utils.RequestParamsUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.annotation.Lazy;
@@ -71,8 +72,11 @@ public class ApiScenarioSerialService {
                     } else {
                         TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(queue.getTestId());
                         if (planApiScenario != null) {
-                            planEnvMap = apiScenarioEnvService.planEnvMap(queue.getTestId());
-                            queue.setEvnMap(JSON.toJSONString(planEnvMap));
+                            // envMap不为空的话可以看做是需要指定环境运行； 为空的话则按照默认环境运行
+                            if (MapUtils.isEmpty(JSON.parseObject(queue.getEvnMap(), Map.class))) {
+                                planEnvMap = apiScenarioEnvService.planEnvMap(queue.getTestId());
+                                queue.setEvnMap(JSON.toJSONString(planEnvMap));
+                            }
                             scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
                         }
                     }
