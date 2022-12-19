@@ -663,7 +663,7 @@ public class ApiDefinitionImportUtilService {
         }
         if (apiDefinition.getLatest()) {
             for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
-                if (apiDefinitionWithBLOBs.getLatest()) {
+                if (apiDefinitionWithBLOBs.getLatest() && !apiDefinition.getId().equalsIgnoreCase(apiDefinitionWithBLOBs.getId())) {
                     apiDefinitionWithBLOBs.setLatest(false);
                 }
                 batchMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
