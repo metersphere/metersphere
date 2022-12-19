@@ -455,28 +455,11 @@ export default {
       });
       this.variables = datas;
     },
-    filterScope(scope) {
-      let datas = [];
-      let variables = _.cloneDeep(this.variables);
-      variables.forEach((item) => {
-        if (scope == "api") {
-          if (
-            item.scope && item.scope != "api"
-          ) {
-            item.hidden = true;
-          } else {
-            item.hidden = undefined;
-          }
-        } else {
-          if (item.scope == scope) {
-            item.hidden = undefined;
-          } else {
-            item.hidden = true;
-          }
-        }
-        datas.push(item);
-      });
-      this.variables = datas;
+    filterScope(value, row) {
+      if (value == "ui") {
+        return row.scope == "ui";
+      }
+      return !row.scope || row.scope == "api";
     },
     openSetting(data) {
       this.$refs.apiVariableSetting.open(data);
