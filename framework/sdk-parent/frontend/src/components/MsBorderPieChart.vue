@@ -242,31 +242,31 @@ export default {
         pageIconColor: "#1F2329",
         pageIconInactiveColor: "#1F2329",
         orient: 'vertical',
-        icon:"rect",
+        icon: "rect",
         itemGap: 32,
-        left: '317px',
+        left: '50%',
         y: 'center',
         itemHeight: 8,
         itemWidth: 8, //修改icon图形大小
         itemStyle: {
           borderWidth: 0.1
         },
-        inactiveBorderWidth:0.1,
+        inactiveBorderWidth: 0.1,
         textStyle: {
           rich: {
             name: {
               fontSize: 14,
               align: 'left',
-              width: 100,
+              width: 50,
               fontWeight: 400,
-              color:'#646A73'
+              color: '#646A73'
             },
             num: {
               fontSize: 14,
               align: 'right',
-              color:'#646A73',
-              fontWeight: 400,
-              padding: [0, 0, 0, 134]
+              color: '#646A73',
+              fontWeight: 500,
+              padding: [0, 0, 0, 155]
             }
           }
         },
