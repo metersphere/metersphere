@@ -470,7 +470,7 @@
         </foreach>
     </update>
 
-    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiScenarioReport"
+    <select id="findByProjectIds" resultType="io.metersphere.commons.vo.TaskResultVO"
             parameterType="java.lang.String">
         select actuator ,id from api_scenario_report where status in ("running","starting","PENDING") and project_id in
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
