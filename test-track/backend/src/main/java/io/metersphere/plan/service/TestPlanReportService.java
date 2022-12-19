@@ -491,88 +491,97 @@ public class TestPlanReportService {
             return testPlanReport;
         }
         boolean isSendMessage = false;
-        TestPlanReportContentWithBLOBs content = null;
+
         if (testPlanReport != null) {
-            if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
-                isSendMessage = true;
-            }
-            //初始化测试计划包含组件信息
-            int[] componentIndexArr = new int[]{1, 3, 4};
-            testPlanReport.setComponents(JSON.toJSONString(componentIndexArr));
-            //如果测试案例没有未结束的功能用例，则更新最后结束日期。
-            TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
-            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-            testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanReport.getTestPlanId()).andStatusNotEqualTo("Prepare");
-            long endTime = System.currentTimeMillis();
-            long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
-            boolean updateTestPlanTime = testCaseCount > 0;
-            if (updateTestPlanTime && !StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-                testPlanReport.setEndTime(endTime);
-                testPlanReport.setUpdateTime(endTime);
-            }
-
-            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-            contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
-            List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
-            if (CollectionUtils.isNotEmpty(contents)) {
-                content = contents.get(0);
-                content.setApiBaseCount(null);
-                content.setPassRate(null);
-                extTestPlanReportMapper.setApiBaseCountAndPassRateIsNullById(content.getId());
-            }
-
-            //更新测试计划并发送通知
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport.setIsUiScenarioExecuting(false);
-            //计算测试计划状态
 
+            if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
+                isSendMessage = true;
+            }
+            TestPlanReportContentWithBLOBs content = null;
             try {
-                if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
-                    testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
-                    HttpHeaderUtils.runAsUser("admin");
-                    testPlanService.checkStatus(testPlanReport.getTestPlanId());
-                } else {
-                    testPlanReport.setStatus(status);
-                }
-
-                if (content != null) {
-                    //更新content表对结束日期
-                    if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-                        content.setStartTime(testPlanReport.getStartTime());
-                        content.setEndTime(endTime);
-                    }
-                    this.initTestPlanReportBaseCount(testPlanReport, content);
-                    testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
-                }
-            } finally {
+                HttpHeaderUtils.runAsUser("admin");
+                testPlanReport.setStatus(status);
+                content = this.initTestPlanContent(testPlanReport, status);
+            } catch (Exception e) {
                 HttpHeaderUtils.clearUser();
+                testPlanReport.setStatus(status);
+                LogUtil.error("统计测试计划状态失败！", e);
+            } finally {
+                testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+                testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+                this.executeTestPlanByQueue(testPlanReportId);
             }
+        }
+        return testPlanReport;
+    }
 
-            TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
-            testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
-            List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
-            String runMode = null;
-            String resourceId = null;
-            if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
-                runMode = planExecutionQueues.get(0).getRunMode();
-                resourceId = planExecutionQueues.get(0).getResourceId();
-                testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
+    private TestPlanReportContentWithBLOBs initTestPlanContent(TestPlanReport testPlanReport, String status) throws Exception {
+        TestPlanReportContentWithBLOBs content = null;
+        //初始化测试计划包含组件信息
+        int[] componentIndexArr = new int[]{1, 3, 4};
+        testPlanReport.setComponents(JSON.toJSONString(componentIndexArr));
+        //如果测试案例没有未结束的功能用例，则更新最后结束日期。
+        TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanReport.getTestPlanId()).andStatusNotEqualTo("Prepare");
+        long endTime = System.currentTimeMillis();
+        long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
+        boolean updateTestPlanTime = testCaseCount > 0;
+        if (updateTestPlanTime && !StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+            testPlanReport.setEndTime(endTime);
+            testPlanReport.setUpdateTime(endTime);
+        }
+
+        TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+        contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getTestPlanId());
+        List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
+        if (CollectionUtils.isNotEmpty(contents)) {
+            content = contents.get(0);
+            content.setApiBaseCount(null);
+            content.setPassRate(null);
+            extTestPlanReportMapper.setApiBaseCountAndPassRateIsNullById(content.getId());
+        }
+
+        //计算测试计划状态
+        if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
+            testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
+            testPlanService.checkStatus(testPlanReport.getTestPlanId());
+        }
+        if (content != null) {
+            //更新content表对结束日期
+            if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+                content.setStartTime(testPlanReport.getStartTime());
+                content.setEndTime(endTime);
             }
+            this.initTestPlanReportBaseCount(testPlanReport, content);
+            testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
+        }
+        return content;
+    }
 
-            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
-            //发送通知
-            testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
 
-            if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
-                TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
-                queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
-                queueExample.setOrderByClause("`num` ASC");
-                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
-                if (CollectionUtils.isEmpty(planExecutionQueueList)) {
-                    return testPlanReport;
-                }
+    public void executeTestPlanByQueue(String testPlanReportId) {
+        TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
+        testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+        List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
+        String runMode = null;
+        String resourceId = null;
+        if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
+            runMode = planExecutionQueues.get(0).getRunMode();
+            resourceId = planExecutionQueues.get(0).getResourceId();
+            testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
+        }
+
+        if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
+            TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
+            queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
+            queueExample.setOrderByClause("`num` ASC");
+            List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
+            if (CollectionUtils.isNotEmpty(planExecutionQueueList)) {
                 TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanExecutionQueue.getTestPlanId());
                 Map jsonObject = JSON.parseMap(testPlan.getRunModeConfig());
@@ -591,9 +600,7 @@ public class TestPlanReportService {
                     HttpHeaderUtils.clearUser();
                 }
             }
-
         }
-        return testPlanReport;
     }
 
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
