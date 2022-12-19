@@ -55,7 +55,9 @@ import {
   getModuleByProjectId,
   getModuleByRelevanceProjectId,
   getModuleByTrash,
-  posScenarioModule, postModuleByProjectId, postModuleByTrash,
+  posScenarioModule,
+  postModuleByProjectId,
+  postModuleByTrash,
 } from '@/api/scenario-module';
 
 export default {
@@ -167,17 +169,17 @@ export default {
       this.param = {};
     },
   },
-  created(){
-    this.$EventBus.$on("scenarioConditionBus", (param)=>{
+  created() {
+    this.$EventBus.$on('scenarioConditionBus', (param) => {
       this.param = param;
       this.list();
-    })
+    });
   },
   beforeDestroy() {
-    this.$EventBus.$off("scenarioConditionBus", (param)=>{
+    this.$EventBus.$off('scenarioConditionBus', (param) => {
       this.param = param;
       this.list();
-    })
+    });
   },
   methods: {
     handleImport() {
@@ -352,7 +354,9 @@ export default {
     },
     enableTrash() {
       this.condition.trashEnable = true;
-      this.$emit('enableTrash', this.condition.trashEnable);
+      this.$nextTick(() => {
+        this.$emit('enableTrash', this.condition.trashEnable);
+      });
     },
     removeModuleId(nodeIds) {
       if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {
