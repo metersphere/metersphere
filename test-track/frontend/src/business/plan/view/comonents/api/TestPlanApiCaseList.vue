@@ -511,13 +511,11 @@ export default {
     singleRun(row) {
       let reportId = getUUID().substring(0, 8);
       this.rowLoading = row.id;
-      run(row.id, reportId)
-        .then(() => {
-          this.runningReport.add(reportId);
-          this.$refs.apiCaseResult.open(reportId);
-        },error =>{
-          this.rowLoading = "";
-        });
+      this.runningReport.add(reportId);
+      // 这里先打开报告，建立 websock
+      // 否则可能执行完了才建立 websock，拿不到结果
+      this.$refs.apiCaseResult.open(reportId);
+      run(row.id, reportId);
     },
     handleTestEnd(reportId) {
       if (this.runningReport.has(reportId)) {

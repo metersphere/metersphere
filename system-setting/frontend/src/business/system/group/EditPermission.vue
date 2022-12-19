@@ -99,7 +99,10 @@ export default {
     },
     isReadOnly() {
       return function (data) {
-        const isDefaultSystemGroup = (this.group.id === 'admin' || this.group.id === 'super_group') && data.resource.id === 'SYSTEM_GROUP';
+        if (this.group.id === 'super_group') {
+          return true;
+        }
+        const isDefaultSystemGroup = this.group.id === 'admin' && data.resource.id === 'SYSTEM_GROUP';
         return this.readOnly || isDefaultSystemGroup;
       }
     }

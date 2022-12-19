@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
@@ -559,6 +560,11 @@ public class TestPlanReportService {
                 resourceId = planExecutionQueues.get(0).getResourceId();
                 testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
             }
+
+            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+            //发送通知
+            testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+
             if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
                 TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
                 queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
@@ -573,12 +579,20 @@ public class TestPlanReportService {
                 TestPlanRequestUtil.changeStringToBoolean(jsonObject);
                 TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
-                testPlanService.runPlan(runRequest);
+                runRequest.setTestPlanId(testPlan.getId());
+                try {
+                    HttpHeaderUtils.runAsUser("admin");
+                    //如果运行测试计划的过程中出现异常，则整个事务会回滚。 删除队列的事务也不会提交，也不会执行后面的测试计划
+                    testPlanService.runPlan(runRequest);
+                } catch (Exception e) {
+                    LogUtil.error("执行队列中的下一个测试计划失败！ ", e);
+                    this.finishedTestPlanReport(runRequest.getReportId(), TestPlanReportStatus.FAILED.name());
+                } finally {
+                    HttpHeaderUtils.clearUser();
+                }
             }
-            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+
         }
-        //发送通知
-        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
         return testPlanReport;
     }
 
@@ -1044,6 +1058,16 @@ public class TestPlanReportService {
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
+        TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+        TestPlanExtReportDTO extReport = null;
+        try {
+            extReport = testPlanService.getExtInfoByReportId(reportId);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (extReport != null) {
+            BeanUtils.copyBean(testPlanReportDTO, extReport);
+        }
         return testPlanReportDTO;
     }
 
@@ -1363,7 +1387,7 @@ public class TestPlanReportService {
         example.setOrderByClause("create_time desc");
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
-        if(CollectionUtils.isNotEmpty(testPlanReports)){
+        if (CollectionUtils.isNotEmpty(testPlanReports)) {
             return testPlanReports.get(0).getId();
         }
         return null;

@@ -26,6 +26,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.enums.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -168,7 +169,6 @@ public class ApiDefinitionService {
     public static final String ARGUMENTS = "arguments";
     public static final String BODY = "body";
     private static final String SCHEDULE = "schedule";
-
 
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
@@ -354,8 +354,8 @@ public class ApiDefinitionService {
                 definitionList = this.selectEffectiveIdByProjectId(request.getProjectId(), versionId);
             }
             if (CollectionUtils.isNotEmpty(definitionList)) {
-                //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
-                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), versionId);
+                //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数. 这里不根据版本筛选覆盖的url。
+                Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId(), null);
                 List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
                 if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
                     request.setCoverageIds(apiIdInScenario);
@@ -783,7 +783,10 @@ public class ApiDefinitionService {
             apiTestCaseService.updateByApiDefinitionId(ids, test, request.getTriggerUpdate());
         }
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
-        //checkAndSetLatestVersion(result.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(result.getRefId());
+        }
 
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.API.name());
@@ -935,21 +938,6 @@ public class ApiDefinitionService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * 获取存储执行结果报告
      *
@@ -1010,7 +998,7 @@ public class ApiDefinitionService {
                 apiReportEnvConfig.setResourcePoolName(resourcePool.getName());
             }
         } else {
-            apiReportEnvConfig.setResourcePoolName("LOCAL");
+            apiReportEnvConfig.setResourcePoolName(StorageEnums.LOCAL.name());
         }
         return apiReportEnvConfig;
     }
@@ -1685,9 +1673,11 @@ public class ApiDefinitionService {
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
             ApiDefinitionExample.Criteria criteria = example.createCriteria();
-            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andLatestEqualTo(true);
+            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
             if (StringUtils.isNotBlank(versionId)) {
                 criteria.andVersionIdEqualTo(versionId);
+            } else {
+                criteria.andLatestEqualTo(true);
             }
             return apiDefinitionMapper.countByExample(example);
         }
@@ -1916,6 +1906,11 @@ public class ApiDefinitionService {
 
     public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(String projectId, String protocol, String versionId, String status) {
         List<ApiDefinition> apiList = extApiDefinitionMapper.selectApiBaseInfoByProjectIdAndProtocolAndStatus(projectId, protocol, versionId, status);
+        return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
+    }
+
+    public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(String projectId, String protocol, String versionId, String status, ApiDefinitionRequest request) {
+        List<ApiDefinition> apiList = extApiDefinitionMapper.selectApiBaseInfoByCondition(projectId, protocol, versionId, status, request);
         return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
     }
 

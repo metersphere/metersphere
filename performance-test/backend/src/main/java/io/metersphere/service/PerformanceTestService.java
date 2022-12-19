@@ -321,11 +321,17 @@ public class PerformanceTestService {
             loadTest.setCreateUser(SessionUtils.getUserId());
             loadTest.setOrder(oldLoadTest.getOrder());
             loadTest.setRefId(oldLoadTest.getRefId());
+            if (oldLoadTest.getLatest()) {
+                loadTest.setLatest(false);
+            }
             //插入文件
             copyLoadTestFiles(testId, loadTest.getId());
             loadTestMapper.insertSelective(loadTest);
         }
-        //checkAndSetLatestVersion(loadTest.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(loadTest.getRefId());
+        }
         return loadTest;
     }
 

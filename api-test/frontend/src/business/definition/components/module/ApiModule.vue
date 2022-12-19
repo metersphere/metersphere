@@ -52,7 +52,7 @@ import {
   getApiModuleByTrash,
   getApiModules,
   getUserDefaultApiType,
-  posModule,
+  posModule, postApiModuleByTrash, postApiModules,
 } from '@/api/definition-module';
 import MsAddBasisApi from '../basis/AddBasisApi';
 import SelectMenu from '@/business/commons/SelectMenu';
@@ -83,6 +83,7 @@ export default {
       },
       data: [],
       currentModule: {},
+      param: {},
     };
   },
   props: {
@@ -155,6 +156,7 @@ export default {
       this.list();
     },
     'condition.trashEnable'() {
+      this.param = {};
       this.$emit('enableTrash', this.condition.trashEnable);
     },
     relevanceProjectId() {
@@ -164,6 +166,7 @@ export default {
       this.list();
     },
     isTrashData() {
+      this.param = {};
       this.condition.trashEnable = this.isTrashData;
       this.list();
     },
@@ -172,6 +175,18 @@ export default {
         this.condition.protocol = this.defaultProtocol;
       }
     },
+  },
+  created(){
+    this.$EventBus.$on("apiConditionBus", (param)=>{
+      this.param = param;
+      this.list();
+    })
+  },
+  beforeDestroy() {
+    this.$EventBus.$off("apiConditionBus", (param)=>{
+      this.param = param;
+      this.list();
+    })
   },
   methods: {
     initProtocol() {
@@ -220,11 +235,11 @@ export default {
           }
         );
       } else if (this.isTrashData) {
-        this.result = getApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion).then((response) => {
+        this.result = postApiModuleByTrash(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getApiModules(projectId, this.condition.protocol, this.currentVersion).then((response) => {
+        this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
           this.setData(response);
         });
       }
@@ -329,16 +344,20 @@ export default {
           this.setNohupData(response, selectNodeId);
         });
       } else if (this.isTrashData) {
-        getApiModuleByTrash(
+        postApiModuleByTrash(
           this.projectId,
-          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol,
+          this.currentVersion,
+          this.param
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });
       } else {
-        getApiModules(
+        postApiModules(
           this.projectId,
-          this.condition.protocol + (this.currentVersion ? '/' + this.currentVersion : '')
+          this.condition.protocol,
+          this.currentVersion,
+          this.param
         ).then((response) => {
           this.setNohupData(response, selectNodeId);
         });

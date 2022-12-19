@@ -1928,6 +1928,10 @@ const message = {
       data_new_version: '新增API创建到',
       latest_version: '最新版本',
     },
+    scenario_import: {
+      data_update_version: '同一场景更新到',
+      data_new_version: '新增场景创建到',
+    },
     home_page: {
       unit_of_measurement: "个",
       unit_of_count: "个",
@@ -3200,7 +3204,7 @@ const message = {
     store_window_handle: "窗口 Handle(storeWindowHandle)",
     store_title: "网页标题(storeTitle)",
     wait_time: "等待时间",
-    per_tip: "启用性能模式后，将减少内存和cpu的占用，运行结果不展示步骤截图",
+    per_tip: "启用性能模式后，将减少内存和cpu的占用",
     fail_over: "失败终止",
     validate_tip: "勾选表示为硬断言（assert），如果断言失败，程序会终止。不勾选表示为软断言（verify），如果断言失败，程序不会终止。",
     scenario: "场景",

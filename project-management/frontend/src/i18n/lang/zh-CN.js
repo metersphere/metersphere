@@ -37,7 +37,13 @@ const message = {
     version_time: '版本周期',
   },
   environment: {
-    export_variable_tip : "导出接口测试变量"
+    export_variable_tip : "导出接口测试变量",
+    need_expire_time : "请输入过期时间",
+    need_relevance_ui_scenario : "请关联登录场景",
+    view_ui_relevane : "查看关联",
+    cancel_ui_relevane : "取消关联",
+    re_ui_relevane : "重新关联",
+    relevance_ui : "关联登录场景/指令",
   }
 }
 

@@ -409,7 +409,10 @@ public class ApiScenarioService {
         if (relationshipEdgeService != null) {
             relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
         }
-        //checkAndSetLatestVersion(beforeScenario.getRefId());
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
+            checkAndSetLatestVersion(beforeScenario.getRefId());
+        }
         // 存储附件关系
         extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
@@ -2201,6 +2204,11 @@ public class ApiScenarioService {
 
     public Map<String, List<ApiScenario>> selectApiBaseInfoGroupByModuleId(String projectId, String status) {
         List<ApiScenario> apiScenarioList = extApiScenarioMapper.selectBaseInfoByProjectIdAndStatus(projectId, status);
+        return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
+    }
+
+    public Map<String, List<ApiScenario>> selectApiBaseInfoGroupByModuleId(String projectId, String status, ApiScenarioRequest request) {
+        List<ApiScenario> apiScenarioList = extApiScenarioMapper.selectBaseInfoByCondition(projectId, status, request);
         return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
     }
 

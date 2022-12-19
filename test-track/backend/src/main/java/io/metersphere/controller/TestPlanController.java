@@ -252,7 +252,7 @@ public class TestPlanController {
     }
 
     @GetMapping("/report/export/{planId}/{lang}")
-    public void exportHtmlReport(@PathVariable String planId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void exportHtmlReport(@PathVariable String planId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         testPlanService.exportPlanReport(planId, lang, response);
     }
 
@@ -262,7 +262,7 @@ public class TestPlanController {
     }
 
     @GetMapping("/report/db/export/{reportId}/{lang}")
-    public void exportHtmlDbReport(@PathVariable String reportId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void exportHtmlDbReport(@PathVariable String reportId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         testPlanService.exportPlanDbReport(reportId, lang, response);
     }
 
@@ -376,8 +376,13 @@ public class TestPlanController {
         testPlanService.resetStatus(planId);
     }
 
-    @GetMapping("/ext/report/{planId}")
-    public TestPlanExtReportDTO getExtReport(@PathVariable String planId) throws JsonProcessingException {
-        return testPlanService.getExtReport(planId);
+    @GetMapping("/ext/report/{reportId}")
+    public TestPlanExtReportDTO getExtReport(@PathVariable String reportId) throws JsonProcessingException {
+        return testPlanService.getExtInfoByReportId(reportId);
+    }
+
+    @GetMapping("/ext/plan/{planId}")
+    public TestPlanExtReportDTO getExtPlan(@PathVariable String planId) throws JsonProcessingException {
+        return testPlanService.getExtInfoByPlanId(planId);
     }
 }

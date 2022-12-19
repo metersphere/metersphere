@@ -42,14 +42,10 @@ import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
-import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,10 +55,12 @@ import org.apache.jmeter.control.ForeachController;
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.control.TransactionController;
 import org.apache.jmeter.control.WhileController;
+import org.apache.jmeter.extractor.BeanShellPostProcessor;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.extractor.XPath2Extractor;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
+import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -746,6 +744,10 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
                 ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
                 ((MsJSR223PostProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
+            } else if (key instanceof BeanShellPostProcessor) {
+                elementNode = getMsTestElement((BeanShellPostProcessor) key);
+            } else if (key instanceof BeanShellPreProcessor) {
+                elementNode = getMsTestElement((BeanShellPreProcessor) key);
             }
             // 前置脚本
             else if (key instanceof JSR223PreProcessor) {
@@ -852,5 +854,27 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 jmterHashTree(node, elementNode);
             }
         }
+    }
+
+    public static MsTestElement getMsTestElement(BeanShellPreProcessor key) {
+        MsTestElement elementNode;
+        BeanShellPreProcessor beanShellPreProcessor = key;
+        elementNode = new MsJSR223PreProcessor();
+        BeanUtils.copyBean(elementNode, beanShellPreProcessor);
+        ((MsJSR223PreProcessor) elementNode).setJsrEnable(false);
+        ((MsJSR223PreProcessor) elementNode).setScript(beanShellPreProcessor.getPropertyAsString("script"));
+        ((MsJSR223PreProcessor) elementNode).setScriptLanguage(beanShellPreProcessor.getPropertyAsString("scriptLanguage"));
+        return elementNode;
+    }
+
+    public static MsTestElement getMsTestElement(BeanShellPostProcessor key) {
+        MsTestElement elementNode;
+        BeanShellPostProcessor beanShellPostProcessor = key;
+        elementNode = new MsJSR223PostProcessor();
+        ((MsJSR223PostProcessor) elementNode).setJsrEnable(false);
+        BeanUtils.copyBean(elementNode, beanShellPostProcessor);
+        ((MsJSR223PostProcessor) elementNode).setScript(beanShellPostProcessor.getPropertyAsString("script"));
+        ((MsJSR223PostProcessor) elementNode).setScriptLanguage(beanShellPostProcessor.getPropertyAsString("scriptLanguage"));
+        return elementNode;
     }
 }

@@ -71,13 +71,13 @@ export default {
     isDb: Boolean,
     shareId: String,
     reportId: String,
-    runMode: String,
-    resourcePool: String,
     needMoveBar: Boolean
   },
   data() {
     return {
       report: {},
+      runMode: '',
+      resourcePool: '',
       loading: false,
       shareUrl: ''
     };
@@ -139,6 +139,8 @@ export default {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
+        this.runMode = this.report.runMode;
+        this.resourcePool = this.report.resourcePool;
         if (this.report.lang) {
           this.$setLang(this.report.lang);
         }
@@ -151,6 +153,8 @@ export default {
             .then((r) => {
               this.loading = false;
               this.report = r.data;
+              this.runMode = r.data.runMode;
+              this.resourcePool = r.data.resourcePool;
               this.report.config = this.getDefaultConfig(this.report);
             });
         } else {
@@ -183,8 +187,7 @@ export default {
             });
         }
       }
-
-      getTestPlanExtReport(this.planId).then((response) => {
+      getTestPlanExtReport(this.planId, this.reportId).then((response) => {
         this.runMode = response.data.runMode;
         this.resourcePool = response.data.resourcePool;
       })

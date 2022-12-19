@@ -115,7 +115,7 @@ public class PluginService {
         checkPluginExist(file);
         if (StringUtils.equalsIgnoreCase(scenario, PluginScenario.platform.name())) {
             PluginWithBLOBs plugin = platformPluginService.addPlatformPlugin(file);
-            addPlugin(plugin);
+            platformPluginService.notifiedPlatformPluginAdd(plugin.getId());
         } else {
             List<PluginWithBLOBs> plugins = apiPluginService.addApiPlugin(file);
             plugins.forEach(this::addPlugin);

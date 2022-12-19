@@ -156,10 +156,16 @@ export default {
       if (!hasLicense()) {
         return;
       }
-      ModuleEvent.$on(MODULE_CHANGE, (key, status) => {
-        getModuleList().then(() => {
-          this.menuKey++;
+      getModuleList()
+        .then(response => {
+          response.data.forEach(m => {
+            this.modules[m.key] = m.status;
+          });
+          localStorage.setItem('modules', JSON.stringify(this.modules));
+        })
+        .catch(() => {
         });
+      ModuleEvent.$on(MODULE_CHANGE, (key, status) => {
         this.$set(this.modules, key, status);
         this.menuKey++;
       });

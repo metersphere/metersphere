@@ -63,8 +63,9 @@
 
 <script>
 import MsValidLicense from "./ValidLicense";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
-import {getLicense, saveLicense} from "../../../api/license";
+import {hasPermission, saveLicense, hasLicense} from "metersphere-frontend/src/utils/permission";
+import {getLicense} from "../../../api/license";
+import {getModuleList} from "metersphere-frontend/src/api/module";
 
 export default {
   name: "MxLicense",
@@ -108,7 +109,17 @@ export default {
         this.license.licenseCount = value.license.licenseCount;
         this.license.status = value.status;
         saveLicense(value.status);
-        window.location.reload();
+        if (hasLicense()) {
+          getModuleList()
+            .then(response => {
+              let modules = {};
+              response.data.forEach(m => {
+                modules[m.key] = m.status;
+              });
+              localStorage.setItem('modules', JSON.stringify(modules));
+              location.reload();
+            })
+        }
       }
     },
   }

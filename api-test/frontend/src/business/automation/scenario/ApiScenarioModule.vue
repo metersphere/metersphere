@@ -55,7 +55,7 @@ import {
   getModuleByProjectId,
   getModuleByRelevanceProjectId,
   getModuleByTrash,
-  posScenarioModule,
+  posScenarioModule, postModuleByProjectId, postModuleByTrash,
 } from '@/api/scenario-module';
 
 export default {
@@ -112,6 +112,7 @@ export default {
         filterText: '',
         trashEnable: false,
       },
+      param: {},
       data: [],
       currentModule: undefined,
       operators: [
@@ -155,6 +156,7 @@ export default {
       this.filter();
     },
     'condition.trashEnable'() {
+      this.param = {};
       this.$emit('enableTrash', this.condition.trashEnable);
     },
     relevanceProjectId() {
@@ -162,8 +164,20 @@ export default {
     },
     isTrashData() {
       this.condition.trashEnable = this.isTrashData;
-      this.list();
+      this.param = {};
     },
+  },
+  created(){
+    this.$EventBus.$on("scenarioConditionBus", (param)=>{
+      this.param = param;
+      this.list();
+    })
+  },
+  beforeDestroy() {
+    this.$EventBus.$off("scenarioConditionBus", (param)=>{
+      this.param = param;
+      this.list();
+    })
   },
   methods: {
     handleImport() {
@@ -188,11 +202,11 @@ export default {
           this.setData(response);
         });
       } else if (this.isTrashData) {
-        this.result = getModuleByTrash(projectId ? projectId : this.projectId).then((response) => {
+        this.result = postModuleByTrash(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
       } else {
-        this.result = getModuleByProjectId(projectId ? projectId : this.projectId).then((response) => {
+        this.result = postModuleByProjectId(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
       }
@@ -287,14 +301,14 @@ export default {
         if (!this.projectId) {
           return;
         }
-        getModuleByTrash(this.projectId).then((response) => {
+        postModuleByTrash(this.projectId, this.param).then((response) => {
           this.setModuleList(response, selectNodeId);
         });
       } else {
         if (!this.projectId) {
           return;
         }
-        getModuleByProjectId(this.projectId).then((response) => {
+        postModuleByProjectId(this.projectId, this.param).then((response) => {
           this.setModuleList(response, selectNodeId);
         });
       }

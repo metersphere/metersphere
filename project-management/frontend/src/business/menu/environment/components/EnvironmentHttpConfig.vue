@@ -45,7 +45,7 @@
           </el-input>
         </div>
 
-<!-- 接口测试配置       -->
+        <!-- 接口测试配置       -->
         <form-section :title="$t('commons.api')" :init-active=true>
           <p>{{ $t('api_test.request.headers') }}</p>
           <el-row>
@@ -55,28 +55,14 @@
             </el-link>
           </el-row>
           <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
-          <div style="margin-top: 20px">
-            <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
-              {{ $t('commons.add') }}
-            </el-button>
-            <div v-else>
-              <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
-                {{ $t('commons.clear') }}
-              </el-button>
-              <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
-                  $t('commons.update')
-                }}
-              </el-button>
-            </div>
-          </div>
         </form-section>
 
-<!--    UI 配置    -->
-        <form-section :title="$t('commons.ui_test')" :init-active="false">
+        <!--    UI 配置    -->
+        <form-section :title="$t('commons.ui_test')" :init-active=false v-if="condition.type !== 'MODULE'">
           <el-row :gutter="10" style="padding-top: 10px;">
             <el-col :span="6">
               <!-- 浏览器驱动 -->
-              <span style="margin-right: 10px;">{{$t("ui.browser")}}</span>
+              <span style="margin-right: 10px;">{{ $t("ui.browser") }}</span>
               <el-select
                 size="mini"
                 v-model="httpConfig.browser"
@@ -102,12 +88,28 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="10">
-            <el-col :span="24">
-              <ms-ui-scenario-cookie-table :items="httpConfig.cookie"/>
-            </el-col>
-          </el-row>
+          <!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
+          <!--          <el-row :gutter="10">-->
+          <!--            <el-col :span="24">-->
+          <!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
+          <!--            </el-col>-->
+          <!--          </el-row>-->
         </form-section>
+
+        <div style="margin-top: 20px">
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+            {{ $t('commons.add') }}
+          </el-button>
+          <div v-else>
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+              {{ $t('commons.clear') }}
+            </el-button>
+            <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
+                $t('commons.update')
+              }}
+            </el-button>
+          </div>
+        </div>
 
       </el-form-item>
     </div>
@@ -174,9 +176,10 @@ export default {
   name: "MsEnvironmentHttpConfig",
   components: {
     MsUiScenarioCookieTable,
-    FormSection, MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter, MsInstructionsIcon},
+    FormSection, MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter, MsInstructionsIcon
+  },
   props: {
-    httpConfig: new HttpConfig({cookie: []}),
+    httpConfig: new HttpConfig(),
     projectId: String,
     isReadOnly: {
       type: Boolean,
@@ -185,9 +188,6 @@ export default {
   },
   created() {
     this.list();
-    if (this.httpConfig && !this.httpConfig.cookie) {
-      this.$set(this.httpConfig, "cookie", []);
-    }
   },
   data() {
     let socketValidator = (rule, value, callback) => {
@@ -220,7 +220,7 @@ export default {
         port: 0,
         headers: [new KeyValue()],
         headlessEnabled: true,
-        browser : 'CHROME'
+        browser: 'CHROME'
       },
       beforeCondition: {},
       browsers: [
@@ -354,7 +354,7 @@ export default {
     list() {
       if (this.projectId) {
         this.result = getApiModuleByProjectIdAndProtocol(this.projectId, "HTTP").then((response) => {
-          if (response.data  && response.data !== null) {
+          if (response.data && response.data !== null) {
             this.moduleOptions = response.data;
           }
         });
@@ -507,6 +507,9 @@ export default {
       this.$refs["httpConfig"].validate((valid) => {
         isValidate = valid;
       });
+      // if (this.$refs.cookieTable && !this.$refs.cookieTable.validate()) {
+      //   return false;
+      // }
       return isValidate;
     },
     batchAdd() {

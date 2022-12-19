@@ -10,7 +10,7 @@
               :placeholder="$t('home.dashboard.public.default_version')"
               size="small"
               style="height: 100%">
-              <el-option v-for="item in versions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+              <el-option v-for="item in versions" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
           </el-row>
           <el-row :gutter="16">
@@ -233,6 +233,7 @@ export default {
 .api-home-layout :deep(.dashboard-title) {
   font-size: 18px;
   font-weight: 500;
+  color: #1f2329;
 }
 
 .api-home-layout :deep(.common-amount) {

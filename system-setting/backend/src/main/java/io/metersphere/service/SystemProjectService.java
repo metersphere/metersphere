@@ -126,7 +126,7 @@ public class SystemProjectService {
         if (quotaService != null) {
             quotaService.projectUseDefaultQuota(pjId);
         }
-        
+
         // 创建默认版本
         addProjectVersion(project);
         // 初始化项目应用管理
@@ -337,11 +337,6 @@ public class SystemProjectService {
             }
         }
         return project;
-    }
-
-
-    public boolean isThirdPartTemplate(Project project) {
-        return project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && project.getPlatform().equals(IssuesManagePlatform.Jira.name());
     }
 
     public List<Project> getByCaseTemplateId(String templateId) {

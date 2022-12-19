@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
@@ -714,7 +715,7 @@ public class ApiScenarioReportStructureService {
                 dto.setPoolName(resourcePool.getName());
             }
         } else {
-            dto.setPoolName("LOCAL");
+            dto.setPoolName(StorageEnums.LOCAL.name());
         }
         if (runModeConfigDTO != null && StringUtils.isNotBlank(runModeConfigDTO.getMode())) {
             dto.setMode(runModeConfigDTO.getMode());

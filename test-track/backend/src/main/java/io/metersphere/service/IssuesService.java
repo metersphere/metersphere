@@ -170,9 +170,10 @@ public class IssuesService {
             issues = platformPluginService.getPlatform(project.getPlatform())
                     .addIssue(platformIssuesUpdateRequest);
 
+            issues.setPlatform(project.getPlatform());
             insertIssues(issues);
             issuesRequest.setId(issues.getId());
-            issues.setPlatform(project.getPlatform());
+            issuesRequest.setPlatformId(issues.getPlatformId());
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
 
@@ -496,8 +497,6 @@ public class IssuesService {
     public List<String> getPlatforms(Project project) {
         String workspaceId = project.getWorkspaceId();
         boolean tapd = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Tapd.toString());
-        boolean jira = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Jira.toString());
-        boolean zentao = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Zentao.toString());
         boolean azure = isIntegratedPlatform(workspaceId, IssuesManagePlatform.AzureDevops.toString());
 
         List<String> platforms = new ArrayList<>();
@@ -508,20 +507,6 @@ public class IssuesService {
                 platforms.add(IssuesManagePlatform.Tapd.name());
             }
 
-        }
-
-        if (jira) {
-            String jiraKey = project.getJiraKey();
-            if (StringUtils.isNotBlank(jiraKey) && PlatformPluginService.isPluginPlatform(project.getPlatform())) {
-                platforms.add(IssuesManagePlatform.Jira.name());
-            }
-        }
-
-        if (zentao) {
-            String zentaoId = project.getZentaoId();
-            if (StringUtils.isNotBlank(zentaoId) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Zentao.toString())) {
-                platforms.add(IssuesManagePlatform.Zentao.name());
-            }
         }
 
         if (azure) {
@@ -637,13 +622,13 @@ public class IssuesService {
             issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
             List<IssuesDao> issuesDaos = listByWorkspaceId(issuesRequest);
             if (CollectionUtils.isNotEmpty(issuesDaos)) {
-                issuesDaos.parallelStream().forEach(issuesDao -> {
+                issuesDaos.forEach(issuesDao -> {
                     delete(issuesDao.getId());
                 });
             }
         } else {
             if (CollectionUtils.isNotEmpty(request.getBatchDeleteIds())) {
-                request.getBatchDeleteIds().parallelStream().forEach(id -> delete(id));
+                request.getBatchDeleteIds().forEach(id -> delete(id));
             }
         }
     }
@@ -945,10 +930,10 @@ public class IssuesService {
     }
 
     private String getDefaultCustomField(Project project) {
-        if (!trackProjectService.isThirdPartTemplate(project)) {
-            return getDefaultCustomFields(project.getId());
+        if (isThirdPartTemplate(project)) {
+            return null;
         }
-        return null;
+        return getDefaultCustomFields(project.getId());
     }
 
     public void syncPluginThirdPartyIssues(List<IssuesDao> issues, Project project, String defaultCustomFields) {
@@ -1057,10 +1042,6 @@ public class IssuesService {
     }
 
     private void syncAllPluginIssueAttachment(Project project, IssueSyncRequest syncIssuesResult) {
-        // todo 所有平台改造完之后删除
-        if (!StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
-            return;
-        }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         try {
             AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
@@ -1510,7 +1491,8 @@ public class IssuesService {
     public boolean isThirdPartTemplate(Project project) {
         return project.getThirdPartTemplate() != null
                 && project.getThirdPartTemplate()
-                && PlatformPluginService.isPluginPlatform(project.getPlatform());
+                && PlatformPluginService.isPluginPlatform(project.getPlatform())
+                && platformPluginService.isThirdPartTemplateSupport(project.getPlatform());
     }
 
     public void checkThirdProjectExist(Project project) {
@@ -1709,6 +1691,7 @@ public class IssuesService {
         IssueTemplateDao issueTemplateDao;
         Project project = baseProjectService.getProjectById(projectId);
         if (PlatformPluginService.isPluginPlatform(project.getPlatform())
+                && platformPluginService.isThirdPartTemplateSupport(project.getPlatform())
                 && project.getThirdPartTemplate()) {
             // 第三方Jira平台
             issueTemplateDao = getThirdPartTemplate(project.getId());
@@ -1794,13 +1777,13 @@ public class IssuesService {
     }
 
     public void saveImportData(List<IssuesUpdateRequest> issues) {
-        issues.parallelStream().forEach(issue -> {
+        issues.forEach(issue -> {
             addIssues(issue, null);
         });
     }
 
     public void updateImportData(List<IssuesUpdateRequest> issues) {
-        issues.parallelStream().forEach(issue -> {
+        issues.forEach(issue -> {
             updateIssues(issue);
         });
     }

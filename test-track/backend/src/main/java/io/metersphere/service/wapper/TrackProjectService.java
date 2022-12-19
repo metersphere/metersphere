@@ -26,13 +26,6 @@ public class TrackProjectService {
     @Resource
     ProjectMapper projectMapper;
 
-    public boolean isThirdPartTemplate(Project project) {
-        if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate() && project.getPlatform().equals(IssuesManagePlatform.Jira.name())) {
-            return true;
-        }
-        return false;
-    }
-
     public boolean useCustomNum(String projectId) {
         return useCustomNum(baseProjectService.getProjectById(projectId));
     }

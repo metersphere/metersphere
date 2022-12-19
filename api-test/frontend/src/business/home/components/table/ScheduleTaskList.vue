@@ -123,14 +123,12 @@ export default {
       tableData: [],
       currentPage: 1,
       pageSize: 5,
+      versionId: '',
       total: 0,
       condition: {
         filters: {},
       },
     };
-  },
-  activated() {
-    this.search();
   },
   methods: {
     clickRow(row, column) {
@@ -143,10 +141,13 @@ export default {
       }
     },
     search(versionId) {
+      if (versionId) {
+        this.versionId = versionId;
+      }
       let projectId = getCurrentProjectID();
       this.loading = true;
       this.loadError = false;
-      this.result = getRunningTask(projectId, versionId, this.currentPage, this.pageSize)
+      this.result = getRunningTask(projectId, this.versionId, this.currentPage, this.pageSize)
         .then((response) => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

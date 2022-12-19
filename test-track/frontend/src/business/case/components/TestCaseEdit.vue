@@ -465,7 +465,7 @@ export default {
       this.isXpack = false;
     }
     if (hasLicense()) {
-      this.getVersionHistory();
+      this.getDefaultVersion();
     }
 
     //浏览器拉伸时窗口编辑窗口自适应

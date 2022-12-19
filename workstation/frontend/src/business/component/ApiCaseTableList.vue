@@ -22,8 +22,8 @@
         :row-order-func="editApiTestCaseOrder"
         :batch-operators="batchButtons"
         :enable-selection="((isUpcoming===true||isFocus===true||isCreation===true) && isShowAllColumn === true)"
-        :operators="(isFinish===false && isShowAllColumn===true)?simpleOperators:[]"
-        :operator-width="isFinish===false?'180':'0'"
+        :operators="(isFinish===false && isShowAllColumn===true && showColum===true)?simpleOperators:[]"
+        :operator-width="(isFinish===false && showColum===true)?'180':'0'"
         :disable-header-config=true
         row-key="id"
         @refresh="initTable"
@@ -361,11 +361,13 @@ export default {
         {
           name: this.$t('commons.batch') + this.$t('workstation.sync'),
           handleClick: this.openBatchSync,
+          isXPack: true,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         },
         {
           name: this.$t('commons.batch') + this.$t('workstation.ignore'),
           handleClick: this.openBatchIgnore,
+          isXPack: true,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         },
       ],
@@ -469,8 +471,9 @@ export default {
       batchSyncCaseVisible: false,
       batchIgnoreCaseVisible: false,
       hasEditPermission: false,
-      store:{},
-      openUpdateRule: true
+      store: {},
+      openUpdateRule: true,
+      showColum: false
     };
   },
   props: {
@@ -532,6 +535,9 @@ export default {
   },
   created: function () {
     this.store = useApiStore();
+    if (hasLicense()) {
+      this.showColum = true;
+    }
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
     this.initTable();

@@ -1,5 +1,6 @@
 package io.metersphere.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanReportService;
@@ -44,7 +45,7 @@ public class ShareController {
 
     @GetMapping("/report/export/{shareId}/{planId}/{lang}")
     public void exportHtmlReport(@PathVariable String shareId, @PathVariable String planId,
-                                 @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+                                 @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         shareInfoService.validate(shareId, planId);
         testPlanService.exportPlanReport(planId, lang, response);
     }

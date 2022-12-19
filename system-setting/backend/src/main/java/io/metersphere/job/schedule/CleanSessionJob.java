@@ -5,7 +5,6 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +24,6 @@ public class CleanSessionJob {
     @Resource
     private RedisIndexedSessionRepository redisIndexedSessionRepository;
 
-    @Value("${spring.session.timeout:43200s}")
-    private Duration timeout;
 
     /**
      * 清理没有绑定user的session
@@ -55,7 +53,7 @@ public class CleanSessionJob {
                     userCount.put(userId, count);
                     LogUtil.info(key + " : " + userId + " 过期时间: " + expire);
                     if (expire != null && expire.intValue() == -1) {
-                        redisIndexedSessionRepository.getSessionRedisOperations().expire(key, timeout);
+                        redisIndexedSessionRepository.getSessionRedisOperations().expire(key, Duration.of(30, ChronoUnit.SECONDS));
                     }
                 }
             }

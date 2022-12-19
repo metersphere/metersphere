@@ -541,9 +541,11 @@ export function getCustomFieldValue(row, field, members) {
           return val;
         } else if (field.type === 'multipleInput') {
           let val = '';
-          item.value.forEach(i => {
-            val += i + ' ';
-          });
+          if (item.value instanceof Array) {
+            item.value.forEach(i => {
+              val += i + ' ';
+            });
+          }
           return val;
         } else if (field.type === 'datetime' || field.type === 'date') {
           return datetimeFormat(item.value);

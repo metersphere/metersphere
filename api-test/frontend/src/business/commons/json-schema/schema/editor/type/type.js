@@ -4,6 +4,7 @@ import _array from './array';
 import _boolean from './boolean';
 import _integer from './integer';
 import _number from './number';
+import _null from './null';
 
 const TYPE_NAME = ['string', 'number', 'integer', 'object', 'array', 'boolean', 'null'];
 
@@ -14,7 +15,7 @@ const TYPE = {
   boolean: _boolean,
   integer: _integer,
   number: _number,
-  null: { description: null },
+  null: _null,
 };
 export { TYPE, TYPE_NAME };
 
