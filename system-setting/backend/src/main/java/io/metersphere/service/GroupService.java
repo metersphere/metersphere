@@ -471,7 +471,13 @@ public class GroupService {
         }
 
         if (StringUtils.equals(group.getType(), UserGroupType.SYSTEM)) {
-            this.addSystemGroupUser(group, request.getUserIds());
+            SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
+            long count = user.getGroups().stream().filter(g -> StringUtils.equals(g.getType(), UserGroupType.SYSTEM)).count();
+            if (count > 0) {
+                this.addSystemGroupUser(group, request.getUserIds());
+            } else {
+                LogUtil.warn("no permission to add system group!");
+            }
         } else {
             if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
                 this.addNotSystemGroupUser(group, request.getUserIds(), request.getSourceIds());

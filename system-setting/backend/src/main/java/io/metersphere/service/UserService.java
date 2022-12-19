@@ -808,25 +808,31 @@ public class UserService {
             }
         }
 
+        SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
+        long systemGroupCount = user.getGroups().stream().filter(g -> StringUtils.equals(g.getType(), UserGroupType.SYSTEM)).count();
+
         for (String userId : userIds) {
             Set<String> set = sourceMap.keySet();
             for (String group : set) {
                 Group gp = groupMapper.selectByPrimaryKey(group);
                 if (gp != null) {
                     if (StringUtils.equals(UserGroupType.SYSTEM, gp.getType())) {
-                        UserGroupExample userGroupExample = new UserGroupExample();
-                        userGroupExample.createCriteria().andGroupIdEqualTo(group).andUserIdEqualTo(userId);
-                        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-                        if (CollectionUtils.isEmpty(userGroups)) {
-                            UserGroup userGroup = new UserGroup();
-                            userGroup.setId(UUID.randomUUID().toString());
-                            userGroup.setGroupId(group);
-                            userGroup.setSourceId("system");
-                            userGroup.setUserId(userId);
-                            userGroup.setUpdateTime(System.currentTimeMillis());
-                            userGroup.setCreateTime(System.currentTimeMillis());
-                            userGroupMapper.insertSelective(userGroup);
+                        if (systemGroupCount > 0) {
+                            UserGroupExample userGroupExample = new UserGroupExample();
+                            userGroupExample.createCriteria().andGroupIdEqualTo(group).andUserIdEqualTo(userId);
+                            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                            if (CollectionUtils.isEmpty(userGroups)) {
+                                UserGroup userGroup = new UserGroup();
+                                userGroup.setId(UUID.randomUUID().toString());
+                                userGroup.setGroupId(group);
+                                userGroup.setSourceId("system");
+                                userGroup.setUserId(userId);
+                                userGroup.setUpdateTime(System.currentTimeMillis());
+                                userGroup.setCreateTime(System.currentTimeMillis());
+                                userGroupMapper.insertSelective(userGroup);
+                            }
                         }
+
                     } else {
                         // 组织、工作空间、项目
                         UserGroupExample userGroupExample = new UserGroupExample();
