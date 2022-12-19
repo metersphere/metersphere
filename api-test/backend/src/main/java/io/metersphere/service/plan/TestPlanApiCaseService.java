@@ -621,7 +621,6 @@ public class TestPlanApiCaseService {
             List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
             TestPlanApiCaseMapper apiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
             if (!CollectionUtils.isEmpty(testPlanApiCases)) {
-                Long nextApiOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanApiCaseMapper::getLastOrder);
                 for (TestPlanApiCase apiCase : testPlanApiCases) {
                     TestPlanApiCase api = new TestPlanApiCase();
                     api.setId(UUID.randomUUID().toString());
@@ -631,8 +630,7 @@ public class TestPlanApiCaseService {
                     api.setCreateTime(System.currentTimeMillis());
                     api.setUpdateTime(System.currentTimeMillis());
                     api.setCreateUser(SessionUtils.getUserId());
-                    api.setOrder(nextApiOrder);
-                    nextApiOrder += 5000;
+                    api.setOrder(apiCase.getOrder());
                     apiCaseMapper.insert(api);
                 }
             }
