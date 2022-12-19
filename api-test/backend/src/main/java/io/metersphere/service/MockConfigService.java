@@ -137,7 +137,8 @@ public class MockConfigService {
         }
         if (request.getApiId() != null) {
             criteria.andApiIdEqualTo(request.getApiId());
-        } else {
+        } else if (StringUtils.isEmpty(request.getId())) {
+            //todo 刚子有时间把这里优化下： 如果不满足什么条件需要直接返回的话，增加一个check，提前返回。 尽可能不要在逻辑中途返回。会很难维护。
             return new MockConfigResponse(null, new ArrayList<>());
         }
         if (request.getProjectId() != null) {
