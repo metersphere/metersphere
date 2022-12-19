@@ -254,9 +254,8 @@ export default {
       if (this.isTcp && this.$refs.tcpParam) {
         this.$refs.tcpParam.saveData();
       }
-      let mockConfigId = this.mockConfigId;
-      this.mockExpectConfig.mockConfigId = mockConfigId;
-      let formCheckResult = this.checkMockExpectForm('mockExpectForm', true);
+      this.mockExpectConfig.mockConfigId = this.mockConfigId;
+      this.checkMockExpectForm('mockExpectForm', true);
     },
     cleanMockExpectConfig() {
       this.showHeadTable = false;
@@ -290,7 +289,6 @@ export default {
       updateMockExpectConfig(param, null, bodyFiles).then((response) => {
         let returnData = response.data;
         this.mockExpectConfig.id = returnData.id;
-        this.$emit('refreshMockInfo', param.mockConfigId);
         if (clearForm) {
           this.cleanMockExpectConfig();
         }
@@ -298,7 +296,11 @@ export default {
           type: 'success',
           message: this.$t('commons.save_success'),
         });
-        this.close();
+
+        this.$nextTick(() => {
+          this.$emit('refreshMockInfo', param.mockConfigId);
+          this.close();
+        });
       });
     },
     getBodyUploadFiles(data) {
