@@ -19,9 +19,9 @@
         </span>
         <span v-if="report.endTime || report.createTime">
           <span style="margin-left: 10px">{{ $t('report.test_start_time') }}：</span>
-          <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
+          <span class="time"> {{ report.createTime | datetimeFormat }}</span>
           <span style="margin-left: 10px">{{ $t('report.test_end_time') }}：</span>
-          <span class="time"> {{ report.endTime | timestampFormatDate }}</span>
+          <span class="time"> {{ report.endTime | datetimeFormat }}</span>
         </span>
         <div style="float: right">
           <el-button v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi"
