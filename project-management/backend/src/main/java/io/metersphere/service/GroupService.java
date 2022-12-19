@@ -511,12 +511,10 @@ public class GroupService {
             return;
         }
 
-        if (StringUtils.equals(group.getType(), UserGroupType.SYSTEM)) {
-            this.addSystemGroupUser(group, request.getUserIds());
+        if (!StringUtils.equals(group.getType(), UserGroupType.SYSTEM) && CollectionUtils.isNotEmpty(request.getSourceIds())) {
+            this.addNotSystemGroupUser(group, request.getUserIds(), request.getSourceIds());
         } else {
-            if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
-                this.addNotSystemGroupUser(group, request.getUserIds(), request.getSourceIds());
-            }
+            LogUtil.warn("no permission to add system group!");
         }
     }
 
