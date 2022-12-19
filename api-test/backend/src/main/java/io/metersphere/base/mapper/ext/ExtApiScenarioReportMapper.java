@@ -4,6 +4,7 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioReportResult;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.commons.vo.TaskResultVO;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
@@ -45,7 +46,7 @@ public interface ExtApiScenarioReportMapper {
     @InsertProvider(type = ExtApiScenarioReportProvider.class, method = "insertListSql")
     void sqlInsert(List<ApiScenarioReportResult> list);
 
-    List<ApiScenarioReport> findByProjectIds(@Param("request") TaskCenterRequest request);
+    List<TaskResultVO> findByProjectIds(@Param("request") TaskCenterRequest request);
 
     List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
 

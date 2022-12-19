@@ -392,7 +392,7 @@
 
     </select>
 
-    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiDefinitionExecResult"
+    <select id="findByProjectIds" resultType="io.metersphere.commons.vo.TaskResultVO"
             parameterType="java.lang.String">
         select actuator ,id from api_definition_exec_result where status in ("running","starting","PENDING") and
         project_id in
