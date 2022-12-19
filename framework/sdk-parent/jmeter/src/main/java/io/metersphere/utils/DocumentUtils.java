@@ -1,6 +1,6 @@
 package io.metersphere.utils;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.metersphere.vo.Condition;
 import io.metersphere.vo.ElementCondition;
 import net.minidev.json.JSONArray;
@@ -106,7 +106,7 @@ public class DocumentUtils {
         if (subj == null) {
             str = "null";
         } else if (subj instanceof Map) {
-            str = new Gson().toJson(subj);
+            str = new GsonBuilder().serializeNulls().create().toJson(subj);
         } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
             str = subj.toString();
         } else {
