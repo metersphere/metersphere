@@ -222,7 +222,7 @@ public class MsAssertions extends MsTestElement {
             scriptLanguage = "rhino";
         }
         assertion.setProperty("scriptLanguage", scriptLanguage);
-        assertion.setProperty("script", assertionJSR223.getScript());
+        assertion.setProperty(ElementConstants.SCRIPT, assertionJSR223.getScript());
         return assertion;
     }
 
