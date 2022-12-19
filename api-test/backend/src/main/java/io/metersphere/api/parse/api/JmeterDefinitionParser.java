@@ -29,11 +29,12 @@ import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.parse.ApiImportAbstractParser;
-import io.metersphere.api.parse.scenario.MsJmeterParser;
+import io.metersphere.api.parse.scenario.JMeterParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
@@ -346,7 +347,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             if (key instanceof TestPlan) {
                 this.planName = ((TestPlan) key).getName();
                 elementNode = new MsJmeterElement();
-                ((MsJmeterElement) elementNode).setJmeterElement(MsJmeterParser.objToXml(key));
+                ((MsJmeterElement) elementNode).setJmeterElement(JMeterParser.objToXml(key));
                 ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
             }
             // 线程组
@@ -382,7 +383,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
                 elementNode = new MsJSR223PostProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
                 ((MsJSR223PostProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
             // 前置脚本
@@ -390,12 +391,12 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 JSR223PreProcessor jsr223Sampler = (JSR223PreProcessor) key;
                 elementNode = new MsJSR223PreProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                ((MsJSR223PreProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223PreProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
                 ((MsJSR223PreProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             } else if (key instanceof BeanShellPostProcessor) {
-                elementNode = MsJmeterParser.getMsTestElement((BeanShellPostProcessor) key);
+                elementNode = JMeterParser.getMsTestElement((BeanShellPostProcessor) key);
             } else if (key instanceof BeanShellPreProcessor) {
-                elementNode = MsJmeterParser.getMsTestElement((BeanShellPreProcessor) key);
+                elementNode = JMeterParser.getMsTestElement((BeanShellPreProcessor) key);
             }
             // 断言规则
             else if (key instanceof ResponseAssertion || key instanceof JSONPathAssertion || key instanceof XPath2Assertion || key instanceof JSR223Assertion || key instanceof DurationAssertion) {
@@ -498,7 +499,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             JSR223Assertion jsr223Assertion = (JSR223Assertion) key;
             msAssertionJSR223.setName(jsr223Assertion.getName());
             msAssertionJSR223.setDesc(jsr223Assertion.getName());
-            msAssertionJSR223.setScript(jsr223Assertion.getPropertyAsString("script"));
+            msAssertionJSR223.setScript(jsr223Assertion.getPropertyAsString(ElementConstants.SCRIPT));
             msAssertionJSR223.setScriptLanguage(jsr223Assertion.getPropertyAsString("scriptLanguage"));
             assertions.setName(jsr223Assertion.getName());
 

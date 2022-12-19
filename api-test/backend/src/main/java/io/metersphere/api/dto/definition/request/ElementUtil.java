@@ -904,7 +904,7 @@ public class ElementUtil {
             testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("BeanShellSamplerGui"));
         } else {
             testElement.setProperty("scriptLanguage", vo.getScriptLanguage());
-            testElement.setProperty("script", vo.getScript());
+            testElement.setProperty(ElementConstants.SCRIPT, vo.getScript());
         }
     }
 

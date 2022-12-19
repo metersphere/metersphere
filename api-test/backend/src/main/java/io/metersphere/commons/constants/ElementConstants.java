@@ -49,4 +49,8 @@ public class ElementConstants {
         this.add(ElementConstants.AUTH_MANAGER);
         this.add(ElementConstants.ABS_SAMPLER);
     }};
+
+    public static final String SCRIPT = "script";
+    public static final String BEANSHELL = "beanshell";
+
 }
