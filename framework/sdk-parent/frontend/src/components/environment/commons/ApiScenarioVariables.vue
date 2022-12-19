@@ -18,21 +18,18 @@
           :content="$t('commons.import')"
           @click="importJSON"
         />
-        <el-popover
-          v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']"
-          placement="bottom"
-          trigger="hover"
-          :content="$t('envrionment.export_variable_tip')"
-          width="300">
+        <el-dropdown @command="handleExportCommand" class="scenario-ext-btn" trigger="hover"
+                     v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']">
           <ms-table-button
             style="margin-left: 10px"
-            slot="reference"
-            v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']"
             icon="el-icon-box"
             :content="$t('commons.export')"
-            @click="exportJSON"
           />
-        </el-popover>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="exportApi">{{ $t('envrionment.export_variable_tip') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
         <el-link
           style="margin-left: 10px"
           @click="batchAdd"
@@ -572,6 +569,9 @@ export default {
         }
       });
     },
+    handleExportCommand(command){
+      this.exportJSON();
+    }
   },
   created() {
     if (this.items.length === 0) {
