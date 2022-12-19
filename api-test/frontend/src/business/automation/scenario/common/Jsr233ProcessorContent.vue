@@ -174,6 +174,9 @@ export default {
     if (this.jsr223Processor.jsrEnable === null || this.jsr223Processor.jsrEnable === undefined) {
       this.$set(this.jsr223Processor, 'jsrEnable', true);
     }
+    if (!this.jsr223Processor.scriptLanguage) {
+      this.$set(this.jsr223Processor, 'scriptLanguage', 'beanshell');
+    }
     this.jsr223ProcessorData = this.jsr223Processor;
   },
   props: {
