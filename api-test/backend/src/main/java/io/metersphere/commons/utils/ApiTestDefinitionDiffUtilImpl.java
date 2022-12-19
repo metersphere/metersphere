@@ -37,7 +37,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     public static final String BODY_RAW = "body_raw";
     public static final String REQUEST = "request";
     public static final String BODY_XML = "body_xml";
-    public static final String SCRIPT = "script";
+    public static final String SCRIPT = ElementConstants.SCRIPT;
 
     @Override
     public String diffResponse(String newValue, String oldValue) {

@@ -2,6 +2,7 @@ package io.metersphere.commons.utils.mock;
 
 
 import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
@@ -86,9 +87,9 @@ public class MockScriptEngineUtils {
                 return null;
             }
             String preScript = StringUtils.EMPTY;
-            if (StringUtils.equalsIgnoreCase(scriptLanguage, "beanshell")) {
+            if (StringUtils.equalsIgnoreCase(scriptLanguage, ElementConstants.BEANSHELL)) {
                 ScriptEngineManager scriptEngineFactory = new ScriptEngineManager();
-                engine = scriptEngineFactory.getEngineByName("beanshell");
+                engine = scriptEngineFactory.getEngineByName(ElementConstants.BEANSHELL);
                 preScript = this.genBeanshellPreScript(url, headerMap, requestMockParams);
             } else if (StringUtils.equalsIgnoreCase(scriptLanguage, "python")) {
                 ScriptEngineManager scriptEngineFactory = new ScriptEngineManager();

@@ -5,6 +5,7 @@ import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.api.exec.generator.JSONSchemaGenerator;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.MockParamConditionEnums;
 import io.metersphere.commons.exception.MSException;
@@ -268,14 +269,14 @@ public class MockApiUtils {
     public String getResultByResponseResult(String projectId, JSONObject bodyObj, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, boolean useScript) {
         MockScriptEngineUtils scriptEngineUtils = new MockScriptEngineUtils();
         ScriptEngine scriptEngine = null;
-        String scriptLanguage = "beanshell";
+        String scriptLanguage = ElementConstants.BEANSHELL;
         String script = null;
         if (useScript) {
             if (bodyObj.has("scriptObject")) {
                 try {
                     JSONObject scriptObj = bodyObj.optJSONObject("scriptObject");
                     scriptLanguage = scriptObj.optString("scriptLanguage");
-                    script = scriptObj.optString("script");
+                    script = scriptObj.optString(ElementConstants.SCRIPT);
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }
