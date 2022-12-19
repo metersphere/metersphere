@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -36,7 +37,7 @@ public class HashTreeUtil {
     public static final String VALUE = "value";
     public static final String ENABLE = "enable";
     public static final String NAME = "name";
-    public static final String SCRIPT = "script";
+    public static final String SCRIPT = ElementConstants.SCRIPT;
 
     public Map<String, Map<String, String>> getEnvParamsDataByHashTree(HashTree hashTree, BaseEnvironmentService apiTestEnvironmentService) {
         Map<String, Map<String, String>> returnMap = new HashMap<>();
