@@ -156,7 +156,7 @@ export default {
   padding: 0px 0px 0px 0px;
   box-sizing: border-box;
   width: 100%;
-  color:#000000;
+  color: #1F2329;
   margin-left: 24px;
   line-height: 26px;
 }
