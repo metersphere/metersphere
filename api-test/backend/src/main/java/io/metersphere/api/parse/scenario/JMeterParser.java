@@ -66,6 +66,7 @@ import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
+import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
@@ -737,12 +738,21 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
                 ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
+            // BeanShell自定义脚本
+            else if (key instanceof BeanShellSampler) {
+                BeanShellSampler jsr223Sampler = (BeanShellSampler) key;
+                elementNode = new MsJSR223Processor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223Processor) elementNode).setJsrEnable(false);
+                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
+                ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
+            }
             // 后置脚本
             else if (key instanceof JSR223PostProcessor) {
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
                 elementNode = new MsJSR223PostProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
+                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("BeanShellSampler.query"));
                 ((MsJSR223PostProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             } else if (key instanceof BeanShellPostProcessor) {
                 elementNode = getMsTestElement((BeanShellPostProcessor) key);
