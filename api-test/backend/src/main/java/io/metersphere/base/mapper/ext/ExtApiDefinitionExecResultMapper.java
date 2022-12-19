@@ -5,6 +5,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.commons.vo.TaskResultVO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -43,7 +44,7 @@ public interface ExtApiDefinitionExecResultMapper {
     @InsertProvider(type = ExtApiDefinitionExecResultProvider.class, method = "insertListSql")
     void sqlInsert(List<ApiDefinitionExecResult> list);
 
-    List<ApiDefinitionExecResult> findByProjectIds(@Param("request") TaskCenterRequest request);
+    List<TaskResultVO> findByProjectIds(@Param("request") TaskCenterRequest request);
 
     List<String> selectDistinctStatusByReportId(String reportId);
 
