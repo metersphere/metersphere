@@ -711,7 +711,6 @@ public class TestPlanScenarioCaseService {
             List<TestPlanApiScenario> apiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
             TestPlanApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
             if (!CollectionUtils.isEmpty(apiScenarios)) {
-                Long nextScenarioOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanScenarioCaseMapper::getLastOrder);
                 for (TestPlanApiScenario apiScenario : apiScenarios) {
                     TestPlanApiScenario planScenario = new TestPlanApiScenario();
                     planScenario.setId(UUID.randomUUID().toString());
@@ -724,8 +723,7 @@ public class TestPlanScenarioCaseService {
                     planScenario.setCreateTime(System.currentTimeMillis());
                     planScenario.setUpdateTime(System.currentTimeMillis());
                     planScenario.setCreateUser(SessionUtils.getUserId());
-                    planScenario.setOrder(nextScenarioOrder);
-                    nextScenarioOrder += 5000;
+                    planScenario.setOrder(apiScenario.getOrder());
                     apiScenarioMapper.insert(planScenario);
                 }
             }
