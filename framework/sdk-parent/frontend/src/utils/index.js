@@ -411,7 +411,7 @@ export function downloadPDF(ele, pdfName) {
     let imgWidth = 595.28;
     let imgHeight = (595.28 / contentWidth) * contentHeight;
 
-    let pageData = canvas.toDataURL("image/jpeg", 0.1);
+    let pageData = canvas.toDataURL("image/jpeg", 1.0);
     let pdf = new JsPDF("", "pt", "a4");
     //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(841.89)
     //当内容未超过pdf一页显示的范围，无需分页
