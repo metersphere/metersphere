@@ -143,6 +143,10 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         return microService.getForData(serviceName, BASE_UEL + "/get/env/" + planId, Map.class);
     }
 
+    public List<String> getApiScenarioProjectIds(String planId) {
+        return microService.getForData(serviceName, BASE_UEL + "/get/project/ids/" + planId, List.class);
+    }
+
     public ApiPlanReportDTO getApiReport(ApiPlanReportRequest request) {
         return microService.postForData(serviceName, BASE_UEL + "/plan/report", request, ApiPlanReportDTO.class);
     }

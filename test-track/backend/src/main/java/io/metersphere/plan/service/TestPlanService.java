@@ -2059,7 +2059,7 @@ public class TestPlanService {
         }
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+            if (CollectionUtils.isNotEmpty(apiDefinitionLists)) {
                 UiScenarioReportWithBLOBs apiDefinition = apiDefinitionLists.get(0);
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
@@ -2067,5 +2067,18 @@ public class TestPlanService {
             }
         }
         return testPlanExtReportDTO;
+    }
+
+    public List<String> getRelevanceProjectIds(String planId) {
+        List<String> projectIds = new ArrayList<>();
+        List<String> apiCaseProjectIds = planTestPlanApiCaseService.getApiCaseProjectIds(planId);
+        List<String> apiScenarioProjectIds = planTestPlanScenarioCaseService.getApiScenarioProjectIds(planId);
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            List<String> uiScenarioProjectIds = planTestPlanUiScenarioCaseService.getUiScenarioProjectIds(planId);
+            projectIds.addAll(uiScenarioProjectIds);
+        }
+        projectIds.addAll(apiCaseProjectIds);
+        projectIds.addAll(apiScenarioProjectIds);
+        return projectIds.stream().distinct().collect(Collectors.toList());
     }
 }
