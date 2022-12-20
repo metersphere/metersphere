@@ -14,7 +14,7 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.excel.converter.TestReviewCaseStatus;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -22,10 +22,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReviewReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.dto.CountMapDTO;
-import io.metersphere.dto.TestCaseDTO;
-import io.metersphere.dto.TestCaseReviewDTO;
-import io.metersphere.dto.TestReviewDTOWithMetric;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testreview.*;
 import org.apache.commons.beanutils.BeanMap;
@@ -40,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,7 +128,7 @@ public class TestCaseReviewService {
             return new ArrayList<>();
         }*/
         //update   reviewerId
-        if(StringUtils.equalsIgnoreCase(request.getReviewerId(),"currentUserId")){
+        if (StringUtils.equalsIgnoreCase(request.getReviewerId(), "currentUserId")) {
             request.setReviewerId(SessionUtils.getUserId());
         }
         return extTestCaseReviewMapper.list(request);
@@ -256,7 +253,7 @@ public class TestCaseReviewService {
             TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
             example.createCriteria().andReviewIdEqualTo(id).andFollowIdNotIn(follows);
             testCaseReviewFollowMapper.deleteByExample(example);
-        }else {
+        } else {
             TestCaseReviewFollowExample example = new TestCaseReviewFollowExample();
             example.createCriteria().andReviewIdEqualTo(testCaseReview.getId());
             testCaseReviewFollowMapper.deleteByExample(example);
@@ -386,6 +383,15 @@ public class TestCaseReviewService {
         return Optional.ofNullable(testCaseReviewMapper.selectByPrimaryKey(reviewId)).orElse(new TestCaseReview());
     }
 
+    public TestCaseReviewWithMaintainer getTestReviewWithMaintainer(TestCaseReviewTestCaseEditRequest request) throws Exception {
+        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        TestCaseReviewWithMaintainer reviewWithMaintainer = new TestCaseReviewWithMaintainer();
+        BeanUtils.copyProperties(reviewWithMaintainer, testCaseReview);
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
+        reviewWithMaintainer.setMaintainer(testCaseWithBLOBs.getMaintainer());
+        return reviewWithMaintainer;
+    }
+
     public void editTestReviewStatus(String reviewId) {
         List<String> statusList = extTestReviewCaseMapper.getStatusByReviewId(reviewId);
         TestCaseReview testCaseReview = new TestCaseReview();
@@ -395,7 +401,7 @@ public class TestCaseReviewService {
             testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
             testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
             return;
-        } else if(statusList.contains(TestReviewCaseStatus.UnPass.name())){
+        } else if (statusList.contains(TestReviewCaseStatus.UnPass.name())) {
             testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
             testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
             return;
