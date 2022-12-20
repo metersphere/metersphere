@@ -471,7 +471,7 @@ export default {
     zentao_bug_build: "Zentao Impact version",
     zentao_bug_assigned: "Zentao handler",
     third_party_integrated: "Third-party Platform",
-    use_third_party: "Enable Jira Issue Template",
+    use_third_party: "Enable {0} Issue Template",
     update_third_party_bugs: "Update the defects of third-party platforms",
     sync_bugs: "Synchronization Issue",
     sync_complete: "Synchronization complete",
