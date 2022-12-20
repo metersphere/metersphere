@@ -106,6 +106,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         //回收站数据初始化：检查是否存在模块被删除的接口，则把接口挂再默认节点上
         initTrashDataModule(projectId, protocol, versionId);
         //通过回收站里的接口模块进行反显
+        request.setModuleIds(null);
         Map<String, List<ApiDefinition>> trashApiMap =
                 apiDefinitionService.selectApiBaseInfoGroupByModuleId(projectId, protocol, versionId,
                         ApiTestDataStatus.TRASH.getValue(), request);
