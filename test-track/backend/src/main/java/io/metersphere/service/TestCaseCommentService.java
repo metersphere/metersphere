@@ -65,7 +65,7 @@ public class TestCaseCommentService {
      */
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#request.reviewId)", targetClass = TestCaseReviewService.class,
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReviewWithMaintainer(#request)", targetClass = TestCaseReviewService.class,
             event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
     public void saveComment(TestCaseReviewTestCaseEditRequest request) {
         SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
