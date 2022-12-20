@@ -292,7 +292,9 @@ public class IssuesService {
             issues.setId(UUID.randomUUID().toString());
         }
         issues.setCreateTime(System.currentTimeMillis());
-        issues.setUpdateTime(System.currentTimeMillis());
+        if (issues.getUpdateTime() == null) {
+            issues.setUpdateTime(System.currentTimeMillis());
+        }
         issues.setNum(getNextNum(issues.getProjectId()));
         issues.setCreator(SessionUtils.getUserId());
         issuesMapper.insert(issues);
