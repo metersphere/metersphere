@@ -31,10 +31,12 @@ public class PerformanceTestCaseService {
     public void buildVersionInfo(List<LoadTestDTO> loadTests) {
         List<String> versionIds = loadTests.stream().map(LoadTestDTO::getVersionId).collect(Collectors.toList());
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
-        Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
-                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
-        loadTests.forEach(loadTest -> {
-            loadTest.setVersionName(projectVersionMap.get(loadTest.getVersionId()));
-        });
+       if(projectVersionService != null) {
+           Map<String, String> projectVersionMap = projectVersionService.getProjectVersionByIds(versionIds).stream()
+                   .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+           loadTests.forEach(loadTest -> {
+               loadTest.setVersionName(projectVersionMap.get(loadTest.getVersionId()));
+           });
+       }
     }
 }
