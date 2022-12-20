@@ -161,6 +161,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             List<String> statusList = new ArrayList<>();
             statusList.add(ApiTestDataStatus.TRASH.getValue());
             request.getFilters().put("status", statusList);
+            request.setModuleIds(null);
         }
         Map<String, List<ApiScenario>> trashApiMap = apiAutomationService.selectApiBaseInfoGroupByModuleId(projectId,
                 ApiTestDataStatus.TRASH.getValue(), request);
