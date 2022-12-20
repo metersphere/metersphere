@@ -121,11 +121,7 @@
                     :label="$t('api_test.automation.tag')"
                     prop="tags"
                   >
-                    <ms-input-tag
-                      :currentScenario="data"
-                      ref="tag"
-                      @onblur="save"
-                    />
+                    <ms-input-tag :currentScenario="data" ref="tag" />
                   </el-form-item>
 
                   <el-form-item
@@ -245,6 +241,7 @@ export default {
       isFirst: false,
       isLast: false,
       isPullBtnLoading: false,
+      showPanel: "baseInfo",
       results: [],
       moduleObj: {
         id: "id",
@@ -368,9 +365,13 @@ export default {
       this.visible = false;
     },
     saveAndClose() {
-      this.showPanel = "baseInfo";
-      this.visible = false;
+      this.save();
       this.$emit("setCurrentPage", this.currentPage);
+      this.$nextTick(() => {
+        this.$emit("getProjectFiles");
+        this.showPanel = "baseInfo";
+        this.visible = false;
+      });
     },
     open(data, size, page, t) {
       this.showPanel = "baseInfo";
