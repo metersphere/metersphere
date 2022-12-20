@@ -1081,21 +1081,25 @@ public class IssuesService {
     private void deleteSyncAttachment(AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper,
                                       Set<String> jiraAttachmentSet,
                                       List<FileAttachmentMetadata> allMsAttachments) {
-        // 删除Jira中不存在的附件
-        if (CollectionUtils.isNotEmpty(allMsAttachments)) {
-            List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
-                    .filter(msAttachment -> !jiraAttachmentSet.contains(msAttachment.getName()))
-                    .collect(Collectors.toList());
-            deleteMsAttachments.forEach(fileAttachmentMetadata -> {
-                List<String> ids = List.of(fileAttachmentMetadata.getId());
-                AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
-                example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
-                // 删除MS附件及关联数据
-                attachmentService.deleteAttachmentByIds(ids);
-                attachmentService.deleteFileAttachmentByIds(ids);
-                batchAttachmentModuleRelationMapper.deleteByExample(example);
-            });
-        }
+       try {
+           // 删除Jira中不存在的附件
+           if (CollectionUtils.isNotEmpty(allMsAttachments)) {
+               List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
+                       .filter(msAttachment -> !jiraAttachmentSet.contains(msAttachment.getName()))
+                       .collect(Collectors.toList());
+               deleteMsAttachments.forEach(fileAttachmentMetadata -> {
+                   List<String> ids = List.of(fileAttachmentMetadata.getId());
+                   AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                   example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
+                   // 删除MS附件及关联数据
+                   attachmentService.deleteAttachmentByIds(ids);
+                   attachmentService.deleteFileAttachmentByIds(ids);
+                   batchAttachmentModuleRelationMapper.deleteByExample(example);
+               });
+           }
+       } catch (Exception e) {
+           LogUtil.error(e);
+       }
     }
 
     private void saveAttachmentModuleRelation(Platform platform, String issueId,
@@ -1871,7 +1875,9 @@ public class IssuesService {
 
                 xpackIssueService.syncThirdPartyIssues(project, syncRequest);
 
-                syncAllPluginIssueAttachment(project, syncRequest);
+                if (platformPluginService.isPluginPlatform(project.getPlatform())) {
+                    syncAllPluginIssueAttachment(project, syncRequest);
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
                 MSException.throwException(e);

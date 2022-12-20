@@ -1,15 +1,21 @@
 <template>
-  <el-card v-loading="result.loading" class="table-card">
+  <el-card v-loading="tableLoading" class="table-card">
     <template v-slot:header>
-      <ms-table-header :condition.sync="condition"
-                       :show-create="false"
-                       @change="change"
-                       @search="getProjectFiles" title="">
+      <ms-table-header
+        :condition.sync="condition"
+        :show-create="false"
+        @change="change"
+        @search="getProjectFiles"
+        title=""
+      >
         <template v-slot:button>
-          <ms-table-button icon="el-icon-upload2" v-if="moduleType==='repository'"
-                           :content="$t('variables.add_file')"
-                           @click="addRepositoryFile"
-                           v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
+          <ms-table-button
+            icon="el-icon-upload2"
+            v-if="moduleType === 'repository'"
+            :content="$t('variables.add_file')"
+            @click="addRepositoryFile"
+            v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"
+          />
           <el-upload
             v-else
             action=""
@@ -17,61 +23,73 @@
             :show-file-list="false"
             :before-upload="beforeUploadFile"
             :http-request="handleUpload"
-            :on-exceed="handleExceed">
-            <ms-table-button icon="el-icon-upload2"
-                             :content="$t('variables.add_file')"
-                             v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"/>
+            :on-exceed="handleExceed"
+          >
+            <ms-table-button
+              icon="el-icon-upload2"
+              :content="$t('variables.add_file')"
+              v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']"
+            />
           </el-upload>
         </template>
       </ms-table-header>
     </template>
     <div v-if="showView === 'list'">
-      <ms-table v-loading="data.loading"
-                class="basic-config"
-                :total="total"
-                :screen-height="height"
-                :batch-operators="buttons"
-                :data="metadataArr"
-                :condition="condition"
-                :hidePopover="true"
-                @refresh="getProjectFiles" ref="table">
+      <ms-table
+        v-loading="data.loading"
+        class="basic-config"
+        :total="total"
+        :screen-height="height"
+        :batch-operators="buttons"
+        :data="metadataArr"
+        :condition="condition"
+        :hidePopover="true"
+        @refresh="getProjectFiles"
+        ref="table"
+      >
         <ms-table-column
           prop="name"
           show-overflow-tooltip
           :min-width="120"
-          :label="$t('load_test.file_name')">
+          :label="$t('load_test.file_name')"
+        >
         </ms-table-column>
         <ms-table-column
           sortable
           prop="type"
           :min-width="120"
           :filters="typeFilters"
-          :label="$t('load_test.file_type')">
+          :label="$t('load_test.file_type')"
+        >
         </ms-table-column>
 
-        <ms-table-column
-          prop="description"
-          :label="$t('group.description')">
+        <ms-table-column prop="description" :label="$t('group.description')">
         </ms-table-column>
 
         <ms-table-column
           prop="tags"
           min-width="60px"
-          :show-overflow-tooltip=false
-          :label="$t('commons.tag')">
+          :show-overflow-tooltip="false"
+          :label="$t('commons.tag')"
+        >
           <template v-slot:default="scope">
             <el-tooltip class="item" effect="dark" placement="top">
               <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
               <div class="oneLine">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags"
-                        :key="index"
-                        :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 20"
-                        :content="itemName"
-                        type="success" effect="plain"
-                        class="ms-tags"/>
+                <ms-tag
+                  v-for="(itemName, index) in scope.row.tags"
+                  :key="index"
+                  :show-tooltip="
+                    scope.row.tags.length === 1 && itemName.length * 12 <= 20
+                  "
+                  :content="itemName"
+                  type="success"
+                  effect="plain"
+                  class="ms-tags"
+                />
               </div>
             </el-tooltip>
-            <span/>
+            <span />
           </template>
         </ms-table-column>
 
@@ -79,19 +97,22 @@
           sortable
           prop="createUser"
           :min-width="100"
-          :label="$t('commons.create_user')">
+          :label="$t('commons.create_user')"
+        >
         </ms-table-column>
         <ms-table-column
           sortable
           prop="updateUser"
           :min-width="100"
-          :label="$t('ui.update_user')">
+          :label="$t('ui.update_user')"
+        >
         </ms-table-column>
         <ms-table-column
           sortable
           :label="$t('commons.create_time')"
           :min-width="120"
-          prop="createTime">
+          prop="createTime"
+        >
           <template v-slot="scope">
             <span>{{ scope.row.createTime | datetimeFormat }}</span>
           </template>
@@ -101,20 +122,26 @@
           sortable
           :min-width="120"
           :label="$t('commons.update_time')"
-          prop="updateTime">
+          prop="updateTime"
+        >
           <template v-slot="scope">
             <span>{{ scope.row.updateTime | datetimeFormat }}</span>
           </template>
         </ms-table-column>
 
-        <ms-table-column :label="$t('commons.operating')" fixed="right" :width="130">
+        <ms-table-column
+          :label="$t('commons.operating')"
+          fixed="right"
+          :width="130"
+        >
           <template v-slot:default="scope">
             <ms-table-operator-button
               icon="el-icon-view"
               type="primary"
               :tip="$t('permission.project_report_analysis.read')"
               v-permission="['PROJECT_FILE:READ']"
-              @exec="handleView(scope.row)">
+              @exec="handleView(scope.row)"
+            >
             </ms-table-operator-button>
 
             <ms-table-operator-button
@@ -122,14 +149,16 @@
               type="success"
               :tip="$t('project.file_download')"
               v-permission="['PROJECT_FILE:READ+DOWNLOAD+JAR']"
-              @exec="handleDownload(scope.row)">
+              @exec="handleDownload(scope.row)"
+            >
             </ms-table-operator-button>
             <ms-table-operator-button
               icon="el-icon-delete"
               type="danger"
               :tip="$t('commons.delete')"
               v-permission="['PROJECT_FILE:READ+DELETE+JAR']"
-              @exec="handleDelete(scope.row)">
+              @exec="handleDelete(scope.row)"
+            >
             </ms-table-operator-button>
           </template>
         </ms-table-column>
@@ -138,7 +167,8 @@
         :change="getProjectFiles"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total"/>
+        :total="total"
+      />
     </div>
     <!-- 缩略图 -->
     <div v-else>
@@ -153,10 +183,11 @@
         @delete="handleDelete"
         @refreshModule="refreshModule"
         @setCurrentPage="setCurrentPage"
-        @change="changeList"/>
+        @change="changeList"
+      />
     </div>
     <!-- 移动组建-->
-    <ms-file-batch-move @refreshModule="refreshModule" ref="batchMove"/>
+    <ms-file-batch-move @refreshModule="refreshModule" ref="batchMove" />
     <!--编辑页面-->
     <ms-edit-file-metadata
       :metadata-array="metadataArr"
@@ -166,8 +197,14 @@
       @reload="getProjectFiles"
       @download="handleDownload"
       @setCurrentPage="setCurrentPage"
-      @delete="handleDelete" ref="editFileMetadata"/>
-    <file-metadata-dialog :module-id="moduleId" @refresh="refreshModuleAndList" ref="repositoryFileDialog"/>
+      @delete="handleDelete"
+      ref="editFileMetadata"
+    />
+    <file-metadata-dialog
+      :module-id="moduleId"
+      @refresh="refreshModuleAndList"
+      ref="repositoryFileDialog"
+    />
   </el-card>
 </template>
 
@@ -175,8 +212,11 @@
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {operationConfirm} from "metersphere-frontend/src/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUserId,
+} from "metersphere-frontend/src/utils/token";
+import { operationConfirm } from "metersphere-frontend/src/utils";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsTableHeader from "../header/FileHeader";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
@@ -195,7 +235,7 @@ import {
   downloadFileZip,
   downloadMetaData,
   getAllTypeFileMeta,
-  getFileMetaPages
+  getFileMetaPages,
 } from "../../../../api/file";
 
 export default {
@@ -221,7 +261,7 @@ export default {
     nodeTree: Array,
     moduleType: {
       type: String,
-      default: 'module',
+      default: "module",
     },
   },
   data() {
@@ -237,23 +277,23 @@ export default {
       metadataArr: [],
       condition: {},
       projectId: getCurrentProjectID(),
-      height: 'calc(100vh - 160px)',
+      height: "calc(100vh - 160px)",
       typeFilters: [],
       buttons: [
         {
-          name: this.$t('file_manage.batch_delete'),
+          name: this.$t("file_manage.batch_delete"),
           handleClick: this.handleDeleteBatch,
-          permissions: ['PROJECT_FILE:READ+BATCH+DELETE']
+          permissions: ["PROJECT_FILE:READ+BATCH+DELETE"],
         },
         {
-          name: this.$t('file_manage.batch_download'),
+          name: this.$t("file_manage.batch_download"),
           handleClick: this.exportZip,
-          permissions: ['PROJECT_FILE:READ+BATCH+DOWNLOAD']
+          permissions: ["PROJECT_FILE:READ+BATCH+DOWNLOAD"],
         },
         {
-          name: this.$t('file_manage.batch_move'),
+          name: this.$t("file_manage.batch_move"),
           handleClick: this.handleBatchMove,
-          permissions: ['PROJECT_FILE:READ+BATCH+MOVE']
+          permissions: ["PROJECT_FILE:READ+BATCH+MOVE"],
         },
       ],
       showView: "list",
@@ -273,7 +313,7 @@ export default {
       this.showView = value;
     },
     refreshModule() {
-      this.$emit('refreshModule');
+      this.$emit("refreshModule");
     },
     refreshList() {
       this.$emit("refreshList");
@@ -289,7 +329,7 @@ export default {
     },
     myFile() {
       if (!this.condition.filters) {
-        this.condition.filters = {createUser: [getCurrentUserId()]};
+        this.condition.filters = { createUser: [getCurrentUserId()] };
       } else {
         this.condition.filters.createUser = [getCurrentUserId()];
       }
@@ -297,11 +337,16 @@ export default {
       this.getProjectFiles();
     },
     getProjectFiles() {
-      this.tableLoading = getFileMetaPages(this.projectId, this.currentPage, this.pageSize, this.condition).then(res => {
+      this.tableLoading = getFileMetaPages(
+        this.projectId,
+        this.currentPage,
+        this.pageSize,
+        this.condition
+      ).then((res) => {
         let data = res.data;
         this.total = data.itemCount;
         this.metadataArr = data.listObject;
-        this.metadataArr.forEach(item => {
+        this.metadataArr.forEach((item) => {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
@@ -322,7 +367,7 @@ export default {
         return false;
       }
       if (file.size / 1024 / 1024 > 500) {
-        this.$warning(this.$t('api_test.request.body_upload_limit_size'));
+        this.$warning(this.$t("api_test.request.body_upload_limit_size"));
         return false;
       }
       return true;
@@ -333,26 +378,31 @@ export default {
         createUser: getCurrentUserId(),
         updateUser: getCurrentUserId(),
         projectId: this.projectId,
-        moduleId: this.moduleId
+        moduleId: this.moduleId,
       };
       this.cardLoading = createFileMeta(file, request).then(() => {
-        this.$success(this.$t('commons.save_success'));
+        this.$success(this.$t("commons.save_success"));
         this.getProjectFiles();
         this.refreshModule();
       });
     },
     handleExceed() {
-      this.$error(this.$t('load_test.file_size_limit'));
+      this.$error(this.$t("load_test.file_size_limit"));
     },
     handleView(row) {
-      this.$refs.editFileMetadata.open(row, this.pageSize, this.currentPage, this.total);
+      this.$refs.editFileMetadata.open(
+        row,
+        this.pageSize,
+        this.currentPage,
+        this.total
+      );
     },
     getTagToolTips(tags) {
       try {
         let showTips = "";
-        tags.forEach(item => {
+        tags.forEach((item) => {
           showTips += item + ",";
-        })
+        });
         return showTips.substr(0, showTips.length - 1);
       } catch (e) {
         return "";
@@ -378,54 +428,64 @@ export default {
     },
     exportZip() {
       let array = [];
-      this.$refs.table.selectRows.forEach(item => {
+      this.$refs.table.selectRows.forEach((item) => {
         let request = JSON.parse(JSON.stringify(item));
         request.tags = "";
         array.push(request);
-      })
-      let request = {projectId: getCurrentProjectID, requests: array};
+      });
+      let request = { projectId: getCurrentProjectID, requests: array };
       downloadFileZip(request);
       // this.$fileDownloadPost("/file/metadata/download/zip", request, "文件集.zip");
     },
 
     handleDeleteBatch() {
-      operationConfirm(this, this.$t('project.file_delete_tip', [this.$refs.table.selectIds.length + " 条 "]), () => {
-        batchDeleteMetaData(this.$refs.table.selectIds).then(() => {
-          this.$refs.table.clear();
-          this.$success(this.$t('commons.delete_success'));
-          this.getProjectFiles();
-          this.refreshModule();
-        })
-      });
+      operationConfirm(
+        this,
+        this.$t("project.file_delete_tip", [
+          this.$refs.table.selectIds.length + " 条 ",
+        ]),
+        () => {
+          batchDeleteMetaData(this.$refs.table.selectIds).then(() => {
+            this.$refs.table.clear();
+            this.$success(this.$t("commons.delete_success"));
+            this.getProjectFiles();
+            this.refreshModule();
+          });
+        }
+      );
     },
     handleDelete(row) {
       if (row && row.confirm) {
         deleteFileMetaById(row.id).then(() => {
-          this.$success(this.$t('commons.delete_success'));
+          this.$success(this.$t("commons.delete_success"));
           this.getProjectFiles();
           this.refreshModule();
         });
         return;
       }
-      operationConfirm(this, this.$t('project.file_delete_tip', [row.name]), () => {
-        deleteFileMetaById(row.id).then(() => {
-          this.$success(this.$t('commons.delete_success'));
-          this.getProjectFiles();
-          this.refreshModule();
-        });
-      });
+      operationConfirm(
+        this,
+        this.$t("project.file_delete_tip", [row.name]),
+        () => {
+          deleteFileMetaById(row.id).then(() => {
+            this.$success(this.$t("commons.delete_success"));
+            this.getProjectFiles();
+            this.refreshModule();
+          });
+        }
+      );
     },
     getTypes() {
       this.typeFilters = [];
-      getAllTypeFileMeta().then(res => {
-        res.data.forEach(item => {
-          this.typeFilters.push({text: item, value: item});
-        })
+      getAllTypeFileMeta().then((res) => {
+        res.data.forEach((item) => {
+          this.typeFilters.push({ text: item, value: item });
+        });
       });
     },
     moduleChange(ids) {
       if (!this.condition.filters) {
-        this.condition.filters = {moduleIds: ids};
+        this.condition.filters = { moduleIds: ids };
       } else {
         this.condition.filters.moduleIds = ids;
       }
@@ -437,8 +497,8 @@ export default {
     },
     moveSave(param) {
       // this.buildBatchParam(param);
-    }
-  }
+    },
+  },
 };
 </script>
 

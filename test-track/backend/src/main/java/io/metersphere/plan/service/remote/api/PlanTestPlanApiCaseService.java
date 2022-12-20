@@ -131,6 +131,10 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
         return (Map<String, List<String>>) microService.getForData(serviceName, BASE_UEL + "/get/env/" + planId);
     }
 
+    public List<String> getApiCaseProjectIds(String planId) {
+        return (List<String>) microService.getForData(serviceName, BASE_UEL + "/get/project/ids/" + planId);
+    }
+
     public Boolean isCaseExecuting(String planId) {
         return (Boolean) microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId);
     }

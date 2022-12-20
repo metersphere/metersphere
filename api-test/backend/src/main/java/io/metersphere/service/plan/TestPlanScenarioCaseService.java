@@ -1245,4 +1245,18 @@ public class TestPlanScenarioCaseService {
     public String selectProjectId(String testPlanId) {
         return extTestPlanScenarioCaseMapper.selectProjectId(testPlanId);
     }
+
+    public List<String> getApiScenarioProjectIds(String planId) {
+        TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+        scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
+        List<String> scenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return new ArrayList<>();
+        }
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(scenarioIds);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        return apiScenarios.stream().map(ApiScenario::getProjectId).collect(Collectors.toList());
+    }
 }
