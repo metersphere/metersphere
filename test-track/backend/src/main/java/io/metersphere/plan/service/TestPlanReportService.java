@@ -503,14 +503,13 @@ public class TestPlanReportService {
             }
             TestPlanReportContentWithBLOBs content = null;
             try {
-                HttpHeaderUtils.runAsUser("admin");
+                HttpHeaderUtils.runAsUser(testPlanReport.getCreator());
                 testPlanReport.setStatus(status);
                 content = this.initTestPlanContent(testPlanReport, status);
             } catch (Exception e) {
-                HttpHeaderUtils.clearUser();
-                testPlanReport.setStatus(status);
                 LogUtil.error("统计测试计划状态失败！", e);
             } finally {
+                HttpHeaderUtils.clearUser();
                 testPlanReportMapper.updateByPrimaryKey(testPlanReport);
                 testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
                 this.executeTestPlanByQueue(testPlanReportId);
