@@ -829,6 +829,6 @@ public class TestPlanApiCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(apiCaseIds);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
-        return apiTestCases.stream().map(ApiTestCase::getProjectId).collect(Collectors.toList());
+        return apiTestCases.stream().map(ApiTestCase::getProjectId).distinct().collect(Collectors.toList());
     }
 }
