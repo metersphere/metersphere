@@ -158,6 +158,11 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.getApiCaseEnv(planId);
     }
 
+    @GetMapping("/get/project/ids/{planId}")
+    public List<String> getApiCaseProjectIds(@PathVariable("planId") String planId) {
+        return testPlanApiCaseService.getApiCaseProjectIds(planId);
+    }
+
     @GetMapping("/is/executing/{planId}")
     public Boolean isExecuting(@PathVariable("planId") String planId) {
         return testPlanApiCaseService.isExecuting(planId);

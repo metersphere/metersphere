@@ -227,6 +227,11 @@ public class TestPlanController {
         return testPlanService.getPlanCaseEnv(plan.getId());
     }
 
+    @PostMapping("/case/relevance/project/ids")
+    public List<String> getRelevanceProjectIds(@RequestBody TestPlan plan) {
+        return testPlanService.getRelevanceProjectIds(plan.getId());
+    }
+
 
     @PostMapping("/edit/run/config")
     public void updateRunModeConfig(@RequestBody TestPlanRunRequest testplanRunRequest) {
