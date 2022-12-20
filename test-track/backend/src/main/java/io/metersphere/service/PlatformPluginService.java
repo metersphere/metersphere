@@ -77,7 +77,7 @@ public class PlatformPluginService {
         }
         PluginMetaInfo pluginMetaInfo = pluginManager.getPluginMetaInfoByKey(platform);
         if (PlatformPluginService.isPluginPlatform(platform) && pluginMetaInfo == null) {
-            MSException.throwException(Translator.get("platform_plugin_not_exit") + PlatformPluginService.PLUGIN_DOWNLOAD_URL);
+            return false;
         }
         return pluginMetaInfo == null ? false : pluginMetaInfo.isThirdPartTemplateSupport();
     }
