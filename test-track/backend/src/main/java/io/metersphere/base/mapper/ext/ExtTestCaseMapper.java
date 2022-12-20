@@ -150,6 +150,9 @@ public interface ExtTestCaseMapper {
 
     int addLatestVersion(@Param("refId") String refId);
 
+    void updateVersionModule(@Param("refId") String refId, @Param("versionId") String versionId, @Param("moduleId") String moduleId, @Param("modulePath") String modulePath);
+
+
     List<TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> getForNodeEdit(@Param("ids") List<String> ids);
