@@ -856,6 +856,14 @@
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
+    <update id="updateVersionModule">
+        UPDATE api_scenario
+        SET api_scenario_module_id = #{moduleId},
+            module_path            = #{modulePath}
+        WHERE ref_id = #{refId}
+          AND version_id != #{versionId}
+    </update>
+
     <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
         SELECT DISTINCT ref_id
         FROM api_scenario
