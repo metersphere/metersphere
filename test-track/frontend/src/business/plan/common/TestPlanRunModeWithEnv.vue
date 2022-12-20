@@ -200,7 +200,7 @@ import {getCurrentProjectID, getOwnerProjects} from "@/business/utils/sdk-utils"
 import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
 import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
-import {getApiScenarioEnv, getPlanCaseEnv} from "@/api/remote/plan/test-plan";
+import {getApiScenarioEnv, getPlanCaseEnv, getPlanCaseProjectIds} from "@/api/remote/plan/test-plan";
 import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
@@ -402,9 +402,23 @@ export default {
               this.projectIds.add(d);
             }
           }
-          this.$refs.envSelectPopover.open();
+          if (this.projectIds.size === 0) {
+            param = {id: this.planId};
+            getPlanCaseProjectIds(param).then((res) => {
+              let data = res.data;
+              if (data) {
+                for (let i = 0; i < data.length; i++) {
+                  this.projectIds.add(data[i]);
+                }
+              }
+              this.$refs.envSelectPopover.open();
+            });
+          } else {
+            this.$refs.envSelectPopover.open();
+          }
         });
       }
+
     },
     handleCommand(command) {
       if (

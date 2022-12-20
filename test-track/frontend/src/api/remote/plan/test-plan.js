@@ -289,12 +289,16 @@ export function updateSchedule(param){
   return post(BASE_URL + 'schedule/update',param);
 }
 
-export function getApiScenarioEnv(param){
-  return post(BASE_URL + 'api/scenario/env',param);
+export function getApiScenarioEnv(param) {
+  return post(BASE_URL + 'api/scenario/env', param);
 }
 
-export function getPlanCaseEnv(param){
-  return post(BASE_URL + 'case/env',param);
+export function getPlanCaseEnv(param) {
+  return post(BASE_URL + 'case/env', param);
+}
+
+export function getPlanCaseProjectIds(param) {
+  return post(BASE_URL + 'case/relevance/project/ids', param);
 }
 
 export function run(testId, reportId) {
