@@ -190,6 +190,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                                     .collect(Collectors.toList());
                             toUsers.addAll(receivers);
                         }
+                        // 评审评论时这个维护人是创建人
+                        if (paramMap.containsKey("creator")) {
+                            toUsers.add(new Receiver((String) paramMap.get("creator"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                        }
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
