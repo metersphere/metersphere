@@ -703,18 +703,7 @@ public class IssuesService {
         Map<String, List<CustomFieldDao>> fieldMap =
                 customFieldIssuesService.getMapByResourceIds(data.stream().map(IssuesDao::getId).collect(Collectors.toList()));
         try {
-            Map<String, CustomField> fieldMaps = new HashMap<>();
-            if (isThirdTemplate) {
-                fieldMaps = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getId, field -> (CustomField) field));
-            } else {
-                List<CustomFieldDao> customfields = fieldMap.get(data.get(0).getId());
-                if (CollectionUtils.isNotEmpty(customfields) && customfields.size() > 0) {
-                    List<String> ids = customfields.stream().map(CustomFieldDao::getId).collect(Collectors.toList());
-                    List<CustomField> issueFields = baseCustomFieldService.getFieldByIds(ids);
-                    fieldMaps = issueFields.stream().collect(Collectors.toMap(CustomField::getId, field -> field));
-                }
-            }
-
+            Map<String, CustomField> fieldMaps = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getId, field -> (CustomField) field));
             for (Map.Entry<String, List<CustomFieldDao>> entry : fieldMap.entrySet()) {
                 for (CustomFieldDao fieldDao : entry.getValue()) {
                     CustomField customField = fieldMaps.get(fieldDao.getId());
@@ -1531,9 +1520,12 @@ public class IssuesService {
             MSException.throwException(Translator.get("upload_fail"));
         }
         Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 获取第三方平台自定义字段
+        List<CustomFieldDao> pluginCustomFields = getPluginCustomFields(request.getProjectId());
         // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        customFields.addAll(pluginCustomFields);
         // 获取本地EXCEL数据对象
         Class clazz = new IssueExcelDataFactory().getExcelDataByLocal();
         // IssueExcelListener读取file内容
@@ -1559,9 +1551,12 @@ public class IssuesService {
     public void issueExport(IssueExportRequest request, HttpServletResponse response) {
         EasyExcelExporter.resetCellMaxTextLength();
         Map<String, String> userMap = baseUserService.getProjectMemberOption(request.getProjectId()).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 第三方平台的自定义字段
+        List<CustomFieldDao> pluginCustomFields = getPluginCustomFields(request.getProjectId());
         // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        customFields.addAll(pluginCustomFields);
         // 根据自定义字段获取表头内容
         List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, request);
         // 获取导出缺陷列表
