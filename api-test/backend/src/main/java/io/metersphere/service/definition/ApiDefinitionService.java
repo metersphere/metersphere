@@ -787,13 +787,18 @@ public class ApiDefinitionService {
         if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(result.getRefId());
         }
-
+        //同步修改所有版本的模块路径
+        updateOtherVersionModule(result);
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.API.name());
         //保存自定义字段
         customFieldApiService.editFields(test.getId(), request.getEditFields());
         customFieldApiService.addFields(test.getId(), request.getAddFields());
         return result;
+    }
+
+    private void updateOtherVersionModule(ApiDefinitionWithBLOBs result) {
+        extApiDefinitionMapper.updateVersionModule(result.getRefId(), result.getVersionId(), result.getModuleId(), result.getModulePath());
     }
 
     private void saveExtendInfo(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs test, ApiDefinitionWithBLOBs oldApi) {
