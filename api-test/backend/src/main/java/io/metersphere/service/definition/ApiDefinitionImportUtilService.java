@@ -532,6 +532,7 @@ public class ApiDefinitionImportUtilService {
                                     updateApiList.add(definitionWithBLOBs);
                                 }
                             }
+                            apiDefinitionWithBLOBs.setRefId(latestApi.getRefId());
                             apiDefinitionWithBLOBs.setVersionId("trash");
                         } else {
                             addNewVersionApi(apiDefinitionWithBLOBs, latestApi, "update");
