@@ -157,4 +157,8 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     public Map<String, List<String>> getUiScenarioEnv(String planId) {
         return microService.getForData(serviceName, BASE_URL + "/get/env/" + planId, Map.class);
     }
+
+    public List<String> getUiScenarioProjectIds(String planId) {
+        return microService.getForData(serviceName, BASE_URL + "/get/project/ids/" + planId, List.class);
+    }
 }
