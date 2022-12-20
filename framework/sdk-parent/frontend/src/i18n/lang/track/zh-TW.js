@@ -474,7 +474,7 @@ export default {
     zentao_bug_build: "禪道 影響版本",
     zentao_bug_assigned: "禪道 處理人",
     third_party_integrated: "集成第三方平臺",
-    use_third_party: "使用 Jira 缺陷模闆",
+    use_third_party: "使用 {0} 缺陷模闆",
     update_third_party_bugs: "更新第三方平臺的缺陷",
     sync_bugs: "同步缺陷",
     sync_complete: "同步完成",
