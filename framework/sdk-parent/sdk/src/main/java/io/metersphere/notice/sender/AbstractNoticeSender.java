@@ -190,6 +190,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                                     .collect(Collectors.toList());
                             toUsers.addAll(receivers);
                         }
+
+                        if (paramMap.containsKey("maintainer")) {
+                            toUsers.add(new Receiver((String) paramMap.get("maintainer"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                        }
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
