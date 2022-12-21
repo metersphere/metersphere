@@ -1,6 +1,6 @@
 <template>
   <span>
-    <el-select :disabled="isReadOnly" v-model="environmentId" size="small" class="environment-select"
+    <el-select :disabled="isReadOnly" v-model="environmentId" size="small" class="environment-select" filterable
                :placeholder="$t('api_test.definition.request.run_env')" clearable @clear="clear">
       <el-option v-for="(environment, key) in environments" :key="key"
                  :label="environment.name"

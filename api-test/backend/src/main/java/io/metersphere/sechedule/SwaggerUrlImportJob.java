@@ -8,7 +8,6 @@ import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.base.domain.SwaggerUrlProject;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;

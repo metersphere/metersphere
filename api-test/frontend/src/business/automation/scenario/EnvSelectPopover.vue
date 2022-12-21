@@ -40,6 +40,7 @@
             :placeholder="$t('api_test.environment.select_environment')"
             style="margin-top: 8px; width: 100%"
             size="small"
+            filterable
             @change="chooseEnv">
             <el-option
               v-for="(environment, index) in pe.envs"

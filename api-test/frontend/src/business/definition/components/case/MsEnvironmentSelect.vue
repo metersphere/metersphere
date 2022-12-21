@@ -7,6 +7,7 @@
       class="environment-select"
       :placeholder="$t('api_test.definition.request.run_env')"
       clearable
+      filterable
       @clear="clear">
       <el-option
         v-for="(environment, key) in environments"

@@ -18,7 +18,8 @@
           </el-radio-group>
           <el-tag v-show="!pe.showEnvSelect"  v-for="(itemName,index)  in selectedEnvName.get(pe.id)" :key="index" size="mini"
                   style="margin-left: 0; margin-right: 2px;margin-top: 8px">{{ itemName }}</el-tag>
-          <el-select v-show="pe.showEnvSelect"  v-model="pe['selectEnv']" :placeholder="$t('api_test.environment.select_environment')"
+          <el-select v-show="pe.showEnvSelect" v-model="pe['selectEnv']" filterable
+                     :placeholder="$t('api_test.environment.select_environment')"
                      style="margin-top: 8px;width: 100%;" size="small" @change="chooseEnv">
             <el-option v-for="(environment, index) in pe.envs" :key="index"
                        :label="environment.name"
