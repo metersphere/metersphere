@@ -127,11 +127,17 @@ public class MockConfigService {
         }
     }
 
+    /**
+     * 这个接口是生成用的！
+     * 如果没数据就生成，有数据就返回一套数据结构！
+     * 所有入参都没有必填项！
+     * 如果为了查询，请写一个新的接口！
+     *
+     * @param request
+     * @return
+     */
     public MockConfigResponse genMockConfig(MockConfigRequest request) {
         MockConfigResponse returnRsp;
-        if (StringUtils.isEmpty(request.getId())) {
-            return new MockConfigResponse(null, new ArrayList<>());
-        }
         MockConfigExample example = new MockConfigExample();
         MockConfigExample.Criteria criteria = example.createCriteria();
         if (request.getId() != null) {
@@ -139,6 +145,8 @@ public class MockConfigService {
         }
         if (request.getApiId() != null) {
             criteria.andApiIdEqualTo(request.getApiId());
+        } else if (StringUtils.isEmpty(request.getId())) {
+            return new MockConfigResponse(null, new ArrayList<>());
         }
         if (request.getProjectId() != null) {
             criteria.andProjectIdEqualTo(request.getProjectId());

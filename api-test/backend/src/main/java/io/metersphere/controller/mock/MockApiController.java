@@ -32,8 +32,7 @@ public class MockApiController {
     public String postRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("POST", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByBodyParam("POST", requestHeaderMap, project, request, response);
     }
 
     @GetMapping("/{projectSystemId}/**")
@@ -41,8 +40,7 @@ public class MockApiController {
     public String getRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("GET", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByUrlParam("GET", requestHeaderMap, project, request, response);
     }
 
     @PutMapping("/{projectSystemId}/**")
@@ -50,8 +48,7 @@ public class MockApiController {
     public String putRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PUT", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByBodyParam("PUT", requestHeaderMap, project, request, response);
     }
 
     @PatchMapping("/{projectSystemId}/**")
@@ -59,8 +56,7 @@ public class MockApiController {
     public String patchRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PATCH", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByBodyParam("PATCH", requestHeaderMap, project, request, response);
     }
 
     @DeleteMapping("/{projectSystemId}/**")
@@ -68,8 +64,7 @@ public class MockApiController {
     public String deleteRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("DELETE", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByUrlParam("DELETE", requestHeaderMap, project, request, response);
     }
 
     @RequestMapping(value = "/{projectSystemId}/**", method = RequestMethod.OPTIONS)
@@ -77,8 +72,7 @@ public class MockApiController {
     public String optionsRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = baseProjectService.findBySystemId(projectSystemId);
         Map<String, String> requestHeaderMap = MockApiUtils.getHttpRequestHeader(request);
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("OPTIONS", requestHeaderMap, project, request, response);
-        return returnStr;
+        return mockConfigService.checkReturnWithMockExpectByUrlParam("OPTIONS", requestHeaderMap, project, request, response);
     }
 
     @RequestMapping(value = "/{projectSystemId}/**", method = RequestMethod.HEAD)
