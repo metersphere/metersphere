@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ext.BaseScheduleMapper;
 import io.metersphere.base.mapper.ext.BaseTaskMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.TaskCenterType;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -24,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,6 +104,8 @@ public class TaskService {
 
     public TaskStatisticsDTO getRunningTasks(TaskCenterRequest request) {
         request.setProjects(this.getOwnerProjectIds(request.getUserId()));
+        request.setStartTime(DateUtils.getDailyStartTime());
+        request.setEndTime(DateUtils.getDailyEndTime());
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new TaskStatisticsDTO();
         }
