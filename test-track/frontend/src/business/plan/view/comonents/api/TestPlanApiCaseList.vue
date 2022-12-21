@@ -9,7 +9,8 @@
           :plan-status="planStatus"
           @refresh="search"
           @relevanceCase="$emit('relevanceCase')"
-          v-if="isPlanModel"/>
+          v-if="isPlanModel"
+        />
       </template>
       <ms-table
         v-loading="loading"
@@ -29,40 +30,54 @@
         :enable-order-drag="enableOrderDrag"
         row-key="id"
         @filter="search"
-        ref="table">
-        <span v-for="(item) in fields" :key="item.key">
-          <ms-table-column :field="item"
-                           :fields-width="fieldsWidth"
-                           sortable
-                           label="ID"
-                           prop="num"
-                           min-width="80">
-             <template v-slot:default="scope">
-               <span style="cursor:pointer"
-                     v-if="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"> {{ scope.row.num }} </span>
-               <el-link @click="openApiById(scope.row)" v-else>
-                  <span>
-                    {{ scope.row.num }}
-                  </span>
-               </el-link>
+        ref="table"
+      >
+        <span v-for="item in fields" :key="item.key">
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            sortable
+            label="ID"
+            prop="num"
+            min-width="80"
+          >
+            <template v-slot:default="scope">
+              <span
+                style="cursor: pointer"
+                v-if="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
+              >
+                {{ scope.row.num }}
+              </span>
+              <el-link @click="openApiById(scope.row)" v-else>
+                <span>
+                  {{ scope.row.num }}
+                </span>
+              </el-link>
             </template>
           </ms-table-column>
 
-          <ms-table-column :field="item" :fields-width="fieldsWidth" prop="name" sortable min-width="120"
-                           :label="$t('test_track.case.name')"/>
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="name"
+            sortable
+            min-width="120"
+            :label="$t('test_track.case.name')"
+          />
 
-         <ms-table-column
-           v-if="versionEnable"
-           prop="versionId"
-           :field="item"
-           :filters="versionFilters"
-           :fields-width="fieldsWidth"
-           :label="$t('commons.version')"
-           min-width="120px">
-         <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </ms-table-column>
+          <ms-table-column
+            v-if="versionEnable"
+            prop="versionId"
+            :field="item"
+            :filters="versionFilters"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.version')"
+            min-width="120px"
+          >
+            <template v-slot:default="scope">
+              <span>{{ scope.row.versionName }}</span>
+            </template>
+          </ms-table-column>
 
           <ms-table-column
             :field="item"
@@ -71,9 +86,10 @@
             :filters="priorityFilters"
             sortable
             :label="$t('test_track.case.priority')"
-            min-width="120px">
+            min-width="120px"
+          >
             <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.priority"/>
+              <priority-table-item :value="scope.row.priority" />
             </template>
           </ms-table-column>
 
@@ -82,7 +98,8 @@
             :fields-width="fieldsWidth"
             min-width="100"
             prop="path"
-            :label="$t('api_test.definition.api_path')"/>
+            :label="$t('api_test.definition.api_path')"
+          />
 
           <ms-table-column
             :field="item"
@@ -91,7 +108,8 @@
             sortable
             min-width="100"
             :filters="userFilters"
-            :label="$t('commons.create_user')">
+            :label="$t('commons.create_user')"
+          >
             <template v-slot:default="scope">
               {{ scope.row.creatorName }}
             </template>
@@ -103,9 +121,10 @@
             prop="environmentName"
             min-width="120"
             show-overflow-tooltip
-            :label="$t('commons.environment')">
+            :label="$t('commons.environment')"
+          >
             <template v-slot:default="scope">
-              {{ scope.row.environmentName || '-' }}
+              {{ scope.row.environmentName || "-" }}
             </template>
           </ms-table-column>
 
@@ -114,39 +133,58 @@
             prop="userId"
             :fields-width="fieldsWidth"
             :label="$t('custom_field.case_maintainer')"
-            min-width="120">
-             <template v-slot:default="scope">
+            min-width="120"
+          >
+            <template v-slot:default="scope">
               {{ scope.row.principalName }}
             </template>
           </ms-table-column>
 
-          <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
-          <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>
+          <ms-update-time-column :field="item" :fields-width="fieldsWidth" />
+          <ms-create-time-column :field="item" :fields-width="fieldsWidth" />
 
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
             prop="tags"
             min-width="100"
-            :label="$t('commons.tag')">
+            :label="$t('commons.tag')"
+          >
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+              <ms-tag
+                v-for="(itemName, index) in scope.row.tags"
+                :key="index"
+                type="success"
+                effect="plain"
+                :content="itemName"
+                style="margin-left: 0px; margin-right: 2px"
+              />
             </template>
           </ms-table-column>
 
-          <ms-table-column :field="item"
-                           prop="execResult"
-                           :filters="execResultFilters"
-                           :fields-width="fieldsWidth"
-                           :label="$t('test_track.plan.execute_result')" min-width="150" align="center">
+          <ms-table-column
+            :field="item"
+            prop="execResult"
+            :filters="execResultFilters"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.plan.execute_result')"
+            min-width="150"
+            align="center"
+          >
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
-              <el-link @click="getReportResult(scope.row)"
-                       :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
-                <ms-test-plan-api-status :status="scope.row.execResult"/>
-              </el-link>
-                <div v-if="scope.row.id" style="color: #999999;font-size: 12px">
+                <el-link
+                  @click="getReportResult(scope.row)"
+                  :disabled="
+                    !scope.row.execResult || scope.row.execResult === 'PENDING'
+                  "
+                >
+                  <ms-test-plan-api-status :status="scope.row.execResult" />
+                </el-link>
+                <div
+                  v-if="scope.row.id"
+                  style="color: #999999; font-size: 12px"
+                >
                   <span> {{ scope.row.updateTime | datetimeFormat }}</span>
                   {{ scope.row.updateUser }}
                 </div>
@@ -156,45 +194,66 @@
         </span>
       </ms-table>
 
-      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
+      <ms-table-pagination
+        :change="initTable"
+        :current-page.sync="currentPage"
+        :page-size.sync="pageSize"
+        :total="total"
+      />
 
-      <test-plan-api-case-result ref="apiCaseResult"/>
+      <test-plan-api-case-result ref="apiCaseResult" />
 
       <!-- 批量编辑 -->
-      <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
-                  :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit"
-                  @batchEdit="batchEdit"/>
+      <batch-edit
+        :dialog-title="$t('test_track.case.batch_edit_case')"
+        :type-arr="typeArr"
+        :value-arr="valueArr"
+        :select-row="$refs.table ? $refs.table.selectRows : new Set()"
+        ref="batchEdit"
+        @batchEdit="batchEdit"
+      />
 
-
-      <ms-test-plan-run-mode-with-env @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds" :type="'apiCase'"
-                                      @close="search" />
+      <ms-test-plan-run-mode-with-env
+        @handleRunBatch="handleRunBatch"
+        ref="runMode"
+        :plan-case-ids="testPlanCaseIds"
+        :type="'apiCase'"
+        @close="search"
+      />
     </el-card>
-    <ms-task-center ref="taskCenter" :show-menu="false"/>
+    <ms-task-center ref="taskCenter" :show-menu="false" />
   </div>
-
 </template>
 
 <script>
-
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsBottomContainer from "metersphere-frontend/src/components/MsBottomContainer";
 import BatchEdit from "@/business/case/components/BatchEdit";
-import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "metersphere-frontend/src/model/JsonData";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
-import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
+import {
+  API_METHOD_COLOUR,
+  CASE_PRIORITY,
+  RESULT_MAP,
+} from "metersphere-frontend/src/model/JsonData";
+import {
+  getCurrentProjectID,
+  getCurrentWorkspaceId,
+} from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
+import { getUUID, strMapToObj } from "metersphere-frontend/src/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
-import {TEST_PLAN_API_CASE} from "metersphere-frontend/src/utils/constants";
+import { TEST_PLAN_API_CASE } from "metersphere-frontend/src/utils/constants";
 import {
   buildBatchParam,
   deepClone,
   getCustomTableHeader,
-  getCustomTableWidth
+  getCustomTableWidth,
 } from "metersphere-frontend/src/utils/tableUtils";
 import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
@@ -203,20 +262,27 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import {editTestPlanApiCaseOrder, run, testPlanAutoCheck} from "@/api/remote/plan/test-plan";
-import {getProjectMemberUserFilter} from "@/api/user";
-import {apiTestCaseGet, apiTestCaseReduction} from "@/api/remote/api/api-case";
+import {
+  editTestPlanApiCaseOrder,
+  run,
+  testPlanAutoCheck,
+} from "@/api/remote/plan/test-plan";
+import { getProjectMemberUserFilter } from "@/api/user";
+import {
+  apiTestCaseGet,
+  apiTestCaseReduction,
+} from "@/api/remote/api/api-case";
 import {
   testPlanApiCaseBatchDelete,
   testPlanApiCaseBatchUpdateEnv,
   testPlanApiCaseDelete,
   testPlanApiCaseList,
   testPlanApiCaseRun,
-  testPlanApiCaseSelectAllTableRows
+  testPlanApiCaseSelectAllTableRows,
 } from "@/api/remote/plan/test-plan-api-case";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
-import {getProjectVersions} from "@/business/utils/sdk-utils";
-import {TEST_PLAN_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import { getProjectVersions } from "@/business/utils/sdk-utils";
+import { TEST_PLAN_API_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 
 export default {
@@ -247,67 +313,72 @@ export default {
     return {
       type: TEST_PLAN_API_CASE,
       tableHeaderKey: "TEST_PLAN_API_CASE",
-      fields: getCustomTableHeader('TEST_PLAN_API_CASE'),
-      fieldsWidth: getCustomTableWidth('TEST_PLAN_API_CASE'),
+      fields: getCustomTableHeader("TEST_PLAN_API_CASE"),
+      fieldsWidth: getCustomTableWidth("TEST_PLAN_API_CASE"),
       tableLabel: [],
       condition: {
-        components: TEST_PLAN_API_CASE_CONFIGS
+        components: TEST_PLAN_API_CASE_CONFIGS,
       },
       selectCase: {},
       loading: false,
       moduleId: "",
-      status: 'default',
+      status: "default",
       deletePath: "/test/case/delete",
       enableOrderDrag: true,
       operators: [
         {
-          tip: this.$t('api_test.run'), icon: "el-icon-video-play",
+          tip: this.$t("api_test.run"),
+          icon: "el-icon-video-play",
           exec: this.singleRun,
-          class: this.planStatus === 'Archived' ? 'disable-run' : 'run-button',
-          isDisable: this.planStatus === 'Archived',
-          permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
+          class: this.planStatus === "Archived" ? "disable-run" : "run-button",
+          isDisable: this.planStatus === "Archived",
+          permissions: ["PROJECT_TRACK_PLAN:READ+RUN"],
         },
         {
-          tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
+          tip: this.$t("test_track.plan_view.cancel_relevance"),
+          icon: "el-icon-unlock",
           exec: this.handleDelete,
-          type: 'danger',
-          isDisable: this.planStatus === 'Archived',
-          permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
-        }
+          type: "danger",
+          isDisable: this.planStatus === "Archived",
+          permissions: ["PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL"],
+        },
       ],
       buttons: [
         {
-          name: this.$t('test_track.case.batch_unlink'),
+          name: this.$t("test_track.case.batch_unlink"),
           handleClick: this.handleDeleteBatch,
-          isDisable: this.planStatus === 'Archived',
-          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          isDisable: this.planStatus === "Archived",
+          permissions: ["PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE"],
         },
         {
-          name: this.$t('api_test.automation.batch_execute'),
+          name: this.$t("api_test.automation.batch_execute"),
           handleClick: this.handleBatchExecute,
-          isDisable: this.planStatus === 'Archived',
-          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
+          isDisable: this.planStatus === "Archived",
+          permissions: ["PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN"],
         },
         {
-          name: this.$t('test_track.case.batch_edit_case'),
+          name: this.$t("test_track.case.batch_edit_case"),
           handleClick: this.handleBatchEdit,
-          isDisable: this.planStatus === 'Archived',
-          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
-        }
+          isDisable: this.planStatus === "Archived",
+          permissions: ["PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT"],
+        },
       ],
       typeArr: [
-        {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
+        {
+          id: "projectEnv",
+          name: this.$t("api_test.definition.request.run_env"),
+        },
       ],
       priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
+        { text: "P0", value: "P0" },
+        { text: "P1", value: "P1" },
+        { text: "P2", value: "P2" },
+        { text: "P3", value: "P3" },
       ],
       valueArr: {
         priority: CASE_PRIORITY,
         userId: [],
-        projectEnv: []
+        projectEnv: [],
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
       tableData: [],
@@ -315,7 +386,7 @@ export default {
       pageSize: 10,
       total: 0,
       selectDataCounts: 0,
-      screenHeight: 'calc(100vh - 250px)',//屏幕高度
+      screenHeight: "calc(100vh - 250px)", //屏幕高度
       currentCaseProjectId: "",
       runData: [],
       testPlanCaseIds: [],
@@ -327,11 +398,11 @@ export default {
       projectList: [],
       versionFilters: [],
       execResultFilters: [
-        {text: 'Pending', value: 'PENDING'},
-        {text: 'Success', value: 'SUCCESS'},
-        {text: 'Error', value: 'ERROR'},
-        {text: "FakeError", value: 'FAKE_ERROR'},
-      ]
+        { text: "Pending", value: "PENDING" },
+        { text: "Success", value: "SUCCESS" },
+        { text: "Error", value: "ERROR" },
+        { text: "FakeError", value: "FAKE_ERROR" },
+      ],
     };
   },
   props: {
@@ -347,7 +418,7 @@ export default {
     },
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isCaseRelevance: {
       type: Boolean,
@@ -356,8 +427,8 @@ export default {
     model: {
       type: String,
       default() {
-        'api';
-      }
+        "api";
+      },
     },
     planId: String,
     planStatus: String,
@@ -375,7 +446,7 @@ export default {
     this.$EventBus.$off("API_TEST_END", this.handleTestEnd);
   },
   activated() {
-    this.status = 'default';
+    this.status = "default";
   },
   watch: {
     selectNodeIds() {
@@ -387,20 +458,20 @@ export default {
     },
     planId() {
       this.initTable();
-    }
+    },
   },
   computed: {
     // 测试计划关联测试列表
     isRelevanceModel() {
-      return this.model === 'relevance';
+      return this.model === "relevance";
     },
     // 测试计划接口用例列表
     isPlanModel() {
-      return this.model === 'plan';
+      return this.model === "plan";
     },
     // 接口定义用例列表
     isApiModel() {
-      return this.model === 'api';
+      return this.model === "api";
     },
     editTestPlanApiCaseOrder() {
       return editTestPlanApiCaseOrder;
@@ -418,7 +489,7 @@ export default {
       });
     },
     isApiListEnableChange(data) {
-      this.$emit('isApiListEnableChange', data);
+      this.$emit("isApiListEnableChange", data);
     },
     initTable() {
       if (this.$refs.table) {
@@ -431,30 +502,35 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
 
-      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+      this.enableOrderDrag =
+        (this.condition.orders && this.condition.orders.length) > 0
+          ? false
+          : true;
 
       if (this.clickType) {
-        if (this.status == 'default') {
+        if (this.status == "default") {
           this.condition.status = this.clickType;
         } else {
           this.condition.status = null;
         }
-        this.status = 'all';
+        this.status = "all";
       }
       if (this.planId) {
         this.condition.planId = this.planId;
         this.loading = true;
-        testPlanApiCaseList({pageNum: this.currentPage, pageSize: this.pageSize}, this.condition)
-          .then(response => {
-            this.loading = false;
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.tableData.forEach(item => {
-              if (item.tags && item.tags.length > 0) {
-                item.tags = JSON.parse(item.tags);
-              }
-            });
+        testPlanApiCaseList(
+          { pageNum: this.currentPage, pageSize: this.pageSize },
+          this.condition
+        ).then((response) => {
+          this.loading = false;
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach((item) => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
           });
+        });
       }
     },
     search() {
@@ -466,34 +542,36 @@ export default {
     },
     reductionApi(row) {
       let ids = [row.id];
-      apiTestCaseReduction(ids)
-        .then(() => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        });
+      apiTestCaseReduction(ids).then(() => {
+        this.$success(this.$t("commons.save_success"));
+        this.search();
+      });
     },
     handleDeleteBatch() {
-      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let param = buildBatchParam(this);
-            param.ids = this.$refs.table.selectIds;
-            if (this.planId) {
-              param.planId = this.planId;
-              testPlanApiCaseBatchDelete(param)
-                .then(() => {
+      this.$alert(
+        this.$t("test_track.plan_view.confirm_cancel_relevance") + "？",
+        "",
+        {
+          confirmButtonText: this.$t("commons.confirm"),
+          callback: (action) => {
+            if (action === "confirm") {
+              let param = buildBatchParam(this);
+              param.ids = this.$refs.table.selectIds;
+              if (this.planId) {
+                param.planId = this.planId;
+                testPlanApiCaseBatchDelete(param).then(() => {
                   if (this.$refs.table) {
                     this.$refs.table.clear();
                   }
                   this.initTable();
-                  this.$emit('refresh');
-                  this.$success(this.$t('test_track.cancel_relevance_success'));
+                  this.$emit("refresh");
+                  this.$success(this.$t("test_track.cancel_relevance_success"));
                 });
+              }
             }
-          }
+          },
         }
-      });
+      );
     },
     getResult(data) {
       if (RESULT_MAP.get(data)) {
@@ -503,8 +581,8 @@ export default {
       }
     },
     runRefresh() {
-      this.rowLoading = '';
-      this.$success(this.$t('schedule.event_success'));
+      this.rowLoading = "";
+      this.$success(this.$t("schedule.event_success"));
       this.autoCheckStatus();
       this.initTable();
     },
@@ -524,7 +602,9 @@ export default {
       }
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
+      this.$refs.batchEdit.open(
+        this.condition.selectAll ? this.total : this.$refs.table.selectRows.size
+      );
       this.$refs.batchEdit.setSelectRows(this.$refs.table.selectRows);
     },
     getData() {
@@ -535,46 +615,45 @@ export default {
         if (this.condition != null && this.condition.selectAll) {
           let selectAllRowParams = buildBatchParam(this);
           selectAllRowParams.ids = this.$refs.table.selectIds;
-          testPlanApiCaseSelectAllTableRows(selectAllRowParams)
-            .then(response => {
+          testPlanApiCaseSelectAllTableRows(selectAllRowParams).then(
+            (response) => {
               let dataRows = response.data;
               // 按照列表顺序排序
               this.orderBySelectRows(dataRows);
-              dataRows.forEach(row => {
-                apiTestCaseGet(row.caseId)
-                  .then((response) => {
-                    let apiCase = response.data;
-                    let request = JSON.parse(apiCase.request);
-                    request.name = row.id;
-                    request.id = row.id;
-                    request.useEnvironment = row.environmentId;
-                    this.runData.unshift(request);
-                    this.testPlanCaseIds.unshift(row.id);
-                    if (dataRows.length === index) {
-                      resolve();
-                    }
-                    index++;
-                  });
+              dataRows.forEach((row) => {
+                apiTestCaseGet(row.caseId).then((response) => {
+                  let apiCase = response.data;
+                  let request = JSON.parse(apiCase.request);
+                  request.name = row.id;
+                  request.id = row.id;
+                  request.useEnvironment = row.environmentId;
+                  this.runData.unshift(request);
+                  this.testPlanCaseIds.unshift(row.id);
+                  if (dataRows.length === index) {
+                    resolve();
+                  }
+                  index++;
+                });
               });
-            });
+            }
+          );
         } else {
           // 按照列表顺序排序
           let dataRows = this.orderBySelectRows(this.$refs.table.selectRows);
-          dataRows.forEach(row => {
-            apiTestCaseGet(row.caseId)
-              .then((response) => {
-                let apiCase = response.data;
-                let request = JSON.parse(apiCase.request);
-                request.name = row.id;
-                request.id = row.id;
-                request.useEnvironment = row.environmentId;
-                this.runData.unshift(request);
-                this.testPlanCaseIds.unshift(row.id);
-                if (dataRows.length === index) {
-                  resolve();
-                }
-                index++;
-              });
+          dataRows.forEach((row) => {
+            apiTestCaseGet(row.caseId).then((response) => {
+              let apiCase = response.data;
+              let request = JSON.parse(apiCase.request);
+              request.name = row.id;
+              request.id = row.id;
+              request.useEnvironment = row.environmentId;
+              this.runData.unshift(request);
+              this.testPlanCaseIds.unshift(row.id);
+              if (dataRows.length === index) {
+                resolve();
+              }
+              index++;
+            });
           });
         }
       });
@@ -582,32 +661,32 @@ export default {
     batchEdit(form) {
       let param = {};
       // 批量修改环境
-      if (form.type === 'projectEnv') {
+      if (form.type === "projectEnv") {
         let selectAllRowParams = buildBatchParam(this);
         selectAllRowParams.ids = this.$refs.table.selectIds;
-        testPlanApiCaseSelectAllTableRows(selectAllRowParams)
-          .then(response => {
+        testPlanApiCaseSelectAllTableRows(selectAllRowParams).then(
+          (response) => {
             let dataRows = response.data;
             let map = new Map();
             param.projectEnvMap = strMapToObj(form.projectEnvMap);
             param.environmentType = form.environmentType;
             param.environmentGroupId = form.envGroupId;
-            dataRows.forEach(row => {
+            dataRows.forEach((row) => {
               map[row.id] = row.projectId;
             });
             param.selectRows = map;
-            testPlanApiCaseBatchUpdateEnv(param)
-              .then(() => {
-                this.$success(this.$t('commons.save_success'));
-                this.initTable();
-              });
-          });
+            testPlanApiCaseBatchUpdateEnv(param).then(() => {
+              this.$success(this.$t("commons.save_success"));
+              this.initTable();
+            });
+          }
+        );
       } else {
         // 批量修改其它
       }
     },
     orderBySelectRows(rows) {
-      let selectIds = Array.from(rows).map(row => row.id);
+      let selectIds = Array.from(rows).map((row) => row.id);
       let array = [];
       for (let i in this.tableData) {
         if (selectIds.indexOf(this.tableData[i].id) !== -1) {
@@ -619,21 +698,26 @@ export default {
     handleBatchExecute() {
       this.getData().then(() => {
         if (this.runData && this.runData.length > 0) {
-          this.$refs.runMode.open('API');
+          this.$refs.runMode.open("API");
         }
       });
     },
     handleRunBatch(config) {
-      let obj = {planIds: this.testPlanCaseIds, config: config, triggerMode: "BATCH",projectId: getCurrentProjectID()};
+      let obj = {
+        planIds: this.testPlanCaseIds,
+        config: config,
+        triggerMode: "BATCH",
+        projectId: getCurrentProjectID(),
+      };
       obj.config.envMap = strMapToObj(config.envMap);
-      testPlanApiCaseRun(obj)
-        .then(() => {
-          this.$message(this.$t('commons.run_message'));
-          this.$refs.taskCenter.open();
-          this.search();
-        });
+      testPlanApiCaseRun(obj).then(() => {
+        this.$message(this.$t("commons.run_message"));
+        this.$refs.taskCenter.open();
+        this.search();
+      });
     },
-    autoCheckStatus() { //  检查执行结果，自动更新计划状态
+    autoCheckStatus() {
+      //  检查执行结果，自动更新计划状态
       if (!this.planId) {
         return;
       }
@@ -641,12 +725,11 @@ export default {
     },
     handleDelete(apiCase) {
       if (this.planId) {
-        testPlanApiCaseDelete(apiCase.id)
-          .then(() => {
-            this.$success(this.$t('test_track.cancel_relevance_success'));
-            this.$emit('refresh');
-            this.initTable();
-          });
+        testPlanApiCaseDelete(apiCase.id).then(() => {
+          this.$success(this.$t("test_track.cancel_relevance_success"));
+          this.$emit("refresh");
+          this.initTable();
+        });
       }
       return;
     },
@@ -662,18 +745,28 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID())
-          .then(response => {
-            this.versionOptions = response.data;
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
+        getProjectVersions(getCurrentProjectID()).then((response) => {
+          this.versionOptions = response.data;
+          this.versionFilters = response.data.map((u) => {
+            return { text: u.name, value: u.id };
           });
+        });
       }
     },
     openApiById(item) {
-      let definitionData = this.$router.resolve('/api/definition/' + getUUID() + "/apiTestCase/single:" + item.caseId + "/" + getCurrentProjectID() + "/" + item.protocol + "/" + getCurrentWorkspaceId());
-      window.open(definitionData.href, '_blank');
+      let definitionData = this.$router.resolve(
+        "/api/definition/default/" +
+          getUUID() +
+          "/apiTestCase/single:" +
+          item.caseId +
+          "/" +
+          getCurrentProjectID() +
+          "/" +
+          item.protocol +
+          "/" +
+          getCurrentWorkspaceId()
+      );
+      window.open(definitionData.href, "_blank");
     },
   },
 };
@@ -687,7 +780,7 @@ export default {
 
 .request-method {
   padding: 0 5px;
-  color: #1E90FF;
+  color: #1e90ff;
 }
 
 .api-el-tag {
@@ -700,5 +793,4 @@ export default {
   /*margin-bottom: 20px;*/
   margin-right: 20px;
 }
-
 </style>
