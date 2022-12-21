@@ -3,7 +3,7 @@
     <ms-container>
       <ms-main-container style="padding: 0px">
         <div class="api-home-layout">
-          <el-row class="api-home-toolbar">
+          <el-row v-if="showVersionSelector" class="api-home-toolbar">
             <el-select
               clearable
               v-model="versionId"
@@ -78,6 +78,7 @@ export default {
       versionId: '',
       projectId: getCurrentProjectID(),
       versions: [],
+      showVersionSelector: false,
     };
   },
   created() {
@@ -85,6 +86,7 @@ export default {
     this.$nextTick(() => {
       this.refreshAllCard();
     });
+    this.showVersionSelector = hasLicense();
   },
   watch: {
     versionId() {
