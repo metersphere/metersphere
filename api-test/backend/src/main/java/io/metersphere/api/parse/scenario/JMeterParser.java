@@ -744,7 +744,7 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 elementNode = new MsJSR223Processor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
                 ((MsJSR223Processor) elementNode).setJsrEnable(false);
-                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
+                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString("BeanShellSampler.query"));
                 ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
             // 后置脚本
@@ -752,7 +752,7 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
                 elementNode = new MsJSR223PostProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("BeanShellSampler.query"));
+                ((MsJSR223PostProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString(ElementConstants.SCRIPT));
                 ((MsJSR223PostProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             } else if (key instanceof BeanShellPostProcessor) {
                 elementNode = getMsTestElement((BeanShellPostProcessor) key);
