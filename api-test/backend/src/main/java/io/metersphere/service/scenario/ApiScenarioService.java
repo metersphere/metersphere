@@ -1139,6 +1139,11 @@ public class ApiScenarioService {
                 scenarioRequest.setModulePath(request.getModulePath());
                 scenarioRequest.setVersionId(scenario.getVersionId());
                 checkNameExist(scenarioRequest, false);
+                if (StringUtils.isNotEmpty(request.getApiScenarioModuleId()) && StringUtils.isNotEmpty(request.getModulePath())) {
+                    scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
+                    scenario.setModulePath(request.getModulePath());
+                    updateOtherVersionModule(scenario.getRefId(), scenario);
+                }
             });
         }
         apiScenarioMapper.updateByExampleSelective(apiScenarioWithBLOBs, apiScenarioExample);
