@@ -323,6 +323,7 @@ export default {
     },
     mockSetting() {
       let mockParam = {};
+
       mockParam.projectId = this.projectId;
       if (this.currentApi.id) {
         mockParam.apiId = this.currentApi.id;
