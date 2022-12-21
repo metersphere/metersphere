@@ -1095,6 +1095,12 @@ public class ApiDefinitionService {
                 }
                 apiDefinitionRequest.setVersionId(api.getVersionId());
                 checkNameExist(apiDefinitionRequest, false);
+                //同步修改所有版本的模块路径
+                if (StringUtils.isNotEmpty(request.getModuleId()) && StringUtils.isNotEmpty(request.getModulePath())) {
+                    api.setModuleId(request.getModuleId());
+                    api.setModulePath(request.getModulePath());
+                    updateOtherVersionModule(api);
+                }
             });
             if (StringUtils.isNotEmpty(request.getFollow())) {
                 if (StringUtils.equals(request.getFollow(), "cancel")) {
