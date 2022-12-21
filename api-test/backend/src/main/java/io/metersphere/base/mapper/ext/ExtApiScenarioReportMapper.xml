@@ -383,7 +383,6 @@
         </if>
           AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
-
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, result AS groupField
         FROM scenario_execution_info
