@@ -1,5 +1,6 @@
 package io.metersphere.task.controller;
 
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
@@ -19,6 +20,8 @@ public class TaskController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TaskCenterDTO>> getTasks(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TaskCenterRequest request) {
         request.setProjects(taskService.getOwnerProjectIds(request.getUserId()));
+        request.setStartTime(DateUtils.getDailyStartTime());
+        request.setEndTime(DateUtils.getDailyEndTime());
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
         return taskService.getTasks(request);

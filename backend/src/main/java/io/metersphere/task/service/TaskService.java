@@ -19,6 +19,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTaskMapper;
 import io.metersphere.commons.constants.TaskCenterType;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -117,6 +118,8 @@ public class TaskService {
 
     public TaskStatisticsDTO getRunningTasks(TaskCenterRequest request) {
         request.setProjects(this.getOwnerProjectIds(request.getUserId()));
+        request.setStartTime(DateUtils.getDailyStartTime());
+        request.setEndTime(DateUtils.getDailyEndTime());
         if (CollectionUtils.isEmpty(request.getProjects())) {
             return new TaskStatisticsDTO();
         }
