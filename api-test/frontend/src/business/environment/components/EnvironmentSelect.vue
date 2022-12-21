@@ -5,6 +5,7 @@
       size="small"
       class="ms-htt-width"
       :placeholder="$t('api_test.definition.request.run_env')"
+      filterable
       @change="environmentChange"
       clearable>
       <el-option

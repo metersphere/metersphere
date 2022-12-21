@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
-      <el-select v-model="pe['selectEnv']" :placeholder="$t('api_test.environment.select_environment')"
+      <el-select v-model="pe['selectEnv']" filterable :placeholder="$t('api_test.environment.select_environment')"
                  style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"

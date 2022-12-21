@@ -1,7 +1,8 @@
 <template>
   <div v-loading="result.loading">
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
-      <el-select v-model="pe['selectEnv']" :placeholder="$t('workspace.env_group.please_select_env')" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="pe['selectEnv']" filterable :placeholder="$t('workspace.env_group.please_select_env')"
+                 style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"
                    :value="environment.id"/>

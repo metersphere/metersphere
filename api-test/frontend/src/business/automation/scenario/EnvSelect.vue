@@ -3,6 +3,7 @@
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px">
       <el-select
         v-model="pe['selectEnv']"
+        filterable
         :placeholder="$t('workspace.env_group.please_select_env')"
         style="margin-top: 8px; width: 200px"
         size="small">
