@@ -1857,6 +1857,22 @@ public class TestCaseService {
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
             bathUpdateByCondition(request, batchEdit);
+            //批量修改选中数据其他版本的模块路径
+            if (request != null && (request.getIds() != null || !request.getIds().isEmpty())) {
+                request.getIds().forEach(testCaseId -> {
+                    TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
+                    if (testCaseWithBLOBs == null) {
+                        return;
+                    }
+                    if (StringUtils.isNotEmpty(request.getNodeId()) && StringUtils.isNotEmpty(request.getNodePath())) {
+                        testCaseWithBLOBs.setNodeId(request.getNodeId());
+                        testCaseWithBLOBs.setNodePath(request.getNodePath());
+                        EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
+                        BeanUtils.copyBean(editTestCaseRequest, testCaseWithBLOBs);
+                        updateOtherVersionModule(editTestCaseRequest);
+                    }
+                });
+            }
         }
     }
 
