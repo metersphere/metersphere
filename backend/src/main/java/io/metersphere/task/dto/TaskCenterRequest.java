@@ -32,4 +32,8 @@ public class TaskCenterRequest {
 
     private String activeName;
 
+    private long startTime;
+
+    private long endTime;
+
 }

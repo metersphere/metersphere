@@ -7,7 +7,7 @@
         ,ifnull(t.status,'Saved') AS executionStatus
         FROM api_definition_exec_result t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
         t.actuator = t2.id
-        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        WHERE t.create_time BETWEEN #{request.startTime} and #{request.endTime} AND t.project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -35,7 +35,7 @@
         executionTime, t.trigger_mode AS triggerMode ,t.status AS executionStatus
         FROM api_scenario_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
         t.actuator = t2.id
-        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.execute_type !='Debug' AND t.execute_type
+        WHERE t.create_time BETWEEN #{request.startTime} and #{request.endTime} AND t.execute_type !='Debug' AND t.execute_type
         !='Marge' AND t.project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
@@ -62,7 +62,7 @@
         executionStatus
         FROM load_test_report t INNER JOIN `user` t1 ON t.user_id = t1.id LEFT JOIN test_resource_pool t2 ON
         t.test_resource_pool_id = t2.id
-        WHERE to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) AND t.project_id IN
+        WHERE t.create_time BETWEEN #{request.startTime} and #{request.endTime} AND t.project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -109,7 +109,7 @@
         LEFT JOIN `user` t1 ON t.user_id = t1.id
         LEFT JOIN test_resource_pool t2 ON t.actuator = t2.id
         WHERE
-        to_days(FROM_UNIXTIME( t.create_time / 1000 ))= to_days(now())
+        t.create_time BETWEEN #{request.startTime} and #{request.endTime}
         AND t.execute_type != 'Debug'
         AND t.execute_type != 'Marge'
         AND t.project_id IN
@@ -138,7 +138,7 @@
         LEFT JOIN `user` t1 ON t.user_id = t1.id
         LEFT JOIN test_resource_pool t2 ON t.actuator = t2.id
         WHERE
-        to_days( FROM_UNIXTIME( t.create_time / 1000 ))= to_days(now())
+        t.create_time BETWEEN #{request.startTime} and #{request.endTime}
         AND t.project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
@@ -167,7 +167,7 @@
         LEFT JOIN `user` t1 ON t.user_id = t1.id
         LEFT JOIN test_resource_pool t2 ON t.test_resource_pool_id = t2.id
         WHERE
-        to_days(FROM_UNIXTIME( t.create_time / 1000 ))= to_days(now())
+        t.create_time BETWEEN #{request.startTime} and #{request.endTime}
         AND t.project_id IN
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
