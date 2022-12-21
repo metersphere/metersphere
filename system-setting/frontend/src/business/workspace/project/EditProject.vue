@@ -31,7 +31,7 @@
 
           <el-checkbox @change="thirdPartTemplateChange" v-if="thirdPartTemplateSupport"
                        v-model="form.thirdPartTemplate" style="margin-left: 10px">
-            {{ $t('test_track.issue.use_third_party') }}
+            {{ $t('test_track.issue.use_third_party', [form.platform]) }}
           </el-checkbox>
         </el-form-item>
 

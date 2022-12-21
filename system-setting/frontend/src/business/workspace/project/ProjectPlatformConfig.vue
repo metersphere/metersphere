@@ -89,7 +89,8 @@ export default {
       getPlatformProjectInfo(this.platformKey)
         .then(r => {
           if (r.data) {
-            Object.assign(this.form, this.projectConfig);
+            let form = {};
+            Object.assign(form, this.projectConfig);
             this.handleProjectConfigCompatible();
 
             r.data.formItems.forEach(item => {
@@ -97,18 +98,19 @@ export default {
                 item.options = [];
               }
               // 设置默认值
-              if (this.form[item.name]) {
-                this.$set(item, 'defaultValue', this.form[item.name]);
+              if (form[item.name]) {
+                this.$set(item, 'defaultValue', form[item.name]);
               }
               // 获取级联选项值
-              if (item.cascade && this.form[item.name]) {
+              if (item.cascade && form[item.cascade]) {
                 this.getCascadeOptions(item, () => {
                   // 没有选项值会被组件自动清空，获取下拉框选项之后，重新设置默认值
-                  if (this.form[item.name]) {
-                    this.$set(item, 'defaultValue', this.form[item.name]);
+                  if (form[item.name]) {
+                    this.$set(item, 'defaultValue', form[item.name]);
                   }
                 });
               }
+              this.form = form;
             });
             this.config = r.data;
             this.rules = getPlatformFormRules(this.config);

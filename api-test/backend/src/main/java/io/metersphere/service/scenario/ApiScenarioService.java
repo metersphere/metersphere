@@ -413,9 +413,15 @@ public class ApiScenarioService {
         if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(beforeScenario.getRefId());
         }
+        //同步修改所有版本的模块路径
+        updateOtherVersionModule(beforeScenario.getRefId(), scenario);
         // 存储附件关系
         extFileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
+    }
+
+    private void updateOtherVersionModule(String refId, ApiScenarioWithBLOBs scenario) {
+        extApiScenarioMapper.updateVersionModule(refId, scenario.getVersionId(), scenario.getApiScenarioModuleId(), scenario.getModulePath());
     }
 
     private void checkReferenceCase(ApiScenarioWithBLOBs scenario, ApiScenarioParamDTO apiScenarioParamDto) {

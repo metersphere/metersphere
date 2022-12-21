@@ -1257,6 +1257,6 @@ public class TestPlanScenarioCaseService {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(scenarioIds);
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
-        return apiScenarios.stream().map(ApiScenario::getProjectId).collect(Collectors.toList());
+        return apiScenarios.stream().map(ApiScenario::getProjectId).distinct().collect(Collectors.toList());
     }
 }
