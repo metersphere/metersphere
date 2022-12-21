@@ -45,57 +45,11 @@
           </el-input>
         </div>
 
-        <!-- 接口测试配置       -->
-        <form-section :title="$t('commons.api')" :init-active=true>
-          <p>{{ $t('api_test.request.headers') }}</p>
-          <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{
-                $t("commons.batch_add")
-              }}
-            </el-link>
-          </el-row>
-          <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
-        </form-section>
-
-        <!--    UI 配置    -->
-        <form-section :title="$t('commons.ui_test')" :init-active=false v-if="condition.type !== 'MODULE'">
-          <el-row :gutter="10" style="padding-top: 10px;">
-            <el-col :span="6">
-              <!-- 浏览器驱动 -->
-              <span style="margin-right: 10px;">{{ $t("ui.browser") }}</span>
-              <el-select
-                size="mini"
-                v-model="httpConfig.browser"
-                style="width: 100px"
-              >
-                <el-option
-                  v-for="b in browsers"
-                  :key="b.value"
-                  :value="b.value"
-                  :label="b.label"
-                ></el-option>
-              </el-select>
-
-            </el-col>
-            <el-col :span="6">
-              <!-- 性能模式 -->
-              <el-checkbox
-                v-model="httpConfig.headlessEnabled"
-              >
-                <span> {{ $t("ui.performance_mode") }}</span>
-              </el-checkbox>
-              <ms-instructions-icon size="10" :content="$t('ui.per_tip')"/>
-            </el-col>
-          </el-row>
-
-          <!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
-          <!--          <el-row :gutter="10">-->
-          <!--            <el-col :span="24">-->
-          <!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
-          <!--            </el-col>-->
-          <!--          </el-row>-->
-        </form-section>
-
+        <p>{{ $t('api_test.request.headers') }}</p>
+        <el-row>
+          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+        </el-row>
+        <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
         <div style="margin-top: 20px">
           <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
             {{ $t('commons.add') }}
@@ -167,12 +121,10 @@ import {getUUID} from "../../utils";
 import {KeyValue} from "../../model/EnvTestModel";
 import Vue from "vue";
 import BatchAddParameter from "./commons/BatchAddParameter";
-import FormSection from "metersphere-frontend/src/components/form/FormSection";
-import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
 
 export default {
   name: "MsEnvironmentHttpConfig",
-  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter, FormSection, MsInstructionsIcon},
+  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter},
   props: {
     httpConfig: new HttpConfig(),
     projectId: String,
@@ -213,21 +165,9 @@ export default {
         socket: "",
         domain: "",
         port: 0,
-        headers: [new KeyValue()],
-        headlessEnabled: true,
-        browser: 'CHROME'
+        headers: [new KeyValue()]
       },
-      beforeCondition: {},
-      browsers: [
-        {
-          label: this.$t("chrome"),
-          value: "CHROME",
-        },
-        {
-          label: this.$t("firefox"),
-          value: "FIREFOX",
-        },
-      ],
+      beforeCondition: {}
     };
   },
   watch: {
@@ -349,7 +289,7 @@ export default {
     list() {
       if (this.projectId) {
         this.result = getApiModuleByProjectIdAndProtocol(this.projectId, "HTTP").then((response) => {
-          if (response.data && response.data !== null) {
+          if (response.data  && response.data !== null) {
             this.moduleOptions = response.data;
           }
         });
