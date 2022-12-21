@@ -33,4 +33,9 @@ public class TaskCenterRequest {
     private boolean hasLicense;
 
     List<String> projects;
+
+    private long startTime;
+
+    private long endTime;
+
 }
