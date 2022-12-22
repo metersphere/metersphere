@@ -531,7 +531,7 @@ public class TestPlanReportService {
         testPlanReport.setUpdateTime(endTime);
 
         TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-        contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getTestPlanId());
+        contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
         List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
         if (CollectionUtils.isNotEmpty(contents)) {
             content = contents.get(0);
@@ -599,8 +599,13 @@ public class TestPlanReportService {
 
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
         if (testPlanReport != null && reportContent != null) {
-            TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
-            reportContent.setApiBaseCount(JSON.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            try {
+                TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
+                reportContent.setApiBaseCount(JSON.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            } catch (Exception e) {
+                LogUtil.error("计算测试计划报告信息出错!", e);
+            }
+
         }
     }
 
