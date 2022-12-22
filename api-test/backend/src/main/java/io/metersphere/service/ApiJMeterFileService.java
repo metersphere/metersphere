@@ -23,6 +23,7 @@ import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
@@ -204,12 +205,11 @@ public class ApiJMeterFileService {
                     new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
             plugins.forEach(item -> {
                 File file = new File(item.getSourcePath());
-                if (file.isDirectory() && !item.getSourcePath().endsWith("/")) {
-                    file = new File(item.getSourcePath() + "/");
-                }
-                byte[] fileByte = FileUtils.fileToByte(file);
-                if (fileByte != null) {
-                    jarFiles.put(file.getName(), fileByte);
+                if (file.exists() && !file.isDirectory()) {
+                    byte[] fileByte = FileUtils.fileToByte(file);
+                    if (ArrayUtils.isNotEmpty(fileByte)) {
+                        jarFiles.put(file.getName(), fileByte);
+                    }
                 }
             });
 

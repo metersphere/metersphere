@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import {SUPER_GROUP} from 'metersphere-frontend/src/utils/constants';
+
 export default {
   name: "GroupPermission",
   props: {
@@ -45,7 +47,7 @@ export default {
     isReadOnly() {
       return function (permission) {
         // 禁止取消系统管理员用户组权限
-        if (this.group.id === 'super_group') {
+        if (this.group.id === SUPER_GROUP) {
           return true;
         }
         // 禁止取消系统管理员用户组和超级管理员用户组的读取和设置权限

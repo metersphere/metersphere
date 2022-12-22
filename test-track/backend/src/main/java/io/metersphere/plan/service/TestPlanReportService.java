@@ -491,22 +491,21 @@ public class TestPlanReportService {
             return testPlanReport;
         }
         boolean isSendMessage = false;
-
         if (testPlanReport != null) {
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport.setIsUiScenarioExecuting(false);
-
             if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
                 isSendMessage = true;
             }
             TestPlanReportContentWithBLOBs content = null;
             try {
                 HttpHeaderUtils.runAsUser(testPlanReport.getCreator());
-                testPlanReport.setStatus(status);
-                content = this.initTestPlanContent(testPlanReport, status);
+                boolean isRerunningTestPlan = BooleanUtils.isTrue(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name()));
+                content = this.initTestPlanContent(testPlanReport, status, isRerunningTestPlan);
             } catch (Exception e) {
+                testPlanReport.setStatus(status);
                 LogUtil.error("统计测试计划状态失败！", e);
             } finally {
                 HttpHeaderUtils.clearUser();
@@ -518,24 +517,19 @@ public class TestPlanReportService {
         return testPlanReport;
     }
 
-    private TestPlanReportContentWithBLOBs initTestPlanContent(TestPlanReport testPlanReport, String status) throws Exception {
+    private TestPlanReportContentWithBLOBs initTestPlanContent(TestPlanReport testPlanReport, String status, boolean isRerunningTestPlan) throws Exception {
+        testPlanReport.setStatus(status);
         TestPlanReportContentWithBLOBs content = null;
         //初始化测试计划包含组件信息
         int[] componentIndexArr = new int[]{1, 3, 4};
         testPlanReport.setComponents(JSON.toJSONString(componentIndexArr));
-        //如果测试案例没有未结束的功能用例，则更新最后结束日期。
-        TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
-        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlanReport.getTestPlanId()).andStatusNotEqualTo("Prepare");
         long endTime = System.currentTimeMillis();
-        long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
-        boolean updateTestPlanTime = testCaseCount > 0;
-        if (updateTestPlanTime && !StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-            testPlanReport.setEndTime(endTime);
-            testPlanReport.setUpdateTime(endTime);
-        }
+        //原逻辑中要判断包含测试计划功能用例时才会赋予结束时间。执行测试计划产生的测试报告，它的结束时间感觉没有这种判断必要。
+        testPlanReport.setEndTime(endTime);
+        testPlanReport.setUpdateTime(endTime);
+
         TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-        contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getTestPlanId());
+        contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
         List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
         if (CollectionUtils.isNotEmpty(contents)) {
             content = contents.get(0);
@@ -550,8 +544,8 @@ public class TestPlanReportService {
             testPlanService.checkStatus(testPlanReport.getTestPlanId());
         }
         if (content != null) {
-            //更新content表对结束日期
-            if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+            //更新content表对结束日期  重跑的测试计划报告不用更新
+            if (!isRerunningTestPlan) {
                 content.setStartTime(testPlanReport.getStartTime());
                 content.setEndTime(endTime);
             }
@@ -603,8 +597,13 @@ public class TestPlanReportService {
 
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
         if (testPlanReport != null && reportContent != null) {
-            TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
-            reportContent.setApiBaseCount(JSON.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            try {
+                TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
+                reportContent.setApiBaseCount(JSON.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
+            } catch (Exception e) {
+                LogUtil.error("计算测试计划报告信息出错!", e);
+            }
+
         }
     }
 

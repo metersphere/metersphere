@@ -24,7 +24,6 @@ import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.ext.ExtApiScheduleService;
-import io.metersphere.xpack.api.service.ApiDefinitionSyncService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -322,16 +321,11 @@ public class ApiDefinitionImportUtilService {
             if (fullCoverage) {
                 removeHttpChooseModuleRepeat(optionData, chooseModulePath);
                 //  optionData = singleOptionData;
-                optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(chooseModulePath), api -> api));
-            } else {
-                getChooseModuleUrlRepeatOptionMap(optionData, optionMap, chooseModulePath);
+                // optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(chooseModulePath), api -> api));
             }
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModule.getId())).collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
-        } else {
-            //否则在整个系统中过滤
-            getUrlRepeatOptionMap(optionData, optionMap);
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
         }
+        getUrlRepeatOptionMap(optionData, optionMap);
+        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
         //重复接口的case
         if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
