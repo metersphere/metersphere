@@ -71,7 +71,7 @@
 import GroupPermission from "./GroupPermission";
 import {PROJECT_GROUP_SCOPE, USER_GROUP_SCOPE} from "metersphere-frontend/src/utils/table-constants";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
-import {GROUP_TYPE} from 'metersphere-frontend/src/utils/constants'
+import {GROUP_TYPE, SUPER_GROUP} from 'metersphere-frontend/src/utils/constants'
 import {getUserGroupPermission, modifyUserGroupPermission} from "../../../api/user-group";
 
 export default {
@@ -99,7 +99,7 @@ export default {
     },
     isReadOnly() {
       return function (data) {
-        if (this.group.id === 'super_group') {
+        if (this.group.id === SUPER_GROUP) {
           return true;
         }
         const isDefaultSystemGroup = this.group.id === 'admin' && data.resource.id === 'SYSTEM_GROUP';
