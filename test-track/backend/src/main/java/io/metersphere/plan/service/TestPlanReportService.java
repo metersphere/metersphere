@@ -491,13 +491,11 @@ public class TestPlanReportService {
             return testPlanReport;
         }
         boolean isSendMessage = false;
-
         if (testPlanReport != null) {
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport.setIsUiScenarioExecuting(false);
-
             if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
                 isSendMessage = true;
             }
