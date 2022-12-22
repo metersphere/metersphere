@@ -89,6 +89,7 @@ public class PluginService {
         List<PluginDTO> lists = new LinkedList<>();
         try {
             PluginExample example = new PluginExample();
+            example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
             if (StringUtils.isNotBlank(name)) {
                 name = "%" + name + "%";
                 example.createCriteria().andNameLike(name);
@@ -158,6 +159,7 @@ public class PluginService {
 
     public List<Plugin> list() {
         PluginExample example = new PluginExample();
+        example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
         List<Plugin> plugins = pluginMapper.selectByExample(example);
         return plugins;
     }
