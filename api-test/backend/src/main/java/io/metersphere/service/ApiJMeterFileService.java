@@ -288,21 +288,21 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    private byte[] listBytesToZip(Map<String, byte[]> mapReport) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ZipOutputStream zos = new ZipOutputStream(baos);
-            for (Map.Entry<String, byte[]> report : mapReport.entrySet()) {
-                ZipEntry entry = new ZipEntry(report.getKey());
-                entry.setSize(report.getValue().length);
+    private byte[] listBytesToZip(Map<String, byte[]> content) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             ZipOutputStream zos = new ZipOutputStream(byteArrayOutputStream)) {
+            for (String key : content.keySet()) {
+                ZipEntry entry = new ZipEntry(key);
+                entry.setSize(content.get(key).length);
                 zos.putNextEntry(entry);
-                zos.write(report.getValue());
+                zos.write(content.get(key));
             }
             zos.closeEntry();
             zos.close();
-            return baos.toByteArray();
+            return byteArrayOutputStream.toByteArray();
         } catch (Exception e) {
-            return null;
+            LogUtil.error(e);
+            return new byte[0];
         }
     }
 
