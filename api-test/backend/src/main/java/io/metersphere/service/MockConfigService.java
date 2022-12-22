@@ -105,7 +105,7 @@ public class MockConfigService {
         }
     }
 
-    private MockConfigResponse assemblyMockConfingResponse(List<MockConfig> configList) {
+    private MockConfigResponse assemblyMockConingResponse(List<MockConfig> configList) {
         if (!configList.isEmpty()) {
             MockConfig config = configList.get(0);
             MockExpectConfigExample expectConfigExample = new MockExpectConfigExample();
@@ -131,9 +131,6 @@ public class MockConfigService {
      * 如果没数据就生成，有数据就返回一套数据结构！
      * 所有入参都没有必填项！
      * 如果为了查询，请写一个新的接口！
-     *
-     * @param request
-     * @return
      */
     public MockConfigResponse genMockConfig(MockConfigRequest request) {
         MockConfigResponse returnRsp;
@@ -153,46 +150,35 @@ public class MockConfigService {
 
         List<MockConfig> configList = mockConfigMapper.selectByExample(example);
         if (configList.isEmpty()) {
-            long createTimeStmp = System.currentTimeMillis();
+            long createTimeLong = System.currentTimeMillis();
 
             MockConfig config = new MockConfig();
             config.setProjectId(request.getProjectId());
             config.setId(UUID.randomUUID().toString());
             config.setCreateUserId(SessionUtils.getUserId());
-            config.setCreateTime(createTimeStmp);
-            config.setUpdateTime(createTimeStmp);
+            config.setCreateTime(createTimeLong);
+            config.setUpdateTime(createTimeLong);
             if (request.getApiId() != null) {
                 config.setApiId(request.getApiId());
                 mockConfigMapper.insert(config);
             }
             returnRsp = new MockConfigResponse(config, new ArrayList<>());
         } else {
-            MockConfig config = configList.get(0);
-            MockExpectConfigExample expectConfigExample = new MockExpectConfigExample();
-            expectConfigExample.createCriteria().andMockConfigIdEqualTo(config.getId());
-            expectConfigExample.setOrderByClause("update_time DESC");
-
-            List<MockExpectConfigResponse> expectConfigResponseList = new ArrayList<>();
-
-            List<MockExpectConfigWithBLOBs> expectConfigList = mockExpectConfigMapper.selectByExampleWithBLOBs(expectConfigExample);
-            for (MockExpectConfigWithBLOBs expectConfig : expectConfigList) {
-                MockExpectConfigResponse response = new MockExpectConfigResponse(expectConfig);
-                expectConfigResponseList.add(response);
-
-            }
-            returnRsp = new MockConfigResponse(config, expectConfigResponseList);
+            returnRsp = this.assemblyMockConingResponse(configList);
         }
-
         return returnRsp;
     }
 
+
     public void sendMockNotice(MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs, String defaultContext, String event) {
-        String context = SessionUtils.getUserId().concat(defaultContext).concat(":").concat(mockExpectConfigWithBLOBs.getName());
-        Map<String, Object> paramMap = new HashMap<>();
-        MockConfig mockConfig = mockConfigMapper.selectByPrimaryKey(mockExpectConfigWithBLOBs.getMockConfigId());
-        getParamMap(paramMap, SessionUtils.getUserId(), mockExpectConfigWithBLOBs, mockConfig);
-        NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(mockExpectConfigWithBLOBs.getId()).subject("接口定义通知").paramMap(paramMap).excludeSelf(true).event(event).build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        if (SessionUtils.getUserId() != null) {
+            String context = SessionUtils.getUserId().concat(defaultContext).concat(":").concat(mockExpectConfigWithBLOBs.getName());
+            Map<String, Object> paramMap = new HashMap<>();
+            MockConfig mockConfig = mockConfigMapper.selectByPrimaryKey(mockExpectConfigWithBLOBs.getMockConfigId());
+            getParamMap(paramMap, SessionUtils.getUserId(), mockExpectConfigWithBLOBs, mockConfig);
+            NoticeModel noticeModel = NoticeModel.builder().operator(SessionUtils.getUserId()).context(context).testId(mockExpectConfigWithBLOBs.getId()).subject("接口定义通知").paramMap(paramMap).excludeSelf(true).event(event).build();
+            noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+        }
     }
 
     private void getParamMap(Map<String, Object> paramMap, String userId, MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs, MockConfig mockConfig) {
@@ -216,9 +202,9 @@ public class MockConfigService {
     public MockExpectConfig updateMockExpectConfigStatus(MockExpectConfigRequest request) {
         if (StringUtils.isNotEmpty(request.getId()) && StringUtils.isNotEmpty(request.getStatus())) {
             MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
-            long timeStmp = System.currentTimeMillis();
+            long timestamp = System.currentTimeMillis();
             model.setId(request.getId());
-            model.setUpdateTime(timeStmp);
+            model.setUpdateTime(timestamp);
             model.setStatus(request.getStatus());
             mockExpectConfigMapper.updateByPrimaryKeySelective(model);
             sendMockNotice(model, "更新了mock", NoticeConstants.Event.MOCK_UPDATE);
@@ -238,7 +224,7 @@ public class MockConfigService {
         if (request.getName() != null) {
             this.checkNameIsExists(request);
         }
-        long timeStmp = System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis();
         MockExpectConfigWithBLOBs model = new MockExpectConfigWithBLOBs();
         if (isSave) {
             String expectNum = this.getMockExpectId(request.getMockConfigId());
@@ -247,7 +233,7 @@ public class MockConfigService {
         model.setId(request.getId());
 
         model.setMockConfigId(request.getMockConfigId());
-        model.setUpdateTime(timeStmp);
+        model.setUpdateTime(timestamp);
         model.setStatus(request.getStatus());
         if (request.getTags() != null) {
             model.setTags(JSON.toJSONString(request.getTags()));
@@ -260,7 +246,7 @@ public class MockConfigService {
             model.setResponse(JSON.toJSONString(request.getResponse()));
         }
         if (isSave) {
-            model.setCreateTime(timeStmp);
+            model.setCreateTime(timestamp);
             model.setCreateUserId(SessionUtils.getUserId());
             model.setStatus("true");
             mockExpectConfigMapper.insert(model);
@@ -321,7 +307,7 @@ public class MockConfigService {
                     continue;
                 }
                 JSONObject requestObj = JSONUtil.parseObject(JSON.toJSONString(model.getRequest()));
-                MockExpectConfigResponse resultModel = null;
+                MockExpectConfigResponse resultModel;
                 if (requestObj.has("params")) {
                     resultModel = this.getEmptyRequestMockExpectByParams(requestHeaderMap, model);
                 } else {
@@ -340,13 +326,10 @@ public class MockConfigService {
                     continue;
                 }
                 JSONObject mockExpectRequestObj = JSONUtil.parseObject(JSON.toJSONString(model.getRequest()));
-                boolean isMatch;
+                boolean isMatch = false;
                 if (mockExpectRequestObj.has("params")) {
                     isMatch = this.isRequestMockExpectMatchingByParams(requestHeaderMap, mockExpectRequestObj, requestMockParams);
-                } else {
-                    isMatch = this.isRequestMockExpectMatching(mockExpectRequestObj, requestMockParams);
                 }
-
                 if (isMatch) {
                     returnModel = model;
                     break;
@@ -379,7 +362,6 @@ public class MockConfigService {
 
         if (expectParamsObj.has("body")) {
             JSONObject expectBodyObject = expectParamsObj.optJSONObject("body");
-            JSONArray jsonArray = requestMockParams.getBodyParams();
             String type = expectBodyObject.optString(PropertyConstant.TYPE);
             String paramsFilterType = "And";
             if (expectBodyObject.has("paramsFilterType")) {
@@ -389,11 +371,28 @@ public class MockConfigService {
                 JSONArray kvsArr = expectBodyObject.optJSONArray("kvs");
                 List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(kvsArr);
                 if (CollectionUtils.isNotEmpty(mockConfigRequestParams)) {
-                    if (!MockApiUtils.checkParamsCompliance(jsonArray, mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
+                    if (!MockApiUtils.checkParamsCompliance(requestMockParams.getQueryParamsObj(), mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
                         return false;
                     }
                 }
+            } else if (StringUtils.equalsAnyIgnoreCase(type, "Raw") && expectBodyObject.has("raw")) {
+                String rawExpect = expectBodyObject.optString("raw");
+                if (StringUtils.isEmpty(requestMockParams.getRaw()) || !StringUtils.contains(requestMockParams.getRaw(), rawExpect)) {
+                    return false;
+                }
             } else {
+                JSONArray jsonArray = null;
+                if (StringUtils.equalsIgnoreCase(type, "xml") && requestMockParams.getXmlToJsonParam() != null) {
+                    jsonArray = new JSONArray();
+                    jsonArray.put(requestMockParams.getXmlToJsonParam());
+                } else if (StringUtils.equalsIgnoreCase(type, "json") && requestMockParams.getJsonParam() != null) {
+                    if (requestMockParams.getJsonParam() instanceof JSONArray) {
+                        jsonArray = (JSONArray) requestMockParams.getJsonParam();
+                    } else if (requestMockParams.getJsonParam() instanceof JSONObject) {
+                        jsonArray = new JSONArray();
+                        jsonArray.put(requestMockParams.getJsonParam());
+                    }
+                }
                 Object mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
                 if (mockExpectJsonArray instanceof JSONObject) {
                     if (!JsonStructUtils.checkJsonArrayCompliance(jsonArray, (JSONObject) mockExpectJsonArray)) {
@@ -427,67 +426,9 @@ public class MockConfigService {
         if (expectParamsObj.has("rest")) {
             JSONArray restArray = expectParamsObj.optJSONArray("rest");
             List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(restArray);
-            if (!MockApiUtils.checkParamsCompliance(requestMockParams.getRestParamsObj(), mockConfigRequestParams, StringUtils.equals(restFilterType, "And"))) {
-                return false;
-            }
+            return MockApiUtils.checkParamsCompliance(requestMockParams.getRestParamsObj(), mockConfigRequestParams, StringUtils.equals(restFilterType, "And"));
         }
         return true;
-    }
-
-    private boolean isRequestMockExpectMatching(JSONObject mockExpectRequestObj, RequestMockParams requestMockParams) {
-        boolean isJsonParam = mockExpectRequestObj.getBoolean("jsonParam");
-        JSONObject mockExpectJson = new JSONObject();
-        if (isJsonParam) {
-            String jsonParams = mockExpectRequestObj.optString("jsonData");
-            JSONValidator jsonValidator = JSONValidator.from(jsonParams);
-            if (StringUtils.equalsIgnoreCase("Array", jsonValidator.getType().name())) {
-                JSONArray mockExpectArr = JSONUtil.parseArray(jsonParams);
-                for (int expectIndex = 0; expectIndex < mockExpectArr.length(); expectIndex++) {
-                    JSONObject itemObj = mockExpectArr.optJSONObject(expectIndex);
-                    mockExpectJson = itemObj;
-                }
-            } else if (StringUtils.equalsIgnoreCase("Object", jsonValidator.getType().name())) {
-                JSONObject mockExpectJsonItem = JSONUtil.parseObject(jsonParams);
-                mockExpectJson = mockExpectJsonItem;
-            }
-        } else {
-            JSONArray jsonArray = mockExpectRequestObj.optJSONArray("variables");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject object = jsonArray.optJSONObject(i);
-                String name = StringUtils.EMPTY;
-                String value = StringUtils.EMPTY;
-                if (object.has("name")) {
-                    name = String.valueOf(object.get("name")).trim();
-                }
-                if (object.has("value")) {
-                    value = String.valueOf(object.get("value")).trim();
-                }
-                if (StringUtils.isNotEmpty(name)) {
-                    mockExpectJson.put(name, value);
-                }
-            }
-        }
-
-        boolean matchRest = false;
-        boolean matchQuery = false;
-        boolean matchBody = false;
-
-        if (requestMockParams.getQueryParamsObj() != null) {
-            matchQuery = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getQueryParamsObj(), mockExpectJson);
-        }
-        if (requestMockParams.getRestParamsObj() != null) {
-            matchRest = JsonStructUtils.checkJsonObjCompliance(requestMockParams.getRestParamsObj(), mockExpectJson);
-        }
-        if (requestMockParams.getBodyParams() != null) {
-            for (int i = 0; i < requestMockParams.getBodyParams().length(); i++) {
-                JSONObject reqJsonObj = requestMockParams.getBodyParams().optJSONObject(i);
-                matchBody = JsonStructUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
-                if (matchBody) {
-                    break;
-                }
-            }
-        }
-        return matchRest || matchQuery || matchBody;
     }
 
     private MockExpectConfigResponse getEmptyRequestMockExpectByParams(Map<String, String> requestHeaderMap, MockExpectConfigResponse model) {
@@ -632,14 +573,14 @@ public class MockConfigService {
                     int httpCodeNum = 500;
                     try {
                         httpCodeNum = Integer.parseInt(responseJsonObj.optString("httpCode"));
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                     response.setStatus(httpCodeNum);
                 }
                 if (responseJsonObj.has("delayed")) {
                     try {
                         sleepTime = Long.parseLong(String.valueOf(responseJsonObj.get("delayed")));
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             } else {
@@ -662,14 +603,14 @@ public class MockConfigService {
                 if (responseObj.has("delayed")) {
                     try {
                         sleepTime = Long.parseLong(String.valueOf(responseObj.get("delayed")));
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
         } catch (Exception e) {
@@ -695,7 +636,7 @@ public class MockConfigService {
         if (mockExpectConfigWithBLOBs != null && StringUtils.isNotEmpty(mockExpectConfigWithBLOBs.getRequest())) {
             try {
                 FileUtils.deleteBodyFiles(mockExpectConfigWithBLOBs.getId());
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -708,8 +649,8 @@ public class MockConfigService {
         for (MockConfig mockConfig : mockConfigList) {
             example.clear();
             example.createCriteria().andMockConfigIdEqualTo(mockConfig.getId());
-            List<MockExpectConfigWithBLOBs> deleteBolobs = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
-            for (MockExpectConfigWithBLOBs model : deleteBolobs) {
+            List<MockExpectConfigWithBLOBs> deleteBlobs = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+            for (MockExpectConfigWithBLOBs model : deleteBlobs) {
                 this.deleteMockExpectFiles(model);
             }
             mockExpectConfigMapper.deleteByExample(example);
@@ -771,11 +712,11 @@ public class MockConfigService {
                             for (int index = 0; index < headArr.length(); index++) {
 
                                 JSONObject headObj = headArr.optJSONObject(index);
-                                if (headObj.has("name") && !queryParamList.contains(headObj.has("name"))) {
+                                if (headObj.has("name") && !queryParamList.contains(headObj.optString("name"))) {
                                     queryParamList.add(String.valueOf(headObj.get("name")));
                                 }
                             }
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                     if (requestObj.has("rest")) {
@@ -783,11 +724,11 @@ public class MockConfigService {
                             JSONArray headArr = requestObj.optJSONArray("rest");
                             for (int index = 0; index < headArr.length(); index++) {
                                 JSONObject headObj = headArr.optJSONObject(index);
-                                if (headObj.has("name") && !restParamList.contains(headObj.has("name"))) {
+                                if (headObj.has("name") && !restParamList.contains(headObj.optString("name"))) {
                                     restParamList.add(String.valueOf(headObj.get("name")));
                                 }
                             }
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
                     //请求体参数类型
@@ -802,14 +743,14 @@ public class MockConfigService {
                                         JSONArray kvsArr = bodyObj.optJSONArray("kvs");
                                         for (int i = 0; i < kvsArr.length(); i++) {
                                             JSONObject kv = kvsArr.optJSONObject(i);
-                                            if (kv.has("name") && !formDataList.contains(kv.has("name"))) {
+                                            if (kv.has("name") && !formDataList.contains(kv.optString("name"))) {
                                                 formDataList.add(String.valueOf(kv.get("name")));
                                             }
                                         }
                                     }
                                 }
                             }
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
 
                     }
@@ -851,7 +792,7 @@ public class MockConfigService {
         JSONObject returnObj = null;
         try {
             returnObj = JSONUtil.parseObject(request);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return returnObj;
     }
@@ -868,7 +809,7 @@ public class MockConfigService {
         MockConfigExample.Criteria criteria = example.createCriteria();
         criteria.andApiIdEqualTo(id);
         List<MockConfig> configList = mockConfigMapper.selectByExample(example);
-        return this.assemblyMockConfingResponse(configList);
+        return this.assemblyMockConingResponse(configList);
     }
 
     public String checkReturnWithMockExpectByBodyParam(String method, Map<String, String> requestHeaderMap, Project project, HttpServletRequest request, HttpServletResponse response) {
@@ -876,23 +817,23 @@ public class MockConfigService {
         boolean matchApi = false;
         String url = request.getRequestURL().toString();
         if (project != null) {
+            RequestMockParams requestMockParams = MockApiUtils.genRequestMockParamsFromHttpRequest(request, true);
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
-            Object paramJson = MockApiUtils.getPostParamMap(request);
-            JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
-            for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
+            List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
+            for (ApiDefinitionWithBLOBs api : qualifiedApiList) {
                 if (StringUtils.isEmpty(returnStr)) {
-                    RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, true);
+                    //补足rest参数
+                    MockApiUtils.complementRestParam(urlSuffix, api.getPath(), requestMockParams);
                     MockConfigResponse mockConfigData = this.findByApiId(api.getId());
-                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
+                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), requestMockParams);
                     if (finalExpectConfig != null) {
-                        returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, mockParams, response);
+                        returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, requestMockParams, response);
                     } else {
                         returnStr = this.getApiDefinitionResponse(api, response);
                     }
                 }
             }
-            if (CollectionUtils.isNotEmpty(aualifiedApiList)) {
+            if (CollectionUtils.isNotEmpty(qualifiedApiList)) {
                 matchApi = true;
             }
         }
@@ -908,29 +849,27 @@ public class MockConfigService {
         String returnStr = StringUtils.EMPTY;
         boolean matchApi = false;
         String url = request.getRequestURL().toString();
-        List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
         if (project != null) {
+            RequestMockParams requestMockParams = MockApiUtils.genRequestMockParamsFromHttpRequest(request, false);
+
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
+            List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
+            /*
+              GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
+               api1: /api/{name}   参数 name = "ABC"
+               api2: /api/{testParam} 参数 testParam = "ABC"
 
-            /**
-             * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
-             *  api1: /api/{name}   参数 name = "ABC"
-             *  api2: /api/{testParam} 参数 testParam = "ABC"
-             *
-             *  匹配预期Mock的逻辑为： 循环apiId进行筛选，直到筛选到预期Mock。如果筛选不到，则取Api的响应模版来进行返回
+               匹配预期Mock的逻辑为： 循环apiId进行筛选，直到筛选到预期Mock。如果筛选不到，则取Api的响应模版来进行返回
              */
-            Object paramJson = MockApiUtils.getPostParamMap(request);
-            JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
-
-            for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
+            for (ApiDefinitionWithBLOBs api : qualifiedApiList) {
                 if (StringUtils.isEmpty(returnStr)) {
-                    RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, false);
+                    //补足rest参数
+                    MockApiUtils.complementRestParam(urlSuffix, api.getPath(), requestMockParams);
                     MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                     if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-                        MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), paramMap);
+                        MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), requestMockParams);
                         if (finalExpectConfig != null) {
-                            returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, paramMap, response);
+                            returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, requestMockParams, response);
                         } else {
                             returnStr = this.getApiDefinitionResponse(api, response);
                         }
@@ -938,7 +877,7 @@ public class MockConfigService {
                 }
             }
 
-            if (CollectionUtils.isNotEmpty(aualifiedApiList)) {
+            if (CollectionUtils.isNotEmpty(qualifiedApiList)) {
                 matchApi = true;
             }
         }
@@ -991,7 +930,7 @@ public class MockConfigService {
         for (TcpTreeTableDataStruct dataStruct : list) {
             List<String> nameList = dataStruct.getNameDeep();
             for (String name : nameList) {
-                if (!returnList.contains(nameList)) {
+                if (!returnList.contains(name)) {
                     returnList.add(name);
                 }
             }
@@ -1075,22 +1014,19 @@ public class MockConfigService {
                         if (isMatch) {
                             JSONObject responseObj = JSONUtil.parseObject(responseStr);
                             if (responseObj.has("body")) {
+                                MockExpectConfigDTO dto = new MockExpectConfigDTO();
+                                dto.setMockExpectConfig(expectConfig);
+                                dto.setProjectId(projectId);
                                 if (isRaw) {
-                                    MockExpectConfigDTO dto = new MockExpectConfigDTO();
-                                    dto.setMockExpectConfig(expectConfig);
-                                    dto.setProjectId(projectId);
                                     rawResult.add(dto);
                                 } else {
-                                    MockExpectConfigDTO dto = new MockExpectConfigDTO();
-                                    dto.setMockExpectConfig(expectConfig);
-                                    dto.setProjectId(projectId);
                                     structResult.add(dto);
                                 }
                             }
                         }
                     }
 
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -1112,7 +1048,7 @@ public class MockConfigService {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             XMLUtil.setExpandEntityReferencesFalse(documentBuilderFactory);
             DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-            builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8.name()))));
+            builder.parse(new InputSource(new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8))));
             isXml = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -1128,7 +1064,7 @@ public class MockConfigService {
             if (!StringUtils.equalsIgnoreCase("value", type)) {
                 isJson = true;
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return isJson;
     }
@@ -1163,7 +1099,6 @@ public class MockConfigService {
     }
 
     private void updateMockExpectConfigs(MockConfig mockConfig, List<MockExpectConfigWithBLOBs> list, SqlSession sqlSession) {
-        int batchCount = 0;
         for (MockExpectConfigWithBLOBs mockExpect : list) {
             MockExpectConfig expectInDb = this.findMockExpectConfigByMockConfigIdAndExpectNum(mockConfig.getId(), mockExpect.getExpectNum());
             if (expectInDb == null) {
@@ -1181,9 +1116,7 @@ public class MockConfigService {
             }
 
         }
-        if (batchCount % 300 == 0) {
-            sqlSession.flushStatements();
-        }
+        sqlSession.flushStatements();
     }
 
     private MockExpectConfig findMockExpectConfigByMockConfigIdAndExpectNum(String mockConfigId, String expectNum) {
@@ -1208,7 +1141,6 @@ public class MockConfigService {
         config.setApiId(apiId);
         mockConfigMapper.insert(config);
 
-        int batchCount = 0;
         for (MockExpectConfigWithBLOBs mockExpect : list) {
             mockExpect.setId(UUID.randomUUID().toString());
             mockExpect.setMockConfigId(mockId);
@@ -1217,9 +1149,7 @@ public class MockConfigService {
             mockExpect.setCreateUserId(SessionUtils.getUserId());
             mockExpectConfigMapper.insert(mockExpect);
         }
-        if (batchCount % 300 == 0) {
-            sqlSession.flushStatements();
-        }
+        sqlSession.flushStatements();
     }
 
 
@@ -1330,12 +1260,10 @@ public class MockConfigService {
                     int num1 = Integer.parseInt(tcpMockPortArr[0]);
                     int num2 = Integer.parseInt(tcpMockPortArr[1]);
 
-                    int startNum = num1 > num2 ? num2 : num1;
-                    int endNum = num1 < num2 ? num2 : num1;
+                    int startNum = Math.min(num1, num2);
+                    int endNum = Math.max(num1, num2);
 
-                    if (port < startNum || port > endNum) {
-                        inRange = false;
-                    } else {
+                    if (!(port < startNum || port > endNum)) {
                         inRange = true;
                     }
                 } else {
@@ -1344,7 +1272,7 @@ public class MockConfigService {
                         inRange = true;
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return inRange;
@@ -1358,7 +1286,7 @@ public class MockConfigService {
                 JSONObject configObj = JSONUtil.parseObject(mockEnv.getConfig());
                 if (configObj.has("tcpConfig")) {
                     JSONObject tcpConfigObj = configObj.optJSONObject("tcpConfig");
-                    int tcpPort = 0;
+                    int tcpPort;
                     if (tcpConfigObj.has("port")) {
                         tcpPort = tcpConfigObj.optInt("port");
                         if (tcpPort == 0 || !TCPPool.isTcpOpen(tcpPort)) {
