@@ -23,6 +23,7 @@
             <api-case-item
               :loading="(singleLoading && singleRunId === item.id) || batchLoadingIds.indexOf(item.id) > -1"
               @refresh="refresh"
+              @refreshCaseList="refreshCaseList"
               @singleRun="singleRun"
               @stop="stop"
               @refreshModule="refreshModule"
@@ -435,6 +436,9 @@ export default {
     },
     refresh() {
       this.$emit('refresh');
+    },
+    refreshCaseList() {
+      this.getApiTest(true, true);
     },
     reLoadCase() {
       this.$emit('reLoadCase');

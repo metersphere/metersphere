@@ -736,6 +736,7 @@ export default {
           if (!hideAlert) {
             this.$emit('refresh');
           }
+          this.$emit('refreshCaseList');
         },
         (error) => {
           this.isSave = false;
