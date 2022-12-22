@@ -118,6 +118,14 @@ export default {
               value: this.getScript('bodyRaw'),
             },
             {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + ' (Json)',
+              value: this.getScript('body.json'),
+            },
+            {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + ' (Xml)',
+              value: this.getScript('body.xml'),
+            },
+            {
               title: 'Query ' + this.$t('api_test.definition.document.request_param'),
               value: this.getScript('query'),
             },
@@ -213,6 +221,20 @@ export default {
             returnScript = 'param=vars["bodyRaw"]';
           } else {
             returnScript = 'var param=vars.get("bodyRaw")';
+          }
+          break;
+        case 'body.json':
+          if (laguanges === 'python') {
+            returnScript = 'param=vars["body.json"]';
+          } else {
+            returnScript = 'var param=vars.get("body.json")';
+          }
+          break;
+        case 'body.xml':
+          if (laguanges === 'python') {
+            returnScript = 'param=vars["body.xml"]';
+          } else {
+            returnScript = 'var param=vars.get("body.xml")';
           }
           break;
         case 'query':

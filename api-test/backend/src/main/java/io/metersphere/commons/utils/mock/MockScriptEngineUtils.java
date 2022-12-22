@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils.mock;
 
 
+import io.metersphere.api.dto.mock.MockRequestType;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -15,9 +16,6 @@ import org.json.JSONObject;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,24 +41,6 @@ public class MockScriptEngineUtils {
     public void runScript(ScriptEngine engine, String script) {
         try {
             engine.eval(script);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-    }
-
-    public void loadJar(String jarPath) throws Exception {
-        try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            try {
-                Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, new File(jarPath).toURI().toURL());
-            } catch (NoSuchMethodException e) {
-                Method method = classLoader.getClass()
-                        .getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, jarPath);
-            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -96,9 +76,12 @@ public class MockScriptEngineUtils {
                 engine = scriptEngineFactory.getEngineByName(scriptLanguage);
                 preScript = this.genPythonPreScript(url, headerMap, requestMockParams);
             }
-            MsDynamicClassLoader loader = MsClassLoader.loadJar(getJarPaths(projectId));
-            Thread.currentThread().setContextClassLoader(loader);
-            engine.eval(preScript);
+
+            if (engine != null) {
+                MsDynamicClassLoader loader = MsClassLoader.loadJar(getJarPaths(projectId));
+                Thread.currentThread().setContextClassLoader(loader);
+                engine.eval(preScript);
+            }
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -106,9 +89,9 @@ public class MockScriptEngineUtils {
     }
 
     private String genBeanshellPreScript(String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
-        StringBuffer preScriptBuffer = new StringBuffer();
+        StringBuilder preScriptBuffer = new StringBuilder();
         preScriptBuffer.append("Map vars = new HashMap();\n");
-        preScriptBuffer.append("vars.put(\"address\",\"" + url + "\");\n");
+        preScriptBuffer.append("vars.put(\"address\",\"").append(url).append("\");\n");
         //写入请求头
         if (headerMap != null) {
             for (Map.Entry<String, String> headEntry : headerMap.entrySet()) {
@@ -116,48 +99,53 @@ public class MockScriptEngineUtils {
                 String headerValue = headEntry.getValue();
                 headerKey = StringUtils.replace(headerKey, "\\", "\\\\").replace("\"", "\\\"");
                 headerValue = StringUtils.replace(headerValue, "\\", "\\\\").replace("\"", "\\\"");
-                preScriptBuffer.append("vars.put(\"header." + headerKey + "\",\"" + headerValue + "\");\n");
+                preScriptBuffer.append("vars.put(\"header.").append(headerKey).append("\",\"").append(headerValue).append("\");\n");
             }
         }
 
-        //写入body参数
         if (requestMockParams != null) {
-            if (requestMockParams.getBodyParams() != null) {
-                if (requestMockParams.getBodyParams().length() == 1) {
-                    //参数是jsonObject
-                    JSONObject bodyParamObj = requestMockParams.getBodyParams().optJSONObject(0);
-                    for (String key : bodyParamObj.keySet()) {
-                        String value = String.valueOf(bodyParamObj.get(key));
-                        value = StringUtils.replace(value, "\\", "\\\\");
-                        value = StringUtils.replace(value, "\"", "\\\"");
+            //写入body参数
+            if (requestMockParams.isPost()) {
+                if (requestMockParams.getQueryParamsObj() != null) {
+                    JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
+                    for (String key : queryParamsObj.keySet()) {
+                        String value = String.valueOf(queryParamsObj.get(key));
+                        value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
                         key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                        preScriptBuffer.append("vars.put(\"body." + key + "\",\"" + value + "\");\n");
-                        if (StringUtils.equalsIgnoreCase(key, "raw")) {
-                            preScriptBuffer.append("vars.put(\"bodyRaw\",\"" + value + "\");\n");
-                        }
+                        preScriptBuffer.append("vars.put(\"body.").append(key).append("\",\"").append(value).append("\");\n");
                     }
-                    String jsonBody = bodyParamObj.toString();
+                }
+                if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.JSON.name())) {
+                    String jsonBody = requestMockParams.getRaw();
+                    jsonBody = StringUtils.replace(jsonBody, "\n", "");
                     jsonBody = StringUtils.replace(jsonBody, "\\", "\\\\");
                     jsonBody = StringUtils.replace(jsonBody, "\"", "\\\"");
-                    preScriptBuffer.append("vars.put(\"body.json\",\"" + jsonBody + "\");\n");
-                } else {
-                    String bodyRowString = requestMockParams.getBodyParams().toString();
+                    preScriptBuffer.append("vars.put(\"body.json\",\"").append(jsonBody).append("\");\n");
+                } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.XML.name())) {
+                    String xmlRaw = requestMockParams.getRaw();
+                    xmlRaw = StringUtils.chomp(xmlRaw);
+                    xmlRaw = StringUtils.replace(xmlRaw, "\n", "");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\\", "\\\\");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\"", "\\\"");
+                    preScriptBuffer.append("vars.put(\"body.xml\",\"").append(xmlRaw).append("\");\n");
+                } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.RAW.name())) {
+                    String bodyRowString = requestMockParams.getRaw();
                     bodyRowString = StringUtils.replace(bodyRowString, "\\", "\\\\").replace("\"", "\\\"");
-                    preScriptBuffer.append("vars.put(\"bodyRaw\",\"" + bodyRowString + "\");\n");
+                    preScriptBuffer.append("vars.put(\"bodyRaw\",\"").append(bodyRowString).append("\");\n");
                 }
-
             }
+
             //写入query参数
-            if (requestMockParams.getQueryParamsObj() != null) {
+            if (!requestMockParams.isPost() && requestMockParams.getQueryParamsObj() != null) {
                 JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
                 for (String key : queryParamsObj.keySet()) {
                     String value = String.valueOf(queryParamsObj.get(key));
-                    value = StringUtils.replace(value, "\\", "\\\\");
-                    value = StringUtils.replace(value, "\"", "\\\"");
+                    value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
                     key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                    preScriptBuffer.append("vars.put(\"query." + key + "\",\"" + value + "\");\n");
+                    preScriptBuffer.append("vars.put(\"query.").append(key).append("\",\"").append(value).append("\");\n");
                 }
             }
+
             //写入rest参数
             if (requestMockParams.getRestParamsObj() != null) {
                 JSONObject restParamsObj = requestMockParams.getRestParamsObj();
@@ -166,7 +154,7 @@ public class MockScriptEngineUtils {
                     key = StringUtils.replace(key, "\"", "\\\"");
                     value = StringUtils.replace(value, "\"", "\\\"");
                     key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                    preScriptBuffer.append("vars.put(\"rest." + key + "\",\"" + value + "\");\n");
+                    preScriptBuffer.append("vars.put(\"rest.").append(key).append("\",\"").append(value).append("\");\n");
                 }
             }
         }
@@ -174,61 +162,70 @@ public class MockScriptEngineUtils {
     }
 
     private String genPythonPreScript(String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
-        StringBuffer preScriptBuffer = new StringBuffer();
+        StringBuilder preScriptBuffer = new StringBuilder();
         preScriptBuffer.append("vars = {}; \n");
-        preScriptBuffer.append("vars[\"address\"]=\"" + url + "\";\n");
+        preScriptBuffer.append("vars[\"address\"]=\"").append(url).append("\";\n");
         //写入请求头
         for (Map.Entry<String, String> headEntry : headerMap.entrySet()) {
             String headerKey = headEntry.getKey();
             String headerValue = headEntry.getValue();
             headerKey = StringUtils.replace(headerKey, "\\", "\\\\").replace("\"", "\\\"");
             headerValue = StringUtils.replace(headerValue, "\\", "\\\\").replace("\"", "\\\"");
-            preScriptBuffer.append("vars[\"header." + headerKey + "\"]=\"" + headerValue + "\";\n");
+            preScriptBuffer.append("vars[\"header.").append(headerKey).append("\"]=\"").append(headerValue).append("\";\n");
         }
-        //写入body参数
-        if (requestMockParams.getBodyParams() != null) {
-            if (requestMockParams.getBodyParams().length() == 1) {
-                //参数是jsonObject
-                JSONObject bodyParamObj = requestMockParams.getBodyParams().optJSONObject(0);
-                for (String key : bodyParamObj.keySet()) {
-                    String value = String.valueOf(bodyParamObj.get(key));
-                    value = StringUtils.replace(value, "\\", "\\\\");
-                    value = StringUtils.replace(value, "\"", "\\\"");
-                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                    preScriptBuffer.append("vars[\"body." + key + "\"]=\"" + value + "\";\n");
-                    if (StringUtils.equalsIgnoreCase(key, "raw")) {
-                        preScriptBuffer.append("vars[\"bodyRaw\"]=\"" + value + "\";\n");
+        if (requestMockParams != null) {
+            //写入body参数
+            if (requestMockParams.isPost()) {
+                if (requestMockParams.getQueryParamsObj() != null) {
+                    JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
+                    for (String key : queryParamsObj.keySet()) {
+                        String value = String.valueOf(queryParamsObj.get(key));
+                        value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
+                        key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
+                        preScriptBuffer.append("vars[\"body.").append(key).append("\"]=\"").append(value).append("\";\n");
                     }
                 }
-                String jsonBody = bodyParamObj.toString();
-                jsonBody = StringUtils.replace(jsonBody, "\\", "\\\\");
-                jsonBody = StringUtils.replace(jsonBody, "\"", "\\\"");
-                preScriptBuffer.append("vars[\"body.json\"]=\"" + jsonBody + "\";\n");
-            } else {
-                String bodyRaw = StringUtils.replace(requestMockParams.getBodyParams().toString(), "\\", "\\\\").replace("\"", "\\\"");
-                preScriptBuffer.append("vars[\"bodyRaw\"]=\"" + bodyRaw + "\";\n");
+                if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.JSON.name())) {
+                    String jsonRaw = requestMockParams.getRaw();
+                    jsonRaw = StringUtils.chomp(jsonRaw);
+                    jsonRaw = StringUtils.replace(jsonRaw, "\n", "");
+                    jsonRaw = StringUtils.replace(jsonRaw, "\\", "\\\\");
+                    jsonRaw = StringUtils.replace(jsonRaw, "\"", "\\\"");
+                    preScriptBuffer.append("vars[\"body.json\"]=\"").append(jsonRaw).append("\";\n");
+                } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.XML.name())) {
+                    String xmlRaw = requestMockParams.getRaw();
+                    xmlRaw = StringUtils.chomp(xmlRaw);
+                    xmlRaw = StringUtils.replace(xmlRaw, "\n", "");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\\", "\\\\");
+                    xmlRaw = StringUtils.replace(xmlRaw, "\"", "\\\"");
+                    preScriptBuffer.append("vars[\"body.xml\"]=\"").append(xmlRaw).append("\";\n");
+                } else if (StringUtils.equals(requestMockParams.getParamType(), MockRequestType.RAW.name())) {
+                    String bodyRowString = requestMockParams.getRaw();
+                    bodyRowString = StringUtils.replace(bodyRowString, "\\", "\\\\").replace("\"", "\\\"");
+                    preScriptBuffer.append("vars[\"bodyRaw\"]=\"").append(bodyRowString).append("\";\n");
+                }
             }
 
-        }
-        //写入query参数
-        if (requestMockParams.getQueryParamsObj() != null) {
-            JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
-            for (String key : queryParamsObj.keySet()) {
-                String value = String.valueOf(queryParamsObj.get(key));
-                value = StringUtils.replace(value, "\\", "\\\\");
-                value = StringUtils.replace(value, "\"", "\\\"");
-                key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                preScriptBuffer.append("vars[\"query." + key + "\"]=\"" + value + "\";\n");
+            //写入query参数
+            if (!requestMockParams.isPost() && requestMockParams.getQueryParamsObj() != null) {
+                JSONObject queryParamsObj = requestMockParams.getQueryParamsObj();
+                for (String key : queryParamsObj.keySet()) {
+                    String value = String.valueOf(queryParamsObj.get(key));
+                    value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
+                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
+                    preScriptBuffer.append("vars[\"query.").append(key).append("\"]=\"").append(value).append("\";\n");
+                }
             }
-        }
-        //写入rest参数
-        if (requestMockParams.getRestParamsObj() != null) {
-            JSONObject restParamsObj = requestMockParams.getRestParamsObj();
-            for (String key : restParamsObj.keySet()) {
-                String value = String.valueOf(restParamsObj.get(key));
-                key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
-                value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
-                preScriptBuffer.append("vars[\"rest." + key + "\"]=\"" + value + "\";\n");
+
+            //写入rest参数
+            if (requestMockParams.getRestParamsObj() != null) {
+                JSONObject restParamsObj = requestMockParams.getRestParamsObj();
+                for (String key : restParamsObj.keySet()) {
+                    String value = String.valueOf(restParamsObj.get(key));
+                    key = StringUtils.replace(key, "\\", "\\\\").replace("\"", "\\\"");
+                    value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
+                    preScriptBuffer.append("vars[\"rest.").append(key).append("\"]=\"").append(value).append("\";\n");
+                }
             }
         }
         return preScriptBuffer.toString();

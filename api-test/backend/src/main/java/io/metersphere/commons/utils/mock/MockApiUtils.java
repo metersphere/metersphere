@@ -2,6 +2,7 @@ package io.metersphere.commons.utils.mock;
 
 import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
+import io.metersphere.api.dto.mock.MockRequestType;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.api.exec.generator.JSONSchemaGenerator;
@@ -288,13 +289,7 @@ public class MockApiUtils {
             }
         }
 
-        if (headerMap == null) {
-            headerMap = new HashMap<>();
-        }
-        if (requestMockParams == null) {
-            requestMockParams = new RequestMockParams();
-        }
-        if (bodyObj == null && bodyObj == null) {
+        if (bodyObj == null || bodyObj.isEmpty()) {
             return StringUtils.EMPTY;
         } else {
             String returnStr = StringUtils.EMPTY;
@@ -321,8 +316,7 @@ public class MockApiUtils {
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(type, "Raw")) {
                     if (bodyObj.has("raw")) {
-                        String raw = bodyObj.optString("raw");
-                        returnStr = raw;
+                        returnStr = bodyObj.optString("raw");
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(type, "XML")) {
                     if (bodyObj.has("xmlHeader")) {
@@ -339,8 +333,7 @@ public class MockApiUtils {
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(type, "fromApi")) {
                     if (bodyObj.has("apiRspRaw")) {
-                        String raw = bodyObj.optString("apiRspRaw");
-                        returnStr = raw;
+                        returnStr = bodyObj.optString("apiRspRaw");
                     }
                 }
             }
@@ -351,67 +344,21 @@ public class MockApiUtils {
         }
     }
 
-    public static RequestMockParams getParams(String urlParams, String apiPath, JSONObject queryParamsObject, Object paramJson, boolean isPostRequest) {
-        RequestMockParams returnParams = getGetParamMap(urlParams, apiPath, queryParamsObject, isPostRequest);
-        if (paramJson != null) {
-            if (paramJson instanceof JSONObject) {
-                if (!((JSONObject) paramJson).keySet().isEmpty()) {
-                    JSONArray bodyParams = returnParams.getBodyParams();
-                    if (bodyParams == null) {
-                        bodyParams = new JSONArray();
-                        bodyParams.put(paramJson);
-                    } else {
-                        JSONArray oldArray = returnParams.getBodyParams();
-                        if (!JsonStructUtils.checkJsonArrayCompliance(oldArray, ((JSONObject) paramJson))) {
-                            bodyParams.put(((JSONObject) paramJson));
-                        }
-                    }
-                    returnParams.setBodyParams(bodyParams);
-                }
-            } else if (paramJson instanceof JSONArray) {
-                JSONArray paramArray = (JSONArray) paramJson;
-                if (paramArray != null) {
-                    returnParams.setBodyParams(paramArray);
-                }
-            }
-        }
-        return returnParams;
-    }
-
-    public static JSONObject getParameterJsonObject(HttpServletRequest request) {
-        JSONObject queryParamsObject = new JSONObject();
-        Enumeration<String> paramNameItor = request.getParameterNames();
-        while (paramNameItor.hasMoreElements()) {
-            String key = paramNameItor.nextElement();
-            String value = request.getParameter(key);
-            queryParamsObject.put(key, value);
-        }
-        return queryParamsObject;
-    }
-
-    private static RequestMockParams getGetParamMap(String urlParams, String apiPath, JSONObject queryParamsObject, boolean isPostRequest) {
-        RequestMockParams requestMockParams = new RequestMockParams();
-
+    public static void complementRestParam(String urlParams, String apiPath, RequestMockParams requestMockParams) {
         JSONObject urlParamsObject = getSendRestParamMapByIdAndUrl(apiPath, urlParams);
-
         requestMockParams.setRestParamsObj(urlParamsObject);
-        requestMockParams.setQueryParamsObj(queryParamsObject);
-
-        if (isPostRequest && !queryParamsObject.keySet().isEmpty()) {
-            JSONArray jsonArray = new JSONArray();
-            if (queryParamsObject.length() != 0) {
-                jsonArray.put(queryParamsObject);
-            }
-            requestMockParams.setBodyParams(jsonArray);
-        }
-        return requestMockParams;
     }
 
-    public static Object getPostParamMap(HttpServletRequest request) {
+    public static RequestMockParams genRequestMockParamsFromHttpRequest(HttpServletRequest request, boolean isPost) {
+        RequestMockParams mockParams = new RequestMockParams();
+        mockParams.setPost(isPost);
+
         if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/JSON")) {
+            mockParams.setParamType(MockRequestType.JSON.name());
             Object returnJson = null;
             try {
                 String param = getRequestPostStr(request);
+                mockParams.setRaw(param);
                 if (StringUtils.isNotEmpty(param)) {
                     JSONValidator jsonValidator = JSONValidator.from(param);
                     if (StringUtils.equalsIgnoreCase(PropertyConstant.ARRAY, jsonValidator.getType().name())) {
@@ -420,39 +367,52 @@ public class MockApiUtils {
                         returnJson = JSONUtil.parseObject(param);
                     }
                 }
+                mockParams.setJsonParam(returnJson);
             } catch (Exception e) {
                 LogUtil.error(e);
             }
-            return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
+            mockParams.setParamType(MockRequestType.XML.name());
             String xmlString = readXml(request);
-            JSONObject object = XMLUtil.xmlStringToJSONObject(xmlString);
-            return object;
+            JSONObject xmlJsonObject = XMLUtil.xmlStringToJSONObject(xmlString);
+            mockParams.setXmlToJsonParam(xmlJsonObject);
+            mockParams.setRaw(xmlString);
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/x-www-form-urlencoded")) {
+            mockParams.setParamType(MockRequestType.KV.name());
             JSONObject object = new JSONObject();
-            Enumeration<String> paramNameItor = request.getParameterNames();
-            while (paramNameItor.hasMoreElements()) {
-                String key = paramNameItor.nextElement();
+            Enumeration<String> paramNameItr = request.getParameterNames();
+            while (paramNameItr.hasMoreElements()) {
+                String key = paramNameItr.nextElement();
                 String value = request.getParameter(key);
                 object.put(key, value);
             }
-            return object;
+            mockParams.setQueryParamsObj(object);
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/plain")) {
-            JSONObject object = new JSONObject();
+            mockParams.setParamType(MockRequestType.RAW.name());
             String bodyParam = readBody(request);
             if (StringUtils.isNotEmpty(bodyParam)) {
-                object.put("raw", bodyParam);
+                mockParams.setRaw(bodyParam);
             }
-            return object;
-
-        } else {
-            JSONObject object = new JSONObject();
+        } else if (isPost) {
             String bodyParam = readBody(request);
             if (StringUtils.isNotEmpty(bodyParam)) {
-                object.put("raw", bodyParam);
+                mockParams.setParamType(MockRequestType.RAW.name());
+                mockParams.setRaw(bodyParam);
             }
-            return object;
         }
+
+        if (!StringUtils.equals(mockParams.getParamType(), MockRequestType.KV.name())) {
+            //非kv类型的请求要检查一下是否带有其它kv参数
+            JSONObject object = new JSONObject();
+            Enumeration<String> paramNameItr = request.getParameterNames();
+            while (paramNameItr.hasMoreElements()) {
+                String key = paramNameItr.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            mockParams.setQueryParamsObj(object);
+        }
+        return mockParams;
     }
 
     private static JSONObject getSendRestParamMapByIdAndUrl(String path, String urlParams) {
