@@ -2,6 +2,7 @@ package io.metersphere.commons.utils;
 
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.UserGroupPermission;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.user.SessionUser;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -140,6 +141,15 @@ public class SessionUtils {
                 group.put(ug.getId(), gp.getGroup());
             }
         }));
+
+        long count = user.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getId(), UserGroupConstants.SUPER_GROUP))
+                .count();
+
+        if (count > 0) {
+            return true;
+        }
 
 
         Set<String> currentProjectPermissions = getCurrentProjectPermissions(userGroupPermissions, projectId, group, user);

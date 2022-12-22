@@ -46,7 +46,7 @@
         <el-table-column prop="description" :label="$t('group.description')" show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" min-width="120">
           <template v-slot="scope">
-            <div v-if="scope.row.id === 'super_group'">
+            <div v-if="scope.row.id === SUPER_GROUP">
               <ms-table-operator
                 :is-show="true"
                 @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
@@ -101,6 +101,8 @@ import {_sort} from "metersphere-frontend/src/utils/tableUtils";
 import GroupMember from "./GroupMember";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {delUserGroupById, getUserGroupListByPage} from "../../../api/user-group";
+import {SUPER_GROUP} from 'metersphere-frontend/src/utils/constants'
+
 
 export default {
   name: "UserGroup",
@@ -123,6 +125,7 @@ export default {
       total: 0,
       screenHeight: 'calc(100vh - 160px)',
       groups: [],
+      SUPER_GROUP
     };
   },
   activated() {

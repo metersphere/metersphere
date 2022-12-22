@@ -1,8 +1,12 @@
-import {LicenseKey} from "./constants";
+import {LicenseKey, SUPER_GROUP} from "./constants";
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "./token";
 
 export function hasPermission(permission) {
   let user = getCurrentUser();
+  let index = user.groups.findIndex(g => g.id === SUPER_GROUP);
+  if (index !== -1) {
+    return true;
+  }
 
   user.userGroups.forEach(ug => {
     user.groupPermissions.forEach(gp => {
@@ -12,20 +16,6 @@ export function hasPermission(permission) {
       }
     });
   });
-
-  let superGroupPermissions = user.userGroups.filter(ug => ug.group && ug.group.id === 'super_group')
-    .flatMap(ug => ug.userGroupPermissions)
-    .map(g => g.permissionId)
-    .reduce((total, current) => {
-      total.add(current);
-      return total;
-    }, new Set);
-
-  for (const p of superGroupPermissions) {
-    if (p === permission) {
-      return true;
-    }
-  }
 
   // todo 权限验证
   let currentProjectPermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')

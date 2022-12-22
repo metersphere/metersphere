@@ -68,7 +68,6 @@ public class GroupService {
     private UserMapper userMapper;
 
     private static final String GLOBAL = "global";
-    private static final String SUPER_GROUP = "super_group";
     private static final String PERSONAL_PREFIX = "PERSONAL";
 
 
@@ -236,7 +235,7 @@ public class GroupService {
 
     public void editGroupPermission(EditGroupRequest request) {
         // 超级用户组禁止修改权限
-        if (StringUtils.equals(request.getUserGroupId(), SUPER_GROUP)) {
+        if (StringUtils.equals(request.getUserGroupId(), UserGroupConstants.SUPER_GROUP)) {
             return;
         }
         List<GroupPermission> permissions = request.getPermissions();
@@ -331,19 +330,21 @@ public class GroupService {
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resources, List<GroupPermission> permissions, Group group, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
         List<GroupResource> grs;
-        if (StringUtils.equals(group.getId(), SUPER_GROUP)) {
+        if (StringUtils.equals(group.getId(), UserGroupConstants.SUPER_GROUP)) {
             grs = resources;
+            permissions.forEach(p -> p.setChecked(true));
         } else {
             grs = resources
                     .stream()
                     .filter(g -> g.getId().startsWith(group.getType()) || g.getId().startsWith(PERSONAL_PREFIX))
                     .collect(Collectors.toList());
+            permissions.forEach(p -> {
+                if (permissionList.contains(p.getId())) {
+                    p.setChecked(true);
+                }
+            });
         }
-        permissions.forEach(p -> {
-            if (permissionList.contains(p.getId())) {
-                p.setChecked(true);
-            }
-        });
+
         for (GroupResource r : grs) {
             GroupResourceDTO resourceDTO = new GroupResourceDTO();
             resourceDTO.setResource(r);
