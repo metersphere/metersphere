@@ -43,7 +43,6 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         request.setPlatform("Swagger2");
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("schedule");
-        request.setUserId(jobDataMap.getString("userId"));
         request.setResourceId(resourceId);
         apiDefinitionService.apiTestImport(null, request);
     }
@@ -59,7 +58,7 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
     public void setAuthInfo(String config, ApiTestImportRequest request) {
         // 获取鉴权设置
         if (StringUtils.isNotBlank(config)) {
-            JSONObject configObj = JSON.parseObject(config, JSONObject.class);
+            JSONObject configObj = JSONUtil.parseObject(config);
             List<KeyValue> headers = JSONUtil.parseArray(configObj.optString("headers"), KeyValue.class);
             if (CollectionUtils.isNotEmpty(headers)) {
                 request.setHeaders(headers);
