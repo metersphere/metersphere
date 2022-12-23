@@ -8,4 +8,6 @@ public interface ExtTestPlanReportContentMapper {
     boolean isDynamicallyGenerateReport(@Param("reportId") String reportId);
 
     TestPlanReportContentWithBLOBs selectForPassRate(@Param("reportId") String reportId);
+
+    boolean hasRunningReport(@Param("planId") String planId);
 }

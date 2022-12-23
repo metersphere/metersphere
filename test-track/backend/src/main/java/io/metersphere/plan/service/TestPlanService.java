@@ -318,6 +318,10 @@ public class TestPlanService {
 
     public int deleteTestPlan(String planId) {
 
+        if (testPlanReportService.hasRunningReport(planId)) {
+            MSException.throwException(Translator.get("test_plan_delete_exec_error"));
+        }
+
         // 发送删除通知
         try {
             kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_DELETED_TOPIC, objectMapper.writeValueAsString(List.of(planId)));
