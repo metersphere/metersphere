@@ -67,9 +67,11 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
             if (CollectionUtils.isNotEmpty(arguments)) {
                 request.setArguments(arguments);
             }
-            MsAuthManager msAuthManager = JSONUtil.parseObject(configObj.optString("authManager"), MsAuthManager.class);
-            if (msAuthManager != null) {
-                request.setAuthManager(msAuthManager);
+            if (StringUtils.isNotBlank(configObj.optString("authManager"))) {
+                MsAuthManager msAuthManager = JSONUtil.parseObject(configObj.optString("authManager"), MsAuthManager.class);
+                if (msAuthManager != null) {
+                    request.setAuthManager(msAuthManager);
+                }
             }
         }
     }
