@@ -6,7 +6,6 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.ProjectApplicationExample;
 import io.metersphere.base.mapper.ProjectApplicationMapper;
-import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiProjectMapper;
@@ -40,8 +39,6 @@ public class ExtProjectApplicationService {
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private BaseProjectService baseProjectService;
-    @Resource
-    private ProjectMapper projectMapper;
     @Resource
     private BaseProjectMapper baseProjectMapper;
     @Resource
@@ -142,11 +139,6 @@ public class ExtProjectApplicationService {
                 MSException.throwException(Translator.get("tcp_mock_not_unique"));
             }
         }
-    }
-
-    public void closeMockTcp(String projectId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        this.closeMockTcp(project);
     }
 
     public void closeMockTcp(Project project) {

@@ -24,4 +24,9 @@ public class PropertyConstant {
     public final static String ASS_OPTION = "ASS_OPTION";
     public final static String EXPECTED_VALUE = "EXPECTED_VALUE";
     public final static String ELEMENT_CONDITION = "ElementCondition";
+    public final static String ENVIRONMENT = "useEnvironment";
+    public final static String ENVIRONMENT_ID = "environmentId";
+    public final static String DATASOURCE_ID = "dataSourceId";
+
+
 }
