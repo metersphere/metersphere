@@ -130,10 +130,11 @@ export function _filter(filters, condition) {
   }
   for (let filter in filters) {
     if (filters.hasOwnProperty(filter)) {
+      let filterName = filter.startsWith('custom') ? filter : humpToLine(filter);
       if (filters[filter] && filters[filter].length > 0) {
-        condition.filters[humpToLine(filter)] = filters[filter];
+        condition.filters[filterName] = filters[filter];
       } else {
-        condition.filters[humpToLine(filter)] = null;
+        condition.filters[filterName] = null;
       }
     }
   }
