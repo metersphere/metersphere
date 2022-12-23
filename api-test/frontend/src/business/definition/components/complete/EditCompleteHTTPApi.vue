@@ -566,43 +566,69 @@ export default {
             if (this.httpForm.path !== this.beforeHttpForm.path && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
             }
-            if (this.request.headers && this.beforeRequest.headers) {
-              let submitRequestHeaders = JSON.stringify(this.request.headers);
+            if (this.httpForm.request.headers && this.beforeRequest.headers) {
+              for (let i = 0; i < this.httpForm.request.headers.length; i++) {
+                if (this.httpForm.request.headers[i].isEdit !== undefined) {
+                  this.beforeRequest.headers[i].isEdit = this.httpForm.request.headers[i].isEdit
+                }
+              }
+              let submitRequestHeaders = JSON.stringify(this.httpForm.request.headers);
               let beforeRequestHeaders = JSON.stringify(this.beforeRequest.headers);
               if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.request.arguments && this.beforeRequest.arguments) {
-              let submitRequestQuery = JSON.stringify(this.request.arguments);
+            if (this.httpForm.request.arguments && this.beforeRequest.arguments) {
+              for (let i = 0; i < this.httpForm.request.arguments.length; i++) {
+                if (this.httpForm.request.arguments[i].isEdit !== undefined) {
+                  this.beforeRequest.arguments[i].isEdit = this.httpForm.request.arguments[i].isEdit
+                }
+              }
+              let submitRequestQuery = JSON.stringify(this.httpForm.request.arguments);
               let beforeRequestQuery = JSON.stringify(this.beforeRequest.arguments);
               if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.request.rest && this.beforeRequest.rest) {
-              let submitRequestRest = JSON.stringify(this.request.rest);
+            if (this.httpForm.request.rest && this.beforeRequest.rest) {
+              for (let i = 0; i < this.httpForm.request.rest.length; i++) {
+                if (this.httpForm.request.rest[i].isEdit !== undefined) {
+                  this.beforeRequest.rest[i].isEdit = this.httpForm.request.rest[i].isEdit
+                }
+              }
+              let submitRequestRest = JSON.stringify(this.httpForm.request.rest);
               let beforeRequestRest = JSON.stringify(this.beforeRequest.rest);
               if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.request.body && this.beforeRequest.body) {
-              let submitRequestBody = JSON.stringify(this.request.body);
+            if (this.httpForm.request.body && this.beforeRequest.body) {
+              let submitRequestBody = JSON.stringify(this.httpForm.request.body);
               let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
+              for (let i = 0; i < this.httpForm.request.body.kvs.length; i++) {
+                if (this.httpForm.request.body.kvs[i].isEdit !== undefined) {
+                  this.beforeRequest.body.kvs[i].isEdit = this.httpForm.request.body.kvs[i].isEdit
+                }
+                if (this.httpForm.request.body.kvs[i].files !== null && this.httpForm.request.body.kvs[i].files.length === 0) {
+                  this.beforeRequest.body.kvs[i].files = this.httpForm.request.body.kvs[i].files
+                }
+                if (this.httpForm.request.body.kvs[i].uuid) {
+                  this.beforeRequest.body.kvs[i].uuid = this.httpForm.request.body.kvs[i].uuid
+                }
+              }
               if (submitRequestBody !== beforeRequestBody && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.request.authManager && this.beforeRequest.authManager) {
-              let submitRequestAuthManager = JSON.stringify(this.request.authManager);
+            if (this.httpForm.request.authManager && this.beforeRequest.authManager) {
+              let submitRequestAuthManager = JSON.stringify(this.httpForm.request.authManager);
               let beforeRequestAuthManager = JSON.stringify(this.beforeRequest.authManager);
               if (submitRequestAuthManager !== beforeRequestAuthManager && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
               }
             }
-            if (this.request.hashTree && this.beforeRequest.hashTree) {
-              let submitRequestHashTree = JSON.stringify(this.request.hashTree);
+            if (this.httpForm.request.hashTree && this.beforeRequest.hashTree) {
+              let submitRequestHashTree = JSON.stringify(this.httpForm.request.hashTree);
               let beforeRequestHashTree = JSON.stringify(this.beforeRequest.hashTree);
               if (submitRequestHashTree !== beforeRequestHashTree && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
@@ -782,6 +808,11 @@ export default {
         } else {
           this.versionData = response.data;
         }
+
+        this.beforeHttpForm = this.versionData[0];
+        this.beforeRequest = JSON.parse(this.versionData[0].request);
+        this.beforeResponse = JSON.parse(this.versionData[0].response);
+
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
           this.hasLatest = false
@@ -1078,14 +1109,7 @@ export default {
       this.getCitedScenarioCount();
       this.getCaseCount();
     }
-  },
-  mounted() {
-    if (hasLicense()) {
-      this.beforeHttpForm = deepClone(this.basisData);
-      this.beforeRequest = deepClone(this.request);
-      this.beforeResponse = deepClone(this.response);
-    }
-  },
+  }
 };
 </script>
 

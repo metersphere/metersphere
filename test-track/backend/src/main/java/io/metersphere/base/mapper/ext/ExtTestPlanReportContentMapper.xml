@@ -23,4 +23,9 @@
         from test_plan_report_content
         where test_plan_report_id = #{reportId}
     </select>
+    <select id="hasRunningReport" resultType="java.lang.Boolean">
+        select count(1) > 0  from test_plan_report
+        where test_plan_id = #{planId} and status = 'RUNNING'
+        order by create_time desc limit 1;
+    </select>
 </mapper>

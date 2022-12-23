@@ -37,6 +37,14 @@
                 <th>{{ $t('license.count') }}</th>
                 <td>{{ license.count }}</td>
               </tr>
+              <tr v-if="license.serialNo">
+                <th>{{ $t('license.serial_num') }}</th>
+                <td>{{ license.serialNo }}</td>
+              </tr>
+              <tr v-if="license.remark">
+                <th>{{ $t('license.remark') }}</th>
+                <td>{{ license.remark }}</td>
+              </tr>
               <tr>
                 <th>{{ $t('license.status') }}</th>
                 <td>
@@ -108,6 +116,8 @@ export default {
         this.license.licenseVersion = value.license.licenseVersion;
         this.license.licenseCount = value.license.licenseCount;
         this.license.status = value.status;
+        this.license.serialNo = value.license.serialNo;
+        this.license.remark = value.license.remark;
         saveLicense(value.status);
         if (hasLicense()) {
           getModuleList()

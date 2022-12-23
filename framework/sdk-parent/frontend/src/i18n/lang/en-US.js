@@ -509,6 +509,8 @@ const message = {
     invalid: 'invalid',
     count_warning: 'The number of system users has exceeded the license limit. Please contact the staff as soon as possible.',
     expired: 'expired',
+    serial_num: 'serial number',
+    remark: 'remark',
   },
   workstation: {
     sync: 'Synchronize',
