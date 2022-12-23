@@ -2,32 +2,26 @@ package io.metersphere.service.ext;
 
 import io.metersphere.api.dto.ScheduleRequest;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ScheduleMapper;
 import io.metersphere.base.mapper.SwaggerUrlProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtScheduleMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ScheduleDao;
-import io.metersphere.dto.TaskInfoResult;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.schedule.ScheduleReference;
-import io.metersphere.request.BaseQueryRequest;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.QueryScheduleRequest;
 import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.ScheduleManager;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.ServiceUtils;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -36,14 +30,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ExtApiScheduleService {
-    @Resource
-    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
@@ -70,10 +64,6 @@ public class ExtApiScheduleService {
         swaggerUrlProjectMapper.updateByPrimaryKeyWithBLOBs(swaggerUrlProject);
     }
 
-    public Schedule getSchedule(String ScheduleId) {
-        return scheduleMapper.selectByPrimaryKey(ScheduleId);
-    }
-
     public int editSchedule(Schedule schedule) {
         schedule.setUpdateTime(System.currentTimeMillis());
         return scheduleMapper.updateByPrimaryKeySelective(schedule);
@@ -87,19 +77,6 @@ public class ExtApiScheduleService {
             return schedules.get(0);
         }
         return null;
-    }
-
-    public List<Schedule> getScheduleByResourceIds(List<String> resourceIds, String group) {
-        if (CollectionUtils.isEmpty(resourceIds)) {
-            return new ArrayList<>();
-        }
-        ScheduleExample example = new ScheduleExample();
-        example.createCriteria().andResourceIdIn(resourceIds).andGroupEqualTo(group);
-        List<Schedule> schedules = scheduleMapper.selectByExample(example);
-        if (schedules.size() > 0) {
-            return schedules;
-        }
-        return new ArrayList<>();
     }
 
     public int deleteByResourceId(String resourceId, String group) {
@@ -120,48 +97,12 @@ public class ExtApiScheduleService {
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
-    public int deleteByWorkspaceId(String workspaceId) {
-        ScheduleExample scheduleExample = new ScheduleExample();
-        scheduleExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
-        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
-        schedules.forEach(item -> {
-            removeJob(item.getResourceId(), item.getGroup());
-        });
-        return scheduleMapper.deleteByExample(scheduleExample);
-    }
-
     private void removeJob(String resourceId, String group) {
         if (StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(), group)) {
             scheduleManager.removeJob(ApiScenarioTestJob.getJobKey(resourceId), ApiScenarioTestJob.getTriggerKey(resourceId));
         } else if (StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(), group)) {
             scheduleManager.removeJob(SwaggerUrlImportJob.getJobKey(resourceId), SwaggerUrlImportJob.getTriggerKey(resourceId));
         }
-    }
-
-    public List<Schedule> listSchedule() {
-        ScheduleExample example = new ScheduleExample();
-        return scheduleMapper.selectByExample(example);
-    }
-
-    public List<Schedule> getEnableSchedule() {
-        ScheduleExample example = new ScheduleExample();
-        example.createCriteria().andEnableEqualTo(true);
-        return scheduleMapper.selectByExample(example);
-    }
-
-    public void startEnableSchedules() {
-        List<Schedule> Schedules = getEnableSchedule();
-
-        Schedules.forEach(schedule -> {
-            try {
-                if (schedule.getEnable()) {
-                    LogUtil.info("初始化任务：" + JSON.toJSONString(schedule));
-                    scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()), new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(), scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getUserId()));
-                }
-            } catch (Exception e) {
-                LogUtil.error("初始化任务失败", e);
-            }
-        });
     }
 
     public Schedule buildApiTestSchedule(ScheduleRequest request) {
@@ -231,52 +172,6 @@ public class ExtApiScheduleService {
         });
     }
 
-    public long countTaskByProjectId(String projectId) {
-        return extScheduleMapper.countTaskByProjectId(projectId);
-    }
-
-    public long countTaskByProjectIdInThisWeek(String projectId) {
-        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-
-        Date firstTime = startAndEndDateInWeek.get("firstTime");
-        Date lastTime = startAndEndDateInWeek.get("lastTime");
-
-        if (firstTime == null || lastTime == null) {
-            return 0;
-        } else {
-            return extScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId, firstTime.getTime(), lastTime.getTime());
-        }
-    }
-
-    public List<TaskInfoResult> findRunningTaskInfoByProjectID(String projectID, BaseQueryRequest request) {
-        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByProjectID(projectID, request);
-        return runningTaskInfoList;
-    }
-
-    public void createSchedule(ScheduleRequest request) {
-        Schedule schedule = this.buildApiTestSchedule(request);
-        JobKey jobKey = null;
-        TriggerKey triggerKey = null;
-        Class clazz = null;
-        if ("testPlan".equals(request.getScheduleFrom())) {
-            LogUtil.info("testPlan");
-        } else {
-            //默认为情景
-            ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
-            schedule.setName(apiScene.getName());
-            schedule.setProjectId(apiScene.getProjectId());
-            schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
-            schedule.setType(ScheduleType.CRON.name());
-            jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
-            triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
-            clazz = ApiScenarioTestJob.class;
-            schedule.setJob(ApiScenarioTestJob.class.getName());
-        }
-        this.addSchedule(schedule);
-
-        this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
-    }
-
     public void updateSchedule(Schedule request) {
         JobKey jobKey = null;
         TriggerKey triggerKey = null;
@@ -305,11 +200,6 @@ public class ExtApiScheduleService {
         } else {
             this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
         }
-    }
-
-
-    public Object getCurrentlyExecutingJobs() {
-        return scheduleManager.getCurrentlyExecutingJobs();
     }
 
     public String getLogDetails(String id) {

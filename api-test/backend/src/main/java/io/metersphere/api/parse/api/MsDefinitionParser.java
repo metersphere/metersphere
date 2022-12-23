@@ -3,18 +3,15 @@ package io.metersphere.api.parse.api;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,8 +149,8 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 return null;
             }
             JSONObject requestObj = JSONUtil.parseObject(request);
-            requestObj.put("useEnvironment", StringUtils.EMPTY);
-            requestObj.put("environmentId", StringUtils.EMPTY);
+            requestObj.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
+            requestObj.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
             requestObj.put("projectId", projectId);
             return requestObj;
         } catch (Exception e) {
