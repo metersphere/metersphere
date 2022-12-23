@@ -513,6 +513,8 @@ const message = {
     invalid: '无效',
     count_warning: '系统用户数已超过license限制数量，请尽快联系工作人员。',
     expired: '已过期',
+    serial_num: '序列号',
+    remark: '备注',
   },
   workstation: {
     sync: '同步',
