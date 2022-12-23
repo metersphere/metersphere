@@ -1375,7 +1375,7 @@ public class IssuesService {
                 return fields;
             }
 
-            char filedKey = 'A';
+            char filedKey = 'K';
             for (ThirdPartIssueField item : thirdPartIssueFields) {
                 CustomFieldDao customField = new CustomFieldDao();
                 BeanUtils.copyBean(customField, item);
