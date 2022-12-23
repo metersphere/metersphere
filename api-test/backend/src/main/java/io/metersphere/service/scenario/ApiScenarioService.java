@@ -1188,7 +1188,7 @@ public class ApiScenarioService {
             List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getIds());
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONUtil.parseObject(item.getScenarioDefinition());
-                object.put("environmentId", request.getEnvironmentId());
+                object.put(PropertyConstant.ENVIRONMENT_ID, request.getEnvironmentId());
                 if (object != null) {
                     item.setScenarioDefinition(object.toString());
                 }

@@ -678,7 +678,7 @@ public class ApiTestCaseService {
 
             bloBs.forEach(apiTestCase -> {
                 JSONObject req = JSONUtil.parseObject(apiTestCase.getRequest());
-                req.put("useEnvironment", request.getEnvId());
+                req.put(PropertyConstant.ENVIRONMENT, request.getEnvId());
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);

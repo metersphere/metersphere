@@ -65,6 +65,8 @@ public class ApiCaseExecuteService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private BaseEnvironmentService baseEnvironmentService;
 
     /**
      * 测试计划case执行
@@ -140,15 +142,12 @@ public class ApiCaseExecuteService {
 
         // 开始选择执行模式
         if (deQueue != null && deQueue.getDetail() != null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Thread.currentThread().setName("PLAN-CASE：" + request.getPlanReportId());
-                    if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        apiCaseSerialService.serial(deQueue);
-                    } else {
-                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, runMode);
-                    }
+            Thread thread = new Thread(() -> {
+                Thread.currentThread().setName("PLAN-CASE：" + request.getPlanReportId());
+                if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                    apiCaseSerialService.serial(deQueue);
+                } else {
+                    apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, runMode);
                 }
             });
             thread.start();
@@ -166,100 +165,64 @@ public class ApiCaseExecuteService {
         return testPlanApiCaseMapper.selectByExample(example);
     }
 
-    public Map<String, List<String>> checkEnv(List<ApiTestCaseWithBLOBs> caseList) {
+    public Map<String, List<String>> getRequestEnv(List<ApiTestCaseWithBLOBs> caseList) {
         Map<String, List<String>> projectEnvMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(caseList)) {
-            StringBuilder builderHttp = new StringBuilder();
-            StringBuilder builderTcp = new StringBuilder();
-            for (int i = caseList.size() - 1; i >= 0; i--) {
-                ApiTestCaseWithBLOBs apiCase = caseList.get(i);
-                JSONObject apiCaseNew = new JSONObject(apiCase.getRequest());
-                if (apiCaseNew.has(PropertyConstant.TYPE) && ElementConstants.HTTP_SAMPLER.equals(apiCaseNew.optString(PropertyConstant.TYPE))) {
-                    if (!apiCaseNew.has("useEnvironment") || StringUtils.isEmpty(apiCaseNew.optString("useEnvironment"))) {
-                        builderHttp.append(apiCase.getName()).append("; ");
-                    } else {
-                        //记录运行环境ID
-                        String envId = apiCaseNew.optString("useEnvironment");
-                        if (projectEnvMap.containsKey(apiCase.getProjectId())) {
-                            if (!projectEnvMap.get(apiCase.getProjectId()).contains(envId)) {
-                                projectEnvMap.get(apiCase.getProjectId()).add(envId);
-                            }
-                        } else {
-                            projectEnvMap.put(apiCase.getProjectId(), new ArrayList<>() {{
-                                this.add(envId);
-                            }});
-                        }
-                    }
-                }
-                if (apiCaseNew.has(PropertyConstant.TYPE) && ElementConstants.JDBC_SAMPLER.equals(apiCaseNew.optString(PropertyConstant.TYPE))) {
-                    DatabaseConfig dataSource = null;
-                    if (apiCaseNew.has("useEnvironment") && apiCaseNew.has("dataSourceId")) {
-                        String environmentId = apiCaseNew.optString("useEnvironment");
-                        String dataSourceId = apiCaseNew.optString("dataSourceId");
-                        BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
-                        ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentId);
-                        EnvironmentConfig envConfig = null;
-                        if (environment != null && environment.getConfig() != null) {
-                            envConfig = JSON.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                            if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
-                                for (DatabaseConfig item : envConfig.getDatabaseConfigs()) {
-                                    if (item.getId().equals(dataSourceId)) {
-                                        dataSource = item;
-                                        //记录运行环境ID
-                                        if (projectEnvMap.containsKey(apiCase.getProjectId())) {
-                                            if (!projectEnvMap.get(apiCase.getProjectId()).contains(environmentId)) {
-                                                projectEnvMap.get(apiCase.getProjectId()).add(environmentId);
-                                            }
-                                        } else {
-                                            projectEnvMap.put(apiCase.getProjectId(), new ArrayList<>() {{
-                                                this.add(environmentId);
-                                            }});
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (dataSource == null) {
-                        builderTcp.append(apiCase.getName()).append("; ");
-                    }
+        if (CollectionUtils.isEmpty(caseList)) {
+            return projectEnvMap;
+        }
+        StringBuilder message = new StringBuilder();
+        for (ApiTestCaseWithBLOBs apiCase : caseList) {
+            JSONObject requestObj = new JSONObject(apiCase.getRequest());
+            if (StringUtils.equalsAny(requestObj.optString(PropertyConstant.TYPE), ElementConstants.HTTP_SAMPLER, ElementConstants.JDBC_SAMPLER)) {
+                Map<String, String> envMap = this.getEnvMap(requestObj, apiCase.getProjectId());
+                if (MapUtils.isEmpty(envMap)) {
+                    message.append(apiCase.getName()).append("；");
+                } else {
+                    //记录运行环境ID
+                    this.setEnvId(projectEnvMap, apiCase.getProjectId(), envMap.get(apiCase.getProjectId()));
                 }
             }
-            if (StringUtils.isNotEmpty(builderHttp)) {
-                MSException.throwException("用例：" + builderHttp + "运行环境为空！请检查");
-            }
-            if (StringUtils.isNotEmpty(builderTcp)) {
-                MSException.throwException("用例：" + builderTcp + "数据源为空！请检查");
-            }
+        }
+        if (StringUtils.isNotEmpty(message)) {
+            MSException.throwException("用例：" + message + "运行环境为空！");
         }
         return projectEnvMap;
     }
 
-    public Map<String, String> getEnvMap(ApiTestCaseWithBLOBs apiCase) {
-        Map<String, String> projectEnvMap = new HashMap<>();
+    private void setEnvId(Map<String, List<String>> projectEnvMap, String projectId, String envId) {
+        //记录运行环境ID
+        if (projectEnvMap.containsKey(projectId)) {
+            if (!projectEnvMap.get(projectId).contains(envId)) {
+                projectEnvMap.get(projectId).add(envId);
+            }
+        } else {
+            projectEnvMap.put(projectId, new ArrayList<>() {{
+                this.add(envId);
+            }});
+        }
+    }
 
-        JSONObject apiCaseNew = new JSONObject(apiCase.getRequest());
-        if (apiCaseNew.has(PropertyConstant.TYPE) && ElementConstants.HTTP_SAMPLER.equals(apiCaseNew.optString(PropertyConstant.TYPE))) {
-            if (apiCaseNew.has("useEnvironment") && StringUtils.isNotEmpty(apiCaseNew.optString("useEnvironment"))) {
+    public Map<String, String> getEnvMap(JSONObject request, String projectId) {
+        Map<String, String> projectEnvMap = new HashMap<>();
+        if (!request.has(PropertyConstant.TYPE)) {
+            return projectEnvMap;
+        }
+        if (StringUtils.equals(ElementConstants.HTTP_SAMPLER, request.optString(PropertyConstant.TYPE))) {
+            if (StringUtils.isNotEmpty(request.optString(PropertyConstant.ENVIRONMENT))) {
                 //记录运行环境ID
-                String envId = apiCaseNew.optString("useEnvironment");
-                projectEnvMap.put(apiCase.getProjectId(), envId);
+                projectEnvMap.put(projectId, request.optString(PropertyConstant.ENVIRONMENT));
             }
         }
-        if (apiCaseNew.has(PropertyConstant.TYPE) && ElementConstants.JDBC_SAMPLER.equals(apiCaseNew.optString(PropertyConstant.TYPE))) {
-            if (apiCaseNew.has("useEnvironment") && apiCaseNew.has("dataSourceId")) {
-                String environmentId = apiCaseNew.optString("useEnvironment");
-                String dataSourceId = apiCaseNew.optString("dataSourceId");
-                BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
-                ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentId);
-                EnvironmentConfig envConfig = null;
+        if (StringUtils.equals(ElementConstants.JDBC_SAMPLER, request.optString(PropertyConstant.TYPE))) {
+            if (request.has(PropertyConstant.ENVIRONMENT) && request.has(PropertyConstant.DATASOURCE_ID)) {
+                ApiTestEnvironmentWithBLOBs environment = baseEnvironmentService.get(request.optString(PropertyConstant.ENVIRONMENT));
                 if (environment != null && environment.getConfig() != null) {
-                    envConfig = JSON.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    EnvironmentConfig envConfig = JSON.parseObject(environment.getConfig(), EnvironmentConfig.class);
                     if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
                         for (DatabaseConfig item : envConfig.getDatabaseConfigs()) {
-                            if (item.getId().equals(dataSourceId)) {
+                            if (StringUtils.equals(item.getId(), request.optString(PropertyConstant.DATASOURCE_ID))) {
                                 //记录运行环境ID
-                                projectEnvMap.put(apiCase.getProjectId(), environmentId);
+                                projectEnvMap.put(projectId, request.optString(PropertyConstant.ENVIRONMENT));
                             }
                         }
                     }
@@ -300,7 +263,7 @@ public class ApiCaseExecuteService {
         Map<String, List<String>> testCaseEnvMap = new HashMap<>();
         // 环境检查
         if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
-            testCaseEnvMap = this.checkEnv(caseList);
+            testCaseEnvMap = this.getRequestEnv(caseList);
         }
         // 集合报告设置
         String serialReportId = request.isRerun() ? request.getReportId() : null;
@@ -363,7 +326,8 @@ public class ApiCaseExecuteService {
                 BeanUtils.copyBean(config, request.getConfig());
 
                 if (StringUtils.equals(config.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(config.getEnvMap())) {
-                    config.setEnvMap(this.getEnvMap(caseWithBLOBs));
+                    JSONObject jsonObject = new JSONObject(caseWithBLOBs.getRequest());
+                    config.setEnvMap(this.getEnvMap(jsonObject, caseWithBLOBs.getProjectId()));
                 }
                 ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), ApiReportStatus.RUNNING.name(), null, config);
                 report.setStatus(status);
@@ -387,15 +351,12 @@ public class ApiCaseExecuteService {
         DBTestQueue queue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
         if (queue != null && queue.getDetail() != null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Thread.currentThread().setName("API-CASE-RUN");
-                    if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        apiCaseSerialService.serial(queue);
-                    } else {
-                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), queue, ApiRunMode.DEFINITION.name());
-                    }
+            Thread thread = new Thread(() -> {
+                Thread.currentThread().setName("API-CASE-RUN");
+                if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                    apiCaseSerialService.serial(queue);
+                } else {
+                    apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), queue, ApiRunMode.DEFINITION.name());
                 }
             });
             thread.start();
