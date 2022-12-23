@@ -136,6 +136,10 @@ public class TestPlanReportService {
         return list;
     }
 
+    public boolean hasRunningReport(String planId) {
+        return extTestPlanReportContentMapper.hasRunningReport(planId);
+    }
+
     public void setTestPlanReportPassRate(List<TestPlanReportDTO> list) {
         for (TestPlanReportDTO testPlanReportDTO : list) {
             // 如果数据库查询成功率字段为空或 0 则重新计算一次
