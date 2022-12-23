@@ -30,4 +30,12 @@ public class LicenseInfoDTO implements Serializable {
      * 授权数量
      */
     private int count;
+    /**
+     * 序列号
+     */
+    private String serialNo;
+    /**
+     * 备注
+     */
+    private String remark;
 }
