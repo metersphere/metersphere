@@ -136,8 +136,8 @@ import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import ApiEnvironmentConfig from "metersphere-frontend/src/components/environment/ApiEnvironmentConfig";
-import {Environment, parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
-import EnvironmentEdit from "metersphere-frontend/src/components/environment/EnvironmentEdit";
+import {Environment, parseEnvironment, HttpConfig} from "metersphere-frontend/src/model/EnvironmentModel";
+import EnvironmentEdit from "./components/EnvironmentEdit";
 import MsAsideItem from "metersphere-frontend/src/components/MsAsideItem";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitch";
@@ -174,7 +174,7 @@ export default {
       projectList: [],
       condition: {},   //封装传递给后端的查询条件
       environments: [],
-      currentEnvironment: new Environment(),
+      currentEnvironment: new Environment({httpConfig: new HttpConfig()}),
       result: {},
       loading: false,
       dialogVisible: false,
@@ -288,7 +288,7 @@ export default {
     createEnv() {
       this.dialogTitle = this.$t('api_test.environment.create');
       this.dialogVisible = true;
-      this.currentEnvironment = new Environment();
+      this.currentEnvironment = new Environment({httpConfig: new HttpConfig()});
       this.currentEnvironment.projectId = this.currentProjectId;
       this.currentEnvironment.currentProjectId = this.currentProjectId;
       this.ifCreate = true;
