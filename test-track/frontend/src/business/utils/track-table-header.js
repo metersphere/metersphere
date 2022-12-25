@@ -88,6 +88,7 @@ const TRACK_HEADER = {
     {id: 'name', key: '2', label: 'api_test.automation.scenario_name'},
     {id: 'versionId', key: 'd', label: 'commons.version'},
     {id: 'level', key: '3', label: 'api_test.automation.case_level'},
+    {id: 'envs', key: '8', label: 'commons.environment'},
     {id: 'tagNames', key: '4', label: 'api_test.automation.tag'},
     {id: 'stepTotal', key: '7', label: 'api_test.automation.step'},
     {id: 'passRate', key: '9', label: 'api_test.automation.passing_rate'},
