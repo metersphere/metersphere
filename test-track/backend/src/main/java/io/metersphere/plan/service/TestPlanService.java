@@ -65,8 +65,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -1554,6 +1552,10 @@ public class TestPlanService {
         envMap = planTestPlanApiCaseService.getApiCaseEnv(planId);
         Map<String, List<String>> scenarioEnv = planTestPlanScenarioCaseService.getApiScenarioEnv(planId);
 
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            scenarioEnv = mergeUiScenarioEnv(planId, scenarioEnv);
+        }
+
         Set<String> projectIds = scenarioEnv.keySet();
         for (String projectId : projectIds) {
             if (envMap.containsKey(projectId)) {
@@ -1574,6 +1576,32 @@ public class TestPlanService {
         }
 
         return envMap;
+    }
+
+    /**
+     * 合并ui场景的环境信息
+     * @param planId
+     * @param scenarioEnv
+     * @return
+     */
+    private Map<String, List<String>> mergeUiScenarioEnv(String planId, Map<String, List<String>> scenarioEnv) {
+        Map<String, List<String>> uiScenarioEnv = planTestPlanUiScenarioCaseService.getUiScenarioEnv(planId);
+        if (MapUtils.isEmpty(scenarioEnv)) {
+            return uiScenarioEnv;
+        }
+        if (MapUtils.isNotEmpty(uiScenarioEnv)) {
+            uiScenarioEnv.entrySet().forEach(entry -> {
+                if (scenarioEnv.containsKey(entry.getKey())) {
+                    List<String> environmentIds = scenarioEnv.get(entry.getKey());
+                    entry.getValue().forEach(eId -> {
+                        if (!environmentIds.contains(eId)) {
+                            environmentIds.add(eId);
+                        }
+                    });
+                }
+            });
+        }
+        return scenarioEnv;
     }
 
     public String runPlan(TestPlanRunRequest testplanRunRequest) {
