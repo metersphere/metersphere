@@ -155,7 +155,7 @@ import {REQUEST_HEADERS} from "metersphere-frontend/src/utils/constants";
 import {CommonConfig, Environment} from "metersphere-frontend/src/model/EnvironmentModel";
 import MsApiHostTable from "metersphere-frontend/src/components/environment/commons/ApiHostTable";
 import MsDatabaseConfig from "metersphere-frontend/src/components/environment/database/DatabaseConfig";
-import MsEnvironmentHttpConfig from "metersphere-frontend/src/components/environment/EnvironmentHttpConfig";
+import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
 import MsEnvironmentCommonConfig from "metersphere-frontend/src/components/environment/EnvironmentCommonConfig";
 import MsEnvironmentSSLConfig from "metersphere-frontend/src/components/environment/EnvironmentSSLConfig";
 import MsApiAuthConfig from "metersphere-frontend/src/components/environment/auth/ApiAuthConfig";
