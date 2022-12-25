@@ -18,12 +18,18 @@
           :content="$t('commons.import')"
           @click="importJSON"
         />
-        <ms-table-button
-          v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']"
-          icon="el-icon-box"
-          :content="$t('commons.export')"
-          @click="exportJSON"
-        />
+        <el-dropdown @command="handleExportCommand" class="scenario-ext-btn" trigger="hover"
+                     v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']">
+          <ms-table-button
+            style="margin-left: 10px"
+            icon="el-icon-box"
+            :content="$t('commons.export')"
+          />
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="exportApi">{{ $t('envrionment.export_variable_tip') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
         <el-link
           style="margin-left: 10px"
           @click="batchAdd"
@@ -58,6 +64,31 @@
       >
         <ms-table-column prop="num" sortable label="ID" min-width="60">
         </ms-table-column>
+
+        <ms-table-column
+          prop="scope"
+          sortable
+          :label="$t('commons.scope')"
+          :filters="scopeTypeFilters"
+          :filter-method="filterScope"
+          min-width="120">
+          <template slot-scope="scope">
+            <el-select
+              v-model="scope.row.scope"
+              :placeholder="$t('commons.please_select')"
+              size="mini"
+              @change="changeType(scope.row)"
+            >
+              <el-option
+                v-for="item in scopeTypeFilters"
+                :key="item.value"
+                :label="item.text"
+                :value="item.value"
+              />
+            </el-select>
+          </template>
+        </ms-table-column>
+
         <ms-table-column
           prop="name"
           :label="$t('api_test.variable_name')"
@@ -84,12 +115,26 @@
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.type"
+              v-if="!scope.row.scope || scope.row.scope == 'api'"
               :placeholder="$t('commons.please_select')"
               size="mini"
-              @change="changeType(scope.row)"
             >
               <el-option
                 v-for="item in typeSelectOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+
+            <el-select
+              v-else
+              v-model="scope.row.type"
+              :placeholder="$t('commons.please_select')"
+              size="mini"
+            >
+              <el-option
+                v-for="item in uiTypeSelectOptions"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -128,14 +173,14 @@
           sortable
         >
           <template slot-scope="scope">
-            <el-input v-model="scope.row.description" size="mini" />
+            <el-input v-model="scope.row.description" size="mini"/>
           </template>
         </ms-table-column>
 
         <ms-table-column :label="$t('commons.operating')" width="150">
           <template v-slot:default="scope">
             <span>
-              <el-switch v-model="scope.row.enable" size="mini" />
+              <el-switch v-model="scope.row.enable" size="mini"/>
               <el-tooltip
                 effect="dark"
                 :content="$t('commons.remove')"
@@ -172,7 +217,7 @@
         </ms-table-column>
       </ms-table>
     </div>
-    <batch-add-parameter @batchSave="batchSave" ref="batchAdd" />
+    <batch-add-parameter @batchSave="batchSave" ref="batchAdd"/>
     <api-variable-setting ref="apiVariableSetting"></api-variable-setting>
     <variable-import
       ref="variableImport"
@@ -182,7 +227,7 @@
 </template>
 
 <script>
-import { KeyValue } from "../../../model/EnvTestModel";
+import {KeyValue} from "../../../model/EnvTestModel";
 import MsApiVariableInput from "./ApiVariableInput";
 import BatchAddParameter from "./BatchAddParameter";
 import MsTableButton from "../../MsTableButton";
@@ -190,8 +235,9 @@ import MsTable from "../../table/MsTable";
 import MsTableColumn from "../../table/MsTableColumn";
 import ApiVariableSetting from "./ApiVariableSetting";
 import CsvFileUpload from "./variable/CsvFileUpload";
-import { downloadFile, getUUID, operationConfirm } from "../../../utils";
+import {downloadFile, getUUID, operationConfirm} from "../../../utils";
 import VariableImport from "./variable/VariableImport";
+import _ from "lodash";
 
 export default {
   name: "MsApiScenarioVariables",
@@ -231,15 +277,25 @@ export default {
         },
       ],
       typeSelectOptions: [
-        { value: "CONSTANT", label: this.$t("api_test.automation.constant") },
-        { value: "LIST", label: this.$t("test_track.case.list") },
-        { value: "CSV", label: "CSV" },
-        { value: "COUNTER", label: this.$t("api_test.automation.counter") },
-        { value: "RANDOM", label: this.$t("api_test.automation.random") },
+        {value: "CONSTANT", label: this.$t("api_test.automation.constant")},
+        {value: "LIST", label: this.$t("test_track.case.list")},
+        {value: "CSV", label: "CSV"},
+        {value: "COUNTER", label: this.$t("api_test.automation.counter")},
+        {value: "RANDOM", label: this.$t("api_test.automation.random")},
+      ],
+      uiTypeSelectOptions: [
+        {value: "STRING", label: this.$t("api_test.automation.string")},
+        {value: "ARRAY", label: this.$t("api_test.automation.array")},
+        {value: "JSON", label: this.$t("api_test.automation.json")},
+        {value: "NUMBER", label: this.$t("api_test.automation.number")},
       ],
       variables: {},
       selectVariable: "",
       editData: {},
+      scopeTypeFilters: [
+        {text: this.$t("commons.api"), value: "api"},
+        {text: this.$t("commons.ui_test"), value: "ui"},
+      ]
     };
   },
   watch: {
@@ -280,15 +336,15 @@ export default {
       if (repeatKey !== "") {
         this.$warning(
           this.$t("api_test.environment.common_config") +
-            "【" +
-            repeatKey +
-            "】" +
-            this.$t("load_test.param_is_duplicate")
+          "【" +
+          repeatKey +
+          "】" +
+          this.$t("load_test.param_is_duplicate")
         );
       }
       if (isNeedCreate) {
         this.variables.push(
-          new KeyValue({ enable: true, id: getUUID(), type: "CONSTANT" })
+          new KeyValue({enable: true, id: getUUID(), type: "CONSTANT", scope: "api"})
         );
       }
       this.$emit("change", this.variables);
@@ -304,6 +360,10 @@ export default {
         data.delimiter = ",";
         data.files = [];
         data.quotedData = "false";
+      }
+
+      if (!data.scope || data.scope == "ui") {
+        data.type = 'STRING';
       }
     },
     valueText(data) {
@@ -321,11 +381,11 @@ export default {
     },
     querySearch(queryString, cb) {
       let restaurants = [
-        { value: "UTF-8" },
-        { value: "UTF-16" },
-        { value: "GB2312" },
-        { value: "ISO-8859-15" },
-        { value: "US-ASCll" },
+        {value: "UTF-8"},
+        {value: "UTF-16"},
+        {value: "GB2312"},
+        {value: "ISO-8859-15"},
+        {value: "US-ASCll"},
       ];
       let results = queryString
         ? restaurants.filter(this.createFilter(queryString))
@@ -346,6 +406,9 @@ export default {
         if (item.remark) {
           this.$set(item, "description", item.remark);
           item.remark = undefined;
+        }
+        if (!item.scope) {
+          this.$set(item, "scope", "api");
         }
         index++;
       });
@@ -370,7 +433,7 @@ export default {
         }
       );
     },
-    filter() {
+    filter(scope) {
       let datas = [];
       this.variables.forEach((item) => {
         if (this.selectVariable && this.selectVariable != "" && item.name) {
@@ -389,6 +452,12 @@ export default {
         datas.push(item);
       });
       this.variables = datas;
+    },
+    filterScope(value, row) {
+      if (value == "ui") {
+        return row.scope == "ui";
+      }
+      return !row.scope || row.scope == "api";
     },
     openSetting(data) {
       this.$refs.apiVariableSetting.open(data);
@@ -450,8 +519,15 @@ export default {
       this.sortParameters();
     },
     exportJSON() {
-      if (this.$refs.variableTable.selectIds.length < 1) {
-        this.$warning(this.$t("api_test.environment.select_variable"));
+      let apiVariable = [];
+      this.$refs.variableTable.selectRows.forEach((r) => {
+        if (!r.scope || r.scope != "ui") {
+          apiVariable.push(r);
+        }
+      });
+
+      if (apiVariable.length < 1) {
+        this.$warning(this.$t("api_test.environment.select_api_variable"));
         return;
       }
       let variablesJson = [];
@@ -461,7 +537,7 @@ export default {
         if (row.type === "CSV") {
           messages = this.$t("variables.csv_download");
         }
-        if (row.name) {
+        if (row.name && (!row.scope || row.scope == "api")) {
           variablesJson.push(row);
         }
       });
@@ -494,10 +570,21 @@ export default {
         }
       });
     },
+    handleExportCommand(command){
+      this.exportJSON();
+    }
   },
   created() {
     if (this.items.length === 0) {
-      this.items.push(new KeyValue({ enable: true }));
+      this.items.push(new KeyValue({enable: true, scope: "api"}));
+    } else {
+      //历史数据默认是 api 应用场景
+      _.forEach(this.items, item => {
+        if (!item.scope) {
+          this.$set(item, "scope", "api");
+        }
+      })
+      this.variables = this.items;
     }
   },
 };
