@@ -437,8 +437,20 @@ export default {
     refresh() {
       this.$emit('refresh');
     },
-    refreshCaseList() {
-      this.getApiTest(true, true);
+    refreshCaseList(id) {
+      return new Promise((resolve) => {
+        let commonUseEnvironment = store.useEnvironment;
+        this.environment = commonUseEnvironment ? commonUseEnvironment : '';
+        getCaseById(id).then((response) => {
+          let apiCase = response.data;
+          if (apiCase) {
+            this.formatCase(apiCase);
+            apiCase.active = true;
+            this.apiCaseList = [apiCase];
+          }
+          resolve();
+        });
+      });
     },
     reLoadCase() {
       this.$emit('reLoadCase');
