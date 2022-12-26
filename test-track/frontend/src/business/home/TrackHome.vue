@@ -1,20 +1,20 @@
 <template>
-  <div style="background-color:#F5F6F7; overflow: auto">
+  <div style="background-color: #f5f6f7; overflow: auto">
     <ms-container>
       <ms-main-container style="padding: 0px">
         <div class="track-home-layout">
           <el-row :gutter="16">
             <el-col :span="12">
-              <case-count-card @redirectPage="redirectPage"/>
+              <case-count-card @redirectPage="redirectPage" />
             </el-col>
             <el-col :span="12">
-              <relevance-case-card @redirectPage="redirectPage"/>
+              <relevance-case-card @redirectPage="redirectPage" />
             </el-col>
           </el-row>
 
           <el-row :gutter="16" style="margin-top: 16px">
             <el-col :span="12">
-              <bug-count-card @redirectPage="redirectPage"/>
+              <bug-count-card @redirectPage="redirectPage" />
             </el-col>
             <el-col :span="12">
               <case-maintenance />
@@ -22,20 +22,26 @@
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #FFFFFF;">
-              <ms-failure-test-case-list :select-function-case="true" @redirectPage="redirectPage"/>
+            <el-col style="height: 369px; background-color: #ffffff">
+              <ms-failure-test-case-list
+                :select-function-case="true"
+                @redirectPage="redirectPage"
+              />
             </el-col>
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #FFFFFF;">
-              <review-list/>
+            <el-col style="height: 369px; background-color: #ffffff">
+              <review-list />
             </el-col>
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #FFFFFF;">
-              <ms-running-task-list :call-from="'track_home'" @redirectPage="redirectPage"/>
+            <el-col style="height: 369px; background-color: #ffffff">
+              <ms-running-task-list
+                :call-from="'track_home'"
+                @redirectPage="redirectPage"
+              />
             </el-col>
           </el-row>
         </div>
@@ -45,7 +51,6 @@
 </template>
 
 <script>
-
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import CaseCountCard from "./components/CaseCountCard";
@@ -54,10 +59,10 @@ import CaseMaintenance from "./components/CaseMaintenance";
 import BugCountCard from "./components/BugCountCard";
 import ReviewList from "./components/ReviewList";
 import MsRunningTaskList from "./components/RunningTaskList";
-import {getUUID} from "metersphere-frontend/src/utils";
+import { getUUID } from "metersphere-frontend/src/utils";
 import MsFailureTestCaseList from "@/business/home/components/FailureTestCaseList";
 
-require('echarts/lib/component/legend');
+require("echarts/lib/component/legend");
 export default {
   name: "TrackHome",
   components: {
@@ -72,8 +77,7 @@ export default {
     MsRunningTaskList,
   },
   data() {
-    return {
-    }
+    return {};
   },
   methods: {
     redirectPage(page, dataType, selectType, title) {
@@ -81,31 +85,56 @@ export default {
       //传入UUID是为了进行页面重新加载判断
       let uuid = getUUID();
       let home;
+      let defaultVersion = "default";
       switch (page) {
         case "testCase":
           home = this.$router.resolve({
-            name: 'testCaseRedirect',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
-          })
+            name: "testCaseRedirect",
+            params: {
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectType,
+            },
+          });
           break;
         case "testPlanEdit":
-          home = this.$router.resolve('/track/plan/view/' + selectType)
+          home = this.$router.resolve("/track/plan/view/" + selectType);
           break;
         case "scenarioWithQuery":
-          home = this.$router.resolve('/api/automation/' + uuid + "/" + dataType + "/" + selectType);
+          home = this.$router.resolve(
+            "/api/automation/" +
+              defaultVersion +
+              "/" +
+              uuid +
+              "/" +
+              dataType +
+              "/" +
+              selectType
+          );
           break;
         case "api":
-          home = this.$router.resolve('/api/definition/' + uuid + "/" + dataType + "/" + selectType);
+          home = this.$router.resolve(
+            "/api/definition/" +
+              defaultVersion +
+              "/" +
+              uuid +
+              "/" +
+              dataType +
+              "/" +
+              selectType
+          );
           break;
         case "issue":
-          home = this.$router.resolve('/track/issue/' + uuid + "/" + dataType + "/" + selectType);
+          home = this.$router.resolve(
+            "/track/issue/" + uuid + "/" + dataType + "/" + selectType
+          );
       }
       if (home) {
-        window.open(home.href, '_blank');
+        window.open(home.href, "_blank");
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -145,10 +174,10 @@ export default {
 .track-home-layout :deep(.main-info-card) {
   height: 208px;
   width: 100%;
-  color: #646A73;
-  background-color: #FFFFFF;
+  color: #646a73;
+  background-color: #ffffff;
   box-sizing: border-box;
-  border: 1px solid #DEE0E3;
+  border: 1px solid #dee0e3;
   border-radius: 4px;
 }
 
@@ -161,7 +190,7 @@ export default {
   line-height: 22px;
   font-size: 14px;
   font-weight: 400;
-  color: #646A73;
+  color: #646a73;
 }
 
 .track-home-layout :deep(.addition-info-text) {
@@ -180,13 +209,13 @@ export default {
 
 .track-home-layout :deep(.home-table-cell) {
   height: 40px;
-  background-color: #F5F6F7;
+  background-color: #f5f6f7;
   font-size: 14px;
   font-weight: 500;
   border: 1px solid rgba(31, 35, 41, 0.15);
   border-right-width: 0;
   border-left-width: 0;
-  color: #646A73;
+  color: #646a73;
   line-height: 22px;
 }
 
@@ -195,7 +224,7 @@ export default {
 }
 
 .track-home-layout :deep(.table-title) {
-  color: #1F2329;
+  color: #1f2329;
   font-weight: 500;
   font-size: 18px;
   line-height: 26px;
@@ -207,10 +236,10 @@ export default {
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
-.track-home-layout :deep(.el-table__body tr:hover ) {
+.track-home-layout :deep(.el-table__body tr:hover) {
   cursor: pointer;
 }
 
