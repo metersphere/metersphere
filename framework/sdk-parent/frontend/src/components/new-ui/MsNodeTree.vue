@@ -806,7 +806,7 @@ export default {
   height: 24px;
   padding: 0;
   border: none;
-  background: rgba(31, 35, 41, 0.1);
+  background: none;
   border-radius: 4px;
   margin-left: 5px;
 }
@@ -817,6 +817,7 @@ export default {
 
 .node-operate-btn:hover, .node-operate-btn:focus {
   color: #646A73;
+  background: rgba(31, 35, 41, 0.1);
 }
 
 .more-operate-btn {

@@ -29,13 +29,11 @@
           :public-total="publicTotal"
           :exe="enablePublic"/>
       </template>
-      <template v-slot:bottom>
-        <module-trash-button
-          :condition="condition"
-          :total="total"
-          :exe="enableTrash"/>
-      </template>
     </ms-node-tree>
+    <module-trash-button
+      :condition="condition"
+      :total="total"
+      :exe="enableTrash"/>
 <!--    <test-case-import-->
 <!--      @refreshAll="importRefresh"-->
 <!--      ref="testCaseImport"/>-->
