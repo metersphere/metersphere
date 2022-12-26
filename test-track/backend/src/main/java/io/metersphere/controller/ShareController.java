@@ -1,7 +1,9 @@
 package io.metersphere.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.dto.TestPlanCaseDTO;
+import io.metersphere.plan.dto.TestPlanExtReportDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.plan.service.TestPlanService;
@@ -61,5 +63,23 @@ public class ShareController {
     public TestPlanSimpleReportDTO getTestPlanDbReport(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validate(shareId, reportId);
         return testPlanReportService.getShareDbReport(shareInfoService.get(shareId), reportId);
+    }
+
+    @GetMapping("test/plan/ext/report/{shareId}/{reportId}")
+    public TestPlanExtReportDTO getExtReport(@PathVariable String shareId, @PathVariable String reportId) throws JsonProcessingException {
+        shareInfoService.validate(shareId, reportId);
+        HttpHeaderUtils.runAsUser("admin");
+        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByReportId(reportId);
+        HttpHeaderUtils.clearUser();
+        return reportExtInfo;
+    }
+
+    @GetMapping("test/plan/ext/plan/{shareId}/{planId}")
+    public TestPlanExtReportDTO getExtPlan(@PathVariable String shareId, @PathVariable String planId) throws JsonProcessingException {
+        shareInfoService.validate(shareId, planId);
+        HttpHeaderUtils.runAsUser("admin");
+        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByPlanId(planId);
+        HttpHeaderUtils.clearUser();
+        return reportExtInfo;
     }
 }
