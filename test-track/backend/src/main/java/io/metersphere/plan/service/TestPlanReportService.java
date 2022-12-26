@@ -198,7 +198,7 @@ public class TestPlanReportService {
                             if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap())) {
                                 // 场景用例
                                 reportIds = new ArrayList<>(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap().values());
-                                planReportCaseDTOS = planApiScenarioReportService.selectForPlanReport(reportIds);
+                                planReportCaseDTOS = planUiScenarioReportService.selectForPlanReport(reportIds);
                                 TestPlanStatusCalculator.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, ApiReportStatus.SUCCESS.name());
                             }
                         }
