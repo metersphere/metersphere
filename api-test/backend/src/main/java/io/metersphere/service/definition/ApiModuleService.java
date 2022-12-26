@@ -1,26 +1,15 @@
 package io.metersphere.service.definition;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.DragModuleRequest;
-import io.metersphere.api.dto.definition.UpdateApiModuleDTO;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionExample;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
-import io.metersphere.base.domain.ApiModuleExample;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
+import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
@@ -46,15 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -206,7 +187,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return getNodeTrees(apiModules);
     }
 
-    public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request ) {
+    public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
@@ -590,12 +571,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public ApiModule getDefaultNode(String projectId, String protocol) {
         ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             ApiModule record = new ApiModule();
             record.setId(UUID.randomUUID().toString());
-            record.setName("未规划接口");
+            record.setName(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName());
             record.setProtocol(protocol);
             record.setPos(1.0);
             record.setLevel(1);
@@ -610,16 +591,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    public ApiModule getDefaultNodeUnCreateNew(String projectId, String protocol) {
-        ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
-        List<ApiModule> list = apiModuleMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        } else {
-            return list.get(0);
-        }
-    }
 
     public long countTrashApiData(String projectId, String protocol) {
         ApiDefinitionExample example = new ApiDefinitionExample();
@@ -696,7 +667,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         //处理模块
         setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
 
-        return getUpdateApiModuleDTO(chooseModule,idPathMap,optionData,fullCoverage, moduleMap,optionDataCases);
+        return getUpdateApiModuleDTO(chooseModule, idPathMap, optionData, fullCoverage, moduleMap, optionDataCases);
     }
 
     private UpdateApiModuleDTO dealHttp(List<ApiDefinitionWithBLOBs> data,
@@ -725,8 +696,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
 
 
-
-        return getUpdateApiModuleDTO(chooseModule,idPathMap,optionData,fullCoverage, moduleMap,optionDataCases);
+        return getUpdateApiModuleDTO(chooseModule, idPathMap, optionData, fullCoverage, moduleMap, optionDataCases);
 
     }
 
@@ -760,7 +730,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    private UpdateApiModuleDTO getUpdateApiModuleDTO(ApiModuleDTO chooseModule,Map<String, String> idPathMap,List<ApiDefinitionWithBLOBs> optionData,Boolean fullCoverage,Map<String, ApiModule> moduleMap, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    private UpdateApiModuleDTO getUpdateApiModuleDTO(ApiModuleDTO chooseModule, Map<String, String> idPathMap, List<ApiDefinitionWithBLOBs> optionData, Boolean fullCoverage, Map<String, ApiModule> moduleMap, List<ApiTestCaseWithBLOBs> optionDataCases) {
         UpdateApiModuleDTO updateApiModuleDTO = new UpdateApiModuleDTO();
         updateApiModuleDTO.setChooseModule(chooseModule);
         updateApiModuleDTO.setIdPathMap(idPathMap);
@@ -830,7 +800,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             //导入时即没选中模块，接口自身也没模块的，直接返会当前项目，当前协议下的默认模块
             List<ApiModule> moduleList = pidChildrenMap.get(PropertyConstant.ROOT);
             for (ApiModule module : moduleList) {
-                if (module.getName().equals("未规划接口")) {
+                if (module.getName().equals(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName())) {
                     datum.setModuleId(module.getId());
                     datum.setModulePath("/" + module.getName());
                 }
@@ -854,6 +824,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             datum.setModulePath(idPathMap.get(chooseModule.getId()));
         }
     }
+
     public String[] getPathTree(String modulePath) {
         String substring = modulePath.substring(0, 1);
         if (substring.equals("/")) {
