@@ -1433,6 +1433,7 @@ export default {
             jmxObj.attachFiles = jmxInfo.attachFiles;
             jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
             jmxObj.caseId = reqObj.id;
+            jmxObj.scenarioId = null;
             jmxObj.version = row.version;
             jmxObj.envId = environment.id;
             jmxObj.projectEnvMap = projectEnvMap;
@@ -1442,7 +1443,7 @@ export default {
             });
           }
         })
-        .catch((error) => {
+        .catch(() => {
           this.$emit('runRefresh', {});
         });
     },

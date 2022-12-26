@@ -78,6 +78,7 @@ export default {
           jmxObj.attachFiles = jmxInfo.attachFiles;
           jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
           jmxObj.scenarioId = row.id;
+          jmxObj.caseId = null;
           jmxObj.version = row.version;
           jmxObj.projectEnvMap = projectEnvMap;
           performanceStore.$patch({ test: { name: row.name, jmx: jmxObj } });
