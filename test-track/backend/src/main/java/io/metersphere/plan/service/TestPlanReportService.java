@@ -385,12 +385,6 @@ public class TestPlanReportService {
         TestPlanReportContentWithBLOBs testPlanReportContent = new TestPlanReportContentWithBLOBs();
         testPlanReportContent.setId(UUID.randomUUID().toString());
         testPlanReportContent.setTestPlanReportId(returnDTO.getTestPlanReport().getId());
-        if (testPlanReportContent.getStartTime() == null) {
-            testPlanReportContent.setStartTime(System.currentTimeMillis());
-        }
-        if (testPlanReportContent.getEndTime() == null) {
-            testPlanReportContent.setEndTime(System.currentTimeMillis());
-        }
         testPlanReportContentMapper.insert(testPlanReportContent);
     }
 
@@ -651,8 +645,10 @@ public class TestPlanReportService {
         TestPlanReportContentWithBLOBs testPlanReportContent = null;
         TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(testPlan.getId(), false);
         if (!testPlanReportContentList.isEmpty()) {
-            testPlanReportContent = testPlanReportContentList.get(0);
-            testPlanReportContentMapper.updateByPrimaryKeySelective(parseReportDaoToReportContent(reportDTO, testPlanReportContent));
+            testPlanReportContent = parseReportDaoToReportContent(reportDTO, testPlanReportContentList.get(0));
+            testPlanReportContent.setStartTime(null);
+            testPlanReportContent.setEndTime(null);
+            testPlanReportContentMapper.updateByPrimaryKeySelective(testPlanReportContent);
         }
 
         if (reportDTO.getStartTime() == null) {
