@@ -339,11 +339,19 @@ public class TestPlanScenarioCaseService {
                     if (envMap != null && !envMap.isEmpty()) {
                         env = JSON.toJSONString(envMap);
                     }
+                } else {
+                    Map<String, String> existMap = JSON.parseObject(env, Map.class);
+                    if (existMap.isEmpty()) {
+                        if (envMap != null && !envMap.isEmpty()) {
+                            env = JSON.toJSONString(envMap);
+                        }
+                    }
                 }
                 Map<String, String> map = JSON.parseObject(env, Map.class);
                 if (map.isEmpty()) {
                     continue;
                 }
+
                 Set<String> set = map.keySet();
                 for (String s : set) {
                     if (StringUtils.isNotBlank(envMap.get(s))) {
