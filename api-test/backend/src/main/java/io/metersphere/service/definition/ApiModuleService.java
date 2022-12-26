@@ -31,6 +31,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -189,6 +190,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
         request.setProtocol(protocol);
@@ -573,18 +575,30 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
-            ApiModule record = new ApiModule();
-            record.setId(UUID.randomUUID().toString());
-            record.setName(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName());
-            record.setProtocol(protocol);
-            record.setPos(1.0);
-            record.setLevel(1);
-            record.setCreateTime(System.currentTimeMillis());
-            record.setUpdateTime(System.currentTimeMillis());
-            record.setProjectId(projectId);
-            record.setCreateUser(SessionUtils.getUserId());
-            apiModuleMapper.insert(record);
-            return record;
+            return saveDefault(projectId, protocol);
+        } else {
+            return list.get(0);
+        }
+    }
+
+    @Async
+    public synchronized ApiModule saveDefault(String projectId, String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
+        List<ApiModule> list = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            ApiModule module = new ApiModule();
+            module.setId(UUID.randomUUID().toString());
+            module.setName(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName());
+            module.setProtocol(protocol);
+            module.setPos(1.0);
+            module.setLevel(1);
+            module.setCreateTime(System.currentTimeMillis());
+            module.setUpdateTime(System.currentTimeMillis());
+            module.setProjectId(projectId);
+            module.setCreateUser(SessionUtils.getUserId());
+            apiModuleMapper.insert(module);
+            return module;
         } else {
             return list.get(0);
         }
