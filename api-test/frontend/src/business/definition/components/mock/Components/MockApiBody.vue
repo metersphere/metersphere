@@ -23,7 +23,9 @@
     </el-radio-group>
     <div style="width: 98%" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-        <el-link class="ms-el-link" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
+        <el-link class="ms-el-link" @click="batchAdd">
+          {{ $t('commons.batch_add') }}
+        </el-link>
       </el-row>
       <mock-combination-condition
         :filter-type-object="body"

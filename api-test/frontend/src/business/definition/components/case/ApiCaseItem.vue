@@ -713,7 +713,7 @@ export default {
           if (!hideAlert) {
             this.$emit('refresh');
           }
-          this.$emit('refreshCaseList');
+          this.$emit('refreshCaseList',row.id);
         },
         (error) => {
           this.isSave = false;
