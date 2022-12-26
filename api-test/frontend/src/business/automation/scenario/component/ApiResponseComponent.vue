@@ -46,6 +46,7 @@ export default {
       this.getExecResult();
     } else {
       this.response = this.result;
+      this.isActive = true;
     }
     if (this.apiActive) {
       this.isActive = false;
@@ -58,7 +59,7 @@ export default {
       } else {
         this.getExecResult();
       }
-      this.isActive = false;
+      this.isActive = true;
     },
     apiItem() {
       this.getExecResult();
@@ -98,7 +99,7 @@ export default {
 }
 
 :deep(.el-card__body) {
-  padding: 15px;
+  padding: 10px;
 }
 
 .icon.is-active {
