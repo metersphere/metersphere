@@ -189,7 +189,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
         request.setProtocol(protocol);
