@@ -9,6 +9,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.utils.BeanUtils;
@@ -355,7 +356,7 @@ public class ApiDefinitionImportUtil {
     public static void setModule(ApiDefinitionWithBLOBs item, ApiModuleMapper apiModuleMapper) {
         if (item != null && StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("未规划接口");
+            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName());
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 item.setModuleId(modules.get(0).getId());
