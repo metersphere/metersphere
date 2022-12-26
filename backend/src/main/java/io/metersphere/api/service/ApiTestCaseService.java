@@ -347,7 +347,10 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
         testPlanApiCaseService.deleteByCaseId(testId);
-        deleteBodyFiles(testId);
+        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testId);
+        if (apiTestCase != null) {
+            deleteBodyFiles(apiTestCase.getId());
+        }
         // 删除附件关系
         fileAssociationService.deleteByResourceId(testId);
         deleteFollows(testId);
@@ -388,7 +391,8 @@ public class ApiTestCaseService {
     }
 
     public void deleteBodyFiles(String testId) {
-        File file = new File(BODY_FILE_DIR + "/" + testId);
+        String path = StringUtils.join(BODY_FILE_DIR, "/", testId);
+        File file = new File(path);
         FileUtil.deleteContents(file);
         if (file.exists()) {
             file.delete();
