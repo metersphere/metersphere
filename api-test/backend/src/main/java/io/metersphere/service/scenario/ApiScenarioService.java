@@ -1486,7 +1486,7 @@ public class ApiScenarioService {
 
     private void replenishScenarioModuleIdPath(String request, ApiScenarioModuleMapper apiScenarioModuleMapper, ApiScenarioWithBLOBs item) {
         ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-        example.createCriteria().andProjectIdEqualTo(request).andNameEqualTo("未规划场景");
+        example.createCriteria().andProjectIdEqualTo(request).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
         List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(modules)) {
             item.setApiScenarioModuleId(modules.get(0).getId());

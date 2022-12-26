@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
+import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
@@ -157,7 +158,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //回收站数据初始化：被删除了的数据挂在默认模块上
         initTrashDataModule(projectId);
         //通过回收站里的接口模块进行反显
-        if(request.getFilters() != null && request.getFilters().get("status") != null){
+        if (request.getFilters() != null && request.getFilters().get("status") != null) {
             List<String> statusList = new ArrayList<>();
             statusList.add(ApiTestDataStatus.TRASH.getValue());
             request.getFilters().put("status", statusList);
@@ -507,12 +508,12 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public ApiScenarioModule getDefaultNode(String projectId) {
         ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划场景").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             ApiScenarioModule record = new ApiScenarioModule();
             record.setId(UUID.randomUUID().toString());
-            record.setName("未规划场景");
+            record.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
             record.setPos(1.0);
             record.setLevel(1);
             record.setCreateTime(System.currentTimeMillis());
@@ -825,7 +826,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     //导入时即没选中模块，接口自身也没模块的，直接返会当前项目，当前协议下的默认模块
                     List<ApiScenarioModule> moduleList = pidChildrenMap.get(PropertyConstant.ROOT);
                     for (ApiScenarioModule module : moduleList) {
-                        if (module.getName().equals("未规划场景")) {
+                        if (module.getName().equals(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName())) {
                             datum.setApiScenarioModuleId(module.getId());
                             datum.setModulePath("/" + module.getName());
                         }
