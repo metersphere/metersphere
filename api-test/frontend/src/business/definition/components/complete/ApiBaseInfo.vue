@@ -12,19 +12,9 @@
       <ms-form-divider :title="$t('test_track.plan_view.base_info')" />
 
       <!-- 基础信息 -->
-      <el-row>
-        <el-form-item v-if="currentProtocol !== 'TCP'" :label="$t('commons.name')" prop="name">
-          <el-input v-model="basicForm.name" class="ms-http-input" size="small" />
-        </el-form-item>
-
-        <el-form-item v-else :label="$t('commons.name')" prop="name">
-          <el-input v-model="basicForm.name" class="ms-http-input" size="small">
-            <el-select slot="prepend" v-model="basicForm.method" size="mini" style="width: 80px">
-              <el-option v-for="item in methodTypes" :key="item.key" :label="item.value" :value="item.key" />
-            </el-select>
-          </el-input>
-        </el-form-item>
-      </el-row>
+      <el-form-item :label="$t('commons.name')" prop="name">
+        <el-input v-model="basicForm.name" class="ms-http-input" size="small" />
+      </el-form-item>
 
       <el-row>
         <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
@@ -272,14 +262,6 @@ export default {
   },
   created() {
     this.basicForm = this.form;
-    if (hasLicense()) {
-      if (this.methodTypes.length == 1) {
-        let esbMethodType = {};
-        esbMethodType.key = 'ESB';
-        esbMethodType.value = 'ESB';
-        this.methodTypes.push(esbMethodType);
-      }
-    }
   },
 };
 </script>

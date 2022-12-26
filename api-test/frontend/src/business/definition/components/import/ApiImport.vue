@@ -39,7 +39,7 @@
               clearable
               checkStrictly />
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel && showImportModel" :label="$t('commons.import_mode')" prop="modeId">
+          <el-form-item v-if="!isScenarioModel" :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" clearable style="width: 100%">
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
@@ -77,11 +77,6 @@
             <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
               <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
-          </el-form-item>
-          <el-form-item v-if="showTemplate">
-            <el-button type="small" @click="downloadTemplate">
-              {{ $t('test_track.case.import.download_template') }}
-            </el-button>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch v-model="swaggerUrlEnable" :active-text="$t('api_test.api_import.swagger_url_import')">
@@ -187,7 +182,6 @@
 </template>
 
 <script>
-import { exportEsbTemp } from '@/api/definition';
 import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
 import { importScenario } from '@/api/scenario';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
@@ -274,13 +268,6 @@ export default {
         exportTip: this.$t('api_test.api_import.har_export_tip'),
         suffixes: new Set(['har']),
       },
-      esbPlanform: {
-        name: 'ESB',
-        value: 'ESB',
-        tip: this.$t('api_test.api_import.esb_tip'),
-        exportTip: this.$t('api_test.api_import.esb_export_tip'),
-        suffixes: new Set(['xlsx', 'xls']),
-      },
       jmeterPlatform: {
         name: 'JMeter',
         value: 'Jmeter',
@@ -346,16 +333,11 @@ export default {
           break;
         }
       }
-      if (this.selectedPlatformValue === 'ESB') {
-        this.formData.modeId = 'fullCoverage';
-        this.$refs.form.clearValidate();
-      }
     },
     protocol() {
       let postmanIndex = this.platforms.indexOf(this.postmanPlanform);
       let swaggerPlanformIndex = this.platforms.indexOf(this.swaggerPlanform);
       let harPlanformIndex = this.platforms.indexOf(this.harPlanform);
-      let esbPlanformIndex = this.platforms.indexOf(this.esbPlanform);
       if (postmanIndex >= 0) {
         this.platforms.splice(this.platforms.indexOf(this.postmanPlanform), 1);
       }
@@ -365,13 +347,7 @@ export default {
       if (harPlanformIndex >= 0) {
         this.platforms.splice(this.platforms.indexOf(this.harPlanform), 1);
       }
-      if (esbPlanformIndex >= 0) {
-        this.platforms.splice(this.platforms.indexOf(this.esbPlanform), 1);
-      }
       if (this.protocol === 'TCP') {
-        if (hasLicense()) {
-          this.platforms.push(this.esbPlanform);
-        }
         return true;
       } else if (this.protocol === 'HTTP') {
         this.platforms.push(this.postmanPlanform);
@@ -384,12 +360,6 @@ export default {
   computed: {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
-    },
-    showImportModel() {
-      return this.selectedPlatformValue !== 'ESB';
-    },
-    showTemplate() {
-      return this.selectedPlatformValue === 'ESB';
     },
     isScenarioModel() {
       return this.model === 'scenario';
@@ -437,11 +407,6 @@ export default {
     },
     handleRemove(file, fileList) {
       this.formData.file = undefined;
-    },
-    downloadTemplate() {
-      if (this.selectedPlatformValue == 'ESB') {
-        exportEsbTemp('esb-temp');
-      }
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);

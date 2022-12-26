@@ -183,16 +183,7 @@
           :show-pre-script="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
-          v-if="api.method === 'TCP'" />
-        <mx-esb-definition
-          class="esb-div"
-          v-xpack
-          :request="apiCase.request"
-          :show-pre-script="true"
-          :showScript="true"
-          :response="apiCase.responseData"
-          v-if="api.method === 'ESB'"
-          ref="esbDefinition" />
+          v-if="api.method === 'TCP' || api.method === 'ESB'" />
         <ms-sql-basis-parameters
           :showScript="true"
           :request="apiCase.request"
@@ -205,22 +196,10 @@
           v-if="api.protocol === 'DUBBO'" />
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <div v-if="api.method === 'ESB'">
-          <mx-esb-definition-response
-            v-xpack
-            :currentProtocol="apiCase.request.protocol"
-            :request="apiCase.request"
-            :is-api-component="false"
-            :show-options-button="false"
-            :show-header="true"
-            :api-item="apiCase" />
-        </div>
-        <div v-else>
-          <api-response-component
-            :currentProtocol="apiCase.request.protocol"
-            :api-item="apiCase"
-            :result="apiCase.responseData" />
-        </div>
+        <api-response-component
+          :currentProtocol="apiCase.request.protocol"
+          :api-item="apiCase"
+          :result="apiCase.responseData" />
       </div>
     </el-collapse-transition>
     <ms-change-history ref="changeHistory" />
@@ -334,8 +313,6 @@ export default {
     MsChangeHistory,
     ApiCaseHeader,
     MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
-    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {

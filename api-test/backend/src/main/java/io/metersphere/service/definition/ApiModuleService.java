@@ -14,10 +14,8 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiModuleExample;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -668,8 +666,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (protocol.equals("HTTP")) {
             return dealHttp(data, pidChildrenMap, idPathMap, idModuleMap, request, fullCoverage, urlRepeat, importCases);
         } else {
-            Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap = apiImport.getEsbApiParamsMap();
-            return delOtherProtocol(data, pidChildrenMap, idPathMap, idModuleMap, request, fullCoverage, importCases, esbApiParamsMap);
+             return delOtherProtocol(data, pidChildrenMap, idPathMap, idModuleMap, request, fullCoverage, importCases);
         }
 
     }
@@ -677,7 +674,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private UpdateApiModuleDTO delOtherProtocol(List<ApiDefinitionWithBLOBs> data,
                                                 Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap,
                                                 Map<String, ApiModuleDTO> idModuleMap, ApiTestImportRequest request,
-                                                Boolean fullCoverage, List<ApiTestCaseWithBLOBs> importCases, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
+                                                Boolean fullCoverage, List<ApiTestCaseWithBLOBs> importCases) {
         List<ApiDefinitionWithBLOBs> optionData = new ArrayList<>();
         //去重，TCP,SQL,DUBBO 模块下名称唯一
         removeRepeatOrigin(data, fullCoverage, optionData);
@@ -734,11 +731,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private Boolean getFullCoverage(ApiDefinitionImport apiImport, Boolean fullCoverage) {
         if (fullCoverage == null) {
             fullCoverage = false;
-        }
-
-        //标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-        if (apiImport.getEsbApiParamsMap() != null) {
-            fullCoverage = true;
         }
         return fullCoverage;
     }

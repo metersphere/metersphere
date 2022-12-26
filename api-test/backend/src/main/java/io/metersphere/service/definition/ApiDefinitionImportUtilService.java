@@ -207,17 +207,15 @@ public class ApiDefinitionImportUtilService {
             }
 
         } else {
-            Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap = apiImport.getEsbApiParamsMap();
-
-            repeatList = dealRepeat(request, optionData, moduleMap, fullCoverage, idPathMap, chooseModule, esbApiParamsMap, toUpdateList, optionDataCases);
+            repeatList = dealRepeat(request, optionData, moduleMap, fullCoverage, idPathMap, chooseModule, toUpdateList, optionDataCases);
         }
 
         if (MapUtils.isNotEmpty(moduleMap)) {
-            moduleMap.forEach((k,v)-> apiModuleMapper.insert(v));
+            moduleMap.forEach((k, v) -> apiModuleMapper.insert(v));
         }
         int num = 0;
         if (!CollectionUtils.isEmpty(optionData) && optionData.get(0) != null && optionData.get(0).getProjectId() != null) {
-            num = getNextNum(optionData.get(0).getProjectId(),extApiDefinitionMapper);
+            num = getNextNum(optionData.get(0).getProjectId(), extApiDefinitionMapper);
         }
         //如果需要导入的数据为空。此时清空mock信息
         if (optionData.isEmpty()) {
@@ -259,33 +257,14 @@ public class ApiDefinitionImportUtilService {
             //如果EsbData需要存储,则需要进行接口是否更新的判断
             ApiDefinitionImportParamDTO apiDefinitionImportParam = new ApiDefinitionImportParamDTO(item, request, apiImport.getMocks(), toUpdateList, caseList);
             apiDefinitionImportParam.setRepeatList(sameRefIds);
-            if (apiImport.getEsbApiParamsMap() != null) {
-                String apiId = item.getId();
-                EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
-                request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-
-                ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, apiDefinitionImportParam);
-                if (model != null) {
-                    apiImport.getEsbApiParamsMap().remove(apiId);
-                    model.setResourceId(item.getId());
-                    apiImport.getEsbApiParamsMap().put(item.getId(), model);
-                }
-                if (apiImportSendNoticeDTO != null) {
-                    apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
-                }
-            } else {
-                ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, apiDefinitionImportParam);
-                if (apiImportSendNoticeDTO != null) {
-                    apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
-                }
+            ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, apiDefinitionImportParam);
+            if (apiImportSendNoticeDTO != null) {
+                apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
         }
-
-        //判断EsbData是否需要存储
-        ApiDefinitionImportUtil.delEsbData(apiImport, sqlSession);
 
         if (!CollectionUtils.isEmpty(apiImport.getMocks())) {
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
@@ -336,14 +315,14 @@ public class ApiDefinitionImportUtilService {
             //允许覆盖模块，用导入的重复数据的最后一条覆盖查询的所有重复数据; case 在覆盖的时候，是拼接到原来的case，name唯一；不覆盖，就用原来的
             if (fullCoverageApi) {
                 if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
-                    startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, null);
+                    startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             } else {
                 //覆盖但不覆盖模块
                 if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
                     //过滤同一层级重复模块，导入文件没有新增接口无需创建接口模块
                     moduleMap = judgeModuleMap(moduleMap, optionMap, repeatDataMap);
-                    startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,null);
+                    startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             }
         } else {
@@ -387,12 +366,12 @@ public class ApiDefinitionImportUtilService {
         if (fullCoverage) {
             if (fullCoverageApi) {
                 if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
-                    startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, null);
+                    startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             } else {
                 //不覆盖模块
                 if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
-                    startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,null);
+                    startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             }
         } else {
@@ -473,7 +452,7 @@ public class ApiDefinitionImportUtilService {
     private static void startCoverModule(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
                                          Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap,
                                          String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
-                                         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
+                                         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
         //临时记录修改数据后导入的数据
         List<ApiDefinitionWithBLOBs> coverApiList = new ArrayList<>();
         //临时记录需要更新的系统数据
@@ -501,7 +480,6 @@ public class ApiDefinitionImportUtilService {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs, optionDataCases);
                     }
                     //在指定版本中更新接口内容并变更接口模块为当前导入选择的模块下创建导入文件中接口指定的模块
-                    updateEsb(esbApiParamsMap, definitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getId());
                     ApiDefinitionWithBLOBs api = new ApiDefinitionWithBLOBs();
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
                     api.setId(definitionWithBLOBs.getId());
@@ -568,6 +546,7 @@ public class ApiDefinitionImportUtilService {
         }
         return moduleMap;
     }
+
     private static void addNewVersionApi(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs, ApiDefinitionWithBLOBs v, String version) {
         apiDefinitionWithBLOBs.setVersionId(version);
         apiDefinitionWithBLOBs.setNum(v.getNum());
@@ -726,7 +705,7 @@ public class ApiDefinitionImportUtilService {
     }
 
     private List<ApiDefinitionWithBLOBs> dealRepeat(ApiTestImportRequest request, List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap, Boolean fullCoverage, Map<String, String> idPathMap, ApiModuleDTO chooseModule,
-                                                    Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+                                                    List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
         String chooseModuleId = request.getModuleId();
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getApiDefinitionWithBLOBsList(request, optionData);
         //重复接口的case
@@ -758,11 +737,11 @@ public class ApiDefinitionImportUtilService {
         //处理数据
         if (fullCoverage) {
             if (fullCoverageApi) {
-                startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,esbApiParamsMap);
+                startCoverModule(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
             } else {
                 //过滤同一层级重复模块，导入文件没有新增接口无需创建接口模块
                 moduleMap = judgeModuleMap(moduleMap, optionMap, repeatDataMap);
-                startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,esbApiParamsMap);
+                startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
             }
         } else {
             //不覆盖
@@ -776,7 +755,7 @@ public class ApiDefinitionImportUtilService {
             repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getModulePath())));
             optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getModulePath()), api -> api));
             if (fullCoverage) {
-                startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap,esbApiParamsMap);
+                startCover(toUpdateList, optionData, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
             } else {
                 //不覆盖,同一接口不做更新
                 if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
@@ -834,7 +813,7 @@ public class ApiDefinitionImportUtilService {
     private static void startCover(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
                                    Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap,
                                    String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
-                                   Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
+                                   Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
         List<ApiDefinitionWithBLOBs> coverApiList = new ArrayList<>();
         List<ApiDefinitionWithBLOBs> updateApiList = new ArrayList<>();
         repeatDataMap.forEach((k, v) -> {
@@ -853,7 +832,6 @@ public class ApiDefinitionImportUtilService {
                         i += 1;
                         continue;
                     }
-                    updateEsb(esbApiParamsMap, definitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getId());
                     //组合case
                     if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs, optionDataCases);
@@ -868,7 +846,7 @@ public class ApiDefinitionImportUtilService {
                     updateApiList.add(definitionWithBLOBs);
                 }
                 if (i == v.size()) {
-                    if (latestApi!=null) {
+                    if (latestApi != null) {
                         boolean hasChange;
                         if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
                             hasChange = ApiDefinitionImportUtil.checkIsSynchronize(latestApi, apiDefinitionWithBLOBs);
@@ -1029,19 +1007,6 @@ public class ApiDefinitionImportUtilService {
         }
     }
 
-
-
-    private static void updateEsb(Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap, String newId, String oldId) {
-        if (MapUtils.isNotEmpty(esbApiParamsMap)) {
-            EsbApiParamsWithBLOBs esbApiParamsWithBLOBs = esbApiParamsMap.get(oldId);
-            if (esbApiParamsWithBLOBs != null) {
-                esbApiParamsMap.remove(oldId);
-                esbApiParamsWithBLOBs.setResourceId(newId);
-                esbApiParamsMap.put(newId, esbApiParamsWithBLOBs);
-            }
-        }
-    }
-
     private ApiImportSendNoticeDTO _importCreate(ApiDefinitionMapper batchMapper, ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
         ApiDefinitionWithBLOBs apiDefinition = apiDefinitionImportParamDTO.getApiDefinition();
         ApiTestImportRequest apiTestImportRequest = apiDefinitionImportParamDTO.getApiTestImportRequest();
@@ -1149,8 +1114,6 @@ public class ApiDefinitionImportUtilService {
         extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());*/
         return apiImportSendNoticeDTO;
     }
-
-
 
 
     private static List<ApiTestCaseWithBLOBs> setRequestAndAddNewCase(ApiDefinitionWithBLOBs apiDefinition, List<ApiTestCaseWithBLOBs> caseList, boolean newCreate) {

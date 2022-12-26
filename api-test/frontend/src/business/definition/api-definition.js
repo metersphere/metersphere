@@ -79,10 +79,7 @@ export function getProtocolFilter(protocolType) {
       { text: 'CONNECT', value: 'CONNECT' },
     ];
   } else if (protocolType === 'TCP') {
-    return [
-      { text: 'TCP', value: 'TCP' },
-      { text: 'ESB', value: 'ESB' },
-    ];
+    return [{ text: 'TCP', value: 'TCP' }];
   } else if (protocolType === 'SQL') {
     return [{ text: 'SQL', value: 'SQL' }];
   } else if (protocolType === 'DUBBO') {

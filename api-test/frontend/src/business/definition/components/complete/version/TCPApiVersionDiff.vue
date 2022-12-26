@@ -47,19 +47,6 @@
 
             <ms-tcp-format-parameters :show-script="false" :request="oldRequest" ref="tcpFormatParameter" />
           </div>
-          <div v-else-if="oldApiProtocol === 'ESB'">
-            <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-            <mx-esb-definition
-              v-xpack
-              :show-script="false"
-              :is-read-only="true"
-              :request="oldRequest"
-              ref="esbDefinition" />
-            <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-            <mx-esb-definition-response v-xpack :is-api-component="true" :is-read-only="true" :request="oldRequest" />
-            <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
-          </div>
-
           <ms-form-divider :title="$t('test_track.case.other_info')" />
           <api-info-container>
             <el-form :model="oldData" ref="api-form" label-width="100px">
@@ -123,17 +110,6 @@
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
             <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter" />
           </div>
-          <div v-else-if="apiProtocol == 'ESB'">
-            <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-            <mx-esb-definition
-              v-xpack
-              :show-script="false"
-              :is-read-only="true"
-              :request="request"
-              ref="esbDefinition" />
-            <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-            <mx-esb-definition-response v-xpack :is-api-component="true" :is-read-only="true" :request="request" />
-          </div>
 
           <!-- 其他信息-->
           <ms-form-divider :title="$t('test_track.case.other_info')" />
@@ -191,8 +167,6 @@ export default {
     TabPaneCount,
     FormRichTextItem,
     DependenciesList,
-    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   props: {
     oldData: {

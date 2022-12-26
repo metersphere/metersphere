@@ -171,8 +171,3 @@ export function createDefinition(file, files, params) {
   let url = '/api/definition/create';
   return fileUpload(url, file, files, params);
 }
-
-export function exportEsbTemp(name) {
-  let url = '/api/definition/export-esb-template';
-  return fileDownload(url, name);
-}
