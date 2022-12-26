@@ -335,7 +335,8 @@ public class TestPlanScenarioCaseService {
             Map<String, String> envMap = runModeConfig.getEnvMap();
             for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
                 String env = testPlanApiScenario.getEnvironment();
-                if (StringUtils.isBlank(env)) {
+                Map<String, String> existMap = JSON.parseObject(env, Map.class);
+                if (StringUtils.isBlank(env) || existMap.isEmpty()) {
                     if (envMap != null && !envMap.isEmpty()) {
                         env = JSON.toJSONString(envMap);
                     }
@@ -344,6 +345,7 @@ public class TestPlanScenarioCaseService {
                 if (map.isEmpty()) {
                     continue;
                 }
+
                 Set<String> set = map.keySet();
                 for (String s : set) {
                     if (StringUtils.isNotBlank(envMap.get(s))) {
