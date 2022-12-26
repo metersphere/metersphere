@@ -545,8 +545,10 @@ export default {
       if (this.httpForm.tags instanceof Array) {
         this.httpForm.tags = JSON.stringify(this.httpForm.tags);
       }
-      if (this.beforeHttpForm.tags instanceof Array) {
-        this.beforeHttpForm.tags = JSON.stringify(this.beforeHttpForm.tags);
+      if (this.beforeHttpForm) {
+        if (this.beforeHttpForm.tags instanceof Array) {
+          this.beforeHttpForm.tags = JSON.stringify(this.beforeHttpForm.tags);
+        }
       }
     },
     saveApi() {
@@ -808,11 +810,11 @@ export default {
         } else {
           this.versionData = response.data;
         }
-
-        this.beforeHttpForm = this.versionData[0];
-        this.beforeRequest = JSON.parse(this.versionData[0].request);
-        this.beforeResponse = JSON.parse(this.versionData[0].response);
-
+        if (this.versionData[0]) {
+          this.beforeHttpForm = this.versionData[0];
+          this.beforeRequest = JSON.parse(this.versionData[0].request);
+          this.beforeResponse = JSON.parse(this.versionData[0].response);
+        }
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
           this.hasLatest = false
