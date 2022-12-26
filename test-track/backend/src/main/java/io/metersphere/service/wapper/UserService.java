@@ -19,6 +19,10 @@ public class UserService {
     UserMapper userMapper;
 
     public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
+        return JSON.parseObject(getCurrentPlatformInfoStr(workspaceId), UserDTO.PlatformInfo.class);
+    }
+
+    public String  getCurrentPlatformInfoStr(String workspaceId) {
         User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
         if (user == null) {
             return null;
@@ -32,11 +36,6 @@ public class UserService {
         if (platformInfo == null) {
             return null;
         }
-        return JSON.parseObject(JSON.toJSONString(platformInfo), UserDTO.PlatformInfo.class);
-    }
-
-    public String getCurrentPlatformInfoStr(String workspaceId) {
-        UserDTO.PlatformInfo currentPlatformInfo = getCurrentPlatformInfo(workspaceId);
-        return currentPlatformInfo == null ? null : JSON.toJSONString(currentPlatformInfo);
+        return JSON.toJSONString(platformInfo);
     }
 }

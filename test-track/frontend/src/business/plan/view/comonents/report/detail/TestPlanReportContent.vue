@@ -36,7 +36,7 @@ import {
   getShareTestPlanReportContent,
   getTestPlanReport,
   getTestPlanReportContent,
-  getTestPlanExtReport
+  getTestPlanExtReport, getShareTestPlanExtReport
 } from "@/api/remote/plan/test-plan";
 import TestPlanApiReport from "@/business/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanUiReport from "@/business/plan/view/comonents/report/detail/TestPlanUiReport";
@@ -187,10 +187,19 @@ export default {
             });
         }
       }
-      getTestPlanExtReport(this.planId, this.reportId).then((response) => {
-        this.runMode = response.data.runMode;
-        this.resourcePool = response.data.resourcePool;
-      })
+      if (!this.isTemplate) {
+        if (this.isShare) {
+          getShareTestPlanExtReport(this.shareId, this.planId, this.reportId).then((response) => {
+            this.runMode = response.data.runMode;
+            this.resourcePool = response.data.resourcePool;
+          });
+        } else {
+          getTestPlanExtReport(this.planId, this.reportId).then((response) => {
+            this.runMode = response.data.runMode;
+            this.resourcePool = response.data.resourcePool;
+          });
+        }
+      }
     },
     getDefaultConfig(report) {
       let dbConfig = null;
