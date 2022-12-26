@@ -26,8 +26,6 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     public static final String JSON_END = "}";
     public static final String TYPE = "type";
     public static final String HTTP = "HTTP";
-    public static final String ESB = "ESB";
-    public static final String BACK_ESB = "backEsbDataStruct";
     public static final String BACK_SCRIPT = "backScript";
     public static final String HEADS = "headers";
     public static final String STATUS_CODE = "statusCode";
@@ -54,34 +52,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                 diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
             }
         }
-        if (bloBsIsNew.getString(TYPE).equals(ESB)) {
-            diffEsbResponse(bloBsIsNew, bloBsIsOld, diffMap);
-            if (diffMap.size() > 0) {
-                diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
-            }
-        }
         return JSON.toJSONString(diffMap);
-    }
-
-    private static void diffEsbResponse(JSONObject bloBsIsNew, JSONObject bloBsIsOld, Map<String, String> diffMap) {
-        //对比响应报文
-        if (bloBsIsNew.get(BACK_ESB) != null && bloBsIsOld.get(BACK_ESB) != null) {
-            String backEsbDataStructNew = StringUtils.join(StringUtils.join(JSON_START, bloBsIsNew.get(BACK_ESB).toString()), JSON_END);
-            String backEsbDataStructOld = StringUtils.join(StringUtils.join(JSON_START, bloBsIsOld.get(BACK_ESB).toString()), JSON_END);
-            if (!StringUtils.equals(backEsbDataStructNew, backEsbDataStructOld)) {
-                diffMap.put(StringUtils.join(BACK_ESB, "1"), backEsbDataStructNew);
-                diffMap.put(StringUtils.join(BACK_ESB, "2"), backEsbDataStructOld);
-            }
-        }
-
-        if (!StringUtils.equals(bloBsIsNew.getString(BACK_SCRIPT), bloBsIsOld.getString(BACK_SCRIPT))) {
-            String backScriptNew = StringUtils.join(StringUtils.join(JSON_START, bloBsIsNew.get(BACK_SCRIPT).toString()), JSON_END);
-            String backScriptOld = StringUtils.join(StringUtils.join(JSON_START, bloBsIsOld.get(BACK_SCRIPT).toString()), JSON_END);
-            if (!StringUtils.equals(backScriptNew, backScriptOld)) {
-                diffMap.put(StringUtils.join(BACK_SCRIPT, "1"), backScriptNew);
-                diffMap.put(StringUtils.join(BACK_SCRIPT, "2"), backScriptOld);
-            }
-        }
     }
 
     @Override
@@ -285,81 +256,49 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     }
 
     private static void diffTcp(MsTCPSampler tcpNew, MsTCPSampler tcpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
-        if ((ESB).equals(tcpNew.getProtocol()) && (ESB).equals(tcpOld.getProtocol())) {
-            diffMap.put(TYPE, ESB);
-            //对比参数
-            String queryNewEsb = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getEsbDataStruct())), JSON_END);
-            String queryOldEsb = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getEsbDataStruct())), JSON_END);
-            if (!StringUtils.equals(queryNewEsb, queryOldEsb)) {
-                diffMap.put(StringUtils.join(QUERY, "1"), queryNewEsb);
-                diffMap.put(StringUtils.join(QUERY, "2"), queryOldEsb);
+        // 对比请求参数
+        if (CollectionUtils.isNotEmpty(tcpNew.getParameters())) {
+            tcpNew.getParameters().remove(tcpNew.getParameters().size() - 1);
+            tcpOld.getParameters().remove(tcpOld.getParameters().size() - 1);
+        }
+        String queryNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getParameters())), JSON_END);
+        String queryOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getParameters())), JSON_END);
+        if (!StringUtils.equals(queryNew, queryOld)) {
+            String patch = jsonDiff.diff(queryOld, queryNew);
+            String diff = jsonDiff.apply(queryNew, patch);
+            if (StringUtils.isNotEmpty(diff)) {
+                diffMap.put(QUERY, diff);
             }
-            //报文模版
-            String requestNewEsb = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getRequest())), JSON_END);
-            String requestOldEsb = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getRequest())), JSON_END);
-            if (!StringUtils.equals(requestNewEsb, requestOldEsb)) {
-                diffMap.put(StringUtils.join(REQUEST, "1"), requestNewEsb);
-                diffMap.put(StringUtils.join(REQUEST, "2"), requestOldEsb);
+        }
+        // 对比BODY-JSON参数
+        if (!StringUtils.equals(tcpNew.getJsonDataStruct(), tcpOld.getJsonDataStruct())) {
+            String patch = jsonDiff.diff(tcpOld.getJsonDataStruct(), tcpNew.getJsonDataStruct());
+            String diff = jsonDiff.apply(tcpNew.getJsonDataStruct(), patch);
+            if (StringUtils.isNotEmpty(diff) && !StringUtils.equals(patch, "{}")) {
+                diffMap.put("body_json", diff);
             }
-            // 其他设置
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(tcpNew, DefinitionReference.esbColumns);
-            List<DetailColumn> columnsOld = ReflexObjectUtil.getColumns(tcpOld, DefinitionReference.esbColumns);
-            List<DetailColumn> diffColumns = getColumn(columns, columnsOld);
-            if (CollectionUtils.isNotEmpty(diffColumns)) {
-                diffMap.put("otherConfig", JSON.toJSONString(diffColumns));
+        }
+        // 对比BODY-XML参数
+        String xmlNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getXmlDataStruct())), JSON_END);
+        String xmlOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getXmlDataStruct())), JSON_END);
+        if (!StringUtils.equals(xmlNew, xmlOld)) {
+            diffMap.put(StringUtils.join(BODY_XML, "_1"), JSON.toJSONString(tcpNew.getXmlDataStruct()));
+            diffMap.put(StringUtils.join(BODY_XML, "_2"), JSON.toJSONString(tcpOld.getXmlDataStruct()));
+            String patch = jsonDiff.diff(xmlOld, xmlNew);
+            String diffPatch = jsonDiff.apply(xmlNew, patch);
+            if (StringUtils.isNotEmpty(diffPatch)) {
+                diffMap.put(BODY_XML, diffPatch);
             }
-        } else {
-            // 对比请求参数
-            if (CollectionUtils.isNotEmpty(tcpNew.getParameters())) {
-                tcpNew.getParameters().remove(tcpNew.getParameters().size() - 1);
-                tcpOld.getParameters().remove(tcpOld.getParameters().size() - 1);
-            }
-            String queryNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getParameters())), JSON_END);
-            String queryOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getParameters())), JSON_END);
-            if (!StringUtils.equals(queryNew, queryOld)) {
-                String patch = jsonDiff.diff(queryOld, queryNew);
-                String diff = jsonDiff.apply(queryNew, patch);
-                if (StringUtils.isNotEmpty(diff)) {
-                    diffMap.put(QUERY, diff);
-                }
-            }
-            // 对比BODY-JSON参数
-            if (!StringUtils.equals(tcpNew.getJsonDataStruct(), tcpOld.getJsonDataStruct())) {
-                String patch = jsonDiff.diff(tcpOld.getJsonDataStruct(), tcpNew.getJsonDataStruct());
-                String diff = jsonDiff.apply(tcpNew.getJsonDataStruct(), patch);
-                if (StringUtils.isNotEmpty(diff) && !StringUtils.equals(patch, "{}")) {
-                    diffMap.put("body_json", diff);
-                }
-            }
-            // 对比BODY-XML参数
-            String xmlNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getXmlDataStruct())), JSON_END);
-            String xmlOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getXmlDataStruct())), JSON_END);
-            if (!StringUtils.equals(xmlNew, xmlOld)) {
-                diffMap.put(StringUtils.join(BODY_XML, "_1"), JSON.toJSONString(tcpNew.getXmlDataStruct()));
-                diffMap.put(StringUtils.join(BODY_XML, "_2"), JSON.toJSONString(tcpOld.getXmlDataStruct()));
-                String patch = jsonDiff.diff(xmlOld, xmlNew);
-                String diffPatch = jsonDiff.apply(xmlNew, patch);
-                if (StringUtils.isNotEmpty(diffPatch)) {
-                    diffMap.put(BODY_XML, diffPatch);
-                }
-            }
-            // 对比BODY-RAW参数
-            if (!StringUtils.equals(tcpNew.getRawDataStruct(), tcpOld.getRawDataStruct())) {
-                diffMap.put(StringUtils.join(BODY_RAW, "_1"), tcpNew.getRawDataStruct());
-                diffMap.put(StringUtils.join(BODY_RAW, "_2"), tcpOld.getRawDataStruct());
-            }
-            // 对比pre参数
-            if (tcpNew.getTcpPreProcessor() != null && !StringUtils.equals(tcpNew.getTcpPreProcessor().getScript(), tcpOld.getTcpPreProcessor().getScript())) {
-                diffMap.put(StringUtils.join(SCRIPT, "_1"), tcpNew.getTcpPreProcessor().getScript());
-                diffMap.put(StringUtils.join(SCRIPT, "_2"), tcpOld.getTcpPreProcessor().getScript());
-            }
-            // 其他设置
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(tcpNew, DefinitionReference.esbColumns);
-            List<DetailColumn> columnsOld = ReflexObjectUtil.getColumns(tcpOld, DefinitionReference.esbColumns);
-            List<DetailColumn> diffColumns = getColumn(columns, columnsOld);
-            if (CollectionUtils.isNotEmpty(diffColumns)) {
-                diffMap.put("other_config", JSON.toJSONString(diffColumns));
-            }
+        }
+        // 对比BODY-RAW参数
+        if (!StringUtils.equals(tcpNew.getRawDataStruct(), tcpOld.getRawDataStruct())) {
+            diffMap.put(StringUtils.join(BODY_RAW, "_1"), tcpNew.getRawDataStruct());
+            diffMap.put(StringUtils.join(BODY_RAW, "_2"), tcpOld.getRawDataStruct());
+        }
+        // 对比pre参数
+        if (tcpNew.getTcpPreProcessor() != null && !StringUtils.equals(tcpNew.getTcpPreProcessor().getScript(), tcpOld.getTcpPreProcessor().getScript())) {
+            diffMap.put(StringUtils.join(SCRIPT, "_1"), tcpNew.getTcpPreProcessor().getScript());
+            diffMap.put(StringUtils.join(SCRIPT, "_2"), tcpOld.getTcpPreProcessor().getScript());
         }
     }
 

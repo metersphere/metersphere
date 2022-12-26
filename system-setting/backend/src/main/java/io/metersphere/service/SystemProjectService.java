@@ -33,11 +33,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -170,38 +170,12 @@ public class SystemProjectService {
         return systemId;
     }
 
-    public Project checkSystemId(Project project) {
-        if (project != null) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andSystemIdEqualTo(project.getSystemId());
-            long count = projectMapper.countByExample(example);
-            if (count > 1) {
-                String systemId = this.genSystemId();
-                Project updateModel = new Project();
-                updateModel.setId(project.getId());
-                updateModel.setSystemId(systemId);
-                projectMapper.updateByPrimaryKeySelective(updateModel);
-                project = this.getProjectById(project.getId());
-            }
-        }
-        return project;
-    }
-
     public List<ProjectDTO> getProjectList(ProjectRequest request) {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return baseProjectMapper.getProjectWithWorkspace(request);
-    }
-
-    public List<Project> getProjectByIds(List<String> ids) {
-        if (!CollectionUtils.isEmpty(ids)) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andIdIn(ids);
-            return projectMapper.selectByExample(example);
-        }
-        return new ArrayList<>();
     }
 
     public void deleteProject(String projectId) {
@@ -225,26 +199,6 @@ public class SystemProjectService {
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
         userGroupMapper.deleteByExample(userGroupExample);
-    }
-
-    public void updateIssueTemplate(String originId, String templateId, String projectId) {
-        Project project = new Project();
-        project.setIssueTemplateId(templateId);
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andIssueTemplateIdEqualTo(originId).andIdEqualTo(projectId);
-        projectMapper.updateByExampleSelective(project, example);
-    }
-
-    /**
-     * 把原来为系统模板的项目模板设置成新的模板
-     * 只设置改工作空间下的
-     *
-     * @param originId
-     * @param templateId
-     * @param projectId
-     */
-    public void updateCaseTemplate(String originId, String templateId, String projectId) {
-        baseProjectMapper.updateUseDefaultCaseTemplateProject(originId, templateId, projectId);
     }
 
     public void updateProject(AddProjectRequest project) {
@@ -288,18 +242,6 @@ public class SystemProjectService {
         }
     }
 
-    public void checkProjectTcpPort(AddProjectRequest project) {
-        //判断端口是否重复
-        if (project.getMockTcpPort() != null && project.getMockTcpPort() != 0) {
-            String projectId = StringUtils.isEmpty(project.getId()) ? StringUtils.EMPTY : project.getId();
-            ProjectApplicationExample example = new ProjectApplicationExample();
-            example.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name()).andTypeValueEqualTo(String.valueOf(project.getMockTcpPort())).andProjectIdNotEqualTo(projectId);
-            if (projectApplicationMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("tcp_mock_not_unique"));
-            }
-        }
-    }
-
     private void checkProjectExist(Project project) {
         if (project.getName() != null) {
             ProjectExample example = new ProjectExample();
@@ -308,10 +250,6 @@ public class SystemProjectService {
                 MSException.throwException(Translator.get("project_name_already_exists"));
             }
         }
-    }
-
-    public List<Project> listAll() {
-        return projectMapper.selectByExample(null);
     }
 
     public List<Project> getRecentProjectList(ProjectRequest request) {
@@ -323,40 +261,6 @@ public class SystemProjectService {
         // 按照修改时间排序
         example.setOrderByClause("update_time desc");
         return projectMapper.selectByExample(example);
-    }
-
-    public Project getProjectById(String id) {
-        Project project = projectMapper.selectByPrimaryKey(id);
-        if (project != null) {
-            String createUser = project.getCreateUser();
-            if (StringUtils.isNotBlank(createUser)) {
-                User user = userMapper.selectByPrimaryKey(createUser);
-                if (user != null) {
-                    project.setCreateUser(user.getName());
-                }
-            }
-        }
-        return project;
-    }
-
-    public List<Project> getByCaseTemplateId(String templateId) {
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andCaseTemplateIdEqualTo(templateId);
-        return projectMapper.selectByExample(example);
-    }
-
-    public List<Project> getByIssueTemplateId(String templateId) {
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andIssueTemplateIdEqualTo(templateId);
-        return projectMapper.selectByExample(example);
-    }
-
-    public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {
-        return fileMetadataService.uploadFiles(projectId, files);
-    }
-
-    public FileMetadata updateFile(String fileId, MultipartFile file) {
-        return fileMetadataService.updateFile(fileId, file);
     }
 
     public String getLogDetails(String id) {
@@ -424,55 +328,8 @@ public class SystemProjectService {
         return baseUserGroupMapper.checkSourceRole(workspaceId, userId, roleId);
     }
 
-    public String getSystemIdByProjectId(String projectId) {
-        return baseProjectMapper.getSystemIdByProjectId(projectId);
-    }
-
-    public Project findBySystemId(String systemId) {
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andSystemIdEqualTo(systemId);
-        List<Project> returnList = projectMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(returnList)) {
-            return null;
-        } else {
-            return returnList.get(0);
-        }
-    }
-
-    public List<String> getProjectIds() {
-        return baseProjectMapper.getProjectIds();
-    }
-
-    public List<Project> getProjectForCustomField(String workspaceId) {
-        return baseProjectMapper.getProjectForCustomField(workspaceId);
-    }
-
-    public Map<String, Project> queryNameByIds(List<String> ids) {
-        return baseProjectMapper.queryNameByIds(ids);
-    }
-
-    public Map<String, Workspace> getWorkspaceNameByProjectIds(List<String> projectIds) {
-        if (projectIds.isEmpty()) {
-            return new HashMap<>(0);
-        }
-        return baseProjectMapper.queryWorkNameByProjectIds(projectIds);
-    }
-
-
-    public long getProjectSize() {
-        return projectMapper.countByExample(new ProjectExample());
-    }
-
     public long getProjectMemberSize(String id) {
         return baseProjectMapper.getProjectMemberSize(id);
-    }
-
-    public int getProjectBugSize(String projectId) {
-        return baseProjectMapper.getProjectPlanBugSize(projectId);
-    }
-
-    public boolean isVersionEnable(String projectId) {
-        return baseProjectVersionMapper.isVersionEnable(projectId);
     }
 
     private void initProjectApplication(String projectId) {

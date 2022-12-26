@@ -1,12 +1,20 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.*;
+import io.metersphere.base.mapper.ProjectApplicationMapper;
+import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.UserGroupMapper;
+import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.commons.constants.MicroServiceName;
+import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
@@ -17,17 +25,21 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.service.FileMetadataService;
-import io.metersphere.request.*;
+import io.metersphere.request.AddProjectRequest;
+import io.metersphere.request.ProjectRequest;
+import io.metersphere.request.ScheduleRequest;
 import io.metersphere.request.member.AddMemberRequest;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,75 +56,17 @@ public class ProjectService {
     @Resource
     private BaseUserGroupMapper baseUserGroupMapper;
     @Resource
-    private BaseUserMapper baseUserMapper;
-    @Resource
-    private BaseProjectMapper baseProjectMapper;
-    @Resource
     private UserMapper userMapper;
     @Value("${tcp.mock.port}")
     private String tcpMockPorts;
     @Resource
-    private ExtProjectVersionMapper extProjectVersionMapper;
-    @Resource
     private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
-    private ProjectVersionMapper projectVersionMapper;
     @Resource
     private MicroService microService;
     @Resource
     private BaseScheduleService baseScheduleService;
     @Resource
     private ProjectApplicationService projectApplicationService;
-
-    public void addProjectVersion(Project project) {
-        ProjectVersion projectVersion = new ProjectVersion();
-        projectVersion.setId(UUID.randomUUID().toString());
-        projectVersion.setName("v1.0.0");
-        projectVersion.setProjectId(project.getId());
-        projectVersion.setCreateTime(System.currentTimeMillis());
-        projectVersion.setCreateTime(System.currentTimeMillis());
-        projectVersion.setStartTime(System.currentTimeMillis());
-        projectVersion.setPublishTime(System.currentTimeMillis());
-        projectVersion.setLatest(true);
-        projectVersion.setStatus("open");
-
-        String name = projectVersion.getName();
-        ProjectVersionExample example = new ProjectVersionExample();
-        example.createCriteria().andProjectIdEqualTo(projectVersion.getProjectId()).andNameEqualTo(name);
-        if (projectVersionMapper.countByExample(example) > 0) {
-            MSException.throwException("当前版本已经存在");
-        }
-        projectVersion.setId(UUID.randomUUID().toString());
-        projectVersion.setCreateUser(SessionUtils.getUserId());
-        projectVersion.setCreateTime(System.currentTimeMillis());
-        projectVersionMapper.insertSelective(projectVersion);
-    }
-
-    private String genSystemId() {
-        String maxSystemIdInDb = extProjectMapper.getMaxSystemId();
-        String systemId = "10001";
-        if (StringUtils.isNotEmpty(maxSystemIdInDb)) {
-            systemId = String.valueOf(Long.parseLong(maxSystemIdInDb) + 1);
-        }
-        return systemId;
-    }
-
-    public Project checkSystemId(Project project) {
-        if (project != null) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andSystemIdEqualTo(project.getSystemId());
-            long count = projectMapper.countByExample(example);
-            if (count > 1) {
-                String systemId = this.genSystemId();
-                Project updateModel = new Project();
-                updateModel.setId(project.getId());
-                updateModel.setSystemId(systemId);
-                projectMapper.updateByPrimaryKeySelective(updateModel);
-                project = this.getProjectById(project.getId());
-            }
-        }
-        return project;
-    }
 
     public List<ProjectDTO> getProjectList(ProjectRequest request) {
         if (StringUtils.isNotBlank(request.getName())) {
@@ -128,21 +82,6 @@ public class ProjectService {
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extProjectMapper.getUserProject(request);
-    }
-
-    public List<Project> getProjectByIds(List<String> ids) {
-        if (!CollectionUtils.isEmpty(ids)) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andIdIn(ids);
-            return projectMapper.selectByExample(example);
-        }
-        return new ArrayList<>();
-    }
-
-    private void deleteProjectUserGroup(String projectId) {
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
-        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     public void updateIssueTemplate(String originId, String templateId, String projectId) {
@@ -254,10 +193,6 @@ public class ProjectService {
         }
     }
 
-    public List<Project> listAll() {
-        return projectMapper.selectByExample(null);
-    }
-
     public List<Project> getRecentProjectList(ProjectRequest request) {
         ProjectExample example = new ProjectExample();
         ProjectExample.Criteria criteria = example.createCriteria();
@@ -361,55 +296,8 @@ public class ProjectService {
         return baseUserGroupMapper.checkSourceRole(workspaceId, userId, roleId);
     }
 
-    public String getSystemIdByProjectId(String projectId) {
-        return extProjectMapper.getSystemIdByProjectId(projectId);
-    }
-
-    public Project findBySystemId(String systemId) {
-        ProjectExample example = new ProjectExample();
-        example.createCriteria().andSystemIdEqualTo(systemId);
-        List<Project> returnList = projectMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(returnList)) {
-            return null;
-        } else {
-            return returnList.get(0);
-        }
-    }
-
-    public List<String> getProjectIds() {
-        return extProjectMapper.getProjectIds();
-    }
-
-    public List<Project> getProjectForCustomField(String workspaceId) {
-        return extProjectMapper.getProjectForCustomField(workspaceId);
-    }
-
-    public Map<String, Project> queryNameByIds(List<String> ids) {
-        return extProjectMapper.queryNameByIds(ids);
-    }
-
-    public Map<String, Workspace> getWorkspaceNameByProjectIds(List<String> projectIds) {
-        if (projectIds.isEmpty()) {
-            return new HashMap<>(0);
-        }
-        return extProjectMapper.queryWorkNameByProjectIds(projectIds);
-    }
-
-
-    public long getProjectSize() {
-        return projectMapper.countByExample(new ProjectExample());
-    }
-
     public long getProjectMemberSize(String id) {
         return extProjectMapper.getProjectMemberSize(id);
-    }
-
-    public int getProjectBugSize(String projectId) {
-        return extProjectMapper.getProjectPlanBugSize(projectId);
-    }
-
-    public boolean isVersionEnable(String projectId) {
-        return extProjectVersionMapper.isVersionEnable(projectId);
     }
 
     public List<ServiceIntegration> getAllServiceIntegration() {

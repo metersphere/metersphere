@@ -36,7 +36,7 @@
       </el-form>
 
       <!-- TCP 请求参数 -->
-      <div v-if="api.method == 'TCP'" v-loading="loading">
+      <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
         <ms-tcp-format-parameters
           :request="api.request"
@@ -47,20 +47,6 @@
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <ms-request-result-tail :response="responseData" ref="runResult" />
-      </div>
-      <div v-else-if="api.method == 'ESB'" v-loading="loading">
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-        <mx-esb-definition v-xpack :show-script="true" :request="api.request" @callback="runTest" ref="requestForm" />
-      </div>
-
-      <div v-if="api.method == 'ESB'">
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <mx-esb-definition-response
-          v-xpack
-          :is-api-component="false"
-          :show-options-button="false"
-          :request="api.request"
-          :response-data="responseData" />
       </div>
     </el-card>
 
@@ -119,8 +105,6 @@ export default {
     MsRequestResultTail,
     MsRun,
     MsTcpFormatParameters,
-    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {
@@ -311,10 +295,6 @@ export default {
       }
       if (this.api.tags instanceof Array) {
         this.api.tags = JSON.stringify(this.api.tags);
-      }
-      if (this.api.method === 'ESB') {
-        this.api.esbDataStruct = JSON.stringify(this.api.request.esbDataStruct);
-        this.api.backEsbDataStruct = JSON.stringify(this.api.request.backEsbDataStruct);
       }
       // 历史数据兼容处理
       if (this.api.request) {

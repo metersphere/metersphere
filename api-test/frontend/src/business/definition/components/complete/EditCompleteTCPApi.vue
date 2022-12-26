@@ -52,20 +52,12 @@
     </el-row>
 
     <!-- 请求参数 -->
-    <div v-if="apiProtocol == 'TCP'">
-      <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-      <ms-tcp-format-parameters
-        :show-pre-script="true"
-        :show-script="false"
-        :request="request"
-        ref="tcpFormatParameter" />
-    </div>
-    <div v-else-if="apiProtocol == 'ESB'">
-      <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
-      <mx-esb-definition v-xpack :show-pre-script="true" :show-script="false" :request="request" ref="esbDefinition" />
-      <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-      <mx-esb-definition-response v-xpack :is-api-component="true" :show-options-button="true" :request="request" />
-    </div>
+    <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
+    <ms-tcp-format-parameters
+      :show-pre-script="true"
+      :show-script="false"
+      :request="request"
+      ref="tcpFormatParameter" />
     <api-other-info :api="basisData" ref="apiOtherInfo" />
 
     <ms-change-history ref="changeHistory" />
@@ -112,7 +104,8 @@ import {
   delDefinitionByRefId,
   getDefinitionById,
   getDefinitionByIdAndRefId,
-  getDefinitionVersions, updateDefinitionFollows,
+  getDefinitionVersions,
+  updateDefinitionFollows,
 } from '@/api/definition';
 import MsTcpBasicApi from './TCPBasicApi';
 import MsTcpFormatParameters from '../request/tcp/TcpFormatParameters';
@@ -125,8 +118,8 @@ import { createComponent } from '.././jmeter/components';
 import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { useApiStore } from '@/store';
-import {apiTestCaseCount} from '@/api/api-test-case';
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+import { apiTestCaseCount } from '@/api/api-test-case';
+import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 
 const store = useApiStore();
 const { Body } = require('@/business/definition/model/ApiTestModel');
@@ -140,9 +133,7 @@ export default {
     MsTcpFormatParameters,
     MsChangeHistory,
     TCPApiVersionDiff,
-    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
     MxVersionHistory: () => import('metersphere-frontend/src/components/version/MxVersionHistory'),
-    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   props: {
     request: {},
@@ -175,7 +166,7 @@ export default {
       newApiProtocol: 'TCP',
       createNewVersionVisible: false,
       latestVersionId: '',
-      hasLatest: false
+      hasLatest: false,
     };
   },
   created: function () {
@@ -185,14 +176,6 @@ export default {
     this.apiProtocol = this.basisData.method;
     if (this.apiProtocol == null || this.apiProtocol == '') {
       this.apiProtocol = 'TCP';
-    }
-    if (hasLicense()) {
-      if (this.methodTypes.length == 1) {
-        let esbMethodType = {};
-        esbMethodType.key = 'ESB';
-        esbMethodType.value = 'ESB';
-        this.methodTypes.push(esbMethodType);
-      }
     }
     definitionFollow(this.basisData.id).then((response) => {
       this.basisData.follows = response.data;
@@ -244,25 +227,9 @@ export default {
       if (this.basisData.tags instanceof Array) {
         this.basisData.tags = JSON.stringify(this.basisData.tags);
       }
-      if (this.basisData.method === 'ESB') {
-        let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
-        if (!validataResult) {
-          return;
-        }
-        if (this.request.esbDataStruct != null) {
-          this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
-          this.basisData.esbDataStruct = this.esbDataStruct;
-        }
-        if (this.request.backEsbDataStruct != null) {
-          this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
-        }
-        if (this.request.backScript != null) {
-          this.basisData.backScript = JSON.stringify(this.request.backScript);
-        }
-      } else {
-        if (this.$refs.tcpFormatParameter) {
-          this.$refs.tcpFormatParameter.validateXmlDataStruct();
-        }
+
+      if (this.$refs.tcpFormatParameter) {
+        this.$refs.tcpFormatParameter.validateXmlDataStruct();
       }
       this.$emit('saveApi', this.basisData);
       if (this.$refs.versionHistory) {
@@ -276,25 +243,9 @@ export default {
         if (this.basisData.tags instanceof Array) {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
         }
-        if (this.basisData.method === 'ESB') {
-          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
-          if (!validataResult) {
-            return;
-          }
-          if (this.request.esbDataStruct != null) {
-            this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
-            this.basisData.esbDataStruct = this.esbDataStruct;
-          }
-          if (this.request.backEsbDataStruct != null) {
-            this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
-          }
-          if (this.request.backScript != null) {
-            this.basisData.backScript = JSON.stringify(this.request.backScript);
-          }
-        } else {
-          if (this.$refs.tcpFormatParameter) {
-            this.$refs.tcpFormatParameter.validateXmlDataStruct();
-          }
+
+        if (this.$refs.tcpFormatParameter) {
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
         this.$emit('runTest', this.basisData);
       }
@@ -346,11 +297,10 @@ export default {
       }
     },
     getDefaultVersion() {
-      getDefaultVersion(getCurrentProjectID())
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(getCurrentProjectID()).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
 
     getVersionHistory() {
@@ -362,7 +312,7 @@ export default {
         }
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
-          this.hasLatest = false
+          this.hasLatest = false;
         } else {
           this.hasLatest = true;
         }
@@ -558,8 +508,8 @@ export default {
         projectId: getCurrentProjectID(),
         type: 'API',
         versionId: row.id,
-        resourceId: this.basisData.id
-      }
+        resourceId: this.basisData.id,
+      };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t('commons.modify_success'));
         this.checkout(row);

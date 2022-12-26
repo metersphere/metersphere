@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -79,11 +78,6 @@ public class MsTCPSampler extends MsTestElement {
     private String jsonDataStruct;
     private String rawDataStruct;
     private boolean customizeReq;
-    /**
-     * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
-     */
-    private List<EsbDataStruct> esbDataStruct;
-    private List<EsbDataStruct> backEsbDataStruct;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {

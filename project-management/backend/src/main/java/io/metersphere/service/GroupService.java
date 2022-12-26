@@ -5,8 +5,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.RedisKey;
 import io.metersphere.commons.constants.UserGroupConstants;
@@ -513,23 +513,6 @@ public class GroupService {
             this.addNotSystemGroupUser(group, request.getUserIds(), request.getSourceIds());
         } else {
             LogUtil.warn("no permission to add system group!");
-        }
-    }
-
-    private void addSystemGroupUser(Group group, List<String> userIds) {
-        for (String userId : userIds) {
-            User user = userMapper.selectByPrimaryKey(userId);
-            if (user == null) {
-                continue;
-            }
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdEqualTo(group.getId());
-            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-            if (userGroups.size() <= 0) {
-                UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, group.getId(),
-                        "system", System.currentTimeMillis(), System.currentTimeMillis());
-                userGroupMapper.insertSelective(userGroup);
-            }
         }
     }
 

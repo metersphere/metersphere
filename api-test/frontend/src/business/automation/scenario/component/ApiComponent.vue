@@ -30,18 +30,20 @@
             <i class="el-icon-warning" />
           </el-tooltip>
         </span>
-        <span v-xpack v-if="request.versionEnable && showVersion"
-          >{{ $t('project.version.name') }}: {{ request.versionName }}</span
-        >
+        <span v-xpack v-if="request.versionEnable && showVersion">
+          {{ $t('project.version.name') }}: {{ request.versionName }}
+        </span>
       </template>
 
       <template v-slot:behindHeaderLeft>
         <el-tag size="small" class="ms-tag" v-if="request.referenced === 'Deleted'" type="danger">
           {{ $t('api_test.automation.reference_deleted') }}
         </el-tag>
-        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'REF'"
-          >{{ $t('api_test.scenario.reference') }}
+        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'Copy'">
+          {{ $t('commons.copy') }}
+        </el-tag>
+        <el-tag size="small" class="ms-tag" v-if="request.referenced === 'REF'">
+          {{ $t('api_test.scenario.reference') }}
         </el-tag>
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
@@ -118,17 +120,8 @@
               :headers="request.headers"
               :is-read-only="isCompReadOnly"
               :request="request" />
-            <mx-esb-definition
-              v-if="request.esbDataStruct != null"
-              v-xpack
-              :request="request"
-              :response="response"
-              :showScript="true"
-              :show-pre-script="true"
-              :is-read-only="isCompReadOnly"
-              ref="esbDefinition" />
             <ms-tcp-format-parameters
-              v-if="(request.protocol === 'TCP' || request.type === 'TCPSampler') && request.esbDataStruct == null"
+              v-if="request.protocol === 'TCP' || request.protocol === 'ESB' || request.type === 'TCPSampler'"
               :is-read-only="isCompReadOnly"
               :response="response"
               :show-pre-script="true"
@@ -158,36 +151,24 @@
       <template v-slot:result>
         <div v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-          <div v-if="request.backEsbDataStruct != null">
-            <mx-esb-definition-response
-              :currentProtocol="request.protocol"
-              :request="request"
-              :is-api-component="false"
-              :show-options-button="false"
-              :show-header="true"
-              :result="request.requestResult"
-              v-xpack />
-          </div>
-          <div v-else>
-            <el-tabs
-              v-model="request.activeName"
-              closable
-              class="ms-tabs"
-              v-if="request.requestResult && request.requestResult.length > 1">
-              <el-tab-pane
-                v-for="(item, i) in request.requestResult"
-                :label="'循环' + (i + 1)"
-                :key="i"
-                style="margin-bottom: 5px">
-                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
-              </el-tab-pane>
-            </el-tabs>
-            <api-response-component
-              :currentProtocol="request.protocol"
-              :apiActive="true"
-              :result="request.requestResult[0]"
-              v-else />
-          </div>
+          <el-tabs
+            v-model="request.activeName"
+            closable
+            class="ms-tabs"
+            v-if="request.requestResult && request.requestResult.length > 1">
+            <el-tab-pane
+              v-for="(item, i) in request.requestResult"
+              :label="'循环' + (i + 1)"
+              :key="i"
+              style="margin-bottom: 5px">
+              <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
+            </el-tab-pane>
+          </el-tabs>
+          <api-response-component
+            :currentProtocol="request.protocol"
+            :apiActive="true"
+            :result="request.requestResult[0]"
+            v-else />
         </div>
       </template>
     </api-base-component>
@@ -257,8 +238,6 @@ export default {
     MsApiRequestForm: () => import('../../../definition/components/request/http/ApiHttpRequestForm'),
     MsRequestResultTail: () => import('../../../definition/components/response/RequestResultTail'),
     MsRun: () => import('../../../definition/components/Run'),
-    MxEsbDefinition: () => import('@/business/definition/components/esb/MxEsbDefinition'),
-    MxEsbDefinitionResponse: () => import('@/business/definition/components/esb/MxEsbDefinitionResponse'),
   },
   data() {
     return {
@@ -278,6 +257,7 @@ export default {
     };
   },
   created() {
+    this.request.protocol = this.request.protocol === 'ESB' ? 'TCP' : this.request.protocol;
     // 历史数据兼容
     if (!this.request.requestResult) {
       this.request.requestResult = [{ responseResult: {} }];
