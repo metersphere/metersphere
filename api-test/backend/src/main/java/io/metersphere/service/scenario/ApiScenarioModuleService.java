@@ -30,6 +30,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -103,6 +104,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId);
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         request.setProjectId(projectId);
         List<String> list = new ArrayList<>();
@@ -510,17 +512,29 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
-            ApiScenarioModule record = new ApiScenarioModule();
-            record.setId(UUID.randomUUID().toString());
-            record.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
-            record.setPos(1.0);
-            record.setLevel(1);
-            record.setCreateTime(System.currentTimeMillis());
-            record.setUpdateTime(System.currentTimeMillis());
-            record.setProjectId(projectId);
-            record.setCreateUser(SessionUtils.getUserId());
-            apiScenarioModuleMapper.insert(record);
-            return record;
+            return saveDefault(projectId);
+        } else {
+            return list.get(0);
+        }
+    }
+
+    @Async
+    public synchronized ApiScenarioModule saveDefault(String projectId) {
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
+        List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            ApiScenarioModule module = new ApiScenarioModule();
+            module.setId(UUID.randomUUID().toString());
+            module.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
+            module.setPos(1.0);
+            module.setLevel(1);
+            module.setCreateTime(System.currentTimeMillis());
+            module.setUpdateTime(System.currentTimeMillis());
+            module.setProjectId(projectId);
+            module.setCreateUser(SessionUtils.getUserId());
+            apiScenarioModuleMapper.insert(module);
+            return module;
         } else {
             return list.get(0);
         }
