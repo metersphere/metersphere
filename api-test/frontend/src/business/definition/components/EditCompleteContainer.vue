@@ -96,15 +96,15 @@
           v-if="currentProtocol === 'DUBBO'" />
       </div>
 
-      <div v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
+      <el-card v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
         <mock-tab
           :base-mock-config-data="baseMockConfigData"
           @redirectToTest="redirectToTest"
           :version-name="currentApi.versionName"
           :form="currentApi"
           :is-tcp="currentProtocol === 'TCP'" />
-      </div>
-      <div v-if="showTestCaseList">
+      </el-card>
+      <el-card v-if="showTestCaseList">
         <!--测试用例列表-->
         <api-case-simple-list
           :apiDefinitionId="currentApi.id"
@@ -116,7 +116,7 @@
           @refreshTable="refresh"
           @showExecResult="showExecResult"
           ref="trashCaseList" />
-      </div>
+      </el-card>
       <!-- 加载用例 -->
       <ms-api-case-list :createCase="createCase" :currentApi="api" @reLoadCase="reLoadCase" ref="caseList" />
     </ms-main-container>
@@ -132,7 +132,6 @@ import MsRunTestTcpPage from './runtest/RunTestTCPPage';
 import MsRunTestSqlPage from './runtest/RunTestSQLPage';
 import MsRunTestDubboPage from './runtest/RunTestDubboPage';
 import MockTab from '@/business/definition/components/mock/MockTab';
-import TcpMockConfig from '@/business/definition/components/mock/TcpMockConfig';
 import ApiCaseSimpleList from './list/ApiCaseSimpleList';
 import MsApiCaseList from './case/EditApiCase';
 import { getUUID } from 'metersphere-frontend/src/utils';
@@ -153,7 +152,6 @@ export default {
     MsRunTestSqlPage,
     MsRunTestDubboPage,
     MockTab,
-    TcpMockConfig,
     ApiCaseSimpleList,
     MsApiCaseList,
     ApiBaseInfo,

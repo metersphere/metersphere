@@ -135,7 +135,7 @@ export default {
       tableSearch: '',
       apiParams: {},
       pageSize: 10,
-      screenHeight: document.documentElement.clientHeight - 250,
+      screenHeight: 'calc(100vh - 205px)',
       operators: [
         {
           tip: this.$t('api_test.automation.execute'),

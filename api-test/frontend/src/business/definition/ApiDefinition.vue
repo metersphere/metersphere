@@ -285,7 +285,6 @@ import ApiCaseSimpleList from './components/list/ApiCaseSimpleList';
 import ApiDocumentsPage from '@/business/definition/components/list/ApiDocumentsPage';
 import MsTableButton from 'metersphere-frontend/src/components/MsTableButton';
 import MsTabButton from '@/business/commons/MsTabs';
-import MockConfig from '@/business/definition/components/mock/MockConfig';
 import ApiSchedule from '@/business/definition/components/import/ApiSchedule';
 import MsEditCompleteContainer from './components/EditCompleteContainer';
 import MsEnvironmentSelect from './components/case/MsEnvironmentSelect';
@@ -353,7 +352,6 @@ export default {
     MsRunTestSqlPage,
     MsRunTestDubboPage,
     ApiDocumentsPage,
-    MockConfig,
     MsEditCompleteContainer,
     MsEnvironmentSelect,
     MockEditDrawer,
