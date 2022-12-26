@@ -1,7 +1,6 @@
 package io.metersphere.service;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.mock.*;
 import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
@@ -740,11 +739,6 @@ public class MockConfigService {
                         paramNameList = this.parseByTcpTreeDataStruct(requestObj.optString("xmlDataStruct"));
                     } else if (StringUtils.equalsIgnoreCase(reportType, "json") && requestObj.has("jsonDataStruct")) {
                         paramNameList = this.parseByJsonDataStruct(requestObj.optString("jsonDataStruct"));
-                    } else if (requestObj.has("protocol")) {
-                        String protocol = requestObj.optString("protocol");
-                        if (StringUtils.equalsIgnoreCase("ESB", protocol) && requestObj.has("esbDataStruct")) {
-                            paramNameList = this.parseByESBDataStruct(requestObj.optString("esbDataStruct"));
-                        }
                     }
                 }
             }
@@ -995,20 +989,6 @@ public class MockConfigService {
         List<TcpTreeTableDataStruct> list = JSON.parseArray(dataString, TcpTreeTableDataStruct.class);
         List<String> returnList = new ArrayList<>();
         for (TcpTreeTableDataStruct dataStruct : list) {
-            List<String> nameList = dataStruct.getNameDeep();
-            for (String name : nameList) {
-                if (!returnList.contains(nameList)) {
-                    returnList.add(name);
-                }
-            }
-        }
-        return returnList;
-    }
-
-    private List<String> parseByESBDataStruct(String dataString) {
-        List<EsbDataStruct> list = JSON.parseArray(dataString, EsbDataStruct.class);
-        List<String> returnList = new ArrayList<>();
-        for (EsbDataStruct dataStruct : list) {
             List<String> nameList = dataStruct.getNameDeep();
             for (String name : nameList) {
                 if (!returnList.contains(nameList)) {

@@ -8,7 +8,6 @@ public class DefinitionReference {
     public static Map<String, String> caseColumns = new LinkedHashMap<>();
     public static Map<String, String> jdbcColumns = new LinkedHashMap<>();
     public static Map<String, String> httpColumns = new LinkedHashMap<>();
-    public static Map<String, String> esbColumns = new LinkedHashMap<>();
     public static Map<String, String> authColumns = new LinkedHashMap<>();
 
     static {
@@ -16,7 +15,6 @@ public class DefinitionReference {
         caseColumns.clear();
         jdbcColumns.clear();
         httpColumns.clear();
-        esbColumns.clear();
         authColumns.clear();
         definitionColumns.put("name", "接口名称");
         definitionColumns.put("createUser", "创建人");
@@ -64,18 +62,5 @@ public class DefinitionReference {
         authColumns.put("username", "用户名");
         authColumns.put("password", "密码");
         authColumns.put("encrypt", "加密");
-
-        //tcp esb 其他设置
-        esbColumns.put("classname", "TCPClient");
-        esbColumns.put("ctimeout", "连接(ms)");
-        esbColumns.put("timeout", "响应(ms)");
-        esbColumns.put("soLinger", "SO LINGER");
-        esbColumns.put("eolByte", "行尾(EOL)子节值");
-        esbColumns.put("username", "用户名");
-        esbColumns.put("password", "密码");
-        esbColumns.put("reUseConnection", "Re-use connection");
-        esbColumns.put("closeConnection", "关闭连接");
-        esbColumns.put("nodelay", "设置无延迟");
-        esbColumns.put("connectEncoding", "Connect encoding");
     }
 }

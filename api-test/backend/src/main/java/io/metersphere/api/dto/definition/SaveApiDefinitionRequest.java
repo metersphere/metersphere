@@ -57,9 +57,6 @@ public class SaveApiDefinitionRequest {
 
     private String tags;
 
-    //ESB参数。  可为null
-    private String esbDataStruct;
-    private String backEsbDataStruct;
     private String backScript;
 
     // 创建新版本时用到的

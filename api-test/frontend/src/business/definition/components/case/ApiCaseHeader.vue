@@ -111,6 +111,7 @@ export default {
     this.$EventBus.$off('showXpackCaseBtn');
   },
   created() {
+    this.api.method = this.api.method === 'ESB' ? 'TCP' : this.api.method;
     this.isXpack = !!hasLicense();
     if (this.isXpack) {
       this.$EventBus.$on('showXpackCaseBtn', (showUpdateRule) => {
