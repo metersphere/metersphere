@@ -7,7 +7,6 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
-import io.metersphere.base.mapper.ext.BaseUserMapper;
 import io.metersphere.base.mapper.ext.BaseWorkspaceMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
@@ -55,47 +54,11 @@ public class WorkspaceService {
     @Resource
     private BaseUserGroupMapper baseUserGroupMapper;
     @Resource
-    private BaseUserMapper baseUserMapper;
-    @Resource
     private EnvironmentGroupService environmentGroupService;
     @Resource
     private BaseScheduleService baseScheduleService;
 
     private static final String GLOBAL = "global";
-
-
-    public Workspace saveWorkspace(Workspace workspace) {
-        if (StringUtils.isBlank(workspace.getName())) {
-            MSException.throwException(Translator.get("workspace_name_is_null"));
-        }
-
-        long currentTime = System.currentTimeMillis();
-
-        checkWorkspace(workspace);
-
-        if (StringUtils.isBlank(workspace.getId())) {
-            workspace.setId(UUID.randomUUID().toString());
-            workspace.setCreateTime(currentTime);
-            workspace.setUpdateTime(currentTime);
-            workspace.setCreateUser(SessionUtils.getUserId());
-            workspaceMapper.insertSelective(workspace);
-            // 创建工作空间为当前用户添加用户组
-            UserGroup userGroup = new UserGroup();
-            userGroup.setId(UUID.randomUUID().toString());
-            userGroup.setUserId(SessionUtils.getUserId());
-            userGroup.setCreateTime(System.currentTimeMillis());
-            userGroup.setUpdateTime(System.currentTimeMillis());
-            userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
-            userGroup.setSourceId(workspace.getId());
-            userGroupMapper.insert(userGroup);
-            // 新项目创建新工作空间时设置
-            baseUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
-        } else {
-            workspace.setUpdateTime(currentTime);
-            workspaceMapper.updateByPrimaryKeySelective(workspace);
-        }
-        return workspace;
-    }
 
     public List<Workspace> getWorkspaceList(WorkspaceRequest request) {
         WorkspaceExample example = new WorkspaceExample();
@@ -134,15 +97,6 @@ public class WorkspaceService {
         workspaceMapper.deleteByPrimaryKey(workspaceId);
 
         baseScheduleService.deleteByWorkspaceId(workspaceId);
-    }
-
-
-    public void checkWorkspaceIsExist(String workspaceId) {
-        WorkspaceExample example = new WorkspaceExample();
-        example.createCriteria().andIdEqualTo(workspaceId);
-        if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException(Translator.get("workspace_not_exists"));
-        }
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
@@ -235,12 +189,6 @@ public class WorkspaceService {
 
     }
 
-    public List<Project> getProjects(String workspaceId) {
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
-        return projectMapper.selectByExample(projectExample);
-    }
-
     public String getLogDetails(String id) {
         Workspace user = workspaceMapper.selectByPrimaryKey(id);
         if (user != null) {
@@ -326,9 +274,5 @@ public class WorkspaceService {
             criteria.andIdEqualTo(scopeId);
         }
         return workspaceMapper.selectByExample(workspaceExample);
-    }
-
-    public List<String> getWorkspaceIds() {
-        return baseWorkspaceMapper.getWorkspaceIds();
     }
 }

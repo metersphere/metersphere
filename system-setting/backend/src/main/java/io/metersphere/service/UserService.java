@@ -27,12 +27,10 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
-import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.request.UserRequest;
 import io.metersphere.request.WorkspaceRequest;
 import io.metersphere.request.member.AddMemberRequest;
 import io.metersphere.request.member.EditPassWordRequest;
-import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.xpack.quota.service.QuotaService;
@@ -82,26 +80,7 @@ public class UserService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private BaseProjectMapper baseProjectMapper;
-    @Resource
-    private BaseWorkspaceMapper baseWorkspaceMapper;
-    @Resource
     private BaseUserService baseUserService;
-
-    public List<UserDetail> queryTypeByIds(List<String> userIds) {
-        return baseUserMapper.queryTypeByIds(userIds);
-    }
-
-    public Map<String, User> queryNameByIds(List<String> userIds) {
-        if (userIds.isEmpty()) {
-            return new HashMap<>(0);
-        }
-        return baseUserMapper.queryNameByIds(userIds);
-    }
-
-    public Map<String, User> queryName() {
-        return baseUserMapper.queryName();
-    }
 
     public UserDTO insert(io.metersphere.request.member.UserRequest userRequest) {
         checkUserParam(userRequest);
@@ -166,22 +145,6 @@ public class UserService {
             quotaService.checkMemberCount(addMemberMap, type);
         }
     }
-
-    public User selectUser(String userId, String email) {
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (user == null) {
-            if (StringUtils.isNotBlank(email)) {
-                UserExample example = new UserExample();
-                example.createCriteria().andEmailEqualTo(email);
-                List<User> users = userMapper.selectByExample(example);
-                if (!CollectionUtils.isEmpty(users)) {
-                    return users.get(0);
-                }
-            }
-        }
-        return user;
-    }
-
     private void checkUserParam(User user) {
 
         if (StringUtils.isBlank(user.getId())) {
@@ -269,33 +232,6 @@ public class UserService {
         }
         permissionDTO.setList(list);
         return permissionDTO;
-    }
-
-    public UserDTO getLoginUser(String userId, List<String> list) {
-        UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(userId).andSourceIn(list);
-        if (userMapper.countByExample(example) == 0) {
-            return null;
-        }
-        return getUserDTO(userId);
-    }
-
-    public UserDTO getUserDTOByEmail(String email, String... source) {
-        UserExample example = new UserExample();
-        UserExample.Criteria criteria = example.createCriteria();
-        criteria.andEmailEqualTo(email);
-
-        if (!CollectionUtils.isEmpty(Arrays.asList(source))) {
-            criteria.andSourceIn(Arrays.asList(source));
-        }
-
-        List<User> users = userMapper.selectByExample(example);
-
-        if (users == null || users.size() <= 0) {
-            return null;
-        }
-
-        return getUserDTO(users.get(0).getId());
     }
 
     public List<User> getUserList() {
@@ -408,11 +344,6 @@ public class UserService {
         return projectList;
     }
 
-    public UserDTO getUserInfo(String userId) {
-        return getUserDTO(userId);
-    }
-
-
     public void addMember(AddMemberRequest request) {
         if (CollectionUtils.isEmpty(request.getUserIds())
                 || CollectionUtils.isEmpty(request.getGroupIds())) {
@@ -487,18 +418,6 @@ public class UserService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
-    public boolean checkUserPassword(String userId, String password) {
-        if (StringUtils.isBlank(userId)) {
-            MSException.throwException(Translator.get("user_name_is_null"));
-        }
-        if (StringUtils.isBlank(password)) {
-            MSException.throwException(Translator.get("password_is_null"));
-        }
-        UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
-        return userMapper.countByExample(example) > 0;
-    }
-
     public void setLanguage(String lang) {
         if (SessionUtils.getUser() != null) {
             User user = new User();
@@ -549,11 +468,6 @@ public class UserService {
         return null;
     }
 
-    public int updateCurrentUserPassword(EditPassWordRequest request) {
-        User user = updateCurrentUserPwd(request);
-        return baseUserMapper.updatePassword(user);
-    }
-
     /*管理员修改用户密码*/
     private User updateUserPwd(EditPassWordRequest request) {
         User user = userMapper.selectByPrimaryKey(request.getId());
@@ -566,76 +480,6 @@ public class UserService {
     public int updateUserPassword(EditPassWordRequest request) {
         User user = updateUserPwd(request);
         return baseUserMapper.updatePassword(user);
-    }
-
-    public String getDefaultLanguage() {
-        final String key = "default.language";
-        return baseUserMapper.getDefaultLanguage(key);
-    }
-
-    private boolean hasLastProjectPermission(UserDTO user) {
-        if (StringUtils.isNotBlank(user.getLastProjectId())) {
-            List<UserGroup> projectUserGroups = user.getUserGroups().stream()
-                    .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(projectUserGroups)) {
-                Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
-                if (StringUtils.equals(project.getWorkspaceId(), user.getLastWorkspaceId())) {
-                    return true;
-                }
-                // last_project_id 和 last_workspace_id 对应不上了
-                user.setLastWorkspaceId(project.getWorkspaceId());
-                updateUser(user);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasLastWorkspacePermission(UserDTO user) {
-        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
-            List<UserGroup> workspaceUserGroups = user.getUserGroups().stream()
-                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(workspaceUserGroups)) {
-                ProjectExample example = new ProjectExample();
-                example.createCriteria().andWorkspaceIdEqualTo(user.getLastWorkspaceId());
-                List<Project> projects = projectMapper.selectByExample(example);
-                // 工作空间下没有项目
-                if (CollectionUtils.isEmpty(projects)) {
-                    return true;
-                }
-                // 工作空间下有项目，选中有权限的项目
-                List<String> projectIds = projects.stream()
-                        .map(Project::getId)
-                        .collect(Collectors.toList());
-
-                List<UserGroup> userGroups = user.getUserGroups();
-                List<String> projectGroupIds = user.getGroups()
-                        .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
-                        .map(Group::getId)
-                        .collect(Collectors.toList());
-                List<String> projectIdsWithPermission = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
-                        .filter(p -> StringUtils.isNotBlank(p.getSourceId()))
-                        .map(UserGroup::getSourceId)
-                        .filter(projectIds::contains)
-                        .collect(Collectors.toList());
-
-                List<String> intersection = projectIds.stream().filter(projectIdsWithPermission::contains).collect(Collectors.toList());
-                // 当前工作空间下的所有项目都没有权限
-                if (CollectionUtils.isEmpty(intersection)) {
-                    return true;
-                }
-                Project project = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst().get();
-                String wsId = project.getWorkspaceId();
-                user.setId(user.getId());
-                user.setLastProjectId(project.getId());
-                user.setLastWorkspaceId(wsId);
-                updateUser(user);
-                return true;
-            }
-        }
-        return false;
     }
 
     public List<User> searchUser(String condition) {
@@ -932,17 +776,6 @@ public class UserService {
 
     }
 
-    public Set<String> getUserPermission(String userId) {
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andUserIdEqualTo(userId);
-        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-        List<String> groupId = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
-        UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
-        userGroupPermissionExample.createCriteria().andGroupIdIn(groupId);
-        List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
-        return userGroupPermissions.stream().map(UserGroupPermission::getPermissionId).collect(Collectors.toSet());
-    }
-
     public UserGroupPermissionDTO getUserGroup(String userId) {
         UserGroupPermissionDTO userGroupPermissionDTO = new UserGroupPermissionDTO();
         //
@@ -1114,31 +947,6 @@ public class UserService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
-    public List<User> getWsAllMember(String workspaceId) {
-        List<String> sourceIds = new ArrayList<>();
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
-        List<Project> projectList = projectMapper.selectByExample(projectExample);
-        if (CollectionUtils.isEmpty(projectList)) {
-            return new ArrayList<>();
-        }
-
-        List<String> proIds = projectList.stream().map(Project::getId).collect(Collectors.toList());
-        sourceIds.addAll(proIds);
-        UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andSourceIdIn(sourceIds);
-        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-        List<String> userIds = userGroups.stream().map(UserGroup::getUserId).distinct().collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(userIds)) {
-            return new ArrayList<>();
-        }
-
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(userIds);
-        return userMapper.selectByExample(userExample);
-    }
-
-
     public void updateImportUserGroup(io.metersphere.request.member.UserRequest user) {
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andUserIdEqualTo(user.getId());
@@ -1220,42 +1028,9 @@ public class UserService {
             }
         }
     }
-
-    public UserDTO updateCurrentUser(User user) {
-        String currentUserId = SessionUtils.getUserId();
-        if (!StringUtils.equals(currentUserId, user.getId())) {
-            MSException.throwException(Translator.get("not_authorized"));
-        }
-        updateUser(user);
-        UserDTO userDTO = getUserDTO(user.getId());
-        SessionUtils.putUser(SessionUser.fromUser(userDTO, SessionUtils.getSessionId()));
-        return SessionUtils.getUser();
-    }
-
     public long getUserSize() {
         return userMapper.countByExample(new UserExample());
     }
-
-
-    /**
-     * 根据userId 获取 user 所属工作空间和所属工作项目
-     *
-     * @param userId
-     */
-    public Map<Object, Object> getWSAndProjectByUserId(String userId) {
-        Map<Object, Object> map = new HashMap<>(2);
-        List<Project> projects = baseProjectMapper.getProjectByUserId(userId);
-        List<Workspace> workspaces = baseWorkspaceMapper.getWorkspaceByUserId(userId);
-        map.put("project", projects);
-        map.put("workspace", workspaces);
-        return map;
-    }
-
-
-    public List<User> getProjectMemberOption(String projectId) {
-        return baseUserGroupMapper.getProjectMemberOption(projectId);
-    }
-
     public void addWorkspaceMember(AddMemberRequest request) {
         this.addGroupMember("WORKSPACE", request.getWorkspaceId(), request.getUserIds(), request.getGroupIds());
     }
