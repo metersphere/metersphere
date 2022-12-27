@@ -1739,7 +1739,9 @@ public class TestCaseService {
                         List<String> results = new ArrayList<>();
                         List values = (List) value;
                         values.forEach(item -> {
-                            if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(item.toString())) {
+                            if (MapUtils.isEmpty(optionMap)) {
+                                results.add(item.toString());
+                            } else if (optionMap.containsKey(item.toString())) {
                                 results.add(optionMap.get(item.toString()));
                             }
                         });
