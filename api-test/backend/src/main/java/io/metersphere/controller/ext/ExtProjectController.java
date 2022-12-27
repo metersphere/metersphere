@@ -59,4 +59,9 @@ public class ExtProjectController {
     public List<ProjectDTO> getUserProject(@RequestBody ApiProjectRequest request) {
         return extProjectApplicationService.getUserProject(request);
     }
+
+    @GetMapping("/api/project/get/{id}")
+    public ProjectDTO getProject(@PathVariable String id) {
+        return extProjectApplicationService.getProject(id);
+    }
 }

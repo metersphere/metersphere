@@ -9,4 +9,5 @@ import java.util.List;
 public interface ExtApiProjectMapper {
     List<ProjectDTO> getUserProject(@Param("proRequest") ApiProjectRequest request);
 
+    ProjectDTO getProject(String scenarioId);
 }
