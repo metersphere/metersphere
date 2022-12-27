@@ -94,6 +94,7 @@
               from custom_field cf
               left join project pr
                 on cf.project_id = pr.id
+              inner join custom_field_template cft on cft.template_id = pr.issue_template_id
               where cf.scene = 'ISSUE' and cf.name = '状态'
                 and (pr.workspace_id = #{request.workspaceId} or global = true)
             )
