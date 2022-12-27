@@ -65,7 +65,7 @@
 
 <script>
 import { updateDefinition } from '@/api/definition';
-import { getApiReportDetail } from '@/api/definition-report';
+import { getLastResultDetail } from '@/api/definition-report';
 import { versionEnableByProjectId } from '@/api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
@@ -310,16 +310,6 @@ export default {
     environmentConfigClose() {
       this.getEnvironments();
     },
-    getResult() {
-      if (this.api.id) {
-        getApiReportDetail(this.api.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-    },
     stop() {
       execStop(this.reportId).then(() => {
         this.runLoading = false;
@@ -345,22 +335,13 @@ export default {
     this.currentRequest = this.api.request;
     this.runLoading = false;
     this.getEnvironments();
-    this.getResult();
+    getLastResultDetail(this.api.id, this);
     this.checkVersionEnable();
   },
 };
 </script>
 
 <style scoped>
-.ms-htt-width {
-  width: 350px;
-}
-
-.environment-button {
-  margin-left: 20px;
-  padding: 7px;
-}
-
 :deep(.el-drawer) {
   overflow: auto;
 }
