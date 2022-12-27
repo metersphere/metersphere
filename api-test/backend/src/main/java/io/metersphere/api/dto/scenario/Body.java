@@ -16,9 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -102,11 +102,19 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
-                        if (!this.getRaw().contains("$ref")) {
-                            jsonMockParse(map);
+                        if (StringUtils.startsWith(this.getRaw(), "[") && StringUtils.endsWith(this.raw, "]")) {
+                            List list = JSON.parseArray(this.getRaw());
+                            if (!this.getRaw().contains("$ref")) {
+                                jsonMockParse(list);
+                            }
+                            this.raw = JSONUtil.parser(list.toString());
+                        } else {
+                            Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
+                            if (!this.getRaw().contains("$ref")) {
+                                jsonMockParse(map);
+                            }
+                            this.raw = JSONUtil.parser(map.toString());
                         }
-                        this.raw = JSONUtil.parser(map.toString());
                     }
                 } catch (Exception e) {
                     LoggerUtil.error("json mock value is abnormal", e);
@@ -118,7 +126,9 @@ public class Body {
     private void jsonMockParse(Map map) {
         for (Object key : map.keySet()) {
             Object value = map.get(key);
-            if (value instanceof JSONObject) {
+            if (value instanceof List) {
+                jsonMockParse((List) value);
+            } else if (value instanceof Map) {
                 jsonMockParse((Map) value);
             } else if (value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
@@ -126,6 +136,28 @@ public class Body {
                 }
                 map.put(key, value);
             }
+        }
+    }
+
+    private void jsonMockParse(List list) {
+
+        Map<Integer, String> replaceDataMap = new HashMap<>();
+        for (int index = 0; index < list.size(); index++) {
+            Object obj = list.get(index);
+            if (obj instanceof Map) {
+                jsonMockParse((Map) obj);
+            } else if (obj instanceof String) {
+                if (StringUtils.isNotBlank((String) obj)) {
+                    String str = ScriptEngineUtils.buildFunctionCallString((String) obj);
+                    replaceDataMap.put(index, str);
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, String> entry : replaceDataMap.entrySet()) {
+            int replaceIndex = entry.getKey();
+            String replaceStr = entry.getValue();
+            list.set(replaceIndex, replaceStr);
         }
     }
 

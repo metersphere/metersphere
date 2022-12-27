@@ -184,7 +184,7 @@
       </el-col>
     </el-row>
 
-    <template v-if="!hidden && pickValue.properties && !isArray(pickValue) && reloadItemOver">
+    <template v-if="!hidden && pickValue.properties && !isArray(pickValue)">
       <json-schema-editor
         v-for="(item, key, index) in pickValue.properties"
         :value="{ [key]: item }"
@@ -205,7 +205,7 @@
         :need-mock="needMock"
         @reloadItems="reloadItems" />
     </template>
-    <template v-if="!hidden && isArray(pickValue) && reloadItemOver">
+    <template v-if="!hidden && isArray(pickValue)">
       <json-schema-editor
         v-for="(item, key, index) in pickValue.items"
         :value="{ [key]: item }"
@@ -400,7 +400,6 @@ export default {
       hidden: false,
       countAdd: 1,
       modalVisible: false,
-      reloadItemOver: true,
       reloadSelfOver: true,
       advancedValue: {},
       addProp: {}, // 自定义属性
@@ -414,7 +413,7 @@ export default {
     } else {
       if (this.pickValue) {
         if (this.pickValue.hidden === undefined) {
-          this.hidden = this.root ? false : true;
+          this.hidden = !this.root;
         } else {
           this.hidden = this.root ? false : this.pickValue.hidden;
         }
@@ -546,6 +545,7 @@ export default {
         node.properties || this.$set(node, 'properties', {});
         const props = node.properties;
         this.$set(props, name, { type: type, mock: { mock: '' } });
+        this.reloadItems();
       }
     },
     addCustomNode() {
@@ -609,10 +609,12 @@ export default {
       this.$emit('reloadItems');
     },
     reloadItems() {
-      this.reloadItemOver = false;
-      this.$nextTick(() => {
-        this.reloadItemOver = true;
-      });
+      if (!this.hidden) {
+        this.hidden = !this.hidden;
+        this.$nextTick(() => {
+          this.hidden = !this.hidden;
+        });
+      }
     },
 
     reloadSelf() {
