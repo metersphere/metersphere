@@ -23,4 +23,12 @@
             </if>
         </where>
     </select>
+
+    <select id="getProject" resultType="io.metersphere.dto.ProjectDTO">
+        SELECT p.* , w.name as workspaceName
+        from project p LEFT JOIN workspace w
+        on p.workspace_id = w.id
+        left join api_scenario a
+            on a.project_id = p.id where a.id = #{scenarioId}
+    </select>
 </mapper>
