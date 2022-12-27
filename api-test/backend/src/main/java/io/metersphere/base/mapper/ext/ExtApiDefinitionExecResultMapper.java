@@ -24,10 +24,7 @@ public interface ExtApiDefinitionExecResultMapper {
 
     ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceIdAndType(String resourceId, String type);
 
-
     long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
-
-    long countByTestCaseIDInProject(String projectId);
 
     List<ExecutedCaseInfoResult> findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("versionId") String version, @Param("selectFunctionCase") boolean selectFunctionCase, @Param("startTimestamp") long startTimestamp, @Param("limitNumber") int limitNumber);
 
@@ -36,8 +33,6 @@ public interface ExtApiDefinitionExecResultMapper {
     ApiDefinitionExecResultWithBLOBs selectPlanApiMaxResultByTestIdAndType(String resourceId, String type);
 
     List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids") Collection<String> values);
-
-    List<ApiDefinitionExecResult> selectApiResultByProjectId(String projectId);
 
     void update(@Param("ids") List<String> ids);
 

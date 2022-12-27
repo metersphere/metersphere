@@ -9,3 +9,18 @@ export function getApiReportDetail(id) {
   let url = '/api/definition/report/get/' + id;
   return get(url);
 }
+
+export function getLastResult(id) {
+  return get(`/api/definition/exec/result/last-result/${id}`);
+}
+
+export function getLastResultDetail(id, _this) {
+  if (id) {
+    getLastResult(id).then((response) => {
+      if (response.data && response.data.content) {
+        let data = JSON.parse(response.data.content);
+        _this.responseData = data;
+      }
+    });
+  }
+}

@@ -68,7 +68,6 @@
 </template>
 
 <script>
-import { getApiReportDetail } from '@/api/definition-report';
 import MsResponseResult from '../response/ResponseResult';
 import MsRequestMetric from '../response/RequestMetric';
 import { getUUID } from 'metersphere-frontend/src/utils';
@@ -123,7 +122,6 @@ export default {
       options: [],
       responseData: { type: 'JDBC', responseResult: {}, subRequestResults: [] },
       loading: false,
-      debugResultId: '',
       runData: [],
       headers: [],
       reportId: '',
@@ -133,36 +131,10 @@ export default {
     };
   },
   created() {
-    if (this.testCase) {
-      if (this.testCase.id) {
-        // 执行结果信息
-        getApiReportDetail(this.testCase.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-      this.request = this.testCase.request;
-      if (this.request) {
-        this.debugForm.method = this.request.method;
-        if (this.request.url) {
-          this.debugForm.url = this.request.url;
-        } else {
-          this.debugForm.url = this.request.path;
-        }
-      }
-    } else {
-      this.request = createComponent('JDBCSampler');
-    }
+    this.request = createComponent('JDBCSampler');
     if (!this.request.environmentId) {
       this.request.environmentId = store.useEnvironment;
     }
-  },
-  watch: {
-    debugResultId() {
-      this.getResult();
-    },
   },
   methods: {
     handleCommand(e) {

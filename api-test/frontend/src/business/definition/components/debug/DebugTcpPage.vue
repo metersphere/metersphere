@@ -125,7 +125,6 @@ export default {
       options: [],
       responseData: { type: 'TCP', responseResult: {}, subRequestResults: [] },
       loading: false,
-      debugResultId: '',
       runData: [],
       headers: [],
       reportId: '',
@@ -135,33 +134,7 @@ export default {
     };
   },
   created() {
-    if (this.testCase) {
-      if (this.testCase.id) {
-        // 执行结果信息
-        getApiReportDetail(this.testCase.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-      this.request = this.testCase.request;
-      if (this.request) {
-        this.debugForm.method = this.request.method;
-        if (this.request.url) {
-          this.debugForm.url = this.request.url;
-        } else {
-          this.debugForm.url = this.request.path;
-        }
-      }
-    } else {
-      this.request = createComponent('TCPSampler');
-    }
-  },
-  watch: {
-    debugResultId() {
-      this.getResult();
-    },
+    this.request = createComponent('TCPSampler');
   },
   methods: {
     handleCommand(e) {
