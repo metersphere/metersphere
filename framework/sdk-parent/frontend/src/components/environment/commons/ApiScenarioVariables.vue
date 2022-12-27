@@ -197,6 +197,7 @@
                 />
               </el-tooltip>
               <el-tooltip
+                v-if="!scope.row.scope || scope.row.scope == 'api'"
                 effect="dark"
                 :content="$t('schema.adv_setting')"
                 placement="top-start"
