@@ -20,6 +20,8 @@ export default {
   created() {
     if (this.$route.query.name) {
       this.currentTodo = this.$route.query.name
+    } else {
+      this.currentTodo = 'track_case'
     }
   }
 }
