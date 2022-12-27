@@ -60,7 +60,6 @@ public class FileUtils {
     }
 
     public static void createFile(String filePath, byte[] fileBytes) {
-        validateFileName(filePath);
         File file = new File(filePath);
         if (file.exists()) {
             file.delete();
