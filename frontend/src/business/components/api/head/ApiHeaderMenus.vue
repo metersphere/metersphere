@@ -32,7 +32,7 @@ import MsRecentList from "../../common/head/RecentList";
 import MsShowAll from "../../common/head/ShowAll";
 import MsCreateButton from "../../common/head/CreateButton";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
-import {mapGetters} from "vuex";
+import {PROJECT_ID, PROJECT_NAME, WORKSPACE, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "MsApiHeaderMenus",
@@ -49,6 +49,16 @@ export default {
     '$route': {
       immediate: true,
       handler(to) {
+        if (to.name==='ApiAutomation') {
+          if (to.query.projectName && to.query.projectId) {
+            sessionStorage.setItem(PROJECT_NAME, to.query.projectName);
+            sessionStorage.setItem(PROJECT_ID, to.query.projectId);
+          }
+          if (to.query.workspaceName && to.query.workspaceId) {
+            sessionStorage.setItem(WORKSPACE, to.query.workspaceName);
+            sessionStorage.setItem(WORKSPACE_ID, to.query.workspaceId);
+          }
+        }
         let path = to.path.split("/", 4);
         this.currentPath = '/' + path[1] + '/' + path[2];
         if (path[3] === "report") {

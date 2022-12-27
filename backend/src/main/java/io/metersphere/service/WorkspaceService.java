@@ -342,4 +342,7 @@ public class WorkspaceService {
         return list;
     }
 
+    public Workspace getWorkspaceById(String workspaceId) {
+        return workspaceMapper.selectByPrimaryKey(workspaceId);
+    }
 }
