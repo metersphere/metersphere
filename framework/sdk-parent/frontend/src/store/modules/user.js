@@ -1,6 +1,6 @@
 import {isLogin, login, logout, updateInfo} from '../../api/user'
 import {getLanguage, setLanguage} from "@/i18n";
-import {PROJECT_ID, TokenKey, WORKSPACE_ID} from "../../utils/constants";
+import {PROJECT_ID, SUPER_GROUP, TokenKey, WORKSPACE_ID} from "../../utils/constants";
 
 function saveSessionStorage(response) {
   // 登录信息保存 cookie
@@ -21,7 +21,8 @@ function saveSessionStorage(response) {
   } else {
     let v = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')
       .filter(ug => ug.sourceId === currentProjectId);
-    if (v.length === 0) {
+    let index = user.groups.findIndex(g => g.id === SUPER_GROUP);
+    if (v.length === 0 && index === -1) {
       sessionStorage.setItem(PROJECT_ID, user.lastProjectId);
     }
   }
