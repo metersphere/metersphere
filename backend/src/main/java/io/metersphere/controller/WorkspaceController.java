@@ -89,4 +89,10 @@ public class WorkspaceController {
     public WorkspaceResource listResource(@PathVariable String groupId, @PathVariable String type) {
         return workspaceService.listResource(groupId, type);
     }
+
+    @GetMapping("/get/{workspaceId}")
+    public Workspace getWorkspaceById(@PathVariable String workspaceId) {
+        return workspaceService.getWorkspaceById(workspaceId);
+    }
+
 }

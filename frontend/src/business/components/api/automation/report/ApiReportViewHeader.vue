@@ -9,7 +9,7 @@
             <el-link v-if="isSingleScenario"
                      type="primary"
                      class="report-name"
-                     @click="redirect">
+                     @click="clickResource">
               {{ report.name }}
             </el-link>
             <span v-else>
@@ -134,15 +134,45 @@ export default {
     handleSaveKeyUp($event) {
       $event.target.blur();
     },
-    redirect() {
+    clickResource() {
+      let workspaceId = getCurrentWorkspaceId();
+      if (this.report.projectId !== getCurrentProjectID()) {
+        this.$get("/project/get/" + this.report.projectId, response => {
+          if (response.data) {
+            workspaceId = response.data.workspaceId;
+            this.checkPermission(workspaceId, this.report.projectId, response.data.name);
+          }
+        });
+      } else {
+        this.checkPermission(workspaceId, this.report.projectId, null);
+      }
+    },
+    checkPermission(workspaceId, projectId, projectName) {
+      this.$get("/workspace/get/" + workspaceId, response => {
+        if (response.data) {
+          let workspaceName = response.data.name;
+          this.$get('/project/getOwnerProjectIds', res => {
+            const project = res.data.find(p => p === projectId);
+            if (!project) {
+              this.$warning(this.$t('commons.no_permission'));
+            } else {
+              this.redirect(workspaceId, projectId, projectName, workspaceName);
+            }
+          })
+        }
+      });
+    },
+    redirect(workspaceId, projectId, projectName, workspaceName) {
       let data = this.$router.resolve({
         name: this.isUi ? 'uiAutomation' : 'ApiAutomation',
         query: {
           redirectID: getUUID(),
           dataType: "scenario",
-          projectId: getCurrentProjectID(),
-          workspaceId: getCurrentWorkspaceId(),
-          resourceId: this.scenarioId
+          projectId: projectId,
+          workspaceId: workspaceId,
+          resourceId: this.scenarioId,
+          projectName: projectName,
+          workspaceName: workspaceName,
         }
       });
       window.open(data.href, '_blank');
