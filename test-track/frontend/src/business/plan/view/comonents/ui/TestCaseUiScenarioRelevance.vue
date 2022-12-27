@@ -87,6 +87,8 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.$refs.apiScenarioList.closeEnv();
+      this.$refs.apiScenarioList.initProjectIds();
     },
 
     refresh(data) {

@@ -175,6 +175,9 @@ export default {
     },
     radioChange(val) {
       this.$emit("update:environmentType", val);
+    },
+    close(){
+      this.visible = false;
     }
   }
 
