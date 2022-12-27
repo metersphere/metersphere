@@ -463,6 +463,15 @@ public class GroupService {
     }
 
     public void removeGroupMember(String userId, String groupId) {
+        Group group = groupMapper.selectByPrimaryKey(groupId);
+        if (group == null) {
+            MSException.throwException("group does not exist!");
+            return;
+        }
+        if (!StringUtils.equals(group.getType(), UserGroupType.PROJECT)) {
+            MSException.throwException("no permission to remove non-project type group users!");
+            return;
+        }
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria()
                 .andGroupIdEqualTo(groupId)
