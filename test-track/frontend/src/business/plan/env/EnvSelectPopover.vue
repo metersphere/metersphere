@@ -2,7 +2,7 @@
   <div>
     <el-radio-group v-model="radio" style="width: 100%" @change="radioChange" class="radio-change">
       <el-radio :label="ENV_TYPE.JSON">{{ $t('workspace.env_group.env_list') }}</el-radio>
-      <el-radio :label="ENV_TYPE.GROUP">{{ $t('workspace.env_group.name') }}<i class="el-icon-tickets mode-span" @click="viewGroup"></i></el-radio>
+      <el-radio :label="ENV_TYPE.GROUP" v-if="showEnvGroup">{{ $t('workspace.env_group.name') }}<i class="el-icon-tickets mode-span" @click="viewGroup"></i></el-radio>
     </el-radio-group>
     <div v-for="(pe, pIndex) in eventData" :key="pe.id" v-show="radio === ENV_TYPE.JSON">
       <el-card shadow="never" style="margin-top: 8px;background: #F5F6F7;border-radius: 4px;">
@@ -110,6 +110,10 @@ export default {
     }
   },
   props:{
+    showEnvGroup: {
+      type : Boolean,
+      default: true
+    },
     projectIds: Set,
     projectList:Array,
     projectEnvMap:Object,
