@@ -107,7 +107,7 @@
 
 <script>
 import { getMockEnvironment, updateDefinition } from '@/api/definition';
-import { getApiReportDetail } from '@/api/definition-report';
+import { getLastResultDetail } from '@/api/definition-report';
 import { versionEnableByProjectId } from '@/api/xpack';
 import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
 import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
@@ -414,16 +414,6 @@ export default {
     refresh() {
       this.$emit('refresh');
     },
-    getResult() {
-      if (this.api.id) {
-        getApiReportDetail(this.api.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-    },
     stop() {
       execStop(this.reportId).then(() => {
         this.runLoading = false;
@@ -450,6 +440,7 @@ export default {
       if (!this.api.environmentId && store.useEnvironment) {
         this.api.environmentId = store.useEnvironment;
       }
+      getLastResultDetail(this.api.id, this);
       this.runLoading = false;
       this.checkVersionEnable();
     },
