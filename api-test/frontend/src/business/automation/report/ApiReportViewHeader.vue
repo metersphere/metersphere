@@ -114,10 +114,11 @@
 import { generateShareInfoWithExpired, getShareRedirectUrl } from '../../../api/share';
 import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
-import { getProjectApplicationConfig } from '../../../api/project';
+import {apiProjectByScenarioId, getProjectApplicationConfig} from '../../../api/project';
 import { apiTestReRun } from '../../../api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getApiScenarioIdByPlanScenarioId } from '@/api/test-plan';
+import {getScenarioReport} from '../../../api/scenario-report';
 
 export default {
   name: 'MsApiReportViewHeader',
@@ -189,13 +190,19 @@ export default {
       let resourceId = this.scenarioId;
       getApiScenarioIdByPlanScenarioId(this.scenarioId).then((res) => {
         resourceId = res.data;
-        this.showDetails(resourceId);
+          apiProjectByScenarioId(resourceId).then((response) =>{
+            if (response.data) {
+              let projectId = response.data.id;
+              let workspaceId = response.data.workspaceId;
+              let projectName = response.data.name;
+              let workspaceName = response.data.workspaceName;
+              this.showDetails(resourceId, projectId, projectName, workspaceId, workspaceName);
+            }
+          })
       });
     },
-    showDetails(resourceId) {
+    showDetails(resourceId, projectId, projectName, workspaceId, workspaceName) {
       let uuid = getUUID().substring(1, 5);
-      let projectId = getCurrentProjectID();
-      let workspaceId = getCurrentWorkspaceId();
       let prefix = '/#';
       if (
         this.$route &&
@@ -205,7 +212,7 @@ export default {
       ) {
         prefix = '';
       }
-      let path = `${prefix}/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${resourceId}`;
+      let path = `${prefix}/api/automation/?redirectID=${uuid}&dataType=scenario&projectId=${projectId}&workspaceId=${workspaceId}&resourceId=${resourceId}&projectName=${projectName}&workspaceName=${workspaceName}`;
       let data = this.$router.resolve({
         path: path,
       });

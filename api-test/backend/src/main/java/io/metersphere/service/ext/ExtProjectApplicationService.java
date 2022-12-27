@@ -179,4 +179,8 @@ public class ExtProjectApplicationService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiProjectMapper.getUserProject(request);
     }
+
+    public ProjectDTO getProject(String id) {
+        return extApiProjectMapper.getProject(id);
+    }
 }
