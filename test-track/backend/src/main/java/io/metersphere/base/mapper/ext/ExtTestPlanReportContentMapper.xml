@@ -28,4 +28,13 @@
         where test_plan_id = #{planId} and status = 'RUNNING'
         order by create_time desc limit 1;
     </select>
+    <select id="hasRunningReportByPlanIds" resultType="java.lang.Boolean">
+        select count(1) > 0  from test_plan_report
+        where test_plan_id in
+        <foreach collection="planIds" item="planId" separator="," open="(" close=")">
+            #{planId}
+        </foreach>
+        and status = 'RUNNING'
+        order by create_time desc limit 1;
+    </select>
 </mapper>

@@ -1996,6 +1996,9 @@ public class TestPlanService {
                 ids.removeAll(request.getUnSelectIds());
             }
         }
+        if (testPlanReportService.hasRunningReport(ids)) {
+            MSException.throwException(Translator.get("test_plan_delete_exec_error"));
+        }
         this.deleteTestPlans(ids);
     }
 
