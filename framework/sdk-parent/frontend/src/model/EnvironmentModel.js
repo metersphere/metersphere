@@ -85,6 +85,8 @@ export class HttpConfig extends BaseConfig {
     this.port = undefined;
     this.conditions = [];
     this.cookie = options.cookie ? options.cookie : [new Cookie()];
+    this.browser = "CHROME";
+    this.headlessEnabled = true;
     this.isMock = false;
     this.description = "";
     this.set(options);
