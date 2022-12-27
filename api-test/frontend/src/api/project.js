@@ -54,3 +54,9 @@ export function projectRelated(params) {
 export function apiProjectRelated(params) {
   return post('/api/project/list/related', params);
 }
+
+export function apiProjectByScenarioId(scenarioId) {
+  return get('/api/project/get/' + scenarioId);
+}
+
+
