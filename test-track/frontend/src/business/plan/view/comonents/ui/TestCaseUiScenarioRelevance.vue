@@ -87,6 +87,8 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.$refs.apiScenarioList.closeEnv();
+      this.$refs.apiScenarioList.initProjectIds();
     },
 
     refresh(data) {
@@ -148,6 +150,10 @@ export default {
       let map = this.$refs.apiScenarioList.map;
       let envGroupId = this.$refs.apiScenarioList.envGroupId;
 
+      if (!envMap || envMap.size == 0) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
+        return;
+      }
       selectRows.forEach(row => {
         selectIds.push(row.id);
       })
@@ -179,8 +185,6 @@ export default {
           this.autoCheckStatus();
           this.$refs.baseRelevance.close();
         });
-
-
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {
