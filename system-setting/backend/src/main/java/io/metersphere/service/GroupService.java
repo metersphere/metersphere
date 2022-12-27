@@ -162,10 +162,11 @@ public class GroupService {
 
     public void deleteGroup(String id) {
         Group group = groupMapper.selectByPrimaryKey(id);
-        if (group != null) {
-            if (BooleanUtils.isTrue(group.getSystem())) {
-                MSException.throwException("系统用户组不支持删除！");
-            }
+        if (group == null) {
+            MSException.throwException("group does not exist!");
+        }
+        if (BooleanUtils.isTrue(group.getSystem())) {
+            MSException.throwException("系统用户组不支持删除！");
         }
         groupMapper.deleteByPrimaryKey(id);
 
