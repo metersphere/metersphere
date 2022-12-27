@@ -19,11 +19,7 @@
   </div>
 </template>
 <script>
-import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MyCaseCard from "./components/MyCaseCard";
-import FocusCard from "./components/FocusCard";
-import UpcomingCard from "./components/UpcomingCard";
 import MyFlawCard from "./components/MyFlawCard";
 import MyDashboardCard from "@/business/dashboard/components/MyDashboardCard";
 
@@ -32,11 +28,7 @@ export default {
   name: 'DashBoard',
   components: {
     MyCaseCard,
-    MsMainContainer,
-    MsContainer,
     MyFlawCard,
-    UpcomingCard,
-    FocusCard,
     MyDashboardCard
   },
   data() {
