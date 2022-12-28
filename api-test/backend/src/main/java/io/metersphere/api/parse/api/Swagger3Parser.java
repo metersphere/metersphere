@@ -326,9 +326,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
 
+
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = getSchema(mediaType.getSchema());
+        if (content.get(contentType).getExample() != null && schema.getExample() == null) {
+            schema.setExample(content.get(contentType).getExample());
+        }
         Object bodyData = null;
         if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
@@ -559,7 +563,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
-        } else if (value instanceof StringSchema || StringUtils.equals(PropertyConstant.STRING, value.getType())) {
+        } else if (value instanceof StringSchema || StringUtils.equals(PropertyConstant.STRING, value.getType()) || value instanceof JsonSchema) {
             return example == null ? StringUtils.EMPTY : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
