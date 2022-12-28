@@ -48,7 +48,7 @@ import MsTestPlanHeaderBar from "./comonents/head/TestPlanHeaderBar";
 import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
 import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense, setCurrentProjectID} from "@/common/js/utils";
 import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
@@ -167,11 +167,22 @@ export default {
     getTestPlans() {
       this.$post('/test/plan/list/all', {projectId: getCurrentProjectID()}, response => {
         this.testPlans = response.data;
+        let hasPlan = false;
         this.testPlans.forEach(plan => {
           if (this.planId && plan.id === this.planId) {
             this.currentPlan = plan;
+            hasPlan = true;
           }
         });
+        if (!hasPlan) {
+          if (this.planId) {
+            this.$post('/test/plan/get/' + this.planId, {}, (r) => {
+              let plan = r.data;
+              setCurrentProjectID(plan.projectId);
+              location.reload();
+            });
+          }
+        }
       });
     },
     changePlan(plan) {
