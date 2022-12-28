@@ -1402,4 +1402,100 @@ public class TestPlanReportService {
         }
         return null;
     }
+
+    public TestPlanSimpleReportDTO getReportOpt(String reportId) {
+        TestPlanReportContentExample example = new TestPlanReportContentExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(reportId);
+        List<TestPlanReportContentWithBLOBs> testPlanReportContents = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isEmpty(testPlanReportContents)) {
+            return null;
+        }
+        TestPlanReportContentWithBLOBs testPlanReportContent = testPlanReportContents.get(0);
+        if (testPlanReportContent == null) {
+            return null;
+        }
+        if (this.isDynamicallyGenerateReports(testPlanReportContent)) {
+            testPlanReportContent = this.dynamicallyGenerateReports(testPlanReportContent);
+        }
+        TestPlanSimpleReportDTO testPlanReportDTO = new TestPlanSimpleReportDTO();
+        BeanUtils.copyBean(testPlanReportDTO, testPlanReportContent);
+        this.generateEnvironmentInfo(testPlanReportDTO, reportId);
+
+        testPlanReportDTO.setFunctionResult(
+                getReportContentResultObject(testPlanReportContent.getFunctionResult(), TestPlanFunctionResultReportDTO.class)
+        );
+
+        testPlanReportDTO.setApiResult(
+                getReportContentResultObject(testPlanReportContent.getApiResult(), TestPlanApiResultReportDTO.class)
+        );
+
+        testPlanReportDTO.setLoadResult(
+                getReportContentResultObject(testPlanReportContent.getLoadResult(), TestPlanLoadResultReportDTO.class)
+        );
+
+        testPlanReportDTO.setFunctionAllCases(
+                getReportContentResultArray(testPlanReportContent.getFunctionAllCases(), TestPlanCaseDTO.class)
+        );
+
+        testPlanReportDTO.setIssueList(
+                getReportContentResultArray(testPlanReportContent.getIssueList(), IssuesDao.class)
+        );
+
+        testPlanReportDTO.setApiAllCases(
+                getReportContentResultArray(testPlanReportContent.getApiAllCases(), TestPlanFailureApiDTO.class)
+        );
+
+        testPlanReportDTO.setApiFailureCases(
+                getReportContentResultArray(testPlanReportContent.getApiFailureCases(), TestPlanFailureApiDTO.class)
+        );
+
+        testPlanReportDTO.setScenarioAllCases(
+                getReportContentResultArray(testPlanReportContent.getScenarioAllCases(), TestPlanFailureScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setScenarioFailureCases(
+                getReportContentResultArray(testPlanReportContent.getScenarioFailureCases(), TestPlanFailureScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setLoadAllCases(
+                getReportContentResultArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class)
+        );
+
+        testPlanReportDTO.setLoadFailureCases(
+                getReportContentResultArray(testPlanReportContent.getLoadFailureCases(), TestPlanLoadCaseDTO.class)
+        );
+
+        testPlanReportDTO.setErrorReportCases(
+                getReportContentResultArray(testPlanReportContent.getErrorReportCases(), TestPlanFailureApiDTO.class)
+        );
+
+        testPlanReportDTO.setErrorReportScenarios(
+                getReportContentResultArray(testPlanReportContent.getErrorReportScenarios(), TestPlanFailureScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setUnExecuteCases(
+                getReportContentResultArray(testPlanReportContent.getUnExecuteCases(), TestPlanFailureApiDTO.class)
+        );
+
+        testPlanReportDTO.setUnExecuteScenarios(
+                getReportContentResultArray(testPlanReportContent.getUnExecuteScenarios(), TestPlanFailureScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setUiResult(
+                getReportContentResultObject(testPlanReportContent.getUiResult(), TestPlanUiResultReportDTO.class)
+        );
+
+        testPlanReportDTO.setUiAllCases(
+                getReportContentResultArray(testPlanReportContent.getUiAllCases(), TestPlanUiScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setUiFailureCases(
+                getReportContentResultArray(testPlanReportContent.getUiFailureCases(), TestPlanUiScenarioDTO.class)
+        );
+
+        testPlanReportDTO.setId(reportId);
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
+        testPlanReportDTO.setName(testPlanReport.getName());
+        return testPlanReportDTO;
+    }
 }

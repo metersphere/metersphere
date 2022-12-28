@@ -8,6 +8,7 @@ import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -204,4 +205,10 @@ public class TestPlanApiCaseController {
     public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(@PathVariable("planId") String planId) {
         return testPlanApiCaseService.selectExtForPlanReport(planId);
     }
+
+    @GetMapping("/get/report/scenario/ext/{planId}")
+    public List<ApiScenarioReportWithBLOBs> selectExtForPlanScenarioReport(@PathVariable("planId") String planId) {
+        return testPlanApiCaseService.selectExtForPlanScenarioReport(planId);
+    }
+
 }

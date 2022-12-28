@@ -16,6 +16,7 @@ import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
@@ -91,6 +92,8 @@ public class TestPlanApiCaseService {
     private TestPlanService testPlanService;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
@@ -817,6 +820,14 @@ public class TestPlanApiCaseService {
         List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
         return results;
     }
+
+    public List<ApiScenarioReportWithBLOBs> selectExtForPlanScenarioReport(String planId) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andRelevanceTestPlanReportIdEqualTo(planId);
+        List<ApiScenarioReportWithBLOBs> results = apiScenarioReportMapper.selectByExampleWithBLOBs(example);
+        return results;
+    }
+
 
     public List<String> getApiCaseProjectIds(String planId) {
         TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
