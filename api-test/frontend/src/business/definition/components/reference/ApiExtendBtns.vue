@@ -138,7 +138,7 @@ export default {
             jmxObj.version = row.version;
             jmxObj.envId = this.environment;
             jmxObj.projectEnvMap = projectEnvMap;
-            performanceStore.$patch({ test: { name: row.name, jmx: jmxObj } });
+            performanceStore.$patch({ test: { name: row.name, jmx: jmxObj }, scenarioJmxs: null });
             this.$router.push({
               path: '/performance/test/create',
             });
