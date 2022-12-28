@@ -1108,6 +1108,7 @@ export default {
     stoptest: 'Stop test',
     stoptestnow: 'Stop the test immediately',
     batch_delete_confirm: "Confirm batch delete performance test",
+    max_current_threads_tips: 'Exceeded the maximum concurrent number of this node {0}',
     report: {
       diff: "Compare",
       set_default: 'Set to Default',

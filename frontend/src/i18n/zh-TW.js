@@ -1113,6 +1113,7 @@ export default {
     stoptest: '停止測試',
     stoptestnow: '立即停止測試',
     batch_delete_confirm: "确认批量删除性能测试",
+    max_current_threads_tips: '超出此節點{0}最大並發數',
     report: {
       diff: "對比",
       set_default: '恢復默認',
