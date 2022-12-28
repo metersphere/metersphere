@@ -199,4 +199,9 @@ public class TestPlanLoadCaseController {
         testPlanLoadCaseService.buildLoadResponse(cases);
         return cases;
     }
+
+    @GetMapping("/pool/{loadReportId}")
+    public String getPlanLoadCaseResourcePoolId(@PathVariable String loadReportId) {
+        return testPlanLoadCaseService.getPlanLoadCaseResourcePoolId(loadReportId);
+    }
 }
