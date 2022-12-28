@@ -770,8 +770,12 @@ public class TestCaseService {
     }
 
     private void buildCustomField(TestCaseDTO data) {
+        data.setFields(getCustomFieldByCaseId(data.getId()));
+    }
+
+    public List<CustomFieldDao> getCustomFieldByCaseId(String caseId) {
         CustomFieldTestCaseExample example = new CustomFieldTestCaseExample();
-        example.createCriteria().andResourceIdEqualTo(data.getId());
+        example.createCriteria().andResourceIdEqualTo(caseId);
         List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExampleWithBLOBs(example);
         List<CustomFieldDao> fields = new ArrayList<>();
         customFieldTestCases.forEach(i -> {
@@ -781,7 +785,7 @@ public class TestCaseService {
             customFieldDao.setTextValue(i.getTextValue());
             fields.add(customFieldDao);
         });
-        data.setFields(fields);
+        return fields;
     }
 
     private void buildProjectInfoWithoutProject(List<TestCaseDTO> resList) {
@@ -1735,7 +1739,9 @@ public class TestCaseService {
                         List<String> results = new ArrayList<>();
                         List values = (List) value;
                         values.forEach(item -> {
-                            if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(item.toString())) {
+                            if (MapUtils.isEmpty(optionMap)) {
+                                results.add(item.toString());
+                            } else if (optionMap.containsKey(item.toString())) {
                                 results.add(optionMap.get(item.toString()));
                             }
                         });

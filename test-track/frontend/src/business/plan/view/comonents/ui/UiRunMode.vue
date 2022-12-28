@@ -15,6 +15,7 @@
                             :project-env-map="projectEnvListMap"
                             :environment-type="'JSON'"
                             :has-option-group="false"
+                            :show-env-group="false"
                             :group-id="runConfig.environmentGroupId"
                             @setProjectEnvMap="setProjectEnvMap"
                             ref="envSelectPopover"

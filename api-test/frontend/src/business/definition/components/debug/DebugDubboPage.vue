@@ -67,7 +67,6 @@
 </template>
 
 <script>
-import { getApiReportDetail } from '@/api/definition-report';
 import MsResponseResult from '../response/ResponseResult';
 import MsRequestMetric from '../response/RequestMetric';
 import { getUUID } from 'metersphere-frontend/src/utils';
@@ -120,7 +119,6 @@ export default {
       options: [],
       responseData: { type: 'TCP', responseResult: {}, subRequestResults: [] },
       loading: false,
-      debugResultId: '',
       runData: [],
       headers: [],
       reportId: '',
@@ -130,33 +128,7 @@ export default {
     };
   },
   created() {
-    if (this.testCase) {
-      if (this.testCase.id) {
-        // 执行结果信息
-        getApiReportDetail(this.testCase.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-      this.request = this.testCase.request;
-      if (this.request) {
-        this.debugForm.method = this.request.method;
-        if (this.request.url) {
-          this.debugForm.url = this.request.url;
-        } else {
-          this.debugForm.url = this.request.path;
-        }
-      }
-    } else {
-      this.request = createComponent('DubboSampler');
-    }
-  },
-  watch: {
-    debugResultId() {
-      this.getResult();
-    },
+    this.request = createComponent('DubboSampler');
   },
   methods: {
     handleCommand(e) {

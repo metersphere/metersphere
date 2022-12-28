@@ -127,12 +127,13 @@ public class LocalFileRepository implements FileRepository {
 
 
     private File createFile(FileRequest request) {
-        String path = StringUtils.join(FileUtils.BODY_FILE_DIR, "/", request.getProjectId());
+        FileUtils.validateFileName(request.getFileName());
+        String path = StringUtils.join(FileUtils.BODY_FILE_DIR, File.separator, request.getProjectId());
         File fileDir = new File(path);
         if (!fileDir.exists()) {
             fileDir.mkdirs();
         }
-        File file = new File(StringUtils.join(path, "/", request.getFileName()));
+        File file = new File(StringUtils.join(path, File.separator, request.getFileName()));
         return file;
     }
 }

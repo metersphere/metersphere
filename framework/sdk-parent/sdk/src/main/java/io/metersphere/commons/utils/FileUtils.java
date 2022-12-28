@@ -32,6 +32,22 @@ public class FileUtils {
     public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
     public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
 
+    public static void validateFileName(String fileName) {
+        if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, File.separator)) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
+    }
+
+    /**
+     * 上传Minio的文件名称检查只需要判断是否带有./ ../ 这样的非法文件名
+     *
+     * @param fileName
+     */
+    public static void validateMinIOFileName(String fileName) {
+        if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
+    }
 
     public static byte[] listBytesToZip(Map<String, byte[]> mapReport) {
         try {
@@ -93,6 +109,7 @@ public class FileUtils {
             }
             for (int i = 0; i < bodyUploadIds.size(); i++) {
                 MultipartFile item = bodyFiles.get(i);
+                validateFileName(item.getOriginalFilename());
                 File file = new File(filePath + File.separator + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                     file.createNewFile();
@@ -112,6 +129,7 @@ public class FileUtils {
     public static String create(String id, MultipartFile item) {
         String filePath = BODY_FILE_DIR + "/plugin";
         if (item != null) {
+            validateFileName(item.getOriginalFilename());
             File testDir = new File(filePath);
             if (!testDir.exists()) {
                 testDir.mkdirs();
@@ -141,6 +159,7 @@ public class FileUtils {
                 testDir.mkdirs();
             }
             bodyFiles.forEach(item -> {
+                validateFileName(item.getOriginalFilename());
                 File file = new File(path + File.separator + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                     file.createNewFile();
@@ -259,6 +278,7 @@ public class FileUtils {
     }
 
     public static String createFile(MultipartFile bodyFile) {
+        validateFileName(bodyFile.getOriginalFilename());
         String dir = "/opt/metersphere/data/body/tmp/";
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
@@ -290,6 +310,7 @@ public class FileUtils {
     }
 
     public static String uploadFile(MultipartFile uploadFile, String path, String name) {
+        validateFileName(name);
         if (uploadFile == null) {
             return null;
         }

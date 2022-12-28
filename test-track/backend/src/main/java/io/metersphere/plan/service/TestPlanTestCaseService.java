@@ -303,7 +303,12 @@ public class TestPlanTestCaseService {
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(this::setTestName);
         testPlanCaseDTO.setList(testCaseTestDTOS);
+        buildCustomField(testPlanCaseDTO);
         return testPlanCaseDTO;
+    }
+
+    private void buildCustomField(TestPlanCaseDTO data) {
+        data.setFields(testCaseService.getCustomFieldByCaseId(data.getCaseId()));
     }
 
     private void setTestName(TestCaseTestDTO dto) {

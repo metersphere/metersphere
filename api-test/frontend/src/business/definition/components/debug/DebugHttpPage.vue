@@ -90,7 +90,6 @@
 </template>
 
 <script>
-import { getApiReportDetail } from '@/api/definition-report';
 import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
 import MsResponseResult from '../response/ResponseResult';
 import MsRequestMetric from '../response/RequestMetric';
@@ -109,7 +108,7 @@ import { mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { execStop } from '@/api/scenario';
 
 export default {
-  name: 'ApiConfig',
+  name: 'DebugHttpPage',
   components: {
     MsRequestResultTail,
     MsResponseResult,
@@ -125,14 +124,6 @@ export default {
     scenario: Boolean,
   },
   data() {
-    let validateURL = (rule, value, callback) => {
-      try {
-        new URL(this.debugForm.url);
-        callback();
-      } catch (e) {
-        callback(this.$t('api_test.request.url_invalid'));
-      }
-    };
     return {
       rules: {
         method: [
@@ -149,16 +140,12 @@ export default {
             message: this.$t('commons.input_limit', [1, 500]),
             trigger: 'blur',
           },
-          /*
-                      {validator: validateURL, trigger: 'blur'}
-          */
         ],
       },
       debugForm: { method: REQ_METHOD[0].id, environmentId: '' },
       options: [],
       responseData: { type: 'HTTP', responseResult: {}, subRequestResults: [] },
       loading: false,
-      debugResultId: '',
       runData: [],
       reportId: '',
       reqOptions: REQ_METHOD,
@@ -168,33 +155,7 @@ export default {
     };
   },
   created() {
-    if (this.testCase) {
-      if (this.testCase.id) {
-        // 执行结果信息
-        getApiReportDetail(this.testCase.id).then((response) => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
-      }
-      this.request = this.testCase.request;
-      if (this.request) {
-        this.debugForm.method = this.request.method;
-        if (this.request.url) {
-          this.debugForm.url = this.request.url;
-        } else {
-          this.debugForm.url = this.request.path;
-        }
-      }
-    } else {
-      this.createHttp();
-    }
-  },
-  watch: {
-    debugResultId() {
-      this.getResult();
-    },
+    this.createHttp();
   },
   methods: {
     hasPermission,

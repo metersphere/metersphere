@@ -252,7 +252,7 @@ export default {
     return {
       projectId: '',
       tableKey: '',
-      currentTodo: '',
+      currentTodo: 'track_case',
       condition: {},
       custom_num: false,
       currentProtocol: 'HTTP',
@@ -505,7 +505,10 @@ export default {
       type: Boolean,
       default: false,
     },
-    currentTodoName:String,
+    currentTodoName: {
+      type: String,
+      default: 'track_case',
+    }
   },
   mounted() {
     this.$nextTick(function () {

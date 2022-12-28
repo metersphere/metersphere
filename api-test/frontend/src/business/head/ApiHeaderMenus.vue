@@ -34,6 +34,7 @@ import MsShowAll from 'metersphere-frontend/src/components/head/ShowAll';
 import MsCreateButton from 'metersphere-frontend/src/components/head/CreateButton';
 import ProjectChange from 'metersphere-frontend/src/components/head/ProjectSwitch';
 import MsHeaderRightMenus from 'metersphere-frontend/src/components/layout/HeaderRightMenus';
+import { PROJECT_ID, PROJECT_NAME, WORKSPACE, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
 
 export default {
   name: 'MsApiHeaderMenus',
@@ -56,6 +57,16 @@ export default {
     $route: {
       immediate: true,
       handler(to) {
+        if (to.path === "/api/automation/") {
+          if (to.query.projectName && to.query.projectId) {
+            sessionStorage.setItem(PROJECT_NAME, to.query.projectName);
+            sessionStorage.setItem(PROJECT_ID, to.query.projectId);
+          }
+          if (to.query.workspaceName && to.query.workspaceId) {
+            sessionStorage.setItem(WORKSPACE, to.query.workspaceName);
+            sessionStorage.setItem(WORKSPACE_ID, to.query.workspaceId);
+          }
+        }
         let path = to.path.split('/', 4);
         this.currentPath = '/' + path[1] + '/' + path[2];
         if (path[3] === 'report') {

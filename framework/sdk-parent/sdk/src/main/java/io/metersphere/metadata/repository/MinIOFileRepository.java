@@ -1,5 +1,6 @@
 package io.metersphere.metadata.repository;
 
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.MinioProperties;
 import io.metersphere.dto.FileInfoDTO;
@@ -27,6 +28,7 @@ public class MinIOFileRepository implements FileRepository {
 
     @Override
     public String saveFile(MultipartFile file, FileRequest request) throws Exception {
+        FileUtils.validateMinIOFileName(request.getFileName());
         String bucket = minioProperties.getBucket();
         String fileName = request.getProjectId() + "/" + request.getFileName();
         minioClient.putObject(PutObjectArgs.builder()
@@ -40,6 +42,7 @@ public class MinIOFileRepository implements FileRepository {
 
     @Override
     public String saveFile(byte[] bytes, FileRequest request) throws Exception {
+        FileUtils.validateFileName(request.getFileName());
         String bucket = minioProperties.getBucket();
         String fileName = request.getProjectId() + "/" + request.getFileName();
         try (
@@ -49,7 +52,7 @@ public class MinIOFileRepository implements FileRepository {
                     .bucket(bucket) // 存储桶
                     .object(fileName) // 文件名
                     .stream(inputStream, bytes.length, -1) // 文件内容
-//                .contentType(file.getContentType()) // 文件类型
+                    //                .contentType(file.getContentType()) // 文件类型
                     .build());
         }
         return String.format("%s/%s/%s", minioProperties.getEndpoint(), bucket, fileName);

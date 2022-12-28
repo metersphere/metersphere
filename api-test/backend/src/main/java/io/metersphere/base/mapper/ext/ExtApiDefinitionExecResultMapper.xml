@@ -33,22 +33,6 @@
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
-    <select id="countByTestCaseIDInProject" resultType="java.lang.Long">
-        SELECT count(id) AS countNumber
-        FROM api_case_execution_info
-        WHERE source_id IN (
-            SELECT testCase.id
-            FROM api_test_case testCase
-            WHERE testCase.project_id = #{projectId}
-        )
-           OR source_id IN (SELECT id
-                            FROM test_plan_api_case
-                            WHERE api_case_id IN (
-                                SELECT testCase.id
-                                FROM api_test_case testCase
-                                WHERE testCase.project_id = #{projectId}))
-    </select>
-
     <select id="selectDistinctStatusByReportId" resultType="java.lang.String">
         SELECT DISTINCT status
         FROM api_definition_exec_result
@@ -181,19 +165,6 @@
         </foreach>
     </select>
 
-    <select id="selectApiResultByProjectId" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
-        select *
-        from api_definition_exec_result t
-                 left join `user` t1 ON t.user_id = t1.id
-                 left join test_resource_pool t2 on t.actuator = t2.id
-                 left join api_definition t3 on t.resource_id = t3.id
-                 left join api_test_case t4 on t4.id = t.resource_id
-                 left join test_plan_api_case t5 on t.resource_id = t5.id
-                 left join test_plan t6 on t5.test_plan_id = t6.id
-        where to_days(FROM_UNIXTIME(t.create_time / 1000)) = to_days(now())
-          and (t3.project_id = #{projectId} OR t4.project_id = #{projectId} OR t6.project_id = #{projectId})
-          and t.`status` in ('RUNNING', 'PENDING')
-    </select>
     <select id="selectForPlanReport" resultType="io.metersphere.dto.PlanReportCaseDTO">
         select status from api_definition_exec_result
         where id in
