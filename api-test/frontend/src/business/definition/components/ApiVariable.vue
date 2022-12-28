@@ -75,7 +75,7 @@
                     value-key="name"
                     highlight-first-item
                     @select="change">
-                    <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+                    <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(scope.row)"></i>
                   </el-autocomplete>
                 </div>
                 <div v-else-if="isActive && scope.row.type === 'file'">
