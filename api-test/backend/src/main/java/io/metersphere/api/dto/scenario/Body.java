@@ -102,18 +102,19 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        if (StringUtils.startsWith(this.getRaw(), "[") && StringUtils.endsWith(this.raw, "]")) {
+                        String value = StringUtils.chomp(this.getRaw().trim());
+                        if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
                             List list = JSON.parseArray(this.getRaw());
                             if (!this.getRaw().contains("$ref")) {
                                 jsonMockParse(list);
                             }
-                            this.raw = JSONUtil.parser(list.toString());
+                            this.raw = JSONUtil.parser(JSONUtil.toJSONString(list));
                         } else {
                             Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
                             if (!this.getRaw().contains("$ref")) {
                                 jsonMockParse(map);
                             }
-                            this.raw = JSONUtil.parser(map.toString());
+                            this.raw = JSONUtil.parser(JSONUtil.toJSONString(map));
                         }
                     }
                 } catch (Exception e) {
