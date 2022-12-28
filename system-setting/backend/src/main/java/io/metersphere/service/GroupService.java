@@ -200,7 +200,7 @@ public class GroupService {
 
     private GroupJson loadPermissionJsonFromService() {
         GroupJson groupJson = null;
-        List<GroupResource> globalResource = new ArrayList<>();
+        List<GroupResource> globalResources = new ArrayList<>();
         try {
             for (String service : servicePermissionLoadOrder) {
                 Object obj = stringRedisTemplate.opsForHash().get(RedisKey.MS_PERMISSION_KEY, service);
@@ -208,25 +208,26 @@ public class GroupService {
                     LogUtil.warn("permission json file is null. service name: " + service);
                     continue;
                 }
-                GroupJson temp = JSON.parseObject((String) obj, GroupJson.class);
+                GroupJson microServiceGroupJson = JSON.parseObject((String) obj, GroupJson.class);
+                List<GroupResource> globalResource = microServiceGroupJson.getResource()
+                        .stream()
+                        .filter(gp -> BooleanUtils.isTrue(gp.isGlobal()))
+                        .collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(globalResource)) {
+                    globalResources.addAll(globalResource);
+                    microServiceGroupJson.getResource().removeIf(gp -> BooleanUtils.isTrue(gp.isGlobal()));
+                }
+
                 if (groupJson == null) {
-                    groupJson = temp;
-                    // 全局权限放系统设置模块
-                    if (StringUtils.equals(service, MicroServiceName.SYSTEM_SETTING)) {
-                        globalResource = temp.getResource()
-                                .stream()
-                                .filter(gp -> BooleanUtils.isTrue(gp.isGlobal()))
-                                .collect(Collectors.toList());
-                        temp.getResource().removeIf(gp -> BooleanUtils.isTrue(gp.isGlobal()));
-                    }
+                    groupJson = microServiceGroupJson;
                 } else {
-                    groupJson.getResource().addAll(temp.getResource());
-                    groupJson.getPermissions().addAll(temp.getPermissions());
+                    groupJson.getResource().addAll(microServiceGroupJson.getResource());
+                    groupJson.getPermissions().addAll(microServiceGroupJson.getPermissions());
                 }
             }
-            // 拼装权限的时候放在最后
-            if (groupJson != null && !globalResource.isEmpty()) {
-                groupJson.getResource().addAll(globalResource);
+            // 拼装时通用权限Resource放在最后
+            if (groupJson != null && !globalResources.isEmpty()) {
+                groupJson.getResource().addAll(globalResources);
             }
         } catch (Exception e) {
             LogUtil.error(e);
@@ -337,7 +338,7 @@ public class GroupService {
         } else {
             grs = resources
                     .stream()
-                    .filter(g -> g.getId().startsWith(group.getType()) || g.getId().startsWith(PERSONAL_PREFIX))
+                    .filter(g -> g.getId().startsWith(group.getType()) || BooleanUtils.isTrue(g.isGlobal()))
                     .collect(Collectors.toList());
             permissions.forEach(p -> {
                 if (permissionList.contains(p.getId())) {
