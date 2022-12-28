@@ -158,6 +158,8 @@ public class TestPlanService {
     private SystemParameterService systemParameterService;
     @Resource
     private BaseProjectApplicationService projectApplicationService;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
     public static final String POOL = "POOL";
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
@@ -1985,6 +1987,13 @@ public class TestPlanService {
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
             }
+            List<ApiScenarioReportWithBLOBs> apiScenarioLists = planTestPlanApiCaseService.selectExtForPlanScenarioReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiScenarioLists)){
+                ApiScenarioReportWithBLOBs apiScenario = apiScenarioLists.get(0);
+                convertEnvConfig(apiScenario.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiScenario.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
         }
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
@@ -1993,6 +2002,25 @@ public class TestPlanService {
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
+            }
+        }
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            TestPlanSimpleReportDTO testPlanSimpleReportDTO = testPlanReportService.getReportOpt(reportId);
+            if (testPlanSimpleReportDTO != null) {
+                List<TestPlanLoadCaseDTO> loadList = testPlanSimpleReportDTO.getLoadAllCases();
+                if (CollectionUtils.isNotEmpty(loadList)) {
+                    String loadReportId = loadList.get(0).getLoadReportId();
+                    if (StringUtils.isNotEmpty(loadReportId)) {
+                        // 资源池
+                        String planLoadCaseResourcePoolId = planTestPlanLoadCaseService.getPlanLoadCaseResourcePoolId(loadReportId);
+                        // 运行模式
+                        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
+                        if (testPlanReport != null && StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
+                            convertPlanEnvConfig(testPlanReport.getRunInfo(), testPlanExtReportDTO);
+                        }
+                        getResourcePool(planLoadCaseResourcePoolId, testPlanExtReportDTO);
+                    }
+                }
             }
         }
         return testPlanExtReportDTO;
@@ -2035,6 +2063,13 @@ public class TestPlanService {
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
             }
+            List<ApiScenarioReportWithBLOBs> apiScenarioLists = planTestPlanApiCaseService.selectExtForPlanScenarioReport(reportId);
+            if(CollectionUtils.isNotEmpty(apiScenarioLists)){
+                ApiScenarioReportWithBLOBs apiScenario = apiScenarioLists.get(0);
+                convertEnvConfig(apiScenario.getEnvConfig(), testPlanExtReportDTO);
+                getResourcePool(apiScenario.getActuator(), testPlanExtReportDTO);
+                return testPlanExtReportDTO;
+            }
         }
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
@@ -2043,6 +2078,25 @@ public class TestPlanService {
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
+            }
+        }
+        if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
+            TestPlanSimpleReportDTO testPlanSimpleReportDTO = testPlanReportService.getReportOpt(reportId);
+            if (testPlanSimpleReportDTO != null) {
+                List<TestPlanLoadCaseDTO> loadList = testPlanSimpleReportDTO.getLoadAllCases();
+                if (CollectionUtils.isNotEmpty(loadList)) {
+                    String loadReportId = loadList.get(0).getLoadReportId();
+                    if (StringUtils.isNotEmpty(loadReportId)) {
+                        // 资源池
+                        String planLoadCaseResourcePoolId = planTestPlanLoadCaseService.getPlanLoadCaseResourcePoolId(loadReportId);
+                        // 运行模式
+                        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
+                        if (testPlanReport != null && StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
+                            convertPlanEnvConfig(testPlanReport.getRunInfo(), testPlanExtReportDTO);
+                        }
+                        getResourcePool(planLoadCaseResourcePoolId, testPlanExtReportDTO);
+                    }
+                }
             }
         }
         return testPlanExtReportDTO;
@@ -2059,5 +2113,19 @@ public class TestPlanService {
         projectIds.addAll(apiCaseProjectIds);
         projectIds.addAll(apiScenarioProjectIds);
         return projectIds.stream().distinct().collect(Collectors.toList());
+    }
+
+    private void convertPlanEnvConfig(String envConfig, TestPlanExtReportDTO testPlanExtReportDTO) throws JsonProcessingException {
+        if(StringUtils.isEmpty(envConfig)){
+            return;
+        }
+        PlanEnvConfig env = objectMapper.readValue(envConfig, PlanEnvConfig.class);
+        if(StringUtils.isNotEmpty(env.getRunMode())){
+            if(RunMode.RUN_MODE_SERIAL.getCode().equals(env.getRunMode())){
+                testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_SERIAL.getDesc());
+            } else if (RunMode.RUN_MODE_PARALLEL.getCode().equals(env.getRunMode())) {
+                testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_PARALLEL.getDesc());
+            }
+        }
     }
 }
