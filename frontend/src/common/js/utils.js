@@ -101,6 +101,10 @@ export function getCurrentProjectID() {
   return sessionStorage.getItem(PROJECT_ID);
 }
 
+export function setCurrentProjectID(projectId) {
+  sessionStorage.setItem(PROJECT_ID, projectId);
+}
+
 export function getCurrentUser() {
   return JSON.parse(localStorage.getItem(TokenKey));
 }
