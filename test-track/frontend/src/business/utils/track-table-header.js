@@ -74,7 +74,7 @@ const TRACK_HEADER = {
     {id: 'level', key: '3', label: 'api_test.automation.case_level'},
     {id: 'tagNames', key: '4', label: 'api_test.automation.tag'},
     {id: 'stepTotal', key: '7', label: 'api_test.automation.step'},
-    {id: 'envs', key: '8', label: 'commons.environment'},
+    // {id: 'envs', key: '8', label: 'commons.environment'},
     {id: 'passRate', key: '9', label: 'api_test.automation.passing_rate'},
     {id: 'maintainer', key: 'a', label: 'api_test.definition.request.responsible'},
     {id: 'createUser', key: '5', label: 'api_test.automation.creator'},
