@@ -28,7 +28,7 @@ public class MinIOFileRepository implements FileRepository {
 
     @Override
     public String saveFile(MultipartFile file, FileRequest request) throws Exception {
-        FileUtils.validateFileName(request.getFileName());
+        FileUtils.validateMinIOFileName(request.getFileName());
         String bucket = minioProperties.getBucket();
         String fileName = request.getProjectId() + "/" + request.getFileName();
         minioClient.putObject(PutObjectArgs.builder()
