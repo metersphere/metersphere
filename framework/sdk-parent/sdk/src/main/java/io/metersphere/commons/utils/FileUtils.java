@@ -33,17 +33,6 @@ public class FileUtils {
     public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
 
     public static void validateFileName(String fileName) {
-        if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, File.separator)) {
-            MSException.throwException(Translator.get("invalid_parameter"));
-        }
-    }
-
-    /**
-     * 上传Minio的文件名称检查只需要判断是否带有./ ../ 这样的非法文件名
-     *
-     * @param fileName
-     */
-    public static void validateMinIOFileName(String fileName) {
         if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
