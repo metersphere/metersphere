@@ -830,7 +830,7 @@ export default {
       }
     },
     search(projectId) {
-      this.$EventBus.$emit("scenarioConditionBus", this.condition)
+      this.$EventBus.$emit('scenarioConditionBus', this.condition);
       if (this.needRefreshModule()) {
         this.$emit('refreshTree');
       }
@@ -1533,6 +1533,7 @@ export default {
                 jmxObjList.push(jmxObj);
               });
               performanceStore.$patch({
+                test: null,
                 scenarioJmxs: {
                   name: 'Scenarios',
                   jmxs: jmxObjList,
