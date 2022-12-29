@@ -3,12 +3,10 @@ package io.metersphere.service.scenario;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.*;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioModule;
-import io.metersphere.base.domain.ApiScenarioModuleExample;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
@@ -30,10 +28,9 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -55,14 +52,14 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public ApiScenarioModuleService() {
         super(ApiScenarioModuleDTO.class);
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         ApiScenarioRequest request = new ApiScenarioRequest();
         request.setProjectId(projectId);
@@ -103,8 +100,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         request.setProjectId(projectId);
         List<String> list = new ArrayList<>();
@@ -174,7 +169,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     private void initApiCount(List<ApiScenarioModuleDTO> moduleDTOList, Map<String, List<ApiScenario>> scenarioMap) {
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(moduleDTOList) && MapUtils.isNotEmpty(scenarioMap)) {
+        if (CollectionUtils.isNotEmpty(moduleDTOList) && MapUtils.isNotEmpty(scenarioMap)) {
             moduleDTOList.forEach(node -> {
                 List<String> moduleIds = new ArrayList<>();
                 moduleIds = this.nodeList(moduleDTOList, node.getId(), moduleIds);
@@ -191,7 +186,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     private List<ApiScenarioModuleDTO> selectTreeStructModuleById(Collection<String> ids) {
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>(0);
         } else {
             List<String> parentIdList = new ArrayList<>();
@@ -246,7 +241,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public double getNextLevelPos(String projectId, int level, String parentId) {
         List<ApiScenarioModule> list = getPos(projectId, level, parentId, "pos desc");
-        if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
+        if (CollectionUtils.isNotEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
             return list.get(0).getPos() + DEFAULT_POS;
         } else {
             return DEFAULT_POS;
@@ -463,7 +458,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioModuleExample example = new ApiScenarioModuleExample();
         example.createCriteria().andIdIn(ids);
         List<ApiScenarioModule> nodes = apiScenarioModuleMapper.selectByExample(example);
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(nodes)) {
+        if (CollectionUtils.isNotEmpty(nodes)) {
             List<String> names = nodes.stream().map(ApiScenarioModule::getName).collect(Collectors.toList());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
@@ -489,7 +484,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 criteria.andIdNotEqualTo(node.getId());
             }
             List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(list)) {
+            if (CollectionUtils.isNotEmpty(list)) {
                 module = list.get(0);
             }
         }
@@ -509,34 +504,40 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public ApiScenarioModule getDefaultNode(String projectId) {
         ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
+        example.createCriteria()
+                .andProjectIdEqualTo(projectId)
+                .andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName())
+                .andParentIdIsNull();
         List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            return saveDefault(projectId);
-        } else {
+        if (!CollectionUtils.isEmpty(list)) {
             return list.get(0);
         }
+        return null;
     }
 
-    @Async
-    public synchronized ApiScenarioModule saveDefault(String projectId) {
-        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
-        List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            ApiScenarioModule module = new ApiScenarioModule();
-            module.setId(UUID.randomUUID().toString());
-            module.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
-            module.setPos(1.0);
-            module.setLevel(1);
-            module.setCreateTime(System.currentTimeMillis());
-            module.setUpdateTime(System.currentTimeMillis());
-            module.setProjectId(projectId);
-            module.setCreateUser(SessionUtils.getUserId());
-            apiScenarioModuleMapper.insert(module);
-            return module;
-        } else {
-            return list.get(0);
+    public void initDefaultModule() {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andNameEqualTo("默认项目");
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        if (!CollectionUtils.isEmpty(projects)) {
+            ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+            example.createCriteria()
+                    .andProjectIdEqualTo(projects.get(0).getId())
+                    .andNameEqualTo(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName())
+                    .andParentIdIsNull();
+            List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(list)) {
+                ApiScenarioModule module = new ApiScenarioModule();
+                module.setId(UUID.randomUUID().toString());
+                module.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
+                module.setPos(1.0);
+                module.setLevel(1);
+                module.setCreateTime(System.currentTimeMillis());
+                module.setUpdateTime(System.currentTimeMillis());
+                module.setProjectId(projects.get(0).getId());
+                module.setCreateUser(SessionUtils.getUserId());
+                apiScenarioModuleMapper.insert(module);
+            }
         }
     }
 
