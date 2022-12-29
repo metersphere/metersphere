@@ -1428,8 +1428,11 @@ public class IssuesService {
     public List<PlatformStatusDTO> getPlatformStatus(PlatformIssueTypeRequest request) {
         List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
         Project project = baseProjectService.getProjectById(request.getProjectId());
-        String projectConfig = PlatformPluginService.getCompatibleProjectConfig(project);
         String platform = project.getPlatform();
+        if (StringUtils.equals(platform, IssuesManagePlatform.Local.name())) {
+            return null;
+        }
+        String projectConfig = PlatformPluginService.getCompatibleProjectConfig(project);
         if (PlatformPluginService.isPluginPlatform(platform)) {
             return platformPluginService.getPlatform(platform)
                     .getStatusList(projectConfig)
