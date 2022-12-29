@@ -5,6 +5,7 @@ import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
 import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PropertyConstant;
@@ -53,6 +54,8 @@ public class TestResultService {
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -209,6 +212,14 @@ public class TestResultService {
                     environment = apiScenarioReportService.getEnvironment(apiScenario);
                     userName = apiAutomationService.getUser(apiScenario.getUserId());
                     principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+                } else {
+                    TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                    if (testPlanApiScenario != null) {
+                        apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+                        if (apiScenario != null) {
+                            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiScenario.getVersionId());
+                        }
+                    }
                 }
 
                 //报告内容
