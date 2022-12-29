@@ -105,6 +105,9 @@ public class PlatformPluginService {
 
     public static String getCompatibleProjectConfig(Project project) {
         String issueConfig = project.getIssueConfig();
+        if (StringUtils.isBlank(issueConfig)) {
+            return StringUtils.EMPTY;
+        }
         Map map = JSON.parseMap(issueConfig);
         compatibleProjectKey(map, "jiraKey", project.getJiraKey());
         compatibleProjectKey(map, "tapdId", project.getTapdId());

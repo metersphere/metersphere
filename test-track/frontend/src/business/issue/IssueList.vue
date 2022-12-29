@@ -305,16 +305,18 @@ export default {
 
     this.hasLicense = hasLicense();
 
-    getPlatformStatus( {
+    getPlatformStatus({
       projectId: getCurrentProjectID(),
       workspaceId: getCurrentWorkspaceId()
     }).then((r) => {
-        this.platformStatus = r.data;
-        this.platformStatusMap = new Map();
+      this.platformStatus = r.data;
+      this.platformStatusMap = new Map();
+      if (this.platformStatus) {
         this.platformStatus.forEach(item => {
           this.platformStatusMap.set(item.value, item.label);
         });
-      });
+      }
+    });
   },
   computed: {
     platformFilters() {
