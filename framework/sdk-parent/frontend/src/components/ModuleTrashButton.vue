@@ -49,7 +49,8 @@ export default {
   flex: none;
   order: 3;
   flex-grow: 0;
-  padding: 0 0 0 24px;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .recycle:hover {
@@ -67,6 +68,7 @@ export default {
 
 i.el-icon-delete {
   margin-top: 10px;
+  margin-left: 24px;
 }
 
 .el-icon-delete:before {

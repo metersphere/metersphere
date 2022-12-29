@@ -7,6 +7,7 @@
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
+      :modal-append-to-body="false"
       v-loading="loading"
     >
       <span class="select-row">{{$t('test_track.batch_operate_select_row_count', [size])}}</span>

@@ -98,14 +98,6 @@ export default {
   top: -5px;
 }
 
-/* el-button */
-.el-button {
-  width: 80px;
-  height: 32px;
-  border-radius: 4px;
-}
-
-
 button.el-button.el-button--default.el-button--small {
   color: #1F2329;
 }
