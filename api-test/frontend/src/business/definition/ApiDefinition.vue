@@ -659,7 +659,7 @@ export default {
         name: '',
         status: 'Underway',
         method: 'GET',
-        userId: getCurrentUser().id,
+        userId: this._getCurrentUserId(),
         url: '',
         protocol: this.currentProtocol,
         environmentId: '',
@@ -680,6 +680,17 @@ export default {
         api.modulePath = this.currentModulePath;
       }
       this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
+    },
+    _getCurrentUserId() {
+      const {id, userGroups} = getCurrentUser();
+      if (userGroups) {
+        // 是否是当前项目下的成员
+        let index = userGroups.findIndex(ug => ug.sourceId === getCurrentProjectID());
+        if (index !== -1) {
+          return id;
+        }
+      }
+      return '';
     },
     handleTabClose() {
       let tabs = this.apiTabs[0];
