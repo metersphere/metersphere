@@ -1,6 +1,7 @@
 package io.metersphere.plan.service.remote.api;
 
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -165,5 +166,9 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
 
     public List<ApiDefinitionExecResultWithBLOBs> selectExtForPlanReport(String planId) {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/ext/" + planId, ApiDefinitionExecResultWithBLOBs.class);
+    }
+
+    public List<ApiScenarioReportWithBLOBs> selectExtForPlanScenarioReport(String planId) {
+        return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/scenario/ext/" + planId, ApiScenarioReportWithBLOBs.class);
     }
 }

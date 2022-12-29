@@ -129,4 +129,9 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         request.setAllowedRepeatCase(testPlanService.isAllowedRepeatCase(request.getTestPlanId()));
         return microService.postForData(serviceName, BASE_UEL + String.format("/relevance/list/%s/%s", pageNum, pageSize), request);
     }
+
+    public String getPlanLoadCaseResourcePoolId(String loadReportId) {
+        return (String) microService.getForData(serviceName, BASE_UEL + "/pool/" + loadReportId);
+    }
+
 }
