@@ -161,4 +161,8 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     public List<String> getUiScenarioProjectIds(String planId) {
         return microService.getForData(serviceName, BASE_URL + "/get/project/ids/" + planId, List.class);
     }
+
+    public RunModeConfigDTO setScenarioEnv(String planId, RunModeConfigDTO runModeConfig) {
+        return microService.postForData(serviceName, BASE_URL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
+    }
 }

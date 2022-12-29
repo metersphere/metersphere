@@ -1669,6 +1669,10 @@ public class TestPlanService {
             planTestPlanApiCaseService.setApiCaseEnv(planId, runModeConfig);
             planTestPlanScenarioCaseService.setScenarioEnv(planId, runModeConfig);
         }
+
+        if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            planTestPlanUiScenarioCaseService.setScenarioEnv(planId, runModeConfig);
+        }
     }
 
     public void editReportConfig(TestPlanDTO testPlanDTO) {
