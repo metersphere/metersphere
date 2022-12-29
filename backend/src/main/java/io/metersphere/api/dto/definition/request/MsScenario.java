@@ -166,7 +166,8 @@ public class MsScenario extends MsTestElement {
                 scenarioTree.add(valueSupposeMock);
             }
         }
-        if (this.variableEnable == null || this.variableEnable || BooleanUtils.isTrue(this.mixEnable)) {
+        if ((this.variableEnable == null && this.mixEnable == null)
+                || BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
             ElementUtil.addCounter(scenarioTree, variables, false);
             ElementUtil.addRandom(scenarioTree, variables);
