@@ -17,131 +17,77 @@
       @refresh="getIssues"
       ref="table"
     >
-      <span v-for="(item) in fields" :key="item.key">
-        <ms-table-column
-          :label="$t('test_track.issue.id')"
-          prop="num"
-          :field="item"
-          sortable
-          min-width="100"
-          :fields-width="fieldsWidth">
-        </ms-table-column>
+      <ms-table-column
+        v-for="(item) in fields" :key="item.key"
+        :label="item.label"
+        :prop="item.id"
+        :field="item"
+        :sortable="item.sortable"
+        :min-width="item.minWidth"
+        :column-key="item.columnKey"
+        :fields-width="fieldsWidth"
+        :filters="item.filters"
+      >
+        <template v-slot="scope">
 
-        <ms-table-column
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.issue.title')"
-          min-width="100"
-          prop="title">
-        </ms-table-column>
-
-        <ms-table-column
-          :field="item"
-          :fields-width="fieldsWidth"
-          sortable
-          min-width="110"
-          :label="$t('test_track.issue.platform_status') "
-          prop="platformStatus">
-          <template v-slot="scope">
-            <span
-              v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--' }}</span>
-            <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}</span>
-          </template>
-        </ms-table-column>
-
-        <ms-table-column
-          :field="item"
-          :fields-width="fieldsWidth"
-          :filters="platformFilters"
-          :label="$t('test_track.issue.platform')"
-          min-width="100"
-          prop="platform">
-        </ms-table-column>
-
-        <ms-table-column
-          prop="createTime"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.create_time')"
-          sortable
-          min-width="140px">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | datetimeFormat }}</span>
-            </template>
-        </ms-table-column>
-
-        <ms-table-column
-          prop="projectName"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.issue.issue_project')"
-          min-width="80">
-          <template v-slot="scope">
-            {{ scope.row.projectName ? scope.row.projectName : '--' }}
-          </template>
-        </ms-table-column>
-        <ms-table-column
-          :field="item"
-          v-if="isShowAllColumn"
-          :fields-width="fieldsWidth"
-          column-key="creator"
-          min-width="100"
-          :label="$t('custom_field.issue_creator')"
-          prop="creatorName">
-        </ms-table-column>
-
-        <ms-table-column
-          :field="item"
-          v-if="isShowAllColumn"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.issue.issue_resource')"
-          min-width="120"
-          prop="resourceName">
-          <template v-slot="scope">
-            <el-link v-if="scope.row.resourceName" @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
-              {{ scope.row.resourceName }}
-            </el-link>
-            <span v-else>
-            --
-            </span>
-          </template>
-        </ms-table-column>
-
-        <issue-description-table-item :fields-width="fieldsWidth" :field="item" v-if="isShowAllColumn"/>
-
-        <ms-table-column
-          :field="item"
-          v-if="isShowAllColumn"
-          :fields-width="fieldsWidth"
-          :label="item.label"
-          prop="caseCount">
-            <template v-slot="scope">
-               <router-link
-                 :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
-                 {{ scope.row.caseCount }}
-               </router-link>
-            </template>
-          </ms-table-column>
-
-          <div v-if="isShowAllColumn">
-            <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                             :field="item"
-                             min-width="120"
-                             :fields-width="fieldsWidth"
-                             :label="field.system ? $t(systemNameMap[field.name]) :field.name"
-                             :prop="field.name">
-              <template v-slot="scope">
-                <span v-if="field.name === '状态'">
-                  {{ getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status] }}
+              <span v-if="item.id === 'platformStatus'">
+                <span v-if="scope.row.platform === 'Tapd'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+                <span v-else-if="scope.row.platform ==='Local'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+                <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                  {{ platformStatusMap.get(scope.row.platformStatus) }}
                 </span>
                 <span v-else>
-                  {{ getCustomFieldValue(scope.row, field) }}
+                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
                 </span>
-              </template>
-          </ms-table-column>
-          </div>
+              </span>
 
-      </span>
+          <ms-review-table-item
+            v-else-if="item.id === 'description'"
+            :data="scope.row"
+            prop="description"/>
+
+          <span v-else-if="item.id === 'resourceName'">
+                 <el-link v-if="scope.row.resourceName"
+                          @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
+                  {{ scope.row.resourceName }}
+                </el-link>
+                <span v-else>
+                  --
+                 </span>
+              </span>
+
+          <span v-else-if="item.id === 'createTime'">
+                 {{ scope.row.createTime | datetimeFormat }}
+              </span>
+
+          <span v-else-if="item.id === 'caseCount'">
+                 <router-link
+                   :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
+                   {{ scope.row.caseCount }}
+                 </router-link>
+              </span>
+
+          <!-- 自定义字段 -->
+          <span v-else-if="item.isCustom">
+                <span v-if="item.type === 'richText' && scope.row.displayValueMap[item.id]">
+                     <ms-review-table-item
+                       :data="scope.row.displayValueMap" :prop="item.id"/>
+                </span>
+                <span v-else>
+                  {{ scope.row.displayValueMap[item.id] }}
+                </span>
+              </span>
+
+          <span v-else>
+                {{ scope.row[item.id] }}
+              </span>
+
+        </template>
+      </ms-table-column>
     </ms-table>
 
     <ms-table-pagination :change="getIssues" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
@@ -155,7 +101,12 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsTableOperators from "metersphere-frontend/src/components/MsTableOperators";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import {ISSUE_PLATFORM_OPTION, ISSUE_STATUS_MAP, SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
+import {
+  ISSUE_PLATFORM_OPTION,
+  ISSUE_STATUS_MAP,
+  SYSTEM_FIELD_NAME_MAP,
+  TAPD_ISSUE_STATUS_MAP
+} from "metersphere-frontend/src/utils/table-constants";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import {getDashboardIssues, getIssuePartTemplateWithProject, getIssues, getPlatformOption} from "@/api/issue";
 import {
@@ -171,15 +122,15 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/s
 import {getProjectMember} from "@/api/user";
 import {getTableHeaderWithCustomFieldsByXpack} from "@/business/component/js/table-head-util";
 import {LOCAL} from "metersphere-frontend/src/utils/constants";
-import IssueDescriptionTableItem from "@/business/component/IssueDescriptionTableItem";
+import MsReviewTableItem from "@/business/component/MsReviewTableItem";
 import {getUUID} from "metersphere-frontend/src/utils";
 
 export default {
   name: "IssueTableList",
   components: {
     MsMainContainer,
+    MsReviewTableItem,
     MsContainer,
-    IssueDescriptionTableItem,
     MsTableHeader,
     MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable
   },
@@ -237,6 +188,9 @@ export default {
     },
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
+    },
+    tapdIssueStatusMap() {
+      return TAPD_ISSUE_STATUS_MAP;
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -324,18 +278,44 @@ export default {
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
           parseCustomFilesForList(this.page.data);
+          this.initCustomFieldValue();
         });
       } else {
-        this.page.result.loading = getIssues(this.page).then((response)=>{
+        this.page.result.loading = getIssues(this.page).then((response) => {
           let data = response.data;
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
           parseCustomFilesForList(this.page.data);
+          this.initCustomFieldValue();
         });
       }
     },
+    initCustomFieldValue() {
+      if (this.fields.length <= 0) {
+        return;
+      }
+      this.page.data.forEach(item => {
+        let displayValueMap = {};
+        let fieldIdSet = new Set(this.fields.map(i => i.id));
+        this.issueTemplate.customFields.forEach(field => {
+          let displayValue;
+          if (!fieldIdSet.has(field.name)) {
+            return;
+          }
+          if (field.name === '状态') {
+            displayValue = this.getCustomFieldValue(item, field, this.issueStatusMap[item.status]);
+          } else {
+            displayValue = this.getCustomFieldValue(item, field);
+          }
+          displayValueMap[field.name] = displayValue;
+        });
+        item.displayValueMap = displayValueMap;
+      });
+      this.loading = false;
+    },
+
     handleEdit(resource) {
-      let issueData = this.$router.resolve({path:'/track/issue',query:{id:resource.id}});
+      let issueData = this.$router.resolve({path: '/track/issue', query: {id: resource.id}});
       window.open(issueData.href, '_blank');
     },
   },

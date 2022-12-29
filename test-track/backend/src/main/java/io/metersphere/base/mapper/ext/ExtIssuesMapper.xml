@@ -86,18 +86,15 @@
     <select id="getCountByStatus" resultType="io.metersphere.dto.IssuesStatusCountDao">
         select count(1) as `count`, if(i.platform = 'Local', cfi.value, i.platform_status) as statusValue, i.platform
         from issues i
-        inner join project p
-            on i.project_id = p.id and p.workspace_id = #{request.workspaceId}
-        left join custom_field_issues cfi
-            on i.id = cfi.resource_id and field_id in (
-              select cf.id
-              from custom_field cf
-              left join project pr
-                on cf.project_id = pr.id
-              inner join custom_field_template cft on cft.template_id = pr.issue_template_id
-              where cf.scene = 'ISSUE' and cf.name = '状态'
-                and (pr.workspace_id = #{request.workspaceId} or global = true)
-            )
+                 inner join project p
+                            on i.project_id = p.id and p.workspace_id = #{request.workspaceId}
+                 left join custom_field_issues cfi
+                           on i.id = cfi.resource_id and field_id in (select cf.id
+                                                                      from custom_field cf
+                                                                               inner join custom_field_template cft on cft.template_id = p.issue_template_id
+                                                                      where cf.scene = 'ISSUE'
+                                                                        and cf.name = '状态'
+                                                                        and (p.workspace_id = #{request.workspaceId} or cf.global = true))
         where i.creator = #{request.creator}
         group by statusValue;
     </select>
