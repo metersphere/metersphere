@@ -100,7 +100,9 @@ export default {
     search() {
       this.result = getLicense()
         .then(response => {
-          this.license = response.data.license;
+          if (response.data.license) {
+            this.license = response.data.license;
+          }
           this.status = response.data.status;
         })
     },
