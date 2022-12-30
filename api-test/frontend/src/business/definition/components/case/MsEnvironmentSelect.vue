@@ -8,6 +8,7 @@
       :placeholder="$t('api_test.definition.request.run_env')"
       clearable
       filterable
+      @click.native="refreshEnv"
       @clear="clear">
       <el-option
         v-for="(environment, key) in environments"
@@ -66,6 +67,9 @@ export default {
     },
   },
   methods: {
+    refreshEnv() {
+      this.getEnvironments();
+    },
     refreshEnvironment() {
       this.$emit('setEnvironment', this.environment);
     },
