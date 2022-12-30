@@ -24,9 +24,9 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.*;
 import io.metersphere.task.dto.TaskRequestDTO;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -92,6 +92,8 @@ public class PerformanceTestService {
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
     @Resource
     private TestCaseTestMapper testCaseTestMapper;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -509,30 +511,24 @@ public class PerformanceTestService {
 
     private void checkLoadQuota(LoadTestReportWithBLOBs testReport, Engine engine) {
         RunTestPlanRequest checkRequest = new RunTestPlanRequest();
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         checkRequest.setLoadConfiguration(testReport.getLoadConfiguration());
         checkRequest.setProjectId(testReport.getProjectId());
-        if (quotaService != null) {
-            quotaService.checkLoadTestQuota(checkRequest, false);
-            String projectId = testReport.getProjectId();
-            Project project = projectMapper.selectByPrimaryKey(projectId);
-            if (project == null || StringUtils.isBlank(project.getWorkspaceId())) {
-                MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
-            }
-            RLock lock = redissonClient.getLock(project.getWorkspaceId());
-            try {
-                lock.lock();
-                BigDecimal toUsed = quotaService.checkVumUsed(checkRequest, projectId);
-                engine.start();
-                if (toUsed.compareTo(BigDecimal.ZERO) != 0) {
-                    quotaService.updateVumUsed(projectId, toUsed);
-                }
-            } finally {
-                lock.unlock();
-            }
-        } else {
+        baseQuotaService.checkLoadTestQuota(checkRequest, false);
+        String projectId = testReport.getProjectId();
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null || StringUtils.isBlank(project.getWorkspaceId())) {
+            MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
+        }
+        RLock lock = redissonClient.getLock(project.getWorkspaceId());
+        try {
+            lock.lock();
+            BigDecimal toUsed = baseQuotaService.checkVumUsed(checkRequest, projectId);
             engine.start();
-            LogUtil.error("check load test quota fail, quotaService is null.");
+            if (toUsed.compareTo(BigDecimal.ZERO) != 0) {
+                baseQuotaService.updateVumUsed(projectId, toUsed);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -710,10 +706,8 @@ public class PerformanceTestService {
     }
 
     private void checkQuota(TestPlanRequest request, boolean create) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkLoadTestQuota(request, create);
-        }
+        baseQuotaService.checkLoadTestQuota(request, create);
+
     }
 
     public List<LoadTestDTO> getLoadTestListByIds(List<String> ids) {

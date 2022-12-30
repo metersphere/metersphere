@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtQuotaMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.quota.dto.QuotaResult"
+               extends="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+
+        <result column="project_name" property="projectName"/>
+        <result column="workspace_name" property="workspaceName"/>
+    </resultMap>
+
+    <select id="listWorkspaceQuota" resultMap="BaseResultMap">
+        select w.name as workspace_name, w.id as workspace_id, q.id, q.api, q.performance,
+        q.max_threads, q.duration, q.resource_pool, q.workspace_id, q.use_default, q.update_time,
+        q.member, q.project, q.project_id, q.vum_total, temp.vum_used, temp.project_used
+        from workspace as w
+        left join quota as q on w.id = q.workspace_id
+        inner join (select sum(vum_used) as vum_used, workspace.id, count(p.id) as project_used
+                    from workspace
+                    left join project p on p.workspace_id = workspace.id
+                    left join quota on quota.project_id = p.id
+                    group by workspace.id) as temp
+        on temp.id = w.id
+        <where>
+            <if test="name != null">
+                and w.name like CONCAT('%', #{name},'%')
+            </if>
+        </where>
+        order by q.update_time desc, workspace_name
+    </select>
+
+    <select id="getWorkspaceQuota" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        SELECT *
+        FROM quota
+        <where>
+            workspace_id = #{workspaceId}
+        </where>
+    </select>
+
+    <select id="listUseDefaultOrgQuota" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        SELECT *
+        FROM quota
+        <where>
+            organization_id IS NOT NULL
+            AND workspace_id IS NULL
+            AND use_default = '1'
+        </where>
+    </select>
+
+    <select id="listUseDefaultWsQuota" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        SELECT *
+        FROM quota
+        <where>
+            workspace_id IS NOT NULL
+            AND use_default = '1'
+        </where>
+    </select>
+
+    <select id="countAPITest" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM api_test LEFT JOIN project ON api_test.project_id = project.id
+        WHERE project.workspace_id in
+        <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countLoadTest" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM load_test LEFT JOIN project ON load_test.project_id = project.id
+        WHERE project.id in
+        <foreach collection="projectIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countAPIDefinition" resultType="long">
+        SELECT count(*)
+        FROM api_definition
+        WHERE api_definition.status != 'Trash' and api_definition.latest = 1 and api_definition.project_id in
+        <foreach collection="projectIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="countAPIAutomation" resultType="long">
+        SELECT count(*)
+        FROM api_scenario
+        WHERE api_scenario.status != 'Trash' and api_scenario.latest = 1 and api_scenario.project_id in
+        <foreach collection="projectIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="listUseDefaultProjectQuota" resultType="io.metersphere.base.domain.Quota">
+        select *
+        from quota join project on quota.project_id = project.id
+        <where>
+            project_id is not null
+            and project.workspace_id = #{workspaceId}
+            and quota.workspace_id is null
+            and use_default = '1'
+        </where>
+    </select>
+
+    <select id="listProjectQuota" resultMap="BaseResultMap">
+        SELECT p.name AS project_name, p.id AS project_id, p.workspace_id AS workspace_id, q.*
+        FROM project AS p LEFT JOIN quota AS q
+        ON p.id = q.project_id
+        <where>
+            <if test="wsId != null">
+                and p.workspace_id = #{wsId}
+            </if>
+            <if test="name != null">
+                and p.name like CONCAT('%', #{name},'%')
+            </if>
+        </where>
+        ORDER BY q.update_time DESC, project_name
+    </select>
+
+    <select id="getProjectQuota" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        SELECT *
+        FROM quota
+        <where>
+            project_id = #{projectId}
+            and workspace_id IS NULL
+        </where>
+    </select>
+
+    <select id="countMember" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM user_group
+        WHERE user_group.source_id = #{sourceId}
+    </select>
+
+    <select id="countWorkspaceProject" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM project
+        WHERE project.workspace_id = #{workspaceId}
+    </select>
+
+    <select id="listQuotaBySourceIds" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        SELECT *
+        FROM quota
+        <where>
+            project_id in
+            <foreach collection="sourceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            or
+            workspace_id in
+            <foreach collection="sourceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="listUserBySourceIds" resultType="io.metersphere.quota.dto.CountDto">
+        SELECT source_id, count(distinct(user.id)) as count
+        FROM user_group join user on user_group.user_id = user.id
+        <where>
+            source_id in
+            <foreach collection="sourceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            group by source_id
+        </where>
+    </select>
+
+    <select id="listUserByWorkspaceAndProjectIds" resultType="java.lang.Long">
+        SELECT count(distinct(user.id)) as count
+        FROM user_group join user on user_group.user_id = user.id
+        <where>
+            source_id in
+            <foreach collection="sourceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+            <if test="memberIds != null and memberIds.size() != 0">
+                and user_id not in
+                <foreach collection="memberIds" item="memberId" separator="," open="(" close=")">
+                    #{memberId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getProjectQuotaSum" resultMap="io.metersphere.base.mapper.QuotaMapper.BaseResultMap">
+        select sum(vum_used) as vum_used
+        from quota
+        <where>
+            quota.project_id
+            in (select id from project where project.workspace_id = #{workspaceId})
+        </where>
+    </select>
+
+</mapper>
