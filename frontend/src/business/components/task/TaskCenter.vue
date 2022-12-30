@@ -32,7 +32,7 @@
       :title="$t('commons.task_center')"
       :size="size.toString()"
       custom-class="ms-drawer-task">
-      <el-card style="float: left;width: 850px" :style="{'width': (size - 600)+'px'}" v-if="size > 600 ">
+      <el-card style="float: left;width: 850px" :style="{'width': (size - 550)+'px'}" v-if="size > 550 ">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="executionModule === 'API' && reportType !=='API_INTEGRATED'"/>
@@ -169,7 +169,7 @@ export default {
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
       websocket: Object,
-      size: 600,
+      size: 550,
       reportId: "",
       executionModule: "",
       reportType: "",
@@ -233,7 +233,7 @@ export default {
       return '';
     },
     packUp() {
-      this.size = 600;
+      this.size = 500;
     },
     stop(row) {
       let array = [];
@@ -357,7 +357,7 @@ export default {
       }
     },
     showReport(row) {
-      if (this.size > 600 && this.reportId === row.id) {
+      if (this.size > 550 && this.reportId === row.id) {
         this.packUp();
         return;
       }
@@ -551,10 +551,6 @@ export default {
   padding-right: 0;
 }
 
-/deep/ .el-badge__content.is-fixed {
-  top: 25px;
-}
-
 /deep/ .el-badge__content {
   border-radius: 10px;
   height: 10px;
@@ -655,6 +651,9 @@ export default {
 
 /deep/ .el-badge__content.is-fixed {
   transform: translateY(-10%) translateX(100%);
+}
+
+/deep/.el-badge__content {
   border-radius: 10px;
 }
 
