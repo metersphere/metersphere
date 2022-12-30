@@ -424,13 +424,20 @@ export default {
       if (isNeedCreate) {
         this.parameters.push(
           new KeyValue({
-            type: 'text',
+            contentType: 'text/plain',
+            description: null,
             enable: true,
+            file: false,
+            files: null,
+            isEdit: false,
+            max: null,
+            min: null,
+            required: false,
+            type: 'text',
             urlEncode: this.urlEncode,
             uuid: this.uuid(),
-            required: false,
-            isEdit: false,
-            contentType: 'text/plain',
+            valid: false,
+            value: null
           })
         );
       }
@@ -520,13 +527,20 @@ export default {
     if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
       this.parameters.push(
         new KeyValue({
-          type: 'text',
+          contentType: 'text/plain',
+          description: null,
           enable: true,
+          file: false,
+          files: null,
+          isEdit: false,
+          max: null,
+          min: null,
           required: false,
+          type: 'text',
           urlEncode: this.urlEncode,
           uuid: this.uuid(),
-          isEdit: false,
-          contentType: 'text/plain',
+          valid: false,
+          value: null
         })
       );
     }

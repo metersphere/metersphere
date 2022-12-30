@@ -513,6 +513,7 @@ export default {
           if (item) {
             let line = item.split(/：|:/);
             let values = item.split(line[0] + ':');
+
             let required = false;
             keyValues.push(
               new KeyValue({
@@ -525,6 +526,7 @@ export default {
                 encode: true,
                 enable: true,
                 contentType: 'text/plain',
+
               })
             );
           }

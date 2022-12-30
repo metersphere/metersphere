@@ -149,91 +149,15 @@
         </ms-dialog-footer>
       </template>
     </el-dialog>
-
-    <el-dialog
-      :visible.sync="batchSyncApiVisible"
-      :title="$t('commons.save') + '&' + $t('workstation.sync') + $t('commons.setting')"
-      v-if="isXpack">
-      <el-row style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-        <div class="timeClass">
-          <span style="font-size: 16px; font-weight: bold; padding-left: 10px">{{
-            $t('api_test.definition.one_click_sync') + 'case'
-          }}</span>
-          <el-switch v-model="apiSyncRuleRelation.syncCase" style="padding-right: 10px"></el-switch>
-        </div>
-        <br />
-        <span style="font-size: 12px; padding-left: 10px">{{ $t('workstation.batch_sync_api_tips') }}</span
-        ><br /><br />
-        <span v-if="apiSyncRuleRelation.syncCase" style="font-size: 16px; font-weight: bold; padding-left: 10px">
-          {{ $t('workstation.sync') + $t('commons.setting') }}
-          <i class="el-icon-arrow-down" v-if="showApiSyncConfig" @click="showApiSyncConfig = false" />
-          <i class="el-icon-arrow-right" v-if="!showApiSyncConfig" @click="showApiSyncConfig = true" /> </span
-        ><br /><br />
-        <div v-if="showApiSyncConfig">
-          <sync-setting
-            style="padding-left: 20px"
-            v-if="apiSyncRuleRelation.syncCase"
-            v-bind:sync-data="apiSyncRuleRelation.apiSyncConfig"
-            ref="synSetting"
-            @updateSyncData="updateSyncData"></sync-setting>
-        </div>
-      </el-row>
-      <el-row style="margin-bottom: 10px; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-        <div class="timeClass">
-          <span style="font-size: 16px; font-weight: bold; padding-left: 10px">
-            {{ $t('api_test.definition.change_notification') }}
-            <el-tooltip
-              class="ms-num"
-              effect="dark"
-              :content="$t('project_application.workstation.api_receiver_tip')"
-              placement="top">
-              <i class="el-icon-warning" />
-            </el-tooltip>
-          </span>
-          <el-switch v-model="apiSyncRuleRelation.sendNotice" style="padding-right: 10px"></el-switch>
-        </div>
-        <span style="font-size: 12px; padding-left: 10px"> {{ $t('api_test.definition.recipient_tips') }} </span><br />
-        <p
-          style="
-            font-size: 12px;
-            color: var(--primary_color);
-            margin-bottom: 20px;
-            text-decoration: underline;
-            cursor: pointer;
-            padding-left: 10px;
-          "
-          @click="gotoApiMessage">
-          {{ $t('project_application.workstation.go_to_api_message') }}
-        </p>
-        <el-row v-if="apiSyncRuleRelation.sendNotice" style="margin-bottom: 5px; margin-top: 5px">
-          <el-col :span="4"
-            ><span style="font-weight: bold; padding-left: 10px">{{ $t('api_test.definition.recipient') + ':' }}</span>
-          </el-col>
-          <el-col :span="20" style="color: var(--primary_color)">
-            <el-checkbox v-model="apiSyncRuleRelation.caseCreator">{{ 'CASE' + $t('api_test.creator') }}</el-checkbox>
-            <el-checkbox v-model="apiSyncRuleRelation.scenarioCreator">
-              {{ $t('commons.scenario') + $t('api_test.creator') }}
-            </el-checkbox>
-          </el-col>
-        </el-row>
-      </el-row>
-      <el-row>
-        <el-checkbox v-model="apiSyncRuleRelation.showUpdateRule" style="padding-left: 10px"
-          >{{ $t('project_application.workstation.no_show_setting') }}
-        </el-checkbox>
-        <el-tooltip
-          class="ms-num"
-          effect="dark"
-          :content="$t('project_application.workstation.no_show_setting_tip')"
-          placement="top">
-          <i class="el-icon-warning" />
-        </el-tooltip>
-      </el-row>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="batchSyncApiVisible = false">{{ $t('commons.cancel') }}</el-button>
-        <el-button type="primary" @click="batchSync()">{{ $t('commons.confirm') }}</el-button>
-      </span>
-    </el-dialog>
+    <api-sync-case-config
+      :is-xpack="isXpack"
+      :api-sync-rule-relation="apiSyncRuleRelation"
+      :batch-sync-api-visible="batchSyncApiVisible"
+      :show-api-sync-config="true"
+      @batchSync="batchSync"
+      ref="syncCaseConfig"
+    >
+    </api-sync-case-config>
   </div>
 </template>
 
@@ -269,11 +193,10 @@ import {createComponent} from '.././jmeter/components';
 import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import {getProjectMemberOption} from '@/api/project';
-import {deepClone} from 'metersphere-frontend/src/utils/tableUtils';
 import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
 
-import SyncSetting from '@/business/definition/util/SyncSetting';
 import {useApiStore} from '@/store';
+import ApiSyncCaseConfig from "@/business/definition/components/sync/ApiSyncCaseConfig";
 
 const {Body} = require('@/business/definition/model/ApiTestModel');
 const Sampler = require('@/business/definition/components/jmeter/components/sampler/sampler');
@@ -294,7 +217,7 @@ export default {
     MsSelectTree,
     MsChangeHistory,
     HttpApiVersionDiff,
-    SyncSetting,
+    ApiSyncCaseConfig
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -377,7 +300,6 @@ export default {
       createNewVersionVisible: false,
       batchSyncApiVisible: false,
       isXpack: false,
-      showApiSyncConfig: true,
       apiSyncRuleRelation: {
         caseCreator: true,
         scenarioCreator: true,
@@ -555,7 +477,6 @@ export default {
       this.$refs['httpForm'].validate((valid) => {
         if (valid) {
           this.setParameter();
-
           if (!this.httpForm.versionId) {
             if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
@@ -564,76 +485,214 @@ export default {
           if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
             if (this.httpForm.method !== this.beforeHttpForm.method && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
+              this.$refs.syncCaseConfig.show();
             }
             if (this.httpForm.path !== this.beforeHttpForm.path && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
+              this.$refs.syncCaseConfig.show();
             }
-            if (this.httpForm.request.headers && this.beforeRequest.headers) {
-              for (let i = 0; i < this.httpForm.request.headers.length; i++) {
-                if (this.httpForm.request.headers[i].isEdit !== undefined) {
-                  this.beforeRequest.headers[i].isEdit = this.httpForm.request.headers[i].isEdit
+            if (this.request.headers && this.beforeRequest.headers) {
+              if (this.request.headers.length === this.beforeRequest.headers.length) {
+                let requestHeaders = [];
+                let beforeHeaders = [];
+                for (let i = 0; i < this.request.headers.length; i++) {
+                  this.beforeRequest.headers[i].valid = this.request.headers[i].valid
+                  if (this.request.headers[i].isEdit !== undefined) {
+                    this.beforeRequest.headers[i].isEdit = this.request.headers[i].isEdit
+                  }
+                  if (this.request.headers[i].uuid) {
+                    this.beforeRequest.headers[i].uuid = this.request.headers[i].uuid
+                  }
+                  if (this.request.headers[i].time) {
+                    this.beforeRequest.headers[i].time = this.request.headers[i].time
+                  }
+                  if (this.request.headers[i].name === undefined) {
+                    this.beforeRequest.headers[i].name = undefined
+                  }
+                  let newRequest = this.request.headers[i];
+                  const ordered = {};
+                  Object.keys(newRequest).sort().forEach(function (key) {
+                    ordered[key] = newRequest[key];
+                  });
+                  requestHeaders.push(ordered);
+                  let beforeRequest = this.beforeRequest.headers[i];
+                  const beforeOrdered = {};
+                  Object.keys(beforeRequest).sort().forEach(function (key) {
+                    beforeOrdered[key] = beforeRequest[key];
+                  });
+                  beforeHeaders.push(beforeOrdered)
+                }
+
+                let submitRequestHeaders = JSON.stringify(requestHeaders);
+                let beforeRequestHeaders = JSON.stringify(beforeHeaders);
+                if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
+                }
+              } else {
+                let submitRequestHeaders = JSON.stringify(this.request.headers);
+                let beforeRequestHeaders = JSON.stringify(this.beforeRequest.headers);
+                if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
                 }
               }
-              let submitRequestHeaders = JSON.stringify(this.httpForm.request.headers);
-              let beforeRequestHeaders = JSON.stringify(this.beforeRequest.headers);
-              if (submitRequestHeaders !== beforeRequestHeaders && !this.noShowSyncRuleRelation) {
-                this.batchSyncApiVisible = true;
-              }
             }
-            if (this.httpForm.request.arguments && this.beforeRequest.arguments) {
-              for (let i = 0; i < this.httpForm.request.arguments.length; i++) {
-                if (this.httpForm.request.arguments[i].isEdit !== undefined) {
-                  this.beforeRequest.arguments[i].isEdit = this.httpForm.request.arguments[i].isEdit
+            if (this.request.arguments && this.beforeRequest.arguments) {
+              if (this.request.arguments.length === this.beforeRequest.arguments.length) {
+                let requestArguments = [];
+                let beforeArguments = [];
+                for (let i = 0; i < this.request.arguments.length; i++) {
+                  if (this.request.arguments[i].isEdit !== undefined) {
+                    this.beforeRequest.arguments[i].isEdit = this.request.arguments[i].isEdit
+                  }
+                  if (this.request.arguments[i].uuid) {
+                    this.beforeRequest.arguments[i].uuid = this.request.arguments[i].uuid
+                  }
+                  if (this.request.arguments[i].time) {
+                    this.beforeRequest.arguments[i].time = this.request.arguments[i].time
+                  }
+                  if (this.request.arguments[i].name === undefined) {
+                    this.beforeRequest.arguments[i].name = undefined
+                  }
+                  this.beforeRequest.arguments[i].valid = this.request.arguments[i].valid
+                  let newRequest = this.request.arguments[i];
+                  const ordered = {};
+                  Object.keys(newRequest).sort().forEach(function (key) {
+                    ordered[key] = newRequest[key];
+                  });
+                  requestArguments.push(ordered);
+                  let beforeRequest = this.beforeRequest.arguments[i];
+                  const beforeOrdered = {};
+                  Object.keys(beforeRequest).sort().forEach(function (key) {
+                    beforeOrdered[key] = beforeRequest[key];
+                  });
+                  beforeArguments.push(beforeOrdered)
+                }
+                let submitRequestQuery = JSON.stringify(requestArguments);
+                let beforeRequestQuery = JSON.stringify(beforeArguments);
+                if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
+                }
+              } else {
+                let submitRequestQuery = JSON.stringify(this.request.arguments);
+                let beforeRequestQuery = JSON.stringify(this.beforeRequest.arguments);
+                if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
                 }
               }
-              let submitRequestQuery = JSON.stringify(this.httpForm.request.arguments);
-              let beforeRequestQuery = JSON.stringify(this.beforeRequest.arguments);
-              if (submitRequestQuery !== beforeRequestQuery && !this.noShowSyncRuleRelation) {
-                this.batchSyncApiVisible = true;
-              }
             }
-            if (this.httpForm.request.rest && this.beforeRequest.rest) {
-              for (let i = 0; i < this.httpForm.request.rest.length; i++) {
-                if (this.httpForm.request.rest[i].isEdit !== undefined) {
-                  this.beforeRequest.rest[i].isEdit = this.httpForm.request.rest[i].isEdit
+            if (this.request.rest && this.beforeRequest.rest) {
+              if (this.request.rest.length === this.beforeRequest.rest.length) {
+                let requestRest = [];
+                let beforeRest = [];
+                for (let i = 0; i < this.request.rest.length; i++) {
+                  if (this.request.rest[i].isEdit !== undefined) {
+                    this.beforeRequest.rest[i].isEdit = this.request.rest[i].isEdit
+                  }
+                  if (this.request.rest[i].uuid) {
+                    this.beforeRequest.rest[i].uuid = this.request.rest[i].uuid
+                  }
+                  if (this.request.rest[i].time) {
+                    this.beforeRequest.rest[i].time = this.request.rest[i].time
+                  }
+                  if (this.request.rest[i].name === undefined) {
+                    this.beforeRequest.rest[i].name = undefined
+                  }
+                  this.beforeRequest.rest[i].valid = this.request.rest[i].valid
+
+                  let newRequest = this.request.rest[i];
+                  const ordered = {};
+                  Object.keys(newRequest).sort().forEach(function (key) {
+                    ordered[key] = newRequest[key];
+                  });
+                  requestRest.push(ordered);
+                  let beforeRequest = this.beforeRequest.rest[i];
+                  const beforeOrdered = {};
+                  Object.keys(beforeRequest).sort().forEach(function (key) {
+                    beforeOrdered[key] = beforeRequest[key];
+                  });
+                  beforeRest.push(beforeOrdered)
+                }
+                let submitRequestRest = JSON.stringify(requestRest);
+                let beforeRequestRest = JSON.stringify(beforeRest);
+                if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
+                }
+              } else {
+                let submitRequestRest = JSON.stringify(this.request.rest);
+                let beforeRequestRest = JSON.stringify(this.beforeRequest.rest);
+                if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
+                  this.batchSyncApiVisible = true;
+                  this.$refs.syncCaseConfig.show();
                 }
               }
-              let submitRequestRest = JSON.stringify(this.httpForm.request.rest);
-              let beforeRequestRest = JSON.stringify(this.beforeRequest.rest);
-              if (submitRequestRest !== beforeRequestRest && !this.noShowSyncRuleRelation) {
-                this.batchSyncApiVisible = true;
-              }
             }
-            if (this.httpForm.request.body && this.beforeRequest.body) {
-              let submitRequestBody = JSON.stringify(this.httpForm.request.body);
+            if (this.request.body && this.beforeRequest.body) {
+              if (this.request.body.valid) {
+                this.beforeRequest.body.valid = this.request.body.valid
+              }
+              if (this.request.body.kvs.length === this.beforeRequest.body.kvs.length) {
+                let requestKvs = [];
+                let beforeKvs = [];
+                for (let i = 0; i < this.request.body.kvs.length; i++) {
+                  if (this.request.body.kvs[i].isEdit !== undefined) {
+                    this.beforeRequest.body.kvs[i].isEdit = this.request.body.kvs[i].isEdit
+                  }
+                  if (this.request.body.kvs[i].files !== null && this.request.body.kvs[i].files.length === 0) {
+                    this.beforeRequest.body.kvs[i].files = this.request.body.kvs[i].files
+                  }
+                  if (this.request.body.kvs[i].uuid) {
+                    this.beforeRequest.body.kvs[i].uuid = this.request.body.kvs[i].uuid
+                  }
+                  if (this.request.body.kvs[i].time) {
+                    this.beforeRequest.body.kvs[i].time = this.request.body.kvs[i].time
+                  }
+                  if (this.request.body.kvs[i].name === undefined) {
+                    this.beforeRequest.body.kvs[i].name = undefined
+                  }
+                  this.beforeRequest.body.kvs[i].valid = this.request.body.kvs[i].valid
+
+                  let newRequest = this.request.body.kvs[i];
+                  const ordered = {};
+                  Object.keys(newRequest).sort().forEach(function (key) {
+                    ordered[key] = newRequest[key];
+                  });
+                  requestKvs.push(ordered);
+                  let beforeRequest = this.request.body.kvs[i];
+                  const beforeOrdered = {};
+                  Object.keys(beforeRequest).sort().forEach(function (key) {
+                    beforeOrdered[key] = beforeRequest[key];
+                  });
+                  beforeKvs.push(beforeOrdered)
+                }
+                this.request.body.kvs = requestKvs;
+                this.beforeRequest.body.kvs = beforeKvs
+              }
+              let submitRequestBody = JSON.stringify(this.request.body);
               let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
-              for (let i = 0; i < this.httpForm.request.body.kvs.length; i++) {
-                if (this.httpForm.request.body.kvs[i].isEdit !== undefined) {
-                  this.beforeRequest.body.kvs[i].isEdit = this.httpForm.request.body.kvs[i].isEdit
-                }
-                if (this.httpForm.request.body.kvs[i].files !== null && this.httpForm.request.body.kvs[i].files.length === 0) {
-                  this.beforeRequest.body.kvs[i].files = this.httpForm.request.body.kvs[i].files
-                }
-                if (this.httpForm.request.body.kvs[i].uuid) {
-                  this.beforeRequest.body.kvs[i].uuid = this.httpForm.request.body.kvs[i].uuid
-                }
-              }
               if (submitRequestBody !== beforeRequestBody && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
+                this.$refs.syncCaseConfig.show();
               }
             }
-            if (this.httpForm.request.authManager && this.beforeRequest.authManager) {
-              let submitRequestAuthManager = JSON.stringify(this.httpForm.request.authManager);
+            if (this.request.authManager && this.beforeRequest.authManager) {
+              let submitRequestAuthManager = JSON.stringify(this.request.authManager);
               let beforeRequestAuthManager = JSON.stringify(this.beforeRequest.authManager);
               if (submitRequestAuthManager !== beforeRequestAuthManager && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
+                this.$refs.syncCaseConfig.show();
               }
             }
-            if (this.httpForm.request.hashTree && this.beforeRequest.hashTree) {
-              let submitRequestHashTree = JSON.stringify(this.httpForm.request.hashTree);
+            if (this.request.hashTree && this.beforeRequest.hashTree) {
+              let submitRequestHashTree = JSON.stringify(this.request.hashTree);
               let beforeRequestHashTree = JSON.stringify(this.beforeRequest.hashTree);
               if (submitRequestHashTree !== beforeRequestHashTree && !this.noShowSyncRuleRelation) {
                 this.batchSyncApiVisible = true;
+                this.$refs.syncCaseConfig.show();
               }
             }
             if (
@@ -645,10 +704,12 @@ export default {
               !this.noShowSyncRuleRelation
             ) {
               this.batchSyncApiVisible = true;
+              this.$refs.syncCaseConfig.show();
             }
             if (this.batchSyncApiVisible !== true) {
               this.$emit('saveApi', this.httpForm);
             }
+
           } else {
             this.$emit('saveApi', this.httpForm);
           }
@@ -660,16 +721,10 @@ export default {
         }
       });
     },
-    batchSync() {
+    batchSync(fromData) {
       if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
-        if (this.$refs.synSetting && this.$refs.synSetting.fromData) {
-          let fromData = this.$refs.synSetting.fromData;
-          fromData.method = true;
-          fromData.path = true;
-          fromData.protocol = true;
-          this.httpForm.triggerUpdate = JSON.stringify(fromData);
-          this.apiSyncRuleRelation.apiSyncCaseRequest = JSON.stringify(fromData);
-        }
+        this.httpForm.triggerUpdate = JSON.stringify(fromData);
+        this.apiSyncRuleRelation.apiSyncCaseRequest = JSON.stringify(fromData);
         if (this.apiSyncRuleRelation.sendNotice && this.apiSyncRuleRelation.sendNotice === true) {
           this.httpForm.sendSpecialMessage = this.apiSyncRuleRelation.sendNotice;
         } else {
@@ -694,7 +749,7 @@ export default {
     saveApiSyncRuleRelation(apiSyncRuleRelation) {
       updateRuleRelation(apiSyncRuleRelation.resourceId, apiSyncRuleRelation).then(() => {
         this.$emit('saveApi', this.httpForm);
-        this.batchSyncApiVisible = false;
+        this.$refs.syncCaseConfig.close();
       });
     },
     createModules() {
@@ -1019,12 +1074,6 @@ export default {
         this.checkout(row);
       });
     },
-    gotoApiMessage() {
-      let apiResolve = this.$router.resolve({
-        path: '/project/messagesettings',
-      });
-      window.open(apiResolve.href, '_blank');
-    },
     getSyncRule() {
       relationGet(this.httpForm.id, 'API').then((response) => {
         if (response.data) {
@@ -1050,9 +1099,6 @@ export default {
           this.noShowSyncRuleRelation = this.apiSyncRuleRelation.showUpdateRule;
         }
       });
-    },
-    updateSyncData(value) {
-      this.apiSyncRuleRelation.apiSyncConfig = value;
     },
     handleCommand(command) {
       if (command === 'openSyncRule') {
