@@ -5,10 +5,10 @@ import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.TestResourcePoolDTO;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.service.BaseTestResourcePoolService;
 import io.metersphere.service.NodeResourcePoolService;
-import io.metersphere.xpack.quota.service.QuotaService;
 import io.metersphere.xpack.resourcepool.engine.KubernetesResourcePoolService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -29,17 +29,15 @@ public class ValidQuotaResourcePoolService {
     private NodeResourcePoolService nodeResourcePoolService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return filterQuota(listValidResourcePools());
     }
 
     private List<TestResourcePoolDTO> filterQuota(List<TestResourcePoolDTO> list) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService == null) {
-            return list;
-        }
-        Set<String> pools = quotaService.getQuotaResourcePools();
+        Set<String> pools = baseQuotaService.getQuotaResourcePools();
         if (!pools.isEmpty()) {
             return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
         }
