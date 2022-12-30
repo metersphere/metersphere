@@ -218,6 +218,9 @@
               <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail'">
                 {{ $t('api_test.automation.fail') }}
               </el-link>
+              <el-link v-else-if="!row.lastResult || row.lastResult === 'unexecute'" :disabled="true">
+                {{ $t('api_test.home_page.detail_card.unexecute') }}
+              </el-link>
               <el-link type="danger" style="color: #F6972A" @click="showReport(row)"
                        v-else-if="row.lastResult === 'errorReportResult'">
                 {{ $t('error_report_library.option.name') }}
