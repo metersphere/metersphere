@@ -57,45 +57,6 @@
           <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
         </form-section>
 
-        <!--    UI 配置    -->
-        <form-section :title="$t('commons.ui_test')" :init-active=false v-if="condition.type !== 'MODULE'">
-          <el-row :gutter="10" style="padding-top: 10px;">
-            <el-col :span="6">
-              <!-- 浏览器驱动 -->
-              <span style="margin-right: 10px;">{{ $t("ui.browser") }}</span>
-              <el-select
-                size="mini"
-                v-model="httpConfig.browser"
-                style="width: 100px"
-              >
-                <el-option
-                  v-for="b in browsers"
-                  :key="b.value"
-                  :value="b.value"
-                  :label="b.label"
-                ></el-option>
-              </el-select>
-
-            </el-col>
-            <el-col :span="6">
-              <!-- 性能模式 -->
-              <el-checkbox
-                v-model="httpConfig.headlessEnabled"
-              >
-                <span> {{ $t("ui.performance_mode") }}</span>
-              </el-checkbox>
-              <ms-instructions-icon size="10" :content="$t('ui.per_tip')"/>
-            </el-col>
-          </el-row>
-
-          <!--          当前版本实现免登录是基于 cookie 的但是现在由于安全性问题绝大多数网站都不支持 cookie登录所以先屏蔽了-->
-          <!--          <el-row :gutter="10">-->
-          <!--            <el-col :span="24">-->
-          <!--              <ms-ui-scenario-cookie-table :items="httpConfig.cookie" ref="cookieTable"/>-->
-          <!--            </el-col>-->
-          <!--          </el-row>-->
-        </form-section>
-
         <div style="margin-top: 20px">
           <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
             {{ $t('commons.add') }}
