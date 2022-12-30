@@ -979,7 +979,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return new JSONObject();
         }
         JSONObject responseBody = new JSONObject();
-        JSONObject statusCodeInfo = new JSONObject();
+
         //  build 请求头
         JSONObject headers = new JSONObject();
         JSONArray headValueList = response.optJSONArray("headers");
@@ -995,13 +995,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             }
         }
-        statusCodeInfo.put("headers", headers);
 
-        statusCodeInfo.put("content", buildContent(response));
-        statusCodeInfo.put("description", StringUtils.EMPTY);
         // 返回code
         JSONArray statusCode = response.optJSONArray("statusCode");
         for (int i = 0; i < statusCode.length(); i++) {
+            JSONObject statusCodeInfo = new JSONObject();
+            statusCodeInfo.put("headers", headers);
+            statusCodeInfo.put("content", buildContent(response));
+            statusCodeInfo.put("description", StringUtils.EMPTY);
             JSONObject jsonObject = statusCode.getJSONObject(i);
             jsonObject.get("name");
             statusCodeInfo.put("description", jsonObject.get("value"));
