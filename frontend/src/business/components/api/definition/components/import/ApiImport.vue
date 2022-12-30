@@ -5,7 +5,7 @@
 
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
-      <el-radio-group v-model="selectedPlatformValue">
+      <el-radio-group v-model="selectedPlatformValue" @input="clearUrParameter">
         <span v-for="(item, index) in platforms" :key="index">
           <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
         </span>
@@ -455,6 +455,12 @@ export default {
     changeAuthEnable() {
       if (!this.authEnable) {
         this.clearAuthInfo();
+      }
+    },
+    clearUrParameter(value) {
+      if (value !== 'Swagger2') {
+        this.clearAuthInfo();
+        this.authEnable = false;
       }
     },
     buildParam() {

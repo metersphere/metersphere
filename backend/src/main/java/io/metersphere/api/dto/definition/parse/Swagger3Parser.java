@@ -330,6 +330,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = getSchema(mediaType.getSchema());
+        if (content.get(contentType) != null && content.get(contentType).getExample() != null && schema.getExample() == null) {
+            schema.setExample(content.get(contentType).getExample());
+        }
         Object bodyData = null;
         if (!StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
             bodyData = parseSchemaToJson(schema, refSet, infoMap);
@@ -563,7 +566,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
-        } else if (value instanceof StringSchema || StringUtils.equals("string", value.getType()) || StringUtils.equals("text", value.getType())) {
+        } else if (value instanceof StringSchema || StringUtils.equals("string", value.getType()) || StringUtils.equals("text", value.getType()) || value instanceof JsonSchema) {
             return example == null ? "" : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
@@ -966,7 +969,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return new JSONObject();
         }
         JSONObject responseBody = new JSONObject();
-        JSONObject statusCodeInfo = new JSONObject();
         //  build 请求头
         JSONObject headers = new JSONObject();
         JSONArray headValueList = response.getJSONArray("headers");
@@ -982,13 +984,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             }
         }
-        statusCodeInfo.put("headers", headers);
 
-        statusCodeInfo.put("content", buildContent(response));
-        statusCodeInfo.put("description", "");
         // 返回code
         JSONArray statusCode = response.getJSONArray("statusCode");
         for (int i = 0; i < statusCode.size(); i++) {
+            JSONObject statusCodeInfo = new JSONObject();
+            statusCodeInfo.put("headers", headers);
+            statusCodeInfo.put("content", buildContent(response));
+            statusCodeInfo.put("description", "");
             JSONObject jsonObject = statusCode.getJSONObject(i);
             jsonObject.get("name");
             statusCodeInfo.put("description", jsonObject.get("value"));
