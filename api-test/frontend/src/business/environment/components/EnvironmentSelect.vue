@@ -6,6 +6,7 @@
       class="ms-htt-width"
       :placeholder="$t('api_test.definition.request.run_env')"
       filterable
+      @click.native="refreshEnv"
       @change="environmentChange"
       clearable>
       <el-option
@@ -54,6 +55,9 @@ export default {
     this.getEnvironments();
   },
   methods: {
+    refreshEnv() {
+      this.getEnvironments();
+    },
     getEnvironments() {
       if (this.projectId) {
         getEnvironmentByProjectId(this.projectId).then((response) => {
