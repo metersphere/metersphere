@@ -330,7 +330,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = getSchema(mediaType.getSchema());
-        if (content.get(contentType).getExample() != null && schema.getExample() == null) {
+        if (content.get(contentType) != null && content.get(contentType).getExample() != null && schema.getExample() == null) {
             schema.setExample(content.get(contentType).getExample());
         }
         Object bodyData = null;
