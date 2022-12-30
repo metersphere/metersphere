@@ -12,7 +12,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.consumer.LoadTestFinishEvent;
 import io.metersphere.dto.VumProcessedStatus;
-import io.metersphere.xpack.quota.service.QuotaService;
+import io.metersphere.quota.service.QuotaService;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;

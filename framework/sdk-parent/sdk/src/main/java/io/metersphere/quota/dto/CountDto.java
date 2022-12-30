@@ -1,4 +1,4 @@
-package io.metersphere.xpack.quota.dto;
+package io.metersphere.quota.dto;
 
 import lombok.Data;
 

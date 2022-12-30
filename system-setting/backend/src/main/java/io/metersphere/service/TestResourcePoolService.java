@@ -20,7 +20,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
-import io.metersphere.xpack.quota.service.QuotaService;
+import io.metersphere.quota.service.QuotaService;
 import io.metersphere.xpack.resourcepool.engine.KubernetesResourcePoolService;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;

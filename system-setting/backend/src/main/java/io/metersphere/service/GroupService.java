@@ -23,7 +23,7 @@ import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.GroupRequest;
 import io.metersphere.request.group.EditGroupRequest;
 import io.metersphere.request.group.EditGroupUserRequest;
-import io.metersphere.xpack.quota.service.QuotaService;
+import io.metersphere.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package io.metersphere.xpack.quota.service;
+package io.metersphere.quota.service;
 
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;

@@ -27,7 +27,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.xpack.api.service.ProjectApplicationSyncService;
-import io.metersphere.xpack.quota.service.QuotaService;
+import io.metersphere.quota.service.QuotaService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
