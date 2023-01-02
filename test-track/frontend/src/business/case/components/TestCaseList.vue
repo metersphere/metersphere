@@ -1056,11 +1056,13 @@ export default {
     },
     handleBatchMove() {
       this.isMoveBatch = true;
-      this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+      let firstSelectRow = this.$refs.table.selectRows.values().next().value;
+      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+      let firstSelectRow = this.$refs.table.selectRows.values().next().value;
+      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
     },
     _handleDeleteVersion(testCase, deleteCurrentVersion) {
       // 删除指定版本

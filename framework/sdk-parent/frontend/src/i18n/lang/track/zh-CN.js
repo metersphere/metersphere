@@ -108,6 +108,8 @@ export default {
     select_attr: '选择属性',
     batch_update_to: '批量更新为',
     select_catalog: '请选择用例目录',
+    batch_move_to: '将"{0}"等{1}个用例 移动到',
+    batch_copy_to: '将"{0}"等{1}个用例 复制到',
     updated_attr_value: '更新后属性值为',
     batch_operate: '批量操作',
     please_select_attr: '请选择属性',
@@ -342,6 +344,7 @@ export default {
   module: {
     id: '模块ID',
     search: "搜索模块",
+    search_by_name: "通过模块名称搜索",
     rename: "重命名",
     add_submodule: "添加子模块",
     add_module: "添加模块",

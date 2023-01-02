@@ -108,6 +108,8 @@ export default {
     select_attr: '選擇屬性',
     batch_update_to: '批量更新爲',
     select_catalog: '請選擇用例目錄',
+    batch_move_to: '將"{0}"等{1}個用例 移動到',
+    batch_copy_to: '將"{0}"等{1}個用例 複製到',
     updated_attr_value: '更新後屬性值為',
     batch_operate: '批量操作',
     please_select_attr: '請選擇屬性',
@@ -342,6 +344,7 @@ export default {
   module: {
     id: '模塊ID',
     search: "搜索模塊",
+    search_by_name: "通過模塊名稱搜索",
     rename: "重命名",
     add_submodule: "添加子模塊",
     add_module: "添加模塊",

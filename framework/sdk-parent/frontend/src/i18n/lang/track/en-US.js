@@ -115,6 +115,8 @@ export default {
     select_attr: 'Select attr',
     batch_update_to: 'Batch update to',
     select_catalog: 'Please select use case catalog',
+    batch_move_to: 'Move "{0}"{1}use cases to',
+    batch_copy_to: 'Copy "{0}"{1}use cases to',
     updated_attr_value: 'The updated attribute value',
     batch_operate: 'Batch operation',
     please_select_attr: 'Please select attributes',
@@ -339,6 +341,7 @@ export default {
   module: {
     id: 'Module ID',
     search: "Search module",
+    search_by_name: "Search by name",
     rename: "Rename",
     add_submodule: "Add submodule",
     add_module: "Add module",
