@@ -895,15 +895,24 @@ export default {
         });
     },
     handleDeleteBatchToGc() {
-      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
-        let param = buildBatchParam(this, this.$refs.table.selectIds);
-        testCaseBatchDeleteToGc(param)
-          .then(() => {
-            this.$refs.table.clear();
-            this.$emit("refresh");
-            this.$success(this.$t('commons.delete_success'));
-          });
-      });
+      let title = this.$t('test_track.case.batch_delete_confirm', [this.$refs.table.selectIds.length]);
+      this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+          cancelButtonText: this.$t("commons.cancel"),
+          confirmButtonText: this.$t("commons.confirm"),
+          customClass: 'custom-confirm-delete',
+          callback: action => {
+            if (action === "confirm") {
+              let param = buildBatchParam(this, this.$refs.table.selectIds);
+              testCaseBatchDeleteToGc(param)
+                .then(() => {
+                  this.$refs.table.clear();
+                  this.$emit("refresh");
+                  this.$success(this.$t('commons.delete_success'));
+                });
+            }
+          }
+        }
+      );
     },
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
@@ -1036,7 +1045,7 @@ export default {
         });
     },
     openRelateDemand() {
-      this.$refs.relateDemand.open();
+      this.$refs.relateDemand.open(this.condition.selectAll ? this.page.total : this.$refs.table.selectRows.size);
     },
     _batchRelateDemand(form) {
       if (form.demandId !== 'other') {

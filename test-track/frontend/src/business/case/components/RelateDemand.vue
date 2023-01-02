@@ -1,15 +1,18 @@
 <template>
   <div>
     <el-dialog
-      :title="$t('test_track.please_related_requirements')"
+      :title="$t('test_track.batch_related_requirements')"
       :visible.sync="dialogVisible"
-      width="30%"
+      width="40%"
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
+      :modal-append-to-body="false"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" size="medium" ref="form">
+      <span class="select-row">{{$t('test_track.batch_operate_select_row_count', [size])}}</span>
+
+      <el-form :model="form" label-position="right" size="medium" ref="form" style="margin-top: 24px;">
         <el-form-item :label="$t('test_track.related_requirements')" prop="demandId">
           <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions"
                        clearable filterable :filter-method="filterDemand" style="width: 100%;">
@@ -24,7 +27,10 @@
         </el-form-item>
       </el-form>
       <template v-slot:footer>
-        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="submit()"/>
+<!--        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="submit()"/>-->
+        <el-button @click="dialogVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
+        <el-button v-prevent-re-click :type="!form.demandId ? 'info' : 'primary'" @click="submit"
+                   @keydown.enter.native.prevent size="small" :disabled="!form.demandId" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -48,7 +54,8 @@ export default {
       },
       demandValue: [],
       demandOptions: [],
-      dialogVisible: false
+      dialogVisible: false,
+      size: 0,
     }
   },
   watch: {
@@ -61,10 +68,15 @@ export default {
     }
   },
   methods: {
-    open() {
+    open(size) {
       this.form = {};
       this.dialogVisible = true;
       this.getDemandOptions();
+      if (size) {
+        this.size = size;
+      } else {
+        this.size = this.$parent.selectDataCounts;
+      }
     },
     handleClose() {
       this.form = {};
@@ -150,5 +162,53 @@ export default {
   overflow: hidden;
   word-break: break-all;
   margin-right: 5px;
+}
+
+.select-row {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #646A73;
+  flex: none;
+  order: 1;
+  align-self: center;
+  flex-grow: 0;
+}
+
+:deep(.el-dialog__header) {
+  padding: 24px 24px 0;
+}
+
+:deep(.el-dialog__body) {
+  padding: 8px 24px;
+}
+
+:deep(.el-dialog__title) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1F2329;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 0px 24px 24px;
+}
+
+.el-form-item__label {
+  line-height: 36px;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin-bottom: 8px;
 }
 </style>

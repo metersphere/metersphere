@@ -40,9 +40,20 @@ export default {
         animationEasingUpdate: 'quinticInOut',
         legend: [
           {
-            left: '50',
-            top: '20',
-            data: [this.$t('commons.relationship.selected'), this.$t('commons.relationship.direct'), this.$t('commons.relationship.indirect')],
+            itemWidth: 10,
+            itemHeight: 10,
+            itemGap: 20,
+            left: '18',
+            top: '30',
+            data: [{icon: 'rect', name: this.$t('commons.relationship.selected')}, {icon: 'rect', name: this.$t('commons.relationship.direct')}, {icon: 'rect', name: this.$t('commons.relationship.indirect')}],
+            textStyle: { //图例文字的样式
+              fontFamily: 'PingFang SC',
+              fontWeight: '400',
+              fontSize: 14,
+              lineHeight: 22,
+              color: '#646A73',
+              top: 20
+            }
           }
         ],
         series: [
@@ -58,10 +69,10 @@ export default {
               },
               {
                 name: this.$t('commons.relationship.direct'),
-                itemStyle: {color: '#7EBEDB'}
+                itemStyle: {color: '#62D256'}
               }, {
                 name: this.$t('commons.relationship.indirect'),
-                itemStyle: {color: '#9CD375'}
+                itemStyle: {color: '#FAD355'}
               }
             ],
             label: {

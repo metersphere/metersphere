@@ -353,41 +353,4 @@ export default {
   flex-grow: 0;
   padding-bottom: 8px;
 }
-
-/* common style el-input__inner 字体*/
-:deep(input.el-input__inner) {
-  font-family: 'PingFang SC';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: #1F2329;
-}
-
-/* common style:  elementui small btn 样式可提取为公共*/
-:deep(.el-button--small span) {
-  font-family: 'PingFang SC';
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  position: relative;
-  top: -5px;
-}
-
-:deep(.el-button) {
-  width: 80px;
-  height: 32px;
-  border-radius: 4px;
-}
-
-:deep(.el-button--default) {
-  background: #FFFFFF;
-  border: 1px solid #BBBFC4;
-}
-
-:deep(.el-button--default:hover) {
-  border: 1px solid #783887;
-  background: rgba(120, 56, 135, 0.15);
-}
 </style>

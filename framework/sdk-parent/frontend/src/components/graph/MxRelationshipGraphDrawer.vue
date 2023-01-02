@@ -1,16 +1,18 @@
 <template>
-  <ms-drawer :visible="visible" :size="100" @close="close" direction="right" :show-full-screen="false"
-             :is-show-close="false">
-    <template v-slot:header>
-      <drawer-header :title="$t('commons.relationship.graph')" @close="close" @export="exportCharts"/>
-    </template>
-    <div style="height: calc(100vh - 48px); width: calc(100vw)">
-      <el-scrollbar>
-        <relationship-graph :height="height" :width="width" :data="graphData.data" :links="graphData.links"
-                            ref="relationshipGraph"/>
-      </el-scrollbar>
-    </div>
-  </ms-drawer>
+  <el-dialog :visible="visible" :modal-append-to-body="false">
+    <ms-drawer :size="100" @close="close" direction="right" :show-full-screen="false"
+               :is-show-close="false" style="width: 1200px; height: 900px;">
+      <template v-slot:header>
+        <drawer-header :title="$t('commons.relationship.graph')" @close="close" @export="exportCharts"/>
+      </template>
+      <div style="height: calc(100vh - 48px); width: 100%">
+        <el-scrollbar>
+          <relationship-graph :height="height" :width="width" :data="graphData.data" :links="graphData.links"
+                              ref="relationshipGraph"/>
+        </el-scrollbar>
+      </div>
+    </ms-drawer>
+  </el-dialog>
 </template>
 
 <script>

@@ -39,6 +39,16 @@ export default {
 <style>
 /* Element-UI Common Style 暂时提取为测试跟踪公共使用*/
 
+/* el-input__inner 字体*/
+input.el-input__inner {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
+}
+
 /*el-message*/
 .el-message-box__header {
   padding: 20px 0 0 24px;
@@ -96,6 +106,12 @@ export default {
   line-height: 22px;
   position: relative;
   top: -5px;
+}
+
+.el-button--small {
+    width: 80px;
+    height: 32px;
+    border-radius: 4px;
 }
 
 button.el-button.el-button--default.el-button--small {
