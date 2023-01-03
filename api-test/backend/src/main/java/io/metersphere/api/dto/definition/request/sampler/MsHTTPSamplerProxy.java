@@ -555,8 +555,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     String value = keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
                             ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
                     value = keyValue.isUrlEncode() ? StringUtils.join(StringUtils.join("${__urlencode(", value), ")}") : value;
-                    String key = keyValue.isUrlEncode() ? StringUtils.join(StringUtils.join("${__urlencode(", keyValue.getName()), ")}") : keyValue.getName();
-                    keyValueMap.put(key, value);
+                    keyValueMap.put(keyValue.getName(), value);
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }

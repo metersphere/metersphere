@@ -281,6 +281,8 @@ export default {
     if (this.request.id && this.request.referenced === 'REF') {
       this.request.disabled = true;
       this.request.root = this.node.parent.parent ? false : true;
+      this.request.showExtend =
+        this.node.parent && this.node.parent.data && this.node.parent.data.disabled ? false : true;
     }
     this.isShowNum = this.request.num ? true : false;
     if (this.request.protocol === 'HTTP') {
@@ -332,15 +334,7 @@ export default {
       return {};
     },
     isCompReadOnly() {
-      if (this.request) {
-        if (this.request.disabled) {
-          return this.request.disabled;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
+      return this.request.disabled;
     },
     displayTitle() {
       if (this.isApiImport) {

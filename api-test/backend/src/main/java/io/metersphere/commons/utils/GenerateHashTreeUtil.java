@@ -94,10 +94,11 @@ public class GenerateHashTreeUtil {
         String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
         String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
         String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
+
         if (StringUtils.isBlank(environmentType)) {
             environmentType = EnvironmentType.JSON.toString();
         }
-        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
+        if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString()) && StringUtils.isNotBlank(environmentJson)) {
             scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
         } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
             Map<String, String> map = CommonBeanFactory.getBean(BaseEnvGroupProjectService.class).getEnvMap(environmentGroupId);
@@ -133,7 +134,7 @@ public class GenerateHashTreeUtil {
             String definition = element.toString();
             MsScenario scenario = JSON.parseObject(definition, MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
-            if (planEnvMap != null && planEnvMap.size() > 0) {
+            if (MapUtils.isNotEmpty(planEnvMap)) {
                 scenario.setEnvironmentMap(planEnvMap);
             } else {
                 setScenarioEnv(scenario, item);

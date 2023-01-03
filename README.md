@@ -97,7 +97,7 @@ MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本
 
 ### License & Copyright
 
-Copyright (c) 2014-2022 飞致云 FIT2CLOUD, All rights reserved.
+Copyright (c) 2014-2023 飞致云 FIT2CLOUD, All rights reserved.
 
 Licensed under The GNU General Public License version 3 (GPLv3)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

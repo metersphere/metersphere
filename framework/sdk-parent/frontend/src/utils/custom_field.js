@@ -1,5 +1,5 @@
 import i18n from "../i18n";
-import { getCurrentUserId } from "../utils/token";
+import {getCurrentProjectID, getCurrentUser} from "../utils/token";
 import { SYSTEM_FIELD_NAME_MAP } from "../utils/table-constants";
 
 function setDefaultValue(item, value) {
@@ -39,7 +39,15 @@ export function parseCustomField(data, template, rules, oldFields) {
         val &&
         val === "CURRENT_USER"
       ) {
-        val = getCurrentUserId();
+        val = '';
+        const {id, userGroups} = getCurrentUser();
+        if (userGroups) {
+          // CURRENT_USER是否是当前项目下的成员
+          let index = userGroups.findIndex(ug => ug.sourceId === getCurrentProjectID());
+          if (index !== -1) {
+            val = id;
+          }
+        }
       }
       setDefaultValue(item, val);
     }

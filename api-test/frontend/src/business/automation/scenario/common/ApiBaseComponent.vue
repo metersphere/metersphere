@@ -267,14 +267,14 @@ export default {
         return (
           !this.innerStep ||
           (this.showBtn &&
-            (!this.data.disabled || this.data.root || this.data.isCopy) &&
+            (!this.data.disabled || this.data.root || this.data.isCopy || this.data.showExtend) &&
             this.showVersion &&
             this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1)
         );
       }
       return (
         this.showBtn &&
-        (!this.data.disabled || this.data.root || this.isDeleted || this.data.isCopy) &&
+        (!this.data.disabled || this.data.root || this.isDeleted || this.data.isCopy || this.data.showExtend) &&
         this.showVersion &&
         this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1
       );

@@ -1,21 +1,5 @@
 <template>
   <div v-loading="loading">
-    <env-group-popover
-      :env-map="projectEnvMap"
-      :project-ids="projectIds"
-      :show-env-group="false"
-      @setProjectEnvMap="setProjectEnvMap"
-      :environment-type.sync="environmentType"
-      :group-id="envGroupId"
-      :is-scenario="false"
-      @setEnvGroup="setEnvGroup"
-      :show-config-button-with-out-permission="
-        showConfigButtonWithOutPermission
-      "
-      :project-list="projectList"
-      ref="envPopover"
-      class="env-popover"
-    />
 
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
@@ -115,9 +99,6 @@ import {
   getCustomTableWidth
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import {getApiScenarioEnvByProjectId} from "@/api/remote/api/api-automation";
-import {getUiScenarioEnvByProjectId} from "@/api/remote/ui/ui-automation";
 
 export default {
   name: "RelevanceUiScenarioList",
@@ -131,7 +112,6 @@ export default {
     MsTag,
     MsTableAdvSearchBar,
     MsTableColumn,
-    EnvGroupPopover,
   },
   props: {
     referenced: {
@@ -167,7 +147,6 @@ export default {
       envGroupId: "",
       versionFilters: [],
       fieldsWidth: getCustomTableWidth('TEST_PLAN_UI_SCENARIO_CASE'),
-      projectIds: new Set()
     };
   },
   computed: {
@@ -265,24 +244,9 @@ export default {
     selectCountChange(data) {
       this.selectRows = this.$refs.scenarioTable.selectRows;
       this.$emit("selectCountChange", data);
-      this.initProjectIds();
     },
     showReport() {
 
-    },
-    initProjectIds() {
-      this.projectIds.clear();
-      // this.map.clear();
-      this.selectRows.forEach((row) => {
-        getUiScenarioEnvByProjectId(row.id).then((res) => {
-          let data = res.data;
-          data.projectIds.forEach((d) => this.projectIds.add(d));
-          // this.map.set(row.id, data.projectIds);
-        });
-      });
-    },
-    closeEnv(){
-      this.$refs.envPopover.close();
     }
   }
 };

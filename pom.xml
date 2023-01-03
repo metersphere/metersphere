@@ -42,9 +42,9 @@
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <commons-io.version>2.11.0</commons-io.version>
         <commons-text.version>1.10.0</commons-text.version>
-        <xstream.version>1.4.19</xstream.version>
+        <xstream.version>1.4.20</xstream.version>
         <xmlbeans.version>3.1.0</xmlbeans.version>
-        <swagger-parser.version>2.1.5</swagger-parser.version>
+        <swagger-parser.version>2.1.8</swagger-parser.version>
         <rhino.version>1.7.14</rhino.version>
         <jsoup.version>1.15.3</jsoup.version>
         <commonmark.version>0.19.0</commonmark.version>

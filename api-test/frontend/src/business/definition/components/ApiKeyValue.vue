@@ -240,7 +240,19 @@ export default {
         }
       });
       if (isNeedCreate) {
-        this.items.push(new KeyValue({ enable: true }));
+        this.items.push(new KeyValue({
+          enable: true,
+          contentType: null,
+          description: null,
+          file: false,
+          files: null,
+          max: null,
+          min: null,
+          required: true,
+          type: null,
+          urlEncode: false,
+          value: null
+        }));
       }
       this.$emit('change', this.items);
       // TODO 检查key重复

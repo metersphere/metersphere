@@ -330,7 +330,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Set<String> refSet = new HashSet<>();
         Map<String, Schema> infoMap = new HashMap();
         Schema schema = getSchema(mediaType.getSchema());
-        if (content.get(contentType).getExample() != null && schema.getExample() == null) {
+        if (content.get(contentType) != null && content.get(contentType).getExample() != null && schema.getExample() == null) {
             schema.setExample(content.get(contentType).getExample());
         }
         Object bodyData = null;
@@ -979,7 +979,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return new JSONObject();
         }
         JSONObject responseBody = new JSONObject();
-        JSONObject statusCodeInfo = new JSONObject();
+
         //  build 请求头
         JSONObject headers = new JSONObject();
         JSONArray headValueList = response.optJSONArray("headers");
@@ -995,17 +995,21 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             }
         }
-        statusCodeInfo.put("headers", headers);
 
-        statusCodeInfo.put("content", buildContent(response));
-        statusCodeInfo.put("description", StringUtils.EMPTY);
         // 返回code
         JSONArray statusCode = response.optJSONArray("statusCode");
         for (int i = 0; i < statusCode.length(); i++) {
+            JSONObject statusCodeInfo = new JSONObject();
+            statusCodeInfo.put("headers", headers);
+            statusCodeInfo.put("content", buildContent(response));
+            statusCodeInfo.put("description", StringUtils.EMPTY);
             JSONObject jsonObject = statusCode.getJSONObject(i);
-            jsonObject.get("name");
-            statusCodeInfo.put("description", jsonObject.get("value"));
-            responseBody.put(jsonObject.get("name").toString(), statusCodeInfo);
+            if (jsonObject.optString("value") != null) {
+                statusCodeInfo.put("description", jsonObject.optString("value"));
+            }
+            if (jsonObject.optString("name") != null) {
+                responseBody.put(jsonObject.optString("name"), statusCodeInfo);
+            }
         }
         return responseBody;
     }

@@ -6,11 +6,13 @@ import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
@@ -31,7 +33,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +55,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -141,8 +144,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId, protocol);
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
@@ -189,8 +190,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId, protocol);
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
         request.setProtocol(protocol);
@@ -570,19 +569,29 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return apiModuleMapper.countByExample(example);
     }
 
+    public void initDefaultNode() {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andNameEqualTo("默认项目");
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        if (CollectionUtils.isNotEmpty(projects)) {
+            String[] protocols = {RequestTypeConstants.HTTP, RequestTypeConstants.DUBBO, RequestTypeConstants.SQL, RequestTypeConstants.TCP};
+            for (String protocol : protocols) {
+                saveDefault(projects.get(0).getId(), protocol);
+            }
+        }
+    }
+
     public ApiModule getDefaultNode(String projectId, String protocol) {
         ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            return saveDefault(projectId, protocol);
-        } else {
+        if (CollectionUtils.isNotEmpty(list)) {
             return list.get(0);
         }
+        return null;
     }
 
-    @Async
-    public synchronized ApiModule saveDefault(String projectId, String protocol) {
+    public ApiModule saveDefault(String projectId, String protocol) {
         ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);

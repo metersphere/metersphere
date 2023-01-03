@@ -8,6 +8,10 @@
         <div class="license-content">
           <div v-if="license.status !== 'Fail'">
             <table>
+              <tr v-if="license.serialNo">
+                <th>{{ $t('license.serial_num') }}</th>
+                <td>{{ license.serialNo }}</td>
+              </tr>
               <tr>
                 <th>{{ $t('license.corporation') }}</th>
                 <td>{{ license.corporation }}</td>
@@ -37,14 +41,6 @@
                 <th>{{ $t('license.count') }}</th>
                 <td>{{ license.count }}</td>
               </tr>
-              <tr v-if="license.serialNo">
-                <th>{{ $t('license.serial_num') }}</th>
-                <td>{{ license.serialNo }}</td>
-              </tr>
-              <tr v-if="license.remark">
-                <th>{{ $t('license.remark') }}</th>
-                <td>{{ license.remark }}</td>
-              </tr>
               <tr>
                 <th>{{ $t('license.status') }}</th>
                 <td>
@@ -56,6 +52,10 @@
                   </label>
                   <label class="ms-license-label" v-else>{{ $t('license.invalid') }}</label>
                 </td>
+              </tr>
+              <tr v-if="license.remark">
+                <th>{{ $t('license.remark') }}</th>
+                <td>{{ license.remark }}</td>
               </tr>
             </table>
           </div>
@@ -148,7 +148,6 @@ export default {
 
 .license-container {
   margin: auto;
-  height: 400px;
   position: relative;
 }
 

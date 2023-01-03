@@ -3,15 +3,13 @@ package io.metersphere.listener;
 import com.mchange.lang.IntegerUtils;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.MockConfigService;
-import io.metersphere.service.PluginService;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.service.BaseScheduleService;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.*;
+import io.metersphere.service.definition.ApiModuleService;
+import io.metersphere.service.scenario.ApiScenarioModuleService;
 import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -36,6 +34,10 @@ public class ApiAppStartListener implements ApplicationRunner {
     private PluginService pluginService;
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private ApiModuleService apiModuleService;
+    @Resource
+    private ApiScenarioModuleService apiScenarioModuleService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -58,6 +60,12 @@ public class ApiAppStartListener implements ApplicationRunner {
 
         LogUtil.info("处理重启导致未执行完成的报告");
         apiExecutionQueueService.exceptionHandling();
+
+        LogUtil.info("初始化默认项目接口模块");
+        apiModuleService.initDefaultNode();
+
+        LogUtil.info("初始化默认项目场景模块");
+        apiScenarioModuleService.initDefaultModule();
 
         BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
         LogUtil.info("设置并发队列核心数", dto.getConcurrency());

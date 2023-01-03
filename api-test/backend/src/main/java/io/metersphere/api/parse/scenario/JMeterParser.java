@@ -81,6 +81,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -823,6 +824,14 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 elementNode.setName(transactionController.getName());
                 ((MsTransactionController) elementNode).setGenerateParentSample(transactionController.isGenerateParentSample());
                 ((MsTransactionController) elementNode).setIncludeTimers(transactionController.isIncludeTimers());
+            } else if (StringUtils.equals(key.getClass().getName(), "net.xmeter.samplers.ConnectSampler")) {
+                elementNode = getMqttElement(key, "io.metersphere.plugin.mqtt.sampler.MqttConnectSampler");
+            } else if (StringUtils.equals(key.getClass().getName(), "net.xmeter.samplers.DisConnectSampler")) {
+                elementNode = getMqttElement(key, "io.metersphere.plugin.mqtt.sampler.MqttDisConnectSampler");
+            } else if (StringUtils.equals(key.getClass().getName(), "net.xmeter.samplers.PubSampler")) {
+                elementNode = getMqttElement(key, "io.metersphere.plugin.mqtt.sampler.MqttPubSampler");
+            } else if (StringUtils.equals(key.getClass().getName(), "net.xmeter.samplers.SubSampler")) {
+                elementNode = getMqttElement(key, "io.metersphere.plugin.mqtt.sampler.MqttSubSampler");
             }
             // 平台不能识别的Jmeter步骤
             else {
@@ -864,6 +873,21 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 formatHashTree(node, elementNode);
             }
         }
+    }
+
+    private static MsTestElement getMqttElement(Object key, String className) {
+        MsTestElement elementNode;
+        try {
+            Class<?> clazz = null;
+            clazz = Class.forName(className);
+            Object instance = clazz.getConstructor().newInstance();
+            Method methods2 = clazz.getMethod("importJmx", Object.class);
+            Object invoke = methods2.invoke(instance, key);
+            elementNode = (MsTestElement) invoke;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return elementNode;
     }
 
     public static MsTestElement getMsTestElement(BeanShellPreProcessor key) {

@@ -19,7 +19,11 @@ public class UserService {
     UserMapper userMapper;
 
     public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
-        return JSON.parseObject(getCurrentPlatformInfoStr(workspaceId), UserDTO.PlatformInfo.class);
+        String currentPlatformInfoStr = getCurrentPlatformInfoStr(workspaceId);
+        if (StringUtils.isNotBlank(currentPlatformInfoStr)) {
+            JSON.parseObject(currentPlatformInfoStr, UserDTO.PlatformInfo.class);
+        }
+        return null;
     }
 
     public String  getCurrentPlatformInfoStr(String workspaceId) {

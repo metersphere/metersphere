@@ -327,7 +327,7 @@ export default {
         this.activeName = name;
         let currentScenario = {
           status: 'Underway',
-          principal: getCurrentUser().id,
+          principal: this._getCurrentUserId(),
           apiScenarioModuleId: 'default-module',
           id: getUUID(),
           modulePath: '/' + this.$t('commons.module_title'),
@@ -370,6 +370,17 @@ export default {
         }); //  删除所有tab的 ctrl + s 监听
         this.addListener();
       }
+    },
+    _getCurrentUserId() {
+      const {id, userGroups} = getCurrentUser();
+      if (userGroups) {
+        // 是否是当前项目下的成员
+        let index = userGroups.findIndex(ug => ug.sourceId === getCurrentProjectID());
+        if (index !== -1) {
+          return id;
+        }
+      }
+      return '';
     },
     addListener() {
       let index = this.tabs.findIndex((item) => item.name === this.activeName); //  找到当前选中tab的index

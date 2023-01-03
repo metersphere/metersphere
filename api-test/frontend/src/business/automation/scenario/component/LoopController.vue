@@ -178,7 +178,7 @@
         </span>
         <span
           class="ms-step-debug-code"
-          :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
+          :class="node.data.code && node.data.code.toUpperCase() === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
           v-if="!loading && !node.data.testing && node.data.debug">
           {{ getCode() }}
         </span>
