@@ -1004,9 +1004,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             statusCodeInfo.put("content", buildContent(response));
             statusCodeInfo.put("description", StringUtils.EMPTY);
             JSONObject jsonObject = statusCode.getJSONObject(i);
-            jsonObject.get("name");
-            statusCodeInfo.put("description", jsonObject.get("value"));
-            responseBody.put(jsonObject.get("name").toString(), statusCodeInfo);
+            if (jsonObject.optString("value") != null) {
+                statusCodeInfo.put("description", jsonObject.optString("value"));
+            }
+            if (jsonObject.optString("name") != null) {
+                responseBody.put(jsonObject.optString("name"), statusCodeInfo);
+            }
         }
         return responseBody;
     }
