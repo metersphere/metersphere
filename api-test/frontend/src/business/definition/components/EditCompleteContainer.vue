@@ -55,7 +55,7 @@
           :api-template="apiTemplate"
           @validateBasic="validateBasic" />
       </div>
-      <div v-else-if="showTest">
+      <div v-show="showTest">
         <ms-run-test-http-page
           :syncTabs="syncTabs"
           :currentProtocol="currentProtocol"

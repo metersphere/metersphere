@@ -341,7 +341,7 @@ export default {
     }
     this.runLoading = false;
     this.getEnvironments();
-    getLastResultDetail(this.api.id, this);
+    // getLastResultDetail(this.api.id, this);
     this.checkVersionEnable();
   },
 };

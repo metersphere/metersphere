@@ -74,11 +74,11 @@
           :response="responseData"
           v-if="loadRequest"
           :request="api.request"
-          ref="apiRequestForm"/>
+          ref="apiRequestForm" />
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <ms-request-result-tail :response="responseData" ref="runResult"/>
+        <ms-request-result-tail :response="responseData" ref="runResult" />
       </div>
     </el-card>
     <api-sync-case-config
@@ -87,8 +87,7 @@
       :batch-sync-api-visible="batchSyncApiVisible"
       :show-api-sync-config="true"
       @batchSync="batchSync"
-      ref="syncCaseConfig"
-    >
+      ref="syncCaseConfig">
     </api-sync-case-config>
     <!-- 加载用例 -->
     <ms-api-case-list
@@ -99,7 +98,7 @@
       :createCase="createCase"
       :currentApi="api"
       :save-button-text="loadCaseConfirmButton"
-      ref="caseList"/>
+      ref="caseList" />
 
     <!-- 执行组件 -->
     <ms-run
@@ -114,9 +113,9 @@
 </template>
 
 <script>
-import {citedApiScenarioCount, getDefinitionVersions, getMockEnvironment, updateDefinition} from '@/api/definition';
-import {getLastResultDetail} from '@/api/definition-report';
-import {relationGet, updateRuleRelation, versionEnableByProjectId} from '@/api/xpack';
+import { citedApiScenarioCount, getDefinitionVersions, getMockEnvironment, updateDefinition } from '@/api/definition';
+import { getLastResultDetail } from '@/api/definition-report';
+import { relationGet, updateRuleRelation, versionEnableByProjectId } from '@/api/xpack';
 import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
 import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { getUUID } from 'metersphere-frontend/src/utils';
@@ -124,15 +123,15 @@ import MsApiCaseList from '../case/EditApiCase';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsRequestResultTail from '../response/RequestResultTail';
 import MsRun from '../Run';
-import {REQ_METHOD} from '../../model/JsonData';
+import { REQ_METHOD } from '../../model/JsonData';
 import EnvironmentSelect from '@/business/environment/components/EnvironmentSelect';
-import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
-import {mergeRequestDocumentData} from '@/business/definition/api-definition';
-import {execStop} from '@/api/scenario';
-import {useApiStore} from '@/store';
-import {apiTestCaseCount} from "@/api/api-test-case";
-import ApiSyncCaseConfig from "@/business/definition/components/sync/ApiSyncCaseConfig";
-import {deepClone} from 'metersphere-frontend/src/utils/tableUtils';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import { mergeRequestDocumentData } from '@/business/definition/api-definition';
+import { execStop } from '@/api/scenario';
+import { useApiStore } from '@/store';
+import { apiTestCaseCount } from '@/api/api-test-case';
+import ApiSyncCaseConfig from '@/business/definition/components/sync/ApiSyncCaseConfig';
+import { deepClone } from 'metersphere-frontend/src/utils/tableUtils';
 
 const store = useApiStore();
 export default {
@@ -144,7 +143,7 @@ export default {
     MsContainer,
     MsRequestResultTail,
     MsRun,
-    ApiSyncCaseConfig
+    ApiSyncCaseConfig,
   },
   data() {
     return {
@@ -180,8 +179,8 @@ export default {
       envMap: new Map(),
       runLoading: false,
       versionEnable: false,
-      beforeHttpForm: {environmentId: '', path: '', tags: []},
-      beforeRequest: {arguments: []},
+      beforeHttpForm: { environmentId: '', path: '', tags: [] },
+      beforeRequest: { arguments: [] },
       beforeResponse: {},
       citedScenarioCount: 0,
       apiSyncRuleRelation: {
@@ -447,31 +446,35 @@ export default {
             let requestHeaders = [];
             let beforeHeaders = [];
             for (let i = 0; i < this.api.request.headers.length; i++) {
-              this.beforeRequest.headers[i].valid = this.api.request.headers[i].valid
+              this.beforeRequest.headers[i].valid = this.api.request.headers[i].valid;
               if (this.api.request.headers[i].isEdit !== undefined) {
-                this.beforeRequest.headers[i].isEdit = this.api.request.headers[i].isEdit
+                this.beforeRequest.headers[i].isEdit = this.api.request.headers[i].isEdit;
               }
               if (this.api.request.headers[i].uuid) {
-                this.beforeRequest.headers[i].uuid = this.api.request.headers[i].uuid
+                this.beforeRequest.headers[i].uuid = this.api.request.headers[i].uuid;
               }
               if (this.api.request.headers[i].time) {
-                this.beforeRequest.headers[i].time = this.api.request.headers[i].time
+                this.beforeRequest.headers[i].time = this.api.request.headers[i].time;
               }
               if (this.api.request.headers[i].name === undefined) {
-                this.beforeRequest.headers[i].name = undefined
+                this.beforeRequest.headers[i].name = undefined;
               }
               let newRequest = this.api.request.headers[i];
               const ordered = {};
-              Object.keys(newRequest).sort().forEach(function (key) {
-                ordered[key] = newRequest[key];
-              });
+              Object.keys(newRequest)
+                .sort()
+                .forEach(function (key) {
+                  ordered[key] = newRequest[key];
+                });
               requestHeaders.push(ordered);
               let beforeRequest = this.beforeRequest.headers[i];
               const beforeOrdered = {};
-              Object.keys(beforeRequest).sort().forEach(function (key) {
-                beforeOrdered[key] = beforeRequest[key];
-              });
-              beforeHeaders.push(beforeOrdered)
+              Object.keys(beforeRequest)
+                .sort()
+                .forEach(function (key) {
+                  beforeOrdered[key] = beforeRequest[key];
+                });
+              beforeHeaders.push(beforeOrdered);
             }
 
             let submitRequestHeaders = JSON.stringify(requestHeaders);
@@ -495,30 +498,34 @@ export default {
             let beforeArguments = [];
             for (let i = 0; i < this.api.request.arguments.length; i++) {
               if (this.api.request.arguments[i].isEdit !== undefined) {
-                this.beforeRequest.arguments[i].isEdit = this.api.request.arguments[i].isEdit
+                this.beforeRequest.arguments[i].isEdit = this.api.request.arguments[i].isEdit;
               }
               if (this.api.request.arguments[i].uuid) {
-                this.beforeRequest.arguments[i].uuid = this.api.request.arguments[i].uuid
+                this.beforeRequest.arguments[i].uuid = this.api.request.arguments[i].uuid;
               }
               if (this.api.request.arguments[i].time) {
-                this.beforeRequest.arguments[i].time = this.api.request.arguments[i].time
+                this.beforeRequest.arguments[i].time = this.api.request.arguments[i].time;
               }
               if (this.api.request.arguments[i].name === undefined) {
-                this.beforeRequest.arguments[i].name = undefined
+                this.beforeRequest.arguments[i].name = undefined;
               }
-              this.beforeRequest.arguments[i].valid = this.api.request.arguments[i].valid
+              this.beforeRequest.arguments[i].valid = this.api.request.arguments[i].valid;
               let newRequest = this.api.request.arguments[i];
               const ordered = {};
-              Object.keys(newRequest).sort().forEach(function (key) {
-                ordered[key] = newRequest[key];
-              });
+              Object.keys(newRequest)
+                .sort()
+                .forEach(function (key) {
+                  ordered[key] = newRequest[key];
+                });
               requestArguments.push(ordered);
               let beforeRequest = this.beforeRequest.arguments[i];
               const beforeOrdered = {};
-              Object.keys(beforeRequest).sort().forEach(function (key) {
-                beforeOrdered[key] = beforeRequest[key];
-              });
-              beforeArguments.push(beforeOrdered)
+              Object.keys(beforeRequest)
+                .sort()
+                .forEach(function (key) {
+                  beforeOrdered[key] = beforeRequest[key];
+                });
+              beforeArguments.push(beforeOrdered);
             }
             let submitRequestQuery = JSON.stringify(requestArguments);
             let beforeRequestQuery = JSON.stringify(beforeArguments);
@@ -541,31 +548,35 @@ export default {
             let beforeRest = [];
             for (let i = 0; i < this.api.request.rest.length; i++) {
               if (this.api.request.rest[i].isEdit !== undefined) {
-                this.beforeRequest.rest[i].isEdit = this.api.request.rest[i].isEdit
+                this.beforeRequest.rest[i].isEdit = this.api.request.rest[i].isEdit;
               }
               if (this.api.request.rest[i].uuid) {
-                this.beforeRequest.rest[i].uuid = this.api.request.rest[i].uuid
+                this.beforeRequest.rest[i].uuid = this.api.request.rest[i].uuid;
               }
               if (this.api.request.rest[i].time) {
-                this.beforeRequest.rest[i].time = this.api.request.rest[i].time
+                this.beforeRequest.rest[i].time = this.api.request.rest[i].time;
               }
               if (this.api.request.rest[i].name === undefined) {
-                this.beforeRequest.rest[i].name = undefined
+                this.beforeRequest.rest[i].name = undefined;
               }
-              this.beforeRequest.rest[i].valid = this.api.request.rest[i].valid
+              this.beforeRequest.rest[i].valid = this.api.request.rest[i].valid;
 
               let newRequest = this.api.request.rest[i];
               const ordered = {};
-              Object.keys(newRequest).sort().forEach(function (key) {
-                ordered[key] = newRequest[key];
-              });
+              Object.keys(newRequest)
+                .sort()
+                .forEach(function (key) {
+                  ordered[key] = newRequest[key];
+                });
               requestRest.push(ordered);
               let beforeRequest = this.beforeRequest.rest[i];
               const beforeOrdered = {};
-              Object.keys(beforeRequest).sort().forEach(function (key) {
-                beforeOrdered[key] = beforeRequest[key];
-              });
-              beforeRest.push(beforeOrdered)
+              Object.keys(beforeRequest)
+                .sort()
+                .forEach(function (key) {
+                  beforeOrdered[key] = beforeRequest[key];
+                });
+              beforeRest.push(beforeOrdered);
             }
             let submitRequestRest = JSON.stringify(requestRest);
             let beforeRequestRest = JSON.stringify(beforeRest);
@@ -584,44 +595,48 @@ export default {
         }
         if (this.api.request.body && this.beforeRequest.body) {
           if (this.api.request.body.valid) {
-            this.beforeRequest.body.valid = this.api.request.body.valid
+            this.beforeRequest.body.valid = this.api.request.body.valid;
           }
           if (this.api.request.body.kvs.length === this.beforeRequest.body.kvs.length) {
             let requestKvs = [];
             let beforeKvs = [];
             for (let i = 0; i < this.api.request.body.kvs.length; i++) {
               if (this.api.request.body.kvs[i].isEdit !== undefined) {
-                this.beforeRequest.body.kvs[i].isEdit = this.api.request.body.kvs[i].isEdit
+                this.beforeRequest.body.kvs[i].isEdit = this.api.request.body.kvs[i].isEdit;
               }
               if (this.api.request.body.kvs[i].files !== null && this.api.request.body.kvs[i].files.length === 0) {
-                this.beforeRequest.body.kvs[i].files = this.api.request.body.kvs[i].files
+                this.beforeRequest.body.kvs[i].files = this.api.request.body.kvs[i].files;
               }
               if (this.api.request.body.kvs[i].uuid) {
-                this.beforeRequest.body.kvs[i].uuid = this.api.request.body.kvs[i].uuid
+                this.beforeRequest.body.kvs[i].uuid = this.api.request.body.kvs[i].uuid;
               }
               if (this.api.request.body.kvs[i].time) {
-                this.beforeRequest.body.kvs[i].time = this.api.request.body.kvs[i].time
+                this.beforeRequest.body.kvs[i].time = this.api.request.body.kvs[i].time;
               }
               if (this.api.request.body.kvs[i].name === undefined) {
-                this.beforeRequest.body.kvs[i].name = undefined
+                this.beforeRequest.body.kvs[i].name = undefined;
               }
-              this.beforeRequest.body.kvs[i].valid = this.api.request.body.kvs[i].valid
+              this.beforeRequest.body.kvs[i].valid = this.api.request.body.kvs[i].valid;
 
               let newRequest = this.api.request.body.kvs[i];
               const ordered = {};
-              Object.keys(newRequest).sort().forEach(function (key) {
-                ordered[key] = newRequest[key];
-              });
+              Object.keys(newRequest)
+                .sort()
+                .forEach(function (key) {
+                  ordered[key] = newRequest[key];
+                });
               requestKvs.push(ordered);
               let beforeRequest = this.api.request.body.kvs[i];
               const beforeOrdered = {};
-              Object.keys(beforeRequest).sort().forEach(function (key) {
-                beforeOrdered[key] = beforeRequest[key];
-              });
-              beforeKvs.push(beforeOrdered)
+              Object.keys(beforeRequest)
+                .sort()
+                .forEach(function (key) {
+                  beforeOrdered[key] = beforeRequest[key];
+                });
+              beforeKvs.push(beforeOrdered);
             }
             this.api.request.body.kvs = requestKvs;
-            this.beforeRequest.body.kvs = beforeKvs
+            this.beforeRequest.body.kvs = beforeKvs;
           }
           let submitRequestBody = JSON.stringify(this.api.request.body);
           let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
@@ -666,7 +681,6 @@ export default {
             }
           });
         }
-
       } else {
         updateDefinition(null, null, bodyFiles, this.api).then(() => {
           this.$success(this.$t('commons.save_success'));
@@ -763,7 +777,7 @@ export default {
       if (!this.api.environmentId && store.useEnvironment) {
         this.api.environmentId = store.useEnvironment;
       }
-      getLastResultDetail(this.api.id, this);
+      // getLastResultDetail(this.api.id, this);
       this.runLoading = false;
       this.checkVersionEnable();
       this.getCaseCount();
@@ -801,7 +815,7 @@ export default {
       });
     },
     getCaseCount() {
-      apiTestCaseCount({id: this.api.id}).then((response) => {
+      apiTestCaseCount({ id: this.api.id }).then((response) => {
         if (response.data > 0) {
           this.api.caseTotal = response.data;
         }

@@ -342,7 +342,7 @@ export default {
       }
       this.currentRequest = this.api.request;
       this.runLoading = false;
-      getLastResultDetail(this.api.id, this);
+      //getLastResultDetail(this.api.id, this);
       if (this.api.environmentId) {
         this.api.request.useEnvironment = this.api.environmentId;
       }
