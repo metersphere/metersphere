@@ -39,6 +39,8 @@
       :total="total"
       :remember-order="true"
       row-key="id"
+      :reserve-option="true"
+      :page-refresh="pageRefresh"
       :row-order-group-id="projectId"
       @order="search"
       @filter="filterSearch"
@@ -145,7 +147,7 @@
       />
     </ms-table>
     <ms-table-pagination
-      :change="search"
+      :change="pageChange"
       :current-page.sync="currentPage"
       :page-size.sync="pageSize"
       :total="total"
@@ -228,6 +230,7 @@ export default {
       environmentType: ENV_TYPE.JSON,
       envGroupId: "",
       versionFilters: [],
+      pageRefresh: false
     };
   },
   computed: {
@@ -257,7 +260,11 @@ export default {
       this.currentPage = 1;
       this.search();
     },
-    search() {
+    pageChange() {
+      this.search("page");
+    },
+    search(data) {
+      this.pageRefresh = data === "page";
       this.projectEnvMap.clear();
       this.projectIds.clear();
       if (!this.projectId) {
@@ -358,7 +365,7 @@ export default {
       this.selectRows = this.$refs.scenarioTable.selectRows;
       this.initProjectIds();
       this.$emit("selectCountChange", data);
-    },
+    }
   },
 };
 </script>

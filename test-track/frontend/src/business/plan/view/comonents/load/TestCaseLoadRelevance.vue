@@ -23,6 +23,8 @@
       :total="total"
       :remember-order="true"
       row-key="id"
+      :reserve-option="true"
+      :page-refresh="pageRefresh"
       :row-order-group-id="projectId"
       @order="getTestCases"
       @filter="search"
@@ -81,7 +83,7 @@
         </template>
       </el-table-column>
     </ms-table>
-    <ms-table-pagination :change="getTestCases" :current-page.sync="currentPage" :page-size.sync="pageSize"
+    <ms-table-pagination :change="pageChange" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
   </test-case-relevance-base>
@@ -147,6 +149,7 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       versionFilters: null,
+      pageRefresh: false
     };
   },
   props: {
@@ -218,7 +221,11 @@ export default {
       this.testCases = [];
       this.getTestCases(true);
     },
-    getTestCases() {
+    pageChange() {
+      this.getTestCases("page");
+    },
+    getTestCases(data) {
+      this.pageRefresh = data === "page";
       if (this.planId) {
         this.condition.testPlanId = this.planId;
         this.condition.projectId = this.projectId;
@@ -231,9 +238,6 @@ export default {
             this.testCases = data.listObject;
 
             this.selectIds.clear();
-            if (this.$refs.table) {
-              this.$refs.table.clearSelection();
-            }
           });
       }
     },

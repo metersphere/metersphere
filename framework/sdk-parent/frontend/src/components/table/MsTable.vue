@@ -27,7 +27,9 @@
       @row-click="handleRowClick"
       ref="table"
     >
-      <el-table-column v-if="enableSelection" width="50" type="selection" />
+      <el-table-column v-if="enableSelection && !reserveOption" width="50" type="selection"/>
+
+      <el-table-column v-if="enableSelection && reserveOption" width="50" type="selection" reserve-selection/>
 
       <ms-table-header-select-popover
         v-if="enableSelection && showSelectAll && !hidePopover"
@@ -254,7 +256,22 @@ export default {
       default() {
         return true;
       },
-    }, //开启全选
+    },
+    //开启保留前一页的选项的功能，注意需要与row-key搭配使用，否则不生效
+    reserveOption: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
+    //是否是翻页的刷新，当reserveOption为true时，引用列表页需要在翻页的时候使该属性为true，用以避免clear
+    pageRefresh: {
+      type: Boolean,
+      default() {
+        return false;
+      },
+    },
+    //开启全选
     showSelectAll: {
       type: Boolean,
       default() {
@@ -306,7 +323,9 @@ export default {
       if (newVar !== oldVar) {
         this.$nextTick(() => {
           this.setDefaultOrders();
-          this.clear();
+          if (!this.pageRefresh) {
+            this.clear();
+          }
           this.doLayout();
           this.checkTableRowIsSelect();
           this.listenRowDrop();
