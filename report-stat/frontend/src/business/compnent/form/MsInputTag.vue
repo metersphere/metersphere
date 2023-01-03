@@ -15,7 +15,14 @@
       :closable="!readOnly"
       :disable-transitions="false"
       @close="remove(idx)">
-      {{ tag && tag.length > 10 ? tag.substring(0, 10) + "..." : tag }}
+      <span v-if="tag && tag.length > 10">
+        <el-tooltip class="item" effect="light" :content="tag" placement="top" :enterable="false">
+          <span>{{ tag && tag.length > 10 ? tag.substring(0, 10) + "..." : tag }}</span>
+        </el-tooltip>
+      </span>
+      <span v-else>
+        {{ tag }}
+      </span>
     </el-tag>
     <input
       :disabled="readOnly"
