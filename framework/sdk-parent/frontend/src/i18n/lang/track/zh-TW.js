@@ -1,5 +1,6 @@
 export default {
   batch_operate_select_row_count: '你已選中 {0} 條用例',
+  select_all_row: '你已選中全部用例',
   sync_add_api_load: '同步添加關聯測試的用例',
   next: '下一條',
   total_size: '共 {0} 條',
@@ -188,7 +189,12 @@ export default {
     },
     export: {
       export: "導出用例",
-      export_tip: "請切換成用例列錶勾選用例導出！"
+      export_tip: "請切換成用例列錶勾選用例導出！",
+      export_field_select_tips: "選擇導出範圍",
+      export_to_excel: "導出Excel表格",
+      export_to_excel_tips: "支持xls文件",
+      export_to_xmind: "導出思維導圖",
+      export_to_xmind_tips: "支持xmind文件",
     },
     case_desc: "用例描述",
     passing_rate: '用例通過率',

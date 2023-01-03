@@ -5,8 +5,8 @@
                :before-close="close"
                :destroy-on-close="true"
                width="40%"
-               :modal-append-to-body="false"
-    >
+               append-to-body
+               :close-on-click-modal="false">
       <el-input :placeholder="$t('test_track.module.search_by_name')" v-model="filterText" size="small" prefix-icon="el-icon-search"/>
 
       <el-scrollbar style="margin-top: 12px; border: 1px solid #DEE0E3; border-radius: 4px;">
@@ -135,27 +135,6 @@ export default {
   overflow: hidden;
 }
 
-.batch-move {
-  height: 500px;
-}
-
-:deep(.el-dialog__header) {
-  padding: 24px 24px 0;
-}
-
-:deep(.el-dialog__body) {
-  padding: 24px 24px;
-}
-
-:deep(.el-dialog__title) {
-  font-family: 'PingFang SC';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #1F2329;
-}
-
 :deep(.el-tree-node__expand-icon.el-icon-caret-right:before) {
   color: #646A73;
   font-size: 15px;
@@ -193,9 +172,5 @@ export default {
 .svg-icon {
   width: 1.2em;
   height: 1.2em;
-}
-
-:deep(.el-dialog__footer) {
-  padding: 0px 24px 24px;
 }
 </style>

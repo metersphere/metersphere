@@ -7,7 +7,8 @@
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
-      :modal-append-to-body="false"
+      append-to-body
+      :close-on-click-modal="false"
       v-loading="result.loading"
     >
       <span class="select-row">{{$t('test_track.batch_operate_select_row_count', [size])}}</span>
@@ -175,27 +176,6 @@ export default {
   order: 1;
   align-self: center;
   flex-grow: 0;
-}
-
-:deep(.el-dialog__header) {
-  padding: 24px 24px 0;
-}
-
-:deep(.el-dialog__body) {
-  padding: 8px 24px;
-}
-
-:deep(.el-dialog__title) {
-  font-family: 'PingFang SC';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #1F2329;
-}
-
-:deep(.el-dialog__footer) {
-  padding: 0px 24px 24px;
 }
 
 .el-form-item__label {

@@ -603,7 +603,7 @@ const message = {
     system_field: '系统字段',
     scene: '使用场景',
     attribute_type: '属性类型',
-    field_name: '字段名',
+    field_name: '字段名称',
     field: '字段',
     field_remark: '字段备注',
     field_type: '字段类型',

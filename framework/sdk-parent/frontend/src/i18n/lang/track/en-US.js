@@ -1,5 +1,6 @@
 export default {
   batch_operate_select_row_count: 'You have selected {0} cases',
+  select_all_row: 'You have selected all cases',
   sync_add_api_load: 'Synchronously add associated test case',
   next: 'Next',
   total_size: 'Total {0}',
@@ -197,7 +198,12 @@ export default {
     },
     export: {
       export: "Export cases",
-      export_tip: "Switch to Case List and check Use Case Export"
+      export_tip: "Switch to Case List and check Use Case Export",
+      export_field_select_tips: "please select export fields",
+      export_to_excel: "Export excel",
+      export_to_excel_tips: "support xls",
+      export_to_xmind: "Export xmind",
+      export_to_xmind_tips: "support xmind",
     },
     case_desc: "Case Desc",
     passing_rate: 'Case Pass Rate',

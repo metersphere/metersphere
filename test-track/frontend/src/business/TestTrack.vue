@@ -178,5 +178,34 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
   order: 2;
   flex-grow: 0;
 }
+
+/* el-dialog */
+.el-dialog {
+  padding: 24px;
+}
+
+.el-dialog__header {
+  padding: 0px!important;
+}
+
+.el-dialog__title {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.el-dialog__body {
+  padding: 12px 0px 6px 0px;
+}
+
+.el-dialog__footer {
+  padding: 0px;
+}
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible="visible" :modal-append-to-body="false">
+  <el-drawer :visible="visible" append-to-body>
     <ms-drawer :size="100" @close="close" direction="right" :show-full-screen="false"
                :is-show-close="false" style="width: 1200px; height: 900px;">
       <template v-slot:header>
@@ -12,7 +12,7 @@
         </el-scrollbar>
       </div>
     </ms-drawer>
-  </el-dialog>
+  </el-drawer>
 </template>
 
 <script>

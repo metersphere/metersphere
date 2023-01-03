@@ -17,7 +17,7 @@
 
     <span class="select-text">{{$t('commons.table_select_row_count', [selectCounts])}}</span>
 
-    <el-button type="text" class="clear-btn">{{$t('commons.clear')}}</el-button>
+    <el-button type="text" class="clear-btn" @click="clear">{{$t('commons.clear')}}</el-button>
   </div>
 </template>
 
@@ -54,6 +54,9 @@ export default {
         btn.handleClick();
       }
     },
+    clear() {
+      this.$emit("clear")
+    },
     isDisable(item) {
       if (item.isDisable) {
         if (item.isDisable instanceof Function) {
@@ -87,7 +90,7 @@ export default {
 <style scoped>
 .batch-operator-layout {
   display: inline-block;
-  margin-top: 34px;
+  margin-top: 28px;
   height: 32px;
 }
 

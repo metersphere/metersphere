@@ -201,14 +201,10 @@
 
     </ms-table>
 
-    <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts"/>
+    <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts" @clear="clearTableSelect"/>
 
     <home-pagination v-if="page.data.length > 0 && selectCounts == 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
-                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 16px"/>
-
-
-<!--    <ms-table-pagination :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"-->
-<!--                         :total="page.total" style="margin-top: 16px"/>-->
+                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 19px"/>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -933,12 +929,18 @@ export default {
           this.$success(this.$t('commons.delete_success'));
         });
     },
+    clearTableSelect() {
+      this.$refs.table.clear();
+      this.selectCounts = 0;
+    },
     refresh() {
       this.$refs.table.clear();
+      this.selectCounts = 0;
       this.$emit('refreshAll');
     },
     refreshAll() {
       this.$refs.table.clear();
+      this.selectCounts = 0;
       this.$emit('refreshAll');
     },
     importTestCase() {

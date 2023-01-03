@@ -22,7 +22,7 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       @row-click="handleRowClick"
-      :max-height="data.length > 0 ? 466 : 524"
+      :max-height="data.length > 0 ? 464 : 524"
       ref="table">
 
       <el-table-column
@@ -168,7 +168,7 @@ export default {
   props: {
     screenHeight: {
       type: [String, Number],
-      default: 400,
+      // default: 400,
     },
     hidePopover: {
       type: Boolean,

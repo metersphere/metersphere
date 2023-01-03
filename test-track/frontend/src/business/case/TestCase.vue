@@ -1,7 +1,40 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
-
-    <ms-main-button-group :button-group="mainButtons" v-if="!editable"/>
+    <div class="top-btn-group-layout">
+      <el-button size="small" icon="el-icon-plus" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" class="iconBtn" type="primary">
+        {{$t('test_track.case.create_case')}}
+      </el-button>
+      <el-dropdown @command="handleExportCommand" placement="bottom-start" style="margin-left: 12px">
+        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']">
+          {{$t('commons.import')}}
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="excel">
+            <span class="export-model">{{$t('test_track.case.export.export_to_excel')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips')}}</span>
+          </el-dropdown-item>
+          <el-dropdown-item style="margin-top: 10px" command="xmind">
+            <span class="export-model">{{$t('test_track.case.export.export_to_xmind')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown @command="handleExportCommand" placement="bottom-start" style="margin-left: 12px">
+        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+EXPORT']">
+          {{$t('commons.export')}}
+        </el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="excel">
+            <span class="export-model">{{$t('test_track.case.export.export_to_excel')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips')}}</span>
+          </el-dropdown-item>
+          <el-dropdown-item style="margin-top: 10px" command="xmind">
+            <span class="export-model">{{$t('test_track.case.export.export_to_xmind')}}</span>
+            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
 
     <div style="display: flex; margin-top: 16px" v-if="!editable">
       <ms-aside-container v-show="isAsideHidden" :min-width="'0'">
@@ -192,35 +225,38 @@
           ref="isChangeConfirm"/>
       </ms-main-container>
     </div>
- <!-- since v2.6 创建用例流程变更 -->
- <ms-container v-if="editable">
-  <div v-for="item in tabs" :key="item.name">
-    <test-case-edit
-      :currentTestCaseInfo="item.testCaseInfo"
-      :version-enable="versionEnable"
-      @refresh="refreshAll"
-      @caseEdit="handleCaseCreateOrEdit($event, 'edit')"
-      @caseCreate="handleCaseCreateOrEdit($event, 'add')"
-      @checkout="checkout($event, item)"
-      :is-public="item.isPublic"
-      :read-only="testCaseReadOnly"
-      :tree-nodes="treeNodes"
-      :select-node="selectNode"
-      :select-condition="item.isPublic ? publicCondition : condition"
-      :public-enable="item.isPublic"
-      :case-type="type"
-      @addTab="addTab"
-      :editable="item.edit"
-      ref="testCaseEdit"
-    >
-    </test-case-edit>
-  </div>
-</ms-container>
-  </ms-container>
+    <!-- since v2.6 创建用例流程变更 -->
+    <ms-container v-if="editable">
+      <div v-for="item in tabs" :key="item.name">
+        <test-case-edit
+          :currentTestCaseInfo="item.testCaseInfo"
+          :version-enable="versionEnable"
+          @refresh="refreshAll"
+          @caseEdit="handleCaseCreateOrEdit($event, 'edit')"
+          @caseCreate="handleCaseCreateOrEdit($event, 'add')"
+          @checkout="checkout($event, item)"
+          :is-public="item.isPublic"
+          :read-only="testCaseReadOnly"
+          :tree-nodes="treeNodes"
+          :select-node="selectNode"
+          :select-condition="item.isPublic ? publicCondition : condition"
+          :public-enable="item.isPublic"
+          :case-type="type"
+          @addTab="addTab"
+          :editable="item.edit"
+          ref="testCaseEdit"
+        >
+        </test-case-edit>
+      </div>
+    </ms-container>
 
+    <!--  dialog  -->
+    <test-case-export-to-excel @exportTestCase="exportTestCase" ref="exportExcel"/>
+  </ms-container>
 </template>
 
 <script>
+import TestCaseExportToExcel from "@/business/case/components/export/TestCaseExportToExcel";
 import TestCaseEdit from "./components/TestCaseEdit";
 import TestCaseList from "./components/TestCaseList";
 import SelectMenu from "../common/SelectMenu";
@@ -254,7 +290,7 @@ export default {
   components: {
     PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
     MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, TestCaseEdit, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
-    MsMainButtonGroup
+    MsMainButtonGroup, TestCaseExportToExcel
   },
   comments: {},
   data() {
@@ -285,31 +321,7 @@ export default {
       versionEnable: false,
       isAsideHidden: true,
       ignoreTreeNodes: false,
-      hasRefreshDefault: true,
-      mainButtons: [
-        {
-          name: this.$t('test_track.case.create_case'),
-          icon: 'el-icon-plus',
-          isPrimary: true,
-          size: 'small',
-          handleClick: this.handleCreateCase,
-          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_EDIT']
-        },
-        {
-          name: this.$t('commons.import'),
-          isPrimary: false,
-          size: 'small'
-          // handleClick: this.handleBatchMove,
-          // permissions: ['PROJECT_TRACK_CASE:READ+BATCH_MOVE']
-        },
-        {
-          name: this.$t('commons.export'),
-          isPrimary: false,
-          size: 'small'
-          // handleClick: this.handleBatchCopy,
-          // permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
-        }
-      ]
+      hasRefreshDefault: true
     };
   },
   created() {
@@ -440,6 +452,13 @@ export default {
           break;
         default:
           this.addTab({name: 'add'});
+          break;
+      }
+    },
+    handleExportCommand(e) {
+      switch (e) {
+        case "excel":
+          this.$refs.exportExcel.open(this.$refs.testCaseList.selectCounts, true);
           break;
       }
     },
@@ -915,5 +934,52 @@ export default {
 
 .svg:hover {
   -webkit-filter: drop-shadow(0px 0px 0px #783887);
+}
+
+.iconBtn {
+  width: 98px;
+}
+
+:deep(.iconBtn i){
+  position: relative;
+  top: -5px;
+  width: 12px;
+  left: -4px;
+  height: 12px;
+}
+
+:deep(.iconBtn span) {
+  position: relative;
+  left: -7px;
+}
+
+.export-model {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  color: #1F2329;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.export-tips {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  display: block;
+  align-items: center;
+  color: #8F959E;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
 }
 </style>

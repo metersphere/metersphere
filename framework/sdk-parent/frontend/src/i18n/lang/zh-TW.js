@@ -599,7 +599,7 @@ const message = {
     system_field: '系統字段',
     scene: '使用場景',
     attribute_type: '屬性類型',
-    field_name: '字段名',
+    field_name: '字段名稱',
     field: '字段',
     field_remark: '字段備註',
     field_type: '字段類型',
