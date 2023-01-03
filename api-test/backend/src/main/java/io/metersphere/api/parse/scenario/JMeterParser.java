@@ -878,13 +878,13 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private static MsTestElement getMqttElement(Object key, String className) {
         MsTestElement elementNode;
         try {
-            Class<?> clazz = null;
-            clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className);
             Object instance = clazz.getConstructor().newInstance();
-            Method methods2 = clazz.getMethod("importJmx", Object.class);
-            Object invoke = methods2.invoke(instance, key);
+            Method mqttMethod = clazz.getMethod("importJmx", Object.class);
+            Object invoke = mqttMethod.invoke(instance, key);
             elementNode = (MsTestElement) invoke;
         } catch (Exception e) {
+            LogUtil.info("MQTT反射方法报错", e);
             throw new RuntimeException(e);
         }
         return elementNode;
