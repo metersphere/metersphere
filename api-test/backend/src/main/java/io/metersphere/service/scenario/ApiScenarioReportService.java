@@ -30,6 +30,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.BaseShareInfoService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.SystemParameterService;
@@ -86,6 +87,8 @@ public class ApiScenarioReportService {
     private BaseUserService userService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    BaseShareInfoService baseShareInfoService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -486,11 +489,22 @@ public class ApiScenarioReportService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + result.getId();
         paramMap.put("reportUrl", reportUrl);
+        String shareUrl = getScenarioShareUrl(result.getId(), userId);
+        paramMap.put("scenarioShareUrl", baseSystemConfigDTO.getUrl() + "/api/share-api-report" + shareUrl);
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder().operator(userId).context(context).subject("接口自动化通知").paramMap(paramMap).event(event).build();
 
         Project project = projectMapper.selectByPrimaryKey(scenario.getProjectId());
         noticeSendService.send(project, NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
+    }
+
+    public String getScenarioShareUrl(String scenarioReportId, String userId) {
+        ShareInfo shareRequest = new ShareInfo();
+        shareRequest.setCustomData(scenarioReportId);
+        shareRequest.setShareType(ShareType.API_REPORT.name());
+        shareRequest.setCreateUserId(userId);
+        ShareInfo shareInfo = baseShareInfoService.generateShareInfo(shareRequest);
+        return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
     }
 
     public String update(ApiScenarioReportResult test) {
