@@ -144,6 +144,7 @@ const message = {
     view_settings: 'View Settings',
     functional: 'Functional test',
     input_content: 'Please enter content',
+    input_un_pass_reason: 'Please enter un pass content',
     create: 'Create',
     edit: 'Edit',
     copy: 'Copy',
@@ -374,6 +375,8 @@ const message = {
       select_module: "Select module",
       default_module: "Default module",
     },
+    reviewer: 'Reviewer',
+    append_reviewer: 'Append Reviewer',
     report_statistics: {
       reserved: "Reserved",
       menu: {

@@ -13,4 +13,6 @@ public class TestReviewCaseBatchRequest extends TestCaseReviewTestCase {
     private String reviewId;
     private List<String> ids;
     private QueryCaseReviewCondition condition;
+    private Boolean appendTag;
+    private String description;
 }

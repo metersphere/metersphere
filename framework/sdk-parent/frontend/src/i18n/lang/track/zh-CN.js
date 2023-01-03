@@ -317,6 +317,7 @@ export default {
     pass: "通过",
     un_pass: "未通过",
     prepare: '未评审',
+    again: "重新评审",
     comment: "评论",
     my_review: "我的评审",
     my_create: "我创建的评审",

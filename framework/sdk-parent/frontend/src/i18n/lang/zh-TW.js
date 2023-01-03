@@ -145,6 +145,7 @@ const message = {
     my_workstation: '工作臺',
     ui_test: 'UI測試',
     input_content: '請輸入內容',
+    input_un_pass_reason: '請輸入不通過原因',
     create: '新建',
     edit: '編輯',
     copy: '復製',
@@ -375,6 +376,8 @@ const message = {
       select_module: "選擇模塊",
       default_module: "默認模塊",
     },
+    reviewer: '評審人',
+    append_reviewer: '追加評審人',
     report_statistics: {
       reserved: "預留模塊敬請期待",
       menu: {

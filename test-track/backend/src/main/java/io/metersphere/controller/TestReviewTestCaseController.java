@@ -56,6 +56,13 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
+    @PostMapping("/batch/edit/reviewer")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
+    public void editTestCaseReviewerBatch(@RequestBody TestReviewCaseBatchRequest request) {
+        testReviewTestCaseService.editTestCaseBatchReviewer(request);
+    }
+
     @PostMapping("/minder/edit/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#testCases)", msClass = TestReviewTestCaseService.class)

@@ -43,11 +43,7 @@
           </el-checkbox>
         </el-form-item>
 
-        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.batch_update_to')">
-          <custom-filed-component v-if="customField" :data="customField" prop="defaultValue"/>
-        </el-form-item>
-
-        <el-form-item v-else prop="value" :label="$t('test_track.case.batch_update_to')">
+        <el-form-item v-else-if="form.type === 'reviewers'" :label="$t('test_track.case.batch_update_to')" prop="type">
           <el-select v-model="form.value" style="width: 100%" :filterable="filterable" :disabled="!form.type">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
@@ -55,6 +51,32 @@
               </div>
             </el-option>
           </el-select>
+
+          <el-checkbox v-model="form.appendTag">
+            {{ $t('commons.append_reviewer') }}
+          </el-checkbox>
+        </el-form-item>
+
+        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.batch_update_to')">
+          <custom-filed-component v-if="customField" :data="customField" prop="defaultValue"/>
+        </el-form-item>
+
+        <el-form-item v-else prop="value" :label="$t('test_track.case.batch_update_to')">
+          <el-select v-model="form.value" style="width: 100%" :filterable="filterable" :disabled="!form.type" @change="changeValue">
+            <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
+              <div v-if="option.email">
+                <span>{{ option.id }}({{ option.name }})</span>
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item v-if="form.type=== 'status' && this.showDescription" :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
+          <el-input v-model="form.description"
+                    type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 4}"
+                    :rows="2"
+                    :placeholder="$t('commons.input_un_pass_reason')"/>
         </el-form-item>
 
       </el-form>
@@ -106,6 +128,7 @@ export default {
         tags: null,
         value: null
       },
+      formLabelWidth: "100px",
       size: 0,
       rules: {
         type: {required: true, message: this.$t('test_track.case.please_select_attr'), trigger: ['blur', 'change']},
@@ -134,6 +157,7 @@ export default {
       projectEnvMap: new Map(),
       map: new Map(),
       isScenario: '',
+      showDescription: false,
       loading: false,
       environmentType: ENV_TYPE.JSON,
       envGroupId: "",
@@ -237,6 +261,7 @@ export default {
         });
     },
     changeType(val) {
+      this.showDescription = false;
       if (val && val.startsWith("custom")) {
         this._handleCustomField(val);
       }
@@ -276,6 +301,13 @@ export default {
             this.getApiScenarioProjectId(row);
           })
         }
+      }
+    },
+    changeValue(val) {
+      if (val === 'UnPass') {
+        this.showDescription = true;
+      } else {
+        this.showDescription = false;
       }
     },
     getApiScenarioProjectId(row) {
