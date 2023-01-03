@@ -9,6 +9,9 @@
     <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
               :total="total" enableSelection @selectCountChange="selectCountChange"
               :screenHeight="screenHeight"
+              row-key="id"
+              :reserve-option="true"
+              :page-refresh="pageRefresh"
               operator-width="170px"
               @order="initTable"
               @filter="search"
@@ -103,7 +106,7 @@
         :label="$t('api_test.definition.api_case_number')"/>
 
     </ms-table>
-    <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+    <ms-table-pagination :change="pageChange" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
   </span>
@@ -165,6 +168,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       versionEnable: false,
+      pageRefresh: false,
     };
   },
   props: {
@@ -190,12 +194,17 @@ export default {
   },
   watch: {
     currentProtocol() {
+      this.pageRefresh = false;
       this.getProtocolFilter();
     },
     projectId() {
+      this.pageRefresh = false;
       this.checkVersionEnable();
       this.getUserFilter();
-    }
+    },
+    selectNodeIds() {
+      this.pageRefresh = false;
+    },
   },
   mounted() {
     if (this.$refs.apitable) {
@@ -235,7 +244,11 @@ export default {
       this.currentPage = 1;
       this.initTable();
     },
-    initTable() {
+    pageChange() {
+      this.initTable("page");
+    },
+    initTable(data) {
+      this.pageRefresh = data === "page";
       this.$emit('refreshTable');
     },
     clear() {
