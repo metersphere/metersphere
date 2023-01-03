@@ -440,7 +440,7 @@ export default {
     ScenarioChildDiff,
     MsComponentConfig,
     MsSelectTree: () => import('metersphere-frontend/src/components/select-tree/SelectTree'),
-    MsInputTag: () => import('@/business/automation/scenario/MsInputTag'),
+    MsInputTag: () => import('metersphere-frontend/src/components/MsInputTag'),
     EnvPopover: () => import('@/business/automation/scenario/EnvPopover'),
   },
   watch: {

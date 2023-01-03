@@ -3,7 +3,7 @@
     class="el-input-tag input-tag-wrapper"
     :class="[size ? 'el-input-tag--' + size : '']"
     style="height: auto"
-    @click="foucusTagInput">
+    @click="focusTagInput">
 
     <el-tag
       class="ms-top"
@@ -89,7 +89,7 @@ export default {
     },
   },
   methods: {
-    foucusTagInput() {
+    focusTagInput() {
       if (!this.readOnly && this.$el.querySelector('.tag-input')) {
         this.$el.querySelector('.tag-input').focus()
       }
@@ -102,19 +102,19 @@ export default {
         e.stopPropagation()
         e.preventDefault()
       }
-      let addSuucess = false
+      let addSuccess = false
       if (this.newTag.includes(',')) {
         this.newTag.split(',').forEach(item => {
           if (this.addTag(item.trim())) {
-            addSuucess = true
+            addSuccess = true
           }
         })
       } else {
         if (this.addTag(this.newTag.trim())) {
-          addSuucess = true
+          addSuccess = true
         }
       }
-      if (addSuucess) {
+      if (addSuccess) {
         this.tagChange()
         this.newTag = ''
       }

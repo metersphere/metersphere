@@ -79,7 +79,7 @@
 <script>
 import { definitionFollow } from '@/api/definition';
 import { API_STATUS } from '../../model/JsonData';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import { getProjectMemberOption } from '@/api/project';
 import { useApiStore } from '@/store';

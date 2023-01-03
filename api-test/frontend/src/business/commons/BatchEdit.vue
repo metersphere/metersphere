@@ -73,7 +73,7 @@ import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/uti
 import EnvPopover from '@/business/automation/scenario/EnvPopover';
 import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
 import CustomFiledComponent from 'metersphere-frontend/src/components/template/CustomFiledComponent';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import { getScenarioByProjectId } from '../../api/scenario';
 import { getOwnerProjects } from '../../api/project';
 

@@ -322,7 +322,7 @@ import MsFormDivider from 'metersphere-frontend/src/components/MsFormDivider';
 import MsResponseText from '../../response/ResponseText';
 import MsApiRequestForm from '../../request/http/ApiHttpRequestForm';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import ApiInfoContainer from '@/business/definition/components/complete/ApiInfoContainer';
 import DependenciesList from '@/business/commons/DependenciesList';
 import FormRichTextItem from '@/business/commons/FormRichTextItem';

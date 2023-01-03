@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 
 export default {
   name: 'MockConfigHeader',
