@@ -311,6 +311,7 @@ export default {
     input_review_project: "Please select the project",
     input_reviewer: "Please select reviewer",
     no_link_case: "No associated use cases!",
+    again: "Again",
     prepare: "Prepare",
     pass: "Pass",
     un_pass: "UnPass",

@@ -145,6 +145,7 @@ const message = {
     my_workstation: '工作台',
     ui_test: 'UI测试',
     input_content: '请输入内容',
+    input_un_pass_reason: '请输入不通过原因',
     create: '新建',
     edit: '编辑',
     copy: '复制',
@@ -375,6 +376,8 @@ const message = {
       select_module: "选择模块",
       default_module: "默认模块",
     },
+    reviewer: '评审人',
+    append_reviewer: '追加评审人',
     report_statistics: {
       reserved: "预留模块敬请期待",
       menu: {

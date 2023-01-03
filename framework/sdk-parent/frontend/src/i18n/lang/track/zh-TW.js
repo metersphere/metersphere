@@ -317,6 +317,7 @@ export default {
     pass: "通過",
     un_pass: "未通過",
     prepare: '未評審',
+    again: "重新提審",
     comment: "評論",
     my_review: "我的評審",
     my_create: "我創建的評審",

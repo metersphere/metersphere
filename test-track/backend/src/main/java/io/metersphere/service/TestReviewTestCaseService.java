@@ -1,15 +1,14 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReviewMapper;
-import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReviewUsersMapper;
+import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.constants.CaseReviewStatus;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
@@ -44,6 +43,8 @@ public class TestReviewTestCaseService {
     @Resource
     TestCaseReviewTestCaseMapper testCaseReviewTestCaseMapper;
     @Resource
+    ExtTestCaseReviewTestCaseMapper extTestCaseReviewTestCaseMapper;
+    @Resource
     TestCaseReviewUsersMapper testCaseReviewUsersMapper;
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
@@ -55,6 +56,8 @@ public class TestReviewTestCaseService {
     TestCaseService testCaseService;
     @Resource
     TestCaseCommentService testCaseCommentService;
+    @Resource
+    TestCaseReviewTestCaseUsersMapper testCaseReviewTestCaseUsersMapper;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -83,7 +86,8 @@ public class TestReviewTestCaseService {
 
         list.forEach(item -> {
             String reviewId = item.getReviewId();
-            List<String> userIds = getReviewUserIds(reviewId);
+            String caseId = item.getCaseId();
+            List<String> userIds = getReviewUserIds(reviewId, caseId);
             item.setReviewerName(getReviewName(userIds, userMap));
             item.setMaintainerName(userMap.get(item.getMaintainer()));
         });
@@ -201,6 +205,46 @@ public class TestReviewTestCaseService {
             TestCaseReviewTestCase testCaseReviewTestCase = new TestCaseReviewTestCase();
             testCaseReviewTestCase.setStatus(request.getStatus());
             testCaseReviewTestCaseMapper.updateByExampleSelective(testCaseReviewTestCase, caseReviewTestCaseExample);
+        }
+
+        if (CaseReviewStatus.UNPASS.getValue().equals(request.getStatus()) && StringUtils.isNotEmpty(request.getDescription())) {
+            ids.forEach(i -> {
+                TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
+                testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
+                testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
+                testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
+                testCaseReviewTestCase.setComment(request.getDescription());
+                testCaseReviewTestCase.setCaseId(i);
+                testCaseCommentService.saveComment(testCaseReviewTestCase);
+            });
+        }
+    }
+
+    public void editTestCaseBatchReviewer(TestReviewCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestReviewCaseMapper.selectTestCaseIds((QueryCaseReviewRequest) query));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        if (StringUtils.isNotBlank(request.getReviewer())) {
+            if (!request.getAppendTag()) {
+                TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
+                example.createCriteria().andCaseIdIn(request.getIds());
+                testCaseReviewTestCaseUsersMapper.deleteByExample(example);
+            }
+            for (int i = 0; i < ids.size(); i++) {
+                TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
+                example.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(ids.get(i)).andUserIdEqualTo(request.getReviewer());
+                List<TestCaseReviewTestCaseUsers> testCaseReviewTestCaseUsers = testCaseReviewTestCaseUsersMapper.selectByExample(example);
+                if (CollectionUtils.isEmpty(testCaseReviewTestCaseUsers)) {
+                    TestCaseReviewTestCaseUsers record = new TestCaseReviewTestCaseUsers();
+                    record.setCaseId(ids.get(i));
+                    record.setReviewId(request.getReviewId());
+                    record.setUserId(request.getReviewer());
+                    testCaseReviewTestCaseUsersMapper.insert(record);
+                }
+            }
         }
     }
 
@@ -349,5 +393,12 @@ public class TestReviewTestCaseService {
 
     public int reduction(List<String> ids) {
         return updateIsDel(ids, false);
+    }
+
+    private List<String> getReviewUserIds(String reviewId, String caseId) {
+        TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+        testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        List<TestCaseReviewTestCaseUsers> testCaseReviewUsers = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample);
+        return testCaseReviewUsers.stream().map(TestCaseReviewTestCaseUsers::getUserId).collect(Collectors.toList());
     }
 }

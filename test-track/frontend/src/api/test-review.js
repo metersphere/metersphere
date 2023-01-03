@@ -76,6 +76,10 @@ export function batchEditTestReviewCaseStatus(param) {
   return post("/test/review/case/batch/edit/status", param);
 }
 
+export function batchEditTestReviewCaseReviewer(param) {
+  return post("/test/review/case/batch/edit/reviewer", param);
+}
+
 export function getTestCaseReviewsCasePage(currentPage, pageSize, param) {
   return post("/test/case/reviews/case/" + currentPage + "/" + pageSize, param);
 }

@@ -3,6 +3,9 @@
       <el-tag v-if="value === 'Prepare'" class="status-label prepare">
         {{ $t('test_track.review.prepare') }}
       </el-tag>
+       <el-tag v-if="value === 'Again'" class="status-label again">
+        {{ $t('test_track.review.again') }}
+      </el-tag>
       <el-tag v-else-if="value === 'Pass'" class="status-label pass">
         {{ $t('test_track.review.pass') }}
       </el-tag>
@@ -43,6 +46,11 @@ export default {
 .prepare {
   background-color: rgba(31, 35, 41, 0.1);
   color: #646A73;
+}
+
+.again {
+  background-color: rgba(116, 72, 146, 0.1);
+  color: #744892FF;
 }
 
 .pass {
