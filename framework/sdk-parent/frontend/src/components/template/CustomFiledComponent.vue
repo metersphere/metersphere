@@ -1,6 +1,7 @@
 <template>
   <span>
      <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
+                @click.native="clickPane"
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
                 @change="handleChange"
@@ -17,6 +18,7 @@
 
     <el-cascader
       v-else-if="data.type === 'cascadingSelect'"
+      @click.native="clickPane"
       expand-trigger="hover"
       @change="handleChange"
       :props="{label: 'text'}"
@@ -26,6 +28,7 @@
 
     <el-input
       v-else-if="data.type === 'textarea'"
+      @click.native="clickPane"
       type="textarea"
       @change="handleChange"
       :rows="2"
@@ -37,6 +40,7 @@
 
     <el-checkbox-group
       v-else-if="data.type === 'checkbox'"
+      @click.native="clickPane"
       :disabled="disabled"
       v-model="data[prop]">
       <el-checkbox v-for="(item, index) in data.options ? data.options : []"
@@ -49,6 +53,7 @@
 
     <el-radio
       v-else-if="data.type === 'radio'"
+      @click.native="clickPane"
       v-model="data[prop]"
       :disabled="disabled"
       v-for="(item,index) in data.options ? data.options : []"
@@ -60,18 +65,21 @@
 
     <el-input-number
       v-else-if="data.type === 'int'"
+      @click.native="clickPane"
       v-model="data[prop]"
       :disabled="disabled"
       @change="handleChange"/>
 
     <el-input-number
       v-else-if="data.type === 'float'"
+      @click.native="clickPane"
       :disabled="disabled"
       @change="handleChange"
       v-model="data[prop]" :precision="2" :step="0.1"/>
 
      <el-date-picker
        class="custom-with"
+       @click.native="clickPane"
        @change="handleChange"
        v-else-if="data.type === 'date' || data.type === 'datetime'"
        :value-format="data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
@@ -82,6 +90,7 @@
     </el-date-picker>
 
     <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
+               @click.native="clickPane"
                :multiple="data.type === 'multipleMember'"
                @change="handleChange"
                clearable
@@ -96,16 +105,19 @@
     </el-select>
 
     <ms-input-tag v-else-if="data.type === 'multipleInput'"
+                  @click.native="clickPane"
                   @input="handleChange"
                   :read-only="disabled" :currentScenario="data" :prop="prop"/>
 
     <ms-mark-down-text v-else-if="data.type === 'richText'"
+                       @click.native="clickPane"
                        :prop="prop"
                        @change="handleChange"
                        :default-open="defaultOpen"
                        :data="data" :disabled="disabled"/>
 
       <el-input v-else-if="data.type === 'password'"
+                @click.native="clickPane"
                 v-model="data[prop]"
                 class="custom-with"
                 auto-complete="new-password"
@@ -114,6 +126,7 @@
                 @input="handleChange"/>
 
     <el-input v-else
+              @click.native="clickPane"
               v-model="data[prop]"
               class="custom-with"
               maxlength="450"
@@ -181,6 +194,9 @@ export default {
       });
   },
   methods: {
+    clickPane(){
+      this.$emit("onClick");
+    },
     getTranslateOption(item) {
       return item.system ? this.$t(item.text) : item.text;
     },

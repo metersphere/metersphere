@@ -8,18 +8,35 @@
               <div class="name title-wrap">
                 {{ item.system ? $t(systemNameMap[item.name]) : item.name }}
               </div>
-              <div class="required required-item" v-if="item.system"></div>
+              <div class="required required-item" v-if="item.required"></div>
             </div>
             <div class="side-content">
-              <el-form-item :prop="item.name">
-                <custom-filed-component
-                  :data="item"
-                  :form="form"
-                  prop="defaultValue"
-                  :disabled="(item.type !== 'richText' && isPublic) || disabled"
-                  :default-open="defaultOpen"
-                />
-              </el-form-item>
+              <base-edit-item-component
+                :editable="editable"
+                trigger="hover"
+                :contentObject="{
+                  content: item,
+                  contentType: 'CUSTOM',
+                }"
+                :readonlyHoverEvent="true"
+              >
+                <template v-slot:content="{ onClick, hoverEditable }">
+                  <div :class="hoverEditable ? 'selectHover' : ''">
+                    <el-form-item :prop="item.name">
+                      <custom-filed-component
+                        :data="item"
+                        :form="form"
+                        prop="defaultValue"
+                        :disabled="
+                          (item.type !== 'richText' && isPublic) || disabled
+                        "
+                        :default-open="defaultOpen"
+                        @onClick="onClick"
+                      />
+                    </el-form-item>
+                  </div>
+                </template>
+              </base-edit-item-component>
             </div>
           </div>
         </template>
@@ -32,11 +49,13 @@
 import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import { sortCustomFields } from "metersphere-frontend/src/utils/custom_field";
+import BaseEditItemComponent from "../BaseEditItemComponent";
 
 export default {
   name: "CaseCustomFiledFormRow",
-  components: { CustomFiledComponent },
+  components: { CustomFiledComponent, BaseEditItemComponent },
   props: {
+    editable: Boolean,
     issueTemplate: {
       type: Object,
       default() {
@@ -84,6 +103,20 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+.selectHover {
+  // background: rgba(31, 35, 41, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  :deep(.el-select) {
+    // background-color: rgba(31, 35, 41, 0.1) !important;
+    border: none !important;
+  }
+  :deep(.el-input__inner) {
+    border: none !important;
+    background-color: rgba(31, 35, 41, 0.1) !important;
+    color: #1f2329;
+  }
+}
 .edit-content-container {
   width: 100%;
   height: 100%;

@@ -1072,7 +1072,7 @@ export default {
             response = response.data;
             // 保存用例后刷新附件
             this.currentTestCaseInfo.isCopy = false;
-            if(this.$refs.otherInfo){
+            if (this.$refs.otherInfo) {
               this.$refs.otherInfo.getFileMetaData(response.data.id);
             }
             this.loading = false;

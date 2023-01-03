@@ -8,6 +8,7 @@
           </div>
           <div class="required required-item"></div>
         </div>
+
         <div class="side-content">
           <base-edit-item-component
             :editable="editable"
@@ -16,28 +17,26 @@
               content: getModuleLabel(),
               contentType: 'SELECT',
             }"
-            v-click-outside="
-              () => {
-                textBlur('', 'moduleRef');
-              }
-            "
+            :readonlyHoverEvent="true"
             ref="moduleRef"
           >
-            <template slot="content" slot-scope="val">
-              <el-form-item prop="module">
-                <ms-select-tree
-                  :disabled="readOnly"
-                  :data="treeNodes"
-                  :defaultKey="form.module"
-                  :obj="moduleObj"
-                  @getValue="
-                    (id, data) => setModule(id, data, val, 'moduleRef')
-                  "
-                  clearable
-                  checkStrictly
-                  size="small"
-                />
-              </el-form-item>
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="module">
+                  <ms-select-tree
+                    :disabled="readOnly"
+                    :data="treeNodes"
+                    :defaultKey="form.module"
+                    :obj="moduleObj"
+                    @getValue="(id, data) => setModule(id, data)"
+                    clearable
+                    checkStrictly
+                    size="small"
+                    @selectClick="onClick"
+                    @clean="onClick"
+                  />
+                </el-form-item>
+              </div>
             </template>
           </base-edit-item-component>
         </div>
@@ -114,6 +113,7 @@
         :disabled="readOnly"
         :default-open="defaultOpen"
         :issue-template="testCaseTemplate"
+        :editable="editable"
       />
     </el-form>
     <el-form>
@@ -123,12 +123,32 @@
           <div class="required required-item"></div>
         </div>
         <div class="side-content">
-          <el-select v-model="form.versionId" size="small" width="100%"
-            ><el-option
-              label="V3.0.0"
-              value="4eb81bac-3678-11ed-bd4f-44e517fe65ae"
-            ></el-option>
-          </el-select>
+          <base-edit-item-component
+            :editable="editable"
+            trigger="hover"
+            :contentObject="{
+              content: getVersionLabel(),
+              contentType: 'SELECT',
+            }"
+            :readonlyHoverEvent="true"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="versionId">
+                  <el-select
+                    v-model="form.versionId"
+                    size="small"
+                    width="100%"
+                    @click.native="onClick"
+                    ><el-option
+                      label="V3.0.0"
+                      value="4eb81bac-3678-11ed-bd4f-44e517fe65ae"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
         </div>
       </div>
       <div class="id-row case-wrap" v-if="isCustomNum">
@@ -137,34 +157,114 @@
           <div class="required required-item"></div>
         </div>
         <div class="side-content">
-          <el-form-item label="ID" prop="customNum">
-            <el-input
-              :disabled="readOnly"
-              v-model.trim="form.customNum"
-              size="small"
-              class="ms-case-input"
-            ></el-input>
-          </el-form-item>
+          <base-edit-item-component
+            :editable="editable"
+            trigger="hover"
+            :contentObject="{
+              content: form.customNum,
+              contentType: 'INPUT',
+            }"
+            :readonlyHoverEvent="true"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="customNum">
+                  <el-input
+                    :disabled="readOnly"
+                    v-model.trim="form.customNum"
+                    size="small"
+                    class="ms-case-input"
+                    @click.native="onClick"
+                  ></el-input>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
         </div>
       </div>
       <div class="story-row case-wrap">
         <div class="case-title-wrap">
-          <div class="name title-wrap">{{$t('test_track.related_requirements')}}</div>
+          <div class="name title-wrap">
+            {{ $t("test_track.related_requirements") }}
+          </div>
         </div>
         <div class="side-content">
-          <el-select v-model="form.demandId" size="small" width="100%"
-            ><el-option label="Other" value="other"></el-option>
-          </el-select>
+          <base-edit-item-component
+            :editable="editable"
+            trigger="hover"
+            :contentObject="{
+              content: {demandId: form.demandId, demandOptions},
+              contentType: 'STORY',
+            }"
+            :readonlyHoverEvent="true"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="demandId">
+                  <el-cascader
+                    v-if="!readOnly"
+                    v-model="demandValue"
+                    :show-all-levels="false"
+                    :options="demandOptions"
+                    clearable
+                    filterable
+                    :filter-method="filterDemand"
+                    @click.native="onClick"
+                    size="small"
+                  >
+                    <template slot-scope="{ data }">
+                      <span class="demand-span" :title="data.label">{{
+                        data.label
+                      }}</span>
+                    </template>
+                  </el-cascader>
+
+                  <el-input
+                    class="demandInput"
+                    v-else
+                    :disabled="readOnly"
+                    :value="demandLabel"
+                    @click.native="onClick"
+                  >
+                  </el-input>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
         </div>
       </div>
       <!-- 选择了关联需求后展示，并且必填 -->
       <div class="story-name-row case-wrap" v-if="form.demandId">
         <div class="case-title-wrap">
-          <div class="name title-wrap">{{$t('test_track.case.demand_name_id')}}</div>
+          <div class="name title-wrap">
+            {{ $t("test_track.case.demand_name_id") }}
+          </div>
           <div class="required required-item"></div>
         </div>
         <div class="side-content">
-          <el-input :disabled="readOnly" v-model="form.demandName" size="small" width="100%"></el-input>
+          <base-edit-item-component
+            :editable="editable"
+            trigger="hover"
+            :contentObject="{
+              content: form.demandName,
+              contentType: 'INPUT',
+            }"
+            :readonlyHoverEvent="true"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="demandName">
+                  <el-input
+                    @click.native="onClick"
+                    :disabled="readOnly"
+                    v-model="form.demandName"
+                    size="small"
+                    width="100%"
+                  ></el-input>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
         </div>
       </div>
       <div class="tag-row case-wrap">
@@ -172,15 +272,30 @@
           <div class="name title-wrap">{{ $t("commons.tag") }}</div>
         </div>
         <div class="side-content">
-          <el-form-item prop="tags">
-            <ms-input-tag
-              :read-only="readOnly"
-              :currentScenario="form"
-              v-if="showInputTag"
-              ref="tag"
-              class="ms-case-input"
-            ></ms-input-tag>
-          </el-form-item>
+          <base-edit-item-component
+            :editable="editable"
+            trigger="hover"
+            :contentObject="{
+              content: form.tags,
+              contentType: 'TAG',
+            }"
+            :readonlyHoverEvent="true"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="tags">
+                  <ms-input-tag
+                    :read-only="readOnly"
+                    :currentScenario="form"
+                    v-if="showInputTag"
+                    ref="tag"
+                    class="ms-case-input"
+                    @click.native="onClick"
+                  ></ms-input-tag>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
         </div>
       </div>
     </el-form>
@@ -194,6 +309,7 @@ import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
 import CustomFiledFormRow from "./CaseCustomFiledFormRow";
 import { useStore } from "@/store";
 import BaseEditItemComponent from "../BaseEditItemComponent";
+import { issueDemandList } from "@/api/issue";
 
 export default {
   name: "CaseBaseInfo",
@@ -204,33 +320,13 @@ export default {
     CustomFiledFormRow,
     BaseEditItemComponent,
   },
-  directives: {
-    "click-outside": {
-      bind(el, binding, vnode) {
-        console.log("bind");
-        function eventHandler(e) {
-          if (el.contains(e.target)) {
-            return false;
-          }
-          // 如果绑定的参数是函数，正常情况也应该是函数，执行
-          if (binding.value && typeof binding.value === "function") {
-            binding.value(e);
-          }
-        }
-        // 用于销毁前注销事件监听
-        el.__click_outside__ = eventHandler;
-        // 添加事件监听
-        document.addEventListener("click", eventHandler);
-      },
-
-      unbind(el, binding, vnode) {
-        console.log("unbind");
-
-        // 移除事件监听
-        document.removeEventListener("click", el.__click_outside__);
-        // 删除无用属性
-        delete el.__click_outside__;
-      },
+  watch: {
+    demandValue() {
+      if (this.demandValue.length > 0) {
+        this.form.demandId = this.demandValue[this.demandValue.length - 1];
+      } else {
+        this.form.demandId = null;
+      }
     },
   },
   data() {
@@ -296,6 +392,11 @@ export default {
         id: "id",
         label: "name",
       },
+
+      // 关联需求相关
+      demandValue: [],
+      demandLabel: "",
+      demandOptions: [],
     };
   },
   props: {
@@ -330,7 +431,13 @@ export default {
     //   return this.customFieldForm["用例状态"] || this.form.status;
     // },
   },
+  mounted() {
+    this.getDemandOptions();
+  },
   methods: {
+    getVersionLabel() {
+      return "V3.0.0";
+    },
     getModuleLabel() {
       let module = this.treeNodes.find((v) => {
         return v.id === this.form.module;
@@ -346,7 +453,13 @@ export default {
     },
     textBlur(options, refName) {
       if (!this.editable && this.$refs[refName]) {
-        this.$refs[refName].changeSelfEditable(false);
+        // this.$refs[refName].changeSelfEditable(false);
+        this.handleSaveEvent();
+      }
+    },
+    mouseLeaveEvent(refName) {
+      if (!this.editable && this.$refs[refName]) {
+        this.$refs[refName].changeHoverEditable(false);
         this.handleSaveEvent();
       }
     },
@@ -377,12 +490,95 @@ export default {
       Array.prototype.push.apply(caseFromFields, customFields);
       return caseFromFields;
     },
+
+    // 关联需求相关
+    visibleChange(flag) {
+      if (flag) {
+        this.getDemandOptions();
+      }
+    },
+    getDemandOptions() {
+      this.result = { loading: true };
+      this.demandLabel = "";
+      issueDemandList(this.projectId)
+        .then((r) => {
+          this.demandOptions = [];
+          if (r.data && r.data.length > 0) {
+            this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
+          }
+          this.addOtherOption();
+        })
+        .catch(() => {
+          this.addOtherOption();
+        });
+    },
+    addOtherOption() {
+      this.demandOptions.unshift({
+        value: "other",
+        label: "Other: " + this.$t("test_track.case.other"),
+        platform: "Other",
+      });
+      if (this.form.demandId === "other") {
+        this.demandValue = ["other"];
+        this.demandLabel = "Other: " + this.$t("test_track.case.other");
+      }
+      this.result = { loading: false };
+    },
+    buildDemandCascaderOptions(data, options, pathArray) {
+      this.demandValue = [];
+      data.forEach((item) => {
+        let option = {
+          label: item.platform + ": " + item.name,
+          value: item.id,
+        };
+        if (this.form.demandId === item.id) {
+          this.demandLabel = option.label;
+        }
+        options.push(option);
+        pathArray.push(item.id);
+        if (item.id === this.form.demandId) {
+          this.demandValue = [...pathArray]; // 回显级联选项
+        }
+        if (item.children && item.children.length > 0) {
+          option.children = [];
+          this.buildDemandCascaderOptions(
+            item.children,
+            option.children,
+            pathArray
+          );
+        }
+        pathArray.pop();
+      });
+    },
+    filterDemand(node, keyword) {
+      if (
+        keyword &&
+        node.text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1
+      ) {
+        return true;
+      }
+      return false;
+    },
   },
 };
 </script>
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+.selectHover {
+  // background: rgba(31, 35, 41, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  :deep(.el-select) {
+    // background-color: rgba(31, 35, 41, 0.1) !important;
+    border: none !important;
+  }
+  :deep(.el-input__inner) {
+    border: none !important;
+    background-color: rgba(31, 35, 41, 0.1) !important;
+    color: #1f2329;
+  }
+}
 .case-edit-wrap {
   :deep(.el-form-item__content) {
     line-height: px2rem(32);

@@ -38,13 +38,26 @@
         </div>
         <div class="content-wrap">
           <div class="opt-row">
-            <form-rich-text-item
-              :disabled="readOnly"
-              :data="form"
-              :default-open="richTextDefaultOpen"
-              placeholder="请输入前置条件"
-              prop="prerequisite"
-            />
+            <base-edit-item-component
+              :editable="editable"
+              trigger="click"
+              :contentObject="{
+                content: form.prerequisite,
+                contentType: 'RICHTEXT',
+              }"
+            >
+              <template v-slot:content="{ onClick }">
+                <div @click="onClick">
+                  <form-rich-text-item
+                    :disabled="readOnly"
+                    :data="form"
+                    :default-open="richTextDefaultOpen"
+                    placeholder="请输入前置条件"
+                    prop="prerequisite"
+                  />
+                </div>
+              </template>
+            </base-edit-item-component>
           </div>
         </div>
       </div>
@@ -72,13 +85,27 @@
         <!-- 文本描述 -->
         <div class="content-wrap">
           <div class="opt-row">
-            <form-rich-text-item
+            <base-edit-item-component
               v-if="form.stepModel === 'TEXT'"
-              prop="stepDescription"
-              :disabled="readOnly"
-              :data="form"
-              :default-open="richTextDefaultOpen"
-            />
+              :editable="editable"
+              trigger="click"
+              :contentObject="{
+                content: form.stepDescription,
+                contentType: 'RICHTEXT',
+              }"
+            >
+              <template v-slot:content="{ onClick }">
+                <div @click="onClick">
+                  <form-rich-text-item
+                    prop="stepDescription"
+                    :disabled="readOnly"
+                    :data="form"
+                    :default-open="richTextDefaultOpen"
+                  />
+                </div>
+              </template>
+            </base-edit-item-component>
+
             <!-- 步骤描述 -->
             <test-case-step-item
               v-if="form.stepModel === 'STEP' || !form.stepModel"
@@ -98,13 +125,26 @@
         </div>
         <div class="content-wrap">
           <div class="opt-row">
-            <form-rich-text-item
-              v-if="form.stepModel === 'TEXT'"
-              prop="expectedResult"
-              :disabled="readOnly"
-              :data="form"
-              :default-open="richTextDefaultOpen"
-            />
+            <base-edit-item-component
+              :editable="editable"
+              trigger="click"
+              :contentObject="{
+                content: form.expectedResult,
+                contentType: 'RICHTEXT',
+              }"
+            >
+              <template v-slot:content="{ onClick }">
+                <div @click="onClick">
+                  <form-rich-text-item
+                    v-if="form.stepModel === 'TEXT'"
+                    prop="expectedResult"
+                    :disabled="readOnly"
+                    :data="form"
+                    :default-open="richTextDefaultOpen"
+                  />
+                </div>
+              </template>
+            </base-edit-item-component>
           </div>
         </div>
       </div>
@@ -116,13 +156,26 @@
         </div>
         <div class="content-wrap">
           <div class="opt-row">
-            <form-rich-text-item
-              class="remark-item"
-              :disabled="readOnly"
-              :data="form"
-              :default-open="richTextDefaultOpen"
-              prop="remark"
-            />
+            <base-edit-item-component
+              :editable="editable"
+              trigger="click"
+              :contentObject="{
+                content: form.remark,
+                contentType: 'RICHTEXT',
+              }"
+            >
+              <template v-slot:content="{ onClick }">
+                <div @click="onClick">
+                  <form-rich-text-item
+                    class="remark-item"
+                    :disabled="readOnly"
+                    :data="form"
+                    :default-open="richTextDefaultOpen"
+                    prop="remark"
+                  />
+                </div>
+              </template>
+            </base-edit-item-component>
           </div>
         </div>
       </div>
@@ -263,6 +316,20 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+.selectHover {
+  // background: rgba(31, 35, 41, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  :deep(.el-select) {
+    // background-color: rgba(31, 35, 41, 0.1) !important;
+    border: none !important;
+  }
+  :deep(.el-input__inner) {
+    border: none !important;
+    background-color: rgba(31, 35, 41, 0.1) !important;
+    color: #1f2329;
+  }
+}
 .case-edit-wrap {
   :deep(.el-form-item__content) {
     line-height: px2rem(32);
@@ -391,7 +458,7 @@ export default {
             display: flex;
             justify-content: center;
             width: 100%;
-            min-height: 100px;
+            /* min-height: 100px; */
             .opt-row {
               :deep(.el-form-item) {
                 margin: 0;
@@ -405,7 +472,7 @@ export default {
             display: flex;
             justify-content: center;
             width: 100%;
-            min-height: 100px;
+            /* min-height: 100px; */
             .opt-row {
               width: 100%;
               :deep(.el-form-item) {
