@@ -6,10 +6,7 @@ import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.PropertyConstant;
-import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -56,6 +53,8 @@ public class TestResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    BaseShareInfoService baseShareInfoService;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -275,7 +274,7 @@ public class TestResultService {
         String event = StringUtils.EMPTY;
         String successContext = "${operator}执行接口自动化成功: ${name}" + ", 报告: ${reportUrl}";
         String failedContext = "${operator}执行接口自动化失败: ${name}" + ", 报告: ${reportUrl}";
-
+        String shareUrl = getScenarioShareUrl(report.getId(), report.getUserId());
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
             subject = "Jenkins任务通知";
         }
@@ -294,9 +293,19 @@ public class TestResultService {
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("reportUrl", reportUrl);
         paramMap.put("operator", report.getExecutor());
+        paramMap.put("scenarioShareUrl", baseSystemConfigDTO.getUrl() + "/api/share-api-report" + shareUrl);
         paramMap.putAll(new BeanMap(report));
         paramMap.putAll(new BeanMap(scenario));
         NoticeModel noticeModel = NoticeModel.builder().operator(report.getUserId()).successContext(successContext).failedContext(failedContext).testId(testId).status(report.getStatus()).event(event).subject(subject).paramMap(paramMap).build();
         noticeSendService.send(report.getTriggerMode(), NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    public String getScenarioShareUrl(String scenarioReportId, String userId) {
+        ShareInfo shareRequest = new ShareInfo();
+        shareRequest.setCustomData(scenarioReportId);
+        shareRequest.setShareType(ShareType.API_REPORT.name());
+        shareRequest.setCreateUserId(userId);
+        ShareInfo shareInfo = baseShareInfoService.generateShareInfo(shareRequest);
+        return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
     }
 }
