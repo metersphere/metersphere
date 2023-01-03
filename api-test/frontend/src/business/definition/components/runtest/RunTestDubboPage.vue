@@ -335,7 +335,7 @@ export default {
     this.currentRequest = this.api.request;
     this.runLoading = false;
     this.getEnvironments();
-    getLastResultDetail(this.api.id, this);
+    //getLastResultDetail(this.api.id, this);
     this.checkVersionEnable();
   },
 };
