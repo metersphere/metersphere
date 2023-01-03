@@ -156,6 +156,8 @@ export default {
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.scenario.root = this.node.parent.parent ? false : true;
       this.scenario.disabled = true;
+      this.scenario.showExtend =
+        this.node.parent && this.node.parent.data && this.node.parent.data.disabled ? false : true;
       this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
     }
     if (this.scenario.id && this.scenario.referenced === 'Copy' && !this.scenario.isCopy && !this.scenario.disabled) {
