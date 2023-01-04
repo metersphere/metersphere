@@ -116,6 +116,12 @@ public class TestReviewTestCaseService {
 
     public int deleteTestCase(DeleteRelevanceRequest request) {
         checkReviewer(request.getReviewId());
+        TestCaseReviewTestCase testCaseReviewTestCase = testCaseReviewTestCaseMapper.selectByPrimaryKey(request.getId());
+        if (testCaseReviewTestCase != null) {
+            TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+            testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(testCaseReviewTestCase.getCaseId());
+            testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
+        }
         return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
     }
 
@@ -155,6 +161,13 @@ public class TestReviewTestCaseService {
         List<String> ids = request.getIds();
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andIdIn(ids);
+        List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(testCaseReviewTestCases)) {
+            List<String> caseIds = testCaseReviewTestCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
+            TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+            testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdIn(caseIds);
+            testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
+        }
         testCaseReviewTestCaseMapper.deleteByExample(example);
     }
 
