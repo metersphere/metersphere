@@ -986,7 +986,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isNotEmpty(apiCaseIds)) {
             ApiTestCaseExample example = new ApiTestCaseExample();
             example.createCriteria().andIdIn(apiCaseIds);
-            example.or().andStatusNotEqualTo(CommonConstants.TrashStatus).andStatusIsNull();
+            example.or().andStatusNotEqualTo(CommonConstants.TRASH_STATUS).andStatusIsNull();
             return apiTestCaseMapper.selectByExample(example);
         }
         return new ArrayList<>();
