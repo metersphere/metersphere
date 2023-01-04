@@ -93,7 +93,12 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
     }
 
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
-        return microService.postForDataArray(serviceName, BASE_UEL + "/run", request, MsExecResponseDTO.class);
+        try {
+            return microService.postForDataArray(serviceName, BASE_UEL + "/run", request, MsExecResponseDTO.class);
+        } catch (Exception e) {
+            LogUtil.info("调用API服务执行用例失败", e);
+            return new ArrayList<>();
+        }
     }
 
     public RunModeConfigDTO setApiCaseEnv(String planId, RunModeConfigDTO runModeConfig) {

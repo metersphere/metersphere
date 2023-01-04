@@ -8,15 +8,18 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.ApiScenarioExample;
+import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
@@ -24,6 +27,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.commons.vo.RunPlanScenarioVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -85,8 +89,6 @@ public class ApiScenarioExecuteService {
     @Resource
     protected JMeterService jMeterService;
     @Resource
-    protected TestPlanApiScenarioMapper testPlanApiScenarioMapper;
-    @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private SystemParameterService systemParameterService;
@@ -102,7 +104,8 @@ public class ApiScenarioExecuteService {
             request.setConfig(new RunModeConfigDTO());
         }
 
-        if (StringUtils.equals("GROUP", request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
+        if (StringUtils.equals(EnvironmentType.GROUP.name(), request.getConfig().getEnvironmentType())
+                && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
 
@@ -131,9 +134,10 @@ public class ApiScenarioExecuteService {
 
         Map<String, RunModeDataDTO> executeQueue = new LinkedHashMap<>();
         LoggerUtil.info("Scenario run-执行脚本装载-初始化执行队列");
-        if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(),
+                ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             //测试计划执行
-            assemblyPlanScenario(apiScenarios, request, executeQueue);
+            assemblyPlanScenario(request, executeQueue);
         } else {
             // 按照场景执行
             assemblyScenario(apiScenarios, request, executeQueue);
@@ -141,47 +145,19 @@ public class ApiScenarioExecuteService {
         LoggerUtil.info("Scenario run-执行脚本装载-初始化执行队列完成：" + executeQueue.size());
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        if (executeQueue.isEmpty()) {
+        if (MapUtils.isEmpty(executeQueue)) {
             return responseDTOS;
         }
         // 集合报告处理
         if (GenerateHashTreeUtil.isSetReport(request.getConfig())) {
-            // 失败重跑更新报告状态
-            if (request.isRerun()) {
-                ApiScenarioReportWithBLOBs report = new ApiScenarioReportWithBLOBs();
-                report.setId(serialReportId);
-                report.setStatus(ApiReportStatus.RERUNNING.name());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            } else {
-                LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
-                request.getConfig().setReportId(UUID.randomUUID().toString());
-                List<String> scenarioIds = new ArrayList<>();
-                String reportScenarioIds = generateScenarioIds(scenarioIds);
-                if (request.getConfig() == null) {
-                    request.setConfig(new RunModeConfigWithEnvironmentDTO());
-                }
-                if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
-                    RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
-                    BeanUtils.copyBean(runModeConfig, request.getConfig());
-                    Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
-                    apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
-                    request.setConfig(runModeConfig);
-                }
-                // 生成集合报告
-                String names = apiScenarios.stream().map(ApiScenario::getName).collect(Collectors.joining(","));
-                ApiScenarioReportResult report = apiScenarioReportService.getApiScenarioReportResult(request, serialReportId, names, reportScenarioIds);
-                report.setVersionId(apiScenarios.get(0).getVersionId());
-                apiScenarioReportMapper.insert(report);
-
-                responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
-                apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig().getReportType());
-            }
+            this.setReport(request, serialReportId, apiScenarios, responseDTOS);
         }
 
         String reportType = request.getConfig().getReportType();
         String planReportId = StringUtils.isNotEmpty(request.getTestPlanReportId()) ? request.getTestPlanReportId() : serialReportId;
         // 生成执行队列
-        DBTestQueue executionQueue = apiExecutionQueueService.add(executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig());
+        DBTestQueue executionQueue = apiExecutionQueueService.add(
+                executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig());
 
         // 预生成报告
         if (!request.isRerun() && !GenerateHashTreeUtil.isSetReport(request.getConfig())) {
@@ -215,7 +191,25 @@ public class ApiScenarioExecuteService {
     }
 
     public List<ApiScenarioWithBLOBs> get(RunScenarioRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+        RunPlanScenarioVO vo = new RunPlanScenarioVO();
+        if (StringUtils.equalsAny(request.getRunMode(),
+                ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            // 测试计划执行数据查询
+            List<TestPlanApiScenarioInfoDTO> testPlanApiScenarioList;
+            if (CollectionUtils.isNotEmpty(request.getPlanScenarioIds())) {
+                testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByPlanIds(request.getPlanScenarioIds());
+            } else {
+                testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(request.getTestPlanId());
+            }
+            if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
+                List<String> ids = testPlanApiScenarioList.stream().map(TestPlanApiScenarioInfoDTO::getApiScenarioId).collect(Collectors.toList());
+                request.setIds(ids);
+                vo.setTestPlanScenarioMap(testPlanApiScenarioList.stream()
+                        .collect(Collectors.toMap(TestPlanApiScenarioInfoDTO::getId, Function.identity(), (t1, t2) -> t1)));
+            }
+        } else {
+            ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+        }
         List<String> ids = request.getIds();
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);
@@ -226,7 +220,42 @@ public class ApiScenarioExecuteService {
                 sortById(ids, apiScenarios);
             }
         }
+        vo.setScenarioMap(apiScenarios.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, Function.identity(), (t1, t2) -> t1)));
+        request.setProcessVO(vo);
         return apiScenarios;
+    }
+
+    private void setReport(RunScenarioRequest request, String serialReportId, List<ApiScenarioWithBLOBs> apiScenarios, List<MsExecResponseDTO> responseDTOS) {
+        // 失败重跑更新报告状态
+        if (request.isRerun()) {
+            ApiScenarioReportWithBLOBs report = new ApiScenarioReportWithBLOBs();
+            report.setId(serialReportId);
+            report.setStatus(ApiReportStatus.RERUNNING.name());
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        } else {
+            LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
+            request.getConfig().setReportId(UUID.randomUUID().toString());
+            List<String> scenarioIds = new ArrayList<>();
+            String reportScenarioIds = generateScenarioIds(scenarioIds);
+            if (request.getConfig() == null) {
+                request.setConfig(new RunModeConfigWithEnvironmentDTO());
+            }
+            if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
+                RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+                BeanUtils.copyBean(runModeConfig, request.getConfig());
+                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
+                apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
+                request.setConfig(runModeConfig);
+            }
+            // 生成集合报告
+            String names = apiScenarios.stream().map(ApiScenario::getName).collect(Collectors.joining(","));
+            ApiScenarioReportResult report = apiScenarioReportService.getApiScenarioReportResult(request, serialReportId, names, reportScenarioIds);
+            report.setVersionId(apiScenarios.get(0).getVersionId());
+            apiScenarioReportMapper.insert(report);
+
+            responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
+            apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig().getReportType());
+        }
     }
 
     protected void sortById(List<String> ids, List apiScenarios) {
@@ -236,30 +265,20 @@ public class ApiScenarioExecuteService {
         Collections.sort(apiScenarios, beanComparator);
     }
 
-
     /**
      * 测试计划接口场景的预执行（生成场景报告）
      */
-    private void assemblyPlanScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue) {
+    private void assemblyPlanScenario(RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue) {
         String reportId = request.getId();
-        Map<String, String> planScenarioIdMap = request.getScenarioTestPlanIdMap();
-        if (MapUtils.isEmpty(planScenarioIdMap)) {
-            return;
-        }
-        Map<String, ApiScenarioWithBLOBs> scenarioMap = apiScenarios.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, Function.identity(), (t1, t2) -> t1));
+        Map<String, ApiScenarioWithBLOBs> scenarioMap = request.getProcessVO().getScenarioMap();
         //检查环境组
         Map<String, String> configEnvMap = new HashMap<>();
         if (request.getConfig() != null) {
-            if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.JSON.toString()) && MapUtils.isNotEmpty(request.getConfig().getEnvMap())) {
-                configEnvMap = request.getConfig().getEnvMap();
-            } else if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(request.getConfig().getEnvironmentGroupId())) {
-                configEnvMap = environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId());
-            }
+            apiScenarioEnvService.setScenarioEnv(request, configEnvMap);
         }
-
-        for (String testPlanScenarioId : planScenarioIdMap.keySet()) {
-            String scenarioId = planScenarioIdMap.get(testPlanScenarioId);
-            ApiScenarioWithBLOBs scenario = scenarioMap.get(scenarioId);
+        for (String testPlanScenarioId : request.getProcessVO().getTestPlanScenarioMap().keySet()) {
+            TestPlanApiScenarioInfoDTO planApiScenario = request.getProcessVO().getTestPlanScenarioMap().get(testPlanScenarioId);
+            ApiScenarioWithBLOBs scenario = scenarioMap.get(planApiScenario.getApiScenarioId());
             if (scenario.getStepTotal() == null || scenario.getStepTotal() == 0) {
                 continue;
             }
@@ -267,39 +286,30 @@ public class ApiScenarioExecuteService {
                 request.setProjectId(scenario.getProjectId());
             }
             // 获取场景用例单独的执行环境
-            Map<String, String> planEnvMap = new HashMap<>();
-            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-            if (planApiScenario == null) {
-                continue;
-            }
-            // 环境处理
-            if (StringUtils.equals(planApiScenario.getEnvironmentType(), EnvironmentType.JSON.toString()) && StringUtils.isNotBlank(planApiScenario.getEnvironment())) {
-                planEnvMap = JSON.parseObject(planApiScenario.getEnvironment(), Map.class);
-            } else if (StringUtils.equals(planApiScenario.getEnvironmentType(), EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(planApiScenario.getEnvironmentGroupId())) {
-                planEnvMap = environmentGroupProjectService.getEnvMap(planApiScenario.getEnvironmentGroupId());
-            }
-            planEnvMap.putAll(configEnvMap);
-            
+            Map<String, String> planEnvMap = apiScenarioEnvService.getPlanScenarioEnv(planApiScenario, configEnvMap);
             if (StringUtils.isEmpty(request.getProjectId())) {
                 request.setProjectId(extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId));
             }
+
             ApiScenarioReportResult report = apiScenarioReportService.initResult(reportId, testPlanScenarioId, scenario.getName(), request);
             if (request.isRerun()) {
-                if (request.getReportMap().containsKey(scenarioId)) {
-                    report = request.getReportMap().get(scenarioId);
+                if (request.getReportMap().containsKey(planApiScenario.getApiScenarioId())) {
+                    report = request.getReportMap().get(planApiScenario.getApiScenarioId());
                 } else if (request.getReportMap().containsKey(testPlanScenarioId)) {
                     report = request.getReportMap().get(testPlanScenarioId);
                 }
+                if (report == null) {
+                    return;
+                }
             }
-            if (report == null) {
-                return;
-            }
+
             report.setVersionId(scenario.getVersionId());
             RunModeDataDTO runModeDataDTO = getRunModeDataDTO(testPlanScenarioId, report);
             runModeDataDTO.setPlanEnvMap(planEnvMap);
             runModeDataDTO.setScenario(scenario);
 
             executeQueue.put(report.getId(), runModeDataDTO);
+
             if (ObjectUtils.isNotEmpty(request.getConfig())) {
                 RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
                 BeanUtils.copyBean(runModeConfig, request.getConfig());
@@ -311,7 +321,6 @@ public class ApiScenarioExecuteService {
                 Map<String, String> envMap = runModeConfig.getEnvMap();
                 planEnvMap.forEach((k, v) -> {
                     if (envMap != null && envMap.get(k) != null) {
-
                         diffEnvMap.put(k, envMap.get(k));
                     }
                 });

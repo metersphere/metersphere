@@ -2,9 +2,9 @@ package io.metersphere.commons.utils;
 
 
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
+import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiTestCase;
-import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.constants.TriggerMode;
@@ -45,7 +45,7 @@ public class ApiDefinitionExecResultUtil {
     public static ApiDefinitionExecResultWithBLOBs addResult(
             BatchRunDefinitionRequest request,
             RunModeConfigDTO runModeConfigDTO,
-            TestPlanApiCase key,
+            TestPlanApiCaseInfoDTO key,
             String status,
             ApiTestCase testCase,
             String poolId) {

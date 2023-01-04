@@ -190,11 +190,6 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.buildExecuteApiReport(request);
     }
 
-    @PostMapping("/plan/report/schedule/info/{planId}")
-    public TestPlanApiReportInfoDTO genApiReportInfoForSchedule(@PathVariable("planId") String planId, @RequestBody RunModeConfigDTO runModeConfigDTO) {
-        return testPlanScenarioCaseService.genApiReportInfoForSchedule(planId, runModeConfigDTO);
-    }
-
     @GetMapping("/is/executing/{planId}")
     public Boolean isExecuting(@PathVariable("planId") String planId) {
         return testPlanScenarioCaseService.isExecuting(planId);

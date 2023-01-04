@@ -16,7 +16,6 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
-import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -29,7 +28,6 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RunModeConfigDTO;
-import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -70,8 +68,6 @@ public class TestPlanScenarioCaseService {
     @Resource
     ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
-    ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
-    @Resource
     ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     ApiScenarioReportService apiScenarioReportService;
@@ -93,8 +89,6 @@ public class TestPlanScenarioCaseService {
     private ApiScenarioEnvService apiScenarioEnvService;
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
-    @Resource
-    private BaseEnvGroupProjectService environmentGroupProjectService;
     @Resource
     private BaseEnvironmentService apiTestEnvironmentService;
     @Resource
@@ -293,14 +287,13 @@ public class TestPlanScenarioCaseService {
         RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
         request.setReportId(testPlanScenarioRequest.getId());
-        request.setScenarioTestPlanIdMap(scenarioPlanIdMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         request.setId(testPlanScenarioRequest.getId());
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
         request.setConfig(testPlanScenarioRequest.getConfig());
-        request.setPlanCaseIds(planCaseIdList);
-        request.setRequestOriginator("TEST_PLAN");
+        request.setPlanScenarioIds(planCaseIdList);
+        request.setRequestOriginator(CommonConstants.TEST_PLAN);
         return apiAutomationService.run(request);
     }
 
@@ -1007,70 +1000,6 @@ public class TestPlanScenarioCaseService {
             apiTestCases.add(dto);
         }
         return testPlanApiCaseService.buildCases(apiTestCases);
-    }
-
-    public TestPlanApiReportInfoDTO genApiReportInfoForSchedule(String planId, RunModeConfigDTO runModeConfigDTO) {
-        TestPlanApiReportInfoDTO testPlanApiReportInfo = new TestPlanApiReportInfoDTO();
-        Map<String, String> planApiCaseIdMap = new LinkedHashMap<>();
-        Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
-
-        List<TestPlanApiScenarioInfoDTO> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
-        for (TestPlanApiScenarioInfoDTO model : testPlanApiScenarioList) {
-            planScenarioIdMap.put(model.getId(), model.getApiScenarioId());
-        }
-        List<TestPlanApiCaseInfoDTO> testPlanApiCaseList = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(planId);
-        for (TestPlanApiCaseInfoDTO model : testPlanApiCaseList) {
-            planApiCaseIdMap.put(model.getId(), model.getApiCaseId());
-        }
-
-        testPlanApiReportInfo.setPlanApiCaseIdMap(planApiCaseIdMap);
-        testPlanApiReportInfo.setPlanScenarioIdMap(planScenarioIdMap);
-        //解析运行环境信息
-        TestPlanReportRunInfoDTO runInfoDTO = this.parseTestPlanRunInfo(runModeConfigDTO, testPlanApiCaseList, testPlanApiScenarioList);
-        testPlanApiReportInfo.setRunInfoDTO(runInfoDTO);
-        return testPlanApiReportInfo;
-    }
-
-    public TestPlanReportRunInfoDTO parseTestPlanRunInfo(RunModeConfigDTO runModeConfigDTO, List<TestPlanApiCaseInfoDTO> testPlanApiCaseList, List<TestPlanApiScenarioInfoDTO> testPlanApiScenarioList) {
-        TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
-        Map<String, String> selectEnvMap = runModeConfigDTO.getEnvMap();
-        runInfoDTO.setRunMode(runModeConfigDTO.getMode());
-        if (StringUtils.equals("GROUP", runModeConfigDTO.getEnvironmentType()) && StringUtils.isNotEmpty(runModeConfigDTO.getEnvironmentGroupId())) {
-            selectEnvMap = environmentGroupProjectService.getEnvMap(runModeConfigDTO.getEnvironmentGroupId());
-            runInfoDTO.setEnvGroupId(runModeConfigDTO.getEnvironmentGroupId());
-        }
-
-        for (TestPlanApiScenarioInfoDTO model : testPlanApiScenarioList) {
-            Map<String, String> envMap = null;
-            if (StringUtils.equalsIgnoreCase("group", model.getEnvironmentType()) && StringUtils.isNotEmpty(model.getEnvironmentGroupId())) {
-                envMap = environmentGroupProjectService.getEnvMap(model.getEnvironmentGroupId());
-            } else {
-                if (MapUtils.isNotEmpty(selectEnvMap) && selectEnvMap.containsKey(model.getProjectId())) {
-                    runInfoDTO.putScenarioRunInfo(model.getId(), model.getProjectId(), selectEnvMap.get(model.getProjectId()));
-                } else if (StringUtils.isNotEmpty(model.getEnvironment())) {
-                    try {
-                        envMap = JSON.parseObject(model.getEnvironment(), Map.class);
-                    } catch (Exception e) {
-                        LogUtil.error("解析场景环境失败!", e);
-                    }
-                }
-            }
-            if (MapUtils.isNotEmpty(envMap)) {
-                for (Map.Entry<String, String> entry : envMap.entrySet()) {
-                    String projectId = entry.getKey();
-                    String envIdStr = entry.getValue();
-                    runInfoDTO.putScenarioRunInfo(model.getId(), projectId, envIdStr);
-                }
-            }
-        }
-        for (TestPlanApiCaseInfoDTO model : testPlanApiCaseList) {
-            if (MapUtils.isNotEmpty(selectEnvMap) && selectEnvMap.containsKey(model.getProjectId())) {
-                runInfoDTO.putApiCaseRunInfo(model.getId(), model.getProjectId(), selectEnvMap.get(model.getProjectId()));
-            } else {
-                runInfoDTO.putApiCaseRunInfo(model.getId(), model.getProjectId(), model.getEnvironmentId());
-            }
-        }
-        return runInfoDTO;
     }
 
     public Boolean isExecuting(String planId) {

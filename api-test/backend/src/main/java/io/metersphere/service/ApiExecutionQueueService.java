@@ -69,7 +69,7 @@ public class ApiExecutionQueueService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
-        LoggerUtil.info("报告【" + reportId + "】开始生成执行链");
+        LoggerUtil.info("报告【" + type + "】开始生成执行链", reportId);
         if (config.getEnvMap() == null) {
             config.setEnvMap(new LinkedHashMap<>());
         }
@@ -99,7 +99,7 @@ public class ApiExecutionQueueService {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
         resQueue.setDetailMap(detailMap);
-        LoggerUtil.info("报告【" + reportId + "】生成执行链结束");
+        LoggerUtil.info("报告【" + type + "】生成执行链结束", reportId);
         return resQueue;
     }
 

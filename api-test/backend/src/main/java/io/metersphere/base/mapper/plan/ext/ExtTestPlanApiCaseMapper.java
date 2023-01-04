@@ -35,6 +35,8 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanApiCaseInfoDTO> selectLegalDataByTestPlanId(String planId);
 
+    List<TestPlanApiCaseInfoDTO> selectByPlanCaseIds(List<String> planCaseIds);
+
     List<Map> selectForPlanReport(String planId);
 
     List<TestPlanFailureApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);

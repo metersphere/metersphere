@@ -155,10 +155,6 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         return microService.postForData(serviceName, BASE_UEL + "/plan/execute/report", request, ApiPlanReportDTO.class);
     }
 
-    public TestPlanApiReportInfoDTO genApiReportInfoForSchedule(String planId, RunModeConfigDTO runModeConfigDTO) {
-        return microService.postForData(serviceName, BASE_UEL + "/plan/report/schedule/info/" + planId, runModeConfigDTO, TestPlanApiReportInfoDTO.class);
-    }
-
     public Boolean isCaseExecuting(String planId) {
         return microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId, Boolean.class);
     }

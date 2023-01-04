@@ -16,6 +16,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -228,7 +229,7 @@ public class ApiScenarioRerunService {
             BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
             request.setTriggerMode(testPlanReport.getTriggerMode());
             request.setRerun(true);
-            request.setPlanIds(ids);
+            request.setPlanCaseIds(ids);
             request.setPlanReportId(parametersDTO.getReportId());
             request.setUserId(parametersDTO.getCases().get(0).getUserId());
 
@@ -271,9 +272,7 @@ public class ApiScenarioRerunService {
             }
             List<String> scenarioIds = apiScenarios.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
             LoggerUtil.info("重跑测试计划报告：【" + parametersDTO.getReportId() + "】,对应重跑场景资源：" + scenarioIds.size());
-
-            Map<String, String> scenarioTestPlanIdMap = apiScenarios.stream().collect(Collectors.toMap(TestPlanApiScenario::getId, a -> a.getApiScenarioId(), (k1, k2) -> k1));
-
+            List<String> planScenarioIds = apiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
             // 查出原始报告
             List<String> reportIds = apiScenarios.stream().map(TestPlanApiScenario::getReportId).collect(Collectors.toList());
             if (com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(reportIds)) {
@@ -282,7 +281,7 @@ public class ApiScenarioRerunService {
             ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
             reportExample.createCriteria().andIdIn(reportIds);
             List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExample(reportExample);
-            if (com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(reports)) {
+            if (CollectionUtils.isEmpty(reports)) {
                 return isStart;
             }
             // config
@@ -312,7 +311,8 @@ public class ApiScenarioRerunService {
             request.setExecuteType(ExecuteType.Completed.name());
             request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
             request.setIds(scenarioIds); // 场景IDS
-            request.setScenarioTestPlanIdMap(scenarioTestPlanIdMap);//场景id和计划场景id映射关系
+            request.setPlanScenarioIds(planScenarioIds);
+
             // 一批执行的报告配置都是相同的
             ApiScenarioReportWithBLOBs scenario = apiScenarioReportMapper.selectByPrimaryKey(reportIds.get(0));
             if (scenario != null && StringUtils.isNotEmpty(scenario.getEnvConfig())) {
@@ -322,7 +322,7 @@ public class ApiScenarioRerunService {
             }
             request.setTestPlanReportId(parametersDTO.getReportId());
             request.setId(UUID.randomUUID().toString());
-            request.setRequestOriginator("TEST_PLAN");
+            request.setRequestOriginator(CommonConstants.TEST_PLAN);
 
             LoggerUtil.info("清理原始报告对应结果：【" + request.getTestPlanReportId() + "】," + reportIds.size());
             ApiScenarioReportResultExample reportResultExample = new ApiScenarioReportResultExample();
