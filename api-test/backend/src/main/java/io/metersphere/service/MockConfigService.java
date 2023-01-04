@@ -87,6 +87,12 @@ public class MockConfigService {
         return extMockExpectConfigMapper.selectByApiId(apiId);
     }
 
+    public List<MockExpectConfig> selectSimpleMockExpectConfigByMockConfigId(String mockConfigId) {
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andMockConfigIdEqualTo(mockConfigId);
+        return mockExpectConfigMapper.selectByExample(example);
+    }
+
     public List<MockConfigImportDTO> selectMockExpectConfigByApiIdIn(List<String> apiIds) {
         if (CollectionUtils.isNotEmpty(apiIds)) {
             List<MockConfigImportDTO> returnDTO = new ArrayList<>();
@@ -263,15 +269,22 @@ public class MockConfigService {
         return mockExpectConfigMapper.selectByPrimaryKey(model.getId());
     }
 
-    private String getMockExpectId(String mockConfigId) {
-        List<String> savedExpectNumber = extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+    public String getMockExpectId(String mockConfigId) {
+        List<String> savedExpectNumber = this.selectExpectNumberByConfigId(mockConfigId);
         String apiNum = extMockExpectConfigMapper.selectApiNumberByMockConfigId(mockConfigId);
+        return this.getMockExpectId(apiNum, savedExpectNumber);
+    }
+
+    public List<String> selectExpectNumberByConfigId(String mockConfigId) {
+        return extMockExpectConfigMapper.selectExlectNumByMockConfigId(mockConfigId);
+    }
+
+    public String getMockExpectId(String apiNum, List<String> savedExpectNumber) {
         if (StringUtils.isEmpty(apiNum)) {
             apiNum = StringUtils.EMPTY;
         } else {
             apiNum = apiNum + "_";
         }
-
         int index = 1;
         for (String expectNum : savedExpectNumber) {
             if (StringUtils.startsWith(expectNum, apiNum)) {
@@ -1153,7 +1166,7 @@ public class MockConfigService {
     }
 
 
-    private MockConfig selectMockConfigByApiId(String apiId) {
+    public MockConfig selectMockConfigByApiId(String apiId) {
         MockConfigExample example = new MockConfigExample();
         example.createCriteria().andApiIdEqualTo(apiId);
         List<MockConfig> mockConfigList = this.mockConfigMapper.selectByExample(example);
