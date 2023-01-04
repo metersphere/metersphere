@@ -8,7 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.constants.CaseReviewStatus;
+import io.metersphere.excel.converter.TestReviewCaseStatus;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
@@ -223,7 +223,7 @@ public class TestReviewTestCaseService {
             testCaseReviewTestCaseMapper.updateByExampleSelective(testCaseReviewTestCase, caseReviewTestCaseExample);
         }
 
-        if (CaseReviewStatus.UNPASS.getValue().equals(request.getStatus()) || CaseReviewStatus.AGAIN.getValue().equals(request.getStatus())) {
+        if (TestReviewCaseStatus.UnPass.name().equals(request.getStatus()) || TestReviewCaseStatus.Again.name().equals(request.getStatus())) {
             ids.forEach(i -> {
                 TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
                 testCaseReviewTestCase.setStatus(request.getStatus());

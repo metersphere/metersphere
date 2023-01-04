@@ -52,7 +52,7 @@
             show-overflow-tooltip
             width="350px">
             <template v-slot:default="scope">
-              <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass)"
+              <el-tooltip :content="getResultTip(scope.row.total, scope.row.reviewed, scope.row.pass, scope.row.prepare, scope.row.again)"
                           placement="top" :enterable="false" class="item" effect="dark">
                 <yan-progress :total="scope.row.total" :done="scope.row.reviewed" :modify="scope.row.pass" :tip="tip"/>
               </el-tooltip>
@@ -142,8 +142,8 @@ export default {
       }
       this.search();
     },
-    getResultTip(total, reviewed, pass) {
-      return '通过: ' + pass + '; ' + '未通过: ' + (reviewed - pass) + '; ' + '未评审: ' + (total - reviewed);
+    getResultTip(total, reviewed, pass, prepare, again) {
+      return '通过: ' + pass + '; ' + '未通过: ' + (reviewed - pass) + '; ' + '未评审: ' + prepare + '; ' + '重新提审: ' + again;
     }
   }
 }

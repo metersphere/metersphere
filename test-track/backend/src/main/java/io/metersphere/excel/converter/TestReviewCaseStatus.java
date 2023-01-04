@@ -2,6 +2,7 @@ package io.metersphere.excel.converter;
 
 public enum TestReviewCaseStatus {
     Prepare("test_case_status_prepare"),
+    Again("test_case_status_again"),
     Pass("execute_pass"),
     UnPass("execute_not_pass");
 

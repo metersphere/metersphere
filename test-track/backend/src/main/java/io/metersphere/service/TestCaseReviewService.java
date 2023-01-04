@@ -488,10 +488,11 @@ public class TestCaseReviewService {
             testReviews.forEach(testReview -> {
                 List<CountMapDTO> countMapDTOS = extTestReviewCaseMapper.getStatusMapByReviewId(testReview.getId());
 
-                TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
-                testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
-                List<String> userIds = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample)
-                        .stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+                TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+                testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
+                List<String> userIds = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample).
+                        stream().map(TestCaseReviewTestCaseUsers::getUserId).distinct().collect(Collectors.toList());
+
                 String reviewName = getReviewName(userIds, projectId);
                 testReview.setReviewerName(reviewName);
 
@@ -500,16 +501,19 @@ public class TestCaseReviewService {
                     testReview.setCreator(u.getName());
                 }
 
-                testReview.setReviewed(0);
-                testReview.setTotal(0);
-                testReview.setPass(0);
                 countMapDTOS.forEach(item -> {
                     testReview.setTotal(testReview.getTotal() + item.getValue());
-                    if (!StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name())) {
+                    if (!StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name()) && !StringUtils.equals(item.getKey(), TestReviewCaseStatus.Again.name()) ) {
                         testReview.setReviewed(testReview.getReviewed() + item.getValue());
                     }
                     if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Pass.name())) {
                         testReview.setPass(testReview.getPass() + item.getValue());
+                    }
+                    if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name())) {
+                        testReview.setPrepare(testReview.getPrepare() + item.getValue());
+                    }
+                    if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Again.name())) {
+                        testReview.setAgain(testReview.getAgain() + item.getValue());
                     }
                 });
             });
