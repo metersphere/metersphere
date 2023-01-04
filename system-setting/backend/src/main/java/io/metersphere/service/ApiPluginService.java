@@ -11,10 +11,12 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.PluginResourceDTO;
+import io.metersphere.plugin.core.api.UiScriptApi;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.utils.CommonUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jorphan.reflect.ClassFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,7 +86,29 @@ public class ApiPluginService {
 
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
         List<PluginResourceDTO> resources = new LinkedList<>();
-        this.loadJar(path);
+        try {
+            this.loadJar(path);
+            String jarPath[] = new String[]{path};
+            List<String> classes = ClassFinder.findClassesThatExtend(jarPath, new Class[]{UiScriptApi.class}, true);
+            for (String clazzName : classes) {
+                UiScriptApi uiScriptApi = Class.forName(clazzName)
+                        .asSubclass(UiScriptApi.class)
+                        .getDeclaredConstructor().newInstance();
+                PluginResource pluginObj = uiScriptApi.init();
+                if (pluginObj != null) {
+                    PluginResourceDTO pluginResourceDTO = new PluginResourceDTO();
+                    BeanUtils.copyBean(pluginResourceDTO, pluginObj);
+                    pluginResourceDTO.setEntry(clazzName);
+                    resources.add(pluginResourceDTO);
+                }
+            }
+        } catch (Exception e) {
+            this.init(fileName, resources);
+        }
+        return resources;
+    }
+
+    private void init(String fileName, List<PluginResourceDTO> resources) {
         List<Class<?>> classes = CommonUtil.getSubClass(fileName);
         try {
             for (Class<?> aClass : classes) {
@@ -101,7 +125,6 @@ public class ApiPluginService {
             LogUtil.error("初始化脚本异常：" + e.getMessage());
             MSException.throwException("调用插件初始化脚本失败");
         }
-        return resources;
     }
 
     private void create(PluginResourceDTO resource, String path, String name, List<PluginWithBLOBs> addPlugins) {
