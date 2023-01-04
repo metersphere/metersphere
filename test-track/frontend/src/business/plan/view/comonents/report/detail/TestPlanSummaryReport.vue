@@ -1,10 +1,10 @@
 <template>
   <test-plan-report-container id='summary' :title="$t('test_track.report.report_summary')">
     <template v-slot:title>
-      <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && !isEdit" @click="isEdit = true">
+      <el-link class="edit-link" v-if="showEdit" @click="isEdit = true">
         <i class="el-icon-edit">{{ $t('commons.edit') }}</i>
       </el-link>
-      <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && isEdit" @click="saveSummary">
+      <el-link class="edit-link" v-if="showEdit" @click="saveSummary">
         <i class="el-icon-circle-check">{{ $t('commons.save') }}</i>
       </el-link>
     </template>
@@ -25,6 +25,7 @@ import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import {editPlanReport} from "@/api/remote/plan/test-plan";
 import TestPlanReportContainer from "@/business/plan/view/comonents/report/detail/TestPlanReportContainer";
 import MsRichText from "@/business/case/components/MsRichText";
+import {testPlanDbReportEdit} from "@/api/remote/plan/test-plan-report";
 export default {
   name: "TestPlanSummaryReport",
   components: {MsRichText, TestPlanReportContainer, MsFormDivider},
@@ -41,12 +42,24 @@ export default {
       isEdit: false
     }
   },
+  computed: {
+    showEdit() {
+      return !this.isTemplate && !this.isShare && !this.isEdit;
+    }
+  },
   methods: {
     saveSummary() {
-      editPlanReport({
-        id: this.planId,
-        reportSummary: this.report.summary ? this.report.summary : ''
-      });
+      if (this.isDb) {
+        testPlanDbReportEdit({
+          testPlanReportId: this.report.id,
+          summary: this.report.summary || ''
+        });
+      } else {
+        editPlanReport({
+          id: this.planId,
+          reportSummary: this.report.summary || ''
+        });
+      }
       this.isEdit = false;
     }
   }
