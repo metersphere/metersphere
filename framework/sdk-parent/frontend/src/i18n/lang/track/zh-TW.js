@@ -117,6 +117,7 @@ export default {
     updated_attr_value: '更新後屬性值為',
     batch_operate: '批量操作',
     please_select_attr: '請選擇屬性',
+    please_input_attr_value: '請輸入屬性對應的值',
     please_select_attr_value: '請選擇屬性對應的值',
     batch_edit_case: '批量編輯',
     batch_edit_btn: '編輯',

@@ -117,6 +117,7 @@ export default {
     updated_attr_value: '更新后属性值为',
     batch_operate: '批量操作',
     please_select_attr: '请选择属性',
+    please_input_attr_value: '请输入属性对应的值',
     please_select_attr_value: '请选择属性对应的值',
     batch_edit_case: '批量编辑',
     batch_edit_btn: '编辑',

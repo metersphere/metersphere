@@ -149,8 +149,8 @@ export default {
         },
         description: {
           required: true,
-          message: this.$t('test_track.case.please_select_attr_value'),
-          trigger: ['blur', 'change']
+          message: this.$t('test_track.case.please_input_attr_value'),
+          trigger: ['blur']
         }
       },
       options: [],
