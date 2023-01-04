@@ -110,6 +110,7 @@
 
     <exist-files ref="existFiles"
                  @fileChange="fileChange"
+                 :test-id="test.id"
                  :file-list="fileList"
                  :table-data="tableData"
                  :upload-list="uploadList"
