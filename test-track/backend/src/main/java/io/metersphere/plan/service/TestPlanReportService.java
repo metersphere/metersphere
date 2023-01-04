@@ -1573,4 +1573,12 @@ public class TestPlanReportService {
         testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;
     }
+
+    public void editReport(TestPlanReportContentWithBLOBs reportContentWithBLOBs) {
+        if (StringUtils.isNotBlank(reportContentWithBLOBs.getTestPlanReportId())) {
+            TestPlanReportContentExample example = new TestPlanReportContentExample();
+            example.createCriteria().andTestPlanReportIdEqualTo(reportContentWithBLOBs.getTestPlanReportId());
+            testPlanReportContentMapper.updateByExampleSelective(reportContentWithBLOBs, example);
+        }
+    }
 }

@@ -3,20 +3,21 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.dto.TestPlanReportDTO;
 import io.metersphere.dto.TestPlanScheduleReportInfoDTO;
+import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.TestPlanReportSaveRequest;
-import io.metersphere.request.report.QueryTestPlanReportRequest;
 import io.metersphere.plan.service.TestPlanReportService;
+import io.metersphere.request.report.QueryTestPlanReportRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -85,5 +86,10 @@ public class TestPlanReportController {
     @PostMapping("/reName")
     public void reName(@RequestBody TestPlanReport request) {
         testPlanReportService.reName(request.getId(), request.getName());
+    }
+
+    @PostMapping("/edit/report")
+    public void editReport(@RequestBody TestPlanReportContentWithBLOBs reportContentWithBLOBs) {
+        testPlanReportService.editReport(reportContentWithBLOBs);
     }
 }
