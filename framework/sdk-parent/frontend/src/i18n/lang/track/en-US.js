@@ -124,6 +124,7 @@ export default {
     updated_attr_value: 'The updated attribute value',
     batch_operate: 'Batch operation',
     please_select_attr: 'Please select attributes',
+    please_input_attr_value: 'Please input the value corresponding to the attribute',
     please_select_attr_value: 'Please select the value corresponding to the attribute',
     batch_edit_case: 'Batch editing',
     batch_edit_btn: 'Edit',
