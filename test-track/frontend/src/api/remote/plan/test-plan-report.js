@@ -22,3 +22,7 @@ export function testPlanReportReName(param) {
 export function testPlanReportGetDb(id) {
   return get(BASE_URL + `db/${id}`);
 }
+
+export function testPlanDbReportEdit(param) {
+  return post(BASE_URL + 'edit/report', param);
+}
