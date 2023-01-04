@@ -228,6 +228,7 @@ export default {
         this.form.issueTemplateId = '';
     },
     edit(row) {
+      this.form = {};
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
