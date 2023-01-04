@@ -3,6 +3,9 @@
       <el-tag v-if="value === 'Prepare'" class="status-label prepare">
         {{ $t('api_test.home_page.detail_card.unexecute') }}
       </el-tag>
+      <el-tag v-else-if="value === 'Again'" class="status-label again">
+         {{ $t('test_track.plan_view.again') }}
+      </el-tag>
       <el-tag v-else-if="value === 'Underway'" class="status-label underway">
         {{ $t('test_track.plan.plan_status_running') }}
       </el-tag>
@@ -94,5 +97,10 @@ export default {
 .errorReportResult, .apiCaseStop{
   background: rgba(52, 199, 36, 0.2);
   color: #2EA121;
+}
+
+.again {
+  background-color: rgba(120, 56, 135, 0.2);
+  color: #783887;
 }
 </style>

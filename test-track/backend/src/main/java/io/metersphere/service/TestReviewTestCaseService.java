@@ -20,6 +20,7 @@ import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
+import io.metersphere.utils.ListUtil;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -172,7 +173,9 @@ public class TestReviewTestCaseService {
     }
 
     public void editTestCase(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
-        checkReviewCase(testCaseReviewTestCase.getReviewId());
+        List<String> caseIds = new ArrayList<>();
+        caseIds.add(testCaseReviewTestCase.getCaseId());
+        checkReviewCase(testCaseReviewTestCase.getReviewId(), caseIds);
 
         // 记录测试用例评审状态变更
         testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
@@ -206,7 +209,7 @@ public class TestReviewTestCaseService {
         if (StringUtils.isBlank(request.getReviewId())) {
             return;
         } else {
-            checkReviewCase(request.getReviewId());
+            checkReviewCase(request.getReviewId(), request.getIds());
         }
 
         // 更新状态{TestCase, TestCaseReviewTestCase}
@@ -220,10 +223,10 @@ public class TestReviewTestCaseService {
             testCaseReviewTestCaseMapper.updateByExampleSelective(testCaseReviewTestCase, caseReviewTestCaseExample);
         }
 
-        if (CaseReviewStatus.UNPASS.getValue().equals(request.getStatus()) && StringUtils.isNotEmpty(request.getDescription())) {
+        if (CaseReviewStatus.UNPASS.getValue().equals(request.getStatus()) || CaseReviewStatus.AGAIN.getValue().equals(request.getStatus())) {
             ids.forEach(i -> {
                 TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
-                testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
+                testCaseReviewTestCase.setStatus(request.getStatus());
                 testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
                 testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
                 testCaseReviewTestCase.setComment(request.getDescription());
@@ -272,8 +275,20 @@ public class TestReviewTestCaseService {
         }
     }
 
+    private void checkReviewCase(String reviewId, List<String> caseIds) {
+        String currentUserId = SessionUtils.getUser().getId();
+        TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+        testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(reviewId).andUserIdEqualTo(currentUserId).andCaseIdIn(caseIds);
+        List<TestCaseReviewTestCaseUsers> testCaseReviewTestCaseUsers = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample);
+        List<String> caseLists = testCaseReviewTestCaseUsers.stream().map(TestCaseReviewTestCaseUsers::getCaseId).collect(Collectors.toList());
+        if (!ListUtil.equalsList(caseIds, caseLists)) {
+            MSException.throwException("非此用例的评审人员！");
+        }
+    }
+
     public void editTestCaseForMinder(String reviewId, List<TestCaseReviewTestCase> testCaseReviewTestCases) {
-        checkReviewCase(reviewId);
+        List<String> caseIds = testCaseReviewTestCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
+        checkReviewCase(reviewId, caseIds);
         if (!CollectionUtils.isEmpty(testCaseReviewTestCases)) {
             testCaseReviewTestCases.forEach((item) -> {
                 item.setUpdateTime(System.currentTimeMillis());

@@ -402,6 +402,7 @@ export default {
     execute_result: "执行结果",
     pass: "通过",
     not_pass: "不通过",
+    again: "重新提审",
     failure: "失败",
     blocking: "阻塞",
     stop: "停止",

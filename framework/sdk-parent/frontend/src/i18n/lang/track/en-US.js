@@ -399,6 +399,7 @@ export default {
     execute_result: "Result",
     pass: "Pass",
     not_pass: "UnPass",
+    again: "Again",
     failure: "Failure",
     blocking: "Blocking",
     stop: "Stop",
