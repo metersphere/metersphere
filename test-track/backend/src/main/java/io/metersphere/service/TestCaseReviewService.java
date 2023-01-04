@@ -28,6 +28,7 @@ import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewDTOWithMetric;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testreview.*;
+import io.metersphere.utils.ListUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -80,6 +81,8 @@ public class TestCaseReviewService {
     private NoticeSendService noticeSendService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private TestCaseReviewTestCaseUsersMapper testCaseReviewTestCaseUsersMapper;
 
     public TestCaseReview saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -234,6 +237,31 @@ public class TestCaseReviewService {
         TestCaseReviewUsersExample example = new TestCaseReviewUsersExample();
         example.createCriteria().andReviewIdEqualTo(id).andUserIdNotIn(reviewerIds);
         testCaseReviewUsersMapper.deleteByExample(example);
+        // 如果修改了评审人，需要覆盖测试用例评审人
+        editCaseRevieweUser(reviewerIds, dbReviewIds, id);
+    }
+
+    private void editCaseRevieweUser(List<String> reviewerIds, List<String> dbReviewIds, String id) {
+        boolean equalFlag = ListUtil.equalsList(reviewerIds, dbReviewIds);
+        if (!equalFlag) {
+            TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
+            testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(id);
+            testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
+            TestCaseReviewTestCaseExample testCaseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+            testCaseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(id);
+            List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(testCaseReviewTestCaseExample);
+            if (CollectionUtils.isNotEmpty(testCaseReviewTestCases)) {
+                testCaseReviewTestCases.forEach(review -> {
+                    reviewerIds.forEach(userId -> {
+                        TestCaseReviewTestCaseUsers record = new TestCaseReviewTestCaseUsers();
+                        record.setReviewId(id);
+                        record.setCaseId(review.getCaseId());
+                        record.setUserId(userId);
+                        testCaseReviewTestCaseUsersMapper.insert(record);
+                    });
+                });
+            }
+        }
     }
 
     public void editCaseRevieweFollow(SaveTestCaseReviewRequest testCaseReview) {
@@ -344,6 +372,9 @@ public class TestCaseReviewService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseReviewTestCaseMapper batchMapper = sqlSession.getMapper(TestCaseReviewTestCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getReviewId(), extTestReviewCaseMapper::getLastOrder);
+        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId());
+        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
         if (!testCaseIds.isEmpty()) {
             for (String caseId : testCaseIds) {
                 TestCaseReviewTestCase caseReview = new TestCaseReviewTestCase();
@@ -359,6 +390,15 @@ public class TestCaseReviewService {
                 caseReview.setOrder(nextOrder);
                 batchMapper.insert(caseReview);
                 nextOrder += ServiceUtils.ORDER_STEP;
+                if (CollectionUtils.isNotEmpty(testCaseReviewUsers)) {
+                    testCaseReviewUsers.forEach(review -> {
+                        TestCaseReviewTestCaseUsers record = new TestCaseReviewTestCaseUsers();
+                        record.setReviewId(request.getReviewId());
+                        record.setCaseId(caseId);
+                        record.setUserId(review.getUserId());
+                        testCaseReviewTestCaseUsersMapper.insert(record);
+                    });
+                }
             }
         }
 
