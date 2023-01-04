@@ -6,6 +6,7 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.RunModeConfigWithEnvironmentDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
+import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
@@ -14,7 +15,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
@@ -62,11 +63,11 @@ public class ApiCaseExecuteService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
-    private TestPlanApiCaseMapper testPlanApiCaseMapper;
-    @Resource
     private JMeterService jMeterService;
     @Resource
     private BaseEnvironmentService baseEnvironmentService;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
 
     /**
      * 测试计划case执行
@@ -76,33 +77,34 @@ public class ApiCaseExecuteService {
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
-        if (CollectionUtils.isEmpty(request.getPlanIds())) {
-            return responseDTOS;
-        }
         if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
         }
-        if (StringUtils.equals(EnvironmentType.GROUP.toString(), request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
+        if (StringUtils.equals(EnvironmentType.GROUP.name(), request.getConfig().getEnvironmentType())
+                && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
-        LoggerUtil.info("开始查询测试计划用例", request.getPlanIds().size());
-
-        List<TestPlanApiCase> planApiCases = this.selectByPlanApiCaseIds(request.getPlanIds());
+        List<TestPlanApiCaseInfoDTO> planApiCases;
+        if (CollectionUtils.isNotEmpty(request.getPlanCaseIds())) {
+            planApiCases = extTestPlanApiCaseMapper.selectByPlanCaseIds(request.getPlanCaseIds());
+        } else {
+            planApiCases = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(request.getTestPlanId());
+        }
         if (CollectionUtils.isEmpty(planApiCases)) {
             return responseDTOS;
         }
+        LoggerUtil.info("查询到测试计划用例：" + planApiCases.size(), request.getPlanReportId());
+
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
-        LoggerUtil.info("查询到测试计划用例 " + planApiCases.size());
-
         Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = request.isRerun() ? request.getExecuteQueue() : new LinkedHashMap<>();
 
         String status = StringUtils.equals(request.getConfig().getMode(), RunModeConstants.SERIAL.toString())
                 ? ApiReportStatus.PENDING.name() : ApiReportStatus.RUNNING.name();
 
         // 查出用例
-        List<String> apiCaseIds = planApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
+        List<String> apiCaseIds = planApiCases.stream().map(TestPlanApiCaseInfoDTO::getApiCaseId).collect(Collectors.toList());
         ApiTestCaseExample caseExample = new ApiTestCaseExample();
         caseExample.createCriteria().andIdIn(apiCaseIds);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(caseExample);
@@ -113,7 +115,7 @@ public class ApiCaseExecuteService {
             resourcePoolId = request.getConfig().getResourcePoolId();
         }
         if (!request.isRerun()) {
-            for (TestPlanApiCase testPlanApiCase : planApiCases) {
+            for (TestPlanApiCaseInfoDTO testPlanApiCase : planApiCases) {
                 //处理环境配置为空时的情况
                 RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
                 BeanUtils.copyBean(runModeConfigDTO, request.getConfig());
@@ -134,7 +136,7 @@ public class ApiCaseExecuteService {
             apiCaseResultService.batchSave(executeQueue);
         }
 
-        LoggerUtil.info("开始生成测试计划队列");
+        LoggerUtil.info("开始生成测试计划队列", request.getPlanReportId());
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
@@ -153,16 +155,6 @@ public class ApiCaseExecuteService {
             thread.start();
         }
         return responseDTOS;
-    }
-
-    public List<TestPlanApiCase> selectByPlanApiCaseIds(List<String> planApiCaseIds) {
-        if (CollectionUtils.isEmpty(planApiCaseIds)) {
-            return new ArrayList<>();
-        }
-        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-        example.createCriteria().andIdIn(planApiCaseIds);
-        example.setOrderByClause("`order` DESC");
-        return testPlanApiCaseMapper.selectByExample(example);
     }
 
     public Map<String, List<String>> getRequestEnv(List<ApiTestCaseWithBLOBs> caseList) {
@@ -247,7 +239,8 @@ public class ApiCaseExecuteService {
         }
         jMeterService.verifyPool(request.getProjectId(), request.getConfig());
 
-        if (StringUtils.equals(EnvironmentType.GROUP.toString(), request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
+        if (StringUtils.equals(EnvironmentType.GROUP.name(), request.getConfig().getEnvironmentType())
+                && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
 

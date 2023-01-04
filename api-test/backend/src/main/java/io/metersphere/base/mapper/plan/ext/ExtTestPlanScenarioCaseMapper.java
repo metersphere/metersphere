@@ -1,12 +1,10 @@
 package io.metersphere.base.mapper.plan.ext;
 
-import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.base.domain.TestPlanApiScenario;
-
 import io.metersphere.dto.PlanReportCaseDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,6 +27,8 @@ public interface ExtTestPlanScenarioCaseMapper {
     List<TestPlanApiScenario> selectByIds(@Param("ids")String ids ,@Param("order")String order );
 
     List<TestPlanApiScenarioInfoDTO> selectLegalDataByTestPlanId(String planId);
+
+    List<TestPlanApiScenarioInfoDTO> selectByPlanIds(List<String> planScenarioIds);
 
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 

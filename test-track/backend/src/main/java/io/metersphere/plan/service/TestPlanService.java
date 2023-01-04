@@ -155,12 +155,7 @@ public class TestPlanService {
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
-    private SystemParameterService systemParameterService;
-    @Resource
-    private BaseProjectApplicationService projectApplicationService;
-    @Resource
     private TestPlanReportMapper testPlanReportMapper;
-    public static final String POOL = "POOL";
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -792,23 +787,26 @@ public class TestPlanService {
 
             RunScenarioRequest request = new RunScenarioRequest();
             request.setReportId(planScenarioExecuteRequest.getReportId());
+            request.setTestPlanId(entry.getKey());
             request.setEnvironmentId(planScenarioExecuteRequest.getEnvironmentId());
             request.setTriggerMode(planScenarioExecuteRequest.getTriggerMode());
             request.setExecuteType(planScenarioExecuteRequest.getExecuteType());
             request.setRunMode(planScenarioExecuteRequest.getRunMode());
-            request.setIds(new ArrayList<>(scenarioMap.values()));//场景IDS
             request.setReportUserID(planScenarioExecuteRequest.getReportUserID());
-            request.setScenarioTestPlanIdMap(scenarioMap);//未知
             request.setConfig(planScenarioExecuteRequest.getConfig());
             request.setTestPlanScheduleJob(true);
             request.setTestPlanReportId(planScenarioExecuteRequest.getTestPlanReportId());
             request.setId(UUID.randomUUID().toString());
             request.setProjectId(planScenarioExecuteRequest.getProjectId());
             request.setRequestOriginator("TEST_PLAN");
-            request.setPlanCaseIds(new ArrayList<>(testPlanScenarioIdMap.keySet()));
             if ("api".equalsIgnoreCase(planScenarioExecuteRequest.getType())) {
                 list.addAll(planApiAutomationService.run(request));
             } else {
+                // 以下三个参数接口测试未使用到，暂时迁移到这里
+                request.setIds(new ArrayList<>(scenarioMap.values()));//场景IDS
+                request.setScenarioTestPlanIdMap(scenarioMap);//未知
+                request.setPlanCaseIds(new ArrayList<>(testPlanScenarioIdMap.keySet()));
+
                 RunUiScenarioRequest runUiScenarioRequest = new RunUiScenarioRequest();
                 BeanUtils.copyBean(runUiScenarioRequest, request);
                 RunModeConfigDTO configDTO = new RunModeConfigDTO();
@@ -887,7 +885,7 @@ public class TestPlanService {
         if (MapUtils.isNotEmpty(reportInfoDTO.getApiTestCaseDataMap())) {
             //执行接口案例任务
             LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
-            apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, new ArrayList<>(reportInfoDTO.getApiTestCaseDataMap().keySet()), runModeConfig);
+            apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, testPlanId, runModeConfig);
         }
         if (MapUtils.isNotEmpty(reportInfoDTO.getPlanScenarioIdMap())) {
             //执行场景执行任务
@@ -946,13 +944,13 @@ public class TestPlanService {
         return runModeConfig;
     }
 
-    private Map<String, String> executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
+    private Map<String, String> executeApiTestCase(String triggerMode, String planReportId, String userId, String testPlanId, RunModeConfigDTO runModeConfig) {
         BatchRunDefinitionRequest request = new BatchRunDefinitionRequest();
         request.setTriggerMode(triggerMode);
-        request.setPlanIds(planCaseIds);
         request.setPlanReportId(planReportId);
         request.setConfig(runModeConfig);
         request.setUserId(userId);
+        request.setTestPlanId(testPlanId);
         List<MsExecResponseDTO> dtoList = planTestPlanApiCaseService.run(request);
         return this.parseMsExecResponseDTOToTestIdReportMap(dtoList);
     }

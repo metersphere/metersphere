@@ -25,6 +25,8 @@ public class BatchRunDefinitionRequest {
     private String planReportId;
     // 失败重跑
     private boolean rerun;
+
     private Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue;
 
+    private String testPlanId;
 }

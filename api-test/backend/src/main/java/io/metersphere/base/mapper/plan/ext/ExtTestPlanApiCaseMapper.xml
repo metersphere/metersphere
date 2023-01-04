@@ -544,4 +544,14 @@
             #{v}
         </foreach>
     </select>
+
+    <select id="selectByPlanCaseIds" resultType="io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO">
+        SELECT a.project_id, t.*
+        FROM test_plan_api_case t
+                 INNER JOIN api_test_case a ON t.api_case_id = a.id
+        WHERE  t.id in
+        <foreach collection="planCaseIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
