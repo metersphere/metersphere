@@ -17,6 +17,7 @@ const message = {
       type: '类型',
       default_value: '默认值',
     },
+    copy_data_from_other_version: '复制版本数据',
     body: {
       json_format_error: 'JSON格式错误',
     },

@@ -480,13 +480,17 @@ public class ApiTestCaseService {
 
     public int getNextNum(String definitionId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
-        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(definitionId);
         if (apiTestCase == null) {
+            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(definitionId);
             int n = apiDefinitionWithBLOBs.getNum();
             return n * 1000 + 1;
         } else {
-            return Optional.of(apiTestCase.getNum() + 1).orElse(apiDefinitionWithBLOBs.getNum() * 1000 + 1);
+            return this.getNextNum(apiTestCase.getNum());
         }
+    }
+
+    public int getNextNum(Integer lastApiCaseNum) {
+        return Optional.of(lastApiCaseNum + 1).orElse(lastApiCaseNum * 1000 + 1);
     }
 
     public int getNextNum(String definitionId, Integer definitionNum, String projectId) {
@@ -605,6 +609,12 @@ public class ApiTestCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
         return apiTestCaseMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<ApiTestCase> selectSimpleCasesBydApiIds(List<String> apiIds) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
+        return apiTestCaseMapper.selectByExample(example);
     }
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {

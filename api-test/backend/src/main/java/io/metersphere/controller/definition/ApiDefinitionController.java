@@ -139,6 +139,13 @@ public class ApiDefinitionController {
         apiDefinitionService.deleteByParams(request);
     }
 
+    @PostMapping("/copy/by/version")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
+    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", title = "#request.name", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    public void copyByVersion(@RequestBody BatchDataCopyRequest request) {
+        apiDefinitionService.copyCaseOrMockByVersion(request);
+    }
+
     @PostMapping("/move-gc")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
