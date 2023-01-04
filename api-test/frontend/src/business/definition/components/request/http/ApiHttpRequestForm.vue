@@ -525,6 +525,7 @@ export default {
                 file: false,
                 encode: true,
                 enable: true,
+                isEdit: false,
                 contentType: 'text/plain',
 
               })
