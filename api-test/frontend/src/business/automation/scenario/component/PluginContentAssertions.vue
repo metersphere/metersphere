@@ -44,7 +44,7 @@
           <div v-for="(data, index) in value.list" :key="index">
             <el-col name="itemOptions">
               <div v-if="data.type === options.TEXT" class="assertion-item-editing">
-                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+                <el-row :gutter="10" class="assertion-item-row">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
@@ -52,9 +52,6 @@
                       v-model="data.type"
                       :placeholder="$t('api_test.request.assertions.select_type')"
                       size="small">
-                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
-                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
-                      <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
                   <el-col class="ms-assertion-select">
@@ -79,9 +76,9 @@
                       size="small"
                       show-word-limit
                       :placeholder="$t('api_test.request.assertions.value')"
-                      width="500px" />
+                    />
                   </el-col>
-                  <el-col class="assertion-btn">
+                  <el-col style="width: 10%;min-width: 80px">
                     <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
@@ -103,7 +100,7 @@
               </div>
 
               <div v-if="data.type === options.JSON_PATH" class="assertion-item-editing">
-                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+                <el-row :gutter="10" class="assertion-item-row">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
@@ -111,9 +108,6 @@
                       v-model="data.type"
                       :placeholder="$t('api_test.request.assertions.select_type')"
                       size="small">
-                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
-                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
-                      <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
                   <el-col>
@@ -125,12 +119,12 @@
                       show-word-limit
                       :placeholder="$t('api_test.request.extract.json_path_expression')" />
                   </el-col>
-                  <el-col>
+                  <el-col style="display: flex; align-items: center;">
                     <el-select
                       v-model="data.option"
                       class="ms-col-type"
                       size="small"
-                      style="width: 100px; margin-right: 10px"
+                      style="width: 120px; margin-right: 10px; min-width: 100px"
                       @change="reload">
                       <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS" />
                       <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS" />
@@ -146,7 +140,7 @@
                       size="small"
                       show-word-limit
                       :placeholder="$t('api_test.request.assertions.expect')"
-                      style="width: 50%" />
+                    />
                     <el-tooltip placement="top" v-if="data.option === 'REGEX'">
                       <div slot="content">
                         {{ $t('api_test.request.assertions.regex_info') }}
@@ -154,7 +148,7 @@
                       <i class="el-icon-question" style="cursor: pointer" />
                     </el-tooltip>
                   </el-col>
-                  <el-col class="assertion-btn">
+                  <el-col style="width: 17%;min-width: 80px">
                     <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
@@ -175,7 +169,7 @@
               </div>
 
               <div v-if="data.type === options.XPATH2" class="assertion-item-editing">
-                <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+                <el-row :gutter="10" class="assertion-item-row">
                   <el-col class="ms-assertion-select">
                     <el-select
                       :disabled="true"
@@ -183,9 +177,6 @@
                       v-model="data.type"
                       :placeholder="$t('api_test.request.assertions.select_type')"
                       size="small">
-                      <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />
-                      <el-option :label="'JSONPath'" :value="options.JSON_PATH" />
-                      <el-option :label="'XPath'" :value="options.XPATH2" />
                     </el-select>
                   </el-col>
                   <el-col>
@@ -197,7 +188,7 @@
                       show-word-limit
                       :placeholder="$t('api_test.request.extract.xpath_expression')" />
                   </el-col>
-                  <el-col class="assertion-btn">
+                  <el-col style="width: 9%;min-width: 80px">
                     <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
                       <el-switch
                         v-model="data.enable"
@@ -349,7 +340,6 @@ export default {
 <style scoped>
 .ms-assertion-item {
   width: 100%;
-  height: 32px;
 }
 
 .ms-top-line-box {
@@ -370,15 +360,16 @@ export default {
   margin-top: 10px;
 }
 
+.assertion-item-row {
+  display: flex;
+  align-items: center;
+}
+
 :deep(.ms-assertion-select) {
   width: 140px;
 }
 
 .enable-switch {
   margin-right: 10px;
-}
-
-.assertion-btn {
-  width: 60px;
 }
 </style>
