@@ -179,7 +179,7 @@ import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
 import MsResponseText from '../response/ResponseText';
 import { API_STATUS, REQ_METHOD } from '../../model/JsonData';
 import { KeyValue } from '../../model/ApiTestModel';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import MsJsr233Processor from '../../../automation/scenario/component/Jsr233Processor';
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import MsChangeHistory from '@/business/history/ApiHistory';

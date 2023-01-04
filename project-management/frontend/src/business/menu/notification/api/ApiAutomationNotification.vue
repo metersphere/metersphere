@@ -123,6 +123,10 @@ export default {
           value: 'principal',
         },
         {
+          label: this.$t('report.plan_share_url'),
+          value: 'scenarioShareUrl',
+        },
+        {
           label: this.$t('api_test.automation.step_total'),
           value: 'stepTotal',
         },

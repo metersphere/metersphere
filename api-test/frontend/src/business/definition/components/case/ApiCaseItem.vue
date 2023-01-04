@@ -272,7 +272,7 @@ import MsSqlBasisParameters from '../request/database/BasisParameters';
 import TcpFormatParameters from '@/business/definition/components/request/tcp/TcpFormatParameters';
 import MsDubboBasisParameters from '../request/dubbo/BasisParameters';
 import MsApiExtendBtns from '../reference/ApiExtendBtns';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import MsRequestResultTail from '../response/RequestResultTail';
 import ApiResponseComponent from '../../../automation/scenario/component/ApiResponseComponent';
 import ShowMoreBtn from '@/business/commons/ShowMoreBtn';

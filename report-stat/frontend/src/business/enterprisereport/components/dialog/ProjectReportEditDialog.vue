@@ -166,7 +166,7 @@
 
 import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
 import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import MsInputTag from "@/business/compnent/form/MsInputTag";
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import EmailComponent from "@/business/enterprisereport/components/container/EmailComponent";
 import ReportStatisticsDialog from "@/business/enterprisereport/components/dialog/SelectReportStatisticsDialog";

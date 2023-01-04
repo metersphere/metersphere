@@ -363,7 +363,7 @@ export default {
     ScenarioApiRelevance: () => import('../api/ApiRelevance'),
     ApiEnvironmentConfig: () => import('metersphere-frontend/src/components/environment/ApiEnvironmentConfig'),
     MsApiReportDetail: () => import('../../report/ApiReportDetail'),
-    MsInputTag: () => import('../MsInputTag'),
+    MsInputTag: () => import('metersphere-frontend/src/components/MsInputTag'),
     MsRun: () => import('../DebugRun'),
     MsApiCustomize: () => import('../ApiCustomize'),
     ApiImport: () => import('../../../definition/components/import/ApiImport'),

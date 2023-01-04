@@ -45,7 +45,7 @@
 <script>
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { listenGoBack, removeGoBackListener } from 'metersphere-frontend/src/utils';
-import MsInputTag from '@/business/automation/scenario/MsInputTag';
+import MsInputTag from 'metersphere-frontend/src/components/MsInputTag';
 
 export default {
   name: 'BatchEdit',

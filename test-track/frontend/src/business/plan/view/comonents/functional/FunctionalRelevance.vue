@@ -32,6 +32,9 @@
       :total="page.total"
       :page-size.sync="page.pageSize"
       :screen-height="screenHeight"
+      row-key="id"
+      :reserve-option="true"
+      :page-refresh="pageRefresh"
       @handlePageChange="getTestCases"
       @selectCountChange="setSelectCounts"
       @order="getTestCases"
@@ -94,7 +97,7 @@
 
     </ms-table>
 
-    <ms-table-pagination :change="getTestCases" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+    <ms-table-pagination :change="pageChange" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                          :total="page.total"/>
   </test-case-relevance-base>
 
@@ -172,6 +175,7 @@ export default {
       ],
       versionFilters: null,
       testCaseTemplate: {},
+      pageRefresh: false
     };
   },
   props: {
@@ -253,7 +257,8 @@ export default {
       this.getTestCases();
       this.getProjectNode(this.projectId, this.page.condition);
     },
-    getTestCases() {
+    getTestCases(data) {
+      this.pageRefresh = data === "page";
       let condition = this.page.condition;
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         condition.nodeIds = this.selectNodeIds;
@@ -264,6 +269,9 @@ export default {
       if (this.projectId) {
         this.getTableData();
       }
+    },
+    pageChange() {
+      this.getTestCases("page")
     },
     saveCaseRelevance(item) {
       this.isSaving = true;
@@ -311,7 +319,7 @@ export default {
         this.testCaseTemplate = data;
         this.page.condition.components = initTestCaseConditionComponents(this.page.condition, this.testCaseTemplate.customFields);
       });
-    },
+    }
   }
 };
 </script>

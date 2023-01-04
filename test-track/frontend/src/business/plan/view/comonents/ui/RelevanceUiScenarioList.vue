@@ -16,6 +16,8 @@
               :total="total"
               :remember-order="true"
               row-key="id"
+              :reserve-option="true"
+              :page-refresh="pageRefresh"
               :row-order-group-id="projectId"
               @order="search"
               @filter="filterSearch"
@@ -76,7 +78,7 @@
       <ms-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                        show-overflow-tooltip/>
     </ms-table>
-    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+    <ms-table-pagination :change="pageChange" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
   </div>
 </template>
@@ -147,6 +149,7 @@ export default {
       envGroupId: "",
       versionFilters: [],
       fieldsWidth: getCustomTableWidth('TEST_PLAN_UI_SCENARIO_CASE'),
+      pageRefresh: false
     };
   },
   computed: {
@@ -176,7 +179,11 @@ export default {
       this.currentPage = 1;
       this.search();
     },
-    search() {
+    pageChange() {
+      this.search("page");
+    },
+    search(data) {
+      this.pageRefresh = data === "page";
       this.projectEnvMap.clear();
       if (!this.projectId) {
         return;
