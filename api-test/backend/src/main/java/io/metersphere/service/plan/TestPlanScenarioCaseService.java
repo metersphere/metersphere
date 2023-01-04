@@ -1149,7 +1149,7 @@ public class TestPlanScenarioCaseService {
                 .collect(Collectors.toList());
 
         List<String> dataNodeIds = apiAutomationService.selectByIds(caseIds).stream()
-                .filter(apiScenario -> apiScenario.getStatus() == null || !CommonConstants.TrashStatus.equals(apiScenario.getStatus()))
+                .filter(apiScenario -> apiScenario.getStatus() == null || !CommonConstants.TRASH_STATUS.equals(apiScenario.getStatus()))
                 .map(ApiScenario::getApiScenarioModuleId)
                 .collect(Collectors.toList());
 

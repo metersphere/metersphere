@@ -2222,7 +2222,7 @@ public class ApiScenarioService {
     public List<ApiScenario> getScenarioCaseByIds(List<String> ids) {
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiScenarioExample example = new ApiScenarioExample();
-            example.createCriteria().andIdIn(ids).andStatusNotEqualTo(CommonConstants.TrashStatus);
+            example.createCriteria().andIdIn(ids).andStatusNotEqualTo(CommonConstants.TRASH_STATUS);
             return apiScenarioMapper.selectByExample(example);
         }
         return new ArrayList<>();
