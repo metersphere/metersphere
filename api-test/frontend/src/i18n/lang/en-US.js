@@ -18,6 +18,7 @@ const message = {
       type: 'Type',
       default_value: 'Default value',
     },
+    copy_data_from_other_version: 'Copy data from other version',
     body: {
       json_format_error: 'JSON format error',
     },

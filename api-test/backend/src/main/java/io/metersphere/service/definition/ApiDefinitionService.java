@@ -50,6 +50,7 @@ import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
+import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiDefinitionSyncService;
 import io.metersphere.xpack.quota.service.QuotaService;
@@ -133,6 +134,9 @@ public class ApiDefinitionService {
     @Lazy
     @Resource
     private ApiModuleService apiModuleService;
+    @Lazy
+    @Resource
+    private MockConfigService mockConfigService;
     @Resource
     private BaseEnvironmentService apiTestEnvironmentService;
     @Lazy
@@ -2141,6 +2145,219 @@ public class ApiDefinitionService {
                 }
             }
             allSourceIdCount = apiExecutionInfoService.countSourceIdByProjectIdIsNull();
+        }
+    }
+
+    public void copyCaseOrMockByVersion(BatchDataCopyRequest request) {
+        if (!request.isCopyCase() && !request.isCopyMock()) {
+            return;
+        }
+        if (request.getCondition() == null) {
+            return;
+        }
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
+        //        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
+
+        if (StringUtils.isBlank(request.getVersionId()) || CollectionUtils.isEmpty(request.getCondition().getIds())) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
+        request.setIds(request.getCondition().getIds());
+
+        //函数是批量操作，可能会出现数据太多导致的sql过长错误，采用批量处理
+        BatchProcessingUtil.batchProcessingByDataCopy(request, this::batchCopyCaseOrMockByVersion);
+
+    }
+
+    public void batchCopyCaseOrMockByVersion(BatchDataCopyRequest request) {
+
+        if (sqlSessionFactory != null && CollectionUtils.isNotEmpty(request.getIds())) {
+            Map<String, ApiDefinition> refIdMap = new HashMap<>();
+            List<ApiDefinition> apiDefinitionList = this.selectByIds(request.getIds());
+            apiDefinitionList.forEach(item -> {
+                //过滤到自身的引用
+                if (!StringUtils.equals(item.getVersionId(), request.getVersionId())) {
+                    refIdMap.put(item.getRefId(), item);
+                }
+            });
+            if (MapUtils.isNotEmpty(refIdMap)) {
+                ApiDefinitionExample apiExample = new ApiDefinitionExample();
+                apiExample.createCriteria().andStatusNotEqualTo(ApiTestDataStatus.TRASH.getValue()).andRefIdIn(new ArrayList<>(refIdMap.keySet())).andVersionIdEqualTo(request.getVersionId());
+                List<ApiDefinition> versionApiList = apiDefinitionMapper.selectByExample(apiExample);
+                Map<String, String> sourceApiIdRefIdMap = new HashMap<>();
+                versionApiList.forEach(item -> sourceApiIdRefIdMap.put(item.getId(), item.getRefId()));
+                if (MapUtils.isEmpty(sourceApiIdRefIdMap)) {
+                    return;
+                }
+                SqlSession batchSqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                if (request.isCopyCase()) {
+                    this.copyCaseByVersion(request.getIds(), sourceApiIdRefIdMap, refIdMap, batchSqlSession);
+                }
+                if (request.isCopyMock()) {
+                    this.copyMockByVersion(sourceApiIdRefIdMap, refIdMap, batchSqlSession);
+                }
+                batchSqlSession.flushStatements();
+                if (sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(batchSqlSession, sqlSessionFactory);
+                }
+            }
+        }
+    }
+
+    private void copyMockByVersion(Map<String, String> sourceApiIdRefIdMap, Map<String, ApiDefinition> refIdMap, SqlSession batchSqlSession) {
+        long timeStamp = System.currentTimeMillis();
+        MockConfigExample mockConfigExample = new MockConfigExample();
+        mockConfigExample.createCriteria().andApiIdIn(new ArrayList<>(sourceApiIdRefIdMap.keySet()));
+        List<MockConfig> mockConfigList = mockConfigMapper.selectByExample(mockConfigExample);
+        if (CollectionUtils.isNotEmpty(mockConfigList)) {
+            List<String> mockIdList = mockConfigList.stream().map(MockConfig::getId).collect(Collectors.toList());
+            MockExpectConfigExample mockExpectConfigExample = new MockExpectConfigExample();
+            mockExpectConfigExample.createCriteria().andMockConfigIdIn(mockIdList);
+            List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBsList = mockExpectConfigMapper.selectByExampleWithBLOBs(mockExpectConfigExample);
+            Map<String, List<MockExpectConfigWithBLOBs>> mockConfigIdExpectMap = mockExpectConfigWithBLOBsList.stream().collect(Collectors.groupingBy(MockExpectConfigWithBLOBs::getMockConfigId));
+
+            List<MockConfig> saveMockList = new ArrayList<>();
+
+            List<MockExpectConfigWithBLOBs> saveMockExpectList = new ArrayList<>();
+            List<MockExpectConfigWithBLOBs> updateMockExpectList = new ArrayList<>();
+
+            mockConfigList.forEach(item -> {
+                String oldApiId = item.getApiId();
+                String refId = sourceApiIdRefIdMap.get(oldApiId);
+                if (StringUtils.isNotBlank(refId)) {
+                    ApiDefinition api = refIdMap.get(refId);
+                    if (api != null) {
+                        MockConfig baseMockConfig = mockConfigService.selectMockConfigByApiId(api.getId());
+                        String mockConfigId = UUID.randomUUID().toString();
+
+                        Map<String, MockExpectConfig> oldMockExpectConfig = new HashMap<>();
+                        //已经存储的mock期望编号
+                        List<String> saveExpectNumList = new ArrayList<>();
+
+                        if (baseMockConfig == null) {
+                            MockConfig mockConfig = new MockConfig();
+                            BeanUtils.copyBean(mockConfig, item);
+                            mockConfig.setApiId(api.getId());
+                            mockConfig.setId(mockConfigId);
+                            mockConfig.setCreateTime(timeStamp);
+                            mockConfig.setUpdateTime(timeStamp);
+                            saveMockList.add(mockConfig);
+                        } else {
+                            mockConfigId = baseMockConfig.getId();
+                            saveExpectNumList = mockConfigService.selectExpectNumberByConfigId(mockConfigId);
+                            List<MockExpectConfig> oldMockExpectList = mockConfigService.selectSimpleMockExpectConfigByMockConfigId(mockConfigId);
+                            oldMockExpectList.forEach(mockExpectConfig -> {
+                                oldMockExpectConfig.put(StringUtils.trim(mockExpectConfig.getName()), mockExpectConfig);
+                            });
+                        }
+                        List<MockExpectConfigWithBLOBs> mockExpectConfigList = mockConfigIdExpectMap.get(item.getId());
+                        if (CollectionUtils.isNotEmpty(mockExpectConfigList)) {
+                            String finalMockConfigId = mockConfigId;
+                            List<String> finalSaveExpectNumList = saveExpectNumList;
+                            mockExpectConfigList.forEach(mockExpectConfigWithBLOBs -> {
+                                MockExpectConfig oldExpect = oldMockExpectConfig.get(StringUtils.trim(mockExpectConfigWithBLOBs.getName()));
+                                MockExpectConfigWithBLOBs expectConfigWithBLOBs = new MockExpectConfigWithBLOBs();
+                                BeanUtils.copyBean(expectConfigWithBLOBs, mockExpectConfigWithBLOBs);
+                                if (oldExpect == null) {
+                                    String newMockExpectNum = mockConfigService.getMockExpectId(String.valueOf(api.getNum()), finalSaveExpectNumList);
+                                    finalSaveExpectNumList.add(newMockExpectNum);
+
+                                    expectConfigWithBLOBs.setId(UUID.randomUUID().toString());
+                                    expectConfigWithBLOBs.setExpectNum(newMockExpectNum);
+                                    expectConfigWithBLOBs.setCreateTime(timeStamp);
+                                    expectConfigWithBLOBs.setUpdateTime(timeStamp);
+                                    expectConfigWithBLOBs.setMockConfigId(finalMockConfigId);
+                                    saveMockExpectList.add(expectConfigWithBLOBs);
+                                } else {
+                                    expectConfigWithBLOBs.setId(oldExpect.getId());
+                                    expectConfigWithBLOBs.setCreateTime(oldExpect.getCreateTime());
+                                    expectConfigWithBLOBs.setUpdateTime(timeStamp);
+                                    updateMockExpectList.add(expectConfigWithBLOBs);
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            if (CollectionUtils.isNotEmpty(saveMockList)) {
+                MockConfigMapper mockConfigBatchMapper = batchSqlSession.getMapper(MockConfigMapper.class);
+                saveMockList.forEach(mockConfigBatchMapper::insert);
+            }
+            MockExpectConfigMapper mockExpectConfigBatchMapper = batchSqlSession.getMapper(MockExpectConfigMapper.class);
+            if (CollectionUtils.isNotEmpty(saveMockExpectList)) {
+                saveMockExpectList.forEach(mockExpectConfigBatchMapper::insert);
+            }
+            if (CollectionUtils.isNotEmpty(updateMockExpectList)) {
+                updateMockExpectList.forEach(mockExpectConfigBatchMapper::updateByPrimaryKey);
+            }
+        }
+    }
+
+    private void copyCaseByVersion(List<String> chooseApiIdList, Map<String, String> sourceApiIdRefIdMap, Map<String, ApiDefinition> refIdMap, SqlSession batchSqlSession) {
+        long timeStamp = System.currentTimeMillis();
+        List<ApiTestCaseWithBLOBs> sourceApiCaseList = apiTestCaseService.selectCasesBydApiIds(new ArrayList<>(sourceApiIdRefIdMap.keySet()));
+        List<ApiTestCase> caseInChooseApi = apiTestCaseService.selectSimpleCasesBydApiIds(chooseApiIdList);
+        Map<String, Map<String, ApiTestCase>> apiIdOldCaseMap = new HashMap<>();
+        caseInChooseApi.forEach(item -> {
+            String caseName = StringUtils.trim(item.getName());
+            if (StringUtils.isNotBlank(caseName)) {
+                if (apiIdOldCaseMap.containsKey(item.getApiDefinitionId())) {
+                    apiIdOldCaseMap.get(item.getApiDefinitionId()).put(caseName, item);
+                } else {
+                    apiIdOldCaseMap.put(item.getApiDefinitionId(), new HashMap<>() {{
+                        this.put(caseName, item);
+                    }});
+                }
+            }
+        });
+        List<ApiTestCaseWithBLOBs> saveCaseList = new ArrayList<>();
+        List<ApiTestCaseWithBLOBs> updateCaseList = new ArrayList<>();
+        Map<String, Integer> lastCaseNumMap = new LinkedHashMap<>();
+        sourceApiCaseList.forEach(item -> {
+            String oldApiId = item.getApiDefinitionId();
+            String refId = sourceApiIdRefIdMap.get(oldApiId);
+            if (StringUtils.isNotBlank(refId)) {
+                ApiDefinition api = refIdMap.get(refId);
+                if (api != null) {
+                    //通过用例名称检查是否需要覆盖
+                    ApiTestCase oldCase = null;
+                    if (apiIdOldCaseMap.containsKey(api.getId())) {
+                        oldCase = apiIdOldCaseMap.get(api.getId()).get(StringUtils.trim(item.getName()));
+                    }
+                    ApiTestCaseWithBLOBs newCase = new ApiTestCaseWithBLOBs();
+                    BeanUtils.copyBean(newCase, item);
+                    newCase.setApiDefinitionId(api.getId());
+                    newCase.setVersionId(api.getVersionId());
+                    if (oldCase == null) {
+                        int lastCaseNum = 0;
+                        if (lastCaseNumMap.containsKey(api.getId())) {
+                            lastCaseNum = lastCaseNumMap.get(api.getId());
+                        } else {
+                            lastCaseNum = apiTestCaseService.getNextNum(api.getId());
+                        }
+                        int caseNum = apiTestCaseService.getNextNum(lastCaseNum);
+                        newCase.setNum(caseNum);
+                        newCase.setId(UUID.randomUUID().toString());
+                        newCase.setCreateTime(timeStamp);
+                        newCase.setUpdateTime(timeStamp);
+
+                        lastCaseNumMap.put(api.getId(), caseNum);
+                        saveCaseList.add(newCase);
+                    } else {
+                        newCase.setId(oldCase.getId());
+                        newCase.setNum(oldCase.getNum());
+                        newCase.setCreateTime(oldCase.getCreateTime());
+                        newCase.setUpdateTime(timeStamp);
+                        updateCaseList.add(newCase);
+                    }
+                }
+            }
+        });
+        ApiTestCaseMapper apiTestCaseBatchMapper = batchSqlSession.getMapper(ApiTestCaseMapper.class);
+        if (CollectionUtils.isNotEmpty(saveCaseList)) {
+            saveCaseList.forEach(apiTestCaseBatchMapper::insert);
+        }
+        if (CollectionUtils.isNotEmpty(updateCaseList)) {
+            updateCaseList.forEach(apiTestCaseBatchMapper::updateByPrimaryKey);
         }
     }
 }
