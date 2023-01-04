@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.5</version>
+        <version>2.7.7</version>
         <relativePath/>
     </parent>
 
@@ -18,10 +18,9 @@
     <description>MeterSphere</description>
 
     <properties>
-        <revision>main</revision>
+        <revision>2.6</revision>
         <java.version>11</java.version>
         <spring-cloud.version>2021.0.5</spring-cloud.version>
-        <spring-security.version>5.7.5</spring-security.version>
         <dubbo.version>2.7.18</dubbo.version>
         <platform-plugin-sdk.version>1.2.0</platform-plugin-sdk.version>
         <flyway.version>7.15.0</flyway.version>
