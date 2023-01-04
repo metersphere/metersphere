@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -200,8 +201,8 @@ public class SSOService {
         session.getAttributes().put("authId", authSource.getId());
         session.getAttributes().put("casTicket", ticket);
         // 记录cas对应关系
-        Long timeout = env.getProperty("spring.session.timeout", Long.class);
-        stringRedisTemplate.opsForValue().set(ticket, name, timeout, TimeUnit.SECONDS);
+        Duration timeout = env.getProperty("spring.session.timeout", Duration.class, Duration.ofHours(12));
+        stringRedisTemplate.opsForValue().set(ticket, name, timeout);
 
         return userOptional;
     }
