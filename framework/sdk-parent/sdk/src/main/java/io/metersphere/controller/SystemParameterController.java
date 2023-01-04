@@ -17,6 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class SystemParameterController {
 
     @GetMapping("timeout")
     public long getTimeout() {
-        return env.getProperty("spring.session.timeout", Long.class, 43200L); // 默认43200s, 12个小时
+        return env.getProperty("spring.session.timeout", Duration.class, Duration.ofHours(12)).getSeconds(); // 默认43200s, 12个小时
     }
 
     @GetMapping("/mail/info")
