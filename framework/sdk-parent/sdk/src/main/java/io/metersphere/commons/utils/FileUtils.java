@@ -388,58 +388,6 @@ public class FileUtils {
         }
     }
 
-    /**
-     * 获取当前jmx 涉及到的文件  执行时
-     *
-     * @param tree
-     */
-    public static void getExecuteFiles(HashTree tree, String reportId, List<BodyFile> files) {
-        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
-        for (Object key : tree.keySet()) {
-            HashTree node = tree.get(key);
-            if (key instanceof HTTPSamplerProxy) {
-                HTTPSamplerProxy source = (HTTPSamplerProxy) key;
-                if (source != null && source.getHTTPFiles().length > 0) {
-                    for (HTTPFileArg arg : source.getHTTPFiles()) {
-                        BodyFile file = new BodyFile();
-                        file.setId(arg.getParamName());
-                        file.setName(arg.getPath());
-                        if (arg.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
-                            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(arg.getPropertyAsString("fileId"));
-                            if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
-                                file.setStorage(fileMetadata.getStorage());
-                                file.setFileId(arg.getPropertyAsString("fileId"));
-                                file.setName(reportId + File.separator + fileMetadata.getName());
-                                arg.setPath(BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
-                            }
-                        }
-                        files.add(file);
-                    }
-                }
-            } else if (key instanceof CSVDataSet) {
-                CSVDataSet source = (CSVDataSet) key;
-                if (source != null && StringUtils.isNotEmpty(source.getPropertyAsString("filename"))) {
-                    BodyFile file = new BodyFile();
-                    file.setId(source.getPropertyAsString("filename"));
-                    file.setName(source.getPropertyAsString("filename"));
-                    if (source.getPropertyAsBoolean("isRef") && fileMetadataService != null) {
-                        FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(source.getPropertyAsString("fileId"));
-                        if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
-                            file.setStorage(fileMetadata.getStorage());
-                            file.setFileId(source.getPropertyAsString("fileId"));
-                            file.setName(reportId + File.separator + fileMetadata.getName());
-                            ((CSVDataSet) key).setProperty("filename", BODY_FILE_DIR + File.separator + reportId + File.separator + fileMetadata.getName());
-                        }
-                    }
-                    files.add(file);
-                }
-            }
-            if (node != null) {
-                getExecuteFiles(node, reportId, files);
-            }
-        }
-    }
-
     public static byte[] fileToByte(File tradeFile) {
         byte[] buffer = null;
         try (FileInputStream fis = new FileInputStream(tradeFile);
