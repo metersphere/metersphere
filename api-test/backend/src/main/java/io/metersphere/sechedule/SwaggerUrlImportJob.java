@@ -3,11 +3,12 @@ package io.metersphere.sechedule;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.base.domain.SwaggerUrlProject;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.service.definition.ApiDefinitionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -28,7 +29,7 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
     @Override
     protected void businessExecute(JobExecutionContext context) {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-        String resourceId = jobDataMap.getString("resourceId");
+        String resourceId = jobDataMap.getString(ElementConstants.RESOURCE_ID);
         SwaggerUrlProject swaggerUrlProject = apiDefinitionService.getSwaggerInfo(resourceId);
         ApiTestImportRequest request = new ApiTestImportRequest();
         // 获取鉴权设置

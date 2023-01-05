@@ -47,7 +47,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.aspectj.util.FileUtil;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.scheduling.annotation.Async;
@@ -56,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -302,9 +300,9 @@ public class ApiTestCaseService {
         ApiTestCase test = updateTest(request);
         if (request.getRequest() != null) {
             // requestID 跟接口id 不一致的情况
-            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+            ApiFileUtil.createBodyFiles(request.getRequest().getId(), bodyFiles);
         } else {
-            FileUtils.createBodyFiles(request.getId(), bodyFiles);
+            ApiFileUtil.createBodyFiles(request.getId(), bodyFiles);
         }
         // 发送通知
         ApiCaseBatchSyncService apiCaseBatchSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
@@ -323,8 +321,7 @@ public class ApiTestCaseService {
         deleteFollows(testId);
         ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testId);
         if (apiTestCase != null) {
-            String filePath = StringUtils.join(BODY_FILE_DIR, File.separator, apiTestCase.getId());
-            FileUtil.deleteContents(new File(filePath));
+            ApiFileUtil.deleteBodyFiles(apiTestCase.getId());
         }
     }
 
@@ -439,9 +436,9 @@ public class ApiTestCaseService {
 
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
-        FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        ApiFileUtil.createBodyFiles(request.getId(), bodyFiles);
         request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
-        FileUtils.copyBdyFile(request.getApiDefinitionId(), request.getId());
+        ApiFileUtil.copyBdyFile(request.getApiDefinitionId(), request.getId());
 
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());

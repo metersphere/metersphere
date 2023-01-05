@@ -102,7 +102,7 @@ public class DataFormattingUtil {
                 try {
                     List<Element> propElementList = parentElement.elements();
                     for (Element propElement : propElementList) {
-                        if (StringUtils.equals("filename", propElement.attributeValue("name"))) {
+                        if (StringUtils.equals(ElementConstants.FILENAME, propElement.attributeValue("name"))) {
                             String filePath = propElement.getText();
                             File file = new File(filePath);
                             if (file.exists() && file.isFile()) {
