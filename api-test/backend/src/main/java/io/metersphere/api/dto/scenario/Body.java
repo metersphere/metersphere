@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.exec.generator.JSONSchemaRunTest;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
@@ -202,8 +203,9 @@ public class Body {
                     mimetype = ContentType.APPLICATION_OCTET_STREAM.getMimeType();
                 }
                 HTTPFileArg fileArg = new HTTPFileArg(path, isBinary ? StringUtils.EMPTY : paramName, mimetype);
-                fileArg.setProperty("isRef", isRef);
-                fileArg.setProperty("fileId", fileId);
+                fileArg.setProperty(ElementConstants.IS_REF, isRef);
+                fileArg.setProperty(ElementConstants.FILE_ID, fileId);
+                fileArg.setProperty(ElementConstants.RESOURCE_ID, requestId);
                 list.add(fileArg);
             });
         }

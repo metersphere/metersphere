@@ -5,21 +5,17 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.StorageConstants;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -221,7 +217,7 @@ public class ApiJMeterFileService {
         Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
-        FileUtils.getExecuteFiles(hashTree, reportId, files);
+        ApiFileUtil.getExecuteFiles(hashTree, reportId, files);
         if (CollectionUtils.isNotEmpty(files)) {
             Map<String, String> repositoryFileMap = new HashMap<>();
             for (BodyFile bodyFile : files) {

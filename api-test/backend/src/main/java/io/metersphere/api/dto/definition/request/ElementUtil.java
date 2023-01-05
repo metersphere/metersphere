@@ -135,9 +135,10 @@ public class ElementUtil {
                         if (!config.isOperating() && !isRepository && !new File(path).exists()) {
                             MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                         }
-                        csvDataSet.setProperty("filename", path);
-                        csvDataSet.setProperty("isRef", isRef);
-                        csvDataSet.setProperty("fileId", fileId);
+                        csvDataSet.setProperty(ElementConstants.FILENAME, path);
+                        csvDataSet.setProperty(ElementConstants.IS_REF, isRef);
+                        csvDataSet.setProperty(ElementConstants.FILE_ID, fileId);
+                        csvDataSet.setProperty(ElementConstants.RESOURCE_ID, file.getId());
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("shareMode", shareMode);
@@ -182,9 +183,10 @@ public class ElementUtil {
                                 MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                             }
                         }
-                        csvDataSet.setProperty("filename", path);
-                        csvDataSet.setProperty("isRef", isRef);
-                        csvDataSet.setProperty("fileId", fileId);
+                        csvDataSet.setProperty(ElementConstants.FILENAME, path);
+                        csvDataSet.setProperty(ElementConstants.IS_REF, isRef);
+                        csvDataSet.setProperty(ElementConstants.FILE_ID, fileId);
+                        csvDataSet.setProperty(ElementConstants.RESOURCE_ID, file.getId());
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("shareMode", shareMode);

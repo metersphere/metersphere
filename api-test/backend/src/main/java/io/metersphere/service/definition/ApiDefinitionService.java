@@ -389,9 +389,9 @@ public class ApiDefinitionService {
         }
         if (StringUtils.isNotEmpty(request.getSourceId())) {
             // 检查附件复制出附件
-            FileUtils.copyBodyFiles(request.getSourceId(), request.getId());
+            ApiFileUtil.copyBodyFiles(request.getSourceId(), request.getId());
         } else {
-            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+            ApiFileUtil.createBodyFiles(request.getRequest().getId(), bodyFiles);
         }
         request.setNewCreate(true);
         return createTest(request);
@@ -415,7 +415,7 @@ public class ApiDefinitionService {
 
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
-        FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        ApiFileUtil.createBodyFiles(request.getRequest().getId(), bodyFiles);
         String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(returnModel.getName());
         BeanMap beanMap = new BeanMap(returnModel);
         Map paramMap = new HashMap<>(beanMap);
@@ -456,7 +456,7 @@ public class ApiDefinitionService {
             customFieldApiService.deleteByResourceId(api.getId());
             // 删除关系图
             relationshipEdgeService.delete(api.getId());
-            FileUtils.deleteBodyFiles(api.getId());
+            ApiFileUtil.deleteBodyFiles(api.getId());
             deleteFollows(api.getId());
         });
         // 删除附件关系
@@ -1822,7 +1822,7 @@ public class ApiDefinitionService {
                 api.setUpdateTime(System.currentTimeMillis());
                 api.setRefId(api.getId());
                 // 检查附件复制出附件
-                FileUtils.copyBodyFiles(sourceId, api.getId());
+                ApiFileUtil.copyBodyFiles(sourceId, api.getId());
 
                 mapper.insert(api);
                 if (i % 50 == 0) sqlSession.flushStatements();

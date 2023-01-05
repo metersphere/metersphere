@@ -56,18 +56,18 @@ public class MsJmeterElement extends MsTestElement {
                 }
                 // csv 检查处理
                 if (!config.isOperating() && scriptWrapper instanceof CSVDataSet && ((CSVDataSet) scriptWrapper).isEnabled()) {
-                    String path = ((CSVDataSet) scriptWrapper).getPropertyAsString("filename");
+                    String path = ((CSVDataSet) scriptWrapper).getPropertyAsString(ElementConstants.FILENAME);
                     if (!new File(path).exists()) {
                         // 检查场景变量中的csv文件是否存在
                         String pathArr[] = path.split("\\/");
                         String csvPath = this.getCSVPath(config, pathArr[pathArr.length - 1]);
                         if (StringUtils.isNotEmpty(csvPath)) {
-                            ((CSVDataSet) scriptWrapper).setProperty("filename", csvPath);
+                            ((CSVDataSet) scriptWrapper).setProperty(ElementConstants.FILENAME, csvPath);
                         } else {
                             MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");
                         }
                     }
-                    String csvPath = ((CSVDataSet) scriptWrapper).getPropertyAsString("filename");
+                    String csvPath = ((CSVDataSet) scriptWrapper).getPropertyAsString(ElementConstants.FILENAME);
                     if (config.getCsvFilePaths().contains(csvPath)) {
                         return;
                     } else {
