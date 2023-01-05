@@ -2,8 +2,8 @@ package io.metersphere.sechedule;
 
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.scenario.ApiScenarioService;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
@@ -42,7 +43,7 @@ public class ApiScenarioTestJob extends MsScheduleJob {
 
         JobKey jobKey = context.getTrigger().getJobKey();
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-        String resourceId = jobDataMap.getString("resourceId");
+        String resourceId = jobDataMap.getString(ElementConstants.RESOURCE_ID);
         this.userId = jobDataMap.getString("userId");
         this.expression = jobDataMap.getString("expression");
         this.projectID = jobDataMap.getString("projectId");
