@@ -4,12 +4,14 @@ import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.exec.engine.EngineSourceParserFactory;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.metadata.service.FileMetadataService;
-import io.metersphere.api.exec.engine.EngineSourceParserFactory;
+import io.metersphere.request.BodyFile;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -21,10 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataFormattingUtil {
@@ -111,6 +110,7 @@ public class DataFormattingUtil {
                         }
                     }
                 } catch (Exception e) {
+                    LogUtil.error("获取CSV文件异常!", e);
                 }
             } else if (StringUtils.equals(qname, ElementConstants.HTTP_SAMPLER)) {
                 List<Element> elementPropElementList = parentElement.elements("elementProp");
@@ -188,9 +188,22 @@ public class DataFormattingUtil {
             config.setConfig(envConfig);
         }
         HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
+        List<BodyFile> files = new LinkedList<>();
+        ApiFileUtil.getFiles(hashTree, files);
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
         //将jmx处理封装为通用方法
         JmxInfoDTO dto = updateJmxString(jmxString, true);
+        FileMetadataMapper fileMetadataMapper = CommonBeanFactory.getBean(FileMetadataMapper.class);
+        if (fileMetadataMapper != null && CollectionUtils.isNotEmpty(files)) {
+            for (BodyFile file : files) {
+                if (StringUtils.isNotBlank(file.getFileId()) && file.isRef()) {
+                    FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(file.getFileId());
+                    if (fileMetadata != null && !dto.getAttachFiles().containsKey(fileMetadata.getId())) {
+                        dto.getAttachFiles().put(fileMetadata.getId(), fileMetadata.getName());
+                    }
+                }
+            }
+        }
         dto.setName(runRequest.getName() + ".jmx");
         return dto;
     }
