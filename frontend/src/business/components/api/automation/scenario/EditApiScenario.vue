@@ -2133,7 +2133,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.getAllResourceIds().forEach(item => {
+            this.getAllCheckedNodes().forEach(item => {
               this.recursionDelete(item, this.scenarioDefinition);
             });
             this.sort();
