@@ -150,7 +150,7 @@ public class ApiExecuteService {
     public MsExecResponseDTO debug(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
-
+        config.setApi(true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null && map.size() > 0) {
@@ -249,7 +249,7 @@ public class ApiExecuteService {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
         ParameterConfig parameterConfig = new ParameterConfig();
-
+        parameterConfig.setApi(true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);

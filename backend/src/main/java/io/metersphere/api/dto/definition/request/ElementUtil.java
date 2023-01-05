@@ -801,7 +801,7 @@ public class ElementUtil {
                 }
             }
             List<String> finalDataName = dataName;
-            if (CollectionUtils.isNotEmpty(dataName)) {
+            if (CollectionUtils.isNotEmpty(finalDataName) && CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
                 List<DatabaseConfig> collect = envConfig.getDatabaseConfigs().stream().filter(DatabaseConfig -> DatabaseConfig.getName().equals(finalDataName.get(0))).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(collect)) {
                     return collect.get(0);
