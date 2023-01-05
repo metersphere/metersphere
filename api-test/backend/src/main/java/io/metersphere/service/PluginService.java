@@ -88,7 +88,7 @@ public class PluginService {
     public void loadPlugins() {
         try {
             PluginExample example = new PluginExample();
-            example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
+            example.createCriteria().andScenarioNotEqualTo(PluginScenario.platform.name());
             List<Plugin> plugins = pluginMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(plugins)) {
                 plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
@@ -109,15 +109,11 @@ public class PluginService {
         }
     }
 
-    public List<PluginDTO> list(String name) {
+    public List<PluginDTO> getPluginList() {
         List<PluginDTO> lists = new LinkedList<>();
         try {
             PluginExample example = new PluginExample();
-            example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
-            if (StringUtils.isNotBlank(name)) {
-                name = "%" + name + "%";
-                example.createCriteria().andNameLike(name);
-            }
+            example.createCriteria().andScenarioNotEqualTo(PluginScenario.platform.name());
             List<Plugin> plugins = pluginMapper.selectByExample(example);
             Map<String, Boolean> pluginMap = new HashMap<>();
             if (CollectionUtils.isNotEmpty(plugins)) {
@@ -183,7 +179,7 @@ public class PluginService {
 
     public List<Plugin> list() {
         PluginExample example = new PluginExample();
-        example.createCriteria().andScenarioEqualTo(PluginScenario.api.name());
+        example.createCriteria().andScenarioNotEqualTo(PluginScenario.platform.name());
         List<Plugin> plugins = pluginMapper.selectByExample(example);
         return plugins;
     }
