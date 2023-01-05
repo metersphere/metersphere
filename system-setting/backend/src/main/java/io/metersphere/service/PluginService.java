@@ -5,14 +5,18 @@ import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.commons.constants.PluginScenario;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.metadata.service.FileManagerService;
+import io.metersphere.metadata.vo.FileRequest;
 import io.metersphere.request.PluginDTO;
 import io.metersphere.request.PluginRequest;
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,6 +37,8 @@ public class PluginService {
     private PlatformPluginService platformPluginService;
     @Resource
     private ApiPluginService apiPluginService;
+    @Resource
+    private FileManagerService fileManagerService;
 
     public void addPlugin(PluginWithBLOBs plugin) {
         if (StringUtils.isBlank(plugin.getId())) {
@@ -91,6 +97,8 @@ public class PluginService {
             platformPluginService.delete(id);
         } else {
             // 接口传的是 pluginId
+            FileRequest request = getRequest(id);
+            fileManagerService.delete(request);
             apiPluginService.delete(id);
         }
     }
@@ -119,7 +127,21 @@ public class PluginService {
         } else {
             List<PluginWithBLOBs> plugins = apiPluginService.addApiPlugin(file);
             plugins.forEach(this::addPlugin);
+            // 存入MinIO
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                String pluginId = plugins.get(0).getPluginId();
+                FileRequest request = getRequest(pluginId);
+                fileManagerService.upload(file, request);
+            }
         }
+    }
+
+    private FileRequest getRequest(String pluginId) {
+        FileRequest request = new FileRequest();
+        request.setProjectId(StringUtils.join(FileUtils.BODY_FILE_DIR, "/plugin", pluginId));
+        request.setFileName(pluginId);
+        request.setStorage(StorageConstants.MINIO.name());
+        return request;
     }
 
     public void checkPluginExist(MultipartFile file) {
@@ -137,7 +159,7 @@ public class PluginService {
         example.createCriteria().andPluginIdEqualTo(id);
         List<PluginWithBLOBs> plugins = pluginMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(plugins)) {
-            Plugin plugin =  plugins.get(0);
+            Plugin plugin = plugins.get(0);
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(plugin, SystemReference.pluginColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(plugin.getId()), null, plugin.getSourceName(), plugin.getCreateUserId(), columns);
             return JSON.toJSONString(details);

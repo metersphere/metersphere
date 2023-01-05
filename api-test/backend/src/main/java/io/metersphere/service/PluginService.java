@@ -7,10 +7,14 @@ import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.commons.constants.PluginScenario;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.metadata.service.FileManagerService;
+import io.metersphere.metadata.vo.FileRequest;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,8 @@ import java.util.stream.Collectors;
 public class PluginService {
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private FileManagerService fileManagerService;
 
     private boolean isXpack(Class<?> aClass, Object instance) {
         try {
@@ -37,11 +43,17 @@ public class PluginService {
         }
     }
 
-    private boolean loadJar(String jarPath) {
+    private boolean loadJar(String jarPath, String pluginId) {
         try {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             try {
                 File file = new File(jarPath);
+                if (!file.exists()) {
+                    // 从MinIO下载
+                    if (!this.downPluginJar(jarPath, pluginId, jarPath)) {
+                        return false;
+                    }
+                }
                 if (!file.exists()) {
                     return false;
                 }
@@ -61,6 +73,18 @@ public class PluginService {
         return false;
     }
 
+    private boolean downPluginJar(String path, String pluginId, String jarPath) {
+        FileRequest request = new FileRequest();
+        request.setProjectId(StringUtils.join(FileUtils.BODY_FILE_DIR, "/plugin", pluginId));
+        request.setFileName(pluginId);
+        request.setStorage(StorageConstants.MINIO.name());
+        byte[] bytes = fileManagerService.downloadFile(request);
+        if (ArrayUtils.isNotEmpty(bytes)) {
+            FileUtils.createFile(path, bytes);
+        }
+        return new File(jarPath).exists();
+    }
+
     public void loadPlugins() {
         try {
             PluginExample example = new PluginExample();
@@ -71,7 +95,7 @@ public class PluginService {
                         -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
                 if (CollectionUtils.isNotEmpty(plugins)) {
                     plugins.forEach(item -> {
-                        boolean isLoad = this.loadJar(item.getSourcePath());
+                        boolean isLoad = this.loadJar(item.getSourcePath(), item.getPluginId());
                         if (!isLoad) {
                             PluginExample pluginExample = new PluginExample();
                             pluginExample.createCriteria().andPluginIdEqualTo(item.getPluginId());

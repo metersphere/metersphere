@@ -50,7 +50,6 @@ import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
-import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiDefinitionSyncService;
 import io.metersphere.xpack.quota.service.QuotaService;
@@ -2287,7 +2286,7 @@ public class ApiDefinitionService {
                 saveMockExpectList.forEach(mockExpectConfigBatchMapper::insert);
             }
             if (CollectionUtils.isNotEmpty(updateMockExpectList)) {
-                updateMockExpectList.forEach(mockExpectConfigBatchMapper::updateByPrimaryKey);
+                updateMockExpectList.forEach(mockExpectConfigBatchMapper::updateByPrimaryKeyWithBLOBs);
             }
         }
     }
@@ -2312,9 +2311,11 @@ public class ApiDefinitionService {
         List<ApiTestCaseWithBLOBs> saveCaseList = new ArrayList<>();
         List<ApiTestCaseWithBLOBs> updateCaseList = new ArrayList<>();
         Map<String, Integer> lastCaseNumMap = new LinkedHashMap<>();
+        //用例文件关联关系数据 <要复制的用例ID， 生成的用例ID>
+        Map<String, String> forceOverrideFileMap = new HashMap<>();
         sourceApiCaseList.forEach(item -> {
-            String oldApiId = item.getApiDefinitionId();
-            String refId = sourceApiIdRefIdMap.get(oldApiId);
+            String sourceApiId = item.getApiDefinitionId();
+            String refId = sourceApiIdRefIdMap.get(sourceApiId);
             if (StringUtils.isNotBlank(refId)) {
                 ApiDefinition api = refIdMap.get(refId);
                 if (api != null) {
@@ -2349,15 +2350,22 @@ public class ApiDefinitionService {
                         newCase.setUpdateTime(timeStamp);
                         updateCaseList.add(newCase);
                     }
+
+                    forceOverrideFileMap.put(item.getId(), newCase.getId());
+                    //本地文件覆盖
+                    FileUtils.forceOverrideBodyFiles(item.getId(), newCase.getId());
                 }
             }
         });
+        FileAssociationMapper batchFileAssociationMapper = batchSqlSession.getMapper(FileAssociationMapper.class);
+        extFileAssociationService.forceOverrideFileAssociation(forceOverrideFileMap, batchFileAssociationMapper);
+
         ApiTestCaseMapper apiTestCaseBatchMapper = batchSqlSession.getMapper(ApiTestCaseMapper.class);
         if (CollectionUtils.isNotEmpty(saveCaseList)) {
             saveCaseList.forEach(apiTestCaseBatchMapper::insert);
         }
         if (CollectionUtils.isNotEmpty(updateCaseList)) {
-            updateCaseList.forEach(apiTestCaseBatchMapper::updateByPrimaryKey);
+            updateCaseList.forEach(apiTestCaseBatchMapper::updateByPrimaryKeyWithBLOBs);
         }
     }
 }

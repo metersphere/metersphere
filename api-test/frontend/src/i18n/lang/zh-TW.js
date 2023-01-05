@@ -18,6 +18,7 @@ const message = {
       default_value: '默認值',
     },
     copy_data_from_other_version: '複製版本數據',
+    copy_data_from_other_version_tips: '名稱相同的用例和Mock期望會進行強制覆蓋!',
     body: {
       json_format_error: 'JSON格式錯誤',
     },

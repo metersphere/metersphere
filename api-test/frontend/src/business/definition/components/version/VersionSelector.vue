@@ -12,17 +12,26 @@
           <el-select v-model="versionId" size="small" :placeholder="$t('project.version.please_input_version')">
             <el-option v-for="v in versionData" :key="v.id" :label="v.name" :value="v.id" />
           </el-select>
+          <el-popover
+            placement="top-start"
+            width="200"
+            trigger="hover"
+            :content="$t('api_definition.copy_data_from_other_version_tips')">
+            <i class="el-icon-warning" slot="reference" style="color: #f56c6c; margin: 0 0 0 5px" />
+          </el-popover>
         </el-row>
         <el-row style="margin-top: 10px">
-          <el-checkbox v-model="selectCase" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">{{ $t('commons.api_case') }}</el-checkbox>
+          <el-checkbox v-model="selectCase" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">{{
+            $t('commons.api_case')
+          }}</el-checkbox>
           <el-checkbox v-model="selectMock">{{ $t('commons.mock') }}</el-checkbox>
         </el-row>
       </div>
     </el-row>
     <template v-slot:footer>
-        <el-button type="primary" :loading="saving"  size="small" @click="save" @keydown.enter.native.prevent>{{
-            $t('commons.save')
-          }}</el-button>
+      <el-button type="primary" :loading="saving" size="small" @click="save" @keydown.enter.native.prevent>{{
+        $t('commons.save')
+      }}</el-button>
     </template>
   </ms-edit-dialog>
 </template>
@@ -37,7 +46,7 @@ export default {
     return {
       loading: false,
       visible: false,
-      saving:false,
+      saving: false,
       versionId: '',
       versionData: [],
       selectCase: true,
@@ -82,7 +91,7 @@ export default {
         this.$error(this.$t('project.version.please_input_version'));
       } else {
         this.saving = true;
-        this.$emit('handleSave', this.versionId,this.selectCase,this.selectMock);
+        this.$emit('handleSave', this.versionId, this.selectCase, this.selectMock);
       }
     },
   },
