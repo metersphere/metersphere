@@ -542,6 +542,9 @@ const message = {
       performance: 'Performance',
       scenario_case: 'Scenario Case'
     },
+    sync_case_tips: 'Note: After ignoring, the affected use cases will no longer have reminders, please operate with caution',
+    batch_sync_api_tips: 'Batch synchronization, some use case parameters that do not need to be synchronized may also be overwritten, causing the test to fail, please operate with caution',
+    batch_ignore_case_tips: 'Note: After batch ignoring, the affected use cases will no longer have reminders, please operate with caution',
   },
   display: {
     title: 'Theme',
@@ -1334,7 +1337,7 @@ const message = {
       one_click_sync: "One-click sync",
       change_notification: "Change Notification",
       recipient: "Recipient",
-      recipient_tips: "When the API changes, the associated CASE creator and automation scene creator will receive in-site messages",
+      recipient_tips: "When the API changes, the associated CASE creator and automation scene creator will receive in-site messages,can go to",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"

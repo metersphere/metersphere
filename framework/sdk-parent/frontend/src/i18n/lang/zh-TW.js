@@ -544,7 +544,10 @@ const message = {
       api_case: '接口用例',
       performance: '性能測試',
       scenario_case: '場景用例'
-    }
+    },
+    sync_case_tips: '注意: 忽略後，受影響的用例將不再有提醒，請謹慎操作',
+    batch_sync_api_tips: '批量同步，有可能部分不需要同步的用例參數也被覆蓋，導致測試不通過，請謹慎操作',
+    batch_ignore_case_tips: '注意: 批量忽略後，受影響的用例將不再有提醒，請謹慎操作',
   },
   display: {
     title: '顯示設置',
@@ -1341,7 +1344,7 @@ const message = {
       one_click_sync: "一鍵同步",
       change_notification: "變更通知",
       recipient: "接收人",
-      recipient_tips: "當API發生變化時，關聯的CASE創建人、自動化場景創建人會收到站內消息",
+      recipient_tips: "當API發生變化時，關聯的CASE創建人、自動化場景創建人會收到站內消息，可前往",
       select_comp: {
         no_data: "無數據",
         add_data: "去添加"
