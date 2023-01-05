@@ -2133,7 +2133,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.getAllResourceIds().forEach(item => {
+            this.getAllCheckedNodes().forEach(item => {
               this.recursionDelete(item, this.scenarioDefinition);
             });
             this.sort();
@@ -2146,14 +2146,21 @@ export default {
         }
       });
     },
-    recursionDelete(resourceId, nodes) {
+    getAllCheckedNodes() {
+      if (this.$refs.stepTree) {
+        return this.$refs.stepTree.getCheckedNodes();
+      }
+      return [];
+    },
+    recursionDelete(item, nodes) {
       for (let i in nodes) {
         if (nodes[i]) {
-          if (resourceId === nodes[i].resourceId) {
+          //复制的case的断言的resourceId是一样的，所以要加上parentIndex做唯一标识
+          if (item.resourceId === nodes[i].resourceId && item.parentIndex === nodes[i].parentIndex) {
             nodes.splice(i, 1);
           } else {
             if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
-              this.recursionDelete(resourceId, nodes[i].hashTree);
+              this.recursionDelete(item, nodes[i].hashTree);
             }
           }
         }

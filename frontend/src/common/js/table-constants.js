@@ -148,7 +148,8 @@ export function API_SCENARIO_FILTERS () {
     ],
     RESULT_FILTERS: [
       {text: i18n.t('api_test.automation.fail'), value: 'Fail'},
-      {text: i18n.t('api_test.automation.success'), value: 'Success'}
+      {text: i18n.t('api_test.automation.success'), value: 'Success'},
+      {text: i18n.t('api_test.home_page.detail_card.unexecute'), value: 'unexecute'}
     ]
   };
   /*LEVEL_FILTERS: [
