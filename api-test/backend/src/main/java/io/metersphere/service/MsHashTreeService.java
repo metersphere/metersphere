@@ -82,7 +82,7 @@ public class MsHashTreeService {
     public static final String CUSTOM_NUM = "customNum";
     public static final String SHOW_CUSTOM_NUM = "showCustomNum";
     public static final String VERSION_ID = "versionId";
-    public static final String RESOURCE_ID = "resourceId";
+    public static final String RESOURCE_ID = ElementConstants.RESOURCE_ID;
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制

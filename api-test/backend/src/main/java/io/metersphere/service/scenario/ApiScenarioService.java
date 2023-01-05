@@ -304,11 +304,11 @@ public class ApiScenarioService {
     }
 
     private void uploadFiles(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
-        FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
+        ApiFileUtil.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         List<String> bodyFileRequestIds = request.getBodyFileRequestIds();
         if (CollectionUtils.isNotEmpty(bodyFileRequestIds)) {
             bodyFileRequestIds.forEach(requestId -> {
-                FileUtils.createBodyFiles(requestId, bodyFiles);
+                ApiFileUtil.createBodyFiles(requestId, bodyFiles);
             });
         }
     }
@@ -444,7 +444,7 @@ public class ApiScenarioService {
             List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
             oldRequests.forEach(item -> {
                 if (item.isCustomizeReq() && !newRequestIds.contains(item.getId())) {
-                    FileUtils.deleteBodyFiles(item.getId());
+                    ApiFileUtil.deleteBodyFiles(item.getId());
                 }
             });
         } catch (Exception e) {
@@ -558,7 +558,7 @@ public class ApiScenarioService {
         List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
         httpSampleFromHashTree.forEach((httpSamplerProxy) -> {
             if (httpSamplerProxy.isCustomizeReq()) {
-                FileUtils.deleteBodyFiles(httpSamplerProxy.getId());
+                ApiFileUtil.deleteBodyFiles(httpSamplerProxy.getId());
             }
         });
     }
@@ -831,7 +831,7 @@ public class ApiScenarioService {
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
         if (fileOperationRequest.getId().contains("/") || fileOperationRequest.getName().contains("/"))
             MSException.throwException(Translator.get("invalid_parameter"));
-        File file = new File(FileUtils.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        File file = new File(ApiFileUtil.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file); ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
             byte[] b = new byte[1000];
             int n;
@@ -889,7 +889,7 @@ public class ApiScenarioService {
             if (isUseElement) {
                 scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
                 ElementUtil.accuracyHashTree(jmeterHashTree);
-                repositoryMetadata = FileUtils.getRepositoryFileMetadata(jmeterHashTree);
+                repositoryMetadata = ApiFileUtil.getRepositoryFileMetadata(jmeterHashTree);
                 jmx = scenario.getJmx(jmeterHashTree);
             } else {
                 MsThreadGroup group = new MsThreadGroup();
@@ -902,7 +902,7 @@ public class ApiScenarioService {
                 }});
                 testPlan.getHashTree().add(group);
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
-                repositoryMetadata = FileUtils.getRepositoryFileMetadata(jmeterHashTree);
+                repositoryMetadata = ApiFileUtil.getRepositoryFileMetadata(jmeterHashTree);
                 jmx = testPlan.getJmx(jmeterHashTree);
             }
 
@@ -1654,7 +1654,7 @@ public class ApiScenarioService {
             List<String> ids = scenarios.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
             request.setId(JSON.toJSONString(ids));
         }
-        return FileUtils.listBytesToZip(files);
+        return ApiFileUtil.listBytesToZip(files);
     }
 
     private void checkExportEnv(List<ApiScenarioWithBLOBs> scenarios) {
@@ -2171,7 +2171,7 @@ public class ApiScenarioService {
                 object.put("referenced", "Copy");
             } else {
                 object.put("id", bloBs.getId());
-                object.put("resourceId", bloBs.getId());
+                object.put(ElementConstants.RESOURCE_ID, bloBs.getId());
             }
         }
     }

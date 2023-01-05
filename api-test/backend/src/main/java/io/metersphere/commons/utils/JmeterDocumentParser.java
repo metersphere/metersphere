@@ -3,6 +3,7 @@ package io.metersphere.commons.utils;
 import io.metersphere.api.exec.engine.EngineSourceParser;
 import io.metersphere.api.exec.engine.EngineSourceParserFactory;
 import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.engine.EngineContext;
@@ -227,7 +228,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         for (Element item : childNodes) {
             if (nodeNameEquals(item, STRING_PROP)) {
                 String filenameTag = item.attributeValue("name");
-                if (StringUtils.equals(filenameTag, "filename")) {
+                if (StringUtils.equals(filenameTag, ElementConstants.FILENAME)) {
                     // 截取文件名
                     handleFilename(item);
                     // 切割CSV文件
