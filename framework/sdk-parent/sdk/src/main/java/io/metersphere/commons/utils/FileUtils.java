@@ -172,6 +172,18 @@ public class FileUtils {
     }
 
     /**
+     * 强制覆盖文件
+     *
+     * @param sourceId 源ID
+     * @param targetId 目标ID
+     */
+    public static void forceOverrideBodyFiles(String sourceId, String targetId) {
+        //删除源文件
+        deleteBodyFiles(targetId);
+        copyBodyFiles(sourceId, targetId);
+    }
+
+    /**
      * 复制文件夹(使用缓冲字节流)
      *
      * @param sourcePath 源文件夹路径

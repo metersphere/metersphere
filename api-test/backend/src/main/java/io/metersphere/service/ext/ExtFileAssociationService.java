@@ -5,10 +5,15 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.base.domain.FileAssociation;
+import io.metersphere.base.domain.FileAssociationExample;
+import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.commons.enums.FileAssociationTypeEnums;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.springframework.stereotype.Service;
@@ -16,6 +21,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,5 +82,39 @@ public class ExtFileAssociationService extends FileAssociationService {
             });
         }
         return files;
+    }
+
+    /**
+     * 强制覆盖文件关系
+     *
+     * @param overrideIdMap         <来源ID - 强制覆盖的ID>
+     * @param batchProcessingMapper 批量处理Mapper， 在该方法调用地方进行事务提交
+     */
+    public void forceOverrideFileAssociation(Map<String, String> overrideIdMap, FileAssociationMapper batchProcessingMapper) {
+        if (MapUtils.isEmpty(overrideIdMap) || batchProcessingMapper == null) {
+            return;
+        }
+        //删除原来的数据
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdIn(new ArrayList<>(overrideIdMap.values()));
+        batchProcessingMapper.deleteByExample(example);
+
+        example.clear();
+        example.createCriteria().andSourceIdIn(new ArrayList<>(overrideIdMap.keySet()));
+        List<FileAssociation> fileAssociationList = batchProcessingMapper.selectByExample(example);
+        List<FileAssociation> saveList = new ArrayList<>();
+        fileAssociationList.forEach(item -> {
+            String overrideId = overrideIdMap.get(item.getSourceId());
+            if (StringUtils.isNotBlank(overrideId)) {
+                FileAssociation overrideFileAssociation = new FileAssociation();
+                BeanUtils.copyBean(overrideFileAssociation, item);
+                overrideFileAssociation.setId(UUID.randomUUID().toString());
+                overrideFileAssociation.setSourceId(overrideId);
+                saveList.add(overrideFileAssociation);
+            }
+        });
+
+        saveList.forEach(batchProcessingMapper::insert);
+
     }
 }

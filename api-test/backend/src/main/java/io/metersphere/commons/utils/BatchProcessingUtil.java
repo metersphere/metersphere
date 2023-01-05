@@ -1,7 +1,6 @@
-package io.metersphere.utils;
+package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.definition.BatchDataCopyRequest;
-import io.metersphere.commons.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
