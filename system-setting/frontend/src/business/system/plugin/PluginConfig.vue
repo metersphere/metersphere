@@ -107,7 +107,7 @@ export default {
           this.format(res.data);
           this.dataMap.forEach((values, key) => {
             let item = values[0];
-            if (item.scenario === 'api') {
+            if (item.scenario !== 'platform') {
               let obj = {};
               Object.assign(obj, item);
               obj.id = key;
@@ -141,9 +141,9 @@ export default {
       this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(row) {
-      let tip = row.scenario === 'api' ? this.$t('api_test.jar_config.delete_tip') : this.$t('api_test.jar_config.delete_confirm');
+      let tip = row.scenario !== 'platform' ? this.$t('api_test.jar_config.delete_tip') : this.$t('api_test.jar_config.delete_confirm');
       operationConfirm(this, tip, () => {
-        this.loading = delPluginById(row.scenario, row.id).then(() => {
+        this.loading = delPluginById(row.scenario || 'api', row.id).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.initPlugins();
         });
