@@ -275,7 +275,7 @@
         </div>
       </el-form>
       <p class="tip">{{ $t('schema.preview') }}</p>
-      <pre style="width: 100%">{{ completeNodeValue }}</pre>
+      <pre style="width: 100%; white-space: pre-wrap;">{{ completeNodeValue }}</pre>
 
       <span slot="footer" class="dialog-footer">
         <ms-dialog-footer @cancel="modalVisible = false" @confirm="handleOk" />
