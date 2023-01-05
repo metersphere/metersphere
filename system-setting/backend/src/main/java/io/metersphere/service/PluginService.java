@@ -20,13 +20,18 @@ import io.metersphere.metadata.vo.FileRequest;
 import io.metersphere.request.PluginDTO;
 import io.metersphere.request.PluginRequest;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -63,7 +68,7 @@ public class PluginService {
             plugins.forEach(item -> {
                 PluginDTO dto = new PluginDTO();
                 BeanUtils.copyBean(dto, item);
-                if (StringUtils.equals(PluginScenario.api.name(), item.getScenario())) {
+                if (!StringUtils.equals(PluginScenario.platform.name(), item.getScenario())) {
                     // api 插件调用
                     if (!pluginMap.containsKey(item.getPluginId())) {
                         dto.setLicense(apiPluginService.isXpack(item));
@@ -152,6 +157,72 @@ public class PluginService {
         if (CollectionUtils.isNotEmpty(plugins)) {
             MSException.throwException("Plugin exist!");
         }
+    }
+
+    public void loadPlugins() {
+        try {
+            PluginExample example = new PluginExample();
+            example.createCriteria().andScenarioNotEqualTo(PluginScenario.platform.name());
+            List<Plugin> plugins = pluginMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
+                        -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+                if (CollectionUtils.isNotEmpty(plugins)) {
+                    plugins.forEach(item -> {
+                        boolean isLoad = this.loadJar(item.getSourcePath(), item.getPluginId());
+                        if (!isLoad) {
+                            PluginExample pluginExample = new PluginExample();
+                            pluginExample.createCriteria().andPluginIdEqualTo(item.getPluginId());
+                            pluginMapper.deleteByExample(pluginExample);
+                        }
+                    });
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private boolean loadJar(String jarPath, String pluginId) {
+        try {
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            try {
+                File file = new File(jarPath);
+                if (!file.exists()) {
+                    // 从MinIO下载
+                    if (!this.downPluginJar(jarPath, pluginId, jarPath)) {
+                        return false;
+                    }
+                }
+                if (!file.exists()) {
+                    return false;
+                }
+                Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, file.toURI().toURL());
+            } catch (NoSuchMethodException e) {
+                Method method = classLoader.getClass()
+                        .getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, jarPath);
+            }
+            return true;
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return false;
+    }
+
+    private boolean downPluginJar(String path, String pluginId, String jarPath) {
+        FileRequest request = new FileRequest();
+        request.setProjectId(StringUtils.join(FileUtils.BODY_FILE_DIR, "/plugin", pluginId));
+        request.setFileName(pluginId);
+        request.setStorage(StorageConstants.MINIO.name());
+        byte[] bytes = fileManagerService.downloadFile(request);
+        if (ArrayUtils.isNotEmpty(bytes)) {
+            FileUtils.createFile(path, bytes);
+        }
+        return new File(jarPath).exists();
     }
 
     public String getLogDetails(String id) {
