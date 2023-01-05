@@ -19,6 +19,8 @@ const message = {
       default_value: 'Default value',
     },
     copy_data_from_other_version: 'Copy data from other version',
+    copy_data_from_other_version_tips:
+      'Use cases with the same name and mock expectations will be forcibly overwritten!',
     body: {
       json_format_error: 'JSON format error',
     },
