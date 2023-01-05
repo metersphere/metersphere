@@ -87,7 +87,7 @@
         </div>
       </el-form>
       <p class="tip">{{ $t('schema.preview') }} </p>
-      <pre style="width:100%">{{ completeNodeValue }}</pre>
+      <pre style="width:100%; white-space: pre-wrap;">{{ completeNodeValue }}</pre>
 
       <span slot="footer" class="dialog-footer">
        <ms-dialog-footer
@@ -99,7 +99,7 @@
 </template>
 <script>
 import {isNull} from './util'
-import {TYPE_NAME, TYPE, TYPES} from './type/type'
+import {TYPE, TYPE_NAME, TYPES} from './type/type'
 import MsMock from './mock/MockComplete'
 import MsDialogFooter from '../../../components/MsDialogFooter'
 import {getUUID} from "@/common/js/utils";
