@@ -1,25 +1,28 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="4">{{ $t('api_test.mock.req_param') + ':' }}</el-col>
-      <el-col :span="20" style="color: var(--primary_color)">
-        <el-checkbox v-model="fromData.headers" @change="changeEvent">{{ 'Header' + '\xa0\xa0' }}</el-checkbox>
-        <el-checkbox v-model="fromData.query" @change="changeEvent"
-          >{{ $t('api_test.definition.request.query_param') }}
+      <span class="text-class">{{ $t('api_test.mock.req_param') }}</span>
+      <div style="color: var(--primary_color);margin-top: 8px;">
+        <el-checkbox v-model="fromData.headers" @change="changeEvent"><span class="text-class">{{
+            'Header' + '\xa0\xa0'
+          }}</span></el-checkbox>
+        <el-checkbox v-model="fromData.query" @change="changeEvent">
+          <span class="text-class">{{ $t('api_test.definition.request.query_param') }}</span>
         </el-checkbox>
-        <el-checkbox v-model="fromData.rest" @change="changeEvent"
-          >{{ $t('api_test.definition.request.rest_param') }}
+        <el-checkbox v-model="fromData.rest" @change="changeEvent">
+          <span class="text-class">{{ $t('api_test.definition.request.rest_param') }}</span>
         </el-checkbox>
-        <el-checkbox v-model="fromData.body" @change="changeEvent">{{ $t('api_test.request.body') }}</el-checkbox>
-      </el-col>
+        <el-checkbox v-model="fromData.body" @change="changeEvent"><span
+          class="text-class">{{ $t('api_test.request.body') }}</span></el-checkbox>
+      </div>
     </el-row>
-    <el-row>
-      <el-col :span="4">{{ $t('api_test.definition.request.other_config') + ':' }}</el-col>
-      <el-col :span="20" style="color: var(--primary_color)">
-        <el-checkbox v-model="fromData.delNotSame" @change="changeEvent"
-          >{{ $t('workstation.delNotSame') }}
+    <el-row style="margin-top: 16px">
+      <span class="text-class">{{ $t('api_test.definition.request.other_config') }}</span>
+      <div style="color: var(--primary_color);margin-top: 8px;">
+        <el-checkbox v-model="fromData.delNotSame" @change="changeEvent">
+          <span class="text-class">{{ $t('workstation.delNotSame') }}</span>
         </el-checkbox>
-      </el-col>
+      </div>
     </el-row>
   </div>
 </template>
@@ -57,7 +60,11 @@ export default {
 </script>
 
 <style scoped>
-.el-row {
-  margin-bottom: 3px;
+.text-class {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #1F2329;
 }
 </style>
