@@ -401,4 +401,20 @@
             SELECT test_plan_id FROM  test_plan_api_scenario WHERE id = #{0}
         )
     </select>
+
+    <select id="selectByPlanIds" resultType="io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO">
+        SELECT tpas.id,
+               tpas.api_scenario_id,
+               tpas.environment,
+               tpas.environment_type,
+               tpas.environment_group_id,
+               apis.project_id
+        FROM test_plan_api_scenario tpas
+                 INNER JOIN api_scenario apis ON tpas.api_scenario_id = apis.id
+        WHERE (apis.`status` IS NULL OR apis.`status` != 'Trash')
+        and tpas.id in
+        <foreach collection="planScenarioIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -1,4 +1,4 @@
-import { fileDownload, fileUpload } from '@/api/base-network';
+import { fileUpload } from '@/api/base-network';
 import { get, post } from 'metersphere-frontend/src/plugins/request';
 
 export function getRelationshipCountApi(id) {
@@ -135,6 +135,10 @@ export function deleteBatchByParams(params) {
 
 export function removeToGcByParams(params) {
   return post('/api/definition/move-gc-batch', params);
+}
+
+export function copyDataByVersion(params) {
+  return post('/api/definition/copy/by/version', params);
 }
 
 export function removeToGcByIds(params) {

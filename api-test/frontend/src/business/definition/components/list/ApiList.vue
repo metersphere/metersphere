@@ -225,6 +225,8 @@
       :data-count="$refs.table ? $refs.table.selectDataCounts : 0"
       :typeArr="typeArr"
       :value-arr="valueArr" />
+    <!--从指定版本复制数据-->
+    <version-selector @handleSave="handleCopyDataFromVersion" ref="versionSelector" />
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search" />
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove" />
@@ -239,6 +241,7 @@
 import {
   batchCopyByParams,
   batchEditByParams,
+  copyDataByVersion,
   definitionReduction,
   delDefinition,
   delDefinitionByRefId,
@@ -292,6 +295,7 @@ import { getGraphByCondition } from '@/api/graph';
 import ListItemDeleteConfirm from 'metersphere-frontend/src/components/ListItemDeleteConfirm';
 import MsSearch from 'metersphere-frontend/src/components/search/MsSearch';
 import { buildNodePath } from 'metersphere-frontend/src/model/NodeTree';
+import VersionSelector from '@/business/definition/components/version/VersionSelector';
 
 export default {
   name: 'ApiList',
@@ -316,6 +320,7 @@ export default {
     MsTable,
     MsTableColumn,
     MsSearch,
+    VersionSelector,
     MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
     MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
   },
@@ -356,6 +361,12 @@ export default {
           name: this.$t('api_test.batch_copy'),
           handleClick: this.handleBatchCopy,
           permissions: ['PROJECT_API_DEFINITION:READ+CREATE_API'],
+        },
+        {
+          name: this.$t('api_definition.copy_data_from_other_version'),
+          isXPack: true,
+          handleClick: this.batchCopyDataFromVersion,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
@@ -646,6 +657,11 @@ export default {
       this.isMoveBatch = false;
       this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptionsNew);
     },
+    batchCopyDataFromVersion() {
+      if (this.$refs.versionSelector) {
+        this.$refs.versionSelector.open(this.projectId);
+      }
+    },
     closeCaseModel() {
       //关闭案例弹窗
       if (this.$refs.caseList) {
@@ -849,7 +865,7 @@ export default {
       this.search();
     },
     search() {
-      this.$EventBus.$emit("apiConditionBus", this.condition)
+      this.$EventBus.$emit('apiConditionBus', this.condition);
       this.changeSelectDataRangeAll();
       this.initTable();
     },
@@ -1180,6 +1196,35 @@ export default {
       } catch (e) {
         return '';
       }
+    },
+    //从指定版本拷贝数据
+    handleCopyDataFromVersion(selectVersionId, copyCase, copyMock) {
+      let copyParam = {};
+      // let param = {};
+      // if (vueObj.selectRows) {
+      //   param.ids = selectIds ? selectIds : Array.from(vueObj.selectRows).map(row => row.id);
+      // } else {
+      //   param.ids = selectIds;
+      // }
+      // param.projectId = projectId ? projectId : getCurrentProjectID();
+      // param.condition = vueObj.condition;
+      // return param;
+
+      // copyParam.versionId = selectVersionId;
+      copyParam.copyCase = copyCase;
+      copyParam.copyMock = copyMock;
+      copyParam.versionId = selectVersionId;
+      copyParam.condition = this.condition;
+      copyParam.condition.ids = this.$refs.table.selectIds;
+      copyParam.condition.protocol = this.currentProtocol;
+
+      copyDataByVersion(copyParam).then(() => {
+        this.$success(this.$t('commons.copy_success'));
+        if (this.$refs.versionSelector) {
+          this.$refs.versionSelector.handleClose();
+        }
+        this.initTable();
+      });
     },
   },
 };

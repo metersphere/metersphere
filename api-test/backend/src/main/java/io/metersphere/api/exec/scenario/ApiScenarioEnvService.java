@@ -9,6 +9,7 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.item.MsScenarioEnv;
 import io.metersphere.base.domain.*;
@@ -254,7 +255,7 @@ public class ApiScenarioEnvService {
         return isEnv;
     }
 
-    public boolean verifyPlanScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
+    public boolean verifyPlanScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenarioInfoDTO testPlanApiScenarios) {
         if (apiScenarioWithBLOBs != null) {
             String definition = apiScenarioWithBLOBs.getScenarioDefinition();
             MsScenarioEnv scenario = JSON.parseObject(definition, MsScenarioEnv.class);
@@ -285,7 +286,7 @@ public class ApiScenarioEnvService {
      */
     public Map<String, List<String>> checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
         Map<String, List<String>> projectEnvMap = new HashMap<>();
-        if (StringUtils.equals(request.getRequestOriginator(), "TEST_PLAN")) {
+        if (StringUtils.equals(request.getRequestOriginator(), CommonConstants.TEST_PLAN)) {
             this.checkPlanScenarioEnv(request);
         } else if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             StringBuilder builder = new StringBuilder();
@@ -301,7 +302,7 @@ public class ApiScenarioEnvService {
                 }
             }
             if (builder.length() > 0) {
-                MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+                MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
             }
         } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
@@ -317,24 +318,23 @@ public class ApiScenarioEnvService {
 
     public void checkPlanScenarioEnv(RunScenarioRequest request) {
         StringBuilder builder = new StringBuilder();
-        List<String> planCaseIds = request.getPlanCaseIds();
-        if (CollectionUtils.isNotEmpty(planCaseIds)) {
-            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-            example.createCriteria().andIdIn(planCaseIds);
-            List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(example);
-            for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+        if (request.getProcessVO() != null &&
+                MapUtils.isNotEmpty(request.getProcessVO().getTestPlanScenarioMap())
+                && MapUtils.isNotEmpty(request.getProcessVO().getTestPlanScenarioMap())) {
+            for (String key : request.getProcessVO().getTestPlanScenarioMap().keySet()) {
                 try {
-                    ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
-                    boolean haveEnv = this.verifyPlanScenarioEnv(apiScenarioWithBLOBs, testPlanApiScenario);
+                    TestPlanApiScenarioInfoDTO dto = request.getProcessVO().getTestPlanScenarioMap().get(key);
+                    ApiScenarioWithBLOBs apiScenarioWithBLOBs = request.getProcessVO().getScenarioMap().get(dto.getApiScenarioId());
+                    boolean haveEnv = this.verifyPlanScenarioEnv(apiScenarioWithBLOBs, dto);
                     if (!haveEnv) {
                         builder.append(apiScenarioWithBLOBs.getName()).append("; ");
                     }
                 } catch (Exception e) {
-                    MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+                    MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
                 }
             }
             if (builder.length() > 0) {
-                MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+                MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
             }
         }
     }
@@ -522,7 +522,8 @@ public class ApiScenarioEnvService {
             JSONObject jsonObject = JSONUtil.parseObject(envConfig);
             if (jsonObject.has("executionEnvironmentMap")) {
                 RunModeConfigWithEnvironmentDTO configWithEnvironment = JSON.parseObject(envConfig, RunModeConfigWithEnvironmentDTO.class);
-                if (StringUtils.equals("GROUP", configWithEnvironment.getEnvironmentType()) && StringUtils.isNotEmpty(configWithEnvironment.getEnvironmentGroupId())) {
+                if (StringUtils.equals(EnvironmentType.GROUP.name(), configWithEnvironment.getEnvironmentType())
+                        && StringUtils.isNotEmpty(configWithEnvironment.getEnvironmentGroupId())) {
                     groupId = configWithEnvironment.getEnvironmentGroupId();
                 }
                 if (MapUtils.isNotEmpty(configWithEnvironment.getExecutionEnvironmentMap())) {
@@ -532,7 +533,8 @@ public class ApiScenarioEnvService {
                 }
             } else {
                 RunModeConfigDTO config = JSON.parseObject(envConfig, RunModeConfigDTO.class);
-                if (StringUtils.equals("GROUP", config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
+                if (StringUtils.equals(EnvironmentType.GROUP.name(), config.getEnvironmentType())
+                        && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
                     groupId = config.getEnvironmentGroupId();
                 }
                 envMapByRunConfig = config.getEnvMap();
@@ -575,5 +577,30 @@ public class ApiScenarioEnvService {
         } else {
             return project.getName();
         }
+    }
+
+    public void setScenarioEnv(RunScenarioRequest request, Map<String, String> configEnvMap) {
+        if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.JSON.toString())
+                && MapUtils.isNotEmpty(request.getConfig().getEnvMap())) {
+            configEnvMap.putAll(request.getConfig().getEnvMap());
+        } else if (StringUtils.equals(request.getConfig().getEnvironmentType(), EnvironmentType.GROUP.toString())
+                && StringUtils.isNotBlank(request.getConfig().getEnvironmentGroupId())) {
+            configEnvMap.putAll(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
+        }
+    }
+
+    public Map<String, String> getPlanScenarioEnv(TestPlanApiScenarioInfoDTO planApiScenario, Map<String, String> configEnvMap) {
+        Map<String, String> planEnvMap = new LinkedHashMap<>();
+        if (StringUtils.equals(planApiScenario.getEnvironmentType(), EnvironmentType.JSON.toString())
+                && StringUtils.isNotBlank(planApiScenario.getEnvironment())) {
+            planEnvMap.putAll(JSON.parseObject(planApiScenario.getEnvironment(), Map.class));
+        } else if (StringUtils.equals(planApiScenario.getEnvironmentType(), EnvironmentType.GROUP.toString())
+                && StringUtils.isNotBlank(planApiScenario.getEnvironmentGroupId())) {
+            planEnvMap.putAll(environmentGroupProjectService.getEnvMap(planApiScenario.getEnvironmentGroupId()));
+        }
+        if (MapUtils.isNotEmpty(configEnvMap)) {
+            planEnvMap.putAll(configEnvMap);
+        }
+        return planEnvMap;
     }
 }

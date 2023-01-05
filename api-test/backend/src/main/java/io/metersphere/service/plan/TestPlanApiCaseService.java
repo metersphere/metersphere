@@ -734,9 +734,9 @@ public class TestPlanApiCaseService {
 
         List<String> caseIds = apiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
 
-        List<String> definitionIds = apiTestCaseService.selectCasesBydIds(caseIds).stream().filter(apiTestCase -> apiTestCase.getStatus() == null || !CommonConstants.TrashStatus.equals(apiTestCase.getStatus())).map(ApiTestCase::getApiDefinitionId).collect(Collectors.toList());
+        List<String> definitionIds = apiTestCaseService.selectCasesBydIds(caseIds).stream().filter(apiTestCase -> apiTestCase.getStatus() == null || !CommonConstants.TRASH_STATUS.equals(apiTestCase.getStatus())).map(ApiTestCase::getApiDefinitionId).collect(Collectors.toList());
 
-        List<String> dataNodeIds = apiDefinitionService.selectApiDefinitionBydIds(definitionIds).stream().filter(apiDefinition -> apiDefinition.getStatus() == null || !CommonConstants.TrashStatus.equals(apiDefinition.getStatus())).map(ApiDefinition::getModuleId).collect(Collectors.toList());
+        List<String> dataNodeIds = apiDefinitionService.selectApiDefinitionBydIds(definitionIds).stream().filter(apiDefinition -> apiDefinition.getStatus() == null || !CommonConstants.TRASH_STATUS.equals(apiDefinition.getStatus())).map(ApiDefinition::getModuleId).collect(Collectors.toList());
 
         List<ApiModuleDTO> nodeTrees = apiModuleService.getNodeTrees(testCaseNodes);
 
