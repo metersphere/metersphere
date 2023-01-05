@@ -11,7 +11,8 @@
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
-          <div v-if="isShowConfirmButton(pe.id)" class="empty-environment">
+          <!--这里只做没有可搜索内容时使用，否则如果没有符合搜索条件的，也会显示该项，与上面的btn重复显示 -->
+          <div v-if="isShowConfirmButton(pe.id) && pe.envs.length===0" class="empty-environment">
             <el-button class="ms-scenario-button" size="mini" type="primary"
                        @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
               {{ $t('api_test.environment.environment_config') }}
