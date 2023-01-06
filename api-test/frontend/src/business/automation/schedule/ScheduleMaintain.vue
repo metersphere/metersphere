@@ -115,7 +115,6 @@ import EnvPopover from '@/business/automation/scenario/EnvPopover';
 import { getMaintainer, getOwnerProjects, getProjectConfig } from '@/api/project';
 import { getTestResourcePools } from '@/api/test-resource-pool';
 import { getSystemBaseSetting } from 'metersphere-frontend/src/api/system';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 
 function defaultCustomValidate() {
   return { pass: true };
@@ -322,9 +321,7 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.getWsProjects();
-      if (hasLicense()) {
-        this.query();
-      }
+      this.query();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {

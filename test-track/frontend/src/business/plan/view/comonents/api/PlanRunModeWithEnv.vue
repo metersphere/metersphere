@@ -274,9 +274,7 @@ export default {
       this.testType = testType;
       this.getResourcePools();
       this.getWsProjects();
-      if(hasLicense()) {
-        this.query();
-      }
+      this.query();
     },
     query() {
       this.loading = true;

@@ -29,7 +29,6 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.StorageConstants;
-import io.metersphere.commons.enums.StorageEnums;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.vo.JDBCProcessorVO;
@@ -105,97 +104,64 @@ public class ElementUtil {
                 list = config.getTransferVariables().stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             }
             if (CollectionUtils.isNotEmpty(list)) {
-                FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
-                list.forEach(item -> {
-                    CSVDataSet csvDataSet = new CSVDataSet();
-                    csvDataSet.setEnabled(true);
-                    csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
-                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
-                    csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
-                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
-                    if (CollectionUtils.isEmpty(item.getFiles())) {
-                        MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
-                    } else {
-                        boolean isRef = false;
-                        String fileId = null;
-                        boolean isRepository = false;
-                        BodyFile file = item.getFiles().get(0);
-                        String path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
-                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
-                            isRef = true;
-                            fileId = file.getFileId();
-                            if (fileMetadataService != null) {
-                                FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
-                                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
-                                    isRepository = true;
-                                }
-                            }
-                            path = FileUtils.getFilePath(file);
-                        }
-                        if (!config.isOperating() && !isRepository && !new File(path).exists()) {
-                            MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
-                        }
-                        csvDataSet.setProperty(ElementConstants.FILENAME, path);
-                        csvDataSet.setProperty(ElementConstants.IS_REF, isRef);
-                        csvDataSet.setProperty(ElementConstants.FILE_ID, fileId);
-                        csvDataSet.setProperty(ElementConstants.RESOURCE_ID, file.getId());
-                    }
-                    csvDataSet.setIgnoreFirstLine(false);
-                    csvDataSet.setProperty("shareMode", shareMode);
-                    csvDataSet.setProperty("recycle", true);
-                    csvDataSet.setProperty("delimiter", item.getDelimiter());
-                    csvDataSet.setProperty("quotedData", item.isQuotedData());
-                    csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
-                    tree.add(csvDataSet);
-                });
+                addCsv(tree, config, shareMode, list);
             }
         }
+    }
+
+    private static void addCsv(HashTree tree, ParameterConfig config, String shareMode, List<ScenarioVariable> list) {
+        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+        list.forEach(item -> {
+            CSVDataSet csvDataSet = new CSVDataSet();
+            csvDataSet.setEnabled(true);
+            csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
+            csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
+            csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
+            csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
+            if (CollectionUtils.isEmpty(item.getFiles())) {
+                MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+            } else {
+                String fileId = null;
+                boolean isRepository = false;
+                BodyFile file = item.getFiles().get(0);
+                boolean isRef = StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name());
+                String path = StringUtils.join(BODY_FILE_DIR, File.pathSeparator, item.getFiles().get(0).getId(), "_", item.getFiles().get(0).getName());
+                if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                    fileId = file.getFileId();
+                    FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
+                    if (fileMetadata != null
+                            && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
+                        isRepository = true;
+                    }
+                    path = FileUtils.getFilePath(file);
+                }
+                if (!config.isOperating() && !isRepository && !new File(path).exists()) {
+                    // 从MinIO下载
+                    ApiFileUtil.downloadFile(file.getId(), path);
+                    if (!new File(path).exists()) {
+                        MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
+                    }
+                }
+                csvDataSet.setProperty(ElementConstants.FILENAME, path);
+                csvDataSet.setProperty(ElementConstants.IS_REF, isRef);
+                csvDataSet.setProperty(ElementConstants.FILE_ID, fileId);
+                csvDataSet.setProperty(ElementConstants.RESOURCE_ID, file.getId());
+            }
+            csvDataSet.setIgnoreFirstLine(false);
+            csvDataSet.setProperty("shareMode", shareMode);
+            csvDataSet.setProperty("recycle", true);
+            csvDataSet.setProperty("delimiter", item.getDelimiter());
+            csvDataSet.setProperty("quotedData", item.isQuotedData());
+            csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
+            tree.add(csvDataSet);
+        });
     }
 
     public static void addApiCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
-                list.forEach(item -> {
-                    CSVDataSet csvDataSet = new CSVDataSet();
-                    csvDataSet.setEnabled(true);
-                    csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
-                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
-                    csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
-                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? StandardCharsets.UTF_8.name() : item.getEncoding());
-                    if (CollectionUtils.isEmpty(item.getFiles())) {
-                        MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
-                    } else {
-                        BodyFile file = item.getFiles().get(0);
-                        String fileId = item.getId();
-                        boolean isRef = false;
-                        String path;
-                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
-                            isRef = true;
-                            fileId = file.getFileId();
-                            path = FileUtils.getFilePath(file);
-                        } else {
-                            path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
-                            if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageEnums.FILE_REF.name())) {
-                                path = ApiFileUtil.getFilePath(file);
-                            }
-                            if (!config.isOperating() && !new File(path).exists()) {
-                                MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
-                            }
-                        }
-                        csvDataSet.setProperty(ElementConstants.FILENAME, path);
-                        csvDataSet.setProperty(ElementConstants.IS_REF, isRef);
-                        csvDataSet.setProperty(ElementConstants.FILE_ID, fileId);
-                        csvDataSet.setProperty(ElementConstants.RESOURCE_ID, file.getId());
-                    }
-                    csvDataSet.setIgnoreFirstLine(false);
-                    csvDataSet.setProperty("shareMode", shareMode);
-                    csvDataSet.setProperty("recycle", true);
-                    csvDataSet.setProperty("delimiter", item.getDelimiter());
-                    csvDataSet.setProperty("quotedData", item.isQuotedData());
-                    csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
-                    tree.add(csvDataSet);
-                });
+                addCsv(tree, config, shareMode, list);
             }
         }
     }

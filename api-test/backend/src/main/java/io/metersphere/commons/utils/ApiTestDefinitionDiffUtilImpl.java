@@ -99,8 +99,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             httpOld.getHeaders().remove(httpOld.getHeaders().size() - 1);
         }
 
-        String headerNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getHeaders())), JSON_END);
-        String headerOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getHeaders())), JSON_END);
+        String headerNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getHeaders()), JSON_END);
+        String headerOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getHeaders()), JSON_END);
         if (!StringUtils.equals(headerNew, headerOld)) {
             String patch = jsonDiff.diff(headerOld, headerNew);
             String diffPatch = jsonDiff.apply(headerOld, patch);
@@ -113,8 +113,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             httpNew.getArguments().remove(httpNew.getArguments().size() - 1);
             httpOld.getArguments().remove(httpOld.getArguments().size() - 1);
         }
-        String queryNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getArguments())), JSON_END);
-        String queryOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getArguments())), JSON_END);
+        String queryNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getArguments()), JSON_END);
+        String queryOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getArguments()), JSON_END);
         if (!StringUtils.equals(queryNew, queryOld)) {
             String patch = jsonDiff.diff(queryOld, queryNew);
             String diff = jsonDiff.apply(queryOld, patch);
@@ -127,8 +127,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             httpNew.getRest().remove(httpNew.getRest().size() - 1);
             httpOld.getRest().remove(httpOld.getRest().size() - 1);
         }
-        String restNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getRest())), JSON_END);
-        String restOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getRest())), JSON_END);
+        String restNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getRest()), JSON_END);
+        String restOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getRest()), JSON_END);
         if (!StringUtils.equals(restNew, restOld)) {
             String patch = jsonDiff.diff(restOld, restNew);
             String diff = jsonDiff.apply(restOld, patch);
@@ -152,8 +152,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                 httpNew.getBody().getKvs().remove(httpNew.getBody().getKvs().size() - 1);
                 httpOld.getBody().getKvs().remove(httpOld.getBody().getKvs().size() - 1);
             }
-            String bodyFormNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getBody().getKvs())), JSON_END);
-            String bodyFormOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getBody().getKvs())), JSON_END);
+            String bodyFormNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getBody().getKvs()), JSON_END);
+            String bodyFormOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getBody().getKvs()), JSON_END);
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
                 String diff = jsonDiff.apply(bodyFormNew, patch);
@@ -197,8 +197,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     private static void diffHttpResponse(JSONObject httpNew, JSONObject httpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
         // 请求头对比 old/new
         if (httpNew.get(HEADS) != null && httpOld.get(HEADS) != null) {
-            String headerNew = StringUtils.join(StringUtils.join(JSON_START, httpNew.get(HEADS).toString()), JSON_END);
-            String headerOld = StringUtils.join(StringUtils.join(JSON_START, httpOld.get(HEADS).toString()), JSON_END);
+            String headerNew = StringUtils.join(JSON_START, httpNew.get(HEADS).toString(), JSON_END);
+            String headerOld = StringUtils.join(JSON_START, httpOld.get(HEADS).toString(), JSON_END);
             if (!StringUtils.equals(headerNew, headerOld)) {
                 String patch = jsonDiff.diff(headerOld, headerNew);
                 String diffPatch = jsonDiff.apply(headerNew, patch);
@@ -209,8 +209,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         }
         // 对比statusCode参数
         if (httpNew.get(STATUS_CODE) != null && httpOld.get(STATUS_CODE) != null) {
-            String statusCodeNew = StringUtils.join(StringUtils.join(JSON_START, httpNew.get(STATUS_CODE).toString()), JSON_END);
-            String statusCodeOld = StringUtils.join(StringUtils.join(JSON_START, httpOld.get(STATUS_CODE).toString()), JSON_END);
+            String statusCodeNew = StringUtils.join(JSON_START, httpNew.get(STATUS_CODE).toString(), JSON_END);
+            String statusCodeOld = StringUtils.join(JSON_START, httpOld.get(STATUS_CODE).toString(), JSON_END);
             if (!StringUtils.equals(statusCodeNew, statusCodeOld)) {
                 String patch = jsonDiff.diff(statusCodeOld, statusCodeNew);
                 String diff = jsonDiff.apply(statusCodeNew, patch);
@@ -238,8 +238,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                 bodyNew.getKvs().remove(bodyNew.getKvs().size() - 1);
                 bodyOld.getKvs().remove(bodyOld.getKvs().size() - 1);
             }
-            String bodyFormNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(bodyNew.getKvs())), JSON_END);
-            String bodyFormOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(bodyOld.getKvs())), JSON_END);
+            String bodyFormNew = StringUtils.join(JSON_START, JSON.toJSONString(bodyNew.getKvs()), JSON_END);
+            String bodyFormOld = StringUtils.join(JSON_START, JSON.toJSONString(bodyOld.getKvs()), JSON_END);
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
                 String diff = jsonDiff.apply(bodyFormNew, patch);
@@ -261,8 +261,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             tcpNew.getParameters().remove(tcpNew.getParameters().size() - 1);
             tcpOld.getParameters().remove(tcpOld.getParameters().size() - 1);
         }
-        String queryNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getParameters())), JSON_END);
-        String queryOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getParameters())), JSON_END);
+        String queryNew = StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getParameters()), JSON_END);
+        String queryOld = StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getParameters()), JSON_END);
         if (!StringUtils.equals(queryNew, queryOld)) {
             String patch = jsonDiff.diff(queryOld, queryNew);
             String diff = jsonDiff.apply(queryNew, patch);
@@ -279,8 +279,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             }
         }
         // 对比BODY-XML参数
-        String xmlNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getXmlDataStruct())), JSON_END);
-        String xmlOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getXmlDataStruct())), JSON_END);
+        String xmlNew = StringUtils.join(JSON_START, JSON.toJSONString(tcpNew.getXmlDataStruct()), JSON_END);
+        String xmlOld = StringUtils.join(JSON_START, JSON.toJSONString(tcpOld.getXmlDataStruct()), JSON_END);
         if (!StringUtils.equals(xmlNew, xmlOld)) {
             diffMap.put(StringUtils.join(BODY_XML, "_1"), JSON.toJSONString(tcpNew.getXmlDataStruct()));
             diffMap.put(StringUtils.join(BODY_XML, "_2"), JSON.toJSONString(tcpOld.getXmlDataStruct()));
@@ -326,8 +326,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             jdbcNew.getVariables().remove(jdbcNew.getVariables().size() - 1);
             jdbcOld.getVariables().remove(jdbcOld.getVariables().size() - 1);
         }
-        String variablesNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(jdbcNew.getVariables())), JSON_END);
-        String variablesOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(jdbcOld.getVariables())), JSON_END);
+        String variablesNew = StringUtils.join(JSON_START, JSON.toJSONString(jdbcNew.getVariables()), JSON_END);
+        String variablesOld = StringUtils.join(JSON_START, JSON.toJSONString(jdbcOld.getVariables()), JSON_END);
         if (!StringUtils.equals(variablesNew, variablesOld)) {
             String patch = jsonDiff.diff(variablesOld, variablesNew);
             String diffPatch = jsonDiff.apply(variablesNew, patch);
@@ -367,8 +367,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             dubboNew.getArgs().remove(dubboNew.getArgs().size() - 1);
             dubboOld.getArgs().remove(dubboOld.getArgs().size() - 1);
         }
-        String argsNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(dubboNew.getArgs())), JSON_END);
-        String argsOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(dubboOld.getArgs())), JSON_END);
+        String argsNew = StringUtils.join(JSON_START, JSON.toJSONString(dubboNew.getArgs()), JSON_END);
+        String argsOld = StringUtils.join(JSON_START, JSON.toJSONString(dubboOld.getArgs()), JSON_END);
         if (!StringUtils.equals(argsNew, argsOld)) {
             String patch = jsonDiff.diff(argsOld, argsNew);
             String diffPatch = jsonDiff.apply(argsNew, patch);
@@ -381,8 +381,8 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             dubboNew.getAttachmentArgs().remove(dubboNew.getAttachmentArgs().size() - 1);
             dubboOld.getAttachmentArgs().remove(dubboOld.getAttachmentArgs().size() - 1);
         }
-        String attachmentNew = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(dubboNew.getAttachmentArgs())), JSON_END);
-        String attachmentOld = StringUtils.join(StringUtils.join(JSON_START, JSON.toJSONString(dubboOld.getAttachmentArgs())), JSON_END);
+        String attachmentNew = StringUtils.join(JSON_START, JSON.toJSONString(dubboNew.getAttachmentArgs()), JSON_END);
+        String attachmentOld = StringUtils.join(JSON_START, JSON.toJSONString(dubboOld.getAttachmentArgs()), JSON_END);
         if (!StringUtils.equals(attachmentNew, attachmentOld)) {
             String patch = jsonDiff.diff(attachmentOld, attachmentNew);
             String diffPatch = jsonDiff.apply(attachmentNew, patch);

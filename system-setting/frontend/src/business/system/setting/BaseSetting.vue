@@ -22,7 +22,7 @@
           <el-form-item :label="$t('commons.help_documentation')" prop="docUrl">
             <el-input v-model="formInline.docUrl" placeholder="https://metersphere.io/docs/index.html"/>
           </el-form-item>
-          <el-form-item :label="$t('system.api_default_run')" prop="runMode" v-if="hasLicense()">
+          <el-form-item :label="$t('system.api_default_run')" prop="runMode">
             <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
           </el-form-item>
         </el-col>
@@ -41,7 +41,6 @@
 <script>
 
 import {getSystemBaseSetting, saveSystemBaseSetting} from "../../../api/system";
-import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 
 export default {
   name: "BaseSetting",
@@ -80,7 +79,6 @@ export default {
     this.query()
   },
   methods: {
-    hasLicense,
     query() {
       this.loading = getSystemBaseSetting().then(res => {
         if(!res.data.runMode) {
