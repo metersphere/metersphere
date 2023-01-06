@@ -92,7 +92,7 @@ public class ParameterConfig extends MsParameter {
     private boolean runLocal;
 
     private String browserLanguage;
-
+    private boolean isApi;
     /**
      * 排除生成临界控制器的场景
      */
