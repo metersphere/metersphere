@@ -1,7 +1,8 @@
-package io.metersphere.xpack.module.controller;
+package io.metersphere.controller;
 
-import io.metersphere.xpack.module.dto.Module;
-import io.metersphere.xpack.module.service.ListModuleService;
+
+import io.metersphere.dto.Module;
+import io.metersphere.service.ListModuleService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
