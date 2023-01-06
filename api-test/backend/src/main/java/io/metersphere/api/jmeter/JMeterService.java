@@ -23,7 +23,7 @@ import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.xpack.api.service.ApiPoolDebugService;
+import io.metersphere.service.ApiPoolDebugService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -59,6 +59,8 @@ public class JMeterService {
     private RemakeReportService remakeReportService;
     @Resource
     private ExecThreadPoolExecutor execThreadPoolExecutor;
+    @Resource
+    private ApiPoolDebugService apiPoolDebugService;
 
     @PostConstruct
     private void init() {
@@ -172,16 +174,13 @@ public class JMeterService {
 
     private synchronized void nodeDebug(JmeterRunRequestDTO request) {
         try {
-            ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
-            if (apiPoolDebugService != null) {
-                List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
-                if (request.getHashTree() != null) {
-                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
-                    request.setHashTree(null);
-                }
-                apiPoolDebugService.run(request, resources);
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            if (request.getHashTree() != null) {
+                String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
+                redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+                request.setHashTree(null);
             }
+            apiPoolDebugService.run(request, resources);
         } catch (Exception e) {
             LoggerUtil.error(e);
             remakeReportService.remake(request);
@@ -263,9 +262,6 @@ public class JMeterService {
     }
 
     public void verifyPool(String projectId, RunModeConfigDTO runModeConfigDTO) {
-        ApiPoolDebugService debugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
-        if (debugService != null) {
-            debugService.verifyPool(projectId, runModeConfigDTO);
-        }
+        apiPoolDebugService.verifyPool(projectId, runModeConfigDTO);
     }
 }
