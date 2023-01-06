@@ -368,9 +368,7 @@ export default {
       return param;
     },
     open(row) {
-      if (this.isHasLicense) {
-        this.query();
-      }
+      this.query();
       this.planId = row.id;
       //测试计划页面跳转来的
       let paramTestId = row.id;

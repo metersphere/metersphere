@@ -49,7 +49,7 @@ import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.xpack.api.service.ApiPoolDebugService;
+import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -65,8 +65,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -156,6 +154,8 @@ public class TestPlanService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
+    @Resource
+    private ApiPoolDebugService apiPoolDebugService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -913,10 +913,7 @@ public class TestPlanService {
 
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
         // 检查是否禁用了本地执行
-        ApiPoolDebugService debugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
-        if (debugService != null) {
-            debugService.verifyPool(projectId, runConfig);
-        }
+        apiPoolDebugService.verifyPool(projectId, runConfig);
     }
 
     /**
@@ -1393,7 +1390,7 @@ public class TestPlanService {
         TestPlanSimpleReportDTO report = buildPlanReport(planId, true);
         report.setLang(lang);
         TestPlanExtReportDTO extReport = getExtInfoByPlanId(planId);
-        if(extReport != null) {
+        if (extReport != null) {
             BeanUtils.copyBean(report, extReport);
         }
         render(report, response);
@@ -1402,7 +1399,7 @@ public class TestPlanService {
     public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
         TestPlanExtReportDTO extReport = getExtInfoByReportId(reportId);
-        if(extReport != null) {
+        if (extReport != null) {
             BeanUtils.copyBean(report, extReport);
         }
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
@@ -1983,14 +1980,14 @@ public class TestPlanService {
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             List<ApiDefinitionExecResultWithBLOBs> apiDefinitionLists = planTestPlanApiCaseService.selectExtForPlanReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+            if (CollectionUtils.isNotEmpty(apiDefinitionLists)) {
                 ApiDefinitionExecResultWithBLOBs apiDefinition = apiDefinitionLists.get(0);
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
             }
             List<ApiScenarioReportWithBLOBs> apiScenarioLists = planTestPlanApiCaseService.selectExtForPlanScenarioReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiScenarioLists)){
+            if (CollectionUtils.isNotEmpty(apiScenarioLists)) {
                 ApiScenarioReportWithBLOBs apiScenario = apiScenarioLists.get(0);
                 convertEnvConfig(apiScenario.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiScenario.getActuator(), testPlanExtReportDTO);
@@ -1999,7 +1996,7 @@ public class TestPlanService {
         }
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             List<UiScenarioReportWithBLOBs> apiDefinitionLists = planTestPlanUiScenarioCaseService.selectExtForPlanReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+            if (CollectionUtils.isNotEmpty(apiDefinitionLists)) {
                 UiScenarioReportWithBLOBs apiDefinition = apiDefinitionLists.get(0);
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
@@ -2029,12 +2026,12 @@ public class TestPlanService {
     }
 
     private void convertEnvConfig(String envConfig, TestPlanExtReportDTO testPlanExtReportDTO) throws JsonProcessingException {
-        if(StringUtils.isEmpty(envConfig)){
+        if (StringUtils.isEmpty(envConfig)) {
             return;
         }
         EnvConfig env = objectMapper.readValue(envConfig, EnvConfig.class);
-        if(StringUtils.isNotEmpty(env.getMode())){
-            if(RunMode.RUN_MODE_SERIAL.getCode().equals(env.getMode())){
+        if (StringUtils.isNotEmpty(env.getMode())) {
+            if (RunMode.RUN_MODE_SERIAL.getCode().equals(env.getMode())) {
                 testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_SERIAL.getDesc());
             } else if (RunMode.RUN_MODE_PARALLEL.getCode().equals(env.getMode())) {
                 testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_PARALLEL.getDesc());
@@ -2042,8 +2039,8 @@ public class TestPlanService {
         }
     }
 
-    private void getResourcePool(String actuator, TestPlanExtReportDTO testPlanExtReportDTO){
-        if(StringUtils.isEmpty(actuator)){
+    private void getResourcePool(String actuator, TestPlanExtReportDTO testPlanExtReportDTO) {
+        if (StringUtils.isEmpty(actuator)) {
             return;
         }
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(actuator);
@@ -2052,21 +2049,21 @@ public class TestPlanService {
 
     public TestPlanExtReportDTO getExtInfoByPlanId(String planId) throws JsonProcessingException {
         String reportId = testPlanReportService.getLastReportByPlanId(planId);
-        if(StringUtils.isEmpty(reportId)){
+        if (StringUtils.isEmpty(reportId)) {
             return null;
         }
         TestPlanExtReportDTO testPlanExtReportDTO = new TestPlanExtReportDTO();
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             List<ApiDefinitionExecResultWithBLOBs> apiDefinitionLists = planTestPlanApiCaseService.selectExtForPlanReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiDefinitionLists)){
+            if (CollectionUtils.isNotEmpty(apiDefinitionLists)) {
                 ApiDefinitionExecResultWithBLOBs apiDefinition = apiDefinitionLists.get(0);
                 convertEnvConfig(apiDefinition.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiDefinition.getActuator(), testPlanExtReportDTO);
                 return testPlanExtReportDTO;
             }
             List<ApiScenarioReportWithBLOBs> apiScenarioLists = planTestPlanApiCaseService.selectExtForPlanScenarioReport(reportId);
-            if(CollectionUtils.isNotEmpty(apiScenarioLists)){
+            if (CollectionUtils.isNotEmpty(apiScenarioLists)) {
                 ApiScenarioReportWithBLOBs apiScenario = apiScenarioLists.get(0);
                 convertEnvConfig(apiScenario.getEnvConfig(), testPlanExtReportDTO);
                 getResourcePool(apiScenario.getActuator(), testPlanExtReportDTO);
@@ -2118,12 +2115,12 @@ public class TestPlanService {
     }
 
     private void convertPlanEnvConfig(String envConfig, TestPlanExtReportDTO testPlanExtReportDTO) throws JsonProcessingException {
-        if(StringUtils.isEmpty(envConfig)){
+        if (StringUtils.isEmpty(envConfig)) {
             return;
         }
         PlanEnvConfig env = objectMapper.readValue(envConfig, PlanEnvConfig.class);
-        if(StringUtils.isNotEmpty(env.getRunMode())){
-            if(RunMode.RUN_MODE_SERIAL.getCode().equals(env.getRunMode())){
+        if (StringUtils.isNotEmpty(env.getRunMode())) {
+            if (RunMode.RUN_MODE_SERIAL.getCode().equals(env.getRunMode())) {
                 testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_SERIAL.getDesc());
             } else if (RunMode.RUN_MODE_PARALLEL.getCode().equals(env.getRunMode())) {
                 testPlanExtReportDTO.setRunMode(RunMode.RUN_MODE_PARALLEL.getDesc());

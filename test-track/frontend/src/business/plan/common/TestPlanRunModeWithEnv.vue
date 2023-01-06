@@ -298,9 +298,7 @@ export default {
       this.getResourcePools();
       this.getWsProjects();
       this.showPopover();
-      if(hasLicense()) {
-        this.query();
-      }
+      this.query();
     },
     query() {
       this.loading = true;
