@@ -11,14 +11,14 @@
       <el-tab-pane :label="$t('system_parameter_setting.ldap_setting')" name="ldap">
         <ldap-setting/>
       </el-tab-pane>
+      <el-tab-pane :label="$t('module.title')" name="module">
+        <ms-module/>
+      </el-tab-pane>
       <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
         <mx-display/>
       </el-tab-pane>
       <el-tab-pane v-if="hasLicense()" :label="$t('auth_source.title')" name="auth">
         <mx-auth/>
-      </el-tab-pane>
-      <el-tab-pane v-if="hasLicense()" :label="$t('module.title')" name="module">
-        <mx-module/>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -30,7 +30,7 @@ import LdapSetting from "./LdapSetting";
 import BaseSetting from "./BaseSetting";
 import MxAuth from "./MxAuth";
 import MxDisplay from "./MxDisplay";
-import MxModule from "./MxModule";
+import MsModule from "./MsModule";
 import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 
 export default {
@@ -41,7 +41,7 @@ export default {
     LdapSetting,
     MxAuth,
     MxDisplay,
-    MxModule
+    MsModule
   },
   data() {
     return {
