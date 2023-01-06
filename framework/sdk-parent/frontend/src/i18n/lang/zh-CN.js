@@ -545,9 +545,9 @@ const message = {
       performance: '性能测试',
       scenario_case: '场景用例'
     },
-    apply_tip:'未开启工作台待更新设置',
+    apply_tip: '未开启工作台待更新设置',
     sync_case_tips: '注意: 忽略后，受影响的用例将不再有提醒，请谨慎操作',
-    batch_sync_api_tips: '注意: 批量同步，有可能部分不需要同步的用例参数也被覆盖，导致测试不通过，请谨慎操作',
+    batch_sync_api_tips: '批量同步，有可能部分不需要同步的用例参数也被覆盖，导致测试不通过，请谨慎操作',
     batch_ignore_case_tips: '注意: 批量忽略后，受影响的用例将不再有提醒，请谨慎操作',
   },
   display: {
@@ -1345,7 +1345,7 @@ const message = {
       one_click_sync: "一键同步",
       change_notification: "变更通知",
       recipient: "接收人",
-      recipient_tips: "当API发生变化时，关联的CASE创建人、自动化场景创建人会收到站内消息",
+      recipient_tips: "当API发生变化时，关联的CASE创建人、自动化场景创建人会收到站内消息,可前往",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"

@@ -147,7 +147,7 @@ export default {
     },
     getUiIndex() {
       if (hasLicense()) {
-        return "ui";
+        return "/ui";
       }
       return "";
     },
