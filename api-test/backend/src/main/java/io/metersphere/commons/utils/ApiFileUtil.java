@@ -50,8 +50,10 @@ public class ApiFileUtil extends FileUtils {
         if (fileManagerService == null) {
             fileManagerService = CommonBeanFactory.getBean(FileManagerService.class);
         }
-        for (MultipartFile bodyFile : bodyFiles) {
-            fileManagerService.upload(bodyFile, getRequest(requestId));
+        if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
+            for (MultipartFile bodyFile : bodyFiles) {
+                fileManagerService.upload(bodyFile, getRequest(requestId));
+            }
         }
     }
 
