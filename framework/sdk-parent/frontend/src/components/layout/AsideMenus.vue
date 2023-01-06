@@ -146,16 +146,9 @@ export default {
     },
     check(key) {
       let microApps = JSON.parse(sessionStorage.getItem("micro_apps"));
-      if (hasLicense()) {
-        return this.modules[key] === 'ENABLE' && microApps[key];
-      }
-
-      return microApps && microApps[key];
+      return this.modules[key] === 'ENABLE' && microApps && microApps[key];
     },
     registerEvents() {
-      if (!hasLicense()) {
-        return;
-      }
       getModuleList()
         .then(response => {
           response.data.forEach(m => {
