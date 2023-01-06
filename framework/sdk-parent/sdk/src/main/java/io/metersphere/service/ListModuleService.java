@@ -1,9 +1,9 @@
-package io.metersphere.xpack.module.service;
+package io.metersphere.service;
 
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
 import io.metersphere.base.mapper.SystemParameterMapper;
-import io.metersphere.xpack.module.dto.Module;
+import io.metersphere.dto.Module;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

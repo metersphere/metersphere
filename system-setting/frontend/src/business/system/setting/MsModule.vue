@@ -56,7 +56,7 @@ import {getModuleList, updateStatus} from "@/api/module";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
-  name: "MxModule",
+  name: "MsModule",
   props: {
     isShow: {
       type: Boolean,
