@@ -1463,7 +1463,15 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix, String mockApiResourceId) {
-        if (StringUtils.isEmpty(baseUrlSuffix)) {
+        if (StringUtils.isNotBlank(mockApiResourceId)) {
+            //如果请求头中指定了API 则返回当前API
+            List<ApiDefinitionWithBLOBs> returnList = new ArrayList<>();
+            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionMapper.selectByPrimaryKey(mockApiResourceId);
+            if (apiDefinition != null) {
+                returnList.add(apiDefinition);
+            }
+            return returnList;
+        } else if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
             String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId, projectId);
@@ -2206,70 +2214,70 @@ public class ApiDefinitionService {
         long timeStamp = System.currentTimeMillis();
         MockConfigExample mockConfigExample = new MockConfigExample();
         mockConfigExample.createCriteria().andApiIdIn(new ArrayList<>(sourceApiIdRefIdMap.keySet()));
-        List<MockConfig> mockConfigList = mockConfigMapper.selectByExample(mockConfigExample);
-        if (CollectionUtils.isNotEmpty(mockConfigList)) {
-            List<String> mockIdList = mockConfigList.stream().map(MockConfig::getId).collect(Collectors.toList());
+        List<MockConfig> sourceMockConfigList = mockConfigMapper.selectByExample(mockConfigExample);
+        if (CollectionUtils.isNotEmpty(sourceMockConfigList)) {
+            List<String> sourceMockConfigIdList = sourceMockConfigList.stream().map(MockConfig::getId).collect(Collectors.toList());
             MockExpectConfigExample mockExpectConfigExample = new MockExpectConfigExample();
-            mockExpectConfigExample.createCriteria().andMockConfigIdIn(mockIdList);
+            mockExpectConfigExample.createCriteria().andMockConfigIdIn(sourceMockConfigIdList);
             List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBsList = mockExpectConfigMapper.selectByExampleWithBLOBs(mockExpectConfigExample);
-            Map<String, List<MockExpectConfigWithBLOBs>> mockConfigIdExpectMap = mockExpectConfigWithBLOBsList.stream().collect(Collectors.groupingBy(MockExpectConfigWithBLOBs::getMockConfigId));
+            Map<String, List<MockExpectConfigWithBLOBs>> sourceMockConfigIdMap = mockExpectConfigWithBLOBsList.stream().collect(Collectors.groupingBy(MockExpectConfigWithBLOBs::getMockConfigId));
 
             List<MockConfig> saveMockList = new ArrayList<>();
 
             List<MockExpectConfigWithBLOBs> saveMockExpectList = new ArrayList<>();
             List<MockExpectConfigWithBLOBs> updateMockExpectList = new ArrayList<>();
 
-            mockConfigList.forEach(item -> {
-                String oldApiId = item.getApiId();
-                String refId = sourceApiIdRefIdMap.get(oldApiId);
+            sourceMockConfigList.forEach(item -> {
+                String sourceApiId = item.getApiId();
+                String refId = sourceApiIdRefIdMap.get(sourceApiId);
                 if (StringUtils.isNotBlank(refId)) {
-                    ApiDefinition api = refIdMap.get(refId);
-                    if (api != null) {
-                        MockConfig baseMockConfig = mockConfigService.selectMockConfigByApiId(api.getId());
-                        String mockConfigId = UUID.randomUUID().toString();
+                    ApiDefinition goalApi = refIdMap.get(refId);
+                    if (goalApi != null) {
+                        MockConfig goalApiMockConfig = mockConfigService.selectMockConfigByApiId(goalApi.getId());
+                        String goalApiMockConfigId = UUID.randomUUID().toString();
 
                         Map<String, MockExpectConfig> oldMockExpectConfig = new HashMap<>();
                         //已经存储的mock期望编号
                         List<String> saveExpectNumList = new ArrayList<>();
 
-                        if (baseMockConfig == null) {
+                        if (goalApiMockConfig == null) {
                             MockConfig mockConfig = new MockConfig();
                             BeanUtils.copyBean(mockConfig, item);
-                            mockConfig.setApiId(api.getId());
-                            mockConfig.setId(mockConfigId);
+                            mockConfig.setApiId(goalApi.getId());
+                            mockConfig.setId(goalApiMockConfigId);
                             mockConfig.setCreateTime(timeStamp);
                             mockConfig.setUpdateTime(timeStamp);
                             saveMockList.add(mockConfig);
                         } else {
-                            mockConfigId = baseMockConfig.getId();
-                            saveExpectNumList = mockConfigService.selectExpectNumberByConfigId(mockConfigId);
-                            List<MockExpectConfig> oldMockExpectList = mockConfigService.selectSimpleMockExpectConfigByMockConfigId(mockConfigId);
-                            oldMockExpectList.forEach(mockExpectConfig -> {
+                            goalApiMockConfigId = goalApiMockConfig.getId();
+                            saveExpectNumList = mockConfigService.selectExpectNumberByConfigId(goalApiMockConfigId);
+                            List<MockExpectConfig> goalMockExpectList = mockConfigService.selectSimpleMockExpectConfigByMockConfigId(goalApiMockConfigId);
+                            goalMockExpectList.forEach(mockExpectConfig -> {
                                 oldMockExpectConfig.put(StringUtils.trim(mockExpectConfig.getName()), mockExpectConfig);
                             });
                         }
-                        List<MockExpectConfigWithBLOBs> mockExpectConfigList = mockConfigIdExpectMap.get(item.getId());
+                        List<MockExpectConfigWithBLOBs> mockExpectConfigList = sourceMockConfigIdMap.get(item.getId());
                         if (CollectionUtils.isNotEmpty(mockExpectConfigList)) {
-                            String finalMockConfigId = mockConfigId;
+                            String finalMockConfigId = goalApiMockConfigId;
                             List<String> finalSaveExpectNumList = saveExpectNumList;
                             mockExpectConfigList.forEach(mockExpectConfigWithBLOBs -> {
                                 MockExpectConfig oldExpect = oldMockExpectConfig.get(StringUtils.trim(mockExpectConfigWithBLOBs.getName()));
                                 MockExpectConfigWithBLOBs expectConfigWithBLOBs = new MockExpectConfigWithBLOBs();
                                 BeanUtils.copyBean(expectConfigWithBLOBs, mockExpectConfigWithBLOBs);
+                                expectConfigWithBLOBs.setMockConfigId(finalMockConfigId);
+                                expectConfigWithBLOBs.setUpdateTime(timeStamp);
                                 if (oldExpect == null) {
-                                    String newMockExpectNum = mockConfigService.getMockExpectId(String.valueOf(api.getNum()), finalSaveExpectNumList);
+                                    String newMockExpectNum = mockConfigService.getMockExpectId(String.valueOf(goalApi.getNum()), finalSaveExpectNumList);
                                     finalSaveExpectNumList.add(newMockExpectNum);
 
                                     expectConfigWithBLOBs.setId(UUID.randomUUID().toString());
                                     expectConfigWithBLOBs.setExpectNum(newMockExpectNum);
                                     expectConfigWithBLOBs.setCreateTime(timeStamp);
-                                    expectConfigWithBLOBs.setUpdateTime(timeStamp);
-                                    expectConfigWithBLOBs.setMockConfigId(finalMockConfigId);
+
                                     saveMockExpectList.add(expectConfigWithBLOBs);
                                 } else {
                                     expectConfigWithBLOBs.setId(oldExpect.getId());
                                     expectConfigWithBLOBs.setCreateTime(oldExpect.getCreateTime());
-                                    expectConfigWithBLOBs.setUpdateTime(timeStamp);
                                     updateMockExpectList.add(expectConfigWithBLOBs);
                                 }
                             });
