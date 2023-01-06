@@ -11,6 +11,7 @@
         value-key="id"
         class="ms-htt-width"
         :placeholder="$t('api_test.definition.request.run_env')"
+        filterable
         clearable>
         <el-option
           v-for="(environment, index) in environments"
