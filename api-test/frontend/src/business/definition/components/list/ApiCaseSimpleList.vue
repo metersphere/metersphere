@@ -992,7 +992,7 @@ export default {
       getDefinitionById(row.apiDefinitionId).then((response) => {
         let api = response.data;
         if (api) {
-          this.getCaseAndOpen(row.id, api.name, row.apiDefinitionId);
+          this.getCaseAndOpen(row.id, api.name, row.apiDefinitionId, true);
         }
       });
     },
@@ -1004,7 +1004,7 @@ export default {
         }
       });
     },
-    getCaseAndOpen(id, apiName, apiId) {
+    getCaseAndOpen(id, apiName, apiId, isCopyCase) {
       getCaseById(id).then((response) => {
         let data = response.data;
         let uuid = getUUID();
@@ -1030,6 +1030,9 @@ export default {
           url: apiCaseRequest.path,
           uuid: uuid,
         };
+        if (isCopyCase) {
+          obj.sourceIdByCopy = id;
+        }
         this.$refs.caseList.copy(obj);
       });
     },
