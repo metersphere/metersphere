@@ -187,6 +187,13 @@ public class MockConfigService {
         }
     }
 
+    public void sendMockNotice(String mockExpectId, String defaultContext, String event) {
+        MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs = mockExpectConfigMapper.selectByPrimaryKey(mockExpectId);
+        if (mockExpectConfigWithBLOBs != null) {
+            this.sendMockNotice(mockExpectConfigWithBLOBs, defaultContext, event);
+        }
+    }
+
     private void getParamMap(Map<String, Object> paramMap, String userId, MockExpectConfigWithBLOBs mockExpectConfigWithBLOBs, MockConfig mockConfig) {
         paramMap.put("operator", userId);
         paramMap.put("id", mockExpectConfigWithBLOBs.getId());
@@ -213,7 +220,7 @@ public class MockConfigService {
             model.setUpdateTime(timestamp);
             model.setStatus(request.getStatus());
             mockExpectConfigMapper.updateByPrimaryKeySelective(model);
-            sendMockNotice(model, "更新了mock", NoticeConstants.Event.MOCK_UPDATE);
+            sendMockNotice(request.getId(), "更新了mock", NoticeConstants.Event.MOCK_UPDATE);
             return model;
         } else {
             return null;

@@ -1,7 +1,7 @@
 <template>
   <ms-edit-dialog
     :visible.sync="visible"
-    width="300px"
+    width="400px"
     :title="$t('commons.delete_all_version')"
     :with-footer="false"
     :close-on-click-modal="false"
@@ -12,13 +12,9 @@
           <el-select v-model="versionId" size="small" :placeholder="$t('project.version.please_input_version')">
             <el-option v-for="v in versionData" :key="v.id" :label="v.name" :value="v.id" />
           </el-select>
-          <el-popover
-            placement="top-start"
-            width="200"
-            trigger="hover"
-            :content="$t('api_definition.copy_data_from_other_version_tips')">
-            <i class="el-icon-warning" slot="reference" style="color: #f56c6c; margin: 0 0 0 5px" />
-          </el-popover>
+        </el-row>
+        <el-row style="margin: 0">
+          <p style="color: #939496">{{ $t('api_definition.copy_data_from_other_version_tips') }}</p>
         </el-row>
         <el-row style="margin-top: 10px">
           <el-checkbox v-model="selectCase" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">{{
