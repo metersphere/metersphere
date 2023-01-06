@@ -53,7 +53,6 @@
 import {MODULE_CHANGE, ModuleEvent} from "metersphere-frontend/src/components/head/ListEvent";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getModuleList, updateStatus} from "@/api/module";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "MsModule",
@@ -78,9 +77,7 @@ export default {
     };
   },
   mounted() {
-    if (hasLicense()) {
-      this.list();
-    }
+    this.list();
   },
   computed: {
     disabled() {

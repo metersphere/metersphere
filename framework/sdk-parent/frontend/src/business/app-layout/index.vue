@@ -84,6 +84,14 @@ export default {
       this.headerHeight = "30px";
     }
     this.initSessionTimer();
+    getModuleList()
+      .then(response => {
+        let modules = {};
+        response.data.forEach(m => {
+          modules[m.key] = m.status;
+        });
+        localStorage.setItem('modules', JSON.stringify(modules));
+      });
     if (!hasLicense()) {
       setDefaultTheme();
       setCustomizeColor();
@@ -96,13 +104,6 @@ export default {
           // this.$store.commit('setTheme', res.data);
         });
       this.getDisplayInfo();
-      getModuleList().then(response => {
-        let modules = {};
-        response.data.forEach(m => {
-          modules[m.key] = m.status;
-        });
-        localStorage.setItem('modules', JSON.stringify(modules));
-      });
     }
 
     this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
