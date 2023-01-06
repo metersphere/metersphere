@@ -39,7 +39,7 @@
             </div>
           </el-col>
 
-          <el-col :span="2">
+          <el-col :span="3">
             <div>
               <el-tag size="mini" v-if="isUnexecute">
                 {{ $t('api_test.home_page.detail_card.unexecute') }}
