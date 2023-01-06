@@ -81,7 +81,7 @@ export default {
       showVersionSelector: false,
     };
   },
-  created() {
+  activated() {
     this.initVersions();
     this.$nextTick(() => {
       this.refreshAllCard();
