@@ -438,7 +438,12 @@ public class ApiTestCaseService {
         checkNameExist(request);
         ApiFileUtil.createBodyFiles(request.getId(), bodyFiles);
         request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
-        ApiFileUtil.copyBdyFile(request.getApiDefinitionId(), request.getId());
+        if (StringUtils.isNotBlank(request.getSourceIdByCopy())) {
+            ApiFileUtil.copyBdyFile(request.getSourceIdByCopy(), request.getId());
+        } else {
+            ApiFileUtil.copyBdyFile(request.getApiDefinitionId(), request.getId());
+        }
+
 
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
