@@ -237,7 +237,7 @@ public class HashTreeUtil {
             return;
         }
         List<BodyFile> files = new LinkedList<>();
-        FileUtils.getExecuteFiles(runRequest.getHashTree(), runRequest.getReportId(), files);
+        ApiFileUtil.getExecuteFiles(runRequest.getHashTree(), runRequest.getReportId(), files);
         if (CollectionUtils.isNotEmpty(files)) {
             Map<String, String> repositoryFileMap = new HashMap<>();
             for (BodyFile bodyFile : files) {

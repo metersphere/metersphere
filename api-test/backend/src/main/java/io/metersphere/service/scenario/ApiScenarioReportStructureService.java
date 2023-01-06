@@ -48,7 +48,7 @@ public class ApiScenarioReportStructureService {
             ElementConstants.IF_CONTROLLER,
             ElementConstants.CONSTANT_TIMER
     );
-    private static final String RESOURCE_ID = "resourceId";
+    private static final String RESOURCE_ID = ElementConstants.RESOURCE_ID;
     private static final String REFERENCED = "referenced";
     private static final String ERROR_CODE = "errorCode";
     private static final String ID = "id";

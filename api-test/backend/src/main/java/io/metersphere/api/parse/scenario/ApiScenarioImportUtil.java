@@ -183,7 +183,7 @@ public class ApiScenarioImportUtil {
                         structureCaseByJson(object, testCaseService, apiDefinition, apiTestCaseMapper, apiIdCaseNameMap);
                     } else {
                         object.put("id", sameCase.getId());
-                        object.put("resourceId", sameCase.getId());
+                        object.put(ElementConstants.RESOURCE_ID, sameCase.getId());
                         object.put("projectId", projectId);
                         object.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
                         object.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
@@ -242,7 +242,7 @@ public class ApiScenarioImportUtil {
         test.setLatest(true);
         test.setVersionId(versionId);
         object.put("id", test.getId());
-        object.put("resourceId", test.getId());
+        object.put(ElementConstants.RESOURCE_ID, test.getId());
         object.put("projectId", projectId);
         object.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
         object.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
@@ -298,7 +298,7 @@ public class ApiScenarioImportUtil {
         }
         ApiDefinitionImportUtilService apiDefinitionImportUtilService = CommonBeanFactory.getBean(ApiDefinitionImportUtilService.class);
         object.put("id", apiTestCase.getId());
-        object.put("resourceId", apiTestCase.getId());
+        object.put(ElementConstants.RESOURCE_ID, apiTestCase.getId());
         object.put("projectId", projectId);
         object.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
         object.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
@@ -326,7 +326,7 @@ public class ApiScenarioImportUtil {
             for (int i = 0; i < hashTree.length(); i++) {
                 JSONObject object = (JSONObject) hashTree.get(i);
                 object.put("index", i + 1);
-                object.put("resourceId", UUID.randomUUID().toString());
+                object.put(ElementConstants.RESOURCE_ID, UUID.randomUUID().toString());
                 hashTree.put(i, object);
                 if (object.has(ElementConstants.HASH_TREE) && object.optJSONArray(ElementConstants.HASH_TREE) != null) {
                     formatHashTree(object.optJSONArray(ElementConstants.HASH_TREE));
