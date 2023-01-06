@@ -554,7 +554,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 try {
                     String value = keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
                             ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                    value = keyValue.isUrlEncode() ? StringUtils.join(StringUtils.join("${__urlencode(", value), ")}") : value;
+                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value, ")}") : value;
                     keyValueMap.put(keyValue.getName(), value);
                 } catch (Exception e) {
                     LogUtil.error(e);
@@ -585,11 +585,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             stringBuffer.append("?");
         }
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
-            stringBuffer.append(keyValue.isUrlEncode() ? StringUtils.join(StringUtils.join("${__urlencode(", keyValue.getName()), ")}") : keyValue.getName());
+            stringBuffer.append(keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", keyValue.getName(), ")}") : keyValue.getName());
             if (keyValue.getValue() != null) {
                 try {
                     String value = keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                    value = keyValue.isUrlEncode() ? StringUtils.join(StringUtils.join("${__urlencode(", value), ")}") : value;
+                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value, ")}") : value;
                     if (StringUtils.isNotEmpty(value) && value.contains(StringUtils.CR)) {
                         value = value.replaceAll(StringUtils.CR, StringUtils.EMPTY);
                     }
