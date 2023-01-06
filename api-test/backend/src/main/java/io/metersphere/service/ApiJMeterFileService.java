@@ -307,6 +307,11 @@ public class ApiJMeterFileService {
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
             for (BodyFile bodyFile : request.getBodyFiles()) {
                 File file = new File(bodyFile.getName());
+                if (!file.exists()) {
+                    // 从MinIO下载
+                    ApiFileUtil.downloadFile(bodyFile.getId(), bodyFile.getName());
+                    file = new File(bodyFile.getName());
+                }
                 if (file != null && file.exists()) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
