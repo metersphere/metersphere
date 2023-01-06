@@ -24,4 +24,7 @@ public class SaveApiTestCaseRequest extends ApiTestCase {
     private List<String> follows;
 
     private String versionId;
+
+    //复制用例时的源ID。主要用于复制本地文件等操作。
+    private String sourceIdByCopy;
 }
