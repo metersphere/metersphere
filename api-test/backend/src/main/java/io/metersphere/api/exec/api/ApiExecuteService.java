@@ -204,7 +204,7 @@ public class ApiExecuteService {
     private JmeterRunRequestDTO initRunRequest(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
-
+        config.setApi(true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null && map.size() > 0) {
@@ -308,7 +308,7 @@ public class ApiExecuteService {
         BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(request.getEnvironmentId());
         ParameterConfig parameterConfig = new ParameterConfig();
-
+        parameterConfig.setApi(true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);
