@@ -174,14 +174,14 @@ public class ReflexObjectUtil {
                                 List<String> originalValueArray = JSON.parseArray(originalValue.toString(), String.class);
                                 Collections.sort(originalValueArray);
                                 Object originalObject = JSON.toJSONString(originalValueArray);
-                                oldTags = StringUtils.join(StringUtils.join(JSON_START, ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\"")), JSON_END);
+                                oldTags = StringUtils.join(JSON_START, ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\""), JSON_END);
                             }
                             List<String> newValueArray = JSON.parseArray(newValue.toString(), String.class);
                             if (CollectionUtils.isNotEmpty(newValueArray)) {
                                 Collections.sort(newValueArray);
                             }
                             Object newObject = JSON.toJSONString(newValueArray);
-                            String newTags = StringUtils.join(StringUtils.join(JSON_START, ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\"")), JSON_END);
+                            String newTags = StringUtils.join(JSON_START, ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\""), JSON_END);
                             String diffValue;
                             if (oldTags != null) {
                                 String diffStr = diff.diff(oldTags, newTags);
