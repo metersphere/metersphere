@@ -403,7 +403,6 @@ export default {
         data.request.protocol = this.currentProtocol;
       }
       if (data.isCopy) {
-        data.sourceId = data.id;
         data.id = getUUID();
         data.request.id = data.id;
       } else {
