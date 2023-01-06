@@ -28,14 +28,8 @@
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.api') }}</span>
       </div>
     </el-menu-item>
-    <el-menu-item index="/ui" @click="active()" v-if="hasLicense() && check('ui')" onselectstart="return false"
+    <el-menu-item :index="getUiIndex()" @click="clickPlanMenu" v-if="check('ui')" onselectstart="return false"
                   v-permission="['PROJECT_UI_SCENARIO:READ','PROJECT_UI_REPORT:READ', 'PROJECT_UI_ELEMENT:READ']">
-      <div>
-        <svg-icon iconClass="ui" class-name="ms-menu-img"/>
-        <span slot="title" class="ms-menu-item-title">{{ $t('commons.ui') }}</span>
-      </div>
-    </el-menu-item>
-    <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
       <div>
         <svg-icon iconClass="ui" class-name="ms-menu-img"/>
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.ui') }}</span>
@@ -145,8 +139,17 @@ export default {
       }
     },
     check(key) {
+      if (key === 'ui' && !hasLicense()) {
+        return this.modules[key] === 'ENABLE';
+      }
       let microApps = JSON.parse(sessionStorage.getItem("micro_apps"));
       return this.modules[key] === 'ENABLE' && microApps && microApps[key];
+    },
+    getUiIndex() {
+      if (hasLicense()) {
+        return "ui";
+      }
+      return "";
     },
     registerEvents() {
       getModuleList()
@@ -164,6 +167,9 @@ export default {
       });
     },
     clickPlanMenu() {
+      if (hasLicense()) {
+        return true;
+      }
       this.$message({
         dangerouslyUseHTMLString: true,
         showClose: true,
