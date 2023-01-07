@@ -178,7 +178,7 @@
                 @batchEdit="batchEdit"/>
 
     <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :custom-run-mode="true"
-                 :custom-serial-on-sample-error="true" :request="conditionRequest"/>
+                 :custom-serial-on-sample-error="true" :request="conditionRequest" :plan-case-ids="planCaseIds"/>
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
@@ -440,7 +440,7 @@ export default {
       let rows = this.orderBySelectRows(this.$refs.table.selectRows);
       this.planCaseIds = [];
       rows.forEach(row => {
-        this.planCaseIds.push(row.caseId);
+        this.planCaseIds.push(row.id);
       })
       this.conditionRequest.id = getUUID();
       this.conditionRequest.ids = this.planCaseIds;
