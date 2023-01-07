@@ -192,8 +192,8 @@
 <script>
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
 import {getCurrentProjectID, getOwnerProjects, strMapToObj} from "@/business/utils/sdk-utils";
-import {uiScenarioEnvMap} from "@/api/remote/ui/ui-automation";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
+import {testPlanUiScenarioCaseEnv} from "@/api/remote/ui/test-plan-ui-scenario-case";
 
 export default {
   name: "UiRunMode",
@@ -230,6 +230,9 @@ export default {
     };
   },
   props: {
+    planCaseIds: {
+      type: Array,
+    },
     request: {
       type: Object,
     },
@@ -326,7 +329,7 @@ export default {
     showScenarioPopover() {
       let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
-      uiScenarioEnvMap(this.request).then((res) => {
+      testPlanUiScenarioCaseEnv(this.request.ids).then((res) => {
         let data = res.data;
         this.projectEnvListMap = data;
         if (data) {
