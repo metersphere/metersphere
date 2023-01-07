@@ -43,3 +43,7 @@ export function testPlanUiScenarioCaseDelete(id) {
 export function uiScenarioModulePlanList(planId) {
   return get(BASE_URL + `list/module/${planId}`);
 }
+
+export function testPlanUiScenarioCaseEnv(params) {
+  return post(BASE_URL + 'get/env', params);
+}
