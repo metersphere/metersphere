@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.dto.FileInfoDTO;
@@ -16,6 +17,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.service.ExtErrorReportLibraryService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
@@ -250,16 +252,71 @@ public class HashTreeUtil {
             if (fileMetadataService != null) {
                 Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
                 List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
-                fileInfoDTOList.forEach(repositoryFile -> {
-                    if (repositoryFile.getFileByte() != null) {
-                        multipartFiles.put(FileUtils.BODY_FILE_DIR + File.separator + repositoryFileMap.get(repositoryFile.getId()), repositoryFile.getFileByte());
+                fileInfoDTOList.forEach(dto -> {
+                    if (ArrayUtils.isNotEmpty(dto.getFileByte())) {
+                        String key = StringUtils.join(
+                                FileUtils.BODY_FILE_DIR,
+                                File.separator,
+                                repositoryFileMap.get(dto.getId()));
+                        multipartFiles.put(key, dto.getFileByte());
                     }
                 });
+
                 for (Map.Entry<String, byte[]> fileEntry : multipartFiles.entrySet()) {
                     String fileName = fileEntry.getKey();
                     byte[] fileBytes = fileEntry.getValue();
                     FileUtils.createFile(fileName, fileBytes);
                 }
+            }
+        }
+    }
+
+    public static void downFile(
+            List<BodyFile> files,
+            Map<String, byte[]> multipartFiles,
+            FileMetadataService fileMetadataService) {
+
+        if (CollectionUtils.isNotEmpty(files)) {
+            Map<String, String> repositoryFileMap = new HashMap<>();
+            List<String> processFiles = new ArrayList<>();
+            for (BodyFile bodyFile : files) {
+                // 调试附件处理
+                if (StringUtils.isNotBlank(bodyFile.getRefResourceId())) {
+                    FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(bodyFile.getRefResourceId());
+                    if (fileMetadata != null) {
+                        bodyFile.setFileId(bodyFile.getRefResourceId());
+                        bodyFile.setStorage(fileMetadata.getStorage());
+                        processFiles.add(bodyFile.getFileId());
+                        repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
+                    }
+                } else if (StringUtils.isNotBlank(bodyFile.getFileId())) {
+                    repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
+                } else {
+                    File file = new File(bodyFile.getName());
+                    if (file != null && file.exists()) {
+                        byte[] fileByte = FileUtils.fileToByte(file);
+                        if (fileByte != null) {
+                            multipartFiles.put(file.getAbsolutePath(), fileByte);
+                        }
+                    }
+                }
+            }
+            List<FileInfoDTO> fileList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
+            if (CollectionUtils.isNotEmpty(fileList)) {
+                // 处理返回文件
+                fileList.forEach(repositoryFile -> {
+                    if (ArrayUtils.isNotEmpty(repositoryFile.getFileByte())) {
+                        String path = StringUtils.join(
+                                FileUtils.BODY_FILE_DIR,
+                                File.separator,
+                                repositoryFileMap.get(repositoryFile.getId()));
+                        // 调试文件路径
+                        String key = processFiles.contains(repositoryFile.getId())
+                                ? repositoryFileMap.get(repositoryFile.getId())
+                                : path;
+                        multipartFiles.put(key, repositoryFile.getFileByte());
+                    }
+                });
             }
         }
     }

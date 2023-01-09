@@ -15,6 +15,8 @@ public class BodyFile {
     private String fileType;
     // 正常/已删除
     private String status;
+    // 调试附件处理
+    private String refResourceId;
 
     public boolean isRef() {
         return StringUtils.equals(storage, StorageConstants.FILE_REF.name()) && StringUtils.isNotEmpty(fileId);
