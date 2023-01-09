@@ -60,6 +60,7 @@ public class HttpHeaderUtils {
 
             headers.add(SessionConstants.HEADER_TOKEN, sessionUser.getSessionId());
             headers.add(SessionConstants.CSRF_TOKEN, sessionUser.getCsrfToken());
+            headers.add(SessionConstants.SSO_TOKEN, sessionUser.getId());
             headers.add(SessionConstants.CURRENT_PROJECT, sessionUser.getLastProjectId());
             headers.add(SessionConstants.CURRENT_WORKSPACE, sessionUser.getLastWorkspaceId());
         }
