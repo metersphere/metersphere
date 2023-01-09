@@ -354,9 +354,6 @@ export default {
     },
     enableTrash() {
       this.condition.trashEnable = true;
-      this.$nextTick(() => {
-        this.$emit('enableTrash', this.condition.trashEnable);
-      });
     },
     removeModuleId(nodeIds) {
       if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {

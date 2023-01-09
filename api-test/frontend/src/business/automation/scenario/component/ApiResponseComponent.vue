@@ -94,7 +94,6 @@ export default {
 
 <style scoped>
 .header {
-  height: 30px;
   line-height: 30px;
 }
 
