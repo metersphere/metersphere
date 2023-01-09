@@ -19,7 +19,7 @@ export default {
         let keyValues = [];
         params.forEach((item) => {
           let line = item.split(/:|：/);
-          let values = item.split(line[0] + ':');
+          let values = item.substr(line[0].length + 1);
           let required = false;
           if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
             required = true;
@@ -28,8 +28,7 @@ export default {
             new KeyValue({
               name: line[0],
               required: required,
-              value: values[1],
-              description: line[3],
+              value: values,
               type: 'text',
               valid: false,
               file: false,
