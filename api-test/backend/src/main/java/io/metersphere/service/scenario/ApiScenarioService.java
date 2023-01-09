@@ -861,6 +861,7 @@ public class ApiScenarioService {
         ParameterConfig config = new ParameterConfig();
         config.setOperating(true);
         config.getExcludeScenarioIds().add(apiScenario.getId());
+        config.setScenarioId(apiScenario.getId());
         try {
             MsScenario scenario = JSON.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
             if (scenario == null) {
