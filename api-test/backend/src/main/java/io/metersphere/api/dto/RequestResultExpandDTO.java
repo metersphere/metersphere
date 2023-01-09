@@ -21,6 +21,8 @@ public class RequestResultExpandDTO extends RequestResult {
     private String reportId;
     private long time;
     private Map<String, String> attachInfoMap;
+    private String poolName;
+    private String envName;
 
     public RequestResultExpandDTO() {
     }

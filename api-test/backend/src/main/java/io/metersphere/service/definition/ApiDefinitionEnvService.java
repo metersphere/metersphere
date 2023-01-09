@@ -1,10 +1,17 @@
 package io.metersphere.service.definition;
 
+import io.metersphere.api.dto.ApiReportEnvConfigUtil;
+import io.metersphere.api.dto.MsgDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.base.domain.ApiDefinitionEnv;
 import io.metersphere.base.domain.ApiDefinitionEnvExample;
+import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.mapper.ApiDefinitionEnvMapper;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.dto.RequestResult;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -12,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -21,6 +29,10 @@ public class ApiDefinitionEnvService {
     private ApiDefinitionEnvMapper apiDefinitionEnvMapper;
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
 
     public void insert(ApiDefinitionEnv env) {
         env.setId(UUID.randomUUID().toString());
@@ -62,5 +74,33 @@ public class ApiDefinitionEnvService {
             return list.get(0);
         }
         return null;
+    }
+
+    public void setEnvAndPoolName(RequestResult baseResult, RequestResultExpandDTO expandDTO) {
+        if (StringUtils.isNotBlank(baseResult.getThreadName())) {
+            ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(baseResult.getThreadName());
+            if (result != null && StringUtils.isNotEmpty(result.getEnvConfig())) {
+                ApiReportEnvConfigUtil envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                if (envConfig != null) {
+                    expandDTO.setEnvName(envConfig.getEnvName());
+                    expandDTO.setPoolName(envConfig.getResourcePoolName());
+                }
+            }
+        }
+    }
+
+    public void setEnvAndPoolName(MsgDTO dto) {
+        if (StringUtils.isNotBlank(dto.getToReport())) {
+            ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(dto.getToReport());
+            if (result != null && StringUtils.isNotEmpty(result.getEnvConfig())) {
+                ApiReportEnvConfigUtil envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                if (envConfig != null) {
+                    Map map = JSON.parseObject(dto.getContent().substring(7), Map.class);
+                    map.put("envName", envConfig.getEnvName());
+                    map.put("poolName", envConfig.getResourcePoolName());
+                    dto.setContent("result_" + JSON.toJSONString(map));
+                }
+            }
+        }
     }
 }
