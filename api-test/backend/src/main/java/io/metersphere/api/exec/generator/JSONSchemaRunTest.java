@@ -291,7 +291,12 @@ public class JSONSchemaRunTest {
                     json = json.replace(str, map.get(str));
                 }
             }
-            return JSONUtil.parser(json);
+            String value = StringUtils.chomp(json.trim());
+            if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
+                return JSONUtil.parserArray(value);
+            } else {
+                return JSONUtil.parserObject(value);
+            }
         } catch (Exception ex) {
             return jsonSchema;
         }
