@@ -1463,74 +1463,91 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix, String mockApiResourceId) {
+
+        /*
+         * 获取符合条件的api时，先检查请求头中自带的mockApiResourceId
+         * mockApiResourceId在MsHttpSample拼装的过程中进行添加。初衷是在接口定义调试和接口用例执行时定位到设置了Mock期望的接口。 所以如果请求来源于第三方工具(如Postman等)则不保证该ID的必填性和正确性
+         * 当这个ID能查出数据，则以该api为主。如果查不出来，按照之前匹配URL的方式继续处理。
+         */
+        List<ApiDefinitionWithBLOBs> specifyData = new ArrayList<>();
         if (StringUtils.isNotBlank(mockApiResourceId)) {
-            //如果请求头中指定了API 则返回当前API
-            List<ApiDefinitionWithBLOBs> returnList = new ArrayList<>();
             ApiDefinitionWithBLOBs apiDefinition = apiDefinitionMapper.selectByPrimaryKey(mockApiResourceId);
             if (apiDefinition != null) {
-                returnList.add(apiDefinition);
+                specifyData.add(apiDefinition);
+            } else {
+                ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(mockApiResourceId);
+                if (testCase != null) {
+                    apiDefinition = apiDefinitionMapper.selectByPrimaryKey(testCase.getApiDefinitionId());
+                    if (apiDefinition != null) {
+                        specifyData.add(apiDefinition);
+                    }
+                }
             }
-            return returnList;
-        } else if (StringUtils.isEmpty(baseUrlSuffix)) {
-            return new ArrayList<>();
+        }
+        if (CollectionUtils.isNotEmpty(specifyData)) {
+            return specifyData;
         } else {
-            String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId, projectId);
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            ApiDefinitionExample.Criteria criteria = example.createCriteria();
-            criteria.andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
-            if (StringUtils.isNotBlank(apiId)) {
-                criteria.andIdEqualTo(apiId);
-            }
-            List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
-            List<String> apiIdList = new ArrayList<>();
-            boolean urlSuffixEndEmpty = false;
-            String urlSuffix = baseUrlSuffix;
-            if (urlSuffix.endsWith("/")) {
-                urlSuffixEndEmpty = true;
-                urlSuffix = urlSuffix + "testMock";
-            }
-            String[] urlParams = urlSuffix.split("/");
-            if (urlSuffixEndEmpty) {
-                urlParams[urlParams.length - 1] = StringUtils.EMPTY;
-            }
-            for (ApiDefinition api : apiList) {
-                if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {
-                    apiIdList.add(api.getId());
-                } else {
-                    String path = api.getPath();
-                    if (StringUtils.isEmpty(path)) {
-                        continue;
-                    }
-                    if (path.startsWith("/")) {
-                        path = path.substring(1);
-                    }
-                    if (StringUtils.isNotEmpty(path)) {
-                        String[] pathArr = path.split("/");
-                        if (pathArr.length == urlParams.length) {
-                            boolean isFetch = true;
-                            for (int i = 0; i < urlParams.length; i++) {
-                                String pathItem = pathArr[i];
-                                if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
-                                    if (!StringUtils.equals(pathArr[i], urlParams[i])) {
-                                        isFetch = false;
-                                        break;
+            if (StringUtils.isEmpty(baseUrlSuffix)) {
+                return new ArrayList<>();
+            } else {
+                String apiId = this.getApiIdFromMockApiResourceId(mockApiResourceId, projectId);
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                ApiDefinitionExample.Criteria criteria = example.createCriteria();
+                criteria.andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
+                if (StringUtils.isNotBlank(apiId)) {
+                    criteria.andIdEqualTo(apiId);
+                }
+                List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
+                List<String> apiIdList = new ArrayList<>();
+                boolean urlSuffixEndEmpty = false;
+                String urlSuffix = baseUrlSuffix;
+                if (urlSuffix.endsWith("/")) {
+                    urlSuffixEndEmpty = true;
+                    urlSuffix = urlSuffix + "testMock";
+                }
+                String[] urlParams = urlSuffix.split("/");
+                if (urlSuffixEndEmpty) {
+                    urlParams[urlParams.length - 1] = StringUtils.EMPTY;
+                }
+                for (ApiDefinition api : apiList) {
+                    if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {
+                        apiIdList.add(api.getId());
+                    } else {
+                        String path = api.getPath();
+                        if (StringUtils.isEmpty(path)) {
+                            continue;
+                        }
+                        if (path.startsWith("/")) {
+                            path = path.substring(1);
+                        }
+                        if (StringUtils.isNotEmpty(path)) {
+                            String[] pathArr = path.split("/");
+                            if (pathArr.length == urlParams.length) {
+                                boolean isFetch = true;
+                                for (int i = 0; i < urlParams.length; i++) {
+                                    String pathItem = pathArr[i];
+                                    if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
+                                        if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                                            isFetch = false;
+                                            break;
+                                        }
                                     }
-                                }
 
-                            }
-                            if (isFetch) {
-                                apiIdList.add(api.getId());
+                                }
+                                if (isFetch) {
+                                    apiIdList.add(api.getId());
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (apiIdList.isEmpty()) {
-                return new ArrayList<>();
-            } else {
-                example.clear();
-                example.createCriteria().andIdIn(apiIdList);
-                return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+                if (apiIdList.isEmpty()) {
+                    return new ArrayList<>();
+                } else {
+                    example.clear();
+                    example.createCriteria().andIdIn(apiIdList);
+                    return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+                }
             }
         }
     }
