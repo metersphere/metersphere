@@ -9,9 +9,7 @@ import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.*;
-import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
@@ -218,30 +216,7 @@ public class ApiJMeterFileService {
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
         ApiFileUtil.getExecuteFiles(hashTree, reportId, files);
-        if (CollectionUtils.isNotEmpty(files)) {
-            Map<String, String> repositoryFileMap = new HashMap<>();
-            for (BodyFile bodyFile : files) {
-                if (StringUtils.equals(bodyFile.getStorage(), StorageConstants.GIT.name())
-                        && StringUtils.isNotBlank(bodyFile.getFileId())) {
-                    repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
-                } else {
-                    File file = new File(bodyFile.getName());
-                    if (file != null && file.exists()) {
-                        byte[] fileByte = FileUtils.fileToByte(file);
-                        if (fileByte != null) {
-                            multipartFiles.put(file.getAbsolutePath(), fileByte);
-                        }
-                    }
-                }
-            }
-            List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
-            fileInfoDTOList.forEach(repositoryFile -> {
-                if (repositoryFile.getFileByte() != null) {
-                    multipartFiles.put(FileUtils.BODY_FILE_DIR + File.separator + repositoryFileMap.get(repositoryFile.getId()), repositoryFile.getFileByte());
-                }
-            });
-
-        }
+        HashTreeUtil.downFile(files, multipartFiles, fileMetadataService);
         return multipartFiles;
     }
 
@@ -305,6 +280,9 @@ public class ApiJMeterFileService {
     public byte[] zipFilesToByteArray(BodyFileRequest request) {
         Map<String, byte[]> files = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            LoggerUtil.info("开始从三方仓库下载文件");
+            HashTreeUtil.downFile(request.getBodyFiles(), files, fileMetadataService);
+            LoggerUtil.info("从三方仓库下载文件");
             for (BodyFile bodyFile : request.getBodyFiles()) {
                 File file = new File(bodyFile.getName());
                 if (!file.exists()) {
