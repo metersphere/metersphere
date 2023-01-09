@@ -65,7 +65,8 @@ public class UserLoginService {
     }
 
     private UserDTO loginLdapMode(String userId) {
-        UserDTO loginUser = getLoginUser(userId, Collections.singletonList(UserSource.LDAP.name()));
+        // LDAP验证通过之后，如果用户存在且用户类型是LDAP或LOCAL，返回用户
+        UserDTO loginUser = getLoginUser(userId, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
         if (loginUser == null) {
             MSException.throwException(Translator.get("user_not_found_or_not_unique"));
         }

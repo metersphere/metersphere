@@ -107,14 +107,22 @@ public class LdapService {
         } else {
             // 更新
             u.setName(name);
-            u.setPhone(phone);
-            u.setEmail(email);
+            if (StringUtils.isNotBlank(phone)) {
+                u.setPhone(phone);
+            }
+            if (StringUtils.isNotBlank(email)) {
+                u.setEmail(email);
+            }
             userLoginService.updateUser(u);
         }
 
-        // 执行 LocalRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername(userId);
+        if (u != null) {
+            // 根据id或email查找到了用户，后续使用此用户id登录
+            loginRequest.setUsername(u.getId());
+        } else {
+            loginRequest.setUsername(userId);
+        }
         loginRequest.setAuthenticate(UserSource.LDAP.name());
 
         Optional<SessionUser> sessionUser = userLoginService.login(loginRequest, session, locale);
