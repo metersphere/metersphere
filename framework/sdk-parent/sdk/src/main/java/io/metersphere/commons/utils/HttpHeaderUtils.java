@@ -1,19 +1,16 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.base.domain.User;
-import io.metersphere.base.domain.UserKey;
-import io.metersphere.commons.constants.ApiKeyConstants;
 import io.metersphere.commons.constants.SessionConstants;
-import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.service.BaseUserService;
-import io.metersphere.service.UserKeyService;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 服务之间调用，需要添加HttpHeader,获取的时候注意当前线程的位置
@@ -57,31 +54,17 @@ public class HttpHeaderUtils {
 
         User user = sessionUserThreadLocal.get();
         if (user != null) {
-            UserKey userKey = getUserKey(user);
-            accessKey = userKey.getAccessKey();
-            String secretKey = userKey.getSecretKey();
-            headers.add(SessionConstants.ACCESS_KEY, accessKey);
-            headers.add(SessionConstants.SIGNATURE, CodingUtil.aesDecrypt(accessKey + "|" + System.currentTimeMillis(), secretKey, accessKey));
-            headers.remove(HttpHeaders.COOKIE);
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(user, userDTO);
+            SessionUser sessionUser = SessionUser.fromUser(userDTO, UUID.randomUUID().toString());
+
+            headers.add(SessionConstants.HEADER_TOKEN, sessionUser.getSessionId());
+            headers.add(SessionConstants.CSRF_TOKEN, sessionUser.getCsrfToken());
+            headers.add(SessionConstants.CURRENT_PROJECT, sessionUser.getLastProjectId());
+            headers.add(SessionConstants.CURRENT_WORKSPACE, sessionUser.getLastWorkspaceId());
         }
 
         return headers;
-    }
-
-    private static UserKey getUserKey(User user) {
-        UserKeyService userKeyService = CommonBeanFactory.getBean(UserKeyService.class);
-        List<UserKey> userKeys = userKeyService.getUserKeysInfo(user.getId());
-        UserKey userKey;
-        if (CollectionUtils.isEmpty(userKeys)) {
-            userKey = userKeyService.generateUserKey(user.getId());
-        } else {
-            Optional<UserKey> ukOp = userKeys.stream().filter(uk -> StringUtils.equals(uk.getStatus(), ApiKeyConstants.ACTIVE.name())).findAny();
-            if (ukOp.isEmpty()) {
-                MSException.throwException("用户[" + user.getId() + "]至少需要开启一个ApiKey");
-            }
-            userKey = ukOp.get();
-        }
-        return userKey;
     }
 
     public static void runAsUser(User user) {
