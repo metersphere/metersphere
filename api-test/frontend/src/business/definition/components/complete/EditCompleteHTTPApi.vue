@@ -672,6 +672,9 @@ export default {
                 this.request.body.kvs = requestKvs;
                 this.beforeRequest.body.kvs = beforeKvs
               }
+              if (Object.keys(this.request.body).indexOf('type')) {
+                this.beforeRequest.body.type = this.request.body.type
+              }
               let submitRequestBody = JSON.stringify(this.request.body);
               let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
               if (submitRequestBody !== beforeRequestBody && !this.noShowSyncRuleRelation) {
