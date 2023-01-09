@@ -150,15 +150,16 @@ export default {
       let map = this.$refs.apiScenarioList.map;
       let envGroupId = this.$refs.apiScenarioList.envGroupId;
 
-      if (!envMap || envMap.size == 0) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       selectRows.forEach(row => {
         selectIds.push(row.id);
       })
       if (selectIds.length < 1) {
         this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        return;
+      }
+
+      if (!envMap || envMap.size == 0) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
 
