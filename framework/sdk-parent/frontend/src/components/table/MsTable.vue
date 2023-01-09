@@ -27,9 +27,18 @@
       @row-click="handleRowClick"
       ref="table"
     >
-      <el-table-column v-if="enableSelection && !reserveOption" width="50" type="selection"/>
+      <el-table-column
+        v-if="enableSelection && !reserveOption"
+        width="50"
+        type="selection"
+      />
 
-      <el-table-column v-if="enableSelection && reserveOption" width="50" type="selection" reserve-selection/>
+      <el-table-column
+        v-if="enableSelection && reserveOption"
+        width="50"
+        type="selection"
+        reserve-selection
+      />
 
       <ms-table-header-select-popover
         v-if="enableSelection && showSelectAll && !hidePopover"
@@ -46,7 +55,7 @@
         v-if="enableSelection && batchOperators && batchOperators.length > 0"
         width="15"
         fixed="left"
-        column-key="batchBtnCol"
+        class-name="padding-col"
         align="center"
         :resizable="false"
       >
@@ -565,7 +574,7 @@ export default {
         this.tableActive = true;
       });
       this.listenRowDrop();
-      this.$emit('headChange');
+      this.$emit("headChange");
     },
     toggleRowSelection() {
       this.$refs.table.toggleRowSelection();
