@@ -99,7 +99,7 @@ public class Body {
         if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
             if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
                     && JSON_SCHEMA.equals(this.format)) {
-                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaRunTest.getJson(JSON.toJSONString(this.getJsonSchema())));
+                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaRunTest.getJson(JSONUtil.toJSONString(this.getJsonSchema())));
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
@@ -109,13 +109,13 @@ public class Body {
                             if (!this.getRaw().contains("$ref")) {
                                 jsonMockParse(list);
                             }
-                            this.raw = JSONUtil.parser(JSONUtil.toJSONString(list));
+                            this.raw = JSONUtil.parserArray(JSONUtil.toJSONString(list));
                         } else {
                             Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
                             if (!this.getRaw().contains("$ref")) {
                                 jsonMockParse(map);
                             }
-                            this.raw = JSONUtil.parser(JSONUtil.toJSONString(map));
+                            this.raw = JSONUtil.parserObject(JSONUtil.toJSONString(map));
                         }
                     }
                 } catch (Exception e) {

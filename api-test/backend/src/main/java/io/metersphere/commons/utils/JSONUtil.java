@@ -32,6 +32,13 @@ public class JSONUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final TypeFactory typeFactory = objectMapper.getTypeFactory();
 
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .serializeNulls()
+            .create();
+    ;
+
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 自动检测所有类的全部属性
@@ -39,6 +46,7 @@ public class JSONUtil {
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
     }
 
     public static <T> T parseObject(String content, Class<T> valueType) {
@@ -241,14 +249,17 @@ public class JSONUtil {
         return objectMapper.createObjectNode();
     }
 
-    public static String parser(String content) {
+    public static String parserObject(String content) {
         try {
-            Gson gson = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .disableHtmlEscaping()
-                    .serializeNulls()
-                    .create();
             return gson.toJson(JsonParser.parseString(content).getAsJsonObject());
+        } catch (Exception e) {
+            return content;
+        }
+    }
+
+    public static String parserArray(String content) {
+        try {
+            return gson.toJson(JsonParser.parseString(content).getAsJsonArray());
         } catch (Exception e) {
             return content;
         }
