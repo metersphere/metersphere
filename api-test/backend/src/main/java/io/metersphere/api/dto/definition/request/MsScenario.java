@@ -127,8 +127,7 @@ public class MsScenario extends MsTestElement {
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
             if (BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
                 scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
-            } else if (config != null
-                    && (StringUtils.equals(this.getId(), config.getScenarioId()) || config.isApi())) {
+            } else if (config != null && (this.isAllEnable() || config.isApi())) {
                 scenarioTree.add(valueSupposeMock);
             }
         }
@@ -164,6 +163,11 @@ public class MsScenario extends MsTestElement {
         }
         // 添加全局后置
         this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, false);
+    }
+
+    private boolean isAllEnable() {
+        return (this.variableEnable == null || BooleanUtils.isFalse(this.variableEnable))
+                && (this.mixEnable == null || BooleanUtils.isFalse(this.mixEnable));
     }
 
     private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
