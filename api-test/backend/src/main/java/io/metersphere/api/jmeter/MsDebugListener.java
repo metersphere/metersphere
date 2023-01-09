@@ -21,9 +21,11 @@ import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
+import io.metersphere.service.definition.ApiDefinitionEnvService;
 import io.metersphere.utils.JMeterVars;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -151,11 +153,15 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setToReport(this.getName());
 
                 String console = FixedCapacityUtil.getJmeterLogger(this.getName(), false);
+                ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);
                         //对响应内容进行进一步解析和处理。
                         RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
+                        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                            apiDefinitionEnvService.setEnvAndPoolName(transactionResult, expandDTO);
+                        }
                         dto.setContent("result_" + JSON.toJSONString(expandDTO));
                         WebSocketUtil.sendMessageSingle(dto);
                     });
@@ -163,6 +169,9 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                     requestResult.getResponseResult().setConsole(console);
                     //对响应内容进行进一步解析和处理。
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
+                    if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                        apiDefinitionEnvService.setEnvAndPoolName(requestResult, expandDTO);
+                    }
                     dto.setContent("result_" + JSON.toJSONString(expandDTO));
                     WebSocketUtil.sendMessageSingle(dto);
                 }
