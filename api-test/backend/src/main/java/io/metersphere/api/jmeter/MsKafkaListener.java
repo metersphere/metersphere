@@ -1,12 +1,15 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.api.dto.MsgDTO;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.KafkaTopicConstants;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.NamedThreadFactory;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.TestResultService;
+import io.metersphere.service.definition.ApiDefinitionEnvService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +74,10 @@ public class MsKafkaListener {
             LoggerUtil.info("接收到执行结果：", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
                 MsgDTO dto = JSONUtil.parseObject(record.value(), MsgDTO.class);
+                if (StringUtils.equals(ApiRunMode.DEFINITION.name(), dto.getRunMode()) && dto.getContent().startsWith("result_")) {
+                    ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
+                    apiDefinitionEnvService.setEnvAndPoolName(dto);
+                }
                 WebSocketUtil.sendMessageSingle(dto);
             }
         } catch (Exception e) {
