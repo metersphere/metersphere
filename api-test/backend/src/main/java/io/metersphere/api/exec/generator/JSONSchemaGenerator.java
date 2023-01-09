@@ -272,7 +272,12 @@ public class JSONSchemaGenerator {
             if (StringUtils.isEmpty(jsonSchema)) {
                 return null;
             }
-            return formerJson(jsonSchema);
+            String value = formerJson(jsonSchema);
+            if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
+                return JSONUtil.parserArray(value);
+            } else {
+                return JSONUtil.parserObject(value);
+            }
         } catch (Exception ex) {
             return jsonSchema;
         }

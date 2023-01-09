@@ -43,7 +43,7 @@
       </el-tab-pane>
       <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
         <div style="min-height: 200px">
-          <pre>{{ this.preview }}</pre>
+          <pre style="width: 100%; white-space: pre-wrap;">{{ this.preview }}</pre>
         </div>
       </el-tab-pane>
     </el-tabs>
