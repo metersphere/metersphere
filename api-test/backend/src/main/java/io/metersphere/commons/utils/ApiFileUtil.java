@@ -8,6 +8,7 @@ import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.FileRequest;
 import io.metersphere.request.BodyFile;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,6 +91,7 @@ public class ApiFileUtil extends FileUtils {
         request.setProjectId(path);
         request.setFileName(requestId);
         request.setStorage(StorageConstants.MINIO.name());
+        LoggerUtil.info("开始从MinIO处理文件：", path);
         return request;
     }
 
