@@ -281,6 +281,9 @@ export default {
         });
       });
     },
+    closeEnv(){
+      this.$refs.envPopover.close();
+    }
   }
 };
 </script>
