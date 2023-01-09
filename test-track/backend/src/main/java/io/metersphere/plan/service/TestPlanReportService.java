@@ -1183,6 +1183,9 @@ public class TestPlanReportService {
             if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
                 TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanScenarioCaseService.generateEnvironmentInfo(testPlanReport);
                 BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
+            } else if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+                TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanUiScenarioCaseService.generateEnvironmentInfo(testPlanReport);
+                BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
             }
         } catch (Exception e) {
             LogUtil.error(e);
