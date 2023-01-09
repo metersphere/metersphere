@@ -40,7 +40,7 @@
         :fields-width="fieldsWidth"
         v-if="this.trashEnable"
         :label="$t('commons.delete_user')"
-        min-width="120" />
+        min-width="120"/>
 
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
@@ -81,7 +81,7 @@
           :label="$t('api_test.automation.scenario_name')"
           min-width="150px"
           prop="name"
-          sortable />
+          sortable/>
 
         <ms-table-column
           :field="item"
@@ -92,7 +92,7 @@
           prop="level"
           sortable>
           <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.level" />
+            <priority-table-item :value="scope.row.level"/>
           </template>
         </ms-table-column>
 
@@ -105,7 +105,7 @@
           prop="status"
           min-width="120px">
           <template v-slot:default="scope">
-            <plan-status-table-item :value="scope.row.status" />
+            <plan-status-table-item :value="scope.row.status"/>
           </template>
         </ms-table-column>
 
@@ -125,8 +125,8 @@
               :content="itemName"
               :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 120"
               :showTooltip="true"
-              style="margin-left: 0px; margin-right: 2px" />
-            <span />
+              style="margin-left: 0px; margin-right: 2px"/>
+            <span/>
           </template>
         </ms-table-column>
 
@@ -148,7 +148,7 @@
           :fields-width="fieldsWidth"
           prop="principalName"
           min-width="120px"
-          sortable />
+          sortable/>
         <ms-table-column
           :label="$t('api_test.automation.creator')"
           :filters="userFilters"
@@ -156,7 +156,7 @@
           :fields-width="fieldsWidth"
           prop="creatorName"
           min-width="120px"
-          sortable="custom" />
+          sortable="custom"/>
         <ms-table-column
           :field="item"
           :fields-width="fieldsWidth"
@@ -171,18 +171,21 @@
                   <span class="project-name" :title="v">{{ v }}</span
                   >:
                   <el-tag type="success" size="mini" effect="plain">
-                    <span class="project-env">{{ k }}</span>
+                    <span class="project-env" :title="k">{{ k }}</span>
                   </el-tag>
-                  <br />
+                  <br/>
                 </span>
                 <el-popover placement="top" width="350" trigger="click">
                   <div v-for="(k, v, index) in row.environmentMap" :key="index">
-                    <span class="plan-case-env"
-                      >{{ v }}: <el-tag type="success" size="mini" effect="plain">{{ k }}</el-tag
-                      ><br />
-                    </span>
+                    <span class="plan-case-env" :title="v">{{ v }}</span
+                    >:
+                      <el-tag type="success" size="mini" effect="plain">
+                        <span class="project-env" style="margin: 0 0 0 5px" :title="k">{{ k }}
+                        </span>
+                      </el-tag>
+                      <br/>
                   </div>
-                  <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more" />
+                  <el-link v-if="index === 1" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
                 </el-popover>
               </span>
             </div>
@@ -217,7 +220,7 @@
           :fields-width="fieldsWidth"
           :label="$t('api_test.automation.step')"
           prop="stepTotal"
-          min-width="80px" />
+          min-width="80px"/>
         <ms-table-column
           :label="$t('api_test.automation.last_result')"
           :filters="resultFilters"
@@ -228,7 +231,7 @@
           min-width="130px">
           <template v-slot:default="{ row }">
             <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult === 'PENDING'">
-              <ms-api-report-status :status="row.lastResult" />
+              <ms-api-report-status :status="row.lastResult"/>
             </el-link>
           </template>
         </ms-table-column>
@@ -238,7 +241,7 @@
           :fields-width="fieldsWidth"
           :label="$t('api_test.automation.passing_rate')"
           prop="passRate"
-          min-width="120px" />
+          min-width="120px"/>
       </span>
 
       <template v-slot:opt-before="scope">
@@ -249,7 +252,7 @@
           icon="el-icon-video-play"
           class="run-button"
           style="margin-right: 10px"
-          v-permission="['PROJECT_API_SCENARIO:READ+RUN']" />
+          v-permission="['PROJECT_API_SCENARIO:READ+RUN']"/>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
             v-if="!trashEnable"
@@ -273,11 +276,11 @@
           @openScenario="openScenario"
           @showCaseRef="showScenarioRef"
           v-if="!trashEnable"
-          style="display: contents" />
+          style="display: contents"/>
       </template>
     </ms-table>
 
-    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total" />
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
 
     <div>
       <!-- 执行结果 -->
@@ -295,7 +298,7 @@
           :scenarioId="scenarioId"
           :infoDb="infoDb"
           :report-id="reportId"
-          :currentProjectId="projectId" />
+          :currentProjectId="projectId"/>
       </el-drawer>
       <!-- 执行结果 -->
       <el-drawer
@@ -311,7 +314,7 @@
           :infoDb="infoDb"
           :show-cancel-button="false"
           :report-id="showReportId"
-          :currentProjectId="projectId" />
+          :currentProjectId="projectId"/>
       </el-drawer>
       <!--测试计划-->
       <el-drawer
@@ -327,7 +330,7 @@
           @cancel="cancel"
           ref="testPlanList"
           :scenario-condition="condition"
-          :row="selectRows" />
+          :row="selectRows"/>
       </el-drawer>
     </div>
 
@@ -336,14 +339,14 @@
       @batchEdit="batchEdit"
       :typeArr="typeArr"
       :value-arr="valueArr"
-      :dialog-title="$t('test_track.case.batch_edit_case')" />
-    <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove" />
+      :dialog-title="$t('test_track.case.batch_edit_case')"/>
+    <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-api-run-mode
       :request="runRequest"
       :project-id="projectId"
       @close="search"
       @handleRunBatch="handleRunBatch"
-      ref="apiBatchRun" />
+      ref="apiBatchRun"/>
     <ms-run
       :debug="true"
       :environment="projectEnvMap"
@@ -355,20 +358,20 @@
       :run-data="debugData"
       @runRefresh="runRefresh"
       @errorRefresh="errorRefresh"
-      ref="runTest" />
-    <ms-task-center ref="taskCenter" :show-menu="false" />
-    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph" />
+      ref="runTest"/>
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
+    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
-    <scenario-delete-confirm ref="apiDeleteConfirmVersion" @handleDelete="_handleDelete" />
+    <scenario-delete-confirm ref="apiDeleteConfirmVersion" @handleDelete="_handleDelete"/>
     <!--  删除场景弹窗  -->
     <api-delete-confirm
       :has-ref="hasRef"
       :show-scenario="showScenario"
       @showCaseRef="showScenarioRef"
       @handleDeleteCase="handleDeleteScenario"
-      ref="apiDeleteConfirm" />
+      ref="apiDeleteConfirm"/>
     <!--  引用场景弹窗  -->
-    <ms-show-reference ref="viewRef" @showCaseRef="showScenarioRef" @openScenario="openScenario" />
+    <ms-show-reference ref="viewRef" @showCaseRef="showScenarioRef" @openScenario="openScenario"/>
   </el-card>
 </template>
 
@@ -398,13 +401,13 @@ import {
   scenarioRun,
   updateScenarioEnv,
 } from '@/api/scenario';
-import { getMaintainer, getProject } from '@/api/project';
-import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
-import { getCurrentProjectID, getCurrentUserId } from 'metersphere-frontend/src/utils/token';
-import { downloadFile, getUUID, objToStrMap, strMapToObj } from 'metersphere-frontend/src/utils';
-import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
-import { API_SCENARIO_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
-import { API_SCENARIO_LIST } from 'metersphere-frontend/src/utils/constants';
+import {getMaintainer, getProject} from '@/api/project';
+import {getProjectVersions, versionEnableByProjectId} from '@/api/xpack';
+import {getCurrentProjectID, getCurrentUserId} from 'metersphere-frontend/src/utils/token';
+import {downloadFile, getUUID, objToStrMap, strMapToObj} from 'metersphere-frontend/src/utils';
+import {hasLicense, hasPermission} from 'metersphere-frontend/src/utils/permission';
+import {API_SCENARIO_CONFIGS} from 'metersphere-frontend/src/components/search/search-components';
+import {API_SCENARIO_LIST} from 'metersphere-frontend/src/utils/constants';
 import {
   buildBatchParam,
   getCustomTableHeader,
@@ -412,24 +415,24 @@ import {
   getLastTableSortField,
   getSelectDataCounts,
 } from 'metersphere-frontend/src/utils/tableUtils';
-import { API_SCENARIO_FILTERS } from 'metersphere-frontend/src/utils/table-constants';
+import {API_SCENARIO_FILTERS} from 'metersphere-frontend/src/utils/table-constants';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import HeaderLabelOperate from 'metersphere-frontend/src/components/head/HeaderLabelOperate';
-import { getGraphByCondition } from '@/api/graph';
-import { API_SCENARIO_CONFIGS_TRASH, TYPE_TO_C } from '@/business/automation/scenario/Setting';
+import {getGraphByCondition} from '@/api/graph';
+import {API_SCENARIO_CONFIGS_TRASH, TYPE_TO_C} from '@/business/automation/scenario/Setting';
 import MsTableSearchBar from 'metersphere-frontend/src/components/MsTableSearchBar';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
 import ListItemDeleteConfirm from 'metersphere-frontend/src/components/ListItemDeleteConfirm';
 import ScenarioDeleteConfirm from '@/business/automation/scenario/ScenarioDeleteConfirm';
-import { $error } from 'metersphere-frontend/src/plugins/message';
+import {$error} from 'metersphere-frontend/src/plugins/message';
 import MsSearch from 'metersphere-frontend/src/components/search/MsSearch';
-import { buildNodePath } from 'metersphere-frontend/src/model/NodeTree';
-import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
-import { REPORT_STATUS } from '@/business/commons/js/commons';
-import { usePerformanceStore } from '@/store';
-import { request } from 'metersphere-frontend/src/plugins/request';
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import {buildNodePath} from 'metersphere-frontend/src/model/NodeTree';
+import {getEnvironmentByProjectId} from 'metersphere-frontend/src/api/environment';
+import {REPORT_STATUS} from '@/business/commons/js/commons';
+import {usePerformanceStore} from '@/store';
+import {request} from 'metersphere-frontend/src/plugins/request';
+import {parseEnvironment} from '@/business/environment/model/EnvironmentModel';
 import MsApiRunMode from '@/business/automation/scenario/common/ApiRunMode';
 import ApiDeleteConfirm from '@/business/definition/components/list/ApiDeleteConfirm';
 import MsShowReference from '@/business/definition/components/reference/ShowReference';
@@ -652,8 +655,8 @@ export default {
         },
       ],
       typeArr: [
-        { id: 'level', name: this.$t('test_track.case.priority') },
-        { id: 'status', name: this.$t('test_track.plan.plan_status') },
+        {id: 'level', name: this.$t('test_track.case.priority')},
+        {id: 'status', name: this.$t('test_track.plan.plan_status')},
         {
           id: 'principal',
           name: this.$t('api_test.definition.request.responsible'),
@@ -664,14 +667,14 @@ export default {
           id: 'projectEnv',
           name: this.$t('api_test.definition.request.run_env'),
         },
-        { id: 'tags', name: this.$t('commons.tag') },
+        {id: 'tags', name: this.$t('commons.tag')},
       ],
       valueArr: {
         level: [
-          { name: 'P0', id: 'P0' },
-          { name: 'P1', id: 'P1' },
-          { name: 'P2', id: 'P2' },
-          { name: 'P3', id: 'P3' },
+          {name: 'P0', id: 'P0'},
+          {name: 'P1', id: 'P1'},
+          {name: 'P2', id: 'P2'},
+          {name: 'P3', id: 'P3'},
         ],
         status: [
           {
@@ -712,10 +715,10 @@ export default {
     if (!this.projectName || this.projectName === '') {
       this.getProjectName();
     }
-    this.condition.filters = { status: ['Prepare', 'Underway', 'Completed'] };
+    this.condition.filters = {status: ['Prepare', 'Underway', 'Completed']};
     this.initEnvironment();
     if (this.trashEnable) {
-      this.condition.filters = { status: ['Trash'] };
+      this.condition.filters = {status: ['Trash']};
       this.condition.moduleIds = [];
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
@@ -730,7 +733,7 @@ export default {
     }
 
     if (this.trashEnable) {
-      this.condition.orders = [{ name: 'delete_time', type: 'desc' }];
+      this.condition.orders = [{name: 'delete_time', type: 'desc'}];
     } else {
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     }
@@ -763,7 +766,7 @@ export default {
     },
     trashEnable() {
       if (this.trashEnable) {
-        this.condition.filters = { status: ['Trash'] };
+        this.condition.filters = {status: ['Trash']};
         this.condition.moduleIds = [];
         this.operators = this.trashOperators;
         this.buttons = this.trashButtons;
@@ -792,7 +795,7 @@ export default {
     moduleOptionsNew() {
       let moduleOptions = [];
       this.moduleOptions.forEach((node) => {
-        buildNodePath(node, { path: '' }, moduleOptions);
+        buildNodePath(node, {path: ''}, moduleOptions);
       });
       return moduleOptions;
     },
@@ -824,7 +827,7 @@ export default {
             parseEnvironment(environment);
           });
           this.environmentsFilters = response.data.map((u) => {
-            return { text: u.name, value: u.id };
+            return {text: u.name, value: u.id};
           });
         });
       }
@@ -1011,7 +1014,7 @@ export default {
       getMaintainer().then((response) => {
         option.push(...response.data);
         this.userFilters = response.data.map((u) => {
-          return { text: u.name, value: u.id };
+          return {text: u.name, value: u.id};
         });
       });
     },
@@ -1022,11 +1025,11 @@ export default {
             this.versionFilters = response.data
               .filter((u) => u.id === currentVersion)
               .map((u) => {
-                return { text: u.name, value: u.id };
+                return {text: u.name, value: u.id};
               });
           } else {
             this.versionFilters = response.data.map((u) => {
-              return { text: u.name, value: u.id };
+              return {text: u.name, value: u.id};
             });
           }
         });
@@ -1117,7 +1120,7 @@ export default {
 
     handleRunBatch(config) {
       this.infoDb = false;
-      let run = { config: config };
+      let run = {config: config};
       run.id = getUUID();
       //按照列表排序
       let ids = this.orderBySelectRows();
@@ -1413,7 +1416,7 @@ export default {
           this.search();
         });
       } else {
-        let param = { ids: [api.id] };
+        let param = {ids: [api.id]};
         removeScenarioToGcByBatch(param).then(() => {
           this.$success(this.$t('commons.delete_success'));
           this.$refs.apiDeleteConfirmVersion.close();
@@ -1452,7 +1455,7 @@ export default {
         method: 'post',
         data: param,
         responseType: 'blob',
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        headers: {'Content-Type': 'application/json; charset=utf-8'},
       };
       request(config).then(
         (response) => {
@@ -1592,13 +1595,12 @@ export default {
 
 .plan-case-env {
   display: inline-block;
-  padding: 0 0;
-  max-width: 350px;
+  max-width: 250px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 2px;
   margin-left: 5px;
+  vertical-align: bottom;
 }
 
 .project-name {
