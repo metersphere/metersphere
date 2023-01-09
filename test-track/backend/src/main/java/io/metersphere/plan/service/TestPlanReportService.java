@@ -750,7 +750,9 @@ public class TestPlanReportService {
         if (testPlanReportContentWithBLOBs.getEndTime() != null) {
             reportDTO.setEndTime(testPlanReportContentWithBLOBs.getEndTime());
         }
+        String summary = testPlanReportContentWithBLOBs.getSummary();
         BeanUtils.copyBean(testPlanReportContentWithBLOBs, reportDTO);
+        testPlanReportContentWithBLOBs.setSummary(summary);
         testPlanReportContentWithBLOBs.setId(id);
         testPlanReportContentWithBLOBs.setTestPlanReportId(testPlanReportId);
         if (reportDTO.getFunctionResult() != null) {
