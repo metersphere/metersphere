@@ -1,10 +1,10 @@
 <template>
   <test-plan-report-container id='summary' :title="$t('test_track.report.report_summary')">
     <template v-slot:title>
-      <el-link class="edit-link" v-if="showEdit" @click="isEdit = true">
+      <el-link class="edit-link" v-if="showEdit && !isEdit" @click="isEdit = true">
         <i class="el-icon-edit">{{ $t('commons.edit') }}</i>
       </el-link>
-      <el-link class="edit-link" v-if="showEdit" @click="saveSummary">
+      <el-link class="edit-link" v-if="showEdit && isEdit" @click="saveSummary">
         <i class="el-icon-circle-check">{{ $t('commons.save') }}</i>
       </el-link>
     </template>
@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     showEdit() {
-      return !this.isTemplate && !this.isShare && !this.isEdit;
+      return !this.isTemplate && !this.isShare;
     }
   },
   methods: {
