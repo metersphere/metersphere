@@ -59,6 +59,8 @@ public class BaseScheduleService {
 
     public int editSchedule(Schedule schedule) {
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setCreateTime(null);
+        schedule.setUserId(null);
         return scheduleMapper.updateByPrimaryKeySelective(schedule);
     }
 
