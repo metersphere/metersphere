@@ -207,9 +207,6 @@ export default {
       },
     };
   },
-  activated() {
-    this.search();
-  },
   methods: {
     search(versionId) {
       this.loading = true;
