@@ -1337,7 +1337,7 @@ const message = {
       one_click_sync: "One-click sync",
       change_notification: "Change Notification",
       recipient: "Recipient",
-      recipient_tips: "When the API changes, the associated CASE creator and automation scene creator will receive in-site messages,can go to",
+      recipient_tips: "When the API changes, the associated CASE creator and automation scene creator will receive in-site messages, can go to",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
