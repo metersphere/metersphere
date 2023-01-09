@@ -367,6 +367,9 @@ export default {
           this.sortParameters();
           this.$refs.variableTable.cancelCurrentRow();
           this.$refs.variableTable.clear();
+          this.variables.forEach((item) => {
+            item.showMore = false;
+          });
         }
       );
     },
