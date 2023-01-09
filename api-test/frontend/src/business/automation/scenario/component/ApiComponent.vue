@@ -689,6 +689,7 @@ export default {
         let definitionData = this.$router.resolve({
           name: 'ApiDefinitionWithQuery',
           params: {
+            versionId: 'default',
             redirectID: getUUID(),
             dataType: 'api',
             dataSelectRange: 'edit:' + resource.id,
