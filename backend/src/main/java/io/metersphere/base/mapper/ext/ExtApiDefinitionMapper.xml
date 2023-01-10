@@ -757,11 +757,11 @@
             <include refid="filter"/>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT DISTINCT api_definition_id FROM api_test_case WHERE status IS NULL OR status != 'Trash' )
             </if>
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT DISTINCT api_definition_id FROM api_test_case WHERE status IS NULL OR status != 'Trash' )
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
