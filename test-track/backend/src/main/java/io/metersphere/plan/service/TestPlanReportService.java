@@ -263,11 +263,14 @@ public class TestPlanReportService {
             List<TestPlanApiScenarioInfoDTO> scenarios) {
 
         TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
-        final Map<String, String> runEnvMap = config.getEnvMap();
+        final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
         runInfoDTO.setRunMode(config.getMode());
 
         if (StringUtils.equals(GROUP, config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
-            runEnvMap.putAll(baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId()));
+            Map<String, String> groupMap = baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId());
+            if (MapUtils.isNotEmpty(groupMap)) {
+                runEnvMap.putAll(groupMap);
+            }
             runInfoDTO.setEnvGroupId(config.getEnvironmentGroupId());
         }
         // 场景环境处理
