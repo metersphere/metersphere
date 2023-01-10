@@ -704,7 +704,7 @@ export default {
     },
     handleRunBatch(config) {
       let obj = {
-        planIds: this.testPlanCaseIds,
+        planCaseIds: this.testPlanCaseIds,
         config: config,
         triggerMode: "BATCH",
         projectId: getCurrentProjectID(),
