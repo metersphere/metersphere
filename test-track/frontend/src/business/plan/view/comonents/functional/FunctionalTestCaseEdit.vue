@@ -301,9 +301,9 @@ export default {
         let result = {};
         result.actualResult = this.testCase.steptResults[i].actualResult;
         result.executeResult = this.testCase.steptResults[i].executeResult;
-        if (result.actualResult && result.actualResult.length > 300) {
+        if (result.actualResult && result.actualResult.length > 500) {
           this.$warning(this.$t('test_track.plan_view.actual_result')
-            + this.$t('test_track.length_less_than') + '300');
+            + this.$t('test_track.length_less_than') + '500');
           return;
         }
         if (result.executeResult === 'Failure' && this.testCase.status === 'Pass') {
