@@ -109,7 +109,7 @@ export default {
       return this.command.label;
     },
     isUnexecute() {
-      return !this.result || this.result.status === 'unexecute';
+      return !this.result || this.result.status === 'unexecute' || this.result.status === 'PENDING';
     }
   },
   watch: {
