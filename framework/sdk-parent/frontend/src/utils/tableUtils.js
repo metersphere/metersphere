@@ -10,18 +10,20 @@ import {CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_MAP} from "./table-constants
 import {generateColumnKey} from "../components/search/custom-component";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
+  selectRows.clear();
   if (selection.length > 0) {
+    selection.forEach((item) => {
+      selectRows.add(item);
+    });
     if (selection.length === 1) {
       selection.hashTree = [];
       tableData.forEach((item) => {
         component.$set(item, "showMore", true);
-        selectRows.add(item);
       });
     } else {
       tableData.forEach((item) => {
         item.hashTree = [];
         component.$set(item, "showMore", true);
-        selectRows.add(item);
       });
     }
   } else {
@@ -83,8 +85,8 @@ export function getSelectDataCounts(condition, total, selectRows) {
 // 全选操作
 export function toggleAllSelection(table, tableData, selectRows) {
   //如果已经全选，不需要再操作了
-  if (selectRows.size != tableData.length) {
-    table.toggleAllSelection(true);
+  if (selectRows.size !== tableData.length) {
+    table.toggleAllSelection();
   }
 }
 
