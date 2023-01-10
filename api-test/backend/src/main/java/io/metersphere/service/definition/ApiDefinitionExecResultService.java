@@ -95,18 +95,7 @@ public class ApiDefinitionExecResultService {
                 if (result != null) {
                     result.setResourceId(dto.getTestId());
                     apiExecutionInfoService.insertExecutionInfo(result);
-                    User user = null;
-                    if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
-                        if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID) && dto.getExtendedParameters().containsKey("userName")) {
-                            user = new User() {{
-                                this.setId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
-                                this.setName(dto.getExtendedParameters().get("userName").toString());
-                            }};
-                            result.setUserId(user.getId());
-                        } else if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID)) {
-                            result.setUserId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
-                        }
-                    }
+                    User user = getUser(dto, result);
                     //如果是测试计划用例，更新接口用例的上次执行结果
                     TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                     if (testPlanApiCase != null) {
@@ -147,10 +136,12 @@ public class ApiDefinitionExecResultService {
                             // 批量更新关联关系状态
                             batchEditStatus(dto.getRunMode(), result.getStatus(), result.getId(), dto.getTestId(), planApiCaseMapper, batchApiTestCaseMapper);
                         }
-                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
-                            User user = null;
-                            if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user") && dto.getExtendedParameters().get("user") instanceof User) {
-                                user = (User) dto.getExtendedParameters().get("user");
+                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), NoticeConstants.Mode.SCHEDULE)) {
+                            User user = getUser(dto, result);
+                            if (MapUtils.isNotEmpty(dto.getExtendedParameters())
+                                    && dto.getExtendedParameters().containsKey(CommonConstants.USER)
+                                    && dto.getExtendedParameters().get(CommonConstants.USER) instanceof User) {
+                                user = (User) dto.getExtendedParameters().get(CommonConstants.USER);
                             }
                             // 发送通知
                             result.setResourceId(dto.getTestId());
@@ -164,6 +155,23 @@ public class ApiDefinitionExecResultService {
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    private User getUser(ResultDTO dto, ApiDefinitionExecResult result) {
+        User user = null;
+        if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
+            if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID)
+                    && dto.getExtendedParameters().containsKey(CommonConstants.USER_NAME)) {
+                user = new User() {{
+                    this.setId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
+                    this.setName(dto.getExtendedParameters().get(CommonConstants.USER_NAME).toString());
+                }};
+                result.setUserId(user.getId());
+            } else if (dto.getExtendedParameters().containsKey(CommonConstants.USER_ID)) {
+                result.setUserId(dto.getExtendedParameters().get(CommonConstants.USER_ID).toString());
+            }
+        }
+        return user;
     }
 
     private void sendNotice(ApiDefinitionExecResult result, User user) {
