@@ -341,6 +341,9 @@ export default {
         });
       }
     },
+    pageSize() {
+      this.clear();
+    },
     selectDataCounts(value) {
       this.$emit("selectCountChange", value);
     },
@@ -417,7 +420,7 @@ export default {
         this.selectRows,
         this.condition
       );
-      setUnSelectIds(this.data, this.condition, this.selectRows);
+      setUnSelectIds(selection, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(
         this.condition,
         this.total,
@@ -447,8 +450,6 @@ export default {
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
-      //设置勾选
-      toggleAllSelection(this.$refs.table, this.data, this.selectRows);
       //显示隐藏菜单
       _handleSelectAll(this, this.data, this.data, this.selectRows);
       //设置未选择ID(更新)
