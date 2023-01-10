@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
-public class ApiKeySessionHandler {
+public class SSOSessionHandler {
 
     public static String random = UUID.randomUUID() + UUID.randomUUID().toString();
 
