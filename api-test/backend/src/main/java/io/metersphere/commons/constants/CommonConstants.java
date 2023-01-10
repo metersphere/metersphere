@@ -11,4 +11,7 @@ public class CommonConstants {
     public static final String USER_ID = "userId";
     public static final String METHODS_KEY = "methods";
     public static final String CASE = "CASE";
+    public static final String USER = "user";
+    public static final String USER_NAME = "userName";
+
 }
