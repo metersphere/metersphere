@@ -711,11 +711,8 @@ export default {
         this.condition.combine = {creator: {operator: "current user", value: "current user",}}
       } else {
         if (this.isFinish) {
-          if (this.condition.filters == null || !this.condition.filters) {
-            this.condition.filters = {};
-            if (this.condition.filters.case_status === null || !this.condition.filters.case_status) {
-              this.condition.filters.case_status = ["Prepare", "Underway"];
-            }
+          if (!this.condition.filters || this.condition.filters.case_status === null) {
+            this.condition.filters.case_status = ["Prepare", "Underway"];
           }
           if (this.condition.filters.case_status && this.condition.filters.case_status.length > 0) {
             for (let i = 0; i < this.condition.filters.case_status.length; i++) {
