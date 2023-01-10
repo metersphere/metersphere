@@ -204,8 +204,11 @@ public class ApiScenarioExecuteService {
             if (CollectionUtils.isNotEmpty(testPlanApiScenarioList)) {
                 List<String> ids = testPlanApiScenarioList.stream().map(TestPlanApiScenarioInfoDTO::getApiScenarioId).collect(Collectors.toList());
                 request.setIds(ids);
-                vo.setTestPlanScenarioMap(testPlanApiScenarioList.stream()
-                        .collect(Collectors.toMap(TestPlanApiScenarioInfoDTO::getId, Function.identity(), (t1, t2) -> t1)));
+                //这段代码之前的写法是开了testPlanApiScenarioList的流。但是这样造成的后果是获得了乱序的HashMap。而我们需要的是LinkedHashMap
+                testPlanApiScenarioList.forEach(dto -> {
+                    vo.getTestPlanScenarioMap().put(dto.getId(), dto);
+                });
+
             }
         } else {
             ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
