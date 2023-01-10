@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,7 +52,9 @@ public class BaseEnvGroupProjectService {
 
     public Map<String, String> getEnvMap(String groupId) {
         List<EnvironmentGroupProjectDTO> list = baseEnvGroupProjectMapper.getList(groupId);
-        Map<String, String> map = list.stream().collect(Collectors.toMap(EnvironmentGroupProject::getProjectId, EnvironmentGroupProject::getEnvironmentId));
-        return map;
+        if (!CollectionUtils.isEmpty(list)) {
+            return list.stream().collect(Collectors.toMap(EnvironmentGroupProject::getProjectId, EnvironmentGroupProject::getEnvironmentId));
+        }
+        return new HashMap<>();
     }
 }
