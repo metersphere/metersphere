@@ -54,10 +54,16 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
 
     public static final String TEST_END = "MS_TEST_END";
 
+    private String runMode;
+
     @Override
     public Object clone() {
         MsDebugListener clone = (MsDebugListener) super.clone();
         return clone;
+    }
+
+    public void setRunMode(String runMode) {
+        this.runMode = runMode;
     }
 
     public boolean isErrorLogging() {
@@ -152,6 +158,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setReportId("send." + this.getName());
                 dto.setToReport(this.getName());
 
+                dto.setRunMode(runMode);
                 String console = FixedCapacityUtil.getJmeterLogger(this.getName(), false);
                 ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {

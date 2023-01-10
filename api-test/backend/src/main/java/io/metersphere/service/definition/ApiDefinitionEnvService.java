@@ -1,6 +1,6 @@
 package io.metersphere.service.definition;
 
-import io.metersphere.api.dto.ApiReportEnvConfigUtil;
+import io.metersphere.api.dto.ApiReportEnvConfigDTO;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.base.domain.ApiDefinitionEnv;
@@ -80,7 +80,7 @@ public class ApiDefinitionEnvService {
         if (StringUtils.isNotBlank(baseResult.getThreadName())) {
             ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(baseResult.getThreadName());
             if (result != null && StringUtils.isNotEmpty(result.getEnvConfig())) {
-                ApiReportEnvConfigUtil envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
                 if (envConfig != null) {
                     expandDTO.setEnvName(envConfig.getEnvName());
                     expandDTO.setPoolName(envConfig.getResourcePoolName());
@@ -93,7 +93,7 @@ public class ApiDefinitionEnvService {
         if (StringUtils.isNotBlank(dto.getToReport())) {
             ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(dto.getToReport());
             if (result != null && StringUtils.isNotEmpty(result.getEnvConfig())) {
-                ApiReportEnvConfigUtil envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
                 if (envConfig != null) {
                     Map map = JSON.parseObject(dto.getContent().substring(7), Map.class);
                     map.put("envName", envConfig.getEnvName());
