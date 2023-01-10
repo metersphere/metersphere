@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ApiReportEnvConfigUtil {
+public class ApiReportEnvConfigDTO {
 
     private String envName;
 

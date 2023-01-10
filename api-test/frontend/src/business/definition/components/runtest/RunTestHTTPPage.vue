@@ -114,7 +114,6 @@
 
 <script>
 import { citedApiScenarioCount, getDefinitionVersions, getMockEnvironment, updateDefinition } from '@/api/definition';
-import { getLastResultDetail } from '@/api/definition-report';
 import { relationGet, updateRuleRelation, versionEnableByProjectId } from '@/api/xpack';
 import MsApiRequestForm from '../request/http/ApiHttpRequestForm';
 import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
