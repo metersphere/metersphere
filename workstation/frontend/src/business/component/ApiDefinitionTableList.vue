@@ -763,10 +763,15 @@ export default {
     buildCondition() {
       if (this.isFinish === true) {
         this.batchButtons = this.commonButtons
-        if (this.condition.filters) {
+        if (!this.condition.filters || this.condition.filters.status === null) {
           this.condition.filters.status = ["Prepare", "Underway"];
-        } else {
-          this.condition.filters = {status: ["Prepare", "Underway"]};
+        }
+        if (this.condition.filters.status && this.condition.filters.status.length > 0) {
+          for (let i = 0; i < this.condition.filters.status.length; i++) {
+            if (this.condition.filters.status[i] === "Completed") {
+              this.condition.filters.status[i] = "NO"
+            }
+          }
         }
         this.condition.combine = {creator: {operator: "current user", value: "current user",}}
         if (this.condition.toUpdate) {
