@@ -1,10 +1,11 @@
 package io.metersphere.websocket;
 
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.utils.LoggerUtil;
 import io.metersphere.api.dto.MsgDTO;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.WebSocketUtil;
+import io.metersphere.utils.LoggerUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -59,5 +60,13 @@ public class IndexWebSocket {
     @OnError
     public void onError(Session session, Throwable throwable) throws IOException {
         session.close();
+    }
+
+    /**
+     * 每一分钟群发一次心跳检查
+     */
+    @Scheduled(cron = "0 0/1 * * * ?")
+    public void heartbeatCheck() {
+        WebSocketUtil.sendMessageAll("heartbeat check");
     }
 }
