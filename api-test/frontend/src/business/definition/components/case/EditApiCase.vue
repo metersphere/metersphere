@@ -19,28 +19,30 @@
 
       <el-container>
         <el-main>
-          <div v-for="item in apiCaseList" :key="item.id ? item.id : item.uuid">
-            <api-case-item
-              :loading="(singleLoading && singleRunId === item.id) || batchLoadingIds.indexOf(item.id) > -1"
-              @refresh="refresh"
-              @refreshCaseList="refreshCaseList"
-              @singleRun="singleRun"
-              @stop="stop"
-              @refreshModule="refreshModule"
-              @copyCase="copyCase"
-              @showExecResult="showExecResult"
-              @showHistory="showHistory"
-              @reLoadCase="reLoadCase"
-              :environment="environment"
-              @setSelectedCaseId="setSelectedCaseId"
-              :is-case-edit="isCaseEdit"
-              :api="api"
-              :currentApi="currentApi"
-              :loaded="loaded"
-              :maintainerOptions="maintainerOptions"
-              :api-case="item"
-              ref="apiCaseItem" />
-          </div>
+          <fieldset :disabled="loaded">
+            <div v-for="item in apiCaseList" :key="item.id ? item.id : item.uuid">
+              <api-case-item
+                :loading="(singleLoading && singleRunId === item.id) || batchLoadingIds.indexOf(item.id) > -1"
+                @refresh="refresh"
+                @refreshCaseList="refreshCaseList"
+                @singleRun="singleRun"
+                @stop="stop"
+                @refreshModule="refreshModule"
+                @copyCase="copyCase"
+                @showExecResult="showExecResult"
+                @showHistory="showHistory"
+                @reLoadCase="reLoadCase"
+                :environment="environment"
+                @setSelectedCaseId="setSelectedCaseId"
+                :is-case-edit="isCaseEdit"
+                :api="api"
+                :currentApi="currentApi"
+                :loaded="loaded"
+                :maintainerOptions="maintainerOptions"
+                :api-case="item"
+                ref="apiCaseItem" />
+            </div>
+          </fieldset>
         </el-main>
       </el-container>
     </ms-drawer>
@@ -233,6 +235,9 @@ export default {
       this.selectCaseId = caseId;
     },
     saveCase(hideAlert) {
+      if (this.loaded) {
+        this.close();
+      }
       let index = 0;
       if (this.selectCaseId && this.selectCaseId !== '') {
         for (let i = 0; i < this.apiCaseList.length; i++) {
@@ -683,5 +688,16 @@ export default {
 
 .ms-drawer-case-header :deep(.ms-drawer-header) {
   margin-left: 0px;
+}
+fieldset {
+  padding: 0px;
+  margin: 0px;
+  min-width: 100%;
+  min-inline-size: 0px;
+  border: 0px;
+}
+
+.ms-fieldset .ms-step-tree-cell::-webkit-scrollbar {
+  width: 0 !important;
 }
 </style>
