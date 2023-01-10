@@ -1,6 +1,6 @@
 <template>
   <el-card class="api-component">
-    <div class="header" @click="active">
+    <div :class="[response && response.envName && response.poolName ? 'env-header' : 'header']" @click="active">
       <i class="icon el-icon-arrow-right" :class="{ 'is-active': isActive }" />
       <ms-request-metric :response="response" />
     </div>
@@ -94,6 +94,11 @@ export default {
 
 <style scoped>
 .header {
+  height: 30px;
+  line-height: 30px;
+}
+.env-header {
+  height: 60px;
   line-height: 30px;
 }
 
