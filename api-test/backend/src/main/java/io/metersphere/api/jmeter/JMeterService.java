@@ -11,7 +11,10 @@ import io.metersphere.commons.config.KafkaConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.FixedCapacityUtil;
+import io.metersphere.commons.utils.GenerateHashTreeUtil;
+import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
@@ -21,9 +24,9 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
+import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.service.ApiPoolDebugService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -91,12 +94,13 @@ public class JMeterService {
      * @param testId
      * @param testPlan
      */
-    private void addDebugListener(String testId, HashTree testPlan) {
+    private void addDebugListener(String testId, HashTree testPlan, String runMode) {
         MsDebugListener resultCollector = new MsDebugListener();
         resultCollector.setName(testId);
         resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
+        resultCollector.setRunMode(runMode);
 
         // 添加DEBUG标示
         HashTree test = ArrayUtils.isNotEmpty(testPlan.getArray()) ? testPlan.getTree(testPlan.getArray()[0]) : null;
@@ -127,12 +131,12 @@ public class JMeterService {
                 && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
                 && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS)) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree());
+            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
         }
 
         if (request.isDebug()) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree());
+            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());

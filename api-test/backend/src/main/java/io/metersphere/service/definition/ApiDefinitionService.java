@@ -960,7 +960,7 @@ public class ApiDefinitionService {
             if (StringUtils.isNotBlank(contentStr)) {
                 JSONObject content = JSONUtil.parseObject(contentStr);
                 if (StringUtils.isNotEmpty(result.getEnvConfig())) {
-                    ApiReportEnvConfigUtil envNameByEnvConfig = this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                    ApiReportEnvConfigDTO envNameByEnvConfig = this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
                     if (envNameByEnvConfig != null) {
                         content.put("envName", envNameByEnvConfig.getEnvName());
                         content.put("poolName", envNameByEnvConfig.getResourcePoolName());
@@ -975,8 +975,8 @@ public class ApiDefinitionService {
         return reportResult;
     }
 
-    public ApiReportEnvConfigUtil getEnvNameByEnvConfig(String projectId, String envConfig) {
-        ApiReportEnvConfigUtil apiReportEnvConfig = new ApiReportEnvConfigUtil();
+    public ApiReportEnvConfigDTO getEnvNameByEnvConfig(String projectId, String envConfig) {
+        ApiReportEnvConfigDTO apiReportEnvConfig = new ApiReportEnvConfigDTO();
         RunModeConfigDTO runModeConfigDTO = null;
         try {
             runModeConfigDTO = JSON.parseObject(envConfig, RunModeConfigDTO.class);
