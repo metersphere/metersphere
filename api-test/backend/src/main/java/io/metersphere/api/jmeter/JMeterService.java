@@ -89,12 +89,13 @@ public class JMeterService {
      * @param testId
      * @param testPlan
      */
-    private void addDebugListener(String testId, HashTree testPlan) {
+    private void addDebugListener(String testId, HashTree testPlan, String runMode) {
         MsDebugListener resultCollector = new MsDebugListener();
         resultCollector.setName(testId);
         resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
+        resultCollector.setRunMode(runMode);
 
         // 添加DEBUG标示
         HashTree test = ArrayUtils.isNotEmpty(testPlan.getArray()) ? testPlan.getTree(testPlan.getArray()[0]) : null;
@@ -125,12 +126,12 @@ public class JMeterService {
                 && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
                 && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS)) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree());
+            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
         }
 
         if (request.isDebug()) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree());
+            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
