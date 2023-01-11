@@ -89,16 +89,14 @@ public class BaseQuotaService implements QuotaService {
 
 
     public void checkAPIDefinitionQuota(String projectId) {
-        this.checkQuota(extQuotaMapper::countAPIDefinition,
-                API, projectId, 0,
+        this.checkQuota(extQuotaMapper::countAPIDefinition, API, projectId,
                 Translator.get("quota_api_excess_project"),
                 Translator.get("quota_api_excess_workspace"));
     }
 
 
     public void checkAPIAutomationQuota(String projectId) {
-        this.checkQuota(extQuotaMapper::countAPIAutomation,
-                API, projectId, 0,
+        this.checkQuota(extQuotaMapper::countAPIAutomation, API, projectId,
                 Translator.get("quota_api_excess_project"),
                 Translator.get("quota_api_excess_workspace"));
     }
@@ -108,30 +106,27 @@ public class BaseQuotaService implements QuotaService {
      *
      * @param queryFunc        查询已存在数量的方法
      * @param checkType        检查配额类型
-     * @param queryCount       不使用查询数量的方法直接指定数量
+     * @param projectId        项目ID
      * @param projectMessage   项目超出配额警告信息
      * @param workspaceMessage 工作空间超出配额警告信息
      */
-    private void checkQuota(Function<List<String>, Long> queryFunc, String checkType, String projectId, long queryCount, String projectMessage, String workspaceMessage) {
-        if (queryCount == 0 && queryFunc == null) {
-            LogUtil.info("param warning. queryCount is 0 and function is null");
+    public void checkQuota(Function<List<String>, Long> queryFunc, String checkType, String projectId, String projectMessage, String workspaceMessage) {
+        if (queryFunc == null) {
+            LogUtil.info("param warning. function is null");
             return;
         }
-
         if (StringUtils.isBlank(projectId)) {
             return;
         }
-
         // 检查项目配额
         Quota qt = quotaManagementService.getProjectQuota(projectId);
         boolean isContinue = true;
         long count;
         if (qt != null) {
-            count = queryCount == 0 ? queryFunc.apply(Collections.singletonList(projectId)) : queryCount;
+            count = queryFunc.apply(Collections.singletonList(projectId));
             // 数量+1后检查
             isContinue = this.doCheckQuota(qt, checkType, projectMessage, count + 1);
         }
-
         // 检查是否有工作空间限额
         if (isContinue) {
             String workspaceId = this.queryWorkspaceId(projectId);
@@ -142,7 +137,7 @@ public class BaseQuotaService implements QuotaService {
             if (quota == null) {
                 return;
             }
-            count = queryCount == 0 ? queryFunc.apply(this.queryProjectIdsByWorkspaceId(workspaceId)) : queryCount;
+            count = queryFunc.apply(this.queryProjectIdsByWorkspaceId(workspaceId));
             this.doCheckQuota(quota, checkType, workspaceMessage, count + 1);
         }
     }
@@ -153,11 +148,6 @@ public class BaseQuotaService implements QuotaService {
         }
 
         Object quotaCount = getQuotaCount(quota, checkType);
-        if (quotaCount == null) {
-            LogUtil.error("get quota field fail, don't have type: " + checkType);
-            MSException.throwException("check quota error, don't have check type : " + checkType);
-        }
-
         if (isValid(quota, quotaCount)) {
             long count = Long.parseLong(String.valueOf(quotaCount));
             if (queryCount > count) {
@@ -189,6 +179,8 @@ public class BaseQuotaService implements QuotaService {
             case PROJECT:
                 count = quota.getProject();
                 break;
+            default:
+                MSException.throwException("get quota count fail, don't have type: " + type);
         }
         return count;
     }
@@ -213,24 +205,21 @@ public class BaseQuotaService implements QuotaService {
     }
 
     private void checkPerformance(String projectId) {
-        this.checkQuota(extQuotaMapper::countLoadTest,
-                LOAD, projectId, 0,
+        this.checkQuota(extQuotaMapper::countLoadTest, LOAD, projectId,
                 Translator.get("quota_performance_excess_project"),
                 Translator.get("quota_performance_excess_workspace"));
     }
 
     private void checkMaxThread(String projectId, int threadNum) {
         // 增量为0的检查
-        this.checkQuota(null,
-                MAX_THREAD, projectId, threadNum - 1,
+        this.checkQuota(p -> (long) (threadNum - 1), MAX_THREAD, projectId,
                 Translator.get("quota_max_threads_excess_project"),
                 Translator.get("quota_max_threads_excess_workspace"));
     }
 
     private void checkDuration(String projectId, long duration) {
         // 增量为0的检查
-        this.checkQuota(null,
-                DURATION, projectId, duration - 1,
+        this.checkQuota(p -> duration - 1, DURATION, projectId,
                 Translator.get("quota_duration_excess_project"),
                 Translator.get("quota_duration_excess_workspace"));
     }
