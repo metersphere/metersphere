@@ -25,16 +25,15 @@ export default {
       menuKey: 0,
     };
   },
-  computed: {
-    title() {
-      return localStorage.getItem("sysTitle") || "MeterSphere";
-    }
-  },
   props: {
     sideTheme: String,
     isCollapse: {
       type: Boolean,
       default: true,
+    },
+    title: {
+      type: String,
+      default: "MeterSphere"
     }
   },
 };
