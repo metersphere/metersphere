@@ -74,7 +74,7 @@ export default {
   watch: {
     activeName() {
       let target = document.getElementById(this.activeName);
-      target.parentNode.parentNode.parentNode.scrollTop = target.offsetTop - 100;
+      document.getElementById('planReportContainer').scrollTop = target.offsetTop - 100;
     },
     overviewEnable() {
       this.setData();

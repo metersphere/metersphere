@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-main-container class="report-content">
+    <ms-main-container class="report-content" :class="isShare || isDb || isTemplate? 'full-screen-container' : 'with-header-container'" id = "planReportContainer">
       <el-card v-loading="loading">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
@@ -190,13 +190,17 @@ export default {
       if (!this.isTemplate) {
         if (this.isShare) {
           getShareTestPlanExtReport(this.shareId, this.planId, this.reportId).then((response) => {
-            this.runMode = response.data.runMode;
-            this.resourcePool = response.data.resourcePool;
+            if (response.data) {
+              this.runMode = response.data.runMode;
+              this.resourcePool = response.data.resourcePool;
+            }
           });
         } else {
           getTestPlanExtReport(this.planId, this.reportId).then((response) => {
-            this.runMode = response.data.runMode;
-            this.resourcePool = response.data.resourcePool;
+            if (response.data) {
+              this.runMode = response.data.runMode;
+              this.resourcePool = response.data.resourcePool;
+            }
           });
         }
       }
@@ -336,8 +340,15 @@ export default {
 
 <style scoped>
 
+.with-header-container {
+  height: calc(100vh - 60px);
+}
+
+.full-screen-container {
+  height: calc(100vh - 10px);
+}
+
 .el-card {
-  /*width: 95% !important;*/
   padding: 15px;
 }
 
