@@ -166,7 +166,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                         transactionResult.getResponseResult().setConsole(console);
                         //对响应内容进行进一步解析和处理。
                         RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
-                        if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
                             apiDefinitionEnvService.setEnvAndPoolName(transactionResult, expandDTO);
                         }
                         dto.setContent("result_" + JSON.toJSONString(expandDTO));
@@ -176,7 +176,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                     requestResult.getResponseResult().setConsole(console);
                     //对响应内容进行进一步解析和处理。
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
-                    if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+                    if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
                         apiDefinitionEnvService.setEnvAndPoolName(requestResult, expandDTO);
                     }
                     dto.setContent("result_" + JSON.toJSONString(expandDTO));
