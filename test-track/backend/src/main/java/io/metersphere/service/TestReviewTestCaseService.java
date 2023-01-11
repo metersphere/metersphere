@@ -111,7 +111,6 @@ public class TestReviewTestCaseService {
     }
 
     public int deleteTestCase(DeleteRelevanceRequest request) {
-        checkReviewer(request.getReviewId());
         return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
     }
 
@@ -130,21 +129,7 @@ public class TestReviewTestCaseService {
         return testCaseReviewTestCaseMapper.updateByExampleSelective(record, example);
     }
 
-    private void checkReviewer(String reviewId) {
-        List<String> userIds = testCaseReviewService.getTestCaseReviewerIds(reviewId);
-        String currentId = SessionUtils.getUser().getId();
-        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        String creator = StringUtils.EMPTY;
-        if (caseReview != null) {
-            creator = caseReview.getCreator();
-        }
-        if (!userIds.contains(currentId) && !StringUtils.equals(creator, currentId)) {
-            MSException.throwException("没有权限，不能解除用例关联！");
-        }
-    }
-
     public void deleteTestCaseBatch(TestReviewCaseBatchRequest request) {
-        checkReviewer(request.getReviewId());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestReviewCaseMapper.selectIds((QueryCaseReviewRequest) query));
 
