@@ -84,7 +84,7 @@
               v-model="controller.countController.interval"
               :disabled="controller.disabled"
               :placeholder="$t('commons.millisecond')"
-              :max="1000 * 10000000"
+              :max="1000 * 1000000"
               :min="0"
               :step="1000"
               size="small" />
@@ -129,7 +129,7 @@
               :disabled="controller.disabled"
               size="small"
               :placeholder="$t('commons.millisecond')"
-              :max="1000 * 10000000"
+              :max="1000 * 1000000"
               :min="0"
               :step="1000" />
             <span class="ms-span ms-radio">ms</span>
@@ -165,7 +165,7 @@
           :disabled="controller.disabled"
           size="small"
           :placeholder="$t('commons.millisecond')"
-          :max="1000 * 10000000"
+          :max="1000 * 1000000"
           :min="3000"
           :step="1000" />
         <span class="ms-span ms-radio">ms</span>
