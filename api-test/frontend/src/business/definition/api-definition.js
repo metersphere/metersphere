@@ -229,7 +229,7 @@ export function stepCompute(array, request) {
 
 export function mergeDocumentData(originalData, childMap, rootData) {
   originalData.forEach((item) => {
-    if (item.id === 'root') {
+    if (item.id === 'root' && rootData) {
       item.type = rootData.type;
       item.name = rootData.name;
       item.typeVerification = rootData.typeVerification;
