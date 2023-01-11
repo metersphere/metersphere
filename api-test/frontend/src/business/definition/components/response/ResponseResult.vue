@@ -179,7 +179,11 @@ export default {
   computed: {
     isSqlType() {
       return (
-        this.currentProtocol === 'SQL' && this.response.responseResult.responseCode === '200' && this.mode === 'table'
+        this.currentProtocol === 'SQL'
+        && this.response
+        && this.response.responseResult
+        && this.response.responseResult.responseCode === '200'
+        && this.mode === 'table'
       );
     },
     responseResult() {

@@ -9,6 +9,8 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
+import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.item.MsScenarioEnv;
@@ -69,24 +71,32 @@ public class ApiScenarioEnvService {
             // 过滤掉禁用的步骤
             hashTree = hashTree.stream().filter(item -> item.isEnable()).collect(Collectors.toList());
         }
+        List<Boolean> hasFullUrlList = new ArrayList<>();
         for (MsTestElement testElement : hashTree) {
-            this.formatElement(testElement, env);
-            if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
-                getHashTree(testElement.getHashTree(), env);
+            this.formatElement(testElement, env, hasFullUrlList);
+            if (CollectionUtils.isNotEmpty(testElement.getHashTree()) && !hasFullUrlList.contains(false)) {
+                getHashTree(testElement.getHashTree(), env, hasFullUrlList);
+            }
+            if (hasFullUrlList.contains(false)) {
+                env.setFullUrl(false);
+                break;
             }
         }
         return env;
     }
 
 
-    private void getHashTree(List<MsTestElement> tree, ScenarioEnv env) {
+    private void getHashTree(List<MsTestElement> tree, ScenarioEnv env, List<Boolean> hasFullUrlList) {
         try {
             // 过滤掉禁用的步骤
             tree = tree.stream().filter(item -> item.isEnable()).collect(Collectors.toList());
             for (MsTestElement element : tree) {
-                this.formatElement(element, env);
-                if (CollectionUtils.isNotEmpty(element.getHashTree())) {
-                    getHashTree(element.getHashTree(), env);
+                this.formatElement(element, env, hasFullUrlList);
+                if (CollectionUtils.isNotEmpty(element.getHashTree()) && !hasFullUrlList.contains(false)) {
+                    getHashTree(element.getHashTree(), env, hasFullUrlList);
+                }
+                if (hasFullUrlList.contains(false)) {
+                    break;
                 }
             }
         } catch (Exception e) {
@@ -94,7 +104,7 @@ public class ApiScenarioEnvService {
         }
     }
 
-    private void formatElement(MsTestElement testElement, ScenarioEnv env) {
+    private void formatElement(MsTestElement testElement, ScenarioEnv env, List<Boolean> hasFullUrlList) {
         if (StringUtils.equals(MsTestElementConstants.REF.name(), testElement.getReferenced())) {
             if (StringUtils.equals(testElement.getType(), ElementConstants.HTTP_SAMPLER)) {
                 MsHTTPSamplerProxy http = (MsHTTPSamplerProxy) testElement;
@@ -105,7 +115,7 @@ public class ApiScenarioEnvService {
                 if (!StringUtils.equalsIgnoreCase(http.getReferenced(), ElementConstants.STEP_CREATED)
                         || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
                     env.getProjectIds().add(http.getProjectId());
-                    env.setFullUrl(false);
+                    hasFullUrlList.add(false);
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)
                     || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
@@ -114,18 +124,18 @@ public class ApiScenarioEnvService {
                         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(testElement.getId());
                         if (testCase != null) {
                             env.getProjectIds().add(testCase.getProjectId());
-                            env.setFullUrl(false);
+                            hasFullUrlList.add(false);
                         }
                     } else {
                         ApiDefinition apiDefinition = apiDefinitionService.get(testElement.getId());
                         if (apiDefinition != null) {
                             env.getProjectIds().add(apiDefinition.getProjectId());
-                            env.setFullUrl(false);
+                            hasFullUrlList.add(false);
                         }
                     }
                 } else {
                     env.getProjectIds().add(testElement.getProjectId());
-                    env.setFullUrl(false);
+                    hasFullUrlList.add(false);
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO) && StringUtils.isEmpty(testElement.getProjectId())) {
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testElement.getId());
@@ -141,23 +151,30 @@ public class ApiScenarioEnvService {
             if (StringUtils.equals(testElement.getType(), ElementConstants.HTTP_SAMPLER)) {
                 // 校验是否是全路径
                 MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) testElement;
-                if (httpSamplerProxy.isCustomizeReq()) {
-                    env.getProjectIds().add(httpSamplerProxy.getProjectId());
-                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : !httpSamplerProxy.getIsRefEnvironment());
-                } else if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), ElementConstants.STEP_CREATED) || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
-                    env.getProjectIds().add(httpSamplerProxy.getProjectId());
-                    env.setFullUrl(false);
-                }
+                checkCustomEnv(env, httpSamplerProxy.isCustomizeReq(), httpSamplerProxy.getProjectId(), httpSamplerProxy.getIsRefEnvironment(), httpSamplerProxy.getReferenced(), hasFullUrlList);
 
-            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)
-                    || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
-                env.getProjectIds().add(testElement.getProjectId());
-                env.setFullUrl(false);
+            } else if (StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
+                MsTCPSampler tcpSampler = (MsTCPSampler) testElement;
+                checkCustomEnv(env, tcpSampler.isCustomizeReq(), tcpSampler.getProjectId(), tcpSampler.getIsRefEnvironment(), tcpSampler.getReferenced(), hasFullUrlList);
+            } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)) {
+                MsJDBCSampler jdbcSampler = (MsJDBCSampler) testElement;
+                checkCustomEnv(env, jdbcSampler.isCustomizeReq(), jdbcSampler.getProjectId(), jdbcSampler.getIsRefEnvironment(), jdbcSampler.getReferenced(), hasFullUrlList);
             }
         }
         if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO)
                 && !((MsScenario) testElement).isEnvironmentEnable()) {
             env.getProjectIds().add(testElement.getProjectId());
+        }
+    }
+
+    private void checkCustomEnv(ScenarioEnv env, boolean customizeReq, String projectId, Boolean isRefEnvironment, String referenced, List<Boolean> hasFullUrlList) {
+        if (customizeReq) {
+            env.getProjectIds().add(projectId);
+            hasFullUrlList.add(isRefEnvironment == null ? true : !isRefEnvironment);
+        } else if (!StringUtils.equalsIgnoreCase(referenced, ElementConstants.STEP_CREATED)
+                || (isRefEnvironment != null && isRefEnvironment)) {
+            env.getProjectIds().add(projectId);
+            hasFullUrlList.add(false);
         }
     }
 
