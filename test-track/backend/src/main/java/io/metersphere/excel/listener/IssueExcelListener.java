@@ -121,6 +121,12 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                         issueExcelData.setId(issues.getId());
                         issueExcelData.setAddFlag(Boolean.FALSE);
                         updateList.add(issueExcelData);
+                    } else {
+                        // 不覆盖模式
+                        issueExcelData.setId(issues.getId());
+                        issueExcelData.setAddFlag(Boolean.FALSE);
+                        issueExcelData.setUpdateFlag(Boolean.FALSE);
+                        updateList.add(issueExcelData);
                     }
                 }
             }
@@ -148,7 +154,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
         }
 
         if (CollectionUtils.isNotEmpty(updateList)) {
-            List<IssuesUpdateRequest> issues = updateList.stream().map(this::convertToIssue).collect(Collectors.toList());
+            List<IssuesUpdateRequest> issues = updateList.stream().filter(IssueExcelData::getUpdateFlag).map(this::convertToIssue).collect(Collectors.toList());
             issuesService.updateImportData(issues);
         }
     }
