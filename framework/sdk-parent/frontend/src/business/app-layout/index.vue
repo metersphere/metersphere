@@ -22,7 +22,7 @@
         :style="isFixed ? 'opacity:100%; position: relative;z-index: 666;': 'opacity: 95%;position: fixed'"
         @mouseenter.native="collapseOpen"
         @mouseleave.native="collapseClose">
-        <ms-aside-header :sideTheme="sideTheme" :isCollapse="isCollapse"/>
+        <ms-aside-header :sideTheme="sideTheme" :isCollapse="isCollapse" :title="sysTitle"/>
         <ms-aside-menus :sideTheme="sideTheme" :color="color" :isCollapse="isCollapse"/>
         <div class="ms-header-fixed" v-show="!isCollapse">
           <svg-icon iconClass="pushpin" class-name="ms-menu-pin" v-if="isFixed" @click.native="fixedChange(false)"/>
@@ -72,6 +72,7 @@ export default {
       headerHeight: "0px",
       isFixed: false,
       sideTheme: "",
+      sysTitle: undefined
     };
   },
   computed: {
@@ -126,6 +127,11 @@ export default {
           if (response.data && response.data[7] && response.data[7].paramValue) {
             this.sideTheme = response.data[7].paramValue;
           }
+
+          if (response.data && response.data[6] && response.data[6].paramValue) {
+            this.sysTitle = response.data[6].paramValue;
+          }
+
           let title = response.data[4].paramValue;
           if (title) {
             document.title = title;
