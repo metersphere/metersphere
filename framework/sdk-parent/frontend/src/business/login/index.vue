@@ -170,6 +170,9 @@ export default {
             if (title) {
               document.title = title;
             }
+            if (response.data[0].paramValue) {
+              this.shortcutIcon();
+            }
           })
         getModuleList().then(response => {
           let modules = {};
@@ -195,6 +198,7 @@ export default {
           this.rules = this.getDefaultRules();
         }
       });
+
   },
   created: function () {
     document.addEventListener("keydown", this.watchEnter);
@@ -294,6 +298,13 @@ export default {
             localStorage.setItem(DEFAULT_LANGUAGE, language);
           });
       }
+    },
+    shortcutIcon() {
+      let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+      link.type = 'image/x-icon';
+      link.rel = 'shortcut icon';
+      link.href = '/display/file/logo';
+      document.getElementsByTagName('head')[0].appendChild(link);
     },
     redirectAuth(authId) {
       if (authId === 'LDAP' || authId === 'LOCAL') {
