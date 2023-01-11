@@ -155,6 +155,8 @@ public interface ExtTestCaseMapper {
 
     List<TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
 
+    List<TestCase> getMaintainerMapForPlanRepeat(@Param("request") QueryTestCaseRequest request);
+
     List<TestCaseDTO> getForNodeEdit(@Param("ids") List<String> ids);
 
     List<CustomFieldResourceCompatibleDTO> getForCompatibleCustomField(String projectId, int offset, int pageSize);

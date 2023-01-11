@@ -1216,6 +1216,14 @@
         and T2.case_id is null
         order by test_case.`order` desc, test_case.sort desc
     </select>
+
+    <select id="getMaintainerMapForPlanRepeat" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id as id, test_case.maintainer as maintainer
+        from test_case as test_case
+        <include refid="notInQueryWhereCondition"/>
+        order by test_case.`order` desc, test_case.sort desc
+    </select>
+
     <select id="getForNodeEdit" resultType="io.metersphere.dto.TestCaseDTO">
         select test_case.id, test_case.node_id, test_case.node_path
         from test_case where node_id in
