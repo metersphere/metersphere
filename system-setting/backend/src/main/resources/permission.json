@@ -108,14 +108,12 @@
     {
       "id": "SYSTEM_QUOTA:READ",
       "name": "permission.system_quota.read",
-      "resourceId": "SYSTEM_QUOTA",
-      "license": true
+      "resourceId": "SYSTEM_QUOTA"
     },
     {
       "id": "SYSTEM_QUOTA:READ+EDIT",
       "name": "permission.system_quota.edit",
-      "resourceId": "SYSTEM_QUOTA",
-      "license": true
+      "resourceId": "SYSTEM_QUOTA"
     },
     {
       "id": "SYSTEM_AUTH:READ",
@@ -260,14 +258,12 @@
     {
       "id": "WORKSPACE_QUOTA:READ",
       "name": "permission.workspace_quota.read",
-      "resourceId": "WORKSPACE_QUOTA",
-      "license": true
+      "resourceId": "WORKSPACE_QUOTA"
     },
     {
       "id": "WORKSPACE_QUOTA:READ+EDIT",
       "name": "permission.workspace_quota.edit",
-      "resourceId": "WORKSPACE_QUOTA",
-      "license": true
+      "resourceId": "WORKSPACE_QUOTA"
     },
     {
       "id": "WORKSPACE_OPERATING_LOG:READ",
@@ -339,8 +335,7 @@
     },
     {
       "id": "SYSTEM_QUOTA",
-      "name": "permission.system_quota.name",
-      "license": true
+      "name": "permission.system_quota.name"
     },
     {
       "id": "SYSTEM_AUTH",
@@ -372,8 +367,7 @@
     },
     {
       "id": "WORKSPACE_QUOTA",
-      "name": "permission.workspace_quota.name",
-      "license": true
+      "name": "permission.workspace_quota.name"
     },
     {
       "id": "WORKSPACE_OPERATING_LOG",
