@@ -372,10 +372,10 @@ export default {
       }
     },
     _getCurrentUserId() {
-      const {id, userGroups} = getCurrentUser();
+      const { id, userGroups } = getCurrentUser();
       if (userGroups) {
         // 是否是当前项目下的成员
-        let index = userGroups.findIndex(ug => ug.sourceId === getCurrentProjectID());
+        let index = userGroups.findIndex((ug) => ug.sourceId === getCurrentProjectID());
         if (index !== -1) {
           return id;
         }
@@ -786,6 +786,7 @@ export default {
       let automationData = this.$router.resolve({
         name: 'ApiAutomationWithQuery',
         params: {
+          versionId: 'default',
           redirectID: getUUID(),
           dataType: 'scenario',
           dataSelectRange: 'edit:' + resource.id,

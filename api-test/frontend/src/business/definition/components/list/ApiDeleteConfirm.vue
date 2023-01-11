@@ -73,6 +73,7 @@ export default {
           home = this.$router.resolve({
             name: 'ApiDefinitionWithQuery',
             params: {
+              versionId: 'default',
               redirectID: uuid,
               dataType: dataType,
               dataSelectRange: selectRange,
@@ -84,6 +85,7 @@ export default {
           home = this.$router.resolve({
             name: 'ApiAutomationWithQuery',
             params: {
+              versionId: 'default',
               redirectID: uuid,
               dataType: dataType,
               dataSelectRange: selectRange,
