@@ -150,8 +150,7 @@ public class MsScenario extends MsTestElement {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
         // 启用当前场景变量优先选择
-        if ((mixEnable == null || BooleanUtils.isTrue(mixEnable))
-                && (this.variableEnable == null || BooleanUtils.isFalse(this.variableEnable))) {
+        if (isMixEnable() || isAllEnable()) {
             config.margeVariables(this.variables, config.getTransferVariables());
         }
 
@@ -200,6 +199,11 @@ public class MsScenario extends MsTestElement {
         }
         // 添加全局后置
         this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, false);
+    }
+
+    private boolean isMixEnable() {
+        return (mixEnable == null || BooleanUtils.isTrue(mixEnable))
+                && (this.variableEnable == null || BooleanUtils.isFalse(this.variableEnable));
     }
 
     private boolean isAllEnable() {
