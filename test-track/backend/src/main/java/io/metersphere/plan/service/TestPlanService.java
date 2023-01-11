@@ -53,6 +53,7 @@ import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -548,10 +549,14 @@ public class TestPlanService {
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
         LinkedHashMap<String, String> userMap;
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
-
         boolean isSelectAll = request.getRequest() != null && request.getRequest().isSelectAll();
         if (isSelectAll) {
-            List<TestCase> maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
+            List<TestCase> maintainerMap;
+            if (BooleanUtils.isTrue(testPlan.getRepeatCase())) {
+                maintainerMap = extTestCaseMapper.getMaintainerMapForPlanRepeat(request.getRequest());
+            } else {
+                maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
+            }
             userMap = maintainerMap.stream()
                     .collect(LinkedHashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), LinkedHashMap::putAll);
         } else {
