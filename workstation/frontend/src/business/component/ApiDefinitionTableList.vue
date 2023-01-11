@@ -1120,7 +1120,7 @@ export default {
           resource.protocol = 'DUBBO'
         }
         let definitionData = this.$router.resolve({
-          path: '/api/definition/'+getUUID()+'/api/edit:'+resource.id+'/'+resource.projectId+'/'+resource.protocol+'/'+workspaceId,
+          path: '/api/definition/default/' + getUUID() + '/api/edit:' + resource.id + '/' + resource.projectId + '/' + resource.protocol + '/' + workspaceId,
         });
         if (isTurnSpace) {
           window.open(definitionData.href, '_blank');
