@@ -398,7 +398,11 @@ export default {
             this.content.error = report.error;
             let successCount = (report.total - report.error - report.errorCode - report.unExecute);
             this.content.success = successCount;
-            this.totalTime = report.totalTime;
+            if (this.report.endTime > 0) {
+              this.totalTime = this.report.endTime - this.report.createTime;
+            } else {
+              this.totalTime = report.totalTime;
+            }
           }
           this.exportReportIsOk = true;
           setTimeout(this.startExport, 500)
@@ -466,7 +470,11 @@ export default {
               this.content.error = report.error;
               let successCount = (report.total - report.error - report.errorCode - report.unExecute);
               this.content.success = successCount;
-              this.totalTime = report.totalTime;
+              if (this.report.endTime > 0) {
+                this.totalTime = this.report.endTime - this.report.createTime;
+              } else {
+                this.totalTime = report.totalTime;
+              }
             }
             // 增加失败重跑校验
             if (this.report && this.report.reportType === 'SCENARIO_INTEGRATED' || this.report.reportType === 'API_INTEGRATED') {

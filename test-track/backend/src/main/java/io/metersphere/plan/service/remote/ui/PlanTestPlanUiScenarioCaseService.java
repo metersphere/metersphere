@@ -1,5 +1,6 @@
 package io.metersphere.plan.service.remote.ui;
 
+import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.base.domain.TestPlanUiScenario;
 import io.metersphere.base.domain.UiScenarioReportWithBLOBs;
 import io.metersphere.commons.constants.MicroServiceName;
@@ -7,10 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
-import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.plan.dto.TestPlanScenarioStepCountSimpleDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
-import io.metersphere.plan.dto.UiPlanReportDTO;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PlanTestPlanUiScenarioCaseService extends UiTestService {
@@ -68,7 +67,13 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
 
             TestPlanUiResultReportDTO uiResult = getUiResult(report, planReportCaseDTOS);
-
+            //记录UI用例的运行环境信息
+            List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
+            try {
+                report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
             report.setUiResult(uiResult);
         }
     }
@@ -164,5 +169,13 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     public RunModeConfigDTO setScenarioEnv(String planId, RunModeConfigDTO runModeConfig) {
         return microService.postForData(serviceName, BASE_URL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
+    }
+
+    public TestPlanEnvInfoDTO generateEnvironmentInfo(TestPlanReport testPlanReport) {
+        return microService.postForData(serviceName, BASE_URL + "/env/generate", testPlanReport, TestPlanEnvInfoDTO.class);
+    }
+
+    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
+        return (Map<String, List<String>>) microService.postForData(serviceName, BASE_URL + "/get/plan/env/map", resourceIds);
     }
 }

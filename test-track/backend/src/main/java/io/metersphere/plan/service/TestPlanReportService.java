@@ -27,6 +27,7 @@ import io.metersphere.request.report.QueryTestPlanReportRequest;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.DiscoveryUtil;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -263,11 +264,14 @@ public class TestPlanReportService {
             List<TestPlanApiScenarioInfoDTO> scenarios) {
 
         TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
-        final Map<String, String> runEnvMap = config.getEnvMap();
+        final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
         runInfoDTO.setRunMode(config.getMode());
 
         if (StringUtils.equals(GROUP, config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
-            runEnvMap.putAll(baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId()));
+            Map<String, String> groupMap = baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId());
+            if (MapUtils.isNotEmpty(groupMap)) {
+                runEnvMap.putAll(groupMap);
+            }
             runInfoDTO.setEnvGroupId(config.getEnvironmentGroupId());
         }
         // 场景环境处理
@@ -375,6 +379,15 @@ public class TestPlanReportService {
         returnDTO.setApiTestCaseDataMap(saveRequest.getApiCaseIdMap());
         returnDTO.setPerformanceIdMap(saveRequest.getPerformanceIdMap());
         returnDTO.setUiScenarioIdMap(saveRequest.getUiScenarioIdMap());
+
+        String debugMsg = String.format(
+                "生成测试计划报告!id:【%s】,PlanScenarioIdMap:【%s】,ApiTestCaseDataMap:【%s】,PerformanceIdMap:【%s】,UiScenarioIdMap:【%s】",
+                planReportId,
+                JSON.toJSONString(saveRequest.getScenarioIdMap()),
+                JSON.toJSONString(saveRequest.getApiCaseIdMap()),
+                JSON.toJSONString(saveRequest.getPerformanceIdMap()),
+                JSON.toJSONString(saveRequest.getUiScenarioIdMap()));
+        LoggerUtil.info(debugMsg);
         return returnDTO;
     }
 
@@ -1179,6 +1192,9 @@ public class TestPlanReportService {
         try {
             if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
                 TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanScenarioCaseService.generateEnvironmentInfo(testPlanReport);
+                BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
+            } else if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+                TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanUiScenarioCaseService.generateEnvironmentInfo(testPlanReport);
                 BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
             }
         } catch (Exception e) {

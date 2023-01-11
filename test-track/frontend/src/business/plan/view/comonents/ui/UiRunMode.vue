@@ -8,6 +8,21 @@
   >
     <div class="mode-container">
 
+      <div>
+        <div>{{ $t("commons.environment") }}：</div>
+        <env-select-popover :project-ids="projectIds"
+                            :project-list="projectList"
+                            :project-env-map="projectEnvListMap"
+                            :environment-type="'JSON'"
+                            :has-option-group="false"
+                            :show-env-group="false"
+                            :group-id="runConfig.environmentGroupId"
+                            @setProjectEnvMap="setProjectEnvMap"
+                            ref="envSelectPopover"
+                            class="mode-row"
+        ></env-select-popover>
+      </div>
+
       <!-- 浏览器 -->
       <div class="browser-row wrap">
         <div class="title">{{ $t("ui.browser") }}：</div>
@@ -177,8 +192,8 @@
 <script>
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
 import {getCurrentProjectID, getOwnerProjects, strMapToObj} from "@/business/utils/sdk-utils";
-import {uiScenarioEnvMap} from "@/api/remote/ui/ui-automation";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
+import {testPlanUiScenarioCaseEnv} from "@/api/remote/ui/test-plan-ui-scenario-case";
 
 export default {
   name: "UiRunMode",
@@ -215,6 +230,9 @@ export default {
     };
   },
   props: {
+    planCaseIds: {
+      type: Array,
+    },
     request: {
       type: Object,
     },
@@ -267,6 +285,7 @@ export default {
       };
       this.runModeVisible = true;
       this.getWsProjects();
+      this.showPopover();
     },
     changeMode() {
       this.runConfig.runWithinResourcePool = false;
@@ -310,7 +329,7 @@ export default {
     showScenarioPopover() {
       let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
-      uiScenarioEnvMap(this.request).then((res) => {
+      testPlanUiScenarioCaseEnv(this.request.ids).then((res) => {
         let data = res.data;
         this.projectEnvListMap = data;
         if (data) {

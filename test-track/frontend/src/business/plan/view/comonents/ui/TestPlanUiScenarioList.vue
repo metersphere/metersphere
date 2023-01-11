@@ -147,7 +147,8 @@
                            :filters="apiscenariofilters.RESULT_FILTERS"
                            :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
-              <el-link @click="showReport(row)" :disabled="!row.lastResult || row.lastResult==='PENDING' || row.lastResult==='UnExecute'">
+              <el-link @click="showReport(row)"
+                       :disabled="!row.lastResult || row.lastResult==='PENDING' || row.lastResult==='UnExecute'">
                 <ms-test-plan-api-status :status="row.lastResult==='UnExecute' ? 'PENDING' : row.lastResult"/>
               </el-link>
             </template>
@@ -166,7 +167,7 @@
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
           <micro-app :to="`/ui/report/view/${reportId}`" route-name="ApiReportView"
-                     :route-params="{showCancelButton: false, reportId}" service="ui"/>
+                     :route-params="{showCancelButton: false, reportId, view: true}" service="ui"/>
         </el-drawer>
       </div>
     </el-card>
@@ -176,8 +177,8 @@
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit"
                 @batchEdit="batchEdit"/>
 
-        <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :custom-run-mode="true"
-                     :custom-serial-on-sample-error="true"/>
+    <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :custom-run-mode="true"
+                 :custom-serial-on-sample-error="true" :request="conditionRequest" :plan-case-ids="planCaseIds"/>
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
@@ -327,6 +328,8 @@ export default {
         ]
       },
       versionFilters: [],
+      //
+      conditionRequest: {}
     }
   },
   computed: {
@@ -358,14 +361,14 @@ export default {
     },
     search() {
       initCondition(this.condition, this.condition.selectAll);
-      if(this.condition && this.condition.filters && this.condition.filters.last_result){
-        if(this.condition.filters.last_result.length > 0){
+      if (this.condition && this.condition.filters && this.condition.filters.last_result) {
+        if (this.condition.filters.last_result.length > 0) {
           //校验是否含有PENDING
-          if(this.condition.filters.last_result.includes("PENDING")){
+          if (this.condition.filters.last_result.includes("PENDING")) {
             this.condition.filters.last_result = [...this.condition.filters.last_result, "UnExecute"]
           }
           //校验是否含有ERROR
-          if(this.condition.filters.last_result.includes("ERROR")){
+          if (this.condition.filters.last_result.includes("ERROR")) {
             this.condition.filters.last_result = [...this.condition.filters.last_result, "FAIL"]
           }
         }
@@ -439,10 +442,17 @@ export default {
       rows.forEach(row => {
         this.planCaseIds.push(row.id);
       })
+      this.conditionRequest.id = getUUID();
+      this.conditionRequest.ids = this.planCaseIds;
+      this.conditionRequest.projectId = this.projectId;
+      this.conditionRequest.condition = this.condition;
       this.$refs.runMode.open();
     },
     orderBySelectRows(rows) {
-      let selectIds = Array.from(rows).map(row => row.id);
+      let selectIds = this.$refs.table.selectIds;
+      if (rows) {
+        selectIds = Array.from(rows).map(row => row.id);
+      }
       let array = [];
       for (let i in this.tableData) {
         if (selectIds.indexOf(this.tableData[i].id) !== -1) {
@@ -499,8 +509,8 @@ export default {
                       },
                     },
                   },
-                this.$t("ui.view_config")
-              ),
+                  this.$t("ui.view_config")
+                ),
               ])
             );
             validate = false;
