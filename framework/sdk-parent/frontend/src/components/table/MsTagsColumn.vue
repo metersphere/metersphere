@@ -8,7 +8,7 @@
     :label="$t('api_test.automation.tag')"
     min-width="200px">
     <template v-slot:default="scope">
-      <span v-if="scope.row.tags.length === 1">
+      <span v-if="scope.row.tags && scope.row.tags.length === 1">
         <ms-tag
           v-for="(name, index) in scope.row.tags"
           :key="index"
@@ -19,7 +19,7 @@
         />
       </span>
       <el-tooltip class="item" effect="dark" placement="top" :enterable="false" v-else>
-        <div v-html="scope.row.tags.join('，')" slot="content"></div>
+        <div v-html="scope.row.tags ? scope.row.tags.join('，'): ''" slot="content"></div>
         <div class="oneLine">
           <ms-tag
             v-for="(name, index) in scope.row.tags"
