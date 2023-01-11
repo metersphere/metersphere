@@ -6,8 +6,8 @@
     :modal-append-to-body="false"
     size="100%"
     ref="drawer"
-    v-loading="loading">
-
+    v-loading="loading"
+  >
     <template>
       <el-row>
         <el-col :span="17">
@@ -16,11 +16,13 @@
               <el-scrollbar>
                 <el-header>
                   <el-row type="flex" class="head-bar">
-
                     <el-col :span="4">
-                      <el-button plain size="mini"
-                                 icon="el-icon-back"
-                                 @click="cancel">{{ $t('test_track.return') }}
+                      <el-button
+                        plain
+                        size="mini"
+                        icon="el-icon-back"
+                        @click="cancel"
+                        >{{ $t("test_track.return") }}
                       </el-button>
                     </el-col>
 
@@ -35,9 +37,9 @@
                         :pre-page-data="prePageData"
                         @pre="handlePre"
                         @next="handleNext"
-                        :list="testCases"/>
+                        :list="testCases"
+                      />
                     </el-col>
-
                   </el-row>
 
                   <el-row class="head-bar">
@@ -47,82 +49,144 @@
                           class="test-case-name"
                           type="text"
                           :disabled="!hasProjectPermission"
-                          @click="openTestTestCase(testCase)">
-                            <span
-                              class="title-link"
-                              :title="testCase.name"
-                              :style="{'max-width': titleWith + 'px'}">
-                              {{ testCase.customNum }}-{{ testCase.name }}
-                            </span>
+                          @click="openTestTestCase(testCase)"
+                        >
+                          <span
+                            class="title-link"
+                            :title="testCase.name"
+                            :style="{ 'max-width': titleWith + 'px' }"
+                          >
+                            {{ testCase.customNum }}-{{ testCase.name }}
+                          </span>
                         </el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
                 </el-header>
                 <div class="case_container">
-
                   <el-form :model="testCase">
-
                     <el-row>
                       <el-col :span="7">
-                        <el-form-item :label="$t('test_track.case.module')" prop="nodePath"
-                                      :label-width="formLabelWidth">
+                        <el-form-item
+                          :label="$t('test_track.case.module')"
+                          prop="nodePath"
+                          :label-width="formLabelWidth"
+                        >
                           {{ testCase.nodePath }}
                         </el-form-item>
                       </el-col>
                       <el-col :span="7">
-                        <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName"
-                                      :label-width="formLabelWidth">
+                        <el-form-item
+                          :label="$t('test_track.plan.plan_project')"
+                          prop="projectName"
+                          :label-width="formLabelWidth"
+                        >
                           {{ testCase.projectName }}
                         </el-form-item>
                       </el-col>
                       <el-col :span="10">
-                        <el-form-item :label="$t('test_track.plan.load_case.execution_status')"
-                                      :label-width="formLabelWidth">
-                          <status-table-item :value="originalStatus"/>
+                        <el-form-item
+                          :label="
+                            $t('test_track.plan.load_case.execution_status')
+                          "
+                          :label-width="formLabelWidth"
+                        >
+                          <status-table-item :value="originalStatus" />
                         </el-form-item>
                       </el-col>
                     </el-row>
 
-                    <el-form ref="customFieldForm"
-                             v-if="isCustomFiledActive"
-                             class="case-form">
+                    <el-form
+                      ref="customFieldForm"
+                      v-if="isCustomFiledActive"
+                      class="case-form"
+                    >
                       <el-row>
-                        <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                          <el-form-item :label-width="formLabelWidth"
-                                        :label="item.system ? $t(systemNameMap[item.name]) : item.name"
-                                        :prop="item.name">
-                            <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                        <el-col
+                          :span="7"
+                          v-for="(item, index) in testCaseTemplate.customFields"
+                          :key="index"
+                        >
+                          <el-form-item
+                            :label-width="formLabelWidth"
+                            :label="
+                              item.system
+                                ? $t(systemNameMap[item.name])
+                                : item.name
+                            "
+                            :prop="item.name"
+                          >
+                            <custom-filed-component
+                              :disabled="true"
+                              :data="item"
+                              :form="{}"
+                              prop="defaultValue"
+                            />
                           </el-form-item>
                         </el-col>
                       </el-row>
                     </el-form>
 
-                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
-                                         :title="$t('test_track.case.prerequisite')" :data="testCase"
-                                         prop="prerequisite"/>
-                    <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
-                    <test-plan-case-step-results-item :label-width="formLabelWidth" :is-read-only="isReadOnly"
-                                                      v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase"
-                                         prop="stepDescription"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.case.expected_results')"
-                                         :data="testCase" prop="expectedResult"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :title="$t('test_track.plan_view.actual_result')"
-                                         :data="testCase" prop="actualResult"/>
+                    <form-rich-text-item
+                      :label-width="formLabelWidth"
+                      :disabled="true"
+                      :title="$t('test_track.case.prerequisite')"
+                      :data="testCase"
+                      prop="prerequisite"
+                    />
+                    <step-change-item
+                      :disable="true"
+                      :label-width="formLabelWidth"
+                      :form="testCase"
+                    />
+                    <test-plan-case-step-results-item
+                      :label-width="formLabelWidth"
+                      :is-read-only="isReadOnly"
+                      v-if="testCase.stepModel === 'STEP'"
+                      :test-case="testCase"
+                    />
+                    <form-rich-text-item
+                      :label-width="formLabelWidth"
+                      v-if="testCase.stepModel === 'TEXT'"
+                      :disabled="true"
+                      :title="$t('test_track.case.step_desc')"
+                      :data="testCase"
+                      prop="stepDescription"
+                    />
+                    <form-rich-text-item
+                      :label-width="formLabelWidth"
+                      v-if="testCase.stepModel === 'TEXT'"
+                      :disabled="true"
+                      :title="$t('test_track.case.expected_results')"
+                      :data="testCase"
+                      prop="expectedResult"
+                    />
+                    <form-rich-text-item
+                      :label-width="formLabelWidth"
+                      v-if="testCase.stepModel === 'TEXT'"
+                      :title="$t('test_track.plan_view.actual_result')"
+                      :data="testCase"
+                      prop="actualResult"
+                    />
 
-
-                    <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
-                      <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
-                                                 :is-test-plan-edit="true"
-                                                 @syncRelationGraphOpen="syncRelationGraphOpen"
-                                                 :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
-                                                 :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    <el-form-item
+                      :label="$t('test_track.case.other_info')"
+                      :label-width="formLabelWidth"
+                    >
+                      <test-case-edit-other-info
+                        :plan-id="testCase.planId"
+                        v-if="otherInfoActive"
+                        @openTest="openTest"
+                        :is-test-plan-edit="true"
+                        @syncRelationGraphOpen="syncRelationGraphOpen"
+                        :read-only="true"
+                        :is-test-plan="true"
+                        :project-id="testCase.projectId"
+                        :form="testCase"
+                        :case-id="testCase.caseId"
+                        ref="otherInfo"
+                      />
                     </el-form-item>
-
                   </el-form>
                 </div>
               </el-scrollbar>
@@ -135,11 +199,13 @@
               :test-case="testCase"
               :is-read-only="isReadOnly"
               :origin-status="originalStatus"
-              @saveCase="saveCase"/>
+              @saveCase="saveCase"
+            />
             <review-comment
               default-type="PLAN"
               :case-id="testCase.caseId"
-              ref="comment"/>
+              ref="comment"
+            />
           </div>
         </el-col>
       </el-row>
@@ -148,30 +214,40 @@
 </template>
 
 <script>
-import TestPlanTestCaseStatusButton from '../../../common/TestPlanTestCaseStatusButton';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import {getUUID, listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import TestPlanTestCaseStatusButton from "../../../common/TestPlanTestCaseStatusButton";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import {
+  getUUID,
+  listenGoBack,
+  removeGoBackListener,
+} from "metersphere-frontend/src/utils";
+import { hasPermission } from "metersphere-frontend/src/utils/permission";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import CaseComment from "@/business/case/components/CaseComment";
 import MsPreviousNextButton from "metersphere-frontend/src/components/MsPreviousNextButton";
 import ReviewComment from "@/business/review/commom/ReviewComment";
-import {buildTestCaseOldFields, parseCustomField} from "metersphere-frontend/src/utils/custom_field";
+import {
+  buildTestCaseOldFields,
+  parseCustomField,
+} from "metersphere-frontend/src/utils/custom_field";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
-import {SYSTEM_FIELD_NAME_MAP} from "metersphere-frontend/src/utils/table-constants";
+import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import TestPlanCaseStepResultsItem from "@/business/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 import TestPlanFunctionalExecute from "@/business/plan/view/comonents/functional/TestPlanFunctionalExecute";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
-import {testPlanTestCaseEdit, testPlanTestCaseGet} from "@/api/remote/plan/test-plan-test-case";
-import {testPlanEditStatus} from "@/api/remote/plan/test-plan";
-import {getTestTemplate} from "@/api/custom-field-template";
-import {checkProjectPermission} from "@/api/testCase";
+import {
+  testPlanTestCaseEdit,
+  testPlanTestCaseGet,
+} from "@/api/remote/plan/test-plan-test-case";
+import { testPlanEditStatus } from "@/api/remote/plan/test-plan";
+import { getTestTemplate } from "@/api/custom-field-template";
+import { checkProjectPermission } from "@/api/testCase";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -190,7 +266,7 @@ export default {
     MsPreviousNextButton,
     CaseComment,
     TestPlanTestCaseStatusButton,
-    TestCaseAttachment
+    TestCaseAttachment,
   },
   data() {
     return {
@@ -201,34 +277,34 @@ export default {
       index: 0,
       editor: ClassicEditor,
       test: {},
-      activeTab: 'detail',
+      activeTab: "detail",
       users: [],
       tableData: [],
       comments: [],
       testCaseTemplate: {},
-      formLabelWidth: '100px',
+      formLabelWidth: "100px",
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
       testCases: [],
-      originalStatus: '',
-      titleWith: 0
+      originalStatus: "",
+      titleWith: 0,
     };
   },
   props: {
     total: {
-      type: Number
+      type: Number,
     },
     searchParam: {
-      type: Object
+      type: Object,
     },
     pageNum: Number,
     pageSize: {
       type: Number,
-      default: 1
+      default: 1,
     },
     nextPageData: Object,
-    prePageData: Object
+    prePageData: Object,
   },
   computed: {
     systemNameMap() {
@@ -243,18 +319,18 @@ export default {
       removeGoBackListener(this.handleClose);
       this.showDialog = false;
       this.searchParam.status = null;
-      this.$emit('update:search-param', this.searchParam);
+      this.$emit("update:search-param", this.searchParam);
     },
     cancel() {
       this.handleClose();
-      this.$emit('refreshTable');
+      this.$emit("refreshTable");
     },
     getOption(param) {
       let formData = new FormData();
-      let url = '/test/case/edit/testPlan';
+      let url = "/test/case/edit/testPlan";
 
       if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
-        this.$refs.otherInfo.uploadList.forEach(f => {
+        this.$refs.otherInfo.uploadList.forEach((f) => {
           formData.append("file", f);
         });
       }
@@ -271,17 +347,20 @@ export default {
         return key === "file" ? undefined : value;
       });
 
-      formData.append('request', new Blob([requestJson], {
-        type: "application/json "
-      }));
+      formData.append(
+        "request",
+        new Blob([requestJson], {
+          type: "application/json ",
+        })
+      );
 
       return {
-        method: 'POST',
+        method: "POST",
         url: url,
         data: formData,
         headers: {
-          'Content-Type': undefined
-        }
+          "Content-Type": undefined,
+        },
       };
     },
     saveCase() {
@@ -302,12 +381,18 @@ export default {
         result.actualResult = this.testCase.steptResults[i].actualResult;
         result.executeResult = this.testCase.steptResults[i].executeResult;
         if (result.actualResult && result.actualResult.length > 500) {
-          this.$warning(this.$t('test_track.plan_view.actual_result')
-            + this.$t('test_track.length_less_than') + '500');
+          this.$warning(
+            this.$t("test_track.plan_view.actual_result") +
+              this.$t("test_track.length_less_than") +
+              "500"
+          );
           return;
         }
-        if (result.executeResult === 'Failure' && this.testCase.status === 'Pass') {
-          this.$warning(this.$t('test_track.plan_view.execute_tip'));
+        if (
+          result.executeResult === "Failure" &&
+          this.testCase.status === "Pass"
+        ) {
+          this.$warning(this.$t("test_track.plan_view.execute_tip"));
           this.testCase.status = this.originalStatus;
           return;
         }
@@ -315,20 +400,19 @@ export default {
       }
       param.results = JSON.stringify(param.results);
       param.actualResult = this.testCase.actualResult;
-      testPlanTestCaseEdit(param)
-        .then(() => {
-          this.$request(option);
+      testPlanTestCaseEdit(param).then(() => {
+        this.$request(option);
 
-          this.$success(this.$t('commons.save_success'));
-          this.updateTestCases(param);
-          this.setPlanStatus(this.testCase.planId);
+        this.$success(this.$t("commons.save_success"));
+        this.updateTestCases(param);
+        this.setPlanStatus(this.testCase.planId);
 
-          if (this.testCase.comment) {
-            this.$refs.comment.getComments();
-            this.testCase.comment = '';
-          }
-          this.originalStatus = this.testCase.status;
-        });
+        if (this.testCase.comment) {
+          this.$refs.comment.getComments();
+          this.testCase.comment = "";
+        }
+        this.originalStatus = this.testCase.status;
+      });
     },
     updateTestCases(param) {
       for (let i = 0; i < this.testCases.length; i++) {
@@ -345,7 +429,7 @@ export default {
       if (this.isLastData()) {
         return;
       } else if (this.index === this.testCases.length - 1) {
-        this.$emit('nextPage');
+        this.$emit("nextPage");
         this.index = 0;
         return;
       }
@@ -354,20 +438,23 @@ export default {
       this.reloadOtherInfo();
     },
     isLastData() {
-      return this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal;
+      return (
+        this.index === this.testCases.length - 1 &&
+        this.pageNum === this.pageTotal
+      );
     },
     reloadOtherInfo() {
       this.otherInfoActive = false;
       this.$nextTick(() => {
         this.otherInfoActive = true;
-      })
+      });
     },
     handlePre() {
       if (this.index === 0 && this.pageNum === 1) {
-        this.$warning('已经是第一页');
+        this.$warning("已经是第一页");
         return;
       } else if (this.index === 0) {
-        this.$emit('prePage');
+        this.$emit("prePage");
         this.index = this.pageSize - 1;
         return;
       }
@@ -378,66 +465,69 @@ export default {
     getTestCase(id) {
       this.loading = true;
       // id 为 TestPlanTestCase 的 id
-      testPlanTestCaseGet(id)
-        .then(response => {
-          this.loading = false;
-          let item = {};
-          Object.assign(item, response.data);
-          if (item.results) {
-            item.results = JSON.parse(item.results);
-          } else if (item.steps) {
-            item.results = [item.steps.length];
-          }
-          if (item.issues) {
-            item.issues = JSON.parse(item.issues);
-          } else {
-            item.issues = {};
-          }
-          item.steps = JSON.parse(item.steps);
-          if (!item.stepModel) {
-            item.stepModel = 'STEP';
-          }
-          item.steptResults = [];
-          if (item.steps) {
-            for (let i = 0; i < item.steps.length; i++) {
-              if (item.results) {
-                if (item.results[i]) {
-                  item.steps[i].actualResult = item.results[i].actualResult;
-                  item.steps[i].executeResult = item.results[i].executeResult;
-                }
-                item.steptResults.push(item.steps[i]);
-              } else {
-                item.steptResults.push({
-                  actualResult: '',
-                  executeResult: ''
-                });
+      testPlanTestCaseGet(id).then((response) => {
+        this.loading = false;
+        let item = {};
+        Object.assign(item, response.data);
+        if (item.results) {
+          item.results = JSON.parse(item.results);
+        } else if (item.steps) {
+          item.results = [item.steps.length];
+        }
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
+        }
+        item.steps = JSON.parse(item.steps);
+        if (!item.stepModel) {
+          item.stepModel = "STEP";
+        }
+        item.steptResults = [];
+        if (item.steps) {
+          for (let i = 0; i < item.steps.length; i++) {
+            if (item.results) {
+              if (item.results[i]) {
+                item.steps[i].actualResult = item.results[i].actualResult;
+                item.steps[i].executeResult = item.results[i].executeResult;
               }
+              item.steptResults.push(item.steps[i]);
+            } else {
+              item.steptResults.push({
+                actualResult: "",
+                executeResult: "",
+              });
             }
           }
-          this.testCase = item;
-          this.originalStatus = this.testCase.status;
-          parseCustomField(this.testCase, this.testCaseTemplate, null, buildTestCaseOldFields(this.testCase));
-          this.testCaseTemplate.customFields.forEach(item => {
-            try {
-              item.defaultValue = JSON.parse(item.defaultValue);
-            } catch (e) {
-              // nothing
-            }
-          });
-          this.isCustomFiledActive = true;
-          if (!this.testCase.actualResult) {
-            // 如果没值,使用模板的默认值
-            this.testCase.actualResult = this.testCaseTemplate.actualResult;
+        }
+        this.testCase = item;
+        this.originalStatus = this.testCase.status;
+        parseCustomField(
+          this.testCase,
+          this.testCaseTemplate,
+          null,
+          buildTestCaseOldFields(this.testCase)
+        );
+        this.testCaseTemplate.customFields.forEach((item) => {
+          try {
+            item.defaultValue = JSON.parse(item.defaultValue);
+          } catch (e) {
+            // nothing
           }
         });
+        this.isCustomFiledActive = true;
+        if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
+          this.testCase.actualResult = this.testCaseTemplate.actualResult;
+        }
+      });
     },
     openTestCaseEdit(testCase, tableData) {
-      checkProjectPermission(testCase.projectId)
-        .then(r => {
-          this.hasProjectPermission = r.data;
-        });
+      checkProjectPermission(testCase.projectId).then((r) => {
+        this.hasProjectPermission = r.data;
+      });
       this.showDialog = true;
-      this.activeTab = 'detail';
+      this.activeTab = "detail";
       this.originalStatus = testCase.status;
       this.setTitleWith();
 
@@ -454,11 +544,10 @@ export default {
 
       listenGoBack(this.handleClose);
       let initFuc = this.getTestCase;
-      getTestTemplate(testCase.projectId)
-        .then((template) => {
-          this.testCaseTemplate = template;
-          initFuc(testCase.id);
-        });
+      getTestTemplate(testCase.projectId).then((template) => {
+        this.testCaseTemplate = template;
+        initFuc(testCase.id);
+      });
       if (this.$refs.otherInfo) {
         this.$refs.otherInfo.reset();
       }
@@ -466,16 +555,16 @@ export default {
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
-      this.activeTab = 'result';
+      this.activeTab = "result";
     },
     testTabChange(data) {
-      if (this.testCase.type === 'performance' && data.paneName === 'result') {
+      if (this.testCase.type === "performance" && data.paneName === "result") {
         this.$refs.performanceTestResult.checkReportStatus();
         this.$refs.performanceTestResult.init();
       }
     },
     saveReport(reportId) {
-      testPlanTestCaseEdit({id: this.testCase.id, reportId: reportId});
+      testPlanTestCaseEdit({ id: this.testCase.id, reportId: reportId });
     },
     openTest(item) {
       const type = item.testType;
@@ -483,25 +572,34 @@ export default {
       switch (type) {
         case "performance": {
           let performanceData = this.$router.resolve({
-            path: '/performance/test/edit/' + id,
-          })
-          window.open(performanceData.href, '_blank');
+            path: "/performance/test/edit/" + id,
+          });
+          window.open(performanceData.href, "_blank");
           break;
         }
         case "testcase": {
           let caseData = this.$router.resolve({
-            name: 'ApiDefinition',
-            params: {redirectID: getUUID(), dataType: "apiTestCase", dataSelectRange: 'single:' + id}
+            name: "ApiDefinition",
+            params: {
+              versionId: "default",
+              redirectID: getUUID(),
+              dataType: "apiTestCase",
+              dataSelectRange: "single:" + id,
+            },
           });
-          window.open(caseData.href, '_blank');
+          window.open(caseData.href, "_blank");
           break;
         }
         case "automation": {
           let automationData = this.$router.resolve({
-            name: 'ApiAutomation',
-            params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + id}
+            name: "ApiAutomation",
+            params: {
+              redirectID: getUUID(),
+              dataType: "scenario",
+              dataSelectRange: "edit:" + id,
+            },
           });
-          window.open(automationData.href, '_blank');
+          window.open(automationData.href, "_blank");
           break;
         }
       }
@@ -519,26 +617,28 @@ export default {
       this.relationGraphOpen = val;
     },
     openTestTestCase(item) {
-      let TestCaseData = this.$router.resolve(
-        {
-          path: '/track/case/all',
-          query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId, projectId: item.projectId}
-        }
-      );
-      window.open(TestCaseData.href, '_blank');
+      let TestCaseData = this.$router.resolve({
+        path: "/track/case/all",
+        query: {
+          redirectID: getUUID(),
+          dataType: "testCase",
+          dataSelectRange: item.caseId,
+          projectId: item.projectId,
+        },
+      });
+      window.open(TestCaseData.href, "_blank");
     },
     addPLabel(str) {
       return "<p>" + str + "</p>";
     },
     setPlanStatus(planId) {
       testPlanEditStatus(planId);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .cast_label {
   color: dimgray;
 }
@@ -587,7 +687,7 @@ export default {
 }
 
 .el-switch :deep(.el-switch__label.is-active) {
-  color: #409EFF;
+  color: #409eff;
 }
 
 p {
