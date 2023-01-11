@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-main-container class="report-content" :class="isShare || isDb || isTemplate? 'full-screen-container' : 'with-header-container'" id = "planReportContainer">
+    <ms-main-container class="report-content" :class="isShare || isTemplate? 'full-screen-container' : 'with-header-container'" id = "planReportContainer">
       <el-card v-loading="loading">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
