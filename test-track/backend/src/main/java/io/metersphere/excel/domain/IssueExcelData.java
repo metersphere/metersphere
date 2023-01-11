@@ -48,6 +48,8 @@ public class IssueExcelData implements Serializable {
     @ExcelIgnore
     private Boolean addFlag;
     @ExcelIgnore
+    private Boolean updateFlag = true;
+    @ExcelIgnore
     private String title;
     @ExcelIgnore
     private String description;
