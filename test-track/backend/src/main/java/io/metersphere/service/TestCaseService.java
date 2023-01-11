@@ -467,9 +467,10 @@ public class TestCaseService {
         if (StringUtils.equalsIgnoreCase(testCase.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(testCase.getRefId());
         }
-        //同步修改所有版本的模块路径
-        updateOtherVersionModule(testCase);
-
+        if (StringUtils.isNotBlank(testCase.getNodePath())) {
+            //同步修改所有版本的模块路径
+            updateOtherVersionModule(testCase);
+        }
     }
 
     private void updateOtherVersionModule(EditTestCaseRequest testCase) {
