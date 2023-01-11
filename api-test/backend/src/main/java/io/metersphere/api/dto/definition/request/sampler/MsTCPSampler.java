@@ -78,6 +78,7 @@ public class MsTCPSampler extends MsTestElement {
     private String jsonDataStruct;
     private String rawDataStruct;
     private boolean customizeReq;
+    private Boolean isRefEnvironment;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {

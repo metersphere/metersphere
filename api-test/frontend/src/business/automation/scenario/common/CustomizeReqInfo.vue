@@ -72,6 +72,18 @@
               <el-input v-model="request.port" size="small" />
             </el-form-item>
           </el-col>
+          <el-col :span="2">
+            <el-form-item>
+              <el-checkbox
+                v-if="isCustomizeReq"
+                class="is-ref-environment"
+                v-model="request.isRefEnvironment"
+                @change="setDomain"
+                :disabled="request.disabled">
+                {{ $t('api_test.request.refer_to_environment') }}
+              </el-checkbox>
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
     </div>
