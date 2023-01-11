@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class QuotaServiceImpl implements QuotaService {
+public class BaseQuotaService implements QuotaService {
 
     @Resource
     private QuotaManagementService quotaManagementService;
