@@ -230,7 +230,7 @@
             </include>
         </if>
         <if test="${condition}.exec_result != null">
-            and (t1.status
+            and (t3.status
             <choose>
                 <when test='${condition}.exec_result.operator == "in"'>
                     in
@@ -238,7 +238,7 @@
                         #{v}
                     </foreach>
                     <if test="${condition}.exec_result.value.contains('') or ${condition}.exec_result.value.contains('PENDING')">
-                        or t1.status is null or t1.status = ''
+                        or t3.status is null or t3.status = ''
                     </if>
                     <if test="${condition}.exec_result != null">
                         )
@@ -250,10 +250,10 @@
                         #{v}
                     </foreach>
                     <if test="${condition}.exec_result != null and (${condition}.exec_result.value.contains('') or ${condition}.exec_result.value.contains('PENDING'))">
-                        and t1.status is not null and t1.status != ''
+                        and t3.status is not null and t3.status != ''
                     </if>
                     <if test="${condition}.exec_result != null and !${condition}.exec_result.value.contains('PENDING')">
-                        or t1.status is null or t1.status = ''
+                        or t3.status is null or t3.status = ''
                     </if>
                     <if test="${condition}.exec_result != null">
                         )
@@ -406,7 +406,7 @@
         a.path,
         a.protocol,
         t1.tags,
-        t1.status AS execResult,
+        t3.status AS execResult,
         t1.last_result_id AS lastResultId,
         project.NAME AS project_name,
         t1.delete_time,
