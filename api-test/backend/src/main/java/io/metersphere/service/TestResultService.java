@@ -253,6 +253,7 @@ public class TestResultService {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                 apiTestCase.setLastResultId(dto.getReportId());
                 apiTestCase.setId(dto.getTestId());
+                apiTestCase.setStatus(record.getStatus());
                 apiTestCaseService.updateByPrimaryKeySelective(apiTestCase);
             }
 
