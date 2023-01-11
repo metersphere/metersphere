@@ -162,6 +162,7 @@ export default {
             let automationData = this.$router.resolve({
               name: 'ApiAutomationWithQuery',
               params: {
+                versionId: 'default',
                 redirectID: getUUID(),
                 dataType: 'scenario',
                 dataSelectRange: 'edit:' + response.data.id,
