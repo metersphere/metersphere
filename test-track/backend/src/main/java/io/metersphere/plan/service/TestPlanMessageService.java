@@ -298,6 +298,7 @@ public class TestPlanMessageService {
                         result.put("apiCaseUnExecuteCount", v);
                         break;
                     case "errorreportresult":
+                    case "fakeerror":
                         result.put("apiCaseErrorReportCount", v);
                         break;
                     default:
@@ -318,12 +319,14 @@ public class TestPlanMessageService {
                         result.put("apiScenarioSuccessCount", v);
                         break;
                     case "fail":
+                    case "error":
                         result.put("apiScenarioFailedCount", v);
                         break;
                     case "unexecute":
                         result.put("apiScenarioUnExecuteCount", v);
                         break;
                     case "errorreportresult":
+                    case "fakeerror":
                         result.put("apiScenarioErrorReportCount", v);
                         break;
                     default:
