@@ -22,7 +22,7 @@
         width="80"
         show-overflow-tooltip>
         <template v-slot:default="scope">
-          <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+          <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.num }}</span>
         </template>
       </el-table-column>
 
