@@ -384,11 +384,15 @@ public class TestCaseService {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
 
-        // 同步缺陷与需求的关联关系
-        updateThirdPartyIssuesLink(testCase);
+        try {
+            // 同步缺陷与需求的关联关系
+            updateThirdPartyIssuesLink(testCase);
 
-        // 同步用例与需求的关联关系
-        addDemandHyperLink(testCase, "edit");
+            // 同步用例与需求的关联关系
+            addDemandHyperLink(testCase, "edit");
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
 
         if (StringUtils.isEmpty(testCase.getDemandId())) {
             testCase.setDemandId(StringUtils.EMPTY);
@@ -425,6 +429,9 @@ public class TestCaseService {
             return;
         }
         Project project = baseProjectService.getProjectById(testCase.getProjectId());
+        if (!StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
+            return;
+        }
         IssuesRequest issuesRequest = new IssuesRequest();
         if (!issuesService.isThirdPartTemplate(project)) {
             issuesRequest.setDefaultCustomFields(issuesService.getDefaultCustomFields(testCase.getProjectId()));
