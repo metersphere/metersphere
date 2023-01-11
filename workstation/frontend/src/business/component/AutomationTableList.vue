@@ -607,7 +607,7 @@ export default {
     edit(row) {
       let uuid = getUUID();
       let apiResolve = this.$router.resolve({
-        path: '/api/automation/'+uuid+'/scenario/edit:'+row.id+'/'+row.projectId+'/'+getCurrentWorkspaceId(),
+        path: '/api/automation/default/' + uuid + '/scenario/edit:' + row.id + '/' + row.projectId + '/' + getCurrentWorkspaceId(),
       });
       window.open(apiResolve.href, '_blank');
     },
