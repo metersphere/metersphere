@@ -74,7 +74,7 @@ public class MsKafkaListener {
             LoggerUtil.info("接收到执行结果：", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
                 MsgDTO dto = JSONUtil.parseObject(record.value(), MsgDTO.class);
-                if (StringUtils.equals(ApiRunMode.DEFINITION.name(), dto.getRunMode()) && dto.getContent().startsWith("result_")) {
+                if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name()) && dto.getContent().startsWith("result_")) {
                     ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
                     apiDefinitionEnvService.setEnvAndPoolName(dto);
                 }
