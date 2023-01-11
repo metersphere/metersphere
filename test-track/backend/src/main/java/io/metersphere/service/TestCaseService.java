@@ -453,6 +453,7 @@ public class TestCaseService {
         if (StringUtils.isBlank(testCase.getVersionId())) {
             return;
         }
+        testCase.setLatest(false);
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdEqualTo(testCase.getId())
                 .andVersionIdEqualTo(testCase.getVersionId());
