@@ -439,11 +439,16 @@ public class TestPlanApiCaseService {
                         try {
                             responseObj = JSON.parseMap(execResult.getContent());
                         } catch (Exception e) {
+                            LogUtil.error("转换content失败!", e);
                         }
                         if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
                             responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
                         }
-                        item.setResponse(responseObj.toString());
+                        /*
+                         * 之前这里的写法是responseObj.toString()。
+                         * 猜测是fastjson转换之后，只是单纯的把JSONObject改成了map。所以这里放进去的不是json格式的数据
+                         */
+                        item.setResponse(JSON.toJSONString(responseObj));
                     }
                 });
             }
