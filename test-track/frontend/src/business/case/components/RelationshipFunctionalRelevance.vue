@@ -16,6 +16,7 @@ import {getPageDate, getPageInfo} from "metersphere-frontend/src/utils/tableUtil
 import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import FunctionalRelevance from "@/business/plan/view/comonents/functional/FunctionalRelevance";
 import {addTestCaseRelationship, getTestCaseNodesByCaseFilter, testCaseRelationshipRelateList} from "@/api/testCase";
+import {parseTag} from "@/business/utils/sdk-utils";
 
 export default {
   name: "RelationshipFunctionalRelevance",
@@ -86,10 +87,7 @@ export default {
         .then(response => {
           getPageDate(response, this.page);
           let data = this.page.data;
-          data.forEach(item => {
-            item.checked = false;
-            item.tags = JSON.parse(item.tags);
-          });
+          parseTag(data);
         })
     },
     getTreeNodes(vueObj) {

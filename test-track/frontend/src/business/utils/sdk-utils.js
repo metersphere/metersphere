@@ -1,5 +1,5 @@
 export {operationConfirm, removeGoBackListener, handleCtrlSEvent, byteToSize, resizeTextarea,
-  getTypeByFileName, strMapToObj, getUUID, windowPrint} from "metersphere-frontend/src/utils";
+  getTypeByFileName, strMapToObj, getUUID, windowPrint, parseTag} from "metersphere-frontend/src/utils";
 export {parseCustomFilesForList, getCustomFieldFilter, buildBatchParam} from "metersphere-frontend/src/utils/tableUtils";
 export {sortCustomFields, parseCustomField, buildCustomFields} from "metersphere-frontend/src/utils/custom_field";
 export {getCurrentProjectID, getCurrentWorkspaceId, getCurrentUser, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
