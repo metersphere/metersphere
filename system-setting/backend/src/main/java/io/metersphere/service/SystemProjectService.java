@@ -24,10 +24,10 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.xpack.api.service.ProjectApplicationSyncService;
-import io.metersphere.quota.service.QuotaService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -71,6 +71,8 @@ public class SystemProjectService {
     private EnvironmentGroupProjectService environmentGroupProjectService;
     @Resource
     private BaseScheduleService baseScheduleService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public Project addProject(AddProjectRequest project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -81,10 +83,7 @@ public class SystemProjectService {
         if (projectMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("project_name_already_exists"));
         }
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkWorkspaceProject(project.getWorkspaceId());
-        }
+        baseQuotaService.checkWorkspaceProject(project.getWorkspaceId());
 
         if (project.getMockTcpPort() != null && project.getMockTcpPort() > 0) {
             this.checkMockTcpPort(project.getMockTcpPort());
@@ -123,9 +122,7 @@ public class SystemProjectService {
         // 设置默认的通知
         baseProjectMapper.setDefaultMessageTask(project.getId());
 
-        if (quotaService != null) {
-            quotaService.projectUseDefaultQuota(pjId);
-        }
+        baseQuotaService.projectUseDefaultQuota(pjId);
 
         // 创建默认版本
         addProjectVersion(project);

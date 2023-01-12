@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BaseQuotaService implements QuotaService {
+public class BaseQuotaService {
 
     @Resource
     private QuotaManagementService quotaManagementService;
@@ -87,14 +87,18 @@ public class BaseQuotaService implements QuotaService {
         return project.getWorkspaceId();
     }
 
-
+    /**
+     * 接口定义配额数量检查
+     */
     public void checkAPIDefinitionQuota(String projectId) {
         this.checkQuota(extQuotaMapper::countAPIDefinition, API, projectId,
                 Translator.get("quota_api_excess_project"),
                 Translator.get("quota_api_excess_workspace"));
     }
 
-
+    /**
+     * 接口自动化配额数量检查
+     */
     public void checkAPIAutomationQuota(String projectId) {
         this.checkQuota(extQuotaMapper::countAPIAutomation, API, projectId,
                 Translator.get("quota_api_excess_project"),
@@ -185,7 +189,11 @@ public class BaseQuotaService implements QuotaService {
         return count;
     }
 
-    // todo
+    /**
+     * 性能测试配额检查
+     * @param request 压力配置
+     * @param checkPerformance 是：检查创建数量配额 / 否：检查并发数和时间
+     */
     @Transactional(noRollbackFor = MSException.class, rollbackFor = Exception.class)
     public void checkLoadTestQuota(TestPlanRequest request, boolean checkPerformance) {
         String loadConfig = request.getLoadConfiguration();
@@ -225,9 +233,12 @@ public class BaseQuotaService implements QuotaService {
     }
 
 
+    /**
+     * 获取可用资源池集合
+     * @return 资源池名称Set集合
+     */
     public Set<String> getQuotaResourcePools() {
         Set<String> pools = new HashSet<>();
-        // todo 获取项目ID的方式
         String projectId = SessionUtils.getCurrentProjectId();
         Quota pjQuota = quotaManagementService.getProjectQuota(projectId);
         if (pjQuota != null) {
@@ -250,7 +261,11 @@ public class BaseQuotaService implements QuotaService {
         return pools;
     }
 
-
+    /**
+     * 工作空间下被限制使用的资源池
+     * @param workspaceId 工作空间ID
+     * @return 资源池名称Set
+     */
     public Set<String> getQuotaWsResourcePools(String workspaceId) {
         Set<String> pools = new HashSet<>();
         Quota wsQuota = quotaManagementService.getWorkspaceQuota(workspaceId);
@@ -262,14 +277,24 @@ public class BaseQuotaService implements QuotaService {
         return pools;
     }
 
-
+    /**
+     * 检查工作空间项目数量配额
+     * @param workspaceId 工作空间ID
+     */
     public void checkWorkspaceProject(String workspaceId) {
         this.doCheckQuota(quotaManagementService.getWorkspaceQuota(workspaceId),
                 PROJECT, Translator.get("quota_project_excess_project"),
                 extQuotaMapper.countWorkspaceProject(workspaceId) + 1);
     }
 
-    // todo
+    /**
+     * 检查vumUsed配额
+     * 未超过：返回本次执行预计消耗的配额
+     * 超过：抛出异常
+     * @param request 压力配置
+     * @param projectId 性能测试所属项目ID
+     * @return 本次执行预计消耗的配额
+     */
     @Transactional(noRollbackFor = MSException.class, rollbackFor = Exception.class)
     public BigDecimal checkVumUsed(TestPlanRequest request, String projectId) {
         BigDecimal toVumUsed = this.calcVum(request.getLoadConfiguration());
@@ -363,7 +388,11 @@ public class BaseQuotaService implements QuotaService {
         return true;
     }
 
-
+    /**
+     * 检查向某资源添加人员时是否超额
+     * @param addMemberMap 资源ID:添加用户ID列表
+     * @param type 检查类型 PROJECT/WORKSPACE
+     */
     public void checkMemberCount(Map<String, List<String>> addMemberMap, String type) {
         if (addMemberMap == null || addMemberMap.keySet().size() == 0) {
             return;
@@ -473,7 +502,11 @@ public class BaseQuotaService implements QuotaService {
     }
 
 
-
+    /**
+     * 更新VumUsed配额
+     * @param projectId 项目ID
+     * @param vumUsed 预计使用数量
+     */
     @Transactional(propagation = Propagation.NESTED, rollbackFor = Exception.class)
     public void updateVumUsed(String projectId, BigDecimal vumUsed) {
         if (vumUsed == null) {
@@ -485,7 +518,11 @@ public class BaseQuotaService implements QuotaService {
         this.doUpdateVumUsed(dbPjQuota, newPjQuota);
     }
 
-    // todo
+    /**
+     * 获取需要回退的vum数量
+     * @param report 性能测试报告
+     * @return 需要回退的vum数量
+     */
     @Transactional(propagation = Propagation.NESTED, rollbackFor = Exception.class)
     public BigDecimal getReduceVumUsed(LoadTestReportWithBLOBs report) {
         String reportId = report.getId();
@@ -522,7 +559,11 @@ public class BaseQuotaService implements QuotaService {
         return used.compareTo(toUsed) >= 0 ? BigDecimal.ZERO : toUsed.subtract(used);
     }
 
-
+    /**
+     * 如果有该项目配额，修改为使用工作空间下项目默认配额
+     * 无该配额，新建配额并默认使用工作空间下项目默认配额
+     * @return 操作后的配额
+     */
     public Quota projectUseDefaultQuota(String projectId) {
         Quota pjQuota = extQuotaMapper.getProjectQuota(projectId);
         if (pjQuota != null) {
@@ -541,7 +582,12 @@ public class BaseQuotaService implements QuotaService {
         }
     }
 
-
+    /**
+     * 如果有该工作空间配额，修改为使用系统默认配额，
+     * 无该配额，新建配额并默认使用系统配额
+     * @param workspaceId 工作空间ID
+     * @return 操作后的配额
+     */
     public Quota workspaceUseDefaultQuota(String workspaceId) {
         Quota wsQuota = extQuotaMapper.getWorkspaceQuota(workspaceId);
         if (wsQuota != null) {

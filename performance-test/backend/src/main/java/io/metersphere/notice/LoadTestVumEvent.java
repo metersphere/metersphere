@@ -12,7 +12,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.consumer.LoadTestFinishEvent;
 import io.metersphere.dto.VumProcessedStatus;
-import io.metersphere.quota.service.QuotaService;
+import io.metersphere.quota.service.BaseQuotaService;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -35,6 +35,8 @@ public class LoadTestVumEvent implements LoadTestFinishEvent {
     private RedissonClient redissonClient;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     private void handleVum(LoadTestReport report) {
         if (report == null) {
@@ -63,19 +65,14 @@ public class LoadTestVumEvent implements LoadTestFinishEvent {
             MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
         }
         RLock lock = redissonClient.getLock(project.getWorkspaceId());
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            try {
-                lock.lock();
-                BigDecimal toReduceVum = quotaService.getReduceVumUsed(testReport);
-                if (toReduceVum.compareTo(BigDecimal.ZERO) != 0) {
-                    quotaService.updateVumUsed(projectId, toReduceVum.negate());
-                }
-            } finally {
-                lock.unlock();
+        try {
+            lock.lock();
+            BigDecimal toReduceVum = baseQuotaService.getReduceVumUsed(testReport);
+            if (toReduceVum.compareTo(BigDecimal.ZERO) != 0) {
+                baseQuotaService.updateVumUsed(projectId, toReduceVum.negate());
             }
-        } else {
-            LogUtil.error("handle vum event get quota service bean is null. load test report id: " + report.getId());
+        } finally {
+            lock.unlock();
         }
     }
 

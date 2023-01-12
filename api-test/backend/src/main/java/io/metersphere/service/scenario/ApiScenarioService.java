@@ -48,7 +48,7 @@ import io.metersphere.log.vo.schedule.ScheduleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.quota.service.QuotaService;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
@@ -157,6 +157,8 @@ public class ApiScenarioService {
     private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -297,10 +299,7 @@ public class ApiScenarioService {
     }
 
     private void checkQuota(String projectId) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPIAutomationQuota(projectId);
-        }
+        baseQuotaService.checkAPIAutomationQuota(projectId);
     }
 
     private void uploadFiles(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {

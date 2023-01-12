@@ -19,8 +19,8 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
-import io.metersphere.quota.service.QuotaService;
 import io.metersphere.xpack.resourcepool.engine.KubernetesResourcePoolService;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -52,6 +52,8 @@ public class TestResourcePoolService {
     private BaseTaskMapper baseTaskMapper;
     @Resource
     private MicroService microService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         checkTestResourcePool(testResourcePool);
@@ -229,12 +231,9 @@ public class TestResourcePoolService {
     }
 
     private List<TestResourcePoolDTO> filterQuota(List<TestResourcePoolDTO> list) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            Set<String> pools = quotaService.getQuotaResourcePools();
-            if (!pools.isEmpty()) {
-                return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
-            }
+        Set<String> pools = baseQuotaService.getQuotaResourcePools();
+        if (!pools.isEmpty()) {
+            return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
         }
         return list;
     }
@@ -285,13 +284,10 @@ public class TestResourcePoolService {
     }
 
     public List<TestResourcePoolDTO> listWsValidQuotaResourcePools(String workspaceId) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         List<TestResourcePoolDTO> list = listValidResourcePools();
-        if (quotaService != null) {
-            Set<String> pools = quotaService.getQuotaWsResourcePools(workspaceId);
-            if (!pools.isEmpty()) {
-                return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
-            }
+        Set<String> pools = baseQuotaService.getQuotaWsResourcePools(workspaceId);
+        if (!pools.isEmpty()) {
+            return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
         }
         return list;
     }
