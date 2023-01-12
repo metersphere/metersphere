@@ -18,6 +18,7 @@ import FunctionalRelevance from "@/business/plan/view/comonents/functional/Funct
 import {testPlanRelevance} from "@/api/remote/plan/test-plan";
 import {testCaseRelateList} from "@/api/testCase";
 import {testCaseNodeListPlanRelate} from "@/api/test-case-node";
+import {parseTag} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestPlanFunctionalRelevance",
@@ -88,9 +89,9 @@ export default {
           this.page.loading = false;
           getPageDate(response, this.page);
           let data = this.page.data;
+          parseTag(this.page.data);
           data.forEach(item => {
             item.checked = false;
-            item.tags = JSON.parse(item.tags);
           });
         });
     },
