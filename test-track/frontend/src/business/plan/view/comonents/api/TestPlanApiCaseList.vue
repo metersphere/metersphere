@@ -593,9 +593,7 @@ export default {
       // 这里先打开报告，建立 websock
       // 否则可能执行完了才建立 websock，拿不到结果
       this.$refs.apiCaseResult.open(reportId);
-      setTimeout(() => {
-        run(row.id, reportId);
-      }, 3000);
+      run(row.id, reportId);
     },
     handleTestEnd(reportId) {
       if (this.runningReport.has(reportId)) {
