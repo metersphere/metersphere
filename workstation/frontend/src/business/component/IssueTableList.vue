@@ -250,6 +250,9 @@ export default {
     },
     workspaceId() {
       return getCurrentWorkspaceId();
+    },
+    isToDo() {
+      return !this.isFocus && !this.isCreation;
     }
   },
   created() {
@@ -262,8 +265,8 @@ export default {
       getIssuePartTemplateWithProject((template) => {
         this.initFields(template);
         this.page.result.loading = false;
+        this.getIssues();
       });
-      this.getIssues();
     });
   },
   methods: {
@@ -299,6 +302,9 @@ export default {
           if (this.columns[item.id].filters) {
             item.filters = this.columns[item.id].filters;
           }
+        }
+        if (this.isToDo && item.id === '状态') {
+          item.filters = item.filters.filter(i => i.value !== 'closed')
         }
       });
 
@@ -350,17 +356,7 @@ export default {
 
         }
       } else {
-        if (this.page.condition.filters) {
-          this.page.condition.filters.status = ["new"];
-        } else {
-          this.page.condition.filters = {status: ["new"]};
-        }
-        this.page.condition.combine = {
-          creator: {
-            operator: "current user",
-            value: "current user",
-          }
-        }
+        this.addDefaultStatusFilter();
       }
       this.page.condition.workspaceId = getCurrentWorkspaceId();
       this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
@@ -380,6 +376,34 @@ export default {
           parseCustomFilesForList(this.page.data);
           this.initCustomFieldValue();
         });
+      }
+    },
+    addDefaultStatusFilter() {
+      this.page.condition.combine = {
+        creator: {
+          operator: "current user",
+          value: "current user",
+        }
+      }
+      if (this.isToDo) {
+        let statusFieldId = null;
+        this.issueTemplate.customFields.forEach(field => {
+          if (field.name === '状态') {
+            statusFieldId = field.id;
+          }
+        });
+        if (statusFieldId) {
+          this.page.condition.combine.customs = [
+            {
+              id: statusFieldId,
+              operator: 'not in',
+              value:[
+                'closed'
+              ],
+              type: 'select'
+            }
+          ];
+        }
       }
     },
     initCustomFieldValue() {
