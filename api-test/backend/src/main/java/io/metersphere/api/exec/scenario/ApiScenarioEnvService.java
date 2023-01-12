@@ -74,14 +74,11 @@ public class ApiScenarioEnvService {
         List<Boolean> hasFullUrlList = new ArrayList<>();
         for (MsTestElement testElement : hashTree) {
             this.formatElement(testElement, env, hasFullUrlList);
-            if (CollectionUtils.isNotEmpty(testElement.getHashTree()) && !hasFullUrlList.contains(false)) {
+            if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
                 getHashTree(testElement.getHashTree(), env, hasFullUrlList);
             }
-            if (hasFullUrlList.contains(false)) {
-                env.setFullUrl(false);
-                break;
-            }
         }
+        env.setFullUrl(!hasFullUrlList.contains(false));
         return env;
     }
 
@@ -92,11 +89,8 @@ public class ApiScenarioEnvService {
             tree = tree.stream().filter(item -> item.isEnable()).collect(Collectors.toList());
             for (MsTestElement element : tree) {
                 this.formatElement(element, env, hasFullUrlList);
-                if (CollectionUtils.isNotEmpty(element.getHashTree()) && !hasFullUrlList.contains(false)) {
+                if (CollectionUtils.isNotEmpty(element.getHashTree())) {
                     getHashTree(element.getHashTree(), env, hasFullUrlList);
-                }
-                if (hasFullUrlList.contains(false)) {
-                    break;
                 }
             }
         } catch (Exception e) {
