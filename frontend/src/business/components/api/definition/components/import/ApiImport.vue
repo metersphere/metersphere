@@ -7,7 +7,7 @@
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue" @input="clearUrParameter">
         <span v-for="(item, index) in platforms" :key="index">
-          <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
+          <el-radio v-if="!isScenarioModel || item.name !== 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
         </span>
       </el-radio-group>
 
@@ -461,6 +461,7 @@ export default {
       if (value !== 'Swagger2') {
         this.clearAuthInfo();
         this.authEnable = false;
+        this.swaggerUrlEnable = false;
       }
     },
     buildParam() {
@@ -500,7 +501,9 @@ export default {
         swaggerUrl: '',
         modeId: this.formData.modeId,
       };
+      this.clearAuthInfo();
       this.swaggerUrlEnable = false;
+      this.authEnable = false;
       this.selectedPlatformValue = 'Metersphere';
       this.fileList = [];
       removeGoBackListener(this.close);
