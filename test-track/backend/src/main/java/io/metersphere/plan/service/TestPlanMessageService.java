@@ -323,6 +323,7 @@ public class TestPlanMessageService {
                         result.put("apiScenarioFailedCount", v);
                         break;
                     case "unexecute":
+                    case "pending":
                         result.put("apiScenarioUnExecuteCount", v);
                         break;
                     case "errorreportresult":
@@ -351,6 +352,7 @@ public class TestPlanMessageService {
                         break;
                     case "unexecute":
                     case "stop":
+                    case "pending":
                         result.put("uiScenarioUnExecuteCount", v);
                         break;
                     default:
