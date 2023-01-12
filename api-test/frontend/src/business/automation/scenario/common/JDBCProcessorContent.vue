@@ -147,7 +147,7 @@ export default {
     };
   },
   created() {
-    this.getEnvironments();
+    this.getEnvironments(null, 'created');
   },
   computed: {
     projectId() {
@@ -235,7 +235,7 @@ export default {
         this.initDataSource(undefined, undefined, targetDataSourceName);
       });
     },
-    getEnvironments(environmentId) {
+    getEnvironments(environmentId, isCreated) {
       let envId = '';
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       let scenarioEnvId = this.scenarioId !== '' ? this.scenarioId + '_' + id : id;
@@ -262,7 +262,11 @@ export default {
           envId = this.request.refEevMap.get(id);
         }
       }
-      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+      if (
+        envId === this.request.originalEnvironmentId &&
+        this.request.originalDataSourceId &&
+        isCreated !== 'created'
+      ) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       let targetDataSourceName = '';
