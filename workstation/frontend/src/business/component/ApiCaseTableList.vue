@@ -864,6 +864,7 @@ export default {
     },
 
     changeTabState(name) {
+      this.$refs.caseTable.clearFilter();
       if (name === 'update') {
         this.isFinish = false;
       } else {
