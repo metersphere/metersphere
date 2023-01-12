@@ -428,9 +428,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             } else {
                 String url = this.getUrl();
-                if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                    url = url.replace(this.getPort(), "10990");
-                }
                 if (StringUtils.isEmpty(url)) {
                     MSException.throwException("请重新选择环境");
                 }

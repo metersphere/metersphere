@@ -36,7 +36,7 @@
     <update id="batchUpdateByResourceIds">
         update ${tableName}
         <include refid="updateValueColumn"/>
-        where resource_id in
+        where field_id = #{record.fieldId} and resource_id in
         <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
             #{resourceId}
         </foreach>
