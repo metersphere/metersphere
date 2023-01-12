@@ -125,7 +125,7 @@ public class ElementUtil {
                 boolean isRepository = false;
                 BodyFile file = item.getFiles().get(0);
                 boolean isRef = StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name());
-                String path = StringUtils.join(BODY_FILE_DIR, File.pathSeparator, item.getFiles().get(0).getId(), "_", item.getFiles().get(0).getName());
+                String path = StringUtils.join(BODY_FILE_DIR, File.separator, item.getFiles().get(0).getId(), "_", item.getFiles().get(0).getName());
                 if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
                     fileId = file.getFileId();
                     FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
