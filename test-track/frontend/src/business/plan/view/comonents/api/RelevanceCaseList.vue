@@ -114,7 +114,7 @@ import {
 } from "metersphere-frontend/src/components/search/search-components";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import ApiListContainer from "@/business/plan/view/comonents/api/ApiListContainer";
-import {buildBatchParam, hasLicense, isProjectVersionEnable} from "@/business/utils/sdk-utils";
+import {buildBatchParam, hasLicense, isProjectVersionEnable, parseTag} from "@/business/utils/sdk-utils";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import {apiDefinitionGet} from "@/api/remote/api/api-definition";
 import {testPlanApiCaseRelevanceList} from "@/api/remote/plan/test-plan-api-case";
@@ -246,11 +246,7 @@ export default {
           this.loading = false;
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
-          this.tableData.forEach(item => {
-            if (item.tags && item.tags.length > 0) {
-              item.tags = JSON.parse(item.tags);
-            }
-          });
+          parseTag(this.tableData);
         });
     },
     clear() {
