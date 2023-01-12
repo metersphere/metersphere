@@ -449,6 +449,7 @@ export default {
         })
       }
       environment.config.commonConfig.variables.forEach(variable => {
+        delete variable.showMore;
         if (variable.type === 'CSV' && variable.files.length === 0) {
           message = this.$t('api_test.automation.csv_warning');
           return;
