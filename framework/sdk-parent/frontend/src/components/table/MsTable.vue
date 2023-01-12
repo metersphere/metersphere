@@ -594,8 +594,8 @@ export default {
         return "padding-col";
       }
     },
-    rowStyle({ row }) {
-      return row.hidden ? { display: "none" } : {};
+    rowStyle({row}) {
+      return row.hidden ? {display: "none"} : {};
     },
     tableRowClassName(row) {
       if (row.row.hidden) {
@@ -603,6 +603,10 @@ export default {
       }
       return "";
     },
+    //清空Filter条件
+    clearFilter() {
+      this.$refs.table.clearFilter();
+    }
   },
 };
 </script>

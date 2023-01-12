@@ -677,6 +677,7 @@ export default {
   },
   methods: {
     changeTabState(name) {
+      this.$refs.apiTable.clearFilter();
       if (name === 'update') {
         this.isFinish = false;
       } else {

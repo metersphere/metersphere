@@ -524,7 +524,7 @@ export default {
         this.$refs.apiCaseTableList.changeTabState('finish')
       }
       if (this.currentTodo === 'api_definition') {
-        this.$refs.apiCaseTableList.changeTabState('finish')
+        this.$refs.apiDefinitionTableList.changeTabState('finish')
       }
     }
   },
