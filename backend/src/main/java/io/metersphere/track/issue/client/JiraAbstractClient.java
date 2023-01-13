@@ -294,8 +294,10 @@ public abstract class JiraAbstractClient extends BaseClient {
         }
     }
 
-    public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
-        LogUtil.info("jira proxyForGet: " + url);
+    public ResponseEntity proxyForGet(String path, Class responseEntityClazz) {
+        LogUtil.info("jira proxyForGet: " + path);
+        String url = this.ENDPOINT + path;
+        validateProxyUrl(url, "/secure/attachment", "/attachment/content");
         return restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), responseEntityClazz);
     }
 }

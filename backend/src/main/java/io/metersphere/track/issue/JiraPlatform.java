@@ -30,9 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -126,10 +126,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         // 解析标签内容
                         String name = getHyperLinkPathForImg("\\!\\[(.*?)\\]", StringEscapeUtils.unescapeJava(splitStr));
                         String path = getHyperLinkPathForImg("\\|(.*?)\\)", splitStr);
-                        path = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
-
-                        // 解析标签内容为图片超链接格式，进行替换
-                        description = description.replace(splitStr, "\n\n![" + name + "](" + path + ")");
+                        try {
+                            path = getProxyPath(new URI(path).getPath());
+                            // 解析标签内容为图片超链接格式，进行替换
+                            description = description.replace(splitStr, "\n\n![" + name + "](" + path + ")");
+                        } catch (URISyntaxException e) {
+                            LogUtil.error(e);
+                        }
                     }
                     description = description.replace(splitStr, StringEscapeUtils.unescapeJava(splitStr.replace("MS附件：", "")));
                 }
@@ -154,14 +157,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 JSONObject attachment = attachments.getJSONObject(i);
                 String filename = attachment.getString("filename");
                 String content = attachment.getString("content");
-                content = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(content, StandardCharsets.UTF_8);
-
-                if (StringUtils.contains(attachment.getString("mimeType"), "image")) {
-                    String contentUrl = "![" + filename + "](" + content + ")";
-                    fileContentMap.put(filename, contentUrl);
-                } else {
-                    String contentUrl = "附件[" + filename + "]下载地址:" + content;
-                    fileContentMap.put(filename, contentUrl);
+                try {
+                    content = getProxyPath(new URI(content).getPath());
+                    if (StringUtils.contains(attachment.get("mimeType").toString(), "image")) {
+                        String contentUrl = "![" + filename + "](" + content + ")";
+                        fileContentMap.put(filename, contentUrl);
+                    } else {
+                        String contentUrl = "附件[" + filename + "]下载地址:" + content;
+                        fileContentMap.put(filename, contentUrl);
+                    }
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -851,8 +857,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return false;
     }
 
-    public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
-        return jiraClientV2.proxyForGet(url, responseEntityClazz);
+    public ResponseEntity proxyForGet(String path, Class responseEntityClazz) {
+        return jiraClientV2.proxyForGet(path, responseEntityClazz);
     }
 
     @Override
