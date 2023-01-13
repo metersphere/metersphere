@@ -111,10 +111,10 @@ public interface IssuesPlatform {
 
     /**
      * Get请求的代理
-     * @param url
+     * @param path
      * @return
      */
-    ResponseEntity proxyForGet(String url, Class responseEntityClazz);
+    ResponseEntity proxyForGet(String path, Class responseEntityClazz);
 
     /**
      * 同步MS缺陷附件到第三方平台

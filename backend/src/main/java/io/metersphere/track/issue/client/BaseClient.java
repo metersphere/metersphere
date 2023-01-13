@@ -6,6 +6,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.EnvProxySelector;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -17,6 +18,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
@@ -69,5 +72,17 @@ public abstract class BaseClient {
 
     protected  Object getResultForObject(Class clazz,ResponseEntity<String> response) {
         return JSONObject.parseObject(getResult(response), clazz);
+    }
+
+    public void validateProxyUrl(String url, String ...path) {
+        try {
+            if (!StringUtils.containsAny(new URI(url).getPath(), path)) {
+                // 只允许访问图片
+                MSException.throwException("illegal path");
+            }
+        } catch (URISyntaxException e) {
+            LogUtil.error(e);
+            MSException.throwException("illegal path");
+        }
     }
 }

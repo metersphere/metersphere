@@ -38,6 +38,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -70,6 +72,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected AttachmentService attachmentService;
     protected AttachmentModuleRelationMapper attachmentModuleRelationMapper;
 
+    public static final String PROXY_PATH = "/resource/md/get/path?platform=%s&workspaceId=%s&path=%s";
+
     public String getKey() {
         return key;
     }
@@ -99,6 +103,10 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.fileService = CommonBeanFactory.getBean(FileService.class);
         this.attachmentService = CommonBeanFactory.getBean(AttachmentService.class);
         this.attachmentModuleRelationMapper = CommonBeanFactory.getBean(AttachmentModuleRelationMapper.class);
+    }
+
+    protected String getProxyPath(String path) {
+        return String.format(PROXY_PATH, this.key, this.workspaceId, URLEncoder.encode(path, StandardCharsets.UTF_8));
     }
 
     protected String getPlatformConfig(String platform) {
@@ -355,7 +363,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         while (matcher.find()) {
             try {
                 String path = matcher.group(2);
-                if (!path.contains("/resource/md/get/url")) {
+                if (!path.contains("/resource/md/get/url")  && !path.contains("/resource/md/get/path")) {
                     if (path.contains("/resource/md/get/")) { // 兼容旧数据
                         String name = path.substring(path.indexOf("/resource/md/get/") + 17);
                         files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));

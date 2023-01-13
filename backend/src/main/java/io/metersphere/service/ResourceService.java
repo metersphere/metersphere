@@ -3,15 +3,12 @@ package io.metersphere.service;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.MdUploadRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.issue.IssueFactory;
 import io.metersphere.track.request.testcase.IssuesRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -99,21 +96,14 @@ public class ResourceService {
      * http 代理
      * 如果当前访问地址是 https，直接访问 http 的图片资源
      * 由于浏览器的安全机制，http 会被转成 https
-     * @param url
+     * @param path
      * @param platform
      * @return
      */
-    public ResponseEntity<byte[]> getMdImageByUrl(String url, String platform) {
-        if (url.contains("md/get/url")) {
-            MSException.throwException(Translator.get("invalid_parameter"));
-        }
-        if (StringUtils.isNotBlank(platform)) {
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-            issuesRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-            return IssueFactory.createPlatform(platform, issuesRequest)
-                    .proxyForGet(url, byte[].class);
-        }
-        return restTemplate.exchange(url, HttpMethod.GET, null, byte[].class);
+    public ResponseEntity<byte[]> getMdImageByPath(String path, String platform, String workspaceId) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setWorkspaceId(workspaceId);
+        return IssueFactory.createPlatform(platform, issuesRequest)
+                .proxyForGet(path, byte[].class);
     }
 }

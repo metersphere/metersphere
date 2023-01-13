@@ -15,6 +15,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 public abstract class ZentaoClient extends BaseClient {
@@ -247,5 +249,20 @@ public abstract class ZentaoClient extends BaseClient {
         ResponseEntity<byte[]> response = restTemplate.exchange(requestUrl.getFileDownload(), HttpMethod.GET,
                 null, byte[].class, fileId, sessionId);
         return response.getBody();
+    }
+
+    public ResponseEntity proxyForGet(String path, Class responseEntityClazz) {
+        LogUtil.info("zentao proxyForGet: " + path);
+        String url = this.ENDPOINT + path;
+        try {
+            if (!StringUtils.containsAny(new URI(url).getPath(), "/index.php", "/file-read-")) {
+                // 只允许访问图片
+                MSException.throwException("illegal path");
+            }
+        } catch (URISyntaxException e) {
+            LogUtil.error(e);
+            MSException.throwException("illegal path");
+        }
+        return restTemplate.exchange(url, HttpMethod.GET, null, responseEntityClazz);
     }
 }
