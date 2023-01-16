@@ -178,7 +178,16 @@
                           :node="node"
                           :env-map="projectEnvMap"
                           :project-list="projectList"
-                          :show-version="false" />
+                          :show-version="false"
+                          v-if="
+                          stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+                          !node.parent ||
+                          !node.parent.data ||
+                          stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                        "/>
+                      <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                        {{ hideNode(node) }}
+                      </div>
                       </span>
                     </el-tree>
                   </div>
@@ -354,7 +363,16 @@
                           :node="node"
                           :env-map="newProjectEnvMap"
                           :project-list="projectList"
-                          :show-version="false" />
+                          :show-version="false"
+                          v-if="
+                          stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+                          !node.parent ||
+                          !node.parent.data ||
+                          stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                        "/>
+                      <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                        {{ hideNode(node) }}
+                      </div>
                       </span>
                     </el-tree>
                   </div>
@@ -391,7 +409,8 @@ import MsComponentConfig from '../scenario/component/ComponentConfig';
 import ScenarioChildDiff from '../version/ScenarioChildDiff';
 import { objToStrMap } from 'metersphere-frontend/src/utils';
 import { getScenarioWithBLOBsById } from '@/api/scenario';
-import { useApiStore } from '@/store';
+import {useApiStore} from '@/store';
+import {STEP} from "@/business/automation/scenario/Setting";
 
 const store = useApiStore();
 const { diff } = require('./v_node_diff');
@@ -501,6 +520,7 @@ export default {
       newOnSampleError: {},
       newProjectEnvMap: new Map(),
       showDiff: false,
+      stepFilter: new STEP(),
     };
   },
   methods: {
@@ -515,17 +535,54 @@ export default {
               }
             }
             this.oldData = response.data;
-            getFollowByScenarioId(this.currentScenarioId).then((response) => {
-              this.oldData.follows = response.data;
-              for (let i = 0; i < response.data.length; i++) {
-                if (response.data[i] === this.currentUser().id) {
-                  this.showFollow = true;
-                  break;
-                }
-              }
-            });
+            this.sort();
           }
         });
+      }
+    },
+    sort() {
+      this.recursionStep(this.oldScenarioDefinition);
+    },
+    recursionStep(stepArray, scenarioProjectId, fullPath, isGeneric) {
+      for (let i in stepArray) {
+        let step = stepArray[i];
+        step.index = !isGeneric ? Number(i) + 1 : step.index;
+        if (step.type === 'GenericController') {
+          this.pluginOrder(step);
+        }
+        step.resourceId = step.resourceId || getUUID();
+        // 历史数据处理
+        if (step.type === 'HTTPSamplerProxy' && !step.headers) {
+          step.headers = [new KeyValue()];
+        }
+        if (
+          step.type === ELEMENT_TYPE.LoopController &&
+          step.loopType === 'LOOP_COUNT' &&
+          step.hashTree &&
+          step.hashTree.length > 1
+        ) {
+          step.countController.proceed = true;
+        }
+        step.clazzName = step.clazzName || TYPE_TO_C.get(step.type);
+        if (step && step.authManager && !step.authManager.clazzName) {
+          step.authManager.clazzName = TYPE_TO_C.get(step.authManager.type);
+        }
+        // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+        step.projectId = step.projectId || scenarioProjectId || this.projectId;
+        // 添加debug结果
+        step.parentIndex = fullPath ? fullPath + '_' + step.index : step.index;
+        if (step.hashTree && step.hashTree.length > 0) {
+          this.recursionStep(step.hashTree, step.projectId, step.parentIndex, step.type === 'GenericController');
+        }
+      }
+    },
+    pluginOrder(nodes) {
+      // 兼容历史数据
+      if (nodes && nodes.type === 'GenericController' && nodes.hashTree) {
+        let data = nodes.hashTree.filter((v) => v.type !== 'Assertions');
+        for (let i = 0; i < data.length; i++) {
+          data[i].index = i + 1;
+        }
       }
     },
     getDffScenario() {
@@ -757,6 +814,10 @@ export default {
       }
       return size;
     },
+    hideNode(node) {
+      node.isLeaf = true;
+      node.visible = false;
+    },
   },
   created() {
     this.getCurrentScenario();
@@ -773,5 +834,71 @@ export default {
 .compare-class {
   display: flex;
   justify-content: space-between;
+}
+
+:deep(.el-tree-node__content) {
+  height: 100%;
+  margin-top: 3px;
+  vertical-align: center;
+}
+
+:deep(.el-card__body) {
+  padding: 6px 10px;
+}
+
+:deep(.el-drawer__body) {
+  overflow: auto;
+}
+
+:deep(.el-step__icon.is-text) {
+  border: 1px solid;
+}
+
+:deep(.el-drawer__header) {
+  margin-bottom: 0px;
+}
+
+:deep(.el-link) {
+  font-weight: normal;
+}
+
+:deep(.el-checkbox) {
+  color: #303133;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+:deep(.el-checkbox__label) {
+  padding-left: 5px;
+}
+
+.ms-tree :deep(.el-tree-node__expand-icon.expanded) {
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+.ms-tree :deep(.el-tree-node__content > .el-tree-node__expand-icon) {
+  padding: 3px;
+}
+
+.ms-tree :deep(.el-icon-caret-right:before) {
+  padding: 0;
+  content: '';
+}
+
+.ms-tree :deep(.el-tree-node__expand-icon.is-leaf) {
+  color: transparent;
+}
+
+.ms-tree :deep(.el-tree-node__expand-icon) {
+  color: #7c3985;
+}
+
+.ms-tree :deep(.el-tree-node__expand-icon.expanded.el-icon-caret-right:before) {
+  color: #7c3985;
+  /* content: "\e722";*/
+  padding: 0;
+  content: '';
 }
 </style>
