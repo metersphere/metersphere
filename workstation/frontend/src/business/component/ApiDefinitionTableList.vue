@@ -671,17 +671,16 @@ export default {
       this.condition.toBeUpdated = !this.isFinish;
       if (!this.isFinish) {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      } else {
+        this.condition.filters = {status: ["Prepare", "Underway", "NO"]};
       }
       this.initTable();
     },
   },
   methods: {
     changeTabState(name) {
-      if (name === 'update') {
-        this.isFinish = false;
-      } else {
-        this.isFinish = true;
-      }
+      this.$refs.apiTable.clearFilter();
+      this.isFinish = name !== 'update';
     },
     getProjectName() {
       getProject(this.projectId).then(response => {
