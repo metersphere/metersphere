@@ -47,13 +47,24 @@
         </div>
       </el-col>
     </el-row>
-    <el-row type="flex" v-if="response && response.envName">
-      <div style="font-size: 14px;color: #AAAAAA;float: left">
-        <span> {{ $t('commons.environment') + ':' }} </span>
-      </div>
-      <div style="font-size: 14px;color:#61C550; margin-left:10px;float: left">
-        {{ response.envName }}
-      </div>
+    <el-row type="flex" style="margin-top: 5px">
+      <el-col v-if="response && response.poolName">
+        <div style="font-size: 14px; color: #aaaaaa; float: left">
+          <span> {{ $t('load_test.select_resource_pool') + ':' }} </span>
+        </div>
+        <div style="font-size: 14px; color: #61c550; margin-left: 10px; float: left">
+          {{ response.poolName }}
+        </div>
+      </el-col>
+      <el-col type="flex" v-if="response && response.envName">
+        <div style="font-size: 14px; color: #aaaaaa; float: left">
+          <span> {{ $t('commons.environment') + ':' }} </span>
+        </div>
+        <div style="font-size: 14px; color: #61c550; margin-left: 10px; float: left">
+          {{ response.envName }}
+        </div>
+      </el-col>
+      <el-col></el-col>
     </el-row>
   </div>
 </template>

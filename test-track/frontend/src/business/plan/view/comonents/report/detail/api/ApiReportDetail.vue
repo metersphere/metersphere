@@ -11,6 +11,7 @@
             :is-template="isTemplate"
             :debug="debug"
             :report="report"
+            :pool-name="poolName"
             :project-env-map="projectEnvMap"
             @reportExport="handleExport"
             @reportSave="handleSave"/>
@@ -97,6 +98,7 @@
               :project-env-map="projectEnvMap"
               :title="report.name"
               :content="content"
+              :pool-name="poolName"
               :report="report"
               :total-time="totalTime"/>
           </main>
@@ -119,7 +121,6 @@ import {getUUID, windowPrint} from "metersphere-frontend/src/utils";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {STEP} from "metersphere-frontend/src/model/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-
 export default {
   name: "MsApiReport",
   components: {
@@ -151,7 +152,8 @@ export default {
       exportReportIsOk: false,
       tempResult: [],
       projectEnvMap: {},
-      showCancel: false
+      showCancel: false,
+      poolName: '',
     }
   },
   activated() {
@@ -411,6 +413,9 @@ export default {
             let report = JSON.parse(data.content);
             if (report.projectEnvMap) {
               this.projectEnvMap = report.projectEnvMap;
+            }
+            if (report.poolName) {
+              this.poolName = report.poolName;
             }
             this.content = report;
             this.fullTreeNodes = report.steps;
