@@ -182,7 +182,7 @@ public class ApiExecuteService {
         String testId = request.getTestElement() != null &&
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
-                request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
+                request.getTestElement().getHashTree().get(0).getHashTree().get(0).getId() : request.getId();
 
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
