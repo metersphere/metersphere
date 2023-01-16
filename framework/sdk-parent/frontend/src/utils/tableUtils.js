@@ -37,16 +37,16 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
   }
 }
 
-export function _handleSelect(component, selection, row, selectRows) {
+export function _handleSelect(component, selection, row, selectRowMap) {
   row.hashTree = [];
-  if (selectRows.has(row)) {
+  if (selectRowMap.has(row.id)) {
     component.$set(row, "showMore", false);
-    selectRows.delete(row);
+    selectRowMap.delete(row.id);
   } else {
     component.$set(row, "showMore", true);
-    selectRows.add(row);
+    selectRowMap.set(row.id, row);
   }
-  let arr = Array.from(selectRows);
+  let arr = Array.from(selectRowMap.values());
   arr.forEach(row => {
     component.$set(row, "showMore", true);
   });
