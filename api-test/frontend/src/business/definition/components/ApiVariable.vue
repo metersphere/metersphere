@@ -32,7 +32,7 @@
                   :disabled="isReadOnly"
                   v-model="scope.row.type"
                   size="mini"
-                  @change="typeChange(item)">
+                  @change="typeChange(scope.row)">
                   <el-option value="text" />
                   <el-option value="file" />
                   <el-option value="json" />
@@ -437,7 +437,7 @@ export default {
             urlEncode: this.urlEncode,
             uuid: this.uuid(),
             valid: false,
-            value: null
+            value: null,
           })
         );
       }
@@ -488,11 +488,11 @@ export default {
     },
     typeChange(item) {
       if (item.type === 'file') {
-        item.contentType = 'application/octet-stream';
+        this.$set(item, 'contentType', 'application/octet-stream');
       } else if (item.type === 'text') {
-        item.contentType = 'text/plain';
+        this.$set(item, 'contentType', 'text/plain');
       } else {
-        item.contentType = 'application/json';
+        this.$set(item, 'contentType', 'application/json');
       }
       this.reload();
     },
@@ -540,7 +540,7 @@ export default {
           urlEncode: this.urlEncode,
           uuid: this.uuid(),
           valid: false,
-          value: null
+          value: null,
         })
       );
     }
