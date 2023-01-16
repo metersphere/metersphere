@@ -544,11 +544,13 @@ export function getCustomFieldValue(row, field, members) {
           return val;
         } else if (field.type === 'multipleInput') {
           let val = '';
-          if (item.value instanceof Array) {
-            item.value.forEach(i => {
-              val += i + ' ';
-            });
+          if (!item.value || item.value === '') {
+            return val;
           }
+          let mulArr = parseMultipleInputToArray(item.value)
+          mulArr.forEach(i => {
+            val += i + ' ';
+          });
           return val;
         } else if (field.type === 'datetime' || field.type === 'date') {
           return datetimeFormat(item.value);
@@ -558,6 +560,29 @@ export function getCustomFieldValue(row, field, members) {
         return item.value;
       }
     }
+  }
+}
+
+/**
+ * 多值输入值解析, 按照导入规则括号中字符可解析[, ; ，；|]
+ * @param mulInputStr
+ * @returns {*[]|*}
+ */
+export function parseMultipleInputToArray(mulInputStr) {
+  if (mulInputStr.indexOf(",")) {
+    return mulInputStr.split(",")
+  } else if (mulInputStr.indexOf(";")) {
+    return mulInputStr.split(";")
+  } else if (mulInputStr.indexOf("，")) {
+    return mulInputStr.split("，")
+  } else if (mulInputStr.indexOf("；")) {
+    return mulInputStr.split("；")
+  } else if (mulInputStr.indexOf("|")) {
+    return mulInputStr.split("|")
+  } else {
+    let mulArr = [];
+    mulArr.push(mulInputStr)
+    return mulArr;
   }
 }
 
