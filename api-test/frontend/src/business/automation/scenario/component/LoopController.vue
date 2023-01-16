@@ -466,6 +466,7 @@ export default {
             item.activeName = '0';
             item.active = true;
             item.requestResult = this.requestResult.get(item.id);
+            this.$set(item, 'debug', true);
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);
