@@ -229,6 +229,11 @@ export default {
   methods: {
     selectCountChange(value) {
       this.$emit('selectCountChange', value)
+      if (this.$refs.apitable) {
+        this.$emit('setSelectRow', this.$refs.apitable.getSelectRows());
+      } else {
+        this.$emit('setSelectRow', new Set());
+      }
     },
     getColor(flag, method) {
       return this.methodColorMap.get(method);
