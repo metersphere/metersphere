@@ -591,11 +591,7 @@ export default {
         } else {
           this.batchButtons = this.commonButtons;
         }
-        if (this.condition.filters) {
-          this.condition.filters.case_status = ["Prepare", "Underway"];
-        } else {
-          this.condition.filters = {case_status: ["Prepare", "Underway"]};
-        }
+        this.condition.filters = {case_status: ["Prepare", "Underway"]};
         this.condition.combine = {creator: {operator: "current user", value: "current user",}}
         if (this.condition.toUpdate) {
           delete this.condition.toUpdate
