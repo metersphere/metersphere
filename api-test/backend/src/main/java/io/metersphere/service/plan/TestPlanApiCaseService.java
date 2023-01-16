@@ -4,6 +4,7 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseRelevanceRequest;
+import io.metersphere.api.dto.ApiReportEnvConfigDTO;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.QueryReferenceRequest;
 import io.metersphere.api.dto.automation.TestPlanDTO;
@@ -413,7 +414,11 @@ public class TestPlanApiCaseService {
                         try {
                             Map content = JSON.parseMap(contentStr);
                             if (StringUtils.isNotEmpty(contentStr)) {
-                                content.put("envName", apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+                                ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                                if (envConfig != null) {
+                                    content.put("envName", envConfig.getEnvName());
+                                    content.put("poolName", envConfig.getResourcePoolName());
+                                }
                             }
                             contentStr = JSON.toJSONString(content);
                             apiCase.setResponse(contentStr);
@@ -442,7 +447,11 @@ public class TestPlanApiCaseService {
                             LogUtil.error("转换content失败!", e);
                         }
                         if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
-                            responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
+                            ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig());
+                            if (envConfig != null) {
+                                responseObj.put("envName", envConfig.getEnvName());
+                                responseObj.put("poolName", envConfig.getResourcePoolName());
+                            }
                         }
                         /*
                          * 之前这里的写法是responseObj.toString()。
