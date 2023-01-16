@@ -257,7 +257,7 @@ public class MsHashTreeService {
             boolean variableEnable = element.containsKey(VARIABLE_ENABLE)
                     ? element.getBoolean(VARIABLE_ENABLE) : false;
             boolean mixEnable = element.containsKey(MIX_ENABLE)
-                    ? element.getBoolean(MIX_ENABLE) : true;
+                    ? element.getBoolean(MIX_ENABLE) : false;
 
             if (environmentEnable && StringUtils.isNotEmpty(scenarioWithBLOBs.getEnvironmentJson())) {
                 element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
