@@ -6,7 +6,7 @@
              @close="close">
 
     <span class="format-title">
-      {{ $t('test_track.case.import.import_format') }}
+      {{ $t('test_track.case.export.export_format') }}
     </span>
     <el-row class="import-row">
       <el-col :span="12">
@@ -36,7 +36,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token"
 import TestCaseExportFieldSelect from "@/business/case/components/export/TestCaseExportFieldSelect";
 
 export default {
-  name: "TestCaseImport",
+  name: "TestCaseExport",
   components: {TestCaseExportFieldSelect, ElUploadList, MsTableButton},
   data() {
     return {
