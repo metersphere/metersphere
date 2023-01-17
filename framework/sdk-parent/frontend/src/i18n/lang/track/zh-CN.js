@@ -174,7 +174,8 @@ export default {
     },
     export: {
       export: "导出用例",
-      export_tip: "请切换成用例列表勾选用例导出！"
+      export_tip: "请切换成用例列表勾选用例导出！",
+      export_format: "导出格式",
     },
     case_desc: "用例描述",
     passing_rate: '用例通过率',
