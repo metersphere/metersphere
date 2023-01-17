@@ -1,9 +1,12 @@
 <template>
   <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="50%">
     <el-tabs tab-position="top" style="width: 100%" v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane :label="$t('api_test.automation.scenario_ref')" name="scenario">
+      <el-tab-pane
+        :label="$t('api_test.home_page.api_details_card.title')+$t('api_test.home_page.test_scene_details_card.title')"
+        name="scenario">
         <ms-table
-          :data="scenarioData"
+          v-if="!isHasRef"
+          :data="scenarioCopyData"
           style="width: 100%"
           :screen-height="screenHeight"
           :total="total"
@@ -11,10 +14,10 @@
           :enable-selection="false"
           @refresh="search"
           :condition="condition">
-          <ms-table-column prop="num" label="ID" sortable width="80" />
+          <ms-table-column prop="num" label="ID" sortable width="80"/>
           <ms-table-column prop="name" :label="$t('api_report.scenario_name')" width="200">
             <template v-slot:default="{ row }">
-              <el-link @click="openScenario(row)" style="cursor: pointer">{{ row.name }} </el-link>
+              <el-link @click="openScenario(row)" style="cursor: pointer">{{ row.name }}</el-link>
             </template>
           </ms-table-column>
           <ms-table-column
@@ -31,10 +34,101 @@
             column-key="projectId"
             width="200">
           </ms-table-column>
+          <ms-table-column
+            prop="versionName"
+            :label="$t('project.version.name')"
+            width="200"
+            column-key="versionId"
+            :filters="versionFilters">
+          </ms-table-column>
         </ms-table>
+        <ms-tab-button
+          v-if="isHasRef"
+          :active-dom.sync="activeDom"
+          :left-content="$t('api_test.scenario.clone')"
+          :right-content="$t('api_test.scenario.reference')"
+          @changeTab="changeTab"
+          :middle-button-enable="false">
+          <ms-table
+            v-if="activeDom === 'right'"
+            :data="scenarioRefData"
+            style="width: 100%"
+            :screen-height="screenHeight"
+            :total="total"
+            :page-size="pageSize"
+            :enable-selection="false"
+            @refresh="search"
+            :condition="condition">
+            <ms-table-column prop="num" label="ID" sortable width="80"/>
+            <ms-table-column prop="name" :label="$t('api_report.scenario_name')" width="200">
+              <template v-slot:default="{ row }">
+                <el-link @click="openScenario(row)" style="cursor: pointer">{{ row.name }}</el-link>
+              </template>
+            </ms-table-column>
+            <ms-table-column
+              prop="workspaceName"
+              :label="$t('group.belong_workspace')"
+              width="200"
+              column-key="workspaceId"
+              :filters="workspaceFilters">
+            </ms-table-column>
+            <ms-table-column
+              prop="projectName"
+              :label="$t('group.belong_project')"
+              :filters="projectFilters"
+              column-key="projectId"
+              width="200">
+            </ms-table-column>
+            <ms-table-column
+              prop="versionName"
+              :label="$t('project.version.name')"
+              width="200"
+              column-key="versionId"
+              :filters="versionFilters">
+            </ms-table-column>
+          </ms-table>
+          <ms-table
+            v-if="activeDom === 'left'"
+            :data="scenarioCopyData"
+            style="width: 100%"
+            :screen-height="screenHeight"
+            :total="total"
+            :page-size="pageSize"
+            :enable-selection="false"
+            @refresh="search"
+            :condition="condition">
+            <ms-table-column prop="num" label="ID" sortable width="80"/>
+            <ms-table-column prop="name" :label="$t('api_report.scenario_name')" width="200">
+              <template v-slot:default="{ row }">
+                <el-link @click="openScenario(row)" style="cursor: pointer">{{ row.name }}</el-link>
+              </template>
+            </ms-table-column>
+            <ms-table-column
+              prop="workspaceName"
+              :label="$t('group.belong_workspace')"
+              width="200"
+              column-key="workspaceId"
+              :filters="workspaceFilters">
+            </ms-table-column>
+            <ms-table-column
+              prop="projectName"
+              :label="$t('group.belong_project')"
+              :filters="projectFilters"
+              column-key="projectId"
+              width="200">
+            </ms-table-column>
+            <ms-table-column
+              prop="versionName"
+              :label="$t('project.version.name')"
+              width="200"
+              column-key="versionId"
+              :filters="versionFilters">
+            </ms-table-column>
+          </ms-table>
+        </ms-tab-button>
       </el-tab-pane>
-
-      <el-tab-pane :label="$t('api_test.automation.plan_ref')" name="testPlan">
+      <el-tab-pane v-if="showPlan" :label="$t('api_test.home_page.running_task_list.test_plan_schedule')"
+                   name="testPlan">
         <ms-table
           :data="planData"
           style="width: 100%"
@@ -72,17 +166,24 @@
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
 import { apiProjectRelated, getOwnerProjectIds, getProject, getUserWorkspace, projectRelated } from '@/api/project';
 import { getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
-import { getUUID } from 'metersphere-frontend/src/utils';
-import { getDefinitionReference, getPlanReference } from '@/api/definition';
+import {getUUID} from 'metersphere-frontend/src/utils';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
+import {getDefinitionReference, getPlanReference} from '@/api/definition';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
+import MsTabButton from '@/business/commons/MsTabs';
+import {getProjectVersions} from "@/api/xpack";
 
 export default {
   name: 'ShowReference',
   data() {
     return {
       isVisible: false,
-      scenarioData: [],
+      isCopy: true,
+      showTextColor: "showTextColor",
+      unShowTextColor: "unShowTextColor",
+      scenarioRefData: [],
+      scenarioCopyData: [],
       planData: [],
       currentPage: 1,
       pageSize: 10,
@@ -92,19 +193,36 @@ export default {
       workspaceList: [],
       workspaceFilters: [],
       projectFilters: [],
+      versionFilters: [],
       projectList: [],
       screenHeight: 'calc(100vh - 400px)',
       condition: {},
       type: '',
       projectPlanFilters: [],
+      activeDom: 'left',
     };
+  },
+  props: {
+    apiType: String,
+    showPlan: {
+      type: Boolean,
+      default: true,
+    },
+    isHasRef: {
+      type: Boolean,
+      default: true,
+    },
   },
   components: {
     MsTablePagination,
     MsTable,
     MsTableColumn,
+    MsTabButton
   },
   watch: {
+    activeDom() {
+      this.getScenarioData();
+    },
     activeName(o) {
       if (o) {
         this.init();
@@ -126,6 +244,23 @@ export default {
         this.projectList = res.data ? res.data : [];
       });
     },
+    getVersionOptions(currentVersion) {
+      if (hasLicense()) {
+        getProjectVersions(getCurrentProjectID()).then((response) => {
+          if (currentVersion) {
+            this.versionFilters = response.data
+              .filter((u) => u.id === currentVersion)
+              .map((u) => {
+                return {text: u.name, value: u.id};
+              });
+          } else {
+            this.versionFilters = response.data.map((u) => {
+              return {text: u.name, value: u.id};
+            });
+          }
+        });
+      }
+    },
     /**
      * 操作方法
      */
@@ -134,7 +269,8 @@ export default {
       this.pageSize = 10;
       this.total = 0;
       this.condition = {};
-      this.scenarioData = [];
+      this.scenarioRefData = [];
+      this.scenarioCopyData = [];
       this.planData = [];
     },
     open(row, type) {
@@ -142,6 +278,7 @@ export default {
       this.init();
       this.getUserProjectList();
       this.getWorkSpaceList();
+      this.getVersionOptions();
       this.isVisible = true;
       this.scenarioId = row.id;
       this.type = type;
@@ -149,6 +286,55 @@ export default {
     },
     close() {
       this.isVisible = false;
+    },
+    getReferenceData(condition) {
+      getDefinitionReference(this.currentPage, this.pageSize, condition).then((res) => {
+        let data = res.data || [];
+        this.total = data.itemCount || 0;
+        if (this.workspaceList) {
+          if (this.workspaceFilters.length === 0) {
+            this.workspaceFilters = this.workspaceList
+              .filter((workspace) => {
+                return data.listObject.find((i) => i.workspaceId === workspace.id);
+              })
+              .map((e) => {
+                return {text: e.name, value: e.id};
+              });
+          }
+          let workspaceIds = [];
+          if (
+            this.condition.filters &&
+            this.condition.filters.workspace_id &&
+            this.condition.filters.workspace_id.length > 0
+          ) {
+            this.condition.filters.workspace_id.map((item) => {
+              workspaceIds.push(item);
+            });
+          } else {
+            this.workspaceFilters.map((item) => {
+              workspaceIds.push(item.value);
+            });
+          }
+          apiProjectRelated({
+            userId: getCurrentUserId(),
+            workspaceIds: workspaceIds,
+          }).then((res) => {
+            this.projectFilters = res.data
+              .filter((project) => {
+                return data.listObject.find((i) => i.projectId === project.id);
+              })
+              .map((e) => {
+                return {text: e.name, value: e.id};
+              });
+          });
+        }
+        if (this.activeDom === 'left') {
+          this.scenarioCopyData = data.listObject || [];
+        } else {
+          this.scenarioRefData = data.listObject || [];
+        }
+
+      });
     },
     search(row) {
       this.condition.id = this.scenarioId;
@@ -160,49 +346,14 @@ export default {
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.condition.scenarioType = this.type;
       if (this.activeName === 'scenario') {
-        getDefinitionReference(this.currentPage, this.pageSize, this.condition).then((res) => {
-          let data = res.data || [];
-          this.total = data.itemCount || 0;
-          if (this.workspaceList) {
-            if (this.workspaceFilters.length === 0) {
-              this.workspaceFilters = this.workspaceList
-                .filter((workspace) => {
-                  return data.listObject.find((i) => i.workspaceId === workspace.id);
-                })
-                .map((e) => {
-                  return { text: e.name, value: e.id };
-                });
-            }
-            let workspaceIds = [];
-            if (
-              this.condition.filters &&
-              this.condition.filters.workspace_id &&
-              this.condition.filters.workspace_id.length > 0
-            ) {
-              this.condition.filters.workspace_id.map((item) => {
-                workspaceIds.push(item);
-              });
-            } else {
-              this.workspaceFilters.map((item) => {
-                workspaceIds.push(item.value);
-              });
-            }
-            apiProjectRelated({
-              userId: getCurrentUserId(),
-              workspaceIds: workspaceIds,
-            }).then((res) => {
-              this.projectFilters = res.data
-                .filter((project) => {
-                  return data.listObject.find((i) => i.projectId === project.id);
-                })
-                .map((e) => {
-                  return { text: e.name, value: e.id };
-                });
-            });
-          }
-
-          this.scenarioData = data.listObject || [];
-        });
+        if (!this.isHasRef) {
+          this.condition.refType = "Copy"
+          this.activeDom = 'left'
+        } else {
+          this.condition.refType = "REF"
+          this.activeDom = 'right'
+        }
+        this.getReferenceData(this.condition);
       } else {
         getPlanReference(this.currentPage, this.pageSize, this.condition).then((res) => {
           let data = res.data || [];
@@ -212,7 +363,7 @@ export default {
               return data.listObject.find((i) => i.projectId === project.id);
             })
             .map((e) => {
-              return { text: e.name, value: e.id };
+              return {text: e.name, value: e.id};
             });
           this.planData = data.listObject || [];
         });
@@ -279,9 +430,37 @@ export default {
       });
       window.open(automationData.href, '_blank');
     },
+    getScenarioData() {
+      if (this.activeDom === 'left') {
+        this.condition.refType = 'Copy'
+        this.getReferenceData(this.condition);
+      } else {
+        this.condition.refType = 'REF'
+        this.getReferenceData(this.condition);
+      }
+    },
+    changeTab(active) {
+      this.activeDom = active;
+    },
   },
 };
 </script>
+<style type="text/css" scoped>
+.showTextColor {
+  color: var(--primary_color);
+  cursor: pointer;
+}
+
+.unShowTextColor {
+  cursor: pointer;
+}
+
+.changeTap {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+}
+</style>
 <style scoped>
 :deep(.el-table__empty-block) {
   padding-right: 0 !important;
