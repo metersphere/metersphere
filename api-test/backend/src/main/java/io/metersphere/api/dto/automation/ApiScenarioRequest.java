@@ -40,4 +40,6 @@ public class ApiScenarioRequest extends BaseQueryRequest {
 
     //测试计划关联场景过滤掉步骤为0的场景
     private String stepTotal;
+    //场景引用类型
+    private String refType;
 }

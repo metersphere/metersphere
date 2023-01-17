@@ -201,15 +201,20 @@
             :field="item"
             min-width="120px"
             :fields-width="fieldsWidth"
-            :label="$t('api_test.definition.api_case_passing_rate')" />
+            :label="$t('api_test.definition.api_case_passing_rate')"/>
 
           <ms-table-column
             prop="description"
             :field="item"
             min-width="120px"
             :fields-width="fieldsWidth"
-            :label="$t('commons.description')" />
+            :label="$t('commons.description')"/>
         </span>
+        <template v-if="!trashEnable" v-slot:opt-behind="scope">
+          <table-extend-btns
+            :dropdown-items="dropdownItems"
+            :row="scope.row"/>
+        </template>
       </ms-table>
       <ms-table-pagination
         :change="initTable"
@@ -224,16 +229,18 @@
       @batchEdit="batchEdit"
       :data-count="$refs.table ? $refs.table.selectDataCounts : 0"
       :typeArr="typeArr"
-      :value-arr="valueArr" />
+      :value-arr="valueArr"/>
     <!--从指定版本复制数据-->
-    <version-selector @handleSave="handleCopyDataFromVersion" ref="versionSelector" />
+    <version-selector @handleSave="handleCopyDataFromVersion" ref="versionSelector"/>
     <!--高级搜索-->
-    <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search" />
-    <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove" />
+    <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
+    <!--查看引用-->
+    <ms-show-reference ref="viewRef" :show-plan="false" :is-has-ref="false" api-type="API"/>
+    <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
 
-    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph" />
+    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
-    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete" />
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </span>
 </template>
 
@@ -290,12 +297,14 @@ import {
   initCondition,
 } from 'metersphere-frontend/src/utils/tableUtils';
 import HeaderLabelOperate from 'metersphere-frontend/src/components/head/HeaderLabelOperate';
-import { Body } from '@/business/definition/model/ApiTestModel';
-import { getGraphByCondition } from '@/api/graph';
+import {Body} from '@/business/definition/model/ApiTestModel';
+import {getGraphByCondition} from '@/api/graph';
 import ListItemDeleteConfirm from 'metersphere-frontend/src/components/ListItemDeleteConfirm';
 import MsSearch from 'metersphere-frontend/src/components/search/MsSearch';
-import { buildNodePath } from 'metersphere-frontend/src/model/NodeTree';
+import {buildNodePath} from 'metersphere-frontend/src/model/NodeTree';
 import VersionSelector from '@/business/definition/components/version/VersionSelector';
+import TableExtendBtns from "@/business/definition/components/complete/table/TableExtendBtns";
+import MsShowReference from "@/business/definition/components/reference/ShowReference";
 
 export default {
   name: 'ApiList',
@@ -321,6 +330,8 @@ export default {
     MsTableColumn,
     MsSearch,
     VersionSelector,
+    TableExtendBtns,
+    MsShowReference,
     MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
     MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
   },
@@ -402,13 +413,6 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
         },
         {
-          tip: 'CASE',
-          exec: this.handleTestCase,
-          isDivButton: true,
-          type: 'primary',
-          permissions: ['PROJECT_API_DEFINITION:READ'],
-        },
-        {
           tip: this.$t('commons.delete'),
           exec: this.handleDelete,
           icon: 'el-icon-delete',
@@ -437,11 +441,25 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API'],
         },
       ],
+      dropdownItems: [
+        {
+          name: this.$t('api_test.automation.view_ref'),
+          value: "ref",
+          permissions: ['PROJECT_API_DEFINITION:READ'],
+          exec: this.showCaseRef,
+        },
+        {
+          name: this.$t('commons.view') + "CASE",
+          value: "case",
+          permissions: ['PROJECT_API_DEFINITION:READ'],
+          exec: this.handleTestCase,
+        }
+      ],
       typeArr: [
-        { id: 'status', name: this.$t('api_test.definition.api_status') },
-        { id: 'method', name: this.$t('api_test.definition.api_type') },
-        { id: 'userId', name: this.$t('api_test.definition.api_principal') },
-        { id: 'tags', name: this.$t('commons.tag') },
+        {id: 'status', name: this.$t('api_test.definition.api_status')},
+        {id: 'method', name: this.$t('api_test.definition.api_type')},
+        {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+        {id: 'tags', name: this.$t('commons.tag')},
       ],
       statusFilters: [
         {
@@ -1023,6 +1041,12 @@ export default {
     handleTestCase(api) {
       this.$emit('handleTestCase', api);
       // this.$refs.caseList.open(this.selectApi);
+    },
+    showCaseRef(row) {
+      let param = {};
+      Object.assign(param, row);
+      param.moduleId = undefined;
+      this.$refs.viewRef.open(param, 'API');
     },
     handleDelete(api) {
       if (this.trashEnable) {
